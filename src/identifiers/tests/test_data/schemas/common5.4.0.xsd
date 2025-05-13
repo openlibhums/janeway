@@ -1,0 +1,1264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:fr="http://www.crossref.org/fundref.xsd" xmlns:fd="http://www.crossref.org/fundingdata5.4.0.xsd" xmlns:ct="http://www.crossref.org/clinicaltrials.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:rel="http://www.crossref.org/relations.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1">
+
+
+	<!--*************************************************************
+	Crossref Metadata Input Schema, common file v. 5.4.0
+	*************************************************************
+
+This is the latest iteration of the Crossref Metadata Input Schema, used to register metadata records with Crossref. This schema was originally developed for Crossref by Inera (http://www.inera.com) and is currently maintained by Crossref staff.
+
+As of version 4.5.0 all changes are noted in the release notes for the schema repository in GitLab:  https://gitlab.com/crossref/schema/-/releases
+
+Prior updates are noted as comments within previous schema versions.
+
+  -->
+
+	<xsd:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundingdata5.4.0.xsd" schemaLocation="fundingdata5.4.0.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd" schemaLocation="AccessIndicators.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
+	<xsd:include schemaLocation="languages5.4.0.xsd"/>
+	<xsd:include schemaLocation="mediatypes5.4.0.xsd"/>
+
+
+	<xsd:complexType name="xrefFaces" mixed="true">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:group ref="face_markup"/>
+		</xsd:choice>
+	</xsd:complexType>
+	<xsd:group name="face_markup">
+		<xsd:annotation>
+			<xsd:documentation>The following are basic data types for face markup. Face markup that appears in the title, subtitle, and original_language_title elements should be retained when depositing metadata. Face markup in other elements (e.g. small caps in author names) must be dropped. Face markup support includes bold (b), italic (i), underline (u), over-line (ovl), superscript (sup), subscript (sub), small caps (scp), and typewriter text (tt). See https://support.crossref.org/hc/en-us/articles/214532023
+
+MathML may also be included using the 'mml' namespace prefix.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice>
+			<xsd:element ref="b"/>
+			<xsd:element ref="i"/>
+			<xsd:element ref="em"/>
+			<xsd:element ref="strong"/>
+			<xsd:element ref="u"/>
+			<xsd:element ref="ovl"/>
+			<xsd:element ref="sup"/>
+			<xsd:element ref="sub"/>
+			<xsd:element ref="scp"/>
+			<xsd:element ref="tt"/>
+			<xsd:element ref="font"/>
+			<xsd:element ref="mml:math"/>
+		</xsd:choice>
+	</xsd:group>
+	<xsd:element name="b" type="xrefFaces"/>
+	<xsd:element name="i" type="xrefFaces"/>
+	<xsd:element name="em" type="xrefFaces"/>
+	<xsd:element name="strong" type="xrefFaces"/>
+	<xsd:element name="u" type="xrefFaces"/>
+	<xsd:element name="ovl" type="xrefFaces"/>
+	<xsd:element name="sup" type="xrefFaces"/>
+	<xsd:element name="sub" type="xrefFaces"/>
+	<xsd:element name="scp" type="xrefFaces"/>
+	<xsd:element name="tt" type="xrefFaces"/>
+	<xsd:element name="font" type="xrefFaces"/>
+	<xsd:element name="a">
+		<xsd:annotation>
+			<xsd:documentation> content is "Inline" except that anchors shouldn't be nested
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="href" type="xsd:anyURI"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="doi_batch_id">
+		<xsd:annotation>
+			<xsd:documentation>Publisher generated ID that uniquely identifies the DOI submission batch.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="100"/>
+				<xsd:minLength value="4"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="timestamp" type="xsd:nonNegativeInteger">
+		<xsd:annotation>
+			<xsd:documentation>An integer representation of date and time that serves as a version number for the record that is being deposited, used to uniquely identify batch files and DOI values when a DOI has been updated one or more times.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="depositor">
+		<xsd:annotation>
+			<xsd:documentation>Information about the organization submitting DOI metadata to Crossref</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="depositor_name"/>
+				<xsd:element ref="email_address"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="depositor_name">
+		<xsd:annotation>
+			<xsd:documentation>Name of the organization registering the DOIs.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="130"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="email_address">
+		<xsd:annotation>
+			<xsd:documentation>e-mail address to which batch success and/or error messages are sent.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="200"/>
+				<xsd:minLength value="6"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="registrant">
+		<xsd:annotation>
+			<xsd:documentation>The organization responsible for the information being registered. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+	<xsd:element name="component_number">
+		<xsd:annotation>
+			<xsd:documentation>The chapter, section, part, etc. number for a content item in a book. Unlike volume and edition_number, component_number should include any additional text that helps identify the type of component. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="50"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="edition_number">
+		<xsd:annotation>
+			<xsd:documentation>The edition number of a book. edition_number should include only a number and not additional text such as "edition". For example, you should submit "3", not "third edition" or "3rd edition". Roman numerals are acceptable.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="15"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<!-- =============================================================
+
+                          5. Journal elements
+
+     ============================================================= -->
+	<xsd:element name="issue">
+		<xsd:annotation>
+			<xsd:documentation>The issue number or name in which an article is published. The issue number takes precedence over any other name. For example, if an issue has only a seasonal name, then the season should be listed in issue.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="32"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<!-- =============================================================
+
+       6. Elements shared by content types
+
+     ============================================================= -->
+	<xsd:element name="doi_data">
+		<xsd:annotation>
+			<xsd:documentation>The container for elements related directly to a DOI. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="doi"/>
+				<xsd:element ref="timestamp" minOccurs="0"/>
+				<xsd:element ref="resource"/>
+				<xsd:element ref="collection" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="resource">
+		<xsd:annotation>
+			<xsd:documentation>The URI associated with a DOI.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="resource_t">
+					<xsd:attributeGroup ref="mime_type.atts"/>
+					<xsd:attribute name="content_version">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:string">
+								<xsd:enumeration value="vor"/>
+								<xsd:enumeration value="am"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="resource_t">
+		<xsd:restriction base="xsd:anyURI">
+			<xsd:maxLength value="2048"/>
+			<xsd:minLength value="1"/>
+			<xsd:pattern value="([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]|[fF][tT][pP])://.*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="collection">
+		<xsd:annotation>
+			<xsd:documentation>Container for item elements containing non-primary URIs associated with the item being registered. Collections are supported for the following (defined in the property attribute):
+				<ul>
+					<li>list-based:  Multiple Resolution, more info: https://www.crossref.org/education/content-registration/creating-and-managing-dois/multiple-resolution/</li>
+					<li>country-based: more info: https://www.crossref.org/education/content-registration/creating-and-managing-dois/multiple-resolution/#00130</li>
+					<li>crawler-based: for Similarity Check URLs, more info: https://www.crossref.org/education/similarity-check/participate/urls-for-new-deposits/</li>
+					<li>text-mining: supply specific URLs for text and data mining, more info: https://www.crossref.org/education/retrieve-metadata/rest-api/text-and-data-mining-for-members/</li>
+					<li>unspecified: can be used for additional URLs</li>
+					<li>syndication: identifies resources to be used for syndication</li>
+					<li>link-header: identifies resources to be used as an endpoint</li>
+				</ul>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="item" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="property" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="list-based"/>
+						<xsd:enumeration value="country-based"/>
+						<xsd:enumeration value="crawler-based"/>
+						<xsd:enumeration value="text-mining"/>
+						<xsd:enumeration value="unspecified"/>
+						<xsd:enumeration value="syndication"/>
+						<xsd:enumeration value="link-header"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="multi-resolution">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="lock"/>
+						<xsd:enumeration value="unlock"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="item">
+		<xsd:annotation>
+			<xsd:documentation>A container used to associate a URI with the DOI being registered. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice minOccurs="0">
+					<xsd:element ref="doi"/>
+					<xsd:element ref="resource"/>
+				</xsd:choice>
+			</xsd:sequence>
+			<xsd:attribute name="crawler" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="google"/>
+						<xsd:enumeration value="msn"/>
+						<xsd:enumeration value="scirus"/>
+						<xsd:enumeration value="yahoo"/>
+						<xsd:enumeration value="iParadigms"/>
+						<xsd:enumeration value="similarity-check"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="label" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:maxLength value="128"/>
+						<xsd:minLength value="3"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="country" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="AD"/>
+						<xsd:enumeration value="AE"/>
+						<xsd:enumeration value="AF"/>
+						<xsd:enumeration value="AG"/>
+						<xsd:enumeration value="AI"/>
+						<xsd:enumeration value="AL"/>
+						<xsd:enumeration value="AM"/>
+						<xsd:enumeration value="AN"/>
+						<xsd:enumeration value="AO"/>
+						<xsd:enumeration value="AQ"/>
+						<xsd:enumeration value="AR"/>
+						<xsd:enumeration value="AS"/>
+						<xsd:enumeration value="AT"/>
+						<xsd:enumeration value="AU"/>
+						<xsd:enumeration value="AW"/>
+						<xsd:enumeration value="AX"/>
+						<xsd:enumeration value="AZ"/>
+						<xsd:enumeration value="BA"/>
+						<xsd:enumeration value="BB"/>
+						<xsd:enumeration value="BD"/>
+						<xsd:enumeration value="BE"/>
+						<xsd:enumeration value="BF"/>
+						<xsd:enumeration value="BG"/>
+						<xsd:enumeration value="BH"/>
+						<xsd:enumeration value="BI"/>
+						<xsd:enumeration value="BJ"/>
+						<xsd:enumeration value="BL"/>
+						<xsd:enumeration value="BM"/>
+						<xsd:enumeration value="BN"/>
+						<xsd:enumeration value="BO"/>
+						<xsd:enumeration value="BQ"/>
+						<xsd:enumeration value="BR"/>
+						<xsd:enumeration value="BS"/>
+						<xsd:enumeration value="BT"/>
+						<xsd:enumeration value="BV"/>
+						<xsd:enumeration value="BW"/>
+						<xsd:enumeration value="BY"/>
+						<xsd:enumeration value="BZ"/>
+						<xsd:enumeration value="CA"/>
+						<xsd:enumeration value="CC"/>
+						<xsd:enumeration value="CD"/>
+						<xsd:enumeration value="CF"/>
+						<xsd:enumeration value="CG"/>
+						<xsd:enumeration value="CH"/>
+						<xsd:enumeration value="CI"/>
+						<xsd:enumeration value="CK"/>
+						<xsd:enumeration value="CL"/>
+						<xsd:enumeration value="CM"/>
+						<xsd:enumeration value="CN"/>
+						<xsd:enumeration value="CO"/>
+						<xsd:enumeration value="CR"/>
+						<xsd:enumeration value="CS"/>
+						<xsd:enumeration value="CU"/>
+						<xsd:enumeration value="CV"/>
+						<xsd:enumeration value="CX"/>
+						<xsd:enumeration value="CY"/>
+						<xsd:enumeration value="CZ"/>
+						<xsd:enumeration value="DE"/>
+						<xsd:enumeration value="DJ"/>
+						<xsd:enumeration value="DK"/>
+						<xsd:enumeration value="DM"/>
+						<xsd:enumeration value="DO"/>
+						<xsd:enumeration value="DZ"/>
+						<xsd:enumeration value="EC"/>
+						<xsd:enumeration value="EE"/>
+						<xsd:enumeration value="EG"/>
+						<xsd:enumeration value="EH"/>
+						<xsd:enumeration value="ER"/>
+						<xsd:enumeration value="ES"/>
+						<xsd:enumeration value="ET"/>
+						<xsd:enumeration value="FI"/>
+						<xsd:enumeration value="FJ"/>
+						<xsd:enumeration value="FK"/>
+						<xsd:enumeration value="FM"/>
+						<xsd:enumeration value="FO"/>
+						<xsd:enumeration value="FR"/>
+						<xsd:enumeration value="GA"/>
+						<xsd:enumeration value="GB"/>
+						<xsd:enumeration value="GD"/>
+						<xsd:enumeration value="GE"/>
+						<xsd:enumeration value="GF"/>
+						<xsd:enumeration value="GG"/>
+						<xsd:enumeration value="GH"/>
+						<xsd:enumeration value="GI"/>
+						<xsd:enumeration value="GL"/>
+						<xsd:enumeration value="GM"/>
+						<xsd:enumeration value="GN"/>
+						<xsd:enumeration value="GP"/>
+						<xsd:enumeration value="GQ"/>
+						<xsd:enumeration value="GR"/>
+						<xsd:enumeration value="GS"/>
+						<xsd:enumeration value="GT"/>
+						<xsd:enumeration value="GU"/>
+						<xsd:enumeration value="GW"/>
+						<xsd:enumeration value="GY"/>
+						<xsd:enumeration value="HK"/>
+						<xsd:enumeration value="HM"/>
+						<xsd:enumeration value="HN"/>
+						<xsd:enumeration value="HR"/>
+						<xsd:enumeration value="HT"/>
+						<xsd:enumeration value="HU"/>
+						<xsd:enumeration value="ID"/>
+						<xsd:enumeration value="IE"/>
+						<xsd:enumeration value="IL"/>
+						<xsd:enumeration value="IM"/>
+						<xsd:enumeration value="IN"/>
+						<xsd:enumeration value="IO"/>
+						<xsd:enumeration value="IQ"/>
+						<xsd:enumeration value="IR"/>
+						<xsd:enumeration value="IS"/>
+						<xsd:enumeration value="IT"/>
+						<xsd:enumeration value="JE"/>
+						<xsd:enumeration value="JM"/>
+						<xsd:enumeration value="JO"/>
+						<xsd:enumeration value="JP"/>
+						<xsd:enumeration value="KE"/>
+						<xsd:enumeration value="KG"/>
+						<xsd:enumeration value="KH"/>
+						<xsd:enumeration value="KI"/>
+						<xsd:enumeration value="KM"/>
+						<xsd:enumeration value="KN"/>
+						<xsd:enumeration value="KP"/>
+						<xsd:enumeration value="KR"/>
+						<xsd:enumeration value="KW"/>
+						<xsd:enumeration value="KY"/>
+						<xsd:enumeration value="KZ"/>
+						<xsd:enumeration value="LA"/>
+						<xsd:enumeration value="LB"/>
+						<xsd:enumeration value="LC"/>
+						<xsd:enumeration value="LI"/>
+						<xsd:enumeration value="LK"/>
+						<xsd:enumeration value="LR"/>
+						<xsd:enumeration value="LS"/>
+						<xsd:enumeration value="LT"/>
+						<xsd:enumeration value="LU"/>
+						<xsd:enumeration value="LV"/>
+						<xsd:enumeration value="LY"/>
+						<xsd:enumeration value="MA"/>
+						<xsd:enumeration value="MC"/>
+						<xsd:enumeration value="MD"/>
+						<xsd:enumeration value="ME"/>
+						<xsd:enumeration value="MF"/>
+						<xsd:enumeration value="MG"/>
+						<xsd:enumeration value="MH"/>
+						<xsd:enumeration value="MK"/>
+						<xsd:enumeration value="ML"/>
+						<xsd:enumeration value="MM"/>
+						<xsd:enumeration value="MN"/>
+						<xsd:enumeration value="MO"/>
+						<xsd:enumeration value="MP"/>
+						<xsd:enumeration value="MQ"/>
+						<xsd:enumeration value="MR"/>
+						<xsd:enumeration value="MS"/>
+						<xsd:enumeration value="MT"/>
+						<xsd:enumeration value="MU"/>
+						<xsd:enumeration value="MV"/>
+						<xsd:enumeration value="MW"/>
+						<xsd:enumeration value="MX"/>
+						<xsd:enumeration value="MY"/>
+						<xsd:enumeration value="MZ"/>
+						<xsd:enumeration value="NA"/>
+						<xsd:enumeration value="NC"/>
+						<xsd:enumeration value="NE"/>
+						<xsd:enumeration value="NF"/>
+						<xsd:enumeration value="NG"/>
+						<xsd:enumeration value="NI"/>
+						<xsd:enumeration value="NL"/>
+						<xsd:enumeration value="NO"/>
+						<xsd:enumeration value="NP"/>
+						<xsd:enumeration value="NR"/>
+						<xsd:enumeration value="NU"/>
+						<xsd:enumeration value="NZ"/>
+						<xsd:enumeration value="OM"/>
+						<xsd:enumeration value="PA"/>
+						<xsd:enumeration value="PE"/>
+						<xsd:enumeration value="PF"/>
+						<xsd:enumeration value="PG"/>
+						<xsd:enumeration value="PH"/>
+						<xsd:enumeration value="PK"/>
+						<xsd:enumeration value="PL"/>
+						<xsd:enumeration value="PM"/>
+						<xsd:enumeration value="PN"/>
+						<xsd:enumeration value="PR"/>
+						<xsd:enumeration value="PS"/>
+						<xsd:enumeration value="PT"/>
+						<xsd:enumeration value="PW"/>
+						<xsd:enumeration value="PY"/>
+						<xsd:enumeration value="QA"/>
+						<xsd:enumeration value="RE"/>
+						<xsd:enumeration value="RO"/>
+						<xsd:enumeration value="RS"/>
+						<xsd:enumeration value="RU"/>
+						<xsd:enumeration value="RW"/>
+						<xsd:enumeration value="SA"/>
+						<xsd:enumeration value="SB"/>
+						<xsd:enumeration value="SC"/>
+						<xsd:enumeration value="SD"/>
+						<xsd:enumeration value="SE"/>
+						<xsd:enumeration value="SG"/>
+						<xsd:enumeration value="SH"/>
+						<xsd:enumeration value="SI"/>
+						<xsd:enumeration value="SJ"/>
+						<xsd:enumeration value="SK"/>
+						<xsd:enumeration value="SL"/>
+						<xsd:enumeration value="SM"/>
+						<xsd:enumeration value="SN"/>
+						<xsd:enumeration value="SO"/>
+						<xsd:enumeration value="SR"/>
+						<xsd:enumeration value="SS"/>
+						<xsd:enumeration value="ST"/>
+						<xsd:enumeration value="SV"/>
+						<xsd:enumeration value="SX"/>
+						<xsd:enumeration value="SY"/>
+						<xsd:enumeration value="SZ"/>
+						<xsd:enumeration value="TC"/>
+						<xsd:enumeration value="TD"/>
+						<xsd:enumeration value="TF"/>
+						<xsd:enumeration value="TG"/>
+						<xsd:enumeration value="TH"/>
+						<xsd:enumeration value="TJ"/>
+						<xsd:enumeration value="TK"/>
+						<xsd:enumeration value="TL"/>
+						<xsd:enumeration value="TM"/>
+						<xsd:enumeration value="TN"/>
+						<xsd:enumeration value="TO"/>
+						<xsd:enumeration value="TR"/>
+						<xsd:enumeration value="TT"/>
+						<xsd:enumeration value="TV"/>
+						<xsd:enumeration value="TW"/>
+						<xsd:enumeration value="TZ"/>
+						<xsd:enumeration value="UA"/>
+						<xsd:enumeration value="UG"/>
+						<xsd:enumeration value="UM"/>
+						<xsd:enumeration value="US"/>
+						<xsd:enumeration value="UY"/>
+						<xsd:enumeration value="UZ"/>
+						<xsd:enumeration value="VA"/>
+						<xsd:enumeration value="VC"/>
+						<xsd:enumeration value="VE"/>
+						<xsd:enumeration value="VG"/>
+						<xsd:enumeration value="VI"/>
+						<xsd:enumeration value="VN"/>
+						<xsd:enumeration value="VU"/>
+						<xsd:enumeration value="WF"/>
+						<xsd:enumeration value="WS"/>
+						<xsd:enumeration value="YE"/>
+						<xsd:enumeration value="YT"/>
+						<xsd:enumeration value="ZA"/>
+						<xsd:enumeration value="ZM"/>
+						<xsd:enumeration value="ZW"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+                        <xsd:attribute name="link_header_relationship">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:NMTOKEN">
+                                    <xsd:enumeration value="dul"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<!--END NAME ELEMENTs-->
+
+
+
+
+	<!--============   end various dates ========== -->
+
+
+	<xsd:simpleType name="doi_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="2048"/>
+			<xsd:minLength value="6"/>
+			<xsd:pattern value="10\.[0-9]{4,9}/.{1,200}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="doi">
+		<xsd:annotation>
+			<xsd:documentation>DOI for an entity being registered with Crossref.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="doi_t"/>
+		</xsd:simpleType>
+	</xsd:element>
+
+
+	<xsd:simpleType name="cm_domain">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="1024"/>
+			<xsd:minLength value="4"/>
+			<xsd:pattern
+				value="[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_update_type">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="addendum"/>
+			<xsd:enumeration value="clarification"/>
+			<xsd:enumeration value="correction"/>
+			<xsd:enumeration value="corrigendum"/>
+			<xsd:enumeration value="erratum"/>
+			<xsd:enumeration value="expression_of_concern"/>
+			<xsd:enumeration value="new_edition"/>
+			<xsd:enumeration value="new_version"/>
+			<xsd:enumeration value="partial_retraction"/>
+			<xsd:enumeration value="removal"/>
+			<xsd:enumeration value="retraction"/>
+			<xsd:enumeration value="withdrawal"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_assertion">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="1024"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_assertion_name">
+		<xsd:restriction base="xsd:NCName">
+			<xsd:maxLength value="150"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_assertion_label">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="150"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_assertion_group_name">
+		<xsd:restriction base="xsd:NCName">
+			<xsd:maxLength value="150"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="cm_assertion_group_label">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="150"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="isbn_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="17"/>
+			<xsd:minLength value="10"/>
+			<xsd:pattern value="(97(8|9)-)?\d[\d \-]+[\dX]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="isbn">
+		<xsd:annotation>
+			<xsd:documentation>The ISBN assigned to an entity.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="isbn_t">
+					<xsd:attributeGroup ref="media_type.atts"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:simpleType name="issn_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="9"/>
+			<xsd:minLength value="8"/>
+			<xsd:pattern value="\d{4}-?\d{3}[\dX]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="issn">
+		<xsd:annotation>
+			<xsd:documentation>The ISSN assigned to the title being registered.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="issn_t">
+					<xsd:attributeGroup ref="media_type.atts"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="volume">
+		<xsd:annotation>
+			<xsd:documentation>The volume number of a published journal, or the number of a printed volume for a book or conference proceedings.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="32"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+	<xsd:element name="citation_list">
+		<xsd:annotation>
+			<xsd:documentation>A list of articles, books, and other content cited by the item being registered</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="citation" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="citation_t">
+		<xsd:all>
+			<xsd:element ref="issn" minOccurs="0"/>
+			<xsd:element ref="journal_title" minOccurs="0"/>
+			<xsd:element ref="author" minOccurs="0"/>
+			<xsd:element ref="volume" minOccurs="0"/>
+			<xsd:element ref="issue" minOccurs="0"/>
+			<xsd:element ref="first_page" minOccurs="0"/>
+			<xsd:element ref="elocation_id" minOccurs="0"/>
+			<xsd:element ref="cYear" minOccurs="0"/>
+			<xsd:element ref="doi" minOccurs="0"/>
+			<xsd:element ref="isbn" minOccurs="0"/>
+			<xsd:element ref="series_title" minOccurs="0"/>
+			<xsd:element ref="volume_title" minOccurs="0"/>
+			<xsd:element ref="edition_number" minOccurs="0"/>
+			<xsd:element ref="component_number" minOccurs="0"/>
+			<xsd:element ref="article_title" minOccurs="0"/>
+			<xsd:element ref="std_designator" minOccurs="0"/>
+			<xsd:element ref="standards_body" minOccurs="0" maxOccurs="1"/>
+			<xsd:element ref="unstructured_citation" minOccurs="0"/>
+		</xsd:all>
+	</xsd:complexType>
+
+	<xsd:element name="citation">
+		<xsd:annotation>
+			<xsd:documentation>citation is used to deposit each reference in the reference list of the item for which the DOI is being deposited. For details see:
+				https://www.crossref.org/education/metadata-stewardship/maintaining-your-metadata/add-references/ </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="citation_t">
+					<xsd:attributeGroup ref="citation_key.atts"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:attributeGroup name="citation_key.atts">
+		<xsd:annotation>
+			<xsd:documentation>Used to assign a unique ID to each reference that is deposited. We use this key value to track the specific reference query and will return this value along with the DOI in your query results.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="type" use="optional">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="blog"/>
+					<xsd:enumeration value="blog_post"/>
+					<xsd:enumeration value="book"/>
+					<xsd:enumeration value="book_chapter"/>
+					<xsd:enumeration value="collection"/>
+					<xsd:enumeration value="conference_paper"/>
+					<xsd:enumeration value="conference_proceedings"/>
+					<xsd:enumeration value="dataset"/>
+					<xsd:enumeration value="dissertation"/>
+					<xsd:enumeration value="journal"/>
+					<xsd:enumeration value="journal_article"/>
+					<xsd:enumeration value="other"/>
+					<xsd:enumeration value="patent"/>
+					<xsd:enumeration value="peer_review"/>
+					<xsd:enumeration value="poster"/>
+					<xsd:enumeration value="preprint"/>
+					<xsd:enumeration value="protocol"/>
+					<xsd:enumeration value="registered_report"/>
+					<xsd:enumeration value="report"/>
+					<xsd:enumeration value="software"/>
+					<xsd:enumeration value="standard"/>
+					<xsd:enumeration value="web_resource"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="key" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="1"/>
+					<xsd:maxLength value="128"/>
+					<xsd:whiteSpace value="collapse"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+
+	<xsd:element name="unstructured_citation">
+		<xsd:annotation>
+			<xsd:documentation>A citation to an item that is not structured with the Crossref citation model.  'unstructured_citation' supports deposit of references for which no structural information is available. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="journal_title" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Journal title in a citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="series_title" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Book series title in a citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="volume_title" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Book volume title in a citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="author" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>First author in a citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="cYear" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Year of publication in citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="article_title" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Article title in a citation.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="elocation_id" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>article identifier or e-location id of the item</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+
+	<xsd:element name="crossmark">
+		<xsd:annotation>
+			<xsd:documentation>Container element for CrossMark data.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence minOccurs="0">
+				<xsd:element ref="crossmark_version" minOccurs="0"/>
+				<xsd:element ref="crossmark_policy"/>
+				<xsd:element ref="crossmark_domains" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="crossmark_domain_exclusive" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Some publishers encourage broad third party hosting of the publisher's content. Other publishers do not. And still others vary their policy depending on whether a particular article has been published under an OA policy or not. This boolean flag allows the publisher to indicate whether the Crossmarked content will only legitimately be updated on the Crossmark domain (true) or whether the publisher encourages updating the content on other sites as well (false).</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:sequence minOccurs="0">
+					<xsd:element ref="updates" minOccurs="0"/>
+					<xsd:element ref="custom_metadata" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="crossmark_policy" type="doi_t">
+		<xsd:annotation>
+			<xsd:documentation>A DOI which points to a publisher's CrossMark policy document. Publishers might have different policies for different publications.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="crossmark_version" type="xsd:string"/>
+	<xsd:element name="crossmark_domains">
+		<xsd:annotation>
+			<xsd:documentation>Container element for crossmark_domain. A list of domains where the publisher maintains updates and corrections to their content. Minimally, one of these should include the Internet domain name of the publisher's web site(s), but the publisher might also decide to include 3rd party aggregators (e.g. Ebsco, IngentaConnect) or archives with which the publisher has agreements to update the content </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element maxOccurs="unbounded" ref="crossmark_domain"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="crossmark_domain">
+		<xsd:annotation>
+			<xsd:documentation>This should be a simple Internet domain name or subdomain name (e.g. www.psychoceramics.org or psychoceramics.org). It is used to identify when a referring URL is coming from a Crossmark domain. A "crossmark_domain" is made up of two sub-elements; a "domain" and a "filter". The filter is only needed for use in situations where content from multiple publishers/publications is on the same host with the same domain name (e.g. an aggregator) and one needs to use the referrer's URI "path" to further determine whether the content in a crossmark domain.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="domain"/>
+				<xsd:element minOccurs="0" ref="filter"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="domain" type="cm_domain">
+		<xsd:annotation>
+			<xsd:documentation>A domain name or subdomain name (e.g. www.psychoceramics.org or psychoceramics.org). It is used to identify when a referring URL is coming from a Crossmark domain.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="filter" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>The filter element is used to disambiguate content in situations where multiple publishers share the same host (e.g. when on an aggregated platform). It should contain a substring of the path that can be used to uniquely identify a publisher's or publication's content. For instance, using the string "alpsp" here would help the CrossMark system distinguish between ALPSP publications on the ingentaconnect host and other publications on the same host.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="crossmark_domain_exclusive" type="xsd:boolean"/>
+	<xsd:element name="updates">
+		<xsd:annotation>
+			<xsd:documentation>A document might provide updates (e.g. corrections, clarifications, retractions) to several other documents. When this is the case, the DOIs of the documents that are being *updated* should be listed here.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element maxOccurs="unbounded" ref="update"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="update">
+		<xsd:annotation>
+			<xsd:documentation>The DOI of the content being updated (e.g. corrected, retracted, etc.) In the CrossMark Terms and Conditions "updates" are defined as changes that are likely to "change the reader’s interpretation or crediting of the work." That is, *editorially significant* changes. "Updates" should not include minor changes to spelling, punctuation, formatting, etc. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="doi_t">
+					<xsd:attribute name="type" use="required" type="cm_update_type">
+						<xsd:annotation>
+							<xsd:documentation>This attribute should be used to list the update type. Allowed update types are: <ul>
+									<li>addendum</li>
+									<li>clarification</li>
+									<li>correction</li>
+									<li>corrigendum</li>
+									<li>erratum</li>
+									<li>expression_of_concern</li>
+									<li>new_edition</li>
+									<li>new_version</li>
+									<li>partial_retraction</li>
+									<li>removal</li>
+									<li>retraction</li>
+									<li>withdrawal</li>
+								</ul>
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="date" use="required" type="xsd:date">
+						<xsd:annotation>
+							<xsd:documentation>The date of the update will be displayed in the CrossMark dialog and can help the researcher easily tell whether they are likely to have seen the update.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="custom_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Publishers are encouraged to provide any non-bibliographical metadata that they feel might help the researcher evaluate and make better use of the content that the Crossmark record refers to. For example, publishers might want to provide funding information, clinical trial numbers, information about the peer-review process or a summary of the publication history of the document.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:choice>
+				<xsd:sequence>
+					<xsd:element maxOccurs="unbounded" minOccurs="1" ref="assertion"/>
+					<xsd:element maxOccurs="1" ref="fr:program" minOccurs="0"/>
+					<xsd:element maxOccurs="1" ref="ai:program" minOccurs="0"/>
+					<xsd:element maxOccurs="1" ref="ct:program" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:sequence>
+					<xsd:element maxOccurs="1" ref="fr:program" minOccurs="1"/>
+					<xsd:element maxOccurs="1" ref="ai:program" minOccurs="0"/>
+					<xsd:element maxOccurs="1" ref="ct:program" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:sequence>
+					<xsd:element maxOccurs="1" ref="ai:program" minOccurs="1"/>
+					<xsd:element maxOccurs="1" ref="ct:program" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:element ref="ct:program" minOccurs="1" maxOccurs="1"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="assertion">
+		<xsd:annotation>
+			<xsd:documentation>An assertion is a piece of custom, non-bibliographic metadata that the publisher is asserting about the content to which the Crossmark refers.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+			<xsd:attribute name="explanation" type="xsd:anyURI">
+				<xsd:annotation>
+					<xsd:documentation>If the publisher wants to provide a further explanation of what the particular "assertion" means, they can link to such an explanation by providing an appropriate url on the "explanation" attribute.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="group_label" type="cm_assertion_group_label">
+				<xsd:annotation>
+					<xsd:documentation>This is the human-readable form of the "group_name" attribute. This is what will be displayed in the group headings on the Crossmark metadata record dialog.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="group_name" type="cm_assertion_group_name">
+				<xsd:annotation>
+					<xsd:documentation>Some assertions could be logically "grouped" together in the CrossMark dialog. For instance, if the publisher is recording several pieces of metadata related to funding sources (source name, percentage, grant number), they may want to make sure that these three assertions are grouped next to each-other in the CrossMark dialog. The group_name attribute is the machine-readable value that will be used for grouping such assertions.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="label" type="cm_assertion_label">
+				<xsd:annotation>
+					<xsd:documentation>This is the human-readable version of the name attribute which will be displayed in the CrossMark dialog. If this attribute is missing, then the value of the assertion will *not* be displayed in the dialog. Publishers may want to "hide" assertions this way in cases where the assertion value is too large or too complex to display in the dialog, but where the assertion is nonetheless valuable enough to include in API queries and metadata dumps (e.g. detailed licensing terms)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="name" use="required" type="cm_assertion_name">
+				<xsd:annotation>
+					<xsd:documentation>This is the machine-readable name of the assertion. Use the "label" attribute to provide a human-readable version of the name.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="order" type="xsd:integer">
+				<xsd:annotation>
+					<xsd:documentation>The publisher may want to control the order in which assertions are displayed to the user in the CrossMark dialog. All assertions will be sorted by this element if it is present.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="href" type="xsd:anyURI"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="designators">
+		<xsd:annotation>
+			<xsd:documentation>A wrapper for designators or other primary identifiers for a standard.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:choice>
+							<xsd:element ref="std_family_designator" minOccurs="0" maxOccurs="1"/>
+							<xsd:choice>
+								<xsd:element ref="std_set_designator" minOccurs="0" maxOccurs="1"/>
+								<xsd:element ref="std_undated_designator" minOccurs="0"
+									maxOccurs="1"/>
+							</xsd:choice>
+						</xsd:choice>
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element ref="std_as_published" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="std_alt_as_published" minOccurs="0" maxOccurs="unbounded"
+						/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="std_supersedes" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="std_adopted_from" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="std_revision_of" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="std_as_published">
+		<xsd:annotation>
+			<xsd:documentation>Designator or other primary identifier for the standard being deposited.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="std_designator_t">
+					<xsd:attribute name="family" type="xsd:string"/>
+					<xsd:attribute name="set" type="xsd:string"/>
+					<xsd:attribute name="undated" type="xsd:string"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+
+	</xsd:element>
+
+	<xsd:element name="std_alt_as_published">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="std_designator_t">
+					<xsd:attribute name="reason" use="required">
+						<xsd:simpleType>
+							<xsd:list>
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:NMTOKEN">
+										<xsd:enumeration value="editorial"/>
+										<xsd:enumeration value="revision"/>
+										<xsd:enumeration value="reapproval"/>
+										<xsd:enumeration value="correction"/>
+										<xsd:enumeration value="amendment"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:list>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="approvedMonth" use="optional">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:positiveInteger">
+								<xsd:maxInclusive value="12"/>
+								<xsd:minInclusive value="01"/>
+								<xsd:totalDigits value="2"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="approvedYear" use="required">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:gYear"/>
+						</xsd:simpleType>
+					</xsd:attribute>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="std_family_designator" type="std_designator_t">
+		<xsd:annotation>
+			<xsd:documentation>Provides for defining a DOI for a broad grouping of standards.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+	<xsd:element name="std_set_designator">
+		<xsd:annotation>
+			<xsd:documentation>Provides for defining a DOI for a set of standards (sometimes know as truncated form). </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="std_designator_t">
+					<xsd:attribute name="family" type="xsd:string"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+
+	</xsd:element>
+	<xsd:element name="std_undated_designator">
+		<xsd:annotation>
+			<xsd:documentation>Provides for defining a DOI for a group of closely related standard documents (undated form is a stem for any dated form) </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="std_designator_t">
+					<xsd:attribute name="family" type="xsd:string"/>
+					<xsd:attribute name="set" type="xsd:string"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="std_supersedes" type="std_designatorvalue_t">
+		<xsd:annotation>
+			<xsd:documentation>Designator for standard being replaced by the standard being deposited. </xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="std_adopted_from" type="std_designatorvalue_t">
+		<xsd:annotation>
+			<xsd:documentation>Designator for standard from which the current deposit is adopted.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="std_revision_of" type="std_designatorvalue_t">
+		<xsd:annotation>
+			<xsd:documentation>Designator for the previous revision of the standard being deposited. (note: use alt_as_published for revisions within designators having common stem)
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="standards_body">
+		<xsd:annotation>
+			<xsd:documentation>A wrapper for standards body information.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="standards_body_name"/>
+				<xsd:element ref="standards_body_acronym"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="standards_body_name">
+		<xsd:annotation>
+			<xsd:documentation>Name of the standards organization / publisher. </xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="standards_body_acronym">
+		<xsd:annotation>
+			<xsd:documentation>Acronym for standards body.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+
+	<xsd:simpleType name="std_designatorvalue_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="150"/>
+			<xsd:minLength value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="std_designator_t">
+		<xsd:sequence>
+			<xsd:element ref="std_designator" minOccurs="1" maxOccurs="1"/>
+			<xsd:element ref="std_alt_script" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element ref="std_variant_form" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="std_designator" type="std_designatorvalue_t"/>
+	<xsd:element name="std_alt_script" type="std_designatorvalue_t"/>
+	<xsd:element name="std_variant_form" type="std_designatorvalue_t"/>
+
+	<!-- ================SCN policy ============================= -->
+
+	<xsd:element name="scn_policies">
+		<xsd:annotation>
+			<xsd:documentation>A wrapper for Scholarly Sharing Network (SCN) policy information</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="scn_policy_set" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:element name="scn_policy_set">
+		<xsd:annotation>
+			<xsd:documentation>A group of related SCN policies</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="scn_policy_ref" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="start_date" type="xsd:date" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="scn_policy_ref">
+		<xsd:annotation>
+			<xsd:documentation>An individual SCN policy</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="resource_t"/>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:attributeGroup name="media_type.atts">
+		<xsd:attribute name="media_type" default="print">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="print"/>
+					<xsd:enumeration value="electronic"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+
+<xsd:element name="first_page">
+	<xsd:annotation>
+		<xsd:documentation>First page number of an item.</xsd:documentation>
+	</xsd:annotation>
+	<xsd:simpleType>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="32"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:element>
+<xsd:element name="last_page">
+	<xsd:annotation>
+		<xsd:documentation>Last page number of an item. </xsd:documentation>
+	</xsd:annotation>
+	<xsd:simpleType>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="32"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:element>
+<xsd:element name="other_pages">
+	<xsd:annotation>
+		<xsd:documentation>When an item has non-contiguous page information, capture the first page range in first_page and last_page. Any additional page information should be captured in other_pages.</xsd:documentation>
+	</xsd:annotation>
+	<xsd:simpleType>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:element>
+</xsd:schema>
