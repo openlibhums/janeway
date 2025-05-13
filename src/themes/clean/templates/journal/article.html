@@ -103,10 +103,7 @@
                     </ul>
                 {% endif %}
                 {% if article.is_published or proofing %}
-                    <p><strong>{% trans "How to Cite" %}:</strong>
-                    <div id="article_how_to_cite">
-                        {{ article.how_to_cite|safe }} </p>
-                    </div>
+                    {% include "elements/journal/cite.html" %}
                 {% endif %}
                 {% if article.rights %}
                     <p><strong>{% trans "Rights" %}:</strong>
