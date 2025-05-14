@@ -327,7 +327,8 @@ if plugins:
                 "Failed to import urls for plugin %s: %s", plugin.name, error,
             )
         except Exception as error:
-            logger.error("Error loading plugin %s", block.name)
+            print("Error loading plugin %s", plugin.name)
+            logger.error("Error loading plugin %s", plugin.name)
             logger.exception(error)
 
 # load the notification plugins

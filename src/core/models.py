@@ -637,8 +637,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
         article: submission.models.Article
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
+        if self.name_prefix:
+            name_prefix = self.name_prefix
+        elif self.salutation:
+            name_prefix = self.salutation
+        else:
+            name_prefix = ''
+
         frozen_dict = {
-            'name_prefix': self.name_prefix,
+            'name_prefix': name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
@@ -646,6 +653,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'display_email': True if self == article.correspondence_author else False,
             'order': article.next_frozen_author_order(),
         }
+
         frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
             author=self,
             article=article,
