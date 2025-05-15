@@ -478,3 +478,8 @@ header svg {
     list-style-type: none;
     padding-bottom: 8px;
 }
+
+.sticky-top {
+    max-height: 100vh;
+    overflow-y: auto
+}
