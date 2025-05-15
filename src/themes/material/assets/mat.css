@@ -760,3 +760,8 @@ main {
     padding: 0 10px;
     min-width: 40px;
 }
+
+#toc-card {
+  max-height: 100vh;
+  overflow-y: auto;
+}
