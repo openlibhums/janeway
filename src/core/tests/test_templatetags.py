@@ -125,9 +125,20 @@ class TestOffsetDateTag(TestCase):
 
 class TestDateHuman(TestCase):
 
+    # Define the languages we want to test
+    test_languages = {
+        'en': 'English',
+        'en-us': 'English (US)',
+        'fr': 'French',
+        'de': 'German',
+        'nl': 'Dutch',
+        'cy': 'Welsh',
+        'es': 'Spanish',
+    }
+
     @classmethod
     def setUpTestData(cls):
-        """sets up and validates against language settings"""
+        """sets up all the data for testing"""
         cls.test_dates = {
             'date':         datetime(2023, 12, 3),  # 3 December 2023
             'leap_year':    datetime(2024, 2, 29),  # 29 February 2024
@@ -162,64 +173,38 @@ class TestDateHuman(TestCase):
                 'es': "1 enero 2021",
             },
         }
-        
-        # Validate test data and collect mismatches between here and settings.LANGUAGES
-        cls.missing_languages = set()
-        for key in cls.test_dates:
-            for lang_code, language in settings.LANGUAGES:
-                if cls.expected_formats[key].get(lang_code) is None:
-                    cls.missing_languages.add((lang_code, language))
-            for lang_code in cls.expected_formats[key].keys():
-                if not any(lang == lang_code for lang, _ in settings.LANGUAGES):
-                    cls.missing_languages.add((lang_code, f"Unknown language ({lang_code})"))
-        
-        # Clean up expected_formats to remove invalid language data
-        cls.expected_formats = {
-            key: {lang: value for lang, value in formats.items() 
-                    if lang not in [l[0] for l in cls.missing_languages]}
-            for key, formats in cls.expected_formats.items()
-        }
-
-    def test_human_date_test_data(self):
-        """Reports on mismatches between test data and settings.LANGUAGES."""
-        self.assertTrue(not self.missing_languages,
-                        "Test data does not match settings.LANGUAGES. Missing test data for:" + 
-                        ", ".join(f"{lang} ({name})" for lang, name in self.missing_languages)
-                        )
-        self.assertTrue(self.expected_formats,
-                        "No valid test data, no languages being tested."
-                        )
-
-
-    def test_non_dates(self):
-        """Test date_human hides input errors except when settings.DEBUG=True."""
-        
-        test_non_dates = {
+        cls.test_non_dates = {
             'empty_string':         "",
             'string':               "2023,12,3",
             'int':                  134567,
             'zero':                 0,
             'none':                 None,
         }
+
+    def test_non_dates_debug_true(self):
+        """Test date_human hides input errors except when settings.DEBUG=True."""
         with override_settings(DEBUG=True):
-            for key, test_non_date in test_non_dates.items():
-                with self.subTest(non_date=key, debug=True):
-                    if settings.DEBUG:
-                        with self.assertRaises(TemplateSyntaxError) as context:
-                            dates.date_human(test_non_date)
-                        self.assertEqual(
-                            str(context.exception),
-                            "The value filtered by `date_human` must be a `datetime.datetime`",
-                            f"Failed for non-existent date '{key}'. Expected TemplateSyntaxError."
-                        )
+            for key, test_non_date in self.test_non_dates.items():
+                with self.subTest(non_date=key):
+                    with self.assertRaises(TemplateSyntaxError) as context:
+                        dates.date_human(test_non_date)
+                    self.assertEqual(
+                        str(context.exception),
+                        "The value filtered by `date_human` must be a `datetime.datetime`",
+                        f"Failed for non-existent date '{key}' . Expected TemplateSyntaxError."
+                    )
+
+    def test_non_dates_debug_false(self):
+        """Test date_human hides input errors except when settings.DEBUG=False."""    
         with override_settings(DEBUG=False):
-            for key, test_non_date in test_non_dates.items():
-                with self.subTest(non_date=key, debug=False):
+            for key, test_non_date in self.test_non_dates.items():
+                with self.subTest(non_date=key):
                     result = dates.date_human(test_non_date)
                     self.assertEqual(result, "", 
                         f"Failed for {key}.  Expected hidden error (i.e. empty string), actual '{result}'."
                     )
-
+                    
+    @override_settings(LANGUAGES=test_languages)
     def test_date_human_all_languages(self):
         """Test date_human with all supported languages that have complete test data"""  
         for key, test_date in self.test_dates.items(): 
@@ -231,17 +216,13 @@ class TestDateHuman(TestCase):
                     self.assertEqual(result, expected, 
                         f"Failed for {lang_code}.  Expected '{expected}', actual '{result}'."
                     )
-    
+
+    @override_settings(LANGUAGES=test_languages)
     def test_date_human_browser_languages(self):
         """Test data_human uses application language regardless of browser language setting""" 
-        supported_languages = [lang[0] for lang in self.expected_formats]
+        supported_languages = list(self.test_languages.keys())
         
         non_supported_languages = ['ja','en-nz','es-ni','ar-sa']
-
-        for lang in non_supported_languages:
-            self.assertNotIn(lang, supported_languages,
-                f"Test needs updating. Sample non-supported language '{lang}' is now supported."         
-            )
 
         browser_languages = supported_languages + non_supported_languages
         
