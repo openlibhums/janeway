@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load truncate %}
+{% load dates %}
 
 {% block title %}{{ news_item.title }}{% endblock title %}
 
@@ -14,7 +15,7 @@
             <hr/>
         </div>
         <div class="col-md-12">
-            <h6>{{ news_item.byline }} on {{ news_item.posted|date:"Y-m-d" }}</h6>
+            <h6>{{ news_item.byline }} on {{ news_item.posted|date_human}}</h6>
             <p>{{ news_item.body|safe }}</p>
             <br />
             <h7>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
