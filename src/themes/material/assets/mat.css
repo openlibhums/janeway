@@ -458,7 +458,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p {
+.footer-copyright p, li {
     color: #616161;
 }
 
@@ -811,4 +811,17 @@ a {
 
 .back-links-list li:not(:last-child)::after {
   content: " ";
+}
+
+.list-inline {
+    padding-left: 0;
+    list-style: none;
+}
+
+.list-inline li {
+    display: inline-block;
+}
+
+.list-inline li:not(:last-child)::after {
+  content: " | ";   
 }
