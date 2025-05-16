@@ -773,3 +773,7 @@ main {
     aspect-ratio: 16/9;
     margin: 1rem 0;
 }
+
+a {
+    overflow-wrap: break-word;
+}
