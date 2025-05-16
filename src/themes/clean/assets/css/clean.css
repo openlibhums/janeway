@@ -506,3 +506,11 @@ header svg {
 .card.no-image .card-img-overlay.white-text a:hover {
     color: #1C304A;
 }
+
+#article iframe {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin: 1rem 0;
+}
