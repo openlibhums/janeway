@@ -483,3 +483,26 @@ header svg {
     max-height: 100vh;
     overflow-y: auto
 }
+
+.card.no-image {
+    min-height: 200px;
+    background-color: #f8f9fa;
+}
+
+.card.no-image .card-img-overlay {
+    position: relative;
+    background-color: #f8f9fa;
+    padding: 1.25rem;
+}
+
+.card.no-image .card-img-overlay.white-text {
+    color: #212529;
+}
+
+.card.no-image .card-img-overlay.white-text a {
+    color: #4F637D;
+}
+
+.card.no-image .card-img-overlay.white-text a:hover {
+    color: #1C304A;
+}
