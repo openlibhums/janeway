@@ -19,7 +19,11 @@
         {% for list_issue in issues %}
             {% if list_issue.issue_type.code == 'issue' %}
                 <a class="collection-item {% if list_issue == issue %}active{% endif %}"
-                   href="{% url 'journal_issue' list_issue.id %}">{{ list_issue.display_title }}</a>
+                   href="{% url 'journal_issue' list_issue.id %}"
+                   aria-label='{{ issue.display_title|cut:"&bull;" }}'
+                   >
+                   {{ list_issue.display_title }}
+                </a>
             {% else %}
                 <a class="collection-item {% if list_issue == issue %}active{% endif %}"
                    href="{% url 'journal_collection' list_issue.id %}">{{ list_issue.issue_title }} </a>

@@ -2,15 +2,15 @@
 
 {% if issue.large_image %}
     <div class="card">
-        <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title }} Cover Image">
+        <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title|cut:"&bull;" }} Cover Image">
         <div class="card-img-overlay white-text">
             <div class="card-text">
-                <h4 class="card-title">{{ issue.display_title }}</h4>
+                <h4 class="card-title" aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</h4>
             </div>
         </div>
     </div>
 {% else %}
-    <h2 class="em">{{ issue.display_title }}</h2>
+    <h2 class="em" aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</h2>
     {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
 {% endif %}
 
