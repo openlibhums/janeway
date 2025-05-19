@@ -5,10 +5,11 @@
                 <li class="is-active orbit-slide overlay">
                     <img class="orbit-image"
                          src="{{ issue.hero_image_url }}"
-                         alt="{{ issue.display_title }}">
+                         alt='{{ issue.display_title|cut:"&bull;" }}'
+                        >
                     <div class="row column">
                         <figcaption class="orbit-caption">
-                            <h3>{{ issue.display_title }}</h3>
+                            <h3 aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</h3>
                         </figcaption>
                     </div>
                 </li>
@@ -17,7 +18,7 @@
         <br/>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
-        <h1 class="em">{{ issue.display_title }}</h1>
+        <h1 class="em" aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</h1>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% endif %}
 
