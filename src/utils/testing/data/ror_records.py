@@ -1,4 +1,4 @@
-# Three records taken from the ROR data in schema version 1.2
+# Three records taken from the ROR data in schema version 2.0
 ROR_RECORDS = [
     {
         "admin": {
