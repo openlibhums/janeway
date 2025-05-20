@@ -2066,7 +2066,7 @@ class Article(AbstractLastModifiedModel):
     def iso639_1_lang_code(self):
         """Return the ISO 639-1 two-letter code for use in xml:lang."""
         if not self.language:
-            return "en"  # or None if you prefer to omit
+            return "en"
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
