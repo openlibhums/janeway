@@ -716,3 +716,12 @@ def get_orcid_record_min_fields():
 
 def get_ror_records():
     return ror_records.ROR_RECORDS
+
+def create_licence(journal, name, short_name, **kwargs):
+    return sm_models.Licence.objects.create(
+        journal=journal,
+        name=name,
+        short_name=short_name,
+        url='https://example.com',
+        **kwargs,
+    )

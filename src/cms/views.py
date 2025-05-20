@@ -26,7 +26,7 @@ from core.forms import XSLFileForm
 from journal import models as journal_models
 from utils import setting_handler
 from utils.decorators import GET_language_override
-from utils.shared import language_override_redirect, set_order
+from utils.shared import language_override_redirect, set_order, clear_cache
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -240,6 +240,7 @@ def nav(request, nav_id=None):
                 setting_name="enable_editorial_display",
                 journal=request.journal,
             )
+            clear_cache()
 
         elif 'keyword_list_page' in request.POST:
             setting_handler.toggle_boolean_setting(
@@ -247,6 +248,7 @@ def nav(request, nav_id=None):
                 setting_name="keyword_list_page",
                 journal=request.journal,
             )
+            clear_cache()
 
         elif "delete_nav" in request.POST:
             nav_to_delete = get_object_or_404(
