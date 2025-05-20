@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('ror_record_timestamp', models.CharField(blank=True, help_text='The admin.last_modified.date string from ROR data', max_length=10)),
                 ('website', models.CharField(blank=True, max_length=2000)),
                 ('locations', models.ManyToManyField(blank=True, null=True, to='core.location')),
-                ('migration_id', models.CharField(blank=True, help_text='Temporary administrative id for use in Django migrations')),
+                ('migration_id', models.CharField(blank=True, max_length=200, help_text='Temporary administrative id for use in Django migrations')),
             ],
             options={'ordering': ['ror_display__value']},
         ),

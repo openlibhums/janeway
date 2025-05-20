@@ -373,16 +373,13 @@ class ReviewForm(models.Model):
         'journal.Journal',
         on_delete=models.CASCADE,
     )
-
     name = models.CharField(max_length=200)
-
     intro = model_utils.JanewayBleachField(
         help_text="Message displayed at the start of the review form.",
     )
     thanks = model_utils.JanewayBleachField(
         help_text="Message displayed after the reviewer is finished.",
     )
-
     elements = models.ManyToManyField('ReviewFormElement')
     deleted = models.BooleanField(default=False)
 
@@ -402,14 +399,6 @@ def element_kind_choices():
     )
 
 
-def element_width_choices():
-    return (
-        ('large-4 columns', 'third'),
-        ('large-6 columns', 'half'),
-        ('large-12 columns', 'full'),
-    )
-
-
 class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=element_kind_choices())
@@ -417,7 +406,6 @@ class BaseReviewFormElement(models.Model):
                                help_text='Seperate choices with the bar | character.')
     required = models.BooleanField(default=True)
     order = models.IntegerField()
-    width = models.CharField(max_length=20, choices=element_width_choices())
     help_text = model_utils.JanewayBleachField(blank=True, null=True)
 
     default_visibility = models.BooleanField(default=True, help_text='If true, this setting will be available '
@@ -450,7 +438,6 @@ class ReviewFormElement(BaseReviewFormElement):
                 choices=self.choices,
                 required=self.required,
                 order=self.order,
-                width=self.width,
                 help_text=self.help_text,
                 default_visibility=self.default_visibility,
             )
