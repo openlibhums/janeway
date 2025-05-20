@@ -1,0 +1,2147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.crossref.org/schema/5.4.0"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.crossref.org/schema/5.4.0"
+	xmlns:fr="http://www.crossref.org/fundref.xsd"
+	xmlns:fd="http://www.crossref.org/fundingdata5.4.0.xsd"
+	xmlns:ct="http://www.crossref.org/clinicaltrials.xsd"
+	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
+	xmlns:rel="http://www.crossref.org/relations.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML"
+	xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1">
+
+	<!--*************************************************************
+	Crossref Metadata Input Schema v. 5.4.0
+	*************************************************************
+
+This is the latest iteration of the Crossref Metadata Input Schema, used to register metadata records with Crossref. This schema was originally developed for Crossref by Inera (http://www.inera.com) and is currently maintained by Crossref staff.
+
+As of version 4.5.0 all changes are noted in the release notes for the schema repository in GitLab:  https://gitlab.com/crossref/schema/-/releases
+
+Prior updates are noted as comments within previous schema versions.  -->
+
+	<!-- include common schema -->
+
+	<xsd:include schemaLocation="common5.4.0.xsd"/>
+
+	<!-- imported schema -->
+	<xsd:import namespace="http://www.ncbi.nlm.nih.gov/JATS1" schemaLocation="JATS-journalpublishing1-3d2-mathml3.xsd"/>
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2009/01/xml.xsd"/>
+	<xsd:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml3/mathml3.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundingdata5.4.0.xsd" schemaLocation="fundingdata5.4.0.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd" schemaLocation="AccessIndicators.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/relations.xsd" schemaLocation="relations.xsd"/>
+
+	<!-- *** Head elements (used when processing submission XML) -->
+	<xsd:element name="doi_batch">
+		<xsd:annotation>
+			<xsd:documentation>Top level element for a metadata record submission. This element indicates the start and end of the XML file. The version number is fixed to the version of the schema. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="head"/>
+				<xsd:element ref="body"/>
+			</xsd:sequence>
+			<xsd:attribute name="version" type="xsd:string" fixed="5.4.0"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="head">
+		<xsd:annotation>
+			<xsd:documentation>Container for information related to the DOI batch submission. This element uniquely identifies the batch deposit to Crossref and contains information that will be used as a reference in error messages triggered during submission processing.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="doi_batch_id"/>
+				<xsd:element ref="timestamp"/>
+				<xsd:element ref="depositor"/>
+				<xsd:element ref="registrant"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="body">
+		<xsd:annotation>
+			<xsd:documentation>Container for the main body of a DOI record submission. While it is possible to include records for multiple journals, books, conferences, or other types of content in a single submission, it is not possible to mix content types within a single DOI submission. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:choice>
+				<xsd:element ref="journal" maxOccurs="unbounded"/>
+				<xsd:element ref="book" maxOccurs="unbounded"/>
+				<xsd:element ref="conference" maxOccurs="unbounded"/>
+				<xsd:element ref="sa_component" maxOccurs="unbounded"/>
+				<xsd:element ref="dissertation" maxOccurs="unbounded"/>
+				<xsd:element ref="report-paper" maxOccurs="unbounded"/>
+				<xsd:element ref="standard" maxOccurs="unbounded"/>
+				<xsd:element ref="database" maxOccurs="unbounded"/>
+				<xsd:element ref="peer_review" maxOccurs="unbounded"/>
+				<xsd:element ref="pending_publication" maxOccurs="unbounded"/>
+				<xsd:element ref="posted_content" maxOccurs="unbounded"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- *** Journal elements ***-->
+
+	<xsd:element name="journal">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information about a single journal and the volumes, issues, and articles being registered within the journal.  Within a journal instance you may register articles from a single issue, detailed in journal_issue. If you want to register items from more than one issue you must use multiple journal instances within your XML file.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="journal_metadata"/>
+				<xsd:element ref="journal_issue" minOccurs="0"/>
+				<xsd:element ref="journal_article" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="journal_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for metadata that defines a journal.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="full_title" maxOccurs="10"/>
+				<xsd:element ref="abbrev_title" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="issn" minOccurs="0" maxOccurs="6"/>
+				<xsd:element ref="coden" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="full_title">
+		<xsd:annotation>
+			<xsd:documentation>The full title by which a journal is commonly known or cited.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+	<xsd:element name="abbrev_title">
+		<xsd:annotation>
+			<xsd:documentation> Common abbreviation or abbreviations used when citing a journal. It is recommended that periods be included after abbreviated words within the title.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="150"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="journal_issue">
+		<xsd:annotation>
+			<xsd:documentation>Container for metadata that defines a single issue of a journal.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:element ref="journal_volume" minOccurs="0"/>
+				<xsd:element ref="issue" minOccurs="0"/>
+				<xsd:element ref="special_numbering" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="journal_volume">
+		<xsd:annotation>
+			<xsd:documentation>Container for the journal volume and DOI assigned to an entire journal volume. You may register a DOI for an entire volume by including doi_data in journal_volume.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="volume"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="special_numbering">
+		<xsd:annotation>
+			<xsd:documentation>Issue level numbering for supplements or special issues. Text defining the type of special issue (e.g. "suppl") should be included in this element along with the number.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="15"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="journal_article">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information about a single journal article.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="titles" maxOccurs="20"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="pages" minOccurs="0"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0"/>
+				<xsd:element ref="doi_data"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- *** Conference elements -->
+
+	<xsd:element name="conference">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information about a single conference and its proceedings. If a conference proceedings spans multiple volumes, each volume must be contained in a unique conference element.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="event_metadata"/>
+				<xsd:choice>
+					<xsd:element ref="proceedings_series_metadata"/>
+					<xsd:element ref="proceedings_metadata"/>
+				</xsd:choice>
+				<xsd:element ref="conference_paper" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="event_metadata">
+		<xsd:annotation>
+			<xsd:documentation>A container for all information that applies to a conference event. event_metadata captures information about a conference event. Data about conference proceedings is captured in proceedings_metadata.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="conference_name"/>
+				<xsd:element ref="conference_theme" minOccurs="0"/>
+				<xsd:element ref="conference_acronym" minOccurs="0"/>
+				<xsd:element ref="conference_sponsor" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="conference_number" minOccurs="0"/>
+				<xsd:element ref="conference_location" minOccurs="0"/>
+				<xsd:element ref="conference_date" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="conference_name">
+		<xsd:annotation>
+			<xsd:documentation>The official name of the conference, excluding numbers commonly provided in conference </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="512"/>
+				<xsd:minLength value="3"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_theme">
+		<xsd:annotation>
+			<xsd:documentation>The theme is the slogan or special emphasis of a conference in a particular year. It differs from the subject of a conference in that the subject is stable over the years while the theme may vary from year to year. For example, the American Society for Information Science and Technology conference theme was "Knowledge: Creation, Organization and Use" in 1999 and "Defining Information Architecture" in 2000.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_acronym">
+		<xsd:annotation>
+			<xsd:documentation>The popularly known as or jargon name (e.g. SIGGRAPH for "Special Interest Group on Computer Graphics"). Authors commonly cite the conference acronym rather than the full conference or proceedings name, so it is best to include this element when it is available.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="127"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_sponsor">
+		<xsd:annotation>
+			<xsd:documentation>The sponsoring organization(s) of a conference. Multiple sponsors may be given if a conference is hosted by more than one organization.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_number">
+		<xsd:annotation>
+			<xsd:documentation>The number of a conference. conference_number should include only the number of the conference without any extra text</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="15"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_location">
+		<xsd:annotation>
+			<xsd:documentation>The location of the conference. The city, state, province or country of the conference may be provided as appropriate.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:simpleType name="conference_date_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+			<xsd:minLength value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="conference_date">
+		<xsd:annotation>
+			<xsd:documentation>The start and end dates of a conference event. conference_date may be used in three ways:
+				1. If publishers that do not have parsed date values, provide just text with the conference dates. The date text should be taken from the proceedings title page.
+				2. If publishers have parsed date values, provide them in the attributes.
+				3. If both parsed date values and the date text are available, both should be provided. This is the preferred tagging for conference_date. For example:
+				<conference_date start_month="01" start_year="1997" start_day="15" end_year="1997" end_month="01" end_day="17">Jan. 15-17, 1997</conference_date>
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="conference_date_t">
+					<xsd:attribute name="start_day" type="xrefDay" use="optional"/>
+					<xsd:attribute name="start_month" type="xrefMonth" use="optional"/>
+					<xsd:attribute name="start_year" type="xrefYear" use="optional"/>
+					<xsd:attribute name="end_day" type="xrefDay" use="optional"/>
+					<xsd:attribute name="end_month" type="xrefMonth" use="optional"/>
+					<xsd:attribute name="end_year" type="xrefYear" use="optional"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="proceedings_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information that applies to a non-series conference proceeding.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="proceedings_title"/>
+				<xsd:element ref="proceedings_subject" minOccurs="0"/>
+				<xsd:element ref="publisher" maxOccurs="5"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:choice>
+					<xsd:element ref="isbn" maxOccurs="100"/>
+					<xsd:element ref="noisbn"/>
+				</xsd:choice>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="proceedings_series_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information that applies to a specific conference proceeding that is part of a series.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="series_metadata"/>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:choice>
+							<xsd:sequence>
+								<xsd:element ref="proceedings_title"/>
+								<xsd:element ref="volume" minOccurs="0"/>
+							</xsd:sequence>
+							<xsd:element ref="volume"/>
+						</xsd:choice>
+						<xsd:element ref="proceedings_subject" minOccurs="0"/>
+						<xsd:element ref="publisher" maxOccurs="5"/>
+						<xsd:element ref="publication_date" maxOccurs="10"/>
+						<xsd:choice>
+							<xsd:element ref="isbn" maxOccurs="100"/>
+							<xsd:element ref="noisbn"/>
+						</xsd:choice>
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element ref="proceedings_subject" minOccurs="0"/>
+						<xsd:element ref="publisher" maxOccurs="5"/>
+						<xsd:element ref="publication_date" maxOccurs="10"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="proceedings_title">
+		<xsd:annotation>
+			<xsd:documentation>The undifferentiated title of a conference proceeding.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="511"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="proceedings_subject">
+		<xsd:annotation>
+			<xsd:documentation>The subject of the conference proceeding, e.g. "Computer Graphics" is the subject matter of SIGGRAPH.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="conference_paper">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information about a single conference paper.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="publication_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="pages" minOccurs="0"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0"/>
+				<xsd:element ref="doi_data"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- *** book elements *** -->
+
+	<xsd:element name="book">
+		<xsd:annotation>
+			<xsd:documentation>Container for all information about a single book.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="book_metadata"/>
+					<xsd:element ref="book_series_metadata"/>
+					<xsd:element ref="book_set_metadata"/>
+				</xsd:choice>
+				<xsd:element ref="content_item" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="book_type" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="edited_book"/>
+						<xsd:enumeration value="monograph"/>
+						<xsd:enumeration value="reference"/>
+						<xsd:enumeration value="other"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="book_metadata">
+		<xsd:annotation>
+			<xsd:documentation>A container for all title-level metadata for a single book that is not part of a series or set. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="edition_number" minOccurs="0"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:choice>
+					<xsd:element ref="isbn" maxOccurs="100"/>
+					<xsd:element ref="noisbn"/>
+				</xsd:choice>
+				<xsd:element ref="publisher" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="book_series_metadata">
+		<xsd:annotation>
+			<xsd:documentation>A container for all information that applies to an individual volume of a book series.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="series_metadata"/>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="contributors" minOccurs="0"/>
+						<xsd:choice>
+							<xsd:sequence>
+								<xsd:element ref="titles"/>
+								<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+								<xsd:element ref="volume" minOccurs="0"/>
+							</xsd:sequence>
+							<xsd:element ref="volume"/>
+						</xsd:choice>
+						<xsd:element ref="edition_number" minOccurs="0"/>
+						<xsd:element ref="publication_date" maxOccurs="10"/>
+						<xsd:choice>
+							<xsd:element ref="isbn" maxOccurs="100"/>
+							<xsd:element ref="noisbn"/>
+						</xsd:choice>
+					</xsd:sequence>
+					<xsd:element ref="publication_date" maxOccurs="10"/>
+				</xsd:choice>
+				<xsd:element ref="publisher"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="book_set_metadata">
+		<xsd:annotation>
+			<xsd:documentation>A container for all information that applies to an individual volume of a book set.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="set_metadata"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="titles"/>
+						<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+						<xsd:element ref="volume" minOccurs="0"/>
+					</xsd:sequence>
+					<xsd:element ref="volume"/>
+				</xsd:choice>
+				<xsd:element ref="edition_number" minOccurs="0"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:choice>
+					<xsd:element ref="isbn" maxOccurs="100"/>
+					<xsd:element ref="noisbn"/>
+				</xsd:choice>
+				<xsd:element ref="publisher"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- elements used across content types  -->
+
+	<xsd:element name="content_item">
+		<xsd:annotation>
+			<xsd:documentation>A segment of a book, report, or standard for which a DOI is being registered. Most commonly used for book chapters.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles" minOccurs="0"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="component_number" minOccurs="0"/>
+				<xsd:element ref="publication_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="pages" minOccurs="0"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="component_type" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="chapter"/>
+						<xsd:enumeration value="section"/>
+						<xsd:enumeration value="part"/>
+						<xsd:enumeration value="track"/>
+						<xsd:enumeration value="reference_entry"/>
+						<xsd:enumeration value="other"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="level_sequence_number" default="1">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:positiveInteger">
+						<xsd:maxInclusive value="9"/>
+						<xsd:minInclusive value="1"/>
+						<xsd:totalDigits value="1"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="series_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for metadata about a series publication.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation>The abstract element allows depositors to include abstracts extracted from NLM or JATS XML in Crossref deposits. The jats: namespace prefix must be included.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="issn" maxOccurs="6"/>
+				<xsd:element ref="coden" minOccurs="0"/>
+				<xsd:element ref="series_number" minOccurs="0"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="set_metadata">
+		<xsd:annotation>
+			<xsd:documentation> When a book consists of multiple volumes that are not part of a serial publication (series), set_metadata is used to describe information about the entire set. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="titles"/>
+				<xsd:choice>
+					<xsd:element ref="isbn" maxOccurs="100"/>
+					<xsd:element ref="noisbn"/>
+				</xsd:choice>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="part_number" minOccurs="0"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="series_number">
+		<xsd:annotation>
+			<xsd:documentation>The series number within a specific published conference discipline.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="15"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="part_number">
+		<xsd:annotation>
+			<xsd:documentation>The part number of a given volume. In some cases, a book set will have multiple parts, and then one or more volumes within each part. The part number of a given volume should be deposited in this element.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="15"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+	<!-- *** dissertation elements *** -->
+
+	<xsd:element name="dissertation">
+		<xsd:annotation>
+			<xsd:documentation>dissertation is the top level element for deposit of metadata about one or more dissertations.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="person_name" minOccurs="1" maxOccurs="unbounded"/>
+					<xsd:element ref="contributors"/>
+				</xsd:choice>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="approval_date" maxOccurs="10"/>
+				<xsd:element ref="institution" maxOccurs="6"/>
+				<xsd:element ref="degree" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="isbn" minOccurs="0" maxOccurs="100"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="report-paper">
+		<xsd:annotation>
+			<xsd:documentation>report-paper is the top level element for deposit of metadata about one or more reports or working papers. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="report-paper_metadata"/>
+					<xsd:element ref="report-paper_series_metadata"/>
+				</xsd:choice>
+				<xsd:element ref="content_item" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="report-paper_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for the metadata related to a Technical Report or Working Paper.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="edition_number" minOccurs="0"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:element ref="approval_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="isbn" minOccurs="0" maxOccurs="100"/>
+				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="contract_number" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="report-paper_series_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for the metadata related to a technical report or working paper that is part of a series.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="series_metadata"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="titles"/>
+						<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+						<xsd:element ref="volume" minOccurs="0"/>
+					</xsd:sequence>
+					<xsd:element ref="volume"/>
+				</xsd:choice>
+				<xsd:element ref="edition_number" minOccurs="0"/>
+				<xsd:element ref="publication_date" maxOccurs="10"/>
+				<xsd:element ref="approval_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="isbn" minOccurs="0" maxOccurs="100"/>
+				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="contract_number" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="standard">
+		<xsd:annotation>
+			<xsd:documentation>standard is the top level element for deposit of metadata about standards developed by Standards Development Organizations (SDOs) or Consortia.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="standard_metadata"/>
+				</xsd:choice>
+				<xsd:element ref="content_item" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="publication_type.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="standard_metadata">
+		<xsd:annotation>
+			<xsd:documentation>Container for the metadata related to a Standard that is not part of a series.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="designators" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="edition_number" minOccurs="0"/>
+				<xsd:element ref="approval_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="isbn" minOccurs="0" maxOccurs="100"/>
+				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="standards_body"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="publication_status" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="released"/>
+						<xsd:enumeration value="withdrawn"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:element name="database">
+		<xsd:annotation>
+			<xsd:documentation>database is the top level element for deposit of metadata about one or more datasets or records in a database. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="database_metadata"/>
+				<xsd:choice>
+					<xsd:element ref="dataset" minOccurs="0" maxOccurs="unbounded"/>
+					<xsd:element ref="component_list" minOccurs="0"/>
+				</xsd:choice>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="database_metadata">
+		<xsd:annotation>
+			<xsd:documentation>database_metadata contains metadata about the database. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="database_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="0"/>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="dataset">
+		<xsd:annotation>
+			<xsd:documentation>dataset is used to capture information about one or more database records or collections. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles" minOccurs="0"/>
+				<xsd:element ref="database_date" minOccurs="0" maxOccurs="10"/>
+				<xsd:element ref="publisher_item" minOccurs="0"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="format" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="archive_locations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="dataset_type" default="record">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="record"/>
+						<xsd:enumeration value="collection"/>
+						<xsd:enumeration value="crossmark_policy"/>
+						<xsd:enumeration value="other"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- ===========================================================
+		Top level content type for pending_publication DOIs
+		============================================================== -->
+	<xsd:element name="publication">
+		<xsd:annotation>
+			<xsd:documentation>Used to define a publication (book, journal, etc.) for pending publication content. A title must be supplied, as well as an ISSN, ISBN, or title-level DOI </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="full_title" maxOccurs="10"/>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:choice>
+							<xsd:element ref="issn" minOccurs="1" maxOccurs="1"/>
+							<xsd:element ref="isbn" minOccurs="1" maxOccurs="1"/>
+						</xsd:choice>
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element ref="doi" minOccurs="1" maxOccurs="1"/>
+						<xsd:choice>
+							<xsd:element ref="issn" minOccurs="0" maxOccurs="1"/>
+							<xsd:element ref="isbn" minOccurs="0" maxOccurs="1"/>
+						</xsd:choice>
+					</xsd:sequence>
+				</xsd:choice>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="intent_statement">
+		<xsd:annotation>
+			<xsd:documentation>Member's custom statement of intent to publish content for which a pending publication DOI has been created</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:element ref="b"/>
+				<xsd:element ref="i"/>
+				<xsd:element ref="u"/>
+				<xsd:element ref="a"/>
+			</xsd:choice>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- ===========================================================
+		Top level content type for peer_review DOIs
+		============================================================== -->
+	<xsd:element name="peer_review">
+		<xsd:annotation>
+			<xsd:documentation> The peer_review content type is intended for assigning DOIs to the reports and other artifacts associated with the review of published content.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="review_date" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="competing_interest_statement" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="running_number" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="rel:program" minOccurs="1"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+			<xsd:attribute name="stage" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="pre-publication"/>
+						<xsd:enumeration value="post-publication"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="type" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="referee-report"/>
+						<xsd:enumeration value="editor-report"/>
+						<xsd:enumeration value="author-comment"/>
+						<xsd:enumeration value="community-comment"/>
+						<xsd:enumeration value="manuscript"/>
+						<xsd:enumeration value="aggregate"/>
+						<xsd:enumeration value="recommendation"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="recommendation" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="major-revision"/>
+						<xsd:enumeration value="minor-revision"/>
+						<xsd:enumeration value="reject"/>
+						<xsd:enumeration value="reject-with-resubmit"/>
+						<xsd:enumeration value="accept"/>
+						<xsd:enumeration value="accept-with-reservation"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="revision-round" use="optional" type="xsd:integer">
+				<xsd:annotation>
+					<xsd:documentation>Required attribute. First submission defined as revision round zero</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+
+	</xsd:element>
+
+	<xsd:element name="competing_interest_statement">
+		<xsd:annotation>
+			<xsd:documentation>Statement of competing interest supplied by a review author during the review process.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="running_number" type="xsd:string">
+		<xsd:annotation>
+			<xsd:documentation>Running numbers to specify the various reports (ex: RC1 to RC4) </xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+
+
+	<!-- ===========================================================
+	     Top level content type for prepublication DOIs
+        ============================================================== -->
+
+
+	<xsd:element name="pending_publication">
+		<xsd:annotation>
+			<xsd:documentation>Container for 'pending publication' metadata. Pending publication DOIs are used to create a DOI for a content item that is not yet available online or in print.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="publication"/>
+				<xsd:element ref="titles" minOccurs="0"/>
+				<xsd:element ref="acceptance_date" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="item_number" minOccurs="0" maxOccurs="3"/>
+				<xsd:element ref="intent_statement" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="doi" minOccurs="1" maxOccurs="1"/>
+
+			</xsd:sequence>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- ===========================================================
+	     	Posted Content elements
+         ============================================================== -->
+
+	<xsd:element name="posted_content">
+		<xsd:annotation>
+			<xsd:documentation>Container for posted content metadata.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="group_title" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="titles"/>
+				<xsd:element ref="posted_date" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="status" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
+				<xsd:element ref="item_number" minOccurs="0" maxOccurs="3"/>
+				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1" />
+				<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="rel:program" minOccurs="0"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="doi_data" minOccurs="1"/>
+				<xsd:element ref="citation_list" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="type" default="preprint">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="preprint"/>
+						<xsd:enumeration value="working_paper"/>
+						<xsd:enumeration value="letter"/>
+						<xsd:enumeration value="dissertation"/>
+						<xsd:enumeration value="report"/>
+						<xsd:enumeration value="review"/>
+						<xsd:enumeration value="other"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attributeGroup ref="language.atts"/>
+
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="group_title">
+		<xsd:annotation>
+			<xsd:documentation>Posted content may be organized into groupings within a given publisher. This element provides for naming the group. It is expected that publishers will have a small number of groups each of which reflect a topic or subject area.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="1024"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+
+
+
+	<xsd:element name="status">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="type">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="withdrawn"/>
+						<xsd:enumeration value="removed"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="date" type="xsd:date"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="status_description">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="2000"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+
+
+	<!-- =============================================================
+
+     Elements common to reports, dissertations and standards
+
+     ============================================================= -->
+	<xsd:element name="institution">
+		<xsd:annotation>
+			<xsd:documentation>Container element for information about an institution or organization associated with an item.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="institution_name" minOccurs="1"/>
+						<xsd:element ref="institution_id" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+					<xsd:element ref="institution_id" minOccurs="1" maxOccurs="unbounded"/>
+				</xsd:choice>
+				<xsd:element ref="institution_acronym" minOccurs="0" maxOccurs="6"/>
+				<xsd:element ref="institution_place" minOccurs="0" maxOccurs="6"/>
+				<xsd:element ref="institution_department" minOccurs="0" maxOccurs="6"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="institution_name">
+		<xsd:annotation>
+			<xsd:documentation>The full name of an institution.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="1024"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="institution_id">
+		<xsd:annotation>
+			<xsd:documentation>Identifier for an institution or organization (currently supported: ROR, ISNI, Wikidata). Identifiers must be included as a URI</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="PID">
+					<xsd:attribute name="type" use="required">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:NMTOKEN">
+								<xsd:enumeration value="ror"/>
+								<xsd:enumeration value="isni"/>
+								<xsd:enumeration value="wikidata"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="PID">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[hH][tT][tT][pP][sS]://.{1,50}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="institution_acronym">
+		<xsd:annotation>
+			<xsd:documentation>The acronym of the institution.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="institution_place">
+		<xsd:annotation>
+			<xsd:documentation>The primary city location of the institution. institution_place gives the primary city location of the institution. When the location is a major city (e.g. New York, Amsterdam), no qualifying country or U.S. state need be given. If the city is not a major city, the appropriate country and/or state or province should be added.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="institution_department">
+		<xsd:annotation>
+			<xsd:documentation>The department within an institution. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+
+	<xsd:element name="degree">
+		<xsd:annotation>
+			<xsd:documentation>The degree(s) awarded for a dissertation.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="contract_number">
+		<xsd:annotation>
+			<xsd:documentation>The contract number under which a report or paper was written.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:attributeGroup name="publication_type.atts">
+		<xsd:attribute name="publication_type" default="full_text">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="abstract_only"/>
+					<xsd:enumeration value="full_text"/>
+					<xsd:enumeration value="bibliographic_record"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+
+	<xsd:attributeGroup name="contributor.atts">
+		<xsd:attribute name="sequence" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="first"/>
+					<xsd:enumeration value="additional"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="contributor_role" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="author"/>
+					<xsd:enumeration value="editor"/>
+					<xsd:enumeration value="chair"/>
+					<xsd:enumeration value="reviewer"/>
+					<xsd:enumeration value="review-assistant"/>
+					<xsd:enumeration value="stats-reviewer"/>
+					<xsd:enumeration value="reviewer-external"/>
+					<xsd:enumeration value="reader"/>
+					<xsd:enumeration value="translator"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="name-style" use="optional">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:token">
+					<xsd:enumeration value="western"/>
+					<xsd:enumeration value="eastern"/>
+					<xsd:enumeration value="islensk"/>
+					<xsd:enumeration value="given-only"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attributeGroup ref="language.atts"/>
+	</xsd:attributeGroup>
+
+
+	<xsd:element name="contributors">
+		<xsd:annotation>
+			<xsd:documentation>The container for all who contributed to authoring or editing an item.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element ref="organization"/>
+					<xsd:element ref="person_name"/>
+					<xsd:element ref="anonymous"/>
+				</xsd:choice>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="organization_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="511"/>
+			<xsd:minLength value="1"/>
+			<xsd:whiteSpace value="collapse"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="organization">
+		<xsd:annotation>
+			<xsd:documentation>The name of an organization (as opposed to a person) that contributed to an item. If an item was authored by individuals in addition to one or more organizations, person_name and organization may be freely intermixed within contributors. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="organization_t">
+					<xsd:attributeGroup ref="contributor.atts"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="person_name">
+		<xsd:annotation>
+			<xsd:documentation>The name of a person (as opposed to an organization) that contributed to an item.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="given_name" minOccurs="1"/>
+						<xsd:element ref="surname" minOccurs="1"/>
+						<xsd:element ref="name" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element ref="surname" minOccurs="1"/>
+						<xsd:element ref="name" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+					<xsd:element ref="name" minOccurs="1" maxOccurs="unbounded"/>
+				</xsd:choice>
+				<xsd:element ref="suffix" minOccurs="0"/>
+				<xsd:element ref="affiliations" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ORCID" minOccurs="0" maxOccurs="1"/>
+				<!--<xsd:element ref="alt-name" minOccurs="0"/>-->
+			</xsd:sequence>
+			<xsd:attributeGroup ref="contributor.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="anonymous">
+		<xsd:annotation>
+			<xsd:documentation>Used to capture anonymous contributors.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="affiliations" minOccurs="0" maxOccurs="1"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="contributor.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="name">
+		<xsd:annotation>
+			<xsd:documentation>Full name of a contributor (includes family names, middle names, given names) Should represent name as it appears in citations </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="60"/>
+				<xsd:minLength value="1"/>
+				<xsd:pattern value="[^\d\?]*[^\?\s]+[^\d]*"/>
+				<xsd:whiteSpace value="collapse"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+
+	<xsd:element name="given_name">
+		<xsd:annotation>
+			<xsd:documentation>A contributor's given name.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="60"/>
+				<xsd:minLength value="1"/>
+				<xsd:pattern value="[^\d\?]*[^\?\s]+[^\d]*"/>
+				<xsd:whiteSpace value="collapse"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="surname">
+		<xsd:annotation>
+			<xsd:documentation>The family_name of a contributor.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="60"/>
+				<xsd:minLength value="1"/>
+				<xsd:pattern value="[^\d\?]*[^\?\s]+[^\d]*"/>
+				<xsd:whiteSpace value="collapse"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="suffix">
+		<xsd:annotation>
+			<xsd:documentation>The suffix of an author name, e.g. junior, senior, III.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="10"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:simpleType name="orcid_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="ORCID">
+		<xsd:annotation>
+			<xsd:documentation>The ORCID iD for an author.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="orcid_t">
+					<xsd:attribute default="false" name="authenticated" type="xsd:boolean"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="affiliations">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="institution" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<!--
+	<xsd:element name="alt-name">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element ref="name"/>
+				<xsd:element ref="string-name"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+	-->
+	<!--
+	<xsd:element name="name">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element ref="surname"/>
+						<xsd:element minOccurs="0" ref="given_name"/>
+					</xsd:sequence>
+					<xsd:element ref="given_name"/>
+				</xsd:choice>
+				<xsd:element minOccurs="0" ref="prefix"/>
+				<xsd:element minOccurs="0" ref="suffix"/>
+			</xsd:sequence>
+			<xsd:attribute name="content-type"/>
+			<xsd:attribute name="name-style" default="western">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:token">
+						<xsd:enumeration value="western"/>
+						<xsd:enumeration value="eastern"/>
+						<xsd:enumeration value="islensk"/>
+						<xsd:enumeration value="given-only"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="specific-use"/>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="string-name">
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:element ref="degrees"/>
+				<xsd:element ref="given_name"/>
+				<xsd:element ref="prefix"/>
+				<xsd:element ref="surname"/>
+				<xsd:element ref="suffix"/>
+			</xsd:choice>
+			<xsd:attribute name="content-type"/>
+			<xsd:attribute name="name-style" default="western">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:token">
+						<xsd:enumeration value="western"/>
+						<xsd:enumeration value="eastern"/>
+						<xsd:enumeration value="islensk"/>
+						<xsd:enumeration value="given-only"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="specific-use"/>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	-->
+	<xsd:element name="prefix">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="content-type"/>
+			<xsd:attribute name="specific-use"/>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="degrees">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="content-type"/>
+			<xsd:attribute name="specific-use"/>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="sa_component">
+		<xsd:annotation>
+			<xsd:documentation>Container for component metadata if the component is being registered after the parent record/DOI is created.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="component_list"/>
+			</xsd:sequence>
+			<xsd:attribute name="parent_doi" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:maxLength value="2048"/>
+						<xsd:minLength value="6"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="component_list">
+		<xsd:annotation>
+			<xsd:documentation>Container for a group of components</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="component" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="component">
+		<xsd:annotation>
+			<xsd:documentation>Container for component metadata. Supplemental materials, figures, tables, and other items that can be considered a citeable part of a registered item may be registered as components. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="titles" minOccurs="0"/>
+				<xsd:element ref="contributors" minOccurs="0"/>
+				<xsd:element ref="publication_date" minOccurs="0"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="format" minOccurs="0"/>
+				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="doi_data"/>
+					<xsd:element ref="doi"/>
+				</xsd:choice>
+			</xsd:sequence>
+			<xsd:attribute name="parent_relation" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="isPartOf"/>
+						<xsd:enumeration value="isReferencedBy"/>
+						<xsd:enumeration value="isRequiredBy"/>
+						<xsd:enumeration value="isTranslationOf"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="reg-agency" use="optional">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string"/>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attributeGroup ref="language.atts"/>
+			<xsd:attribute name="component_size">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:nonNegativeInteger"/>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="titles">
+		<xsd:annotation>
+			<xsd:documentation>A container for the title and original language title elements.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:sequence>
+					<xsd:element ref="title"/>
+					<xsd:element ref="subtitle" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:sequence minOccurs="0">
+					<xsd:element ref="original_language_title"/>
+					<xsd:element ref="subtitle" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="title">
+		<xsd:annotation>
+			<xsd:documentation>The title of the item being registered.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="original_language_title">
+		<xsd:annotation>
+			<xsd:documentation>The title of an item in its original language if the registration is for a translation of a work.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+			<xsd:attributeGroup ref="language.atts"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="subtitle">
+		<xsd:annotation>
+			<xsd:documentation>The sub-title portion of a title.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- ***  Dates *** -->
+
+	<xsd:element name="month" type="xrefMonth">
+		<xsd:annotation>
+			<xsd:documentation>Month of publication. The month must be expressed in numeric format rather spelling out the name (e.g. submit "10", not "October"). The month must be expressed with a leading zero if it is less than 10 (e.g. submit "05", not "5"). When a journal issue has both an issue number and a season, the issue number should be placed in issue. If the month of publication is not known, the season should be placed in month as a two-digit value as follows: Season Value Spring 21 Summer 22 Autumn 23 Winter 24 First Quarter 31 Second Quarter 32 Third Quarter 33 Fourth Quarter 34 In cases when an issue covers multiple months, e.g. "March-April", include only the digits for the first month of the range.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="day" type="xrefDay">
+		<xsd:annotation>
+			<xsd:documentation>Day of publication. The day must be expressed with a leading zero if it is less than 10 (e.g. submit "05", not "5").</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="year" type="xrefYear">
+		<xsd:annotation>
+			<xsd:documentation>Year of publication.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="database_date">
+		<xsd:annotation>
+			<xsd:documentation>Container for key dates in the life of a database or dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="creation_date" minOccurs="0"/>
+				<xsd:element ref="publication_date" minOccurs="0"/>
+				<xsd:element ref="update_date" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="creation_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a database or dataset item was created.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="content_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a piece of content was created.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="posted_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a pre-print was posted to a repository.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="acceptance_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a manuscript was accepted for publication.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="update_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a dataset or database was last updated.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="publication_date">
+		<xsd:annotation>
+			<xsd:documentation>The date of publication. Multiple dates are allowed to allow for different dates of publication for online and print versions.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="date_t">
+		<xsd:sequence>
+			<xsd:element ref="month" minOccurs="0"/>
+			<xsd:element ref="day" minOccurs="0"/>
+			<xsd:element ref="year"/>
+		</xsd:sequence>
+		<xsd:attribute name="media_type" default="print">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="online"/>
+					<xsd:enumeration value="print"/>
+					<xsd:enumeration value="other"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="review_date">
+		<xsd:annotation>
+			<xsd:documentation>The date a review was published to a repository.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="month"/>
+				<xsd:element ref="day"/>
+				<xsd:element ref="year"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="approval_date">
+		<xsd:annotation>
+			<xsd:documentation> The date on which a dissertation was accepted by the institution awarding the degree, a report was approved, or a standard was accepted. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="date_t"/>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="xrefYear">
+		<xsd:annotation>
+			<xsd:documentation>Basic data types for date parts.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:positiveInteger">
+			<xsd:maxInclusive value="2200"/>
+			<xsd:minInclusive value="1400"/>
+			<xsd:totalDigits value="4"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="xrefMonth">
+		<xsd:restriction base="xsd:positiveInteger">
+			<xsd:maxInclusive value="34"/>
+			<xsd:minInclusive value="01"/>
+			<xsd:totalDigits value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="xrefDay">
+		<xsd:restriction base="xsd:positiveInteger">
+			<xsd:maxInclusive value="31"/>
+			<xsd:minInclusive value="01"/>
+			<xsd:totalDigits value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<!-- *** pages and identifiers *** -->
+	<xsd:element name="pages">
+		<xsd:annotation>
+			<xsd:documentation>The container for information about page ranges.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="first_page"/>
+				<xsd:element ref="last_page" minOccurs="0"/>
+				<xsd:element ref="other_pages" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="noisbn">
+		<xsd:annotation>
+			<xsd:documentation>Identifies books or conference proceedings that have no ISBN assigned.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="reason" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="archive_volume"/>
+						<xsd:enumeration value="monograph"/>
+						<xsd:enumeration value="simple_series"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="coden">
+		<xsd:annotation>
+			<xsd:documentation>The coden assigned to a journal or conference proceedings.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="6"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="publisher_item">
+		<xsd:annotation>
+			<xsd:documentation>A container for item identification numbers set by a publisher.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="item_number" minOccurs="0" maxOccurs="3"/>
+				<xsd:element ref="identifier" minOccurs="0" maxOccurs="10"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="item_number_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="32"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="item_number">
+		<xsd:annotation>
+			<xsd:documentation>A publisher-assigned number that uniquely identifies the item being registered. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="item_number_t">
+					<xsd:attribute name="item_number_type" type="xsd:string" use="optional"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="identifier_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="255"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="identifier">
+		<xsd:annotation>
+			<xsd:documentation>A public standard identifier that can be used to uniquely identify the item being registered.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="identifier_t">
+					<xsd:attribute name="id_type" use="required">
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:NMTOKEN">
+								<xsd:enumeration value="pii"/>
+								<xsd:enumeration value="sici"/>
+								<xsd:enumeration value="doi"/>
+								<xsd:enumeration value="dai"/>
+								<xsd:enumeration value="Z39.23"/>
+								<xsd:enumeration value="ISO-std-ref"/>
+								<xsd:enumeration value="std-designation"/>
+								<xsd:enumeration value="report-number"/>
+								<xsd:enumeration value="pmid"/>
+								<xsd:enumeration value="other"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- *** archiving elements *** -->
+	<xsd:element name="publisher">
+		<xsd:annotation>
+			<xsd:documentation>A container for information about the publisher of the item being registered</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="publisher_name"/>
+				<xsd:element ref="publisher_place" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- *** other metadata -->
+
+	<xsd:element name="publisher_place">
+		<xsd:annotation>
+			<xsd:documentation>publisher_place gives the primary city location of the publisher.  If the city is not a major city, the appropriate country, state, or province should be added.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="2"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="publisher_name">
+		<xsd:annotation>
+			<xsd:documentation>The name of the publisher of a book or conference proceedings. This name may differ from that of the organization registering or maintaining the metadata record.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:string">
+				<xsd:maxLength value="255"/>
+				<xsd:minLength value="1"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+
+	<xsd:element name="description">
+		<xsd:annotation>
+			<xsd:documentation>A narrative description of a file (e.g. a figure caption or video description).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:group ref="face_markup"/>
+			</xsd:choice>
+			<xsd:attributeGroup ref="language.atts"/>
+			<xsd:attribute ref="xml:lang"/>
+		</xsd:complexType>
+	</xsd:element>
+
+
+
+	<xsd:simpleType name="format_t">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="130"/>
+			<xsd:minLength value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="format">
+		<xsd:annotation>
+			<xsd:documentation>A narrative description of a component's file format and/or file extension.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="format_t">
+					<xsd:attributeGroup ref="mime_type.atts"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="archive_locations">
+		<xsd:annotation>
+			<xsd:documentation>Container element for archive information</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element maxOccurs="unbounded" minOccurs="0" ref="archive"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="archive">
+		<xsd:annotation>
+			<xsd:documentation>Used to indicate the designated archiving organization(s) for an item.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="name" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="ADS"/>
+						<xsd:enumeration value="BL"/>
+						<xsd:enumeration value="Cariniana Network"/>
+						<xsd:enumeration value="CLOCKSS"/>
+						<xsd:enumeration value="DWT"/>
+						<xsd:enumeration value="HathiTrust"/>
+						<xsd:enumeration value="Internet Archive"/>
+						<xsd:enumeration value="KB"/>
+						<xsd:enumeration value="LOCKSS"/>
+						<xsd:enumeration value="LOC"/>
+						<xsd:enumeration value="NAA"/>
+						<xsd:enumeration value="NARA"/>
+						<xsd:enumeration value="NDPP"/>
+						<xsd:enumeration value="NSK"/>
+						<xsd:enumeration value="PKP PN"/>
+						<xsd:enumeration value="Portico"/>
+						<xsd:enumeration value="PSNC"/>
+						<xsd:enumeration value="Scholars Portal"/>
+						<xsd:enumeration value="TNA"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="version_info">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="version" minOccurs="1"/>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="version">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="version">
+					<xsd:attribute ref="xml:lang"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="version">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
