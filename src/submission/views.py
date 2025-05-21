@@ -796,7 +796,6 @@ def submit_review(request, article_id):
             article.date_submitted = timezone.now()
             article.stage = models.STAGE_UNASSIGNED
             article.current_step = 5
-            article.snapshot_authors(article)
             article.save()
 
             event_logic.Events.raise_event(
