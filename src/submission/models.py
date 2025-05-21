@@ -450,6 +450,18 @@ class ArticleManager(models.Manager):
         return super(ArticleManager, self).get_queryset().all()
 
 
+class ArticlePrefetchAuthorsManager(ArticleManager):
+    def get_queryset(self):
+        FrozenAuthor = apps.get_model('submission', 'FrozenAuthor')
+        return super().get_queryset().all().prefetch_related(
+            models.Prefetch(
+                'frozenauthor_set',
+                queryset=FrozenAuthor.select_related("author"),
+                to_attr="prefetched_author_accounts",
+            )
+        )
+
+
 class ArticleSearchManager(BaseSearchManagerMixin):
     SORT_KEYS = {
         "-title",
