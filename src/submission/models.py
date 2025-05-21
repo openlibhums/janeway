@@ -2689,7 +2689,7 @@ class SubmissionConfiguration(models.Model):
 
 # Signals
 
-# @receiver(pre_delete, sender=FrozenAuthor)
+@receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
     raise DeprecationWarning(
         "Authorship is now exclusively handled via FrozenAuthor."
@@ -2736,3 +2736,24 @@ def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 
 m2m_changed.connect(order_keywords, sender=Article.keywords.through)
+
+def backwards_compat_authors(
+        sender, instance, action, reverse, model, pk_set, **kwargs):
+    """ A signal to make the Article.authors backwards compatible
+    As part of #4755, the dependency of Article on Account for author linking
+    was removed. This signal is a backwards compatibility measure to ensure
+    FrozenAuthor records are being updated correctly.
+    """
+    accounts = core_models.Account.objects.filter(pk__in=pk_set)
+    if action == "post_add":
+        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
+            article=instance, author__id=models.OuterRef("id")
+        ).values_list("order"))
+        accounts = accounts.annotate(order=subq).order_by("order")
+        for account in accounts:
+            account.snapshot_self(instance)
+    if action in ["post_remove", "post_clear"]:
+        instance.frozen_authors.filter(author__in=pk_set).delete()
+
+
+m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)
