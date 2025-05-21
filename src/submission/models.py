@@ -10,7 +10,9 @@ import uuid
 import os
 from dateutil import parser as dateparser
 from itertools import chain
+import warnings
 
+from django.apps import apps
 from django.db.models import SET_NULL
 from django.urls import reverse
 from django.db import (
@@ -859,6 +861,15 @@ class Article(AbstractLastModifiedModel):
 
     class Meta:
         ordering = ('-date_published', 'title')
+
+    def __getattribute__(self, name):
+        if name == "authors":
+            warnings.warn(
+                "The 'authors' field is deprecated. Use 'frozenauthor_set'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
     @property
     def author_accounts(self):
