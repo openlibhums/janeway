@@ -109,7 +109,7 @@ def get_proofreaders(article, round, assignment=None):
     for editor in article.editor_list():
         pks.append(editor.pk)
 
-    for author in article.authors.all():
+    for author in article.author_accounts.all():
         pks.append(author.pk)
 
     for proofreader in core_models.AccountRole.objects.filter(
