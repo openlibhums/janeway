@@ -1,3 +1,5 @@
+import warnings
+
 from django.core.management.base import BaseCommand
 
 from submission import models as submission_models
@@ -30,24 +32,14 @@ class Command(BaseCommand):
         filters = {}
         if options["hard"] is True:
             filters["author__isnull"] = True
+        else:
+            filters["author__isnull"] = False
 
         articles = submission_models.Article.objects.all()
-        submission_models.FrozenAuthor.objects.filter(**filters).delete()
 
         for article in articles:
-            for author in article.authors.all():
-
-                frozen_dict = {
-                    'article': article,
-                    'author': author,
-                    'first_name': author.first_name,
-                    'middle_name': author.middle_name,
-                    'last_name': author.last_name,
-                    'institution': author.institution,
-                    'department': author.department,
-                }
-
-                frozen_author = submission_models.FrozenAuthor.objects.create(**frozen_dict)
-
-                author.frozen_author = frozen_author
-                author.save()
+            for fa in article.frozenauthor_set.filter(**filters):
+                author = fa.author
+                fa.delete()
+                if author:
+                    author.snapshot_self(article)
