@@ -1410,7 +1410,7 @@ class Article(AbstractLastModifiedModel):
         return [assignment.editor.email for assignment in self.editorassignment_set.all()]
 
     def contact_emails(self):
-        emails = [author.email for author in self.authors.all()]
+        emails = [fa.email for fa in self.frozenauthor_set.all() if fa.email]
         emails.append(self.owner.email)
         return set(emails)
 
@@ -1481,10 +1481,7 @@ class Article(AbstractLastModifiedModel):
             return mark_safe(template.render(Context()))
 
     def author_list(self):
-        if self.is_accepted():
-            return ", ".join([author.full_name() for author in self.frozen_authors()])
-        else:
-            return ", ".join([author.full_name() for author in self.authors.all()])
+        return ", ".join([author.full_name() for author in self.frozen_authors()])
 
     def bibtex_author_list(self):
         return " AND ".join(
@@ -1636,10 +1633,9 @@ class Article(AbstractLastModifiedModel):
         self.save()
 
     def user_is_author(self, user):
-        if user in self.authors.all():
+        if user in self.frozenauthor_set.all():
             return True
-        else:
-            return False
+        return False
 
     def has_manuscript_file(self):
         if self.manuscript_files.all():
