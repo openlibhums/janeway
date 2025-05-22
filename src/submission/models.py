@@ -1496,7 +1496,9 @@ class Article(AbstractLastModifiedModel):
             return mark_safe(template.render(Context()))
 
     def author_list(self):
-        return ", ".join([author.full_name() for author in self.frozen_authors()])
+        return ", ".join(
+            [author.full_name() for author in self.frozenauthor_set.all()]
+        )
 
     def bibtex_author_list(self):
         return " AND ".join(
@@ -2697,9 +2699,6 @@ class SubmissionConfiguration(models.Model):
 
 @receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
-    raise DeprecationWarning(
-        "Authorship is now exclusively handled via FrozenAuthor."
-    )
     """
     This signal will remove an author from a paper if the user deletes the
     frozen author record to ensure they are in sync.
@@ -2707,6 +2706,9 @@ def remove_author_from_article(sender, instance, **kwargs):
     :param instance: FrozenAuthor instance
     :return: None
     """
+    raise DeprecationWarning(
+        "Authorship is now exclusively handled via FrozenAuthor."
+    )
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,

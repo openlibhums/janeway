@@ -867,13 +867,13 @@ def dashboard(request):
             completed__isnull=False,
             typesetter=request.user).count(),
         'active_submissions': submission_models.Article.objects.filter(
-            authors=request.user,
+            owner=request.user,
             journal=request.journal
         ).exclude(
             stage__in=[submission_models.STAGE_UNSUBMITTED, submission_models.STAGE_PUBLISHED],
         ).order_by('-date_submitted'),
         'published_submissions': submission_models.Article.objects.filter(
-            authors=request.user,
+            frozenauthor__author=request.user,
             journal=request.journal,
             stage=submission_models.STAGE_PUBLISHED,
         ).order_by('-date_published'),
@@ -1548,7 +1548,7 @@ def user_history(request, user_id):
         'log_entries': log_entries,
         'publications':
             submission_models.Article.objects.filter(
-                authors=user,
+                frozenauthor__author=user,
                 journal=request.journal,
                 stage=submission_models.STAGE_PUBLISHED,
                 date_published__isnull=False,
@@ -1562,7 +1562,7 @@ def user_history(request, user_id):
         },
         'submissions':
             submission_models.Article.objects.filter(
-                authors=user,
+                frozenauthor__author=user,
                 journal=request.journal,
             ).exclude(
                 stage=submission_models.STAGE_PUBLISHED,

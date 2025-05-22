@@ -686,11 +686,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return statistics.mean(ratings) if ratings else 0
 
     def articles(self):
-        return submission_models.Article.objects.filter(authors__in=[self])
+        return submission_models.Article.objects.filter(frozenauthor__author=self)
 
     def published_articles(self):
         articles = submission_models.Article.objects.filter(
-            authors=self,
+            frozenauthor__author=self,
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
         )
