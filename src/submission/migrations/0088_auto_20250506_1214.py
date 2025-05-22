@@ -22,8 +22,11 @@ def update_inprogress_article_authors(apps, schema_editor):
         ).values_list("order"))
         accounts = article.authors.annotate(order=subq).order_by("order")
         for order, account in enumerate(accounts):
-            if order == 0 and not article.correspondence_author:
-                article.correspondence_author = account
+            if not article.correspondence_author:
+                if order == 0 and account.real_email:
+                    article.correspondence_author = account
+                elif article.owner in article.authors.all():
+                    article.correspondence_author = article.owner
                 article.save()
             frozen_dict = {
                 'name_prefix': account.name_prefix,
@@ -39,8 +42,6 @@ def update_inprogress_article_authors(apps, schema_editor):
                 article=article,
                 defaults=frozen_dict,
             )
-
-
 
 
 class Migration(migrations.Migration):

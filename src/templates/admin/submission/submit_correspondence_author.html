@@ -33,7 +33,7 @@
       {% if article.non_correspondence_authors %}
         <fieldset>
           <legend>{% trans "Select a new correspondence author:" %}</legend>
-          {% for possible_corr_author in article.author_accounts.all %}
+          {% for possible_corr_author in article.author_accounts %}
             <div class="option">
               <input
                 id="option_{{ possible_corr_author.pk }}"

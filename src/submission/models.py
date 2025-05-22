@@ -885,6 +885,9 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def author_accounts(self):
+        """
+        Get the accounts connected to the article via a FrozenAuthor record.
+        """
         return core_models.Account.objects.filter(frozenauthor__article=self)
 
     # credits
@@ -1219,7 +1222,7 @@ class Article(AbstractLastModifiedModel):
                 pk=self.correspondence_author.pk,
             )
         else:
-            return self.author_accounts.all()
+            return self.author_accounts
 
     def is_accepted(self):
         if self.date_published:
@@ -1640,7 +1643,7 @@ class Article(AbstractLastModifiedModel):
         self.save()
 
     def user_is_author(self, user):
-        if user in self.frozenauthor_set.all():
+        if user in self.author_accounts:
             return True
         return False
 

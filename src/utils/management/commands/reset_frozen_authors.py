@@ -29,6 +29,10 @@ class Command(BaseCommand):
         :param options: None.
         :return: None
         """
+        raise DeprecationWarning(
+            "This command can cause unintended behavior because "
+            "accounts are not created for all authors during submission."
+        )
         filters = {}
         if options["hard"] is True:
             filters["author__isnull"] = True
