@@ -1790,7 +1790,7 @@
   <xsl:template match="ref">
       <xsl:choose>
         <xsl:when test="count(element-citation)=1">
-            <li id="{@id}">
+            <li id="{@id}" class="cross-ref-entry">
                 <xsl:if test="label">
                     <xsl:apply-templates select="label"/>
                 </xsl:if>
