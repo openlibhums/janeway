@@ -1334,3 +1334,10 @@ button.list-group-item-danger.active:focus {
   text-decoration: underline;
 }
 
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
