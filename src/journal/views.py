@@ -1207,7 +1207,6 @@ def publish_article(request, article_id):
 
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
-            article.snapshot_authors(force_update=False)
             article.close_core_workflow_objects()
 
             if not article.date_published:

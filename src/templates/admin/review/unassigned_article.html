@@ -118,7 +118,7 @@
                                 </td>
                             {% endif %}
                             <td>{{ author.email|se_can_see_pii:article }}</td>
-                            <td>{% if author.author == article.correspondence_author %}
+                            <td>{% if author.author and author.author == article.correspondence_author %}
                                 <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
                                 <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
                         </tr>

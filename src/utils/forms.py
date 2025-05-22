@@ -1,4 +1,6 @@
 import bleach
+import re
+
 from django.forms import (
     CharField,
     CheckboxInput,
@@ -6,6 +8,7 @@ from django.forms import (
     DateInput,
     HiddenInput,
     Form,
+    RadioSelect,
 )
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -152,3 +155,44 @@ def plain_text_validator(value):
         raise ValidationError(
             _("HTML is not allowed in this field")
         )
+
+
+def clean_orcid_id(orcid):
+    """
+    Utility function that cleans an ORCID ID.
+    """
+    if orcid:
+        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
+        result = orcid_regex.search(orcid)
+
+        if result:
+            return result.group(0)
+        else:
+            raise ValueError('ORCID is not valid.')
+
+    # ORCID is None.
+    return orcid
+
+
+class YesNoRadio(RadioSelect):
+    """
+    A drop-in radio widget to use with BooleanField
+    when the user is meant to express a simple yes/no preference.
+    Displays compactly inline.
+    """
+    def __init__(self, attrs=None, choices=()):
+        yes_no_attrs = {
+            "class": "yes-no-radio"
+        }
+        if attrs:
+            yes_no_attrs.update(attrs)
+        yes_no_choices = [
+            (True, _('Yes')),
+            (False, _('No')),
+        ]
+        if choices:
+            raise ImproperlyConfigured(
+                'The YesNoRadio widget does not expect choices '
+                'from the initializer.'
+            )
+        super().__init__(attrs=yes_no_attrs, choices=yes_no_choices)

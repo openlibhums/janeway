@@ -95,7 +95,7 @@ def editor_is_not_author(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if request.user in article.authors.all() and not article.editor_override(request.user):
+        if request.user in article.author_accounts and not article.editor_override(request.user):
             return redirect(
                 reverse(
                     'review_warning',

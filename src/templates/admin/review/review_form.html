@@ -121,7 +121,7 @@
                                 <th>Institution</th>
                                 <th>Department</th>
                             </tr>
-                            {% for author in assignment.article.authors.all %}
+                            {% for author in assignment.article.frozenauthor_set.all %}
                                 <tr>
                                     <td>{{ author.full_name }}</td>
                                     <td>{{ author.institution }}</td>
@@ -129,7 +129,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4">No files. You should add them before inviting reviewers.</td>
+                                    <td colspan="4">No authors found.</td>
                                 </tr>
                             {% endfor %}
                         </table>

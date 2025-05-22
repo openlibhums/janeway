@@ -20,7 +20,7 @@
         {% elif type == 'prepublication' %}
             <p>Awaiting completion of pre-pub checklist.</p>
         {% endif %}
-        <p><small>Primary Author: {{ article.correspondence_author.full_name }}</small></p>
+        <p><small>Correspondence author: {{ article.correspondence_author.full_name }}</small></p>
         <div class="button-group">
             {% if type == "unassigned" %}
                 <a class="button tiny" href="{% url 'review_unassigned_article' article.pk %}">Assign Editor</a>

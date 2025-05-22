@@ -26,6 +26,7 @@ from core.forms.forms import (
     JournalSubmissionForm,
     LoginForm,
     NotificationForm,
+    OrcidAffiliationForm,
     OrganizationNameForm,
     PasswordResetForm,
     PressJournalAttrForm,

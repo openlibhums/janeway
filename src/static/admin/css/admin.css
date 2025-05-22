@@ -470,6 +470,10 @@ th {
     -o-transition: background 0.4s linear;
     transition: background 0.4s linear;
 }
+.list-group-item.static-bg:hover {
+  background-color: #ffffff;
+  transition: none;
+}
 
 .file p {
     word-break: break-all;
@@ -592,6 +596,10 @@ th {
 
 .no-bottom-margin {
     margin-bottom: 0;
+}
+
+.no-top-margin {
+    margin-top: 0;
 }
 
 .dont-break-out {
@@ -883,10 +891,10 @@ ul.menu {
   display: grid;
   column-gap: 1rem;
   margin-block-end: 10rem;
-  @media (orientation: portrait) {
+  @media (width <= 50rem) {
     grid-template-columns: 100%;
   }
-  @media (orientation: landscape) {
+  @media (width > 50rem) {
     grid-template-columns: 20rem minmax(auto, 60rem);
   }
   h3 {
@@ -967,4 +975,114 @@ ul.menu {
   display: grid;
   grid-template-columns: min(calc(100vw - (2 * var(--small-inline-margin))), 56rem);
   justify-content: center;
+}
+
+/* Give me options */
+/* This component is CSS and JS only.
+ * The HTML must be rewritten each time it is used. */
+.give-me-options {
+  &.displayed .options-pane {
+    display: block;
+  }
+  &.displayed .fa-angle-up {
+    display: inline;
+  }
+  &.displayed .fa-angle-down {
+    display: none;
+  }
+  .options-pane {
+    display: none;
+  }
+  .fa-angle-down {
+    display: inline;
+  }
+  .fa-angle-up {
+    display: none;
+  }
+  .option,
+  .option label {
+    display: flex;
+    column-gap: 0.25rem;
+    align-items: center;
+  }
+  .option label {
+    font-size: var(--step-2);
+    margin-left: 0;
+  }
+  .option input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0.25rem;
+  }
+}
+
+/* Shell of a button */
+/* Allows you to create removable chips that look like
+ * hollow secondary buttons but do not act like buttons,
+ * since they are meant to have an X button (remove) inside them. */
+.shell-of-a-button {
+  border: 1px solid #1a2a57;
+  color: #1a2a57;
+  background-color: transparent;
+  vertical-align: middle;
+  padding-left: 1rem;
+  line-height: 1;
+  text-align: center;
+  .button.hollow.secondary {
+    border: none;
+  }
+}
+.button-group .shell-of-a-button {
+  margin: 0;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  font-size: 0.9rem;
+  border-radius: 0;
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+
+/* Yes no radio */
+/* This component is CSS and Python only. To use it,
+ * assign utils.forms.YesNoRadio as the Python form widget. */
+.yes-no-radio {
+  display: flex;
+  gap: 1rem;
+  max-width: 16rem;
+  margin-bottom: 1rem;
+  label {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+  }
+}
+
+
+/*
+ * Nitty gritty
+ * An two-part interface that lets users edit or confirm something,
+ * with reference to key contextual information in a side pane.
+ * Works together with admin/elements/nitty_gritty.html.
+ * */
+
+.nitty-gritty {
+  display: grid;
+  max-width: 80rem;
+  column-gap: 1rem;
+  margin-block-start: 0.5rem;
+  margin-inline: 1rem;
+  margin-block-end: 10rem;
+  @media (width <= 50rem) {
+    grid-template-columns: 100%;
+  }
+  @media (width > 50rem) {
+    grid-template-columns: 20rem minmax(auto, 60rem);
+  }
 }

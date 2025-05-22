@@ -451,6 +451,7 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
     :param citation: The citation string, helps distinguish conjuntions from middle names
     :return: None
     """
+    raise DeprecationWarning("Use the imports plugin instead.")
     fetch_emails = not mismatch
 
     for idx, val in enumerate(authors):

@@ -6,6 +6,7 @@ __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from contextlib import contextmanager
+from hashlib import md5
 from io import BytesIO
 import re
 import sys
@@ -912,3 +913,15 @@ class AffiliationCompatibleQueryset(models.query.QuerySet):
     def filter(self, *args, **kwargs):
         kwargs = self._remap_old_affiliation_lookups(kwargs)
         return super().filter(*args, **kwargs)
+
+
+def generate_dummy_email(details):
+    """
+    :param details: a dict whose keys and values will serve as the hash seed
+    :type details: dict
+    """
+    seed = ''.join([str(key) + str(val) for key, val in details.items()])
+    hashed = md5(str(seed).encode("utf-8")).hexdigest()
+    # Avoid validation bug where two @@ symbols are used in the email
+    domain = settings.DUMMY_EMAIL_DOMAIN.replace('@', '')
+    return "{0}@{1}".format(hashed, domain)

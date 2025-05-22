@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                 ('preprint_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintauthor')),
             ],
             options={
-                'ordering': ['is_primary', '-pk'],
+                'ordering': ['-is_primary', '-pk'],
             },
         ),
         migrations.AddConstraint(

@@ -1,0 +1,66 @@
+{% load next_url %}
+
+<div class="flex direction-column gap-0-5 no-bottom-margin">
+  {% for affiliation in interface.affiliations %}
+    <div class="flex wrap space-between column-gap-4">
+      <div class="max-w-28">
+        {% if interface.affiliations|length > 1 %}
+          {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=True %}
+        {% else %}
+          {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=False %}
+        {% endif %}
+      </div>
+      <div class="button-group small stacked no-bottom-margin">
+        {% if article %}
+          {% url_with_return "submission_affiliation_update" article.pk author.pk affiliation.pk as edit_url %}
+          {% url_with_return "submission_affiliation_delete" article.pk author.pk affiliation.pk as delete_url %}
+        {% else %}
+          {% url_with_return 'core_affiliation_update' affiliation.pk as edit_url %}
+          {% url_with_return 'core_affiliation_delete' affiliation.pk as delete_url %}
+        {% endif %}
+        {% trans "Edit affiliation" as edit_label %}
+        {% include "elements/a_edit.html" with href=edit_url label=edit_label %}
+        {% trans "Delete affiliation" as delete_label %}
+        {% include "elements/a_delete.html" with href=delete_url label=delete_label %}
+      </div>
+    </div>
+  {% empty %}
+    <div>{% trans "No affiliations." %}</div>
+  {% endfor %}
+  <div class="bs-callout bs-callout-info flex">
+    <div class="button-group no-bottom-margin">
+      {% if interface.orcid %}
+        {% if article %}
+          {% url_with_return 'submission_affiliation_update_from_orcid' article.pk author.pk 'primary' as primary_url %}
+          {% url_with_return 'submission_affiliation_update_from_orcid' article.pk author.pk 'all' as all_url %}
+        {% else %}
+          {% url_with_return 'core_affiliation_update_from_orcid' 'primary' as primary_url %}
+          {% url_with_return 'core_affiliation_update_from_orcid' 'all' as all_url %}
+        {% endif %}
+        <a
+          href="{{ primary_url }}"
+          class="button secondary small hollow">
+          <span class="fa fa-star"></span>
+          {% trans "Get primary affiliation from ORCID" %}
+        </a>
+        <a
+          href="{{ all_url }}"
+          class="button secondary small hollow">
+          <span class="fa fa-refresh"></span>
+          {% trans "Update all affiliations from ORCID" %}
+        </a>
+      {% endif %}
+      {% if article %}
+        {% url_with_return 'submission_organization_search' article.pk author.pk as create_url %}
+      {% else %}
+        {% url_with_return 'core_organization_search' as create_url %}
+      {% endif %}
+      <a
+        href="{{ create_url }}"
+        class="button secondary hollow no-bottom-margin">
+        <span class="fa fa-plus"></span>
+        {% trans "Add affiliation" %}
+      </a>
+    </div>
+  </div>
+</div>

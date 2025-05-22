@@ -88,7 +88,7 @@ def generate_ebook_lib_epub(request, galley):
     book.set_title(article.title)
     book.set_language('en')
 
-    for author in article.authors.all():
+    for author in article.frozenauthor_set.all():
         book.add_author(author.full_name())
 
     c1 = epub.EpubHtml(title=article.title, file_name='article.xhtml', lang='en')
