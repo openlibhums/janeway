@@ -1,35 +1,47 @@
 // draw user attention to destination
-// function drawUserAttention(link){
-
-//     visual highlighting around paragraph
-//     const element = link.closest('p');
-//     if (element) {
-//         element.classList.add('ref-highlight');
-//         setTimeout(() => {
-//             element.classList.remove('ref-highlight');
-//         }, 2000);
-//     }
-
-//     keyboard A11y
-//     link.focus();
-
-//     screen reader A11y (user dismissable sr-only announcement)
-//     const term = link.textContent;
-//     const announcement = document.createElement('div');
-//     announcement.setAttribute('role', 'status');
-//     announcement.setAttribute('aria-live', 'polite');
-//     announcement.setAttribute('class', 'sr-only dismissible-announcement');
-//     announcement.textContent = `Navigated to reference: ${term}`;
-
-//     const dismissButton = document.createElement('button');
-//     dismissButton.setAttribute('aria-label', 'Dismiss announcement');
-//     dismissButton.setAttribute('class', 'dismiss-announcement');
-//     dismissButton.innerHTML = '&times;';
-//     dismissButton.addEventListener('click', () => announcement.remove());
+function drawUserAttention(link, targetElement){
+    console.log('Drawing attention to:', targetElement);
     
-//     announcement.appendChild(dismissButton);
-//     document.body.appendChild(announcement);
-// }
+    // visual highlighting around the closest block-level container
+    const blockElements = ['p', 'li', 'div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
+    const element = targetElement.closest(blockElements.join(','));
+    console.log('Found container element:', element);
+    
+    if (element) {
+        console.log('Adding draw-attention class');
+        element.classList.add('draw-attention');
+
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        setTimeout(() => {
+            console.log('Removing draw-attention class');
+            element.classList.remove('draw-attention');
+        }, 2000);
+    }
+
+    //keyboard A11y - only focus if element is focusable
+    if (targetElement.tagName === 'A' || targetElement.tagName === 'BUTTON' || 
+        targetElement.getAttribute('tabindex') !== null) {
+        targetElement.focus();
+    }
+
+    //screen reader A11y (user dismissable sr-only announcement)
+    const term = link.textContent;
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('class', 'sr-only dismissible-announcement');
+    announcement.textContent = `Navigated to reference: ${term}`;
+
+    const dismissButton = document.createElement('button');
+    dismissButton.setAttribute('aria-label', 'Dismiss announcement');
+    dismissButton.setAttribute('class', 'dismiss-announcement');
+    dismissButton.innerHTML = '&times;';
+    dismissButton.addEventListener('click', () => announcement.remove());
+    
+    announcement.appendChild(dismissButton);
+    document.body.appendChild(announcement);
+}
 
 // from article to cross reference on the same page 
 // function navigateToReference(targetId, sourceLink){
@@ -124,5 +136,25 @@ function initialiseCrossRefs(){
     });
 }
 
+
 // Run initialiseCrossRefs when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', initialiseCrossRefs);
+document.addEventListener('DOMContentLoaded', () => {
+    initialiseCrossRefs();
+    
+    // Add click handler for all internal links, including dynamically generated ones
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[href^="#"]');
+        if (link) {
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                // Prevent default scroll behavior since we're handling it
+                event.preventDefault();
+                // Update the URL hash
+                window.location.hash = targetId;
+                // Draw attention to the target
+                drawUserAttention(link, targetElement);
+            }
+        }
+    });
+});
