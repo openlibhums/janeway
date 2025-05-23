@@ -516,3 +516,16 @@ header svg {
 a {
     overflow-wrap: break-word;
 }
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+.draw-attention{
+    background-color: #FFEB3B;
+    transition: background-color 2s ease-out;
+}
