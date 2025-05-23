@@ -9,91 +9,31 @@ function drawUserAttention(link, targetElement){
         clearTimeout(attentionTimeout);
     }
     
-    // visual highlighting around the closest block-level container
+
+    
     const blockElements = ['p', 'li', 'div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
     const element = targetElement.closest(blockElements.join(','));
-    console.log('Found container element:', element);
     
     if (element) {
-        console.log('Adding draw-attention class');
+
+        // visual highlighting around the closest block-level container
         element.classList.add('draw-attention');
 
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
+        //keyboard A11y - make the focus change to this element
+        oldTabIndex = targetElement.tabIndex;
+        targetElement.tabIndex = "-1"
+        targetElement.focus();
+        
         attentionTimeout = setTimeout(() => {
-            console.log('Removing draw-attention class');
             element.classList.remove('draw-attention');
             attentionTimeout = null;
+            targetElement.tabIndex - oldTabIndex;
         }, 2000);
     }
 
-    //keyboard A11y - only focus if element is focusable
-    if (targetElement.tagName === 'A' || targetElement.tagName === 'BUTTON' || 
-        targetElement.getAttribute('tabindex') !== null) {
-        targetElement.focus();
-    }
-
-    //screen reader A11y (user dismissable sr-only announcement)
-    const term = link.textContent;
-    const announcement = document.createElement('div');
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('class', 'sr-only dismissible-announcement');
-    announcement.textContent = `Navigated to reference: ${term}`;
-
-    const dismissButton = document.createElement('button');
-    dismissButton.setAttribute('aria-label', 'Dismiss announcement');
-    dismissButton.setAttribute('class', 'dismiss-announcement');
-    dismissButton.innerHTML = '&times;';
-    dismissButton.addEventListener('click', () => announcement.remove());
-    
-    announcement.appendChild(dismissButton);
-    document.body.appendChild(announcement);
 }
-
-// from article to cross reference on the same page 
-// function navigateToReference(targetId, sourceLink){
-//     // first remember where you came from!
-//     lastArticlePosition = sourceLink;
-
-//     // then scroll
-//     link.scrollIntoView({ behavior: 'smooth'});
-
-//     // and after scrolling ...
-//     setTimeout(() => {
-
-//         //@todo update target 'return' button to last article position
-
-//         drawUserAttention(targetId)
-
-//     }, 500);
-// }
-
-// Navigate from a cross reference dropdown back to the article
-// function backToArticle(link) {
-//     if(lastArticlePosition){
-//         const articlePosition = lastArticlePosition
-    
-//         // move
-//         articlePosition.scrollIntoView({ behaviour: 'smooth'});
-
-//         // and while moving
-//         setTimeout(() => {
-//             //@todo reset target 'return' button to first link from article
-
-//             drawUserAttention(articlePosition);
-//         }, 500);
-//     }   
-// }
-
-// Handle cross-reference link clicks
-// document.querySelectorAll('.cross-ref-link').forEach(link => {
-//     link.addEventListener('click', function(e){
-//         e.preventDefault();
-//         const targetId = this.getAttribute('href').substring(1);
-//         navigateToReference(targetId, this);
-//     });
-// });
 
 // Function to get the section title for a reference
 function getSectionTitle(link) {
@@ -133,10 +73,9 @@ function initialiseCrossRefs(){
             const sectionLink = document.createElement('a');
             sectionLink.href = `#${link.id}`; // Link to the original citation's position
             sectionLink.textContent = links.length === 1 ? '---^' : `---^(${i + 1})`;
-            sectionLink.setAttribute('aria-labelledby', `${entry.id} ${sectionInfo.id}`);
+            sectionLink.setAttribute('aria-label', `${sectionInfo.title}`);
             sectionLink.className = 'section-link';
             sectionLink.title = `${sectionInfo.title}`;
-            sectionLink.tabIndex = 0; // Make sure the link is focusable
             
             // Append the link as a suffix within the entry
             entry.appendChild(sectionLink);
