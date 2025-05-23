@@ -1,6 +1,13 @@
 // draw user attention to destination
+let attentionTimeout = null;
+
 function drawUserAttention(link, targetElement){
     console.log('Drawing attention to:', targetElement);
+    
+    // Clear any existing timeout
+    if (attentionTimeout) {
+        clearTimeout(attentionTimeout);
+    }
     
     // visual highlighting around the closest block-level container
     const blockElements = ['p', 'li', 'div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
@@ -13,9 +20,10 @@ function drawUserAttention(link, targetElement){
 
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
-        setTimeout(() => {
+        attentionTimeout = setTimeout(() => {
             console.log('Removing draw-attention class');
             element.classList.remove('draw-attention');
+            attentionTimeout = null;
         }, 2000);
     }
 
