@@ -1341,3 +1341,8 @@ button.list-group-item-danger.active:focus {
 .section-link:not(:first-of-type) {
     margin-left: 0.5rem;
 }
+
+.draw-attention{
+    background-color: #FFEB3B;
+    transition: background-color 2s ease-out;
+}
