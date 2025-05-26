@@ -6,13 +6,8 @@ from utils.migration_utils import update_default_setting_values
 
 
 def handle_update(apps, schema_editor):
-    update_default_setting_values(
-        apps,
-        setting_name="user_automatically_author",
-        group_name="general",
-        values_to_replace=[],
-        replacement_value="on",
-    )
+    # The setting user_automatically_author was removed
+    pass
 
 
 class Migration(migrations.Migration):

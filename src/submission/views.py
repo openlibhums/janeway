@@ -75,14 +75,9 @@ def start(request, type=None):
             if type == 'preprint':
                 preprint_models.Preprint.objects.create(article=new_article)
 
-            if setting_handler.get_setting(
-                    'general',
-                    'user_automatically_author',
-                    request.journal,
-            ).processed_value:
-                new_article.correspondence_author = request.user
-                new_article.save()
-                request.user.snapshot_self(new_article)
+            new_article.correspondence_author = request.user
+            new_article.save()
+            request.user.snapshot_self(new_article)
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_SUBMISSION_START,
@@ -361,25 +356,15 @@ def submit_authors(request, article_id):
             messages.add_message(
                 request,
                 messages.WARNING,
-                _('The article does not have a correspondence author.'),
+                _('The article does not have a correspondence author. '
+                  'Please select a correspondence author to continue.'),
             )
-            if (
-                not request.user.has_an_editor_role(request)
-            ) and (
-                not request.user.is_staff
-            ):
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    _('Please select a correspondence author to continue.'),
+            return redirect(
+                reverse(
+                    'submit_authors',
+                    kwargs={'article_id': article_id}
                 )
-                # If user is not an editor, require a correspondence author
-                return redirect(
-                    reverse(
-                        'submit_authors',
-                        kwargs={'article_id': article_id}
-                    )
-                )
+            )
 
         article.current_step = 3
         article.save()

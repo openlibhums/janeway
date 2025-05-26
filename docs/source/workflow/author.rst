@@ -70,7 +70,7 @@ Individual journals can add more fields to this page and they will be displayed 
     
 Author Information
 ------------------
-On the Author Information page we can add the authors of our paper. One some journals the submitting user is added as an author automatically, on others you will have the option to add yourself as an author using a button. 
+On the Author Information page we can add the authors of our paper. The submitting user is added as an author automatically, but they can remove themselves and add other authors if needed.
 
 .. figure:: ../nstatic/no_authors.png
 

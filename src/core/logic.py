@@ -293,9 +293,6 @@ def get_settings_to_edit(display_group, journal, user):
              'object': setting_handler.get_setting('general', 'editors_for_notification', journal),
              'choices': journal.editor_pks()
              },
-            {'name': 'user_automatically_author',
-             'object': setting_handler.get_setting('general', 'user_automatically_author', journal),
-             },
             {'name': 'submission_summary',
              'object': setting_handler.get_setting('general', 'submission_summary', journal),
              },
