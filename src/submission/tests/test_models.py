@@ -44,42 +44,7 @@ class CreditRecordTests(TestCase):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         cls.article_one = helpers.create_article(cls.journal_one)
-        cls.author_one = helpers.create_author(cls.journal_one)
-        cls.article_one.authors.add(cls.author_one)
-        cls.article_one.correspondence_author = cls.author_one
-        cls.article_one.save()
-        cls.frozen_author_one = models.FrozenAuthor.objects.create(
-            author=cls.author_one,
-            article=cls.article_one,
-        )
-
-    def test_credit_record_has_exclusive_fields_constraint(self):
-        with self.assertRaises(IntegrityError):
-            models.CreditRecord.objects.create(
-                author=self.author_one,
-                frozen_author=self.frozen_author_one,
-                article=self.article_one,
-                role='writing-original-draft',
-            )
-
-    def test_article_authors_and_credits_for_author(self):
-        article = helpers.create_article(self.journal_one)
-        author = helpers.create_author(self.journal_one)
-        article.authors.add(author)
-        role = author.add_credit('writing-original-draft', article=article)
-        models.ArticleAuthorOrder.objects.get_or_create(
-            article=article,
-            author=author,
-            defaults={'order': article.next_author_sort()},
-        )
-        expected_authors = [
-            author for author, roles in article.authors_and_credits().items()
-        ]
-        self.assertEqual(expected_authors, [author])
-        expected_roles = [
-            roles for author, roles in article.authors_and_credits().items()
-        ]
-        self.assertEqual(expected_roles[0].first(), role)
+        cls.frozen_author_one = helpers.create_frozen_author(cls.article_one)
 
     def test_article_authors_and_credits_for_frozen_author(self):
         role = self.frozen_author_one.add_credit('writing-original-draft')

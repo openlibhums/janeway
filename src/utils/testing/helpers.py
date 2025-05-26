@@ -208,6 +208,10 @@ def create_affiliation(
 
 
 def create_author(journal, **kwargs):
+    """
+    Creates an Account with the AccountRole of 'author'.
+    Use create_frozen_author to get an actual FrozenAuthor record.
+    """
     roles = kwargs.pop('roles', ['author'])
     email = kwargs.pop('email', "authoruser@martineve.com")
     attrs = {
@@ -231,6 +235,42 @@ def create_author(journal, **kwargs):
         account=author,
     )
     return author
+
+
+def create_frozen_author(article, **kwargs):
+    if kwargs.pop('with_author', False):
+        author_kwargs ={
+            'first_name': 'Bob',
+            'last_name': 'Loblaw',
+            'name_suffix': 'Esq.',
+            'orcid': '0000-0001-2345-6789',
+            'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+        }
+        account = create_author(journal, **author_kwargs)
+        if not article.owner:
+            article.owner = account
+        if not article.correspondence_author:
+            article.correspondence_author = account
+        article.save()
+        frozen_author = account.snapshot_self(article)
+    else:
+        frozen_dict = {
+            'first_name': 'Bob',
+            'last_name': 'Loblaw',
+            'name_suffix': 'Esq.',
+            'frozen_orcid': '0000-0001-2345-6789',
+            'frozen_email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            'order': article.next_frozen_author_order(),
+        }
+        frozen_author, _created = sm_models.FrozenAuthor.objects.get_or_create(
+            article=article,
+            defaults=frozen_dict,
+        )
+
+    for k, v in kwargs.items():
+        setattr(frozen_author, k ,v)
+        frozen_author.save()
+    return frozen_author
 
 
 def create_article(journal, **kwargs):
