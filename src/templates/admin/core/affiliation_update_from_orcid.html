@@ -36,7 +36,7 @@
       <h3 class="fs-3">
         {% trans "Old affiliations to be removed" %}
       </h3>
-      <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+      <div class="flex direction-column column-gap-2 row-gap-0-5">
         {% for old_affil in old_affils %}
           {% include "admin/core/affiliation_display.html" with affiliation=old_affil %}
         {% endfor %}
@@ -48,7 +48,7 @@
       <h3 class="fs-3">
         {% trans "New affiliations to be added" %}
       </h3>
-      <div class="flex wrap column-gap-2 row-gap-0-5 items-center space-between">
+      <div class="flex direction-column column-gap-2 row-gap-0-5">
         {% for new_affil in new_affils %}
           {% include "admin/core/affiliation_display.html" with affiliation=new_affil %}
         {% endfor %}

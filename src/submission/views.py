@@ -1035,7 +1035,7 @@ def edit_author(request, article_id, author_id):
     else:
         credit_form = None
 
-    if request.method == 'POST' and 'edit_author' in request.POST:
+    if request.method == 'GET' and 'edit_author' in request.GET:
         form = forms.EditFrozenAuthor(instance=author)
         messages.add_message(
             request,
@@ -1046,7 +1046,6 @@ def edit_author(request, article_id, author_id):
                     "author_name": author.full_name(),
                 },
         )
-        last_changed_author = author
 
     elif request.method == 'POST' and 'save_author' in request.POST:
         form = forms.EditFrozenAuthor(
@@ -1055,11 +1054,20 @@ def edit_author(request, article_id, author_id):
         )
         if form.is_valid():
             form.save()
-            form = None
             messages.add_message(
                 request,
                 messages.SUCCESS,
                 _('Name, bio, and identifiers saved.'),
+            )
+            return redirect(
+                reverse_with_next(
+                    'submission_edit_author',
+                    next_url,
+                    kwargs={
+                        'article_id': article.pk,
+                        'author_id': author.pk,
+                    }
+                )
             )
 
     elif request.method == 'POST' and 'add_credit' in request.POST:
@@ -1083,8 +1091,15 @@ def edit_author(request, article_id, author_id):
                         "role": record.get_role_display(),
                     },
             )
-            credit_form = forms.CreditRecordForm(
-                frozen_author=author,
+            return redirect(
+                reverse_with_next(
+                    'submission_edit_author',
+                    next_url,
+                    kwargs={
+                        'article_id': article.pk,
+                        'author_id': author.pk,
+                    }
+                )
             )
 
     elif request.method == 'POST' and 'remove_credit' in request.POST:
@@ -1104,6 +1119,16 @@ def edit_author(request, article_id, author_id):
                     "author_name": author.full_name(),
                     "role": role_display,
                 },
+        )
+        return redirect(
+            reverse_with_next(
+                'submission_edit_author',
+                next_url,
+                kwargs={
+                    'article_id': article.pk,
+                    'author_id': author.pk,
+                }
+            )
         )
 
     template = 'admin/submission/edit/author.html'

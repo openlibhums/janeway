@@ -45,11 +45,10 @@
       </div>
     {% endif %}
     <section class="card padding-block-1 padding-inline-2">
-      <form method="POST">
-        {% csrf_token %}
-        <div class="title-area">
-          <h2>{% trans "Name, bio, and identifiers" %}</h2>
-          {% if not form %}
+      <div class="title-area">
+        <h2>{% trans "Name, bio, and identifiers" %}</h2>
+        {% if not form %}
+          <form method="GET">
             <div class="button-group no-bottom-margin">
               <button
                 type="submit"
@@ -60,10 +59,13 @@
                 {% trans "Edit name, bio, identifiers" %}
               </button>
             </div>
-          {% endif %}
-        </div>
-        {% if form %}
-          {% include "admin/elements/forms/messages_in_callout.html" %}
+          </form>
+        {% endif %}
+      </div>
+      {% if form %}
+        {% include "admin/elements/forms/messages_in_callout.html" %}
+        <form method="POST">
+          {% csrf_token %}
           <div class="bs-callout bs-callout-warning flex direction-column gap-0-5">
             <div class="grid auto">
               {% include "admin/elements/forms/field.html" with field=form.first_name %}
@@ -122,27 +124,27 @@
               </div>
             </div>
           </div>
-        {% else %}
-          <dl class="no-bottom-margin">
-            <div class="grid auto">
-              {% trans "Name" as name %}
-              {% include "elements/layout/key_value_above.html" with key=name value=author.full_name %}
-              {% trans "Is corporate" as is_corporate %}
-              {% include "elements/layout/key_value_above.html" with key=is_corporate value=author.is_corporate|yesno:"Yes,No" %}
-            </div>
-            {% trans "Biography" as bio_key %}
-            {% include "admin/elements/layout/key_value_above.html" with key=bio_key value=author.biography|default:"No biography"|safe %}
-            <div class="grid auto">
-              {% trans "Email" as email_key %}
-              {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
-              {% trans "Display email" as display_email %}
-              {% include "elements/layout/key_value_above.html" with key=display_email value=author.display_email|yesno:"Yes,No" %}
-              {% trans "ORCID" as orcid_key %}
-              {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
-            </div>
-          </dl>
-        {% endif %}
-      </form>
+        </form>
+      {% else %}
+        <dl class="no-bottom-margin">
+          <div class="grid auto">
+            {% trans "Name" as name %}
+            {% include "elements/layout/key_value_above.html" with key=name value=author.full_name %}
+            {% trans "Is corporate" as is_corporate %}
+            {% include "elements/layout/key_value_above.html" with key=is_corporate value=author.is_corporate|yesno:"Yes,No" %}
+          </div>
+          {% trans "Biography" as bio_key %}
+          {% include "admin/elements/layout/key_value_above.html" with key=bio_key value=author.biography|default:"No biography"|safe %}
+          <div class="grid auto">
+            {% trans "Email" as email_key %}
+            {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
+            {% trans "Display email" as display_email %}
+            {% include "elements/layout/key_value_above.html" with key=display_email value=author.display_email|yesno:"Yes,No" %}
+            {% trans "ORCID" as orcid_key %}
+            {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+          </div>
+        </dl>
+      {% endif %}
     </section>
     <section class="card padding-block-1 padding-inline-2">
       <div class="title-area">
