@@ -969,6 +969,7 @@ class AccountAffiliationForm(forms.ModelForm):
         widgets = {
             'start': HTMLDateInput,
             'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
         }
 
     def __init__(self, *args, **kwargs):

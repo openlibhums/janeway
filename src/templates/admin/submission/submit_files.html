@@ -3,8 +3,6 @@
 {% load i18n %}
 
 {% block title-section %}{% trans "Upload files" %}{% endblock %}
-{% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -20,7 +18,6 @@
                 <p>**{{ error }}**</p>
             {% endif %}
             {% csrf_token %}
-            {% include "submission/timeline.html" with data=article %}
         </div>
 
         <div class="row expanded">

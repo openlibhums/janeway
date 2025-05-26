@@ -3,13 +3,13 @@
 {% load i18n foundation next_url %}
 
 {% block contextual_title %}
-  {% blocktrans %}
+  {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
     Delete "{{ thing_to_delete }}"
   {% endblocktrans %}
 {% endblock contextual_title %}
 
 {% block title-section %}
-  {% blocktrans %}
+  {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
     Delete "{{ thing_to_delete }}"
   {% endblocktrans %}
 {% endblock title-section %}
@@ -17,7 +17,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   <li>
-    {% blocktrans %}
+    {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
       Delete "{{ thing_to_delete }}"
     {% endblocktrans %}
   </li>

@@ -56,12 +56,14 @@
       <div class="flex space-between">
         <div>
           <h3>{{ organization.ror_display }}</h3>
-          {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
-          {% if organization.also_known_as %}
-            {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
-          {% endif %}
-          {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.uri link=organization.uri %}
-          {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
+          <dl>
+            {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
+            {% if organization.also_known_as %}
+              {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
+            {% endif %}
+            {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.uri link=organization.uri %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
+          </dl>
         </div>
         <div>
           {% if account %}

@@ -8,7 +8,11 @@
   <div class="flex wrap gap-1 items-center space-between">
     <strong>
       <span class="fa fa-envelope"></span>
-      {% trans "Correspondence author" %}
+      {% if article.correspondence_author %}
+        {% trans "Correspondence author" %}
+      {% else %}
+        {% trans "No correspondence author" %}
+      {% endif %}
     </strong>
     <div class="button-group no-bottom-margin">
       <button
@@ -18,7 +22,11 @@
         aria-controls="options-pane-{{ pid }}">
         <span class="fa fa-angle-up"></span>
         <span class="fa fa-angle-down"></span>
-        {% trans "Change correspondence" %}
+        {% if article.correspondence_author %}
+          {% trans "Change correspondence" %}
+        {% else %}
+          {% trans "Select correspondence author" %}
+        {% endif %}
       </button>
     </div>
   </div>

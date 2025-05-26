@@ -22,19 +22,11 @@
   Edit "{{ author }}"
 {% endblock title-section %}
 
-{% block title-sub %}
-  #{{ article.pk }}
-  / {{ article.correspondence_author.last_name }}
-  / {{ article.safe_title }}
-{% endblock title-sub %}
-
 {% block body %}
   <div class="grid max-w-64 padding-inline-1 row-gap-0 margin-block-end-10">
-    <div class="flex padding-block-0-5">
-      <div class="button-group no-bottom-margin">
-        {% trans "Back to author list" as back_label %}
-        {% include "elements/a_back.html" with label=back_label href=request.GET.next %}
-      </div>
+    <div class="button-group">
+      {% trans "Back to all authors" as back_label %}
+      {% include "elements/a_back.html" with label=back_label href=request.GET.next %}
     </div>
     {% if not form %}
       {% include "admin/elements/forms/messages_in_callout.html" %}
@@ -47,7 +39,7 @@
             This is the author information that will be
             tied to "{{ article_title }}" when it is submitted.
             It is separate from your user profile with <i>{{ journal_title }}</i>,
-            which can edited at any time.
+            which can be edited at any time.
           {% endblocktrans %}</p>
         </div>
       </div>

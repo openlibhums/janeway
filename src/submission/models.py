@@ -888,7 +888,9 @@ class Article(AbstractLastModifiedModel):
         """
         Get the accounts connected to the article via a FrozenAuthor record.
         """
-        return core_models.Account.objects.filter(frozenauthor__article=self)
+        return core_models.Account.objects.filter(
+            frozenauthor__article=self
+        ).order_by('frozenauthor__order')
 
     # credits
     def authors_and_credits(self):
@@ -2706,6 +2708,14 @@ def remove_author_from_article(sender, instance, **kwargs):
     :param instance: FrozenAuthor instance
     :return: None
     """
+    if (
+        not instance.article.authors.exists()
+    ) and (
+        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
+    ):
+        # Return early so long as deprecated models and fields are not being used.
+        # This avoids triggering the deprecation warning in development.
+        return
     raise DeprecationWarning(
         "Authorship is now exclusively handled via FrozenAuthor."
     )

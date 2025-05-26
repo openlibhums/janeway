@@ -7,9 +7,6 @@
   {% include "admin/elements/layout/key_value_above.html" with key="Email" value=author.email %}
   {% include "admin/elements/layout/key_value_above.html" with key="ORCID" value=author.orcid %}
 {% endif %}
-{% if organization %}
-  {% include "admin/elements/layout/key_value_above.html" with key="Organization" value=organization %}
-{% endif %}
 {% if article %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.title %}

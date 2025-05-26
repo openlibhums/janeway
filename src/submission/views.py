@@ -356,9 +356,33 @@ def submit_authors(request, article_id):
         last_changed_author = logic.save_frozen_author_order(request, article)
 
     elif request.POST and 'save_continue' in request.POST:
+
+        if not article.correspondence_author:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _('The article does not have a correspondence author.'),
+            )
+            if (
+                not request.user.has_an_editor_role(request)
+            ) and (
+                not request.user.is_staff
+            ):
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    _('Please select a correspondence author to continue.'),
+                )
+                # If user is not an editor, require a correspondence author
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
         article.current_step = 3
         article.save()
-
         return redirect(
             reverse(
                 'submit_files',
@@ -1485,7 +1509,8 @@ def affiliation_create(request, article_id, author_id, organization_id):
 
     template = 'admin/core/affiliation_form.html'
     context = {
-        'account': request.user,
+        'article': article,
+        'author': author,
         'form': form,
         'organization': organization,
     }
@@ -1614,7 +1639,7 @@ def affiliation_delete(request, article_id, author_id, affiliation_id):
         'form': form,
         'affiliation': affiliation,
         'organization': affiliation.organization,
-        'thing_to_delete': affiliation.organization.name,
+        'thing_to_delete': str(affiliation),
     }
     return render(request, template, context)
 
@@ -1646,7 +1671,7 @@ def affiliation_update_from_orcid(
         article__owner=request.user,
     )
     try:
-        cleaned_orcid = clean_orcid_id(author.frozen_orcid)
+        cleaned_orcid = clean_orcid_id(author.orcid)
     except ValueError:
         cleaned_orcid = None
     if not cleaned_orcid:
@@ -1707,7 +1732,7 @@ def affiliation_update_from_orcid(
     if request.method == 'POST':
         form = ConfirmDeleteForm(request.POST)
         if form.is_valid():
-            request.user.affiliations.delete()
+            author.affiliations.delete()
             for affil in new_affils:
                 affil.save()
             messages.add_message(

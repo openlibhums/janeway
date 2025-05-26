@@ -1,6 +1,6 @@
 {% extends "admin/elements/confirm_delete.html" %}
 
-{% load i18n next_url %}
+{% load i18n next_url static %}
 
 {% block breadcrumbs %}
   {% if account and account == request.user %}
@@ -14,7 +14,7 @@
     {% include "elements/breadcrumbs/submit_authors_base.html" %}
   {% endif %}
   <li>
-    {% blocktrans %}
+    {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
       Delete "{{ thing_to_delete }}"
     {% endblocktrans %}
   </li>

@@ -4,9 +4,6 @@
 {% load i18n %}
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
-{% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
-{% endblock %}
 
 {% block head %}
     {{ block.super }}
@@ -24,7 +21,6 @@
                 {% csrf_token %}
 
                 {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
-                {% include "submission/timeline.html" with data=article %}
 
                 <div class="row expanded">
                     <div class="title-area">

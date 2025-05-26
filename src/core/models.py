@@ -2700,7 +2700,7 @@ class ControlledAffiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Each account can have one primary affiliation",
+        help_text="Each author or user can have one primary affiliation",
     )
     start = models.DateField(
         blank=True,
@@ -2734,7 +2734,7 @@ class ControlledAffiliation(models.Model):
         elements = [
             self.title,
             self.department,
-            str(self.organization) if self.organization else '',
+            str(self.organization.name) if self.organization else '',
         ]
         return ', '.join([element for element in elements if element])
 

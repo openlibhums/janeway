@@ -5,9 +5,6 @@
 {% load field %}
 
 {% block title-section %}{% trans "Funding Information" %}{% endblock %}
-{% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}"
-          rel="stylesheet">{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -17,7 +14,6 @@
 {% block body %}
     <article>
         <div class="box">
-            {% include "submission/timeline.html" with data=article %}
             {% include "admin/elements/forms/messages_in_callout.html" with form=funder_form %}
             <div class="title-area">
                 <h2>{% trans "Funding" %}</h2>

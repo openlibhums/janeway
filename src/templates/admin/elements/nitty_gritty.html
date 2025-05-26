@@ -2,7 +2,6 @@
 
 {% load i18n foundation next_url uuid %}
 
-
 {% block contextual_title %}{% endblock contextual_title %}
 
 {% block title-section %}{% endblock title-section %}
@@ -19,7 +18,7 @@
         <div class="title-area">
           <h2 id="{{ pid }}">
             {% block nitty_h2 %}
-              {% trans "Summary" %}
+              {% trans "Related info" %}
             {% endblock nitty_h2 %}
           </h2>
         </div>
@@ -46,16 +45,6 @@
               {{ field }}
             {% endfor %}
             {% block gritty_form %}
-              <div class="bs-callout bs-callout-warning">
-                <p>{% blocktrans %}
-                  Are you sure you want to delete "{{ thing_to_delete }}"?
-                {% endblocktrans %}</p>
-                {{ form }}
-                <div class="button-group no-bottom-margin">
-                  {% include "elements/button_yes_delete.html" %}
-                  {% include "elements/a_no_go_back.html" with href=request.GET.next %}
-                </div>
-              </div>
             {% endblock gritty_form %}
           </form>
         {% endblock gritty %}

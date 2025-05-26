@@ -23,7 +23,6 @@
             <div id="content submission-content" class="box">
                 {% csrf_token %}
 
-                {% include "admin/submission/timeline.html" with data=article %}
                 {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
 
                 {% if request.journal.submissionconfiguration.publication_fees or request.journal.submissionconfiguration.submission_check or request.journal.submissionconfiguration.copyright_notice %}
