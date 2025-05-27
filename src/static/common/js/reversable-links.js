@@ -3,24 +3,46 @@ let attentionTimeout = null;
 const headerElements = ['h1, h2, h3, h4, h5, h6'];
 const blockElements = ['p', 'li', 'ul', 'ol',' div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
 
-function drawUserAttention(link, targetElement){
+
+
+function drawUserAttention(targetElement){
  
     // Clear any existing timeout (allows a second link to be clicked before the timeout ends)
     if (attentionTimeout) {
         clearTimeout(attentionTimeout);
     }
 
+    // if the target is not a heading or a block, uses closest block
     if(targetElement.matches(headerElements)  || targetElement.matches(blockElements)) {
         element = targetElement;
     }
     else{
         element = targetElement.closest(blockElements.join(','));
     }
-    
+
+    // Function to smoothly scroll to element with offset if needed
+    function scrollToElementWithOffset(element, offset) {
+        const rect = element.getBoundingClientRect();
+        const elementTop = window.pageYOffset + rect.top;
+        const viewportHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // Only apply offset if element would scroll to top
+        let finalPosition = elementTop;
+        if (Math.max(0, elementTop) === elementTop) { 
+            finalPosition -= offset;
+        }
+        
+        window.scrollTo({
+            top: finalPosition,
+            behavior: 'smooth'
+        });
+    }
+
     if (element) {
 
         element.classList.add('draw-attention');
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToElementWithOffset(targetElement, 100);
         
         //A11y for keyboard & screenreader
         oldTabIndex = targetElement.tabIndex;
@@ -28,6 +50,7 @@ function drawUserAttention(link, targetElement){
         targetElement.focus();
         
         attentionTimeout = setTimeout(() => {
+
             element.classList.remove('draw-attention');
             attentionTimeout = null;
             targetElement.tabIndex = oldTabIndex;
@@ -36,13 +59,11 @@ function drawUserAttention(link, targetElement){
 
 }
 
-// Function to get the section title for a reference
+// Function to get the article section heading linked from
 function getHeading(link) {
     let current = link;
     while (current) {
-        // Check if current element is a heading
         if (current.matches(headerElements)) {
-            // Ensure heading has an ID
             if (!current.id) {
                 current.id = 'section-' + Math.random().toString(36).substring(2, 11);
             }
@@ -51,7 +72,6 @@ function getHeading(link) {
                 id: current.id
             };
         }
-        // Move to previous sibling or parent
         current = current.previousElementSibling || current.parentElement;
     }
     return { title: '', id: '' };
@@ -78,7 +98,6 @@ function initialiseCrossRefs(){
         const links = Array.from(document.querySelectorAll(`.xref-bibr[href="#${entry.id}"]`));
 
         links.forEach((link, i) => {
-            // ensure each in-text citation has a unique ID
             if (!link.id) {
                 link.id = `cite-${entry.id}-${i+1}`;
             }
@@ -101,23 +120,19 @@ function initialiseCrossRefs(){
 }
 
 
-// Run initialiseCrossRefs when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     initialiseCrossRefs();
     
-    // Add click handler for all internal links, including dynamically generated ones
+    // Add click handler for *all* internal links
     document.addEventListener('click', (event) => {
         const link = event.target.closest('a[href^="#"]');
         if (link) {
             const targetId = link.getAttribute('href').substring(1);
             const targetElement = document.getElementById(targetId);
             if (targetElement) {
-                // Prevent default scroll behavior since we're handling it
                 event.preventDefault();
-                // Update the URL hash
                 window.location.hash = targetId;
-                // Draw attention to the target
-                drawUserAttention(link, targetElement);
+                drawUserAttention(targetElement);
             }
         }
     });
