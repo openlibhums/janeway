@@ -5,6 +5,10 @@
 {% block title %}{{ group|capfirst }} Settings{% endblock title %}
 {% block title-section %}{{ group|capfirst }} Settings{% endblock %}
 
+{% block css %}
+    {{ attr_form.media.css }}
+{% endblock %}
+
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
@@ -65,4 +69,7 @@
                 {allowSpaces: true});
         });
     </script>
+
+    {{ attr_form.media.js }}
+
 {% endblock %}
