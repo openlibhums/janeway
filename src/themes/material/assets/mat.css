@@ -785,7 +785,11 @@ a {
     margin-left: 0.5rem;
 }
 
+:root {
+  --draw-attention: #FFEB3B;
+}
+
 .draw-attention{
-    background-color: #FFEB3B;
+    background-color: var(--draw-attention);
     transition: background-color 2s ease-out;
 }
