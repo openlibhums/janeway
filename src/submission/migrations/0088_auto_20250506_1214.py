@@ -24,7 +24,7 @@ def update_inprogress_article_authors(apps, schema_editor):
         accounts = article.authors.annotate(order=subq).order_by("order")
         for order, account in enumerate(accounts):
             if not article.correspondence_author:
-                if not account.email.endswith(settings.DUMMY_EMAIL_DOMAIN)
+                if not account.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
                     article.correspondence_author = account
                     article.save()
             frozen_dict = {
