@@ -480,7 +480,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             404,
         )
@@ -497,7 +497,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             200,
         )
@@ -510,7 +510,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             403,
         )
