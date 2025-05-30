@@ -9,5 +9,5 @@
 {% endif %}
 {% if article %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
-  {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.title %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.safe_title %}
 {% endif %}

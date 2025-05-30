@@ -35,7 +35,7 @@
       <div class="card">
         <div class="bs-callout bs-callout-info">
           {% url_with_return 'core_edit_profile' as edit_profile_link %}
-          <p>{% blocktrans with article_title=article.title journal_title=journal.name %}
+          <p>{% blocktrans with article_title=article.safe_title journal_title=journal.name %}
             This is the author information that will be
             tied to "{{ article_title }}" when it is submitted.
             It is separate from your user profile with <i>{{ journal_title }}</i>,
