@@ -38,7 +38,7 @@ class TestSubmitAuthorsLogic(TestCase):
             owner=cls.kathleen,
             current_step=2,
         )
-        cls.kathleen_author = cls.kathleen.snapshot_self(cls.article)
+        cls.kathleen_author = cls.kathleen.snapshot_as_author(cls.article)
 
 
     def test_save_author_order_single_author(self):
@@ -59,7 +59,7 @@ class TestSubmitAuthorsLogic(TestCase):
 
     def test_save_author_order_three_authors(self):
         # Set up a second and third author
-        eliot_author = self.eliot.snapshot_self(self.article)
+        eliot_author = self.eliot.snapshot_as_author(self.article)
         eric = helpers.create_user(
             '6cfka43pltcafyzlluxa@example.org',
             roles=['author'],
@@ -67,7 +67,7 @@ class TestSubmitAuthorsLogic(TestCase):
             first_name='Eric',
             last_name='Hobsbawm',
         )
-        eric_author = eric.snapshot_self(self.article)
+        eric_author = eric.snapshot_as_author(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)

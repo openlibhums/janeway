@@ -505,7 +505,7 @@ def set_article_attributions(authors, emails, institutions, mismatch, article, c
                 author=account,
                 defaults={'order': article.next_author_sort()},
             )
-            # Copy behaviour of snapshot_self, some authors might have a
+            # Copy behaviour of snapshot_as_author, some authors might have a
             # shared dummy email address.
             f, created = submission_models.FrozenAuthor.objects.get_or_create(
                 **{

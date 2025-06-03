@@ -397,7 +397,7 @@ def add_author_using_orcid(search_term, article, request):
             )
             account.orcid=cleaned_orcid
             account.save()
-            author = account.snapshot_self(article)
+            author = account.snapshot_as_author(article)
             created = True
             return author, created
         except core_models.Account.DoesNotExist:

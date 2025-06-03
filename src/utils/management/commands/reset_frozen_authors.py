@@ -46,4 +46,4 @@ class Command(BaseCommand):
                 author = fa.author
                 fa.delete()
                 if author:
-                    author.snapshot_self(article)
+                    author.snapshot_as_author(article)

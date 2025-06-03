@@ -51,7 +51,7 @@ class TestSubmitViewsBase(TestCase):
             cls.journal_one,
             '',
         )
-        cls.kathleen_author = cls.kathleen.snapshot_self(cls.article)
+        cls.kathleen_author = cls.kathleen.snapshot_as_author(cls.article)
         cls.article.correspondence_author = cls.kathleen
         cls.article.save()
 
@@ -126,7 +126,7 @@ class TestSubmitAuthors(TestSubmitViewsBase):
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_corr_author(self):
-        self.eliot.snapshot_self(self.article)
+        self.eliot.snapshot_as_author(self.article)
         self.client.force_login(self.kathleen)
         post_data = {
             'corr_author': self.eliot.pk,
@@ -143,7 +143,7 @@ class TestSubmitAuthors(TestSubmitViewsBase):
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_change_order(self, logic_save_frozen_author_order):
         # Add a second author
-        eliot_author = self.eliot.snapshot_self(self.article)
+        eliot_author = self.eliot.snapshot_as_author(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
@@ -180,7 +180,7 @@ class TestSubmitAuthors(TestSubmitViewsBase):
         # Add a second author that does not have a real email address
         self.eliot.email = 'notreal@testing.example.org'
         self.eliot.save()
-        self.eliot.snapshot_self(self.article)
+        self.eliot.snapshot_as_author(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
@@ -202,7 +202,7 @@ class TestSubmitAuthors(TestSubmitViewsBase):
     @override_settings(URL_CONFIG='domain', DUMMY_EMAIL_DOMAIN='testing')
     def test_delete_author(self):
         # Add a second author and make them corr author
-        eliot_author = self.eliot.snapshot_self(self.article)
+        eliot_author = self.eliot.snapshot_as_author(self.article)
         self.article.correspondence_author = self.eliot
         self.article.save()
 
@@ -306,7 +306,7 @@ class TestEditAuthor(TestSubmitViewsBase):
 
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_add_credit(self):
-        eliot_author = self.eliot.snapshot_self(self.article)
+        eliot_author = self.eliot.snapshot_as_author(self.article)
         self.client.force_login(self.kathleen)
         post_data = {
             'add_credit': '',
@@ -332,7 +332,7 @@ class TestEditAuthor(TestSubmitViewsBase):
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_remove_credit(self):
         # Set up a second author with a credit role
-        eliot_author = self.eliot.snapshot_self(self.article)
+        eliot_author = self.eliot.snapshot_as_author(self.article)
         writing_credit = eliot_author.add_credit('writing-original-draft')
 
         # Run test

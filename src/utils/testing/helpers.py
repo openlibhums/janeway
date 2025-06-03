@@ -252,7 +252,7 @@ def create_frozen_author(article, **kwargs):
         if not article.correspondence_author:
             article.correspondence_author = account
         article.save()
-        frozen_author = account.snapshot_self(article)
+        frozen_author = account.snapshot_as_author(article)
     else:
         frozen_dict = {
             'first_name': 'Bob',
@@ -293,7 +293,7 @@ def create_article(journal, **kwargs):
         article.authors.add(author)
         article.owner = author
         article.save()
-        author.snapshot_self(article)
+        author.snapshot_as_author(article)
     else:
         article.save()
     for k,v in kwargs.items():

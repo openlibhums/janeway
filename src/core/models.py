@@ -632,6 +632,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def snapshot_self(self, article, force_update=True):
         """
+        Old function name for snapshot_as_author.
+        """
+        raise DeprecationWarning("Use snapshot_as_author instead.")
+        return self.snapshot_as_author(article, force_update)
+
+    def snapshot_as_author(self, article, force_update=True):
+        """
         Create a submission.models.FrozenAuthor using the name fields
         and other details from this Account.
         article: submission.models.Article

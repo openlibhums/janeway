@@ -209,7 +209,7 @@ class TestAccount(TestCase):
         )
         self.assertEqual('Sky', author.full_name())
 
-    def test_snapshot_self_first_time(self):
+    def test_snapshot_as_author_first_time(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -218,13 +218,13 @@ class TestAccount(TestCase):
         self.article_one.correspondence_author = author
         self.article_one.save()
 
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Bob',
         )
 
-    def test_snapshot_self_second_time_with_force_update(self):
+    def test_snapshot_as_author_second_time_with_force_update(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -234,19 +234,19 @@ class TestAccount(TestCase):
         self.article_one.save()
 
         # Initial snapshot
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
 
         # Change author name and re-snapshot with force update
         author.first_name = 'Robert'
         author.save()
-        author.snapshot_self(self.article_one, force_update=True)
+        author.snapshot_as_author(self.article_one, force_update=True)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Robert',
         )
 
 
-    def test_snapshot_self_second_time_without_force_update(self):
+    def test_snapshot_as_author_second_time_without_force_update(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -256,12 +256,12 @@ class TestAccount(TestCase):
         self.article_one.save()
 
         # Initial snapshot
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
 
         # Change author name and re-snapshot with no force update
         author.first_name = 'Robert'
         author.save()
-        author.snapshot_self(self.article_one, force_update=False)
+        author.snapshot_as_author(self.article_one, force_update=False)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Bob',

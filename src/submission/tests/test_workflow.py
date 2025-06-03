@@ -53,7 +53,6 @@ class SubmissionTests(TestCase):
             'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
-            'salutation': 'Prof.',
             'first_name': 'Martin',
             'middle_name': '',
             'last_name': 'Eve',
@@ -64,7 +63,6 @@ class SubmissionTests(TestCase):
             'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
-            'salutation': 'Sr.',
             'first_name': 'Mauro',
             'middle_name': '',
             'last_name': 'Sanchez',
@@ -219,79 +217,41 @@ class SubmissionTests(TestCase):
         ):
             decorated(request)
 
-    def test_snapshot_author_metadata_correctly(self):
+    def test_snapshot_as_author_metadata_do_not_override(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
 
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()[0]
-        keys = {'first_name', 'last_name', 'department', 'institution'}
-
-        self.assertDictEqual(
-            {k: getattr(author, k) for k in keys},
-            {k: getattr(frozen, k) for k in keys},
-        )
-
-    def test_snapshot_author_order_correctly(self):
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-        )
-        author_1, author_2 = self.create_authors()
-        logic.add_user_as_author(author_1, article)
-        logic.add_user_as_author(author_2, article)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()
-        self.assertListEqual(
-            [author_1, author_2],
-            [f.author for f in article.frozen_authors().order_by("order")],
-            msg="Authors frozen in the wrong order",
-        )
-
-    def test_snapshot_author_metadata_do_not_override(self):
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-        )
-        author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()[0]
+        frozen = author.snapshot_as_author(article)
         new_department = "New department"
         frozen.department = new_department
         frozen.save()
-        article.snapshot_authors(force_update=False)
+        author.snapshot_as_author(article, force_update=False)
 
         self.assertEqual(
             frozen.department, new_department,
-            msg="Frozen author edits have been overriden by snapshot_authors",
+            msg="Frozen author info has been overridden by snapshot_as_author",
         )
 
-    def test_snapshot_author_metadata_override(self):
+    def test_snapshot_as_author_metadata_override(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
 
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
         new_department = "New department"
         for frozen_author in article.frozen_authors():
             frozen_author.department = new_department
             frozen_author.save()
-        article.snapshot_authors(force_update=True)
-        frozen = article.frozen_authors().all()[0]
+        frozen = author.snapshot_as_author(article, force_update=True)
 
         self.assertEqual(
             frozen.department, author.department,
-            msg="Frozen author edits have been overriden by snapshot_authors",
+            msg="Frozen author edits have not been overridden by snapshot_as_author",
         )
 
     def test_frozen_author_prefix(self):
@@ -300,8 +260,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
 
         prefix = "Lord"
         article.frozen_authors().update(name_prefix=prefix)
@@ -315,8 +274,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
 
         suffix = "Jr"
         article.frozen_authors().update(name_suffix=suffix)
@@ -324,26 +282,17 @@ class SubmissionTests(TestCase):
 
         self.assertTrue(frozen.full_name().endswith(suffix))
 
-    def test_snapshot_author_order_author_added_later(self):
+    def test_snapshot_as_author_order(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author_1, author_2 = self.create_authors()
-        logic.add_user_as_author(author_1, article)
-        logic.add_user_as_author(author_2, article)
-        no_order_author = Account.objects.create(
-            email="no_order@t.t",
-            first_name="no order",
-            last_name="no order",
-        )
-        article.authors.add(no_order_author)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()
+        frozen_author_1 = author_1.snapshot_as_author(article)
+        frozen_author_2 = author_2.snapshot_as_author(article)
         self.assertListEqual(
-            [author_1, author_2, no_order_author],
-            [f.author for f in article.frozen_authors().order_by("order")],
+            [frozen_author_1.order, frozen_author_2.order],
+            [0, 1],
             msg="Authors frozen in the wrong order",
         )
 
@@ -470,7 +419,7 @@ class SubmissionTests(TestCase):
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_info_view_form_selection_author(self):
-        author_1, author_2 = self.create_authors()
+        author_1, _ = self.create_authors()
         clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
@@ -553,14 +502,14 @@ class SubmissionTests(TestCase):
             "last_name",
             "middle_name",
             "name_prefix",
-            "suffix",
+            "name_suffix",
         }):
-            form = forms.AuthorForm(
+            form = forms.EditFrozenAuthor(
                 {
                     'first_name': 'Andy',
                     'last_name': 'Byers',
-                    'biography': 'Andy',
-                    'email': f'andy{i}@janeway.systems',
+                    'frozen_biography': 'Andy',
+                    'frozen_email': f'andy{i}@janeway.systems',
                     **{attr: harmful_string},
                 }
             )
@@ -580,10 +529,9 @@ class SubmissionTests(TestCase):
         )
         helpers.create_issue(self.journal_one, 2, 1, articles=[article])
         author_a, author_b = self.create_authors()
-        logic.add_user_as_author(author_a, article)
-        logic.add_user_as_author(author_b, article)
+        author_a.snapshot_as_author(article)
+        author_b.snapshot_as_author(article)
 
-        article.snapshot_authors()
         # we have to clear cache here due to function cache relying on primary
         # keys being used for cache keys, which in tests will always be 1
         clear_cache()
@@ -622,10 +570,9 @@ class SubmissionTests(TestCase):
         )
         helpers.create_issue(self.journal_one, 2, 2, articles=[article])
         author_a, author_b = self.create_authors()
-        logic.add_user_as_author(author_a, article)
-        logic.add_user_as_author(author_b, article)
+        author_a.snapshot_as_author(article)
+        author_b.snapshot_as_author(article)
 
-        article.snapshot_authors()
         ris = encoding.encode_article_as_ris(article)
         expected = """
             TY  - JOUR

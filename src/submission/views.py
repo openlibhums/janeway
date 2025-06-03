@@ -77,7 +77,7 @@ def start(request, type=None):
 
             new_article.correspondence_author = request.user
             new_article.save()
-            request.user.snapshot_self(new_article)
+            request.user.snapshot_as_author(new_article)
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_ARTICLE_SUBMISSION_START,

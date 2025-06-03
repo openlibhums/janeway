@@ -1690,7 +1690,7 @@ class Article(AbstractLastModifiedModel):
         ).values_list("order"))
         authors = self.authors.annotate(order=subq).order_by("order")
         for author in authors:
-            author.snapshot_self(self, force_update)
+            author.snapshot_as_author(self, force_update)
 
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
@@ -2323,7 +2323,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         except cls.DoesNotExist:
             try:
                 account = core_models.Account.objects.get(email=email)
-                author = account.snapshot_self(article)
+                author = account.snapshot_as_author(article)
                 created = True
             except core_models.Account.DoesNotExist:
                 author = None
@@ -2344,7 +2344,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 account = core_models.Account.objects.get(
                     orcid__contains=orcid,
                 )
-                author = account.snapshot_self(article)
+                author = account.snapshot_as_author(article)
             except core_models.Account.DoesNotExist:
                 author = None
 
@@ -2768,7 +2768,7 @@ def backwards_compat_authors(
         ).values_list("order"))
         accounts = accounts.annotate(order=subq).order_by("order")
         for account in accounts:
-            account.snapshot_self(instance)
+            account.snapshot_as_author(instance)
     if action in ["post_remove", "post_clear"]:
         instance.frozen_authors.filter(author__in=pk_set).delete()
 
