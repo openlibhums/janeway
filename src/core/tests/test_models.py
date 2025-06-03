@@ -282,7 +282,7 @@ class TestAccount(TestCase):
         )
         author.snapshot_credit(self.article_one, frozen_author)
         frozen_author_credits = [
-            credit.get_role_display() for credit in frozen_author.credits()
+            credit.get_role_display() for credit in frozen_author.credits
         ]
         self.assertIn('Conceptualization', frozen_author_credits)
         self.assertIn('Data Curation', frozen_author_credits)
@@ -311,7 +311,7 @@ class TestAccount(TestCase):
         author.snapshot_credit(self.article_one, frozen_author)
 
         frozen_author_credits = [
-            credit.get_role_display() for credit in frozen_author.credits()
+            credit.get_role_display() for credit in frozen_author.credits
         ]
         self.assertIn('Conceptualization', frozen_author_credits)
         self.assertIn('Methodology', frozen_author_credits)

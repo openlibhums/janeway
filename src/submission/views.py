@@ -285,8 +285,8 @@ def submit_authors(request, article_id):
         )
     )
 
+    new_author_form = forms.EditFrozenAuthor()
     last_changed_author = None
-    edit_author_form = None
 
     if request.POST and 'add_author' in request.POST:
         new_author_form = forms.EditFrozenAuthor(request.POST)
@@ -302,10 +302,11 @@ def submit_authors(request, article_id):
             author = None
 
         if not author and new_author_form.is_valid():
-            author = new_author_form.save(commit=False)
+            author = new_author_form.save()
             author.article = article
             author.order = article.next_frozen_author_order()
             author.save()
+            new_author_form = forms.EditFrozenAuthor()
         else:
             messages.add_message(
                 request, messages.WARNING,
@@ -375,18 +376,9 @@ def submit_authors(request, article_id):
             )
         )
 
-    new_author_form = forms.EditFrozenAuthor()
-    authors = []
-    for frozen_author, credits in article.authors_and_credits().items():
-        credit_form = forms.CreditRecordForm(
-            frozen_author=frozen_author,
-        )
-        authors.append((frozen_author, credits, credit_form))
     template = 'admin/submission/submit_authors.html'
     context = {
         'article': article,
-        'authors': authors,
-        'edit_author_form': edit_author_form,
         'last_changed_author': last_changed_author,
         'new_author_form': new_author_form,
     }
@@ -573,6 +565,7 @@ def delete_frozen_author(request, article_id, author_id):
     Allows the article owner or editor to
     remove a frozen author from the article.
     """
+
     next_url = request.GET.get('next', '')
     article = get_object_or_404(
         models.Article,
@@ -1056,15 +1049,9 @@ def edit_author(request, article_id, author_id):
             )
 
     elif request.method == 'POST' and 'add_credit' in request.POST:
-        author = get_object_or_404(
-            models.FrozenAuthor,
-            pk=int(request.POST.get('author_pk')),
-            article=article,
-        )
         credit_form = forms.CreditRecordForm(request.POST)
         if credit_form.is_valid() and author:
             record = credit_form.save()
-            record.article = article
             record.frozen_author = author
             record.save()
             messages.add_message(

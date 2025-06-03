@@ -3,6 +3,7 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from django.shortcuts import reverse
 from django.test import TestCase, override_settings
 from unittest.mock import patch
 
@@ -11,7 +12,7 @@ from utils import setting_handler
 from utils.testing import helpers
 
 
-class TestSubmitAuthors(TestCase):
+class TestSubmitViewsBase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -50,39 +51,46 @@ class TestSubmitAuthors(TestCase):
             cls.journal_one,
             '',
         )
-        logic.add_user_as_author(cls.kathleen, cls.article)
+        cls.kathleen_author = cls.kathleen.snapshot_self(cls.article)
+        cls.article.correspondence_author = cls.kathleen
+        cls.article.save()
+
+
+class TestSubmitAuthors(TestSubmitViewsBase):
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_get(self):
         self.client.force_login(self.kathleen)
         response = self.client.get(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(response.context['article'], self.article)
-        author, credits, credit_form = response.context['authors'][0]
-        self.assertEqual(author, self.kathleen)
+        article = response.context['article']
+        self.assertIn(self.kathleen_author, article.authors_and_credits())
+        credits = article.authors_and_credits()[self.kathleen_author]
         self.assertFalse(credits.exists())
-        self.assertTrue(isinstance(credit_form, forms.CreditRecordForm))
-        self.assertTrue(isinstance(response.context['form'], forms.AuthorForm))
+        self.assertTrue(
+            isinstance(response.context['new_author_form'], forms.EditFrozenAuthor)
+        )
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_add_author_existing(self):
         self.client.force_login(self.kathleen)
         post_data = {
             'add_author': '',
-            'email': self.eliot.email,
+            'frozen_email': self.eliot.email,
             'first_name': self.eliot.first_name,
             'middle_name': self.eliot.middle_name,
             'last_name': self.eliot.last_name,
         }
         response = self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        second_author, _, _ = response.context['authors'][1]
-        self.assertEqual(second_author, self.eliot)
+        second_author = response.context['article'].frozenauthor_set.all()[1]
+        self.assertEqual(second_author, self.eliot.frozen_author(self.article))
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_add_author_new(self):
@@ -94,11 +102,11 @@ class TestSubmitAuthors(TestCase):
             'last_name': 'Hobsbawm',
         }
         response = self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        second_author, _, _ = response.context['authors'][1]
+        second_author = response.context['article'].frozenauthor_set.all()[1]
         self.assertEqual(second_author.first_name, 'Eric')
 
     @patch('submission.logic.add_author_from_search')
@@ -110,7 +118,7 @@ class TestSubmitAuthors(TestCase):
             'author_search_text': self.eliot.email,
         }
         response = self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
@@ -118,61 +126,24 @@ class TestSubmitAuthors(TestCase):
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_authors_corr_author(self):
-        logic.add_user_as_author(self.eliot, self.article)
+        self.eliot.snapshot_self(self.article)
         self.client.force_login(self.kathleen)
         post_data = {
             'corr_author': self.eliot.pk,
         }
         response = self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.article.refresh_from_db()
         self.assertEqual(self.article.correspondence_author, self.eliot)
 
+    @patch('submission.logic.save_frozen_author_order')
     @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_add_credit(self):
-        logic.add_user_as_author(self.eliot, self.article)
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'add_credit': 'writing-original-draft',
-            'author_pk': self.eliot.pk,
-        }
-        self.client.post(
-            f'/submit/{self.article.pk}/authors/',
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.assertEqual(
-            self.eliot.credits(self.article)[0].role,
-            'writing-original-draft',
-        )
-
-    @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_remove_credit(self):
-        # Set up a second author with a credit role
-        logic.add_user_as_author(self.eliot, self.article)
-        self.eliot.add_credit('writing-original-draft', self.article)
-
-        # Run test
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'remove_credit': 'writing-original-draft',
-            'author_pk': self.eliot.pk,
-        }
-        self.client.post(
-            f'/submit/{self.article.pk}/authors/',
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.assertFalse(self.eliot.credits(self.article).exists())
-
-    @patch('submission.logic.save_author_order')
-    @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_change_order(self, logic_save_author_order):
+    def test_submit_authors_change_order(self, logic_save_frozen_author_order):
         # Add a second author
-        logic.add_user_as_author(self.eliot, self.article)
+        eliot_author = self.eliot.snapshot_self(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
@@ -181,48 +152,57 @@ class TestSubmitAuthors(TestCase):
             'author_pk': self.eliot.pk,
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        logic_save_author_order.assert_called()
+        logic_save_frozen_author_order.assert_called()
 
     @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_change_order(self):
+    def test_submit_authors_continue(self):
         self.client.force_login(self.kathleen)
         post_data = {
             'save_continue': '',
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.article.refresh_from_db()
         self.assertEqual(self.article.current_step, 3)
 
-    @override_settings(URL_CONFIG='domain', DUMMY_EMAIL_DOMAIN='testing.example.org')
+    @override_settings(
+        URL_CONFIG='domain',
+        DUMMY_EMAIL_DOMAIN='testing.example.org'
+    )
     def test_delete_author_but_they_are_only_correspondence_author(self):
         # Add a second author that does not have a real email address
         self.eliot.email = 'notreal@testing.example.org'
         self.eliot.save()
-        logic.add_user_as_author(self.eliot, self.article)
+        self.eliot.snapshot_self(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
         post_data = {}
         self.client.post(
-            f'/submit/{self.article.pk}/authors/{self.kathleen.pk}/delete/',
+            reverse(
+                'submission_delete_frozen_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': self.kathleen.frozen_author(self.article).pk,
+                },
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertIn(self.kathleen, self.article.authors.all())
+        self.assertIn(self.kathleen, self.article.author_accounts)
         self.assertEqual(self.article.correspondence_author, self.kathleen)
 
     @override_settings(URL_CONFIG='domain', DUMMY_EMAIL_DOMAIN='testing')
     def test_delete_author(self):
         # Add a second author and make them corr author
-        logic.add_user_as_author(self.eliot, self.article)
+        eliot_author = self.eliot.snapshot_self(self.article)
         self.article.correspondence_author = self.eliot
         self.article.save()
 
@@ -230,10 +210,146 @@ class TestSubmitAuthors(TestCase):
         self.client.force_login(self.kathleen)
         post_data = {}
         self.client.post(
-            f'/submit/{self.article.pk}/authors/{self.eliot.pk}/delete/',
+            reverse(
+                'submission_delete_frozen_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': eliot_author.pk,
+                },
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.article.refresh_from_db()
-        self.assertNotIn(self.eliot, self.article.authors.all())
+        self.assertNotIn(self.eliot, self.article.author_accounts)
         self.assertEqual(self.article.correspondence_author, self.kathleen)
+
+
+class TestEditAuthor(TestSubmitViewsBase):
+
+    @override_settings(URL_CONFIG='domain')
+    def test_edit_author_get(self):
+        self.client.force_login(self.kathleen)
+        setting_handler.save_setting(
+            'general',
+            'use_credit',
+            self.journal_one,
+            'on',
+        )
+        get_data = {}
+        response = self.client.get(
+            reverse(
+                'submission_edit_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': self.kathleen_author.pk,
+                },
+            ),
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.context['article'], self.article)
+        self.assertEqual(response.context['author'], self.kathleen_author)
+        self.assertEqual(response.context['form'], None)
+        self.assertTrue(
+            isinstance(response.context['credit_form'], forms.CreditRecordForm)
+        )
+
+    @override_settings(URL_CONFIG='domain')
+    def test_edit_author_edit_author(self):
+        self.client.force_login(self.kathleen)
+        get_data = {
+            'edit_author': '',
+        }
+        response = self.client.get(
+            reverse(
+                'submission_edit_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': self.kathleen_author.pk,
+                },
+            ),
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertTrue(
+            isinstance(response.context['form'], forms.EditFrozenAuthor)
+        )
+        self.assertEqual(
+            response.context['form'].instance,
+            self.kathleen_author,
+        )
+
+    @override_settings(URL_CONFIG='domain')
+    def test_edit_author_save_author(self):
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'save_author': '',
+            'first_name': 'K.',
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': self.kathleen_author.pk,
+                },
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.kathleen_author.refresh_from_db()
+        self.assertEqual(
+            self.kathleen_author.first_name,
+            'K.',
+        )
+
+    @override_settings(URL_CONFIG='domain')
+    def test_edit_author_add_credit(self):
+        eliot_author = self.eliot.snapshot_self(self.article)
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'add_credit': '',
+            'role': 'writing-original-draft',
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': eliot_author.pk,
+                },
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        eliot_author.refresh_from_db()
+        self.assertEqual(
+            eliot_author.credits[0].role,
+            'writing-original-draft',
+        )
+
+    @override_settings(URL_CONFIG='domain')
+    def test_edit_author_remove_credit(self):
+        # Set up a second author with a credit role
+        eliot_author = self.eliot.snapshot_self(self.article)
+        writing_credit = eliot_author.add_credit('writing-original-draft')
+
+        # Run test
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'remove_credit': 'writing-original-draft',
+            'credit_pk': writing_credit.pk,
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_author',
+                kwargs={
+                    'article_id': self.article.pk,
+                    'author_id': eliot_author.pk,
+                },
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertFalse(eliot_author.credits.exists())

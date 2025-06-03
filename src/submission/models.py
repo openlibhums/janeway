@@ -902,7 +902,7 @@ class Article(AbstractLastModifiedModel):
         """
         result = {}
         for frozen_author in self.frozen_authors():
-            result[frozen_author] = frozen_author.credits()
+            result[frozen_author] = frozen_author.credits
         return result
 
     @property
@@ -2152,11 +2152,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
             frozen_author=self,
         )
 
+    @property
     def credits(self):
         """
         Returns all the credit records for this frozen author
         """
-        return CreditRecord.objects.filter(frozen_author=self)
+        return self.creditrecord_set.all()
 
     def add_credit(self, credit_role_text):
         """
@@ -2374,8 +2375,6 @@ class CreditRecord(AbstractLastModifiedModel):
                                         null=True,
                                         on_delete=models.CASCADE)
     role = models.CharField(max_length=100,
-                            blank=True,
-                            null=True,
                             choices=CREDIT_ROLE_CHOICES)
 
     def __str__(self):

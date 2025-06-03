@@ -3,40 +3,11 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from django.shortcuts import reverse
 from django.test import TestCase, client
 from mock import patch
 
-from submission import logic
-from utils import setting_handler
 from utils.testing import helpers
-
-
-class TestSubmitStartLogic(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
-        cls.kathleen = helpers.create_user(
-            'haogjlbdmax7b6tnc6qa@example.org',
-            roles=['author'],
-            journal=cls.journal_one,
-            first_name='Kathleen',
-            last_name='Booth',
-        )
-        cls.article = helpers.create_article(cls.journal_one)
-
-    def test_add_user_as_author(self):
-        setting_handler.save_setting(
-            'general',
-            'limit_access_to_submission',
-            self.journal_one,
-            '',
-        )
-        logic.add_user_as_author(self.kathleen, self.article)
-        self.assertIn(self.kathleen, self.article.authors.all())
-        self.assertTrue(self.article.articleauthororder_set.exists())
-        self.assertEqual(self.article.correspondence_author, self.kathleen)
 
 
 class TestSubmitAuthorsLogic(TestCase):
@@ -67,12 +38,28 @@ class TestSubmitAuthorsLogic(TestCase):
             owner=cls.kathleen,
             current_step=2,
         )
-        logic.add_user_as_author(cls.kathleen, cls.article)
+        cls.kathleen_author = cls.kathleen.snapshot_self(cls.article)
 
 
-    def test_save_author_order(self):
+    def test_save_author_order_single_author(self):
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'change_order': 'bottom',
+            'author_pk': self.kathleen_author.pk,
+        }
+        response = self.client.post(
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            self.kathleen_author.order,
+            0,
+        )
+
+    def test_save_author_order_three_authors(self):
         # Set up a second and third author
-        logic.add_user_as_author(self.eliot, self.article)
+        eliot_author = self.eliot.snapshot_self(self.article)
         eric = helpers.create_user(
             '6cfka43pltcafyzlluxa@example.org',
             roles=['author'],
@@ -80,48 +67,48 @@ class TestSubmitAuthorsLogic(TestCase):
             first_name='Eric',
             last_name='Hobsbawm',
         )
-        logic.add_user_as_author(eric, self.article)
+        eric_author = eric.snapshot_self(self.article)
 
         # Run test
         self.client.force_login(self.kathleen)
         post_data = {
             'change_order': 'up',
-            'author_pk': self.eliot.pk,
+            'author_pk': eliot_author.pk,
         }
         response = self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(
-            self.article.articleauthororder_set.first().author,
-            self.eliot,
+            self.article.frozenauthor_set.first(),
+            eliot_author,
         )
         post_data = {
             'change_order': 'down',
-            'author_pk': self.eliot.pk,
+            'author_pk': eliot_author.pk,
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(
-            self.article.articleauthororder_set.first().author,
-            self.kathleen,
+            self.article.frozenauthor_set.first(),
+            self.kathleen.frozen_author(self.article),
         )
         post_data = {
-            'change_order': 'first',
-            'author_pk': eric.pk,
+            'change_order': 'top',
+            'author_pk': eric_author.pk,
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(
-            self.article.articleauthororder_set.first().author,
-            eric,
+            self.article.frozenauthor_set.first(),
+            eric_author,
         )
 
     def test_add_author_from_search_orcid_in_janeway(self):
@@ -131,13 +118,13 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_search_text': self.eliot.orcid,
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertIn(
             self.eliot,
-            self.article.authors.all(),
+            self.article.author_accounts.all(),
         )
 
     @patch('utils.orcid.get_orcid_record_details')
@@ -156,7 +143,7 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_search_text': '0000-5678-5678-5678',
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
@@ -164,7 +151,7 @@ class TestSubmitAuthorsLogic(TestCase):
         self.assertEqual(eric.orcid, '0000-5678-5678-5678')
         self.assertIn(
             eric,
-            self.article.authors.all(),
+            self.article.author_accounts.all(),
         )
 
     @patch('utils.orcid.get_orcid_record_details')
@@ -180,21 +167,21 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_search_text': '0000-5678-5678-5678',
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertTrue(
-            self.article.articleauthororder_set.last().author.email,
+        self.assertEqual(
+            self.article.frozenauthor_set.last().email,
             '6cfka43pltcafyzlluxa@example.org',
         )
-        self.assertTrue(
-            self.article.articleauthororder_set.last().author.orcid,
+        self.assertEqual(
+            self.article.frozenauthor_set.last().orcid,
             '0000-5678-5678-5678',
         )
 
     @patch('utils.orcid.get_orcid_record_details')
-    def test_add_author_from_search_orcid_public_new(self, get_orcid_details):
+    def test_add_author_from_search_orcid_public_affiliations(self, get_orcid_details):
         get_orcid_details.return_value = {
             'emails': ['6cfka43pltcafyzlluxa@example.org'],
             'first_name': 'Eric',
@@ -213,12 +200,12 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_search_text': '0000-5678-5678-5678',
         }
         self.client.post(
-            f'/submit/{self.article.pk}/authors/',
+            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        last_author = self.article.articleauthororder_set.last().author
-        self.assertTrue(
+        last_author = self.article.frozenauthor_set.last()
+        self.assertEqual(
             last_author.primary_affiliation().__str__(),
             'Birkbeck',
         )

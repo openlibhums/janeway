@@ -32,7 +32,7 @@ class FrozenAuthorModelTests(TestCase):
     def test_credits(self):
         self.frozen_author.add_credit('conceptualization')
         self.assertEqual(
-            self.frozen_author.credits().first().get_role_display(),
+            self.frozen_author.credits.first().get_role_display(),
             'Conceptualization',
         )
 

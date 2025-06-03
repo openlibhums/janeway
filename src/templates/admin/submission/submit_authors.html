@@ -41,23 +41,21 @@
           </div>
           <div class="columns">
             <div class="list-group">
-              {% for author, credits, credit_form in authors %}
+              {% for author, credits in article.authors_and_credits.items %}
                 {% with "author-"|concat:author.pk as section_id %}
                   <section
                     id="{{ section_id }}"
                     class="list-group-item static-bg">
                     <div class="flex direction-column">
                       {% if last_changed_author == author %}
-                        {% if not edit_author_form %}
-                          {% include "admin/elements/forms/messages_in_callout.html" %}
-                        {% endif %}
+                        {% include "admin/elements/forms/messages_in_callout.html" %}
                         {% include "admin/elements/scroll_to_id.html" with target_id=section_id %}
                       {% endif %}
                       {% if article.correspondence_author and article.correspondence_author == author.author %}
                         {% include "admin/submission/submit_correspondence_author.html" with article=article %}
                       {% endif %}
                       <div class="flex gap-2 direction-column-small">
-                        {% if authors|length > 1 %}
+                        {% if article.authors_and_credits|length > 1 %}
                           <div class="stat">{{ forloop.counter }}</div>
                         {% endif %}
                         <div class="grow-1">
@@ -65,27 +63,25 @@
                             <h3>
                               {{ author.full_name|default:"[No name]" }}
                             </h3>
-                            {% if not edit_author_form or edit_author_form.instance != author %}
-                              <form method="POST">
-                                {% csrf_token %}
-                                <div class="button-group no-bottom-margin flex items-center">
-                                  {% if author.owner == request.user %}
-                                    <a
-                                      href="{% url_with_return 'submission_edit_author' article.pk author.pk %}"
-                                      class="button hollow secondary no-bottom-margin">
-                                      <span class="fa fa-edit"></span>
-                                      {% trans "Edit author details" %}
-                                    </a>
-                                  {% endif %}
+                            <form method="POST">
+                              {% csrf_token %}
+                              <div class="button-group no-bottom-margin flex items-center">
+                                {% if author.owner == request.user %}
                                   <a
-                                    href="{% url_with_return 'submission_delete_frozen_author' article.pk author.pk %}"
+                                    href="{% url_with_return 'submission_edit_author' article.pk author.pk %}"
                                     class="button hollow secondary no-bottom-margin">
-                                    <span class="fa fa-remove"></span>
-                                    {% trans "Remove author" %}
+                                    <span class="fa fa-edit"></span>
+                                    {% trans "Edit author details" %}
                                   </a>
-                                </div>
-                              </form>
-                            {% endif %}
+                                {% endif %}
+                                <a
+                                  href="{% url_with_return 'submission_delete_frozen_author' article.pk author.pk %}"
+                                  class="button hollow secondary no-bottom-margin">
+                                  <span class="fa fa-remove"></span>
+                                  {% trans "Remove author" %}
+                                </a>
+                              </div>
+                            </form>
                           </div>
                           <dl class="no-bottom-margin">
                             <div class="flex column-gap-4 wrap">
@@ -146,7 +142,7 @@
                             </div>
                           {% endif %}
                         </div>
-                        {% if authors|length > 1 %}
+                        {% if article.authors_and_credits|length > 1 %}
                           {% include "admin/submission/submit_author_order.html" with author=author %}
                         {% endif %}
                       </div>
@@ -163,7 +159,7 @@
         </div>
       </div>
     </div>
-    {% if authors|length > 1 %}
+    {% if article.authors_and_credits|length > 1 %}
       <div class="columns large-2">
         <div class="box">
           <div class="flex">

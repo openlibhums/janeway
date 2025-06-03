@@ -297,6 +297,10 @@ class AuthorForm(forms.ModelForm):
             'biography',
         )
 
+    def __init__(self, *args, **kwargs):
+        return DeprecationWarning("Use frozen authors instead.")
+        super(FileDetails, self).__init__(*args, **kwargs)
+
 
 class SubmissionCommentsForm(forms.ModelForm):
     class Meta:

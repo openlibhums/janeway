@@ -19,7 +19,7 @@ from core import models as core_models
 from utils import orcid, setting_handler, shared as utils_shared
 from utils.forms import clean_orcid_id
 from submission import models
-from submission.forms import AuthorForm, EditFrozenAuthor
+from submission.forms import EditFrozenAuthor
 
 
 def add_self_as_author(user, article):
