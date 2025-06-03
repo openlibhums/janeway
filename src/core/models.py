@@ -2173,7 +2173,7 @@ class OrganizationQueryset(models.query.QuerySet):
         uncontrolled_organizations = self.filter(
             ror_id='',
             custom_label__isnull=False,
-            affiliation__isnull=False,
+            controlledaffiliation__isnull=False,
         ).prefetch_related(
             'custom_label'
         )
@@ -2517,12 +2517,16 @@ class Organization(models.Model):
             )
         ]
 
-    def __str__(self):
+    @property
+    def name_location(self):
         elements = [
             str(self.name) if self.name else '',
             str(self.location) if self.location else '',
         ]
         return ', '.join([element for element in elements if element])
+
+    def __str__(self):
+        return str(self.name) if self.name else ''
 
     @property
     def uri(self):
@@ -2608,8 +2612,8 @@ class Organization(models.Model):
         try:
             organization = cls.objects.get(labels__value=institution)
         except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-            # Or maybe one in the past or alternate
-            # name data from ROR (e.g. aliases)?
+            # Or maybe one in the alternate name data
+            # from ROR (e.g. aliases)?
             try:
                 organization = cls.objects.get(aliases__value=institution)
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2639,6 +2643,22 @@ class Organization(models.Model):
 
         # Set custom label if organization is not controlled by ROR
         if institution and not organization.ror_id:
+            # Remove and harvest any old custom primary org
+            try:
+                old_primary_org = cls.objects.get(
+                    controlledaffiliation__is_primary=True,
+                    controlledaffiliation__account=account,
+                    controlledaffiliation__frozen_author=frozen_author,
+                    controlledaffiliation__preprint_author=preprint_author,
+                    ror_id__exact='',
+                )
+                if not institution:
+                    institution = old_primary_org.custom_label
+                if not country and old_primary_org.locations.exists():
+                    country = old_primary_org.locations.first().country
+                old_primary_org.delete()
+            except cls.DoesNotExist:
+                pass
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={'value': institution},
                 custom_label_for=organization,

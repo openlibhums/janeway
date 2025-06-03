@@ -35,8 +35,9 @@ class TestOAIViews(TestCase):
             date_published="1986-07-12T17:00:00.000+0200",
             authors=[cls.author],
         )
-        cls.author.add_credit('data-curation', cls.article)
-        cls.author.add_credit('writing-original-draft', cls.article)
+        cls.frozen_author = cls.author.frozen_author(cls.article)
+        cls.frozen_author.add_credit('data-curation')
+        cls.frozen_author.add_credit('writing-original-draft')
         cls.issue = helpers.create_issue(
             journal=cls.journal, vol=1, number=1,
             articles=[cls.article],
@@ -141,8 +142,7 @@ class TestOAIViews(TestCase):
         expected = GET_RECORD_DATA_JATS
         # Add a non correspondence author
         author_2 = helpers.create_author(self.journal, email="no@email.com")
-        self.article.authors.add(author_2)
-        self.article.snapshot_authors()
+        author_2.snapshot_as_author(self.article)
 
         setting_handler.save_setting(
             "general",

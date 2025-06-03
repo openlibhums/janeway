@@ -196,7 +196,7 @@ class CoreTests(TestCase):
                 "" % (email, email),
         )
 
-    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliation': 'Elk Valley University', 'country': 'US'}
+    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliations': [{"organization": { "name": "Elk Valley University", "address": { "country": "US" }}}]}
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     @mock.patch('utils.orcid.get_orcid_record_details', return_value=orcid_record)

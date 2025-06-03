@@ -290,10 +290,9 @@ def create_article(journal, **kwargs):
             'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
         }
         author = create_author(journal, **author_kwargs)
-        article.authors.add(author)
+        author.snapshot_as_author(article)
         article.owner = author
         article.save()
-        author.snapshot_as_author(article)
     else:
         article.save()
     for k,v in kwargs.items():
@@ -343,7 +342,8 @@ def create_submission(
     authors=None,
     **kwargs,
 ):
-
+    if not authors:
+        authors = []
     section, _ = sm_models.Section.objects.get_or_create(
         journal__id=journal_id, name="Article",
     )
@@ -356,9 +356,8 @@ def create_submission(
         section=section,
         **kwargs
     )
-    if authors:
-        article.authors.add(*authors)
-        article.snapshot_authors()
+    for author in authors:
+        author.snapshot_as_author(article)
     return article
 
 

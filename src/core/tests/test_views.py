@@ -7,6 +7,7 @@ from mock import patch
 from uuid import uuid4
 
 from django.urls.base import clear_script_prefix
+from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
 
 from core import models as core_models
@@ -850,16 +851,18 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
             core_models.ControlledAffiliation.objects.get(pk=affil_id)
 
     @patch('utils.orcid.get_orcid_record')
-    def test_affiliation_update_from_orcid(self, get_orcid_record):
+    def test_affiliation_update_from_orcid_get(self, get_orcid_record):
         get_orcid_record.return_value = helpers.get_orcid_record_all_fields()
         self.client.force_login(self.user)
         get_data = {}
-        affil_id = self.affiliation.pk
-        url = f'/profile/affiliation/update-from-orcid/'
+        url = reverse(
+            'core_affiliation_update_from_orcid',
+            kwargs={'how_many': 'primary'}
+        )
         response = self.client.get(url, get_data)
         self.assertEqual(
             response.context['new_affils'][0].__str__(),
-            'California Digital Library, Oakland, United States'
+            'California Digital Library'
         )
 
     @patch('utils.orcid.get_orcid_record')
@@ -867,11 +870,13 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         get_orcid_record.return_value = helpers.get_orcid_record_all_fields()
         self.client.force_login(self.user)
         post_data = {}
-        affil_id = self.affiliation.pk
-        url = f'/profile/affiliation/update-from-orcid/'
+        url = reverse(
+            'core_affiliation_update_from_orcid',
+            kwargs={'how_many': 'primary'}
+        )
         self.client.post(url, post_data, follow=True)
         self.user.refresh_from_db()
         self.assertEqual(
-            self.user.primary_affiliation().__str__(),
-            'California Digital Library, Oakland, United States'
+            self.user.primary_affiliation(as_object=False),
+            'California Digital Library'
         )

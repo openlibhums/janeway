@@ -979,7 +979,7 @@ class AccountAffiliationForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not self.instance:
+        if not self.instance.pk:
             query = Q(account=self.account, organization=self.organization)
             for key, value in cleaned_data.items():
                 query &= Q((key, value))

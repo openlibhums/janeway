@@ -122,12 +122,10 @@ class CreditRecordAdmin(admin.ModelAdmin):
     search_fields = (
         'role',
         'frozen_author__article__title',
-        'author__first_name',
-        'author__last_name',
-        'author__email',
         'frozen_author__first_name',
         'frozen_author__last_name',
         'frozen_author__frozen_email',
+        'frozen_author__author__email',
         'preprint_author__account__first_name',
         'preprint_author__account__last_name',
         'preprint_author__account__email',

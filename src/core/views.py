@@ -428,8 +428,8 @@ def register(request, orcid_token=None):
                     for orcid_affil in orcid_details.get("affiliations", []):
                         orcid_affil_form = forms.OrcidAffiliationForm(
                             orcid_affiliation=orcid_affil,
-                            tzinfo=new_author.preferred_timezone,
-                            data={'account': new_author}
+                            tzinfo=new_user.preferred_timezone,
+                            data={'account': new_user}
                         )
                         if orcid_affil_form.is_valid():
                             orcid_affil_form.save()
@@ -764,7 +764,7 @@ def affiliation_update_from_orcid(request, how_many='primary'):
     context = {
         'account': request.user,
         'form': form,
-        'old_affils': account.affiliations,
+        'old_affils': request.user.affiliations,
         'new_affils': new_affils,
     }
     return render(request, template, context)
@@ -3042,11 +3042,10 @@ def organization_name_create(request):
     form = forms.OrganizationNameForm()
 
     if request.method == 'POST':
-        organization_name = logic.create_organization_name(request)
-        org_name = create_organization_name(request)
+        org_name = logic.create_organization_name(request)
         if org_name:
             return redirect(
-                reverse_with_next(
+                logic.reverse_with_next(
                     'core_affiliation_create',
                     next_url,
                     kwargs={

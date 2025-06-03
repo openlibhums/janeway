@@ -714,8 +714,8 @@ class ReviewTests(TestCase):
                                                                                 journal_id=self.journal_one.id,
                                                                                 date_accepted=timezone.now())
 
-        self.article_author_is_owner.authors.add(self.editor)
-        self.article_author_is_owner.authors.add(self.author)
+        self.editor.snapshot_as_author(self.article_author_is_owner)
+        self.author.snapshot_as_author(self.article_author_is_owner)
 
         self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)

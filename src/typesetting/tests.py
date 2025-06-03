@@ -507,14 +507,14 @@ class TestTypesetting(TestCase):
         )
         self.active_article.title = 'Active Article'
         self.active_article.save()
-        self.active_article.authors.add(self.author)
+        self.author.snapshot_as_author(self.active_article)
         self.archived_article = helpers.create_article(
             journal=self.journal_one,
         )
         self.archived_article.stage = submission_models.STAGE_ARCHIVED
         self.archived_article.title = 'Archived Article'
         self.archived_article.save()
-        self.archived_article.authors.add(self.author)
+        self.author.snapshot_as_author(self.archived_article)
 
         self.active_typesetting_round = models.TypesettingRound.objects.create(
             article=self.active_article,
