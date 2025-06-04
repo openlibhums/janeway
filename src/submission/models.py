@@ -703,7 +703,7 @@ class Article(AbstractLastModifiedModel):
     remote_url = models.URLField(blank=True, null=True, help_text="If the article is remote, its URL should be added.")
 
     # Author
-    # authors is deprecated. Use FrozenAuthor
+    # The authors field is deprecated. Use FrozenAuthor or author_accounts instead.
     authors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='authors')
     correspondence_author = models.ForeignKey('core.Account', related_name='correspondence_author', blank=True,
                                               null=True, on_delete=models.SET_NULL)
