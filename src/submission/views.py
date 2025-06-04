@@ -999,7 +999,7 @@ def edit_author(request, article_id, author_id):
         (Q(author=request.user) |
         Q(article__owner=request.user))
     )
-    next_url = request.GET.get('next_url', '')
+    next_url = request.GET.get('next', '')
     form = None
     use_credit = setting_handler.get_setting(
         "general",

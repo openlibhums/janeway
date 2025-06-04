@@ -49,6 +49,7 @@
         <h2>{% trans "Name, bio, and identifiers" %}</h2>
         {% if not form %}
           <form method="GET">
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
             <div class="button-group no-bottom-margin">
               <button
                 type="submit"
@@ -120,7 +121,8 @@
                   <span class="fa fa-save"></span>
                   {% trans "Save" %}
                 </button>
-                {% include "elements/a_cancel.html" with href=request.get_full_path %}
+                {% url_with_next 'submission_edit_author' article.pk author.pk as cancel_url %}
+                {% include "elements/a_cancel.html" with href=cancel_url %}
               </div>
             </div>
           </div>

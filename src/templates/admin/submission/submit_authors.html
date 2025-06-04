@@ -27,7 +27,7 @@
       <div class="box">
         <div class="row expanded">
           <div class="columns">
-            <div class="sr-only">
+            <div class="show-for-sr">
               <h2>{% trans "Current authors" %}</h2>
             </div>
           </div>
@@ -231,56 +231,67 @@
             </form>
           </div>
         </div>
-      <div class="large-12 columns max-w-56">
-        <div class="callout">
-          <p>{% blocktrans %}
-            If you cannot find the author in the search,
-            you can add them manually.
-          {% endblocktrans %}</p>
-          <form method="POST">
-            {% csrf_token %}
-            <div class="flex direction-column row-gap-0">
-              <div class="grid auto row-gap-0">
-                {% include "admin/elements/forms/field.html" with field=new_author_form.first_name %}
-                {% include "admin/elements/forms/field.html" with field=new_author_form.middle_name %}
-                {% include "admin/elements/forms/field.html" with field=new_author_form.last_name %}
-              </div>
-              <div class="grid auto row-gap-0">
-                {% include "admin/elements/forms/field.html" with field=new_author_form.name_prefix %}
-                {% include "admin/elements/forms/field.html" with field=new_author_form.name_suffix %}
-                {% include "admin/elements/forms/field.html" with field=new_author_form.is_corporate %}
-              </div>
-              <div class="grid auto row-gap-0">
-                {% include "admin/elements/forms/field.html" with field=new_author_form.frozen_email %}
-                {% include "admin/elements/forms/field.html" with field=new_author_form.display_email %}
-              </div>
-              <div class="flex wrap gap-1 items-end">
-                <div class="button-group">
-                  <button
-                    name="add_author"
-                    class="button">
-                    <span class="fa fa-user-plus"></span>
-                    {% trans "Add author manually" %}
-                  </button>
+        <div class="large-12 columns max-w-56 float-left">
+          <div class="callout">
+            <p>{% blocktrans %}
+              If you cannot find the author in the search,
+              you can add them manually.
+            {% endblocktrans %}</p>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="flex direction-column row-gap-0">
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.first_name %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.middle_name %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.last_name %}
+                </div>
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.name_prefix %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.name_suffix %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.is_corporate %}
+                </div>
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.frozen_email %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.display_email %}
+                </div>
+                <div class="flex wrap gap-1 items-end">
+                  <div class="button-group">
+                    <button
+                      name="add_author"
+                      class="button">
+                      <span class="fa fa-user-plus"></span>
+                      {% trans "Add author manually" %}
+                    </button>
+                  </div>
                 </div>
               </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="box max-w-32 margin-block-end-10">
+      <div class="row expanded">
+        <div class="show-for-sr">
+          <h2>{% trans "Proceed to next step" %}</h2>
+        </div>
+        <div class="columns">
+          <p>{% blocktrans %}
+            Is the author information complete?
+          {% endblocktrans %}</p>
+          <form method="POST">
+            <div class="flex">
+              {% csrf_token %}
+              <button
+                class="success button"
+                type="submit"
+                name="save_continue">
+                <span class="fa fa-check"></span>
+                {% trans "Save and continue" %}
+              </button>
             </div>
           </form>
         </div>
-      </div>
-      <div class="large-12 columns">
-        <form method="POST">
-          <div class="flex justify-end">
-            {% csrf_token %}
-            <button
-              class="success button"
-              type="submit"
-              name="save_continue">
-              <span class="fa fa-check"></span>
-              {% trans "Save and continue" %}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
