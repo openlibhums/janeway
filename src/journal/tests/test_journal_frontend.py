@@ -46,10 +46,7 @@ class TestJournalSite(TestCase):
         )
         keyword, c = submission_models.Keyword.objects.get_or_create(word='Test')
         self.published_article.keywords.add(keyword)
-        self.published_article.authors.add(
-            self.author,
-        )
-        self.published_article.snapshot_authors()
+        self.author.snapshot_as_author(self.published_article)
 
         # create two issue types for testing
         issue_type = models.IssueType.objects.create(

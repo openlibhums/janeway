@@ -21,7 +21,7 @@
             </th>
             <td>
               {{ proofreader.full_name }}
-              {% if proofreader in article.authors.all %}
+            {% if proofreader in article.author_accounts %}
                 <div class="label secondary">
                   <span class="fa fa-user"></span>
                   Author

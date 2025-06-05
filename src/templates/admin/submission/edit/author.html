@@ -1,0 +1,173 @@
+{% extends "admin/core/base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% load foundation %}
+{% load roles %}
+{% load next_url %}
+
+{% block title %}
+  Edit "{{ author }}"
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/submit_authors_base.html" %}
+  <li>
+    Edit "{{ author }}"
+  </li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  Edit "{{ author }}"
+{% endblock title-section %}
+
+{% block body %}
+  <div class="grid max-w-64 padding-inline-1 row-gap-0 margin-block-end-10">
+    <div class="button-group">
+      {% trans "Back to all authors" as back_label %}
+      {% include "elements/a_back.html" with label=back_label href=request.GET.next %}
+    </div>
+    {% if not form %}
+      {% include "admin/elements/forms/messages_in_callout.html" %}
+    {% endif %}
+    {% if author.owner == request.user and author.author and not form %}
+      <div class="card">
+        <div class="bs-callout bs-callout-info">
+          {% url_with_return 'core_edit_profile' as edit_profile_link %}
+          <p>{% blocktrans with article_title=article.safe_title journal_title=journal.name %}
+            This is the author information that will be
+            tied to "{{ article_title }}" when it is submitted.
+            It is separate from your user profile with <i>{{ journal_title }}</i>,
+            which can be edited at any time.
+          {% endblocktrans %}</p>
+        </div>
+      </div>
+    {% endif %}
+    <section class="card padding-block-1 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Name, bio, and identifiers" %}</h2>
+        {% if not form %}
+          <form method="GET">
+            <input type="hidden" name="next" value="{{ request.GET.next|default_if_none:"" }}">
+            <div class="button-group no-bottom-margin">
+              <button
+                type="submit"
+                name="edit_author"
+                value="{{ author.pk }}"
+                class="button secondary hollow">
+                <span class="fa fa-edit"></span>
+                {% trans "Edit name, bio, identifiers" %}
+              </button>
+            </div>
+          </form>
+        {% endif %}
+      </div>
+      {% if form %}
+        {% include "admin/elements/forms/messages_in_callout.html" %}
+        <form method="POST">
+          {% csrf_token %}
+          <div class="bs-callout bs-callout-warning flex direction-column gap-0-5">
+            <div class="grid auto">
+              {% include "admin/elements/forms/field.html" with field=form.first_name %}
+              {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+              {% include "admin/elements/forms/field.html" with field=form.last_name %}
+            </div>
+            <div class="grid auto">
+              {% include "admin/elements/forms/field.html" with field=form.name_prefix %}
+              {% include "admin/elements/forms/field.html" with field=form.name_suffix %}
+              {% include "admin/elements/forms/field.html" with field=form.is_corporate %}
+            </div>
+            {% include "admin/elements/forms/field.html" with field=form.frozen_biography %}
+            <div class="grid auto">
+              {% if author.author and author.author == request.user %}
+                <dl class="no-bottom-margin">
+                  <dt><strong>Email</strong></dt>
+                  <dd>
+                    <div>{{ author.email|default:"No email" }}</div>
+                    <p class="help-text no-top-margin">
+                      If the email is incorrect, edit the
+                      email on your user profile.
+                    </p>
+                  </dd>
+                </dl>
+              {% else %}
+                {% include "admin/elements/forms/field.html" with field=form.frozen_email %}
+              {% endif %}
+              {% include "admin/elements/forms/field.html" with field=form.display_email %}
+              <dl class="no-bottom-margin">
+                <dt><strong>ORCID</strong></dt>
+                <dd>
+                  <div>{{ author.orcid|default:"No ORCID" }}</div>
+                  <p class="help-text no-top-margin">
+                    {% if author.author and author.author == request.user %}
+                      Log out and then log in again via ORCID
+                      to update this information.
+                    {% else %}
+                      If the ORCID is incorrect, add a new author by
+                      searching for the correct ORCID.
+                    {% endif %}
+                  </p>
+                </dd>
+              </dl>
+            </div>
+            <div class="flex direction-row-reverse">
+              <div class="button-group no-bottom-margin spacer-top-20">
+                <button
+                  type="submit"
+                  name="save_author"
+                  value="{{ author.pk }}"
+                  class="button">
+                  <span class="fa fa-save"></span>
+                  {% trans "Save" %}
+                </button>
+                {% url_with_next 'submission_edit_author' article.pk author.pk as cancel_url %}
+                {% include "elements/a_cancel.html" with href=cancel_url %}
+              </div>
+            </div>
+          </div>
+        </form>
+      {% else %}
+        <dl class="no-bottom-margin">
+          <div class="grid auto">
+            {% trans "Name" as name %}
+            {% include "elements/layout/key_value_above.html" with key=name value=author.full_name %}
+            {% trans "Is corporate" as is_corporate %}
+            {% include "elements/layout/key_value_above.html" with key=is_corporate value=author.is_corporate|yesno:"Yes,No" %}
+          </div>
+          {% trans "Biography" as bio_key %}
+          {% include "admin/elements/layout/key_value_above.html" with key=bio_key value=author.biography|default:"No biography"|safe %}
+          <div class="grid auto">
+            {% trans "Email" as email_key %}
+            {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
+            {% trans "Display email" as display_email %}
+            {% include "elements/layout/key_value_above.html" with key=display_email value=author.display_email|yesno:"Yes,No" %}
+            {% trans "ORCID" as orcid_key %}
+            {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+          </div>
+        </dl>
+      {% endif %}
+    </section>
+    <section class="card padding-block-1 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Affiliations" %}</h2>
+      </div>
+      {% include "admin/core/affiliation_list_display_with_actions.html" with interface=author article=article %}
+    </section>
+    {% if credit_form %}
+      <section class="card padding-block-1 padding-inline-2">
+        <div class="title-area">
+          <h2>{% trans "Roles" %}</h2>
+        </div>
+        {% include "admin/submission/submit_credit_roles.html" with author=author credit_form=credit_form %}
+      </section>
+    {% endif %}
+  </div>
+{% endblock body %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

@@ -3,8 +3,6 @@
 {% load i18n %}
 
 {% block title-section %}{% trans "Upload files" %}{% endblock %}
-{% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -20,12 +18,11 @@
                 <p>**{{ error }}**</p>
             {% endif %}
             {% csrf_token %}
-            {% include "submission/timeline.html" with data=article %}
         </div>
 
         <div class="row expanded">
             <div class="large-12 columns">
-
+                {% include "admin/elements/forms/messages_in_callout.html" with form=data_form %}
                 {{ journal_settings.general.file_submission_guidelines|safe }}
 
                 <div class="title-area">
@@ -133,3 +130,9 @@
     {% endif %}
 {% endblock %}
 
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

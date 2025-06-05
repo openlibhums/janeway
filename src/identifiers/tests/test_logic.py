@@ -58,7 +58,6 @@ class TestLogic(TestCase):
         cls.issue_five_three.articles.add(cls.article_one)
         cls.article_one.primary_issue = cls.issue_five_three
         cls.article_one.abstract = 'Test abstract.'
-        cls.article_one.snapshot_authors()
         cls.article_one.license = submission_models.Licence.objects.filter(
             journal=cls.journal_one,
         ).first()
@@ -117,7 +116,6 @@ class TestLogic(TestCase):
         cls.issue_nine_nine.articles.add(cls.article_six)
         cls.article_six.primary_issue = cls.issue_nine_nine
         cls.article_six.abstract = 'Test abstract.'
-        cls.article_six.snapshot_authors()
         cls.article_six.license = submission_models.Licence.objects.filter(
             journal=cls.journal_two,
         ).first()

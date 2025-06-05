@@ -5,9 +5,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
 import json
+import os
 
 from django import forms
 from django.db.models import Q
+from django.utils.datastructures import MultiValueDict
 from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +29,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     CaptchaForm,
     HTMLDateInput,
+    YesNoRadio,
 )
 from utils.logger import get_logger
 from submission import models as submission_models
@@ -966,6 +969,7 @@ class AccountAffiliationForm(forms.ModelForm):
         widgets = {
             'start': HTMLDateInput,
             'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
         }
 
     def __init__(self, *args, **kwargs):
@@ -975,14 +979,15 @@ class AccountAffiliationForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        query = Q(account=self.account, organization=self.organization)
-        for key, value in cleaned_data.items():
-            query &= Q((key, value))
-        if self._meta.model.objects.filter(query).exists():
-            self.add_error(
-                None,
-                "An affiliation with matching details already exists."
-            )
+        if not self.instance.pk:
+            query = Q(account=self.account, organization=self.organization)
+            for key, value in cleaned_data.items():
+                query &= Q((key, value))
+            if self._meta.model.objects.filter(query).exists():
+                self.add_error(
+                    None,
+                    "An affiliation with matching details already exists."
+                )
         return cleaned_data
 
     def save(self, commit=True):
@@ -992,6 +997,76 @@ class AccountAffiliationForm(forms.ModelForm):
         if commit:
             affiliation.save()
         return affiliation
+
+
+class OrcidAffiliationForm(forms.ModelForm):
+    """
+    A form for creating ControlledAffiliation objects
+    from ORCID data.
+    """
+
+    class Meta:
+        model = models.ControlledAffiliation
+        fields = '__all__'
+
+    def __init__(
+        self,
+        orcid_affiliation,
+        tzinfo=timezone.get_current_timezone(),
+        data=None,
+        *args,
+        **kwargs,
+    ):
+        if not data:
+            data = MultiValueDict()
+
+        # The `get` methods below are used together with `or`
+        # defensively because of the data population in the API.
+        # It can have keys pointing to None values like:
+        # {"year": {"value": 2019}, "month": None}
+
+        data['title'] = orcid_affiliation.get('role-title', '') or ''
+        data['department'] = orcid_affiliation.get('department-name', '') or ''
+
+        org = None
+        orcid_org = orcid_affiliation.get('organization', {}) or {}
+        disamb_org = orcid_org.get('disambiguated-organization', {}) or {}
+        disamb_id = disamb_org.get('disambiguated-organization-identifier', '') or ''
+        if disamb_id.startswith('https://ror.org/'):
+            ror_id = os.path.split(disamb_id)[-1]
+            try:
+                org = models.Organization.objects.get(ror_id=ror_id)
+            except models.Organization.DoesNotExist:
+                pass
+        if not org:
+            address = orcid_org.get('address', {}) or {}
+            org, _created = models.Organization.get_or_create_without_ror(
+                institution=orcid_org.get('name', '') or '',
+                country=address.get('country', '') or '',
+                account=data.get('account'),
+                frozen_author=data.get('frozen_author'),
+                preprint_author=data.get('preprint_author'),
+            )
+        data['organization'] = org
+
+        orcid_start = orcid_affiliation.get('start-date', {}) or {}
+        if orcid_start:
+            data['start'] = timezone.datetime(
+                int((orcid_start.get('year', {}) or {}).get('value', 1)),
+                int((orcid_start.get('month', {}) or {}).get('value', 1)),
+                int((orcid_start.get('day', {}) or {}).get('value', 1)),
+                tzinfo=tzinfo,
+            )
+        orcid_end = orcid_affiliation.get('end-date', {}) or {}
+        if orcid_end:
+            data['end'] = timezone.datetime(
+                int((orcid_end.get('year', {}) or {}).get('value', 1)),
+                int((orcid_end.get('month', {}) or {}).get('value', 1)),
+                int((orcid_end.get('day', {}) or {}).get('value', 1)),
+                tzinfo=tzinfo,
+            )
+
+        super().__init__(data=data, *args, **kwargs)
 
 
 class ConfirmDeleteForm(forms.Form):

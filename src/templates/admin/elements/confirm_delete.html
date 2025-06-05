@@ -1,0 +1,44 @@
+{% extends "admin/elements/nitty_gritty.html" %}
+
+{% load i18n foundation next_url %}
+
+{% block contextual_title %}
+  {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
+    Delete "{{ thing_to_delete }}"
+  {% endblocktrans %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
+    Delete "{{ thing_to_delete }}"
+  {% endblocktrans %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
+      Delete "{{ thing_to_delete }}"
+    {% endblocktrans %}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Confirmation" %}
+{% endblock gritty_h2 %}
+
+{% block gritty_form %}
+  <div class="bs-callout bs-callout-warning">
+    <p>{% blocktrans %}
+      Are you sure you want to delete "{{ thing_to_delete }}"?
+    {% endblocktrans %}</p>
+    {{ form }}
+    <div class="button-group no-bottom-margin">
+      {% include "elements/button_yes_delete.html" %}
+      {% include "elements/a_no_go_back.html" with href=request.GET.next %}
+    </div>
+  </div>
+{% endblock gritty_form %}

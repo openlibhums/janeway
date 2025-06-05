@@ -1043,7 +1043,6 @@ class Issue(AbstractLastModifiedModel):
         ).values_list("order")
 
         issue_articles = self.articles.prefetch_related(
-            'authors',
             'frozenauthor_set',
             'manuscript_files',
         ).select_related(

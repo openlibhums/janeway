@@ -24,7 +24,7 @@ from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 
-from core import models, files, plugin_installed_apps
+from core import forms, models, files, plugin_installed_apps
 from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
@@ -292,9 +292,6 @@ def get_settings_to_edit(display_group, journal, user):
             {'name': 'editors_for_notification',
              'object': setting_handler.get_setting('general', 'editors_for_notification', journal),
              'choices': journal.editor_pks()
-             },
-            {'name': 'user_automatically_author',
-             'object': setting_handler.get_setting('general', 'user_automatically_author', journal),
              },
             {'name': 'submission_summary',
              'object': setting_handler.get_setting('general', 'submission_summary', journal),
@@ -1032,3 +1029,19 @@ def filter_articles_to_editor_assigned(request, articles):
     )
     assignment_article_pks = [assignment.article.pk for assignment in assignments]
     return articles.filter(pk__in=assignment_article_pks)
+
+
+def create_organization_name(request):
+    form = forms.OrganizationNameForm(request.POST)
+    if form.is_valid():
+        organization_name = form.save()
+        organization = models.Organization.objects.create()
+        organization_name.custom_label_for = organization
+        organization_name.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("Custom organization created: %(organization)s")
+                % {"organization": organization_name},
+        )
+        return organization_name

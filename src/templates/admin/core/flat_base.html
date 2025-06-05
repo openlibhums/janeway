@@ -1,0 +1,30 @@
+{% extends "admin/core/base.html" %}
+
+{% comment %}
+A base template that includes some accessibility features:
+- the contextual_title block, which adds the contextual site name for the browser tab
+- supression of toastr modal, so that you can include messages_in_callout where you like
+{% endcomment %}
+
+{% block title %}
+  {% block contextual_title %}{% endblock contextual_title %}
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
+
+{% block title-section %}
+  {{ block.super }}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block body %}
+{% endblock body %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

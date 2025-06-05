@@ -1,6 +1,6 @@
-{% extends "admin/core/large_form.html" %}
+{% extends "admin/elements/nitty_gritty.html" %}
 
-{% load i18n static foundation %}
+{% load i18n static foundation next_url %}
 
 {% block contextual_title %}
   {% trans "Custom organization" %}
@@ -11,37 +11,36 @@
 {% endblock title-section %}
 
 {% block breadcrumbs %}
-  {% if request.user == account %}
-    <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
+  {% if account and account == request.user %}
+    {% include "elements/breadcrumbs/edit_profile_base.html" %}
     <li>
-      <a href="{% url 'core_organization_search' %}">
+      <a href="{% url_with_next 'core_organization_search' %}">
         {% trans "Add Affiliation" %}
       </a>
     </li>
-    <li>{% trans "Custom organization" %}</li>
+  {% elif article and author %}
+    {% include "elements/breadcrumbs/submit_authors_base.html" %}
+    <li>
+      <a href="{% url_with_next 'submission_organization_search' article.pk author.pk %}">
+        {% trans "Add Affiliation" %}
+      </a>
+    </li>
   {% endif %}
+  <li>{% trans "Custom organization" %}</li>
 {% endblock breadcrumbs %}
 
-{% block body %}
-  <div class="grid max-w-80">
-    <div class="rummage-portal">
-      {% include "admin/core/affiliation_summary.html" %}
-      <section class="card padding-block-2 padding-inline-2">
-        <div class="title-area">
-          <h2>{% trans "Custom name" %}</h2>
-        </div>
-        <form method="post">
-          {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
-          {% csrf_token %}
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
-          {% include "admin/elements/forms/field.html" with field=form.value %}
-          {% include "elements/button_save.html" %}
-          {% url 'core_edit_profile' as cancel_url %}
-          {% include "elements/a_cancel.html" with href=cancel_url %}
-        </form>
-      </section>
-    </div>
+{% block nitty %}
+  {% include "admin/core/affiliation_summary.html" %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Custom name" %}
+{% endblock gritty_h2 %}
+
+{% block gritty_form %}
+  {% include "admin/elements/forms/field.html" with field=form.value %}
+  <div class="button-group no-bottom-margin">
+    {% include "elements/button_save.html" %}
+    {% include "elements/a_cancel.html" with href=request.GET.next %}
   </div>
-{% endblock body %}
+{% endblock gritty_form %}

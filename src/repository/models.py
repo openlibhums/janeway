@@ -753,17 +753,8 @@ class Preprint(models.Model):
 
             # copy authors to submission
             for preprint_author in self.preprintauthor_set.all():
-                submission_models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=preprint_author.account,
-                    defaults={
-                        'order': preprint_author.order
-                    }
-                )
-                article.authors.add(preprint_author.account)
-
-            # snapshot authors
-            article.snapshot_authors()
+                if preprint_author.account:
+                    preprint_author.account.snapshot_as_author(article)
 
             # copy preprints latest file and add it as a MS file to the article
             file = files.copy_preprint_file_to_article(

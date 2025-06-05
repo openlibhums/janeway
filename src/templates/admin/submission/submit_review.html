@@ -16,11 +16,6 @@
         <form method="POST">
             {% csrf_token %}
             <div class="row expanded">
-                <div class="col-lg-9">
-                    {% include "submission/timeline.html" with data=article %}
-                </div>
-            </div>
-            <div class="row expanded">
                 <div class="large-12 columns">
 
                     <p>{% blocktrans %}Please review your submission use the details below. If you need to make changes use the links above to move back along the submission steps. You must click the <strong>Complete Submission</strong> button at the foot of this page to complete the submission process, you will then receive a receipt email. {% endblocktrans %}</p>

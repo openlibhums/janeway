@@ -1,0 +1,97 @@
+{% load static %}
+{% load i18n %}
+{% load uuid %}
+
+{% get_uuid4 as pid %}
+
+<div data-give-me-options-{{ pid }} class="give-me-options callout secondary">
+  <div class="flex wrap gap-1 items-center space-between">
+    <strong>
+      <span class="fa fa-envelope"></span>
+      {% if article.correspondence_author %}
+        {% trans "Correspondence author" %}
+      {% else %}
+        {% trans "No correspondence author" %}
+      {% endif %}
+    </strong>
+    <div class="button-group no-bottom-margin">
+      <button
+        data-give-me
+        class="button hollow secondary"
+        aria-expanded="false"
+        aria-controls="options-pane-{{ pid }}">
+        <span class="fa fa-angle-up"></span>
+        <span class="fa fa-angle-down"></span>
+        {% if article.correspondence_author %}
+          {% trans "Change correspondence" %}
+        {% else %}
+          {% trans "Select correspondence author" %}
+        {% endif %}
+      </button>
+    </div>
+  </div>
+  <div id="options-pane-{{ pid }}" class="options-pane padding-block-1">
+    <p class="max-w-48">{% blocktrans %}
+      The correspondence author can be any author who has a user account,
+      independent of order. They will receive updates and requests
+      for work on the article during the review and publication process.
+    {% endblocktrans %}</p>
+    <form method="POST">
+      {% csrf_token %}
+      {% if article.non_correspondence_authors %}
+        <fieldset>
+          <legend>{% trans "Select a new correspondence author:" %}</legend>
+          {% for possible_corr_author in article.author_accounts %}
+            <div class="option">
+              <input
+                id="option_{{ possible_corr_author.pk }}"
+                name="corr_author"
+                type="radio"
+                {% if possible_corr_author == article.correspondence_author %}
+                  checked
+                {% endif %}
+                value="{{ possible_corr_author.pk }}"
+                {% if not possible_corr_author.real_email %}
+                  disabled
+                {% endif %}
+              >
+              <label for="option_{{ possible_corr_author.pk }}">
+                {{ possible_corr_author.full_name }}
+                {% if possible_corr_author.real_email %}
+                  {% blocktrans with email=possible_corr_author.real_email %}
+                    ({{ email }})
+                  {% endblocktrans %}
+                {% else %}
+                  {% trans "(no email address)" %}
+                {% endif %}
+              </label>
+            </div>
+          {% endfor %}
+        </fieldset>
+      {% else %}
+        <p class="max-w-48">{% blocktrans %}
+          The correspondence author cannot be changed,
+          because there are no other authors with user accounts.
+          First invite a co-author to register for an account.
+        {% endblocktrans %}</p>
+        {% site_url "core_register" as content %}
+        {% trans "Copy link to share" as label_copy %}
+        {% trans "Link copied" as label_copied %}
+        {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied %}
+        {% if article.authors_and_credits|length > 1 %}
+          <p>{% blocktrans %}
+            After they have made their account, remove and re-add
+            them to the author list via the search.
+          {% endblocktrans %}</p>
+        {% else %}
+          <p>{% blocktrans %}
+            After they have made their account, add
+            them to the author list via the search.
+          {% endblocktrans %}</p>
+        {% endif %}
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{% include "admin/elements/give_me_options_js.html" with pid=pid %}

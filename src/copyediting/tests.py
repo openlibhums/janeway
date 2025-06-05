@@ -38,14 +38,14 @@ class TestLogic(TestCase):
         )
         cls.active_article.title = 'Active Article'
         cls.active_article.save()
-        cls.active_article.authors.add(cls.author)
+        cls.author.snapshot_as_author(cls.active_article)
         cls.archived_article = helpers.create_article(
             journal=cls.journal_one,
         )
         cls.archived_article.stage = submission_models.STAGE_ARCHIVED
         cls.archived_article.title = 'Archived Article'
         cls.archived_article.save()
-        cls.archived_article.authors.add(cls.author)
+        cls.author.snapshot_as_author(cls.archived_article)
 
         cls.active_copyediting_task = models.CopyeditAssignment.objects.create(
             article=cls.active_article,

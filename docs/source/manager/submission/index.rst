@@ -24,8 +24,6 @@ This section allows you to control generic submission settings that affect how s
     - Any publication fees associated with submitting the paper.
 - Editors for Notification
     - This allows you to select which Editors are notified of new papers being submitted.
-- User Automatically Author
-    - If enabled the submission system assumes the user submitting the paper is also an author, they can be removed if required.
 - Competing Interests
     - This setting is deprecated in favour of the Submission Configurator version.
 - Submission Summary

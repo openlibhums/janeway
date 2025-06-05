@@ -1,0 +1,89 @@
+{% load static %}
+{% load i18n %}
+{% load next_url %}
+{% load uuid %}
+
+{% get_uuid4 as pid %}
+
+<div class="flex direction-column row-gap-0-5">
+  {% if author.credits.exists %}
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="author_pk" value="{{ author.pk }}">
+      <input type="hidden" name="remove_credit">
+      <div class="button-group no-bottom-margin flex wrap items-center">
+        {% for credit in author.credits %}
+          <div class="shell-of-a-button no-bottom-margin flex items-center">
+            {{ credit.get_role_display }}
+            <button
+              class="button secondary hollow"
+              name="credit_pk"
+              value="{{ credit.pk }}"
+              type="submit">
+              <span class="sr-only">
+                {% blocktrans with credit_role=credit.get_role_display %}
+                  Remove {{ credit_role }}
+                {% endblocktrans %}
+              </span>
+              <span class="fa fa-remove"></span>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    </form>
+  {% else %}
+    <div>
+      {% trans "This author has no contributor roles." %}
+    </div>
+  {% endif %}
+  <div
+    data-give-me-options-{{ pid }}
+    class="give-me-options bs-callout bs-callout-info flex direction-column gap-0-5">
+    <div class="button-group no-bottom-margin">
+      <button
+        data-give-me
+        class="button hollow secondary"
+        type="button"
+        aria-expanded="false"
+        aria-controls="options-pane-{{ pid }}">
+        <span class="fa fa-angle-up"></span>
+        <span class="fa fa-angle-down"></span>
+        {% trans "Add role" %}
+      </button>
+    </div>
+    <div id="options-pane-{{ pid }}" class="options-pane">
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="add_credit">
+        <fieldset class="padding-block-0-5">
+          <legend>{% trans "Select a role:" %}</legend>
+          <div class="auto-columns">
+            {% for radio in credit_form.role %}
+              <div class="option max-w-20">
+                <input
+                  id="{{ radio.id_for_label }}-{{ pid }}"
+                  name="role"
+                  value="{{ radio.data.value }}"
+                  type="radio">
+                <label for="{{ radio.id_for_label }}-{{ pid }}">
+                  {{ radio.choice_label }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </form>
+      <div>
+        <a
+          target="_blank"
+          href="https://credit.niso.org/contributor-roles-defined/">
+          {% trans "Learn about CRediT roles." %}
+          <span class="sr-only">{% trans "(opens in new tab)" %}</span>
+          <span class="fa fa-external-link"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "admin/elements/give_me_options_js.html" with pid=pid %}

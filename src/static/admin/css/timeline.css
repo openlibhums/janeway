@@ -1,5 +1,7 @@
 .timeline {
-  margin-top: 40px;
+  margin-block-start: 1rem;
+  margin-block-end: 0;
+  margin-inline: 0;
   list-style-type: none;
   display: flex;
   align-items: right; }

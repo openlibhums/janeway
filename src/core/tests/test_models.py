@@ -209,7 +209,7 @@ class TestAccount(TestCase):
         )
         self.assertEqual('Sky', author.full_name())
 
-    def test_snapshot_self_first_time(self):
+    def test_snapshot_as_author_first_time(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -218,13 +218,13 @@ class TestAccount(TestCase):
         self.article_one.correspondence_author = author
         self.article_one.save()
 
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Bob',
         )
 
-    def test_snapshot_self_second_time_with_force_update(self):
+    def test_snapshot_as_author_second_time_with_force_update(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -234,19 +234,19 @@ class TestAccount(TestCase):
         self.article_one.save()
 
         # Initial snapshot
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
 
         # Change author name and re-snapshot with force update
         author.first_name = 'Robert'
         author.save()
-        author.snapshot_self(self.article_one, force_update=True)
+        author.snapshot_as_author(self.article_one, force_update=True)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Robert',
         )
 
 
-    def test_snapshot_self_second_time_without_force_update(self):
+    def test_snapshot_as_author_second_time_without_force_update(self):
         author = helpers.create_author(
             self.journal_one,
             first_name='Bob',
@@ -256,73 +256,23 @@ class TestAccount(TestCase):
         self.article_one.save()
 
         # Initial snapshot
-        author.snapshot_self(self.article_one)
+        author.snapshot_as_author(self.article_one)
 
         # Change author name and re-snapshot with no force update
         author.first_name = 'Robert'
         author.save()
-        author.snapshot_self(self.article_one, force_update=False)
+        author.snapshot_as_author(self.article_one, force_update=False)
         self.assertEqual(
             self.article_one.frozen_authors().first().first_name,
             'Bob',
         )
 
-
-    def test_snapshot_credit_first_time(self):
-        author = helpers.create_author(self.journal_one)
-        self.article_one.authors.add(author)
-        self.article_one.correspondence_author = author
-        self.article_one.save()
-        author.add_credit('conceptualization', self.article_one)
-        author.add_credit('data-curation', self.article_one)
-
-        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
-            author=author,
-            article=self.article_one,
-        )
-        author.snapshot_credit(self.article_one, frozen_author)
-        frozen_author_credits = [
-            credit.get_role_display() for credit in frozen_author.credits()
-        ]
-        self.assertIn('Conceptualization', frozen_author_credits)
-        self.assertIn('Data Curation', frozen_author_credits)
-
-
-    def test_snapshot_credit_force_update(self):
-        author = helpers.create_author(self.journal_one)
-        self.article_one.authors.add(author)
-        self.article_one.correspondence_author = author
-        self.article_one.save()
-        author.add_credit('conceptualization', self.article_one)
-        author.add_credit('data-curation', self.article_one)
-
-        frozen_author, _ = submission_models.FrozenAuthor.objects.get_or_create(
-            author=author,
-            article=self.article_one,
-        )
-        # Initial snapshot
-        author.snapshot_credit(self.article_one, frozen_author)
-
-        # Change the author credits
-        author.remove_credit('data-curation', self.article_one)
-        author.add_credit('methodology', self.article_one)
-
-        # Snapshot again
-        author.snapshot_credit(self.article_one, frozen_author)
-
-        frozen_author_credits = [
-            credit.get_role_display() for credit in frozen_author.credits()
-        ]
-        self.assertIn('Conceptualization', frozen_author_credits)
-        self.assertIn('Methodology', frozen_author_credits)
-        self.assertNotIn('Data Curation', frozen_author_credits)
-
     def test_credits(self):
-        author = helpers.create_author(self.journal_one)
-        self.article_one.authors.add(author)
-        author.add_credit('conceptualization', self.article_one)
+        account = helpers.create_author(self.journal_one)
+        author = account.snapshot_as_author(self.article_one)
+        author.add_credit('conceptualization')
         self.assertEqual(
-            author.credits(article=self.article_one).first().get_role_display(),
+            author.credits.first().get_role_display(),
             'Conceptualization',
         )
 
@@ -677,13 +627,13 @@ class TestOrganizationModels(TestCase):
     def test_account_institution_getter(self):
         self.assertEqual(
             self.kathleen_booth.institution,
-            'Birkbeck, University of London, London, United Kingdom',
+            'Birkbeck, University of London',
         )
 
     def test_frozen_author_institution_getter(self):
         self.assertEqual(
             self.kathleen_booth_frozen.institution,
-            'Birkbeck, University of London, London, United Kingdom',
+            'Birkbeck, University of London',
         )
 
     def test_account_institution_setter_canonical_label(self):
@@ -702,13 +652,10 @@ class TestOrganizationModels(TestCase):
 
     def test_account_institution_setter_custom_overwrite(self):
         self.t_s_eliot.institution = 'Birkbek'
-        misspelled_bbk = models.Organization.objects.get(
-            custom_label__value='Birkbek'
-        )
         self.t_s_eliot.institution = 'Birkbck'
         self.assertEqual(
-            misspelled_bbk,
-            self.t_s_eliot.primary_affiliation().organization,
+            self.t_s_eliot.institution,
+            'Birkbck',
         )
 
     def test_account_institution_setter_custom_value(self):
@@ -822,7 +769,7 @@ class TestOrganizationModels(TestCase):
     def test_account_affiliation_with_primary(self):
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(as_object=False),
-            'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
+            'Lecturer, Department of Numerical Automation, Birkbeck, University of London',
         )
 
     def test_account_affiliation_with_no_title(self):
@@ -830,7 +777,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.save()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(as_object=False),
-            'Department of Numerical Automation, Birkbeck, University of London, London, United Kingdom',
+            'Department of Numerical Automation, Birkbeck, University of London',
         )
 
     def test_account_affiliation_with_no_country(self):
@@ -838,7 +785,7 @@ class TestOrganizationModels(TestCase):
         self.location_london.save()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(as_object=False),
-            'Lecturer, Department of Numerical Automation, Birkbeck, University of London, London',
+            'Lecturer, Department of Numerical Automation, Birkbeck, University of London',
         )
 
     def test_account_affiliation_with_no_location(self):
@@ -860,8 +807,8 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.is_primary = False
         self.affiliation_lecturer.save()
         self.assertEqual(
-            self.kathleen_booth.primary_affiliation(as_object=False),
-            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
+            self.kathleen_booth.primary_affiliation(),
+            self.affiliation_scientist,
         )
 
     def test_account_affiliation_with_no_dates_and_no_primary(self):
@@ -873,7 +820,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_officer.save()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(as_object=False),
-            'Junior Scientific Officer, Royal Aircraft Establishment, Farnborough, United Kingdom',
+            'Junior Scientific Officer, Royal Aircraft Establishment',
         )
 
     def test_account_affiliation_with_no_affiliations(self):
@@ -889,7 +836,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.delete()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(),
-            self.affiliation_officer,
+            self.affiliation_scientist,
         )
 
     def test_frozen_author_affiliation(self):

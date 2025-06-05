@@ -4,9 +4,6 @@
 {% load i18n %}
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
-{% block css %}
-    <link href="{% static 'admin/css/timeline.css' %}" rel="stylesheet">
-{% endblock %}
 
 {% block head %}
     {{ block.super }}
@@ -24,14 +21,13 @@
                 {% csrf_token %}
 
                 {% if article.is_preprint %}{% trans "This article is a preprint" %}{% endif %}
-                {% include "submission/timeline.html" with data=article %}
 
                 <div class="row expanded">
                     <div class="title-area">
                         <h2>{% trans 'Basic Information' %}</h2>
                     </div>
                     <div class="content">
-                        {% include "elements/forms/errors.html" with form=form %}
+                        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
                         <div class="{% if request.journal.submissionconfiguration.subtitle %}large-6{% else %}large-12{% endif %} columns">
                             {{ form.title|foundation }}
                         </div>
@@ -133,3 +129,10 @@
         });
     </script>
 {% endblock %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

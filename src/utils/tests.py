@@ -94,9 +94,9 @@ class UtilsTests(TestCase):
         )
 
         cls.submitted_article = helpers.create_article(cls.journal_one)
-        cls.submitted_article.authors.add(cls.author)
+        cls.author.snapshot_as_author(cls.submitted_article)
         cls.submitted_article.correspondence_author = cls.author
-        cls.submitted_article.authors.add(cls.coauthor)
+        cls.coauthor.snapshot_as_author(cls.submitted_article)
 
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
@@ -110,8 +110,8 @@ class UtilsTests(TestCase):
             abstract="An abstract",
             stage=submission_models.STAGE_UNDER_REVIEW,
         )
-        cls.article_under_review.authors.add(cls.author)
-        cls.article_under_review.authors.add(cls.coauthor)
+        cls.author.snapshot_as_author(cls.article_under_review)
+        cls.coauthor.snapshot_as_author(cls.article_under_review)
 
         cls.review_assignment = review_models.ReviewAssignment.objects.create(article=cls.article_under_review,
                                                                               reviewer=cls.second_user,

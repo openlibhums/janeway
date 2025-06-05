@@ -34,6 +34,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
+from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -60,6 +61,7 @@ from copyediting import models as copyediting_models
 from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
+from utils.forms import clean_orcid_id
 from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
@@ -390,6 +392,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def string_id(self):
         return str(self.id)
 
+    @property
+    def real_email(self):
+        if not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email
+        else:
+            return ''
+
     def get_full_name(self):
         """Deprecated in 1.5.2"""
         return self.full_name()
@@ -621,97 +630,51 @@ class Account(AbstractBaseUser, PermissionsMixin):
             affiliation.frozen_author = frozen_author
             affiliation.save()
 
-    def snapshot_credit(self, article, frozen_author):
-        """
-        Removes any old CRediT records from the frozen author,
-        then creates copies of author CRediT records for the frozen author.
-        """
-        CreditRecord.objects.filter(
-            article=article,
-            frozen_author=frozen_author,
-        ).delete()
-
-        for credit_record in CreditRecord.objects.filter(
-            article=article,
-            author=self,
-        ):
-            credit_record.pk = None
-            credit_record.author = None
-            credit_record.frozen_author = frozen_author
-            credit_record.save()
-
     def snapshot_self(self, article, force_update=True):
+        """
+        Old function name for snapshot_as_author.
+        """
+        raise DeprecationWarning("Use snapshot_as_author instead.")
+        return self.snapshot_as_author(article, force_update)
+
+    def snapshot_as_author(self, article, force_update=True):
+        """
+        Create a submission.models.FrozenAuthor using the name fields
+        and other details from this Account.
+        article: submission.models.Article
+        force_update: whether to overwrite fields if a FrozenAuthor exists
+        """
+        if self.name_prefix:
+            name_prefix = self.name_prefix
+        elif self.salutation:
+            name_prefix = self.salutation
+        else:
+            name_prefix = ''
+
         frozen_dict = {
-            'name_prefix': self.name_prefix,
+            'name_prefix': name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
             'name_suffix': self.suffix,
             'display_email': True if self == article.correspondence_author else False,
+            'order': article.next_frozen_author_order(),
         }
 
-        frozen_author = self.frozen_author(article)
+        frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
+            author=self,
+            article=article,
+            defaults=frozen_dict,
+        )
+        if created or force_update:
+            self.snapshot_affiliations(frozen_author)
 
-        if frozen_author and force_update:
+        if not created and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
             frozen_author.save()
-            self.snapshot_affiliations(frozen_author)
-            self.snapshot_credit(article, frozen_author)
 
-        else:
-            try:
-                order_object = article.articleauthororder_set.get(author=self)
-            except submission_models.ArticleAuthorOrder.DoesNotExist:
-                order_integer = article.next_author_sort()
-                order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=self,
-                    defaults={'order': order_integer}
-                )
-
-            frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
-                author=self,
-                article=article,
-                defaults=dict(order=order_object.order, **frozen_dict)
-            )
-            if created:
-                self.snapshot_affiliations(frozen_author)
-            self.snapshot_credit(article, frozen_author)
-
-    def credits(self, article):
-        """
-        Returns the CRediT records for this user on a given article
-        """
-        return submission_models.CreditRecord.objects.filter(
-            article=article,
-            author=self,
-        )
-
-    def add_credit(self, credit_role_text, article):
-        """
-        Adds a CRediT role to the article for this user
-        """
-        record, _ = (
-            submission_models.CreditRecord.objects.get_or_create(
-                article=article, author=self, role=credit_role_text)
-        )
-
-        return record
-
-    def remove_credit(self, credit_role_text, article):
-        """
-        Removes a CRediT role from the article for this user
-        """
-        try:
-            record = submission_models.CreditRecord.objects.get(
-                article=article,
-                author=self,
-                role=credit_role_text,
-            )
-            record.delete()
-        except submission_models.CreditRecord.DoesNotExist:
-            pass
+        return frozen_author
 
     def frozen_author(self, article):
         try:
@@ -730,11 +693,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return statistics.mean(ratings) if ratings else 0
 
     def articles(self):
-        return submission_models.Article.objects.filter(authors__in=[self])
+        return submission_models.Article.objects.filter(frozenauthor__author=self)
 
     def published_articles(self):
         articles = submission_models.Article.objects.filter(
-            authors=self,
+            frozenauthor__author=self,
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
         )
@@ -2210,6 +2173,7 @@ class OrganizationQueryset(models.query.QuerySet):
         uncontrolled_organizations = self.filter(
             ror_id='',
             custom_label__isnull=False,
+            controlledaffiliation__isnull=False,
         ).prefetch_related(
             'custom_label'
         )
@@ -2545,7 +2509,6 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     class Meta:
-        ordering = ['ror_display__value']
         constraints = [
             models.UniqueConstraint(
                 fields=['ror_id'],
@@ -2554,12 +2517,16 @@ class Organization(models.Model):
             )
         ]
 
-    def __str__(self):
+    @property
+    def name_location(self):
         elements = [
             str(self.name) if self.name else '',
             str(self.location) if self.location else '',
         ]
         return ', '.join([element for element in elements if element])
+
+    def __str__(self):
+        return str(self.name) if self.name else ''
 
     @property
     def uri(self):
@@ -2645,8 +2612,8 @@ class Organization(models.Model):
         try:
             organization = cls.objects.get(labels__value=institution)
         except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-            # Or maybe one in the past or alternate
-            # name data from ROR (e.g. aliases)?
+            # Or maybe one in the alternate name data
+            # from ROR (e.g. aliases)?
             try:
                 organization = cls.objects.get(aliases__value=institution)
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2654,13 +2621,21 @@ class Organization(models.Model):
                 # entered without a ROR for this
                 # account / frozen author / preprint author?
                 try:
-                    organization = cls.objects.get(
+                    # If there is no `institution`, this method is being used to update
+                    # the department or country in isolation, so we want the primary
+                    # affiliation's org regardless of what its custom label is.
+                    query = models.Q(
                         controlledaffiliation__is_primary=True,
                         controlledaffiliation__account=account,
                         controlledaffiliation__frozen_author=frozen_author,
                         controlledaffiliation__preprint_author=preprint_author,
                         ror_id__exact='',
                     )
+                    # If there is an institution name, we should only match organizations
+                    # with that as a custom label.
+                    if institution:
+                        query &= models.Q(custom_label__value=institution)
+                    organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Otherwise, create a new, disconnected record.
                     organization = cls.objects.create()
@@ -2668,6 +2643,22 @@ class Organization(models.Model):
 
         # Set custom label if organization is not controlled by ROR
         if institution and not organization.ror_id:
+            # Remove and harvest any old custom primary org
+            try:
+                old_primary_org = cls.objects.get(
+                    controlledaffiliation__is_primary=True,
+                    controlledaffiliation__account=account,
+                    controlledaffiliation__frozen_author=frozen_author,
+                    controlledaffiliation__preprint_author=preprint_author,
+                    ror_id__exact='',
+                )
+                if not institution:
+                    institution = old_primary_org.custom_label
+                if not country and old_primary_org.locations.exists():
+                    country = old_primary_org.locations.first().country
+                old_primary_org.delete()
+            except cls.DoesNotExist:
+                pass
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={'value': institution},
                 custom_label_for=organization,
@@ -2736,7 +2727,7 @@ class ControlledAffiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Each account can have one primary affiliation",
+        help_text="Each author or user can have one primary affiliation",
     )
     start = models.DateField(
         blank=True,
@@ -2757,7 +2748,7 @@ class ControlledAffiliation(models.Model):
                 ['account', 'frozen_author', 'preprint_author'],
             )
         ]
-        ordering = ['is_primary', '-pk']
+        ordering = ['-is_primary', '-end', '-start', '-pk']
 
     def title_department(self):
         elements = [
@@ -2770,7 +2761,7 @@ class ControlledAffiliation(models.Model):
         elements = [
             self.title,
             self.department,
-            str(self.organization) if self.organization else '',
+            str(self.organization.name) if self.organization else '',
         ]
         return ', '.join([element for element in elements if element])
 
@@ -2836,10 +2827,12 @@ class ControlledAffiliation(models.Model):
         cls,
         institution='',
         department='',
+        title='',
         country='',
         account=None,
         frozen_author=None,
         preprint_author=None,
+        defaults=None,
     ):
         """
         Backwards-compatible API for setting affiliation from unstructured text.
@@ -2856,6 +2849,8 @@ class ControlledAffiliation(models.Model):
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
         :type preprint_author: repository.models.PreprintAuthor
+        :param defaults: default dict passed to ControlledAffiliation.get_or_create:
+        :type defaults: dict:
         """
         organization, _created = Organization.get_or_create_without_ror(
             institution=institution,
@@ -2864,12 +2859,16 @@ class ControlledAffiliation(models.Model):
             frozen_author=frozen_author,
             preprint_author=preprint_author,
         )
+        if not defaults:
+            defaults = {}
 
-        defaults = {
+        defaults.update({
             'organization': organization,
-        }
+        })
         if department:
             defaults['department'] = department
+        if title:
+            defaults['title'] = title
         kwargs = {
             'is_primary': True,
             'account': account,

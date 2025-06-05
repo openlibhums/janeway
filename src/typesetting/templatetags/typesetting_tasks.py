@@ -12,7 +12,7 @@ def article_user_proofing_tasks(context):
 
     return models.GalleyProofing.objects.filter(
         round__article=article,
-        round__article__authors=request.user,
+        round__article__frozenauthor__author=request.user,
         proofreader=request.user,
         completed__isnull=True,
         cancelled=False,

@@ -1,62 +1,25 @@
-{% extends "admin/core/large_form.html" %}
+{% extends "admin/elements/confirm_delete.html" %}
 
-{% load i18n foundation %}
-
-{% block contextual_title %}
-  {% blocktrans with organization=affiliation.organization.name %}
-    Delete affiliation: {{ organization }}
-  {% endblocktrans %}
-{% endblock contextual_title %}
-
-{% block title-section %}
-  {% blocktrans with organization=affiliation.organization.name %}
-    Delete affiliation: {{ organization }}
-  {% endblocktrans %}
-{% endblock title-section %}
+{% load i18n next_url static %}
 
 {% block breadcrumbs %}
-  {% if request.user == account %}
+  {% if account and account == request.user %}
+    {% include "elements/breadcrumbs/edit_profile_base.html" %}
     <li>
-      <a href="{% url 'core_edit_profile' %}">
-        {% trans "Edit Profile" %}
-      </a>
-    </li>
-    <li>
-      <a href="{% url 'core_affiliation_update' affiliation.pk %}">
+      <a href="{% url_with_next 'core_affiliation_update' affiliation.pk %}">
         {% trans "Edit Affiliation" %}
       </a>
     </li>
-    <li>
-      {% blocktrans with organization=affiliation.organization.name %}
-        Delete affiliation: {{ organization }}
-      {% endblocktrans %}
-    </li>
+  {% elif article and author %}
+    {% include "elements/breadcrumbs/submit_authors_base.html" %}
   {% endif %}
+  <li>
+    {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
+      Delete "{{ thing_to_delete }}"
+    {% endblocktrans %}
+  </li>
 {% endblock breadcrumbs %}
 
-{% block body %}
-  <div class="grid max-w-80">
-    <div class="rummage-portal">
-      {% include "admin/core/affiliation_summary.html" %}
-      <section class="card padding-block-2 padding-inline-2">
-        <div class="title-area">
-          <h2>{% trans "Confirmation" %}</h2>
-        </div>
-        {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
-        <form method="post">
-          {% csrf_token %}
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
-          <p>{% blocktrans %}
-            Are you sure you want to delete the affiliation "{{ affiliation }}"?
-          {% endblocktrans %}</p>
-          {{ form }}
-          {% include "elements/button_yes_delete.html" %}
-          {% url 'core_edit_profile' as go_back_url %}
-          {% include "elements/a_no_go_back.html" with href=go_back_url %}
-        </form>
-      </section>
-    </div>
-  </div>
-{% endblock body %}
+{% block nitty %}
+  {% include "admin/core/affiliation_summary.html" %}
+{% endblock nitty %}

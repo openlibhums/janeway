@@ -4,10 +4,12 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import re
 from urllib.parse import quote, unquote, urlencode, urlparse
 
 from collections import defaultdict
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.http import QueryDict
 import requests
@@ -64,7 +66,7 @@ def build_redirect_uri(site):
 
 def get_orcid_record(orcid):
     try:
-        logger.info("Retrieving ORCiD profile for %s", orcid)
+        logger.info("Retrieving ORCID profile for %s", orcid)
         api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
         return api_client.read_record_public(orcid, 'record', search_token,)
@@ -78,12 +80,26 @@ def get_orcid_record(orcid):
     return None
 
 def get_affiliation(summary):
+    raise DeprecationWarning('Use get_affiliations instead.')
     if len(summary["employments"]["employment-summary"]):
         return summary["employments"]["employment-summary"][0]["organization"]
     elif len(summary["educations"]["education-summary"]):
         return summary["educations"]["education-summary"][0]["organization"]
     else:
         return None
+
+
+def get_affiliations(summary):
+    affils = []
+    affils.extend(
+        [affil for affil in summary["employments"]["employment-summary"]]
+    )
+    if not affils:
+        affils.extend(
+            [affil for affil in summary["educations"]["education-summary"]]
+        )
+    return affils
+
 
 def get_orcid_record_details(orcid):
     details = defaultdict(lambda: None)
@@ -106,10 +122,11 @@ def get_orcid_record_details(orcid):
             if name.get("given-names", None):
                 details["first_name"] = name["given-names"]["value"]
 
-        affiliation = get_affiliation(record["activities-summary"])
-        if affiliation:
-            details["affiliation"] = affiliation["name"]
-            details["country"] = affiliation["address"]["country"]
+        affiliations = get_affiliations(record["activities-summary"])
+        if affiliations:
+            details["affiliations"] = affiliations
+            details["affiliation"] = affiliations[0]["organization"]["name"]
+            details["country"] = affiliations[0]["organization"]["address"]["country"]
 
     return details
 
@@ -143,3 +160,13 @@ def decode_state(encoded_state):
         like {'next':'a','action':'b'}
     """
     return QueryDict(encoded_state)
+
+
+COMPILED_ORCID_REGEX = re.compile(
+    r'([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})'
+)
+
+
+def validate_orcid(orcid):
+    if not COMPILED_ORCID_REGEX.match(orcid):
+        raise ValidationError(f'{orcid} is not a valid ORCID')

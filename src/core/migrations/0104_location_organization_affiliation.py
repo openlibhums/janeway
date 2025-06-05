@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(blank=True, max_length=300, verbose_name='Title, position, or role')),
                 ('department', models.CharField(blank=True, max_length=300, verbose_name='Department, unit, or team')),
-                ('is_primary', models.BooleanField(default=False, help_text='Each account can have one primary affiliation')),
+                ('is_primary', models.BooleanField(default=False, help_text='Each author or user can have one primary affiliation')),
                 ('start', models.DateField(blank=True, null=True, verbose_name='Start date')),
                 ('end', models.DateField(blank=True, null=True, help_text='Leave empty for a current affiliation', verbose_name='End date')),
                 ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                 ('preprint_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintauthor')),
             ],
             options={
-                'ordering': ['is_primary', '-pk'],
+                'ordering': ['-is_primary', '-pk'],
             },
         ),
         migrations.AddConstraint(

@@ -13,8 +13,7 @@
         <button class="button" type="button" data-toggle="more-dropdown">Logs, Documents and More</button>
 
     </div>
-{% endif %}
-<div class="dropdown-pane bottom" id="more-dropdown" data-dropdown>
+  <div class="dropdown-pane bottom" id="more-dropdown" data-dropdown>
     <ul>
         <li><a href="{% url 'manage_article_log' article.pk %}">Logs</a></li>
         <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}">Document Management</a></li>
@@ -30,11 +29,11 @@
                     class="fa fa-cogs"></i></a></li>
         {% endif %}
     </ul>
-</div>
+  </div>
 
-{% if article.stage == 'Archived' %}
-<div class="row expanded">
-    <div class="bs-callout bs-callout-danger bg-white">
+  {% if article.stage == 'Archived' %}
+    <div class="row expanded">
+      <div class="bs-callout bs-callout-danger bg-white">
         <p class="no-bottom-margin">
             <small>
                 <strong>
@@ -43,6 +42,13 @@
                 This article has been archived.
             </small>
         </p>
+      </div>
     </div>
-</div>
+  {% endif %}
+{% endif %}
+
+{% if article.stage == 'Unsubmitted' %}
+  <div class="row expanded">
+    {% include "submission/timeline.html" with data=article %}
+  </div>
 {% endif %}

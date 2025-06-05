@@ -10,7 +10,9 @@ import uuid
 import os
 from dateutil import parser as dateparser
 from itertools import chain
+import warnings
 
+from django.apps import apps
 from django.db.models import SET_NULL
 from django.urls import reverse
 from django.db import (
@@ -57,7 +59,8 @@ from review import models as review_models
 from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
-from utils.forms import plain_text_validator
+from utils.orcid import validate_orcid
+from utils.forms import clean_orcid_id, plain_text_validator
 from journal import models as journal_models
 from review.const import (
     ReviewerDecisions as RD,
@@ -447,6 +450,18 @@ class ArticleManager(models.Manager):
         return super(ArticleManager, self).get_queryset().all()
 
 
+class ArticlePrefetchAuthorsManager(ArticleManager):
+    def get_queryset(self):
+        FrozenAuthor = apps.get_model('submission', 'FrozenAuthor')
+        return super().get_queryset().all().prefetch_related(
+            models.Prefetch(
+                'frozenauthor_set',
+                queryset=FrozenAuthor.select_related("author"),
+                to_attr="prefetched_author_accounts",
+            )
+        )
+
+
 class ArticleSearchManager(BaseSearchManagerMixin):
     SORT_KEYS = {
         "-title",
@@ -688,6 +703,7 @@ class Article(AbstractLastModifiedModel):
     remote_url = models.URLField(blank=True, null=True, help_text="If the article is remote, its URL should be added.")
 
     # Author
+    # The authors field is deprecated. Use FrozenAuthor or author_accounts instead.
     authors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='authors')
     correspondence_author = models.ForeignKey('core.Account', related_name='correspondence_author', blank=True,
                                               null=True, on_delete=models.SET_NULL)
@@ -858,21 +874,35 @@ class Article(AbstractLastModifiedModel):
     class Meta:
         ordering = ('-date_published', 'title')
 
+    def __getattribute__(self, name):
+        if name == "authors":
+            warnings.warn(
+                "The 'authors' field is deprecated. Use 'frozenauthor_set'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
+
+    @property
+    def author_accounts(self):
+        """
+        Get the accounts connected to the article via a FrozenAuthor record.
+        """
+        return core_models.Account.objects.filter(
+            frozenauthor__article=self
+        ).order_by('frozenauthor__order')
+
     # credits
     def authors_and_credits(self):
         """
-        Returns a dictionary of all frozen authors, or authors if frozen author
-        records do not exist, with any CRediT roles for the article.
+        Returns a dictionary of all author records with any
+        CRediT roles for the article.
         Respects the normal author order and orders roles A-Z by slug.
         :rtype: dict[Account | FrozenAuthor, QuerySet[CreditRecord]]
         """
         result = {}
-        if self.frozen_authors().exists():
-            for frozen_author in self.frozen_authors():
-                result[frozen_author] = frozen_author.credits()
-        else:
-            for author in self.authors.all():
-                result[author] = author.credits(article=self)
+        for frozen_author in self.frozen_authors():
+            result[frozen_author] = frozen_author.credits
         return result
 
     @property
@@ -1190,9 +1220,11 @@ class Article(AbstractLastModifiedModel):
 
     def non_correspondence_authors(self):
         if self.correspondence_author:
-            return self.authors.exclude(pk=self.correspondence_author.pk)
+            return self.author_accounts.exclude(
+                pk=self.correspondence_author.pk,
+            )
         else:
-            return self.authors.all()
+            return self.author_accounts
 
     def is_accepted(self):
         if self.date_published:
@@ -1395,7 +1427,7 @@ class Article(AbstractLastModifiedModel):
         return [assignment.editor.email for assignment in self.editorassignment_set.all()]
 
     def contact_emails(self):
-        emails = [author.email for author in self.authors.all()]
+        emails = [fa.email for fa in self.frozenauthor_set.all() if fa.email]
         emails.append(self.owner.email)
         return set(emails)
 
@@ -1466,10 +1498,9 @@ class Article(AbstractLastModifiedModel):
             return mark_safe(template.render(Context()))
 
     def author_list(self):
-        if self.is_accepted():
-            return ", ".join([author.full_name() for author in self.frozen_authors()])
-        else:
-            return ", ".join([author.full_name() for author in self.authors.all()])
+        return ", ".join(
+            [author.full_name() for author in self.frozenauthor_set.all()]
+        )
 
     def bibtex_author_list(self):
         return " AND ".join(
@@ -1565,11 +1596,6 @@ class Article(AbstractLastModifiedModel):
         return self.reviewassignment_set.filter(decision='withdrawn').count()
 
     def accept_article(self, stage=None):
-
-        # Frozen author records should be updated at acceptance,
-        # so we fire the default force_update=True on snapshot_authors
-        self.snapshot_authors()
-
         self.date_accepted = timezone.now()
         self.date_declined = None
 
@@ -1621,10 +1647,9 @@ class Article(AbstractLastModifiedModel):
         self.save()
 
     def user_is_author(self, user):
-        if user in self.authors.all():
+        if user in self.author_accounts:
             return True
-        else:
-            return False
+        return False
 
     def has_manuscript_file(self):
         if self.manuscript_files.all():
@@ -1659,12 +1684,13 @@ class Article(AbstractLastModifiedModel):
         :param article: (deprecated) should not pass this argument
         :param force_update: (bool) Whether or not to update existing records
         """
+        raise DeprecationWarning("Use FrozenAuthor directly instead.")
         subq = models.Subquery(ArticleAuthorOrder.objects.filter(
             article=self, author__id=models.OuterRef("id")
         ).values_list("order"))
         authors = self.authors.annotate(order=subq).order_by("order")
         for author in authors:
-            author.snapshot_self(self, force_update)
+            author.snapshot_as_author(self, force_update)
 
     def frozen_authors(self):
         return FrozenAuthor.objects.filter(article=self)
@@ -1726,11 +1752,19 @@ class Article(AbstractLastModifiedModel):
             os.unlink(path)
 
     def next_author_sort(self):
+        raise DeprecationWarning("Use FrozenAuthor instead.")
         current_orders = [order.order for order in ArticleAuthorOrder.objects.filter(article=self)]
         if not current_orders:
             return 0
         else:
             return max(current_orders) + 1
+
+    def next_frozen_author_order(self):
+        order = 0
+        for author in FrozenAuthor.objects.filter(article=self):
+            if author.order >= order:
+                order = author.order + 1
+        return order
 
     def subject_editors(self):
         editors = list()
@@ -1975,6 +2009,12 @@ class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
+    """
+    The main record of authorship in Janeway.
+    Historically it was a shadow copy of some Account fields,
+    with Account objects in Article.authors, but FrozenAuthor has
+    since superseded Article.authors.
+    """
     article = models.ForeignKey(
         'submission.Article',
         blank=True,
@@ -2018,46 +2058,62 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     frozen_biography = JanewayBleachField(
         blank=True,
-        verbose_name=_('Frozen Biography'),
-        help_text=_("The author's biography at the time they published"
-                    " the linked article. For this article only, it overrides"
-                    " any main biography attached to the author's account."
-                    " If Frozen Biography is left blank, any main biography"
-                    " for the account will be populated instead."
-                   ),
+        verbose_name=_('Biography'),
     )
     order = models.PositiveIntegerField(default=1)
 
     is_corporate = models.BooleanField(
             default=False,
-            help_text="If enabled, the institution and department fields will "
-                "be used as the author full name",
+            help_text="Whether the author is an organization. "
+                      "The display name will be formed from the affiliation."
     )
     frozen_email = models.EmailField(
             blank=True,
-            verbose_name=_("Author Email"),
+            verbose_name=_("Email"),
     )
     frozen_orcid = models.CharField(
         max_length=40,
         blank=True,
-        verbose_name=_('ORCiD'),
-        help_text=_("ORCiD to be displayed when no account is"
-                    " associated with this author. It should be introduced in code "
-                    "format (e.g: 0000-0000-0000-000X)"
-                    )
+        validators=[validate_orcid],
+        verbose_name=_('ORCID'),
+        help_text=_("ORCID to be displayed when no account is"
+                    " associated with this author.")
     )
     display_email = models.BooleanField(
         default=False,
-        help_text=_("If checked, this authors email address link will be displayed on the article page.")
+        help_text=_("Whether to display this author's email "
+                    "address on the published article.")
     )
 
     objects = FrozenAuthorQueryset.as_manager()
 
     class Meta:
+        verbose_name = 'Author'
+        verbose_name_plural = 'Authors'
         ordering = ('order', 'pk')
 
     def __str__(self):
         return self.full_name()
+
+    @property
+    def owner(self):
+        if self.author:
+            return self.author
+        elif self.article:
+            return self.article.owner
+        else:
+            return None
+
+    def associate_with_account(self):
+        if self.frozen_email:
+            try:
+                # Associate with account if one exists
+                account = core_models.Account.objects.get(
+                    username=self.frozen_email.lower())
+                self.author = account
+                self.frozen_email = ""  # linked account, don't store this value
+            except core_models.Account.DoesNotExist:
+                pass
 
     @property
     def institution(self):
@@ -2096,11 +2152,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
             frozen_author=self,
         )
 
+    @property
     def credits(self):
         """
         Returns all the credit records for this frozen author
         """
-        return CreditRecord.objects.filter(frozen_author=self)
+        return self.creditrecord_set.all()
 
     def add_credit(self, credit_role_text):
         """
@@ -2108,7 +2165,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
         """
         record, _ = (
             CreditRecord.objects.get_or_create(
-                article=self.article,
                 frozen_author=self,
                 role=credit_role_text,
             )
@@ -2122,11 +2178,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
         """
         try:
             record = CreditRecord.objects.get(
-                article=self.article,
                 frozen_author=self,
                 role=credit_role_text,
             )
             record.delete()
+            return record
         except CreditRecord.DoesNotExist:
             pass
 
@@ -2171,6 +2227,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
         return None
 
     @property
+    def real_email(self):
+        if self.email and not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email
+        else:
+            return ''
+
+    @property
     def orcid(self):
         if self.frozen_orcid:
             return self.frozen_orcid
@@ -2180,7 +2243,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def corporate_name(self):
-        return self.primary_affiliation()
+        return self.primary_affiliation(as_object=False)
 
     @property
     def biography(self):
@@ -2239,21 +2302,53 @@ class FrozenAuthor(AbstractLastModifiedModel):
     @property
     def is_correspondence_author(self):
         # early return if no email address available
-        if (not self.author
-                or settings.DUMMY_EMAIL_DOMAIN in self.author.email):
+        if not self.author or not self.real_email:
             return False
-
         elif self.article.journal.enable_correspondence_authors is True:
-            if self.article.correspondence_author is not None:
-                return self.article.correspondence_author == self.author
-            else:
-                order = ArticleAuthorOrder.objects.get(
-                        article=self.article,
-                        author=self.author,
-                ).order
-                return order == 0
+            corr_author = self.article.correspondence_author
+            return corr_author and corr_author == self.author
         else:
             return True
+
+
+    @classmethod
+    def get_or_snapshot_if_email_found(cls, email, article):
+        created = False
+        try:
+            author = cls.objects.get(
+                models.Q(article=article) &
+                (models.Q(frozen_email=email) |
+                models.Q(author__username__iexact=email))
+            )
+        except cls.DoesNotExist:
+            try:
+                account = core_models.Account.objects.get(email=email)
+                author = account.snapshot_as_author(article)
+                created = True
+            except core_models.Account.DoesNotExist:
+                author = None
+
+        return author, created
+
+    @classmethod
+    def get_or_snapshot_if_orcid_found(cls, orcid, article):
+        created = False
+        try:
+            author = cls.objects.get(
+                models.Q(article=article) &
+                (models.Q(frozen_orcid=orcid) |
+                models.Q(author__orcid__contains=orcid))
+            )
+        except cls.DoesNotExist:
+            try:
+                account = core_models.Account.objects.get(
+                    orcid__contains=orcid,
+                )
+                author = account.snapshot_as_author(article)
+            except core_models.Account.DoesNotExist:
+                author = None
+
+        return author, created
 
 
 class CreditRecord(AbstractLastModifiedModel):
@@ -2265,17 +2360,12 @@ class CreditRecord(AbstractLastModifiedModel):
         constraints = [
             model_utils.check_exclusive_fields_constraint(
                 'credit_record',
-                ['author', 'frozen_author', 'preprint_author'],
+                ['frozen_author', 'preprint_author'],
             )
         ]
+        unique_together = [["frozen_author", "role"]]
         ordering = ["role"]
 
-    author = models.ForeignKey(
-        'core.Account',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-    )
     frozen_author = models.ForeignKey(FrozenAuthor,
                                       blank=True,
                                       null=True,
@@ -2284,13 +2374,7 @@ class CreditRecord(AbstractLastModifiedModel):
                                         blank=True,
                                         null=True,
                                         on_delete=models.CASCADE)
-    article = models.ForeignKey(Article,
-                                blank=True,
-                                null=True,
-                                on_delete=models.CASCADE)
     role = models.CharField(max_length=100,
-                            blank=True,
-                            null=True,
                             choices=CREDIT_ROLE_CHOICES)
 
     def __str__(self):
@@ -2514,6 +2598,9 @@ class FieldAnswer(models.Model):
 
 
 class ArticleAuthorOrder(models.Model):
+    """
+    Deprecated. Use FrozenAuthor instead.
+    """
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
@@ -2620,6 +2707,17 @@ def remove_author_from_article(sender, instance, **kwargs):
     :param instance: FrozenAuthor instance
     :return: None
     """
+    if (
+        not instance.article.authors.exists()
+    ) and (
+        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
+    ):
+        # Return early so long as deprecated models and fields are not being used.
+        # This avoids triggering the deprecation warning in development.
+        return
+    raise DeprecationWarning(
+        "Authorship is now exclusively handled via FrozenAuthor."
+    )
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,
@@ -2655,3 +2753,24 @@ def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 
 m2m_changed.connect(order_keywords, sender=Article.keywords.through)
+
+def backwards_compat_authors(
+        sender, instance, action, reverse, model, pk_set, **kwargs):
+    """ A signal to make the Article.authors backwards compatible
+    As part of #4755, the dependency of Article on Account for author linking
+    was removed. This signal is a backwards compatibility measure to ensure
+    FrozenAuthor records are being updated correctly.
+    """
+    accounts = core_models.Account.objects.filter(pk__in=pk_set)
+    if action == "post_add":
+        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
+            article=instance, author__id=models.OuterRef("id")
+        ).values_list("order"))
+        accounts = accounts.annotate(order=subq).order_by("order")
+        for account in accounts:
+            account.snapshot_as_author(instance)
+    if action in ["post_remove", "post_clear"]:
+        instance.frozen_authors.filter(author__in=pk_set).delete()
+
+
+m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)
