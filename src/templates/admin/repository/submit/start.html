@@ -5,7 +5,7 @@
 {% load field %}
 
 {% block title-section %}
-    Submit {{ request.repository.object_name }}
+    Create a new {{ request.repository.object_name }}
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -37,6 +37,9 @@
                         </div>
                         <div class="large-12 columns">
                             {{ form.title|foundation }}
+                        </div>
+                        <div class="large-12 columns">
+                            {{ form.submission_type|foundation }}
                         </div>
                         <div class="large-12 columns">
                             {{ form.abstract|foundation }}

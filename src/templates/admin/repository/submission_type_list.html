@@ -1,0 +1,81 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title-section %}{{ request.repository.object_name|capfirst }}
+  Types{% endblock %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+  <li>
+    <a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }}
+      Manager</a></li>
+  <li>{{ preprint.title|safe }}</li>
+{% endblock %}
+
+{% load cache %}
+
+{% block body %}
+  <div class="box">
+    <div class="content">
+      <p>
+        Submission types are used to categorise preprints (e.g. <strong>Preprint</strong>,
+        <strong>Postprint</strong>).
+        Each type belongs to a single repository and is used to organise submissions on
+        the site.
+      </p>
+      <p>
+        You can edit the name, slug, or pill colour of each type. Deleting a type will
+        remove it permanently;
+        be careful when doing so — especially if it is in use.
+      </p>
+
+      <p>
+        When selecting a pill colour, you should ensure that it has at least
+        <strong>4.5:1 contrast ratio</strong> with your site's background to meet
+        <a href="https://www.w3.org/TR/WCAG22/#contrast-minimum" target="_blank"
+           rel="noopener">
+          WCAG 2.2 AA 1.4.3 Contrast requirements
+        </a>.
+      </p>
+      <table>
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Submissions</th>
+          <th>Pill Colour</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for type in submission_types %}
+          <tr>
+            <td>{{ type.name }}</td>
+            <td>{{ type.slug }}</td>
+            <td>{{ type.preprint_count }}</td>
+            <td>
+              <span style="border: 2px solid {{ type.pill_colour }}; padding: 2px;">
+                {{ type.pill_colour }}
+              </span>
+            </td>
+            <td>
+              <a class="small warning button" href="{% url 'edit_submission_type' type.pk %}">Edit</a>
+              <form action="{% url 'delete_submission_type' type.pk %}" method="post"
+                    style="display:inline;">
+                {% csrf_token %}
+                <button class="small alert button del" type="submit">
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{% static "common/js/confirm.js" %}"></script>
+{% endblock js %}
