@@ -1,11 +1,11 @@
 {% extends "admin/core/base.html" %}
 
-{% block title-section %}Preprint Manager{% endblock %}
+{% block title-section %}{{ request.repository.object_name|capfirst }} Manager{% endblock %}
 {% block title-sub %}Management interface for {{ request.repository.name }}{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li>Preprint Manager</li>
+    <li>{{ request.repository.object_name|capfirst }} Manager</li>
 {% endblock %}
 
 {% load cache %}
@@ -23,6 +23,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>Type</th>
                             <th>First Author</th>
                             <th>Date Submitted</th>
                         </tr>
@@ -34,6 +35,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_submitted }}</td>
                             </tr>
@@ -96,6 +98,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>Type</th>
                             <th>First Author</th>
                             <th>Date Published</th>
                         </tr>
@@ -107,6 +110,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_published }}</td>
                             </tr>

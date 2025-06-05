@@ -3,6 +3,10 @@
 {% load i18n %}
 {% load truncate %}
 
+{% block css %}
+  {% include "common/repository/style/submission_type_pills.html" %}
+{% endblock css %}
+
 {% block title %}
     {% if rou %}
         {{ rou.name }} - {{ request.repository.name }}
@@ -22,7 +26,7 @@
                     {% if rou %}
                         {{ rou.name }} {{ request.repository.object_name_plural }}
                     {% else %}
-                        {{ request.repository.object_name_plural }}
+                        {{ request.repository.object_name_plural|capfirst }}
                     {% endif %}
                 </h1>
                 <p>
@@ -53,11 +57,12 @@
                             <p>{{ preprint.display_authors_compact }}</p>
                             <p>
                                 <span class="date">
+                                    {% include "repository/elements/submission_type_pill.html" %} &nbsp;
                                     <i class="fa fa-calendar"></i>
                                     {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;
                                     <i class="fa fa-paperclip"></i>
                                     {% include "common/repository/subject_display.html" %}&nbsp;
-                                    <i class="fa fa-link"></i>
+                                    {% if preprint.organisation_units.all %}<i class="fa fa-link"></i>{% endif %}
                                     {% for rou in preprint.organisation_units.all %}
                                     <a href="{% url 'repository_preprints_by_rou' rou.code %}">
                                         {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
@@ -87,55 +92,51 @@
             </div>
         </div>
         <aside class="large-4 columns" data-sticky-container>
-            <div class="sticky" data-sticky data-margin-top="0" data-anchor="content">
-                <div class="section">
-                    <form method="POST" action="{% url 'repository_search' %}">
-                        {% csrf_token %}
-                        <div class="input-group">
+          <div class="sticky" data-sticky data-margin-top="0" data-anchor="content">
+              <div class="section">
+                  <form method="get" action="{% url 'repository_list' %}">
+                      <div class="input-group">
                             <span class="input-group-label"><i class="fa fa-search"></i></span>
                             <input class="input-group-field" type="search" name="search_term"
-                                   placeholder="{% trans "Search preprints" %}"
-                                   {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                   placeholder="{% trans "Search" %}"
+                                   value="{{ form.search_term.value|default_if_none:'' }}">
                         </div>
-                        <input type="submit" style="visibility: hidden;"/>
-                        <h5>{% trans "Searching by" %}:</h5>
-                        <ul>
-                            <li>{% trans "Title" %}</li>
-                            <li>{% trans "Keywords" %}</li>
-                            <li>{% trans "Author Name" %}</li>
-                            <li>{% trans "Author Affiliation" %}</li>
-                        </ul>
-                    </form>
-                </div>
-                {% if subject %}
-                    <div class="section">
-                        <h5>{{ subject.name }} {% trans "Editors" %}</h5>
-                        <ul>
-                            {% for editor in subject.editors.all %}
-                                <li>{{ editor.full_name }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
 
-                {% if subjects %}
-                    <div class="section">
-                        <h5>{% trans "Filter by Subject" %}</h5>
-                        <ul>
-                            {% for list_subject in subjects %}
-                                {% if not list_subject == subject %}
-                                    <li>
-                                        <a href="{% url 'repository_list_subject' list_subject.pk %}">
-                                            {{ list_subject }}
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
-            </div>
-        </aside>
+                      {{ form.subject.label_tag }}
+                      {{ form.subject }}
+
+                      {{ form.submission_type.label_tag }}
+                      {{ form.submission_type }}
+
+                      <button type="submit" class="button small expanded">
+                          {% trans "Apply Filters" %}
+                      </button>
+                  </form>
+              </div>
+
+              <div class="section">
+                  <h6 class="subheader">{% trans "You can search by" %}:</h6>
+                  <ul class="no-bullet small">
+                      <li>{% trans "Title" %}</li>
+                      <li>{% trans "Keywords" %}</li>
+                      <li>{% trans "Author Name" %}</li>
+                      <li>{% trans "Author Affiliation" %}</li>
+                  </ul>
+              </div>
+
+              {% if subject and subject.editors.exists %}
+                  <div class="section">
+                      <h5>{{ subject.name }} {% trans "Editors" %}</h5>
+                      <ul>
+                          {% for editor in subject.editors.all %}
+                              <li>{{ editor.full_name }}</li>
+                          {% endfor %}
+                      </ul>
+                  </div>
+              {% endif %}
+          </div>
+      </aside>
+
     </div>
 </section>
 {% endblock %}

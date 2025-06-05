@@ -6,8 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import os
 import uuid
 import json
-from dateutil import parser as dateparser
+import csv
 
+from django.apps import apps
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -17,7 +18,12 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.template import Template, Context
+from django.utils.html import format_html
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+
 from simple_history.models import HistoricalRecords
+from openpyxl import load_workbook
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -472,6 +478,11 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    submission_type = models.ForeignKey(
+        'RepositorySubmissionType',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     owner = models.ForeignKey(
         'core.Account',
         null=True,
@@ -569,6 +580,15 @@ class Preprint(models.Model):
         return '{}'.format(
             self.title,
         )
+
+    def clean(self):
+        super().clean()
+        if self.submission_type and self.submission_type.repository != self.repository:
+            raise ValidationError({
+                'submission_type': _(
+                    "Submission type must belong to the same repository as the preprint."
+                )
+            })
 
     def old_versions(self):
         return PreprintVersion.objects.filter(
@@ -784,6 +804,14 @@ class Preprint(models.Model):
 
         return url
 
+    def get_linked_books(self):
+        try:
+            from plugins.books.models import Book
+        except (ImportError, LookupError):
+            return []
+
+        return Book.objects.filter(linked_repository_objects=self)
+
     def create_article(self, journal, workflow_stage, journal_license, journal_section, force=False):
         """
         Creates an article in a given journal and workflow stage.
@@ -831,6 +859,33 @@ class Preprint(models.Model):
         # Return None to indicate this method has not created a new article object.
         return None
 
+
+class RepositorySubmissionType(models.Model):
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+        related_name='object_types',
+    )
+    name = models.CharField(max_length=100)
+    name_plural = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=255, unique=True)
+    pill_colour = models.CharField(
+        max_length=7,
+        default="#1e40af",
+        validators=[
+            RegexValidator(
+                regex=r"^#(?:[0-9a-fA-F]{3}){1,2}$",
+                message="Enter a valid hex colour code (e.g. #1e40af or #fff).",
+            ),
+        ],
+        help_text="Hex colour code for the pill border and text (e.g. #1e40af)",
+    )
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 class KeywordPreprint(models.Model):
     keyword = models.ForeignKey(
@@ -1077,6 +1132,179 @@ class PreprintVersion(models.Model):
 
     class Meta:
         ordering = ('-version', '-date_time', '-id')
+
+    def render(self):
+        """
+        Render the file associated with this version as HTML, if possible.
+        Supports: PDF, HTML, images, plain text.
+        """
+        if not self.file or not self.file.file:
+            return ""
+
+        file_path = self.file.file.path
+        if not os.path.exists(file_path):
+            return ""
+
+        mime_type = self.file.mime_type or files.guess_mime(self.file.file.url)[0]
+        if not mime_type:
+            return ""
+
+        if mime_type == "application/pdf":
+            return self.render_pdf()
+        elif mime_type == "text/html":
+            return self.render_html()
+        elif mime_type.startswith("image/"):
+            return self.render_image()
+        elif mime_type.endswith("csv"):
+            return self.render_csv()
+        elif mime_type.startswith("text/"):
+            return self.render_text()
+        elif mime_type in (
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel"
+        ):
+            return self.render_excel()
+
+        return format_html(
+            '<p>Preview not available for this file type: {}</p>',
+            mime_type,
+        )
+
+    def render_pdf(self):
+        pdf_view_url = reverse(
+            'repository_pdf',
+            kwargs={'preprint_id': self.preprint.pk},
+        )
+        download_url = reverse(
+            'repository_file_download',
+            kwargs={
+                'preprint_id': self.preprint.pk,
+                'file_id': self.file.pk,
+            },
+        )
+        return format_html(
+            '<iframe src="{}?file={}" width="100%" height="100%" '
+            'style="min-height: 900px;" allowfullscreen webkitallowfullscreen></iframe>',
+            pdf_view_url,
+            download_url,
+        )
+
+    def render_image(self):
+        download_url = reverse(
+            'repository_file_download',
+            kwargs={
+                'preprint_id': self.preprint.pk,
+                'file_id': self.file.pk,
+            },
+        )
+        return format_html(
+            '<img src="{}" alt="Preprint image" style="max-width:100%; height:auto;">',
+            download_url,
+        )
+
+    def render_text(self):
+        try:
+            with open(self.file.file.path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                return format_html("<pre>{}</pre>", content)
+        except Exception:
+            return "<p>Unable to render text content.</p>"
+
+    def render_html(self):
+        return self.html()
+
+    def render_csv(self, max_rows=10, max_cols=5):
+        """
+        Render the first `max_rows` and `max_cols` of a CSV file as an HTML table,
+        with truncation notices if applicable.
+        """
+        try:
+            with open(self.file.file.path, newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+
+            if not rows:
+                return "<p>CSV file is empty.</p>"
+
+            header = rows[0]
+            total_cols = len(header)
+            total_rows = len(rows) - 1
+
+            display_cols = header[:max_cols]
+            data_rows = [row[:max_cols] for row in rows[1:max_rows + 1]]
+
+            table = ['<table class="table table-striped table-bordered">']
+            table.append("<thead><tr>{}</tr></thead>".format(
+                "".join(f"<th>{col}</th>" for col in display_cols)
+            ))
+            table.append("<tbody>")
+            for row in data_rows:
+                table.append("<tr>{}</tr>".format(
+                    "".join(f"<td>{cell}</td>" for cell in row)
+                ))
+            table.append("</tbody></table>")
+
+            messages = []
+            if total_rows > max_rows:
+                messages.append(f"Showing first {max_rows} of {total_rows} rows.")
+            if total_cols > max_cols:
+                messages.append(f"Showing first {max_cols} of {total_cols} columns.")
+
+            if messages:
+                table.append(f"<p>{' '.join(messages)}</p>")
+
+            return format_html("".join(table))
+
+        except Exception as e:
+            return format_html("<p>Error rendering CSV: {}</p>", str(e))
+
+    def render_excel(self, max_rows=10, max_cols=5):
+        """
+        Render the first `max_rows` and `max_cols` of the first worksheet in an Excel file
+        as an HTML table, with truncation messages if applicable.
+        """
+        try:
+            wb = load_workbook(filename=self.file.file.path, read_only=True)
+            sheet = wb.active
+
+            rows = list(sheet.iter_rows(values_only=True))
+            if not rows:
+                return "<p>Excel file is empty.</p>"
+
+            header = rows[0]
+            total_cols = len(header)
+            total_rows = len(rows) - 1
+
+            display_cols = header[:max_cols]
+            data_rows = [row[:max_cols] for row in rows[1:max_rows + 1]]
+
+            table = ['<table class="table table-striped table-bordered">']
+            table.append("<thead><tr>{}</tr></thead>".format(
+                "".join(f"<th>{col}</th>" for col in display_cols)
+            ))
+            table.append("<tbody>")
+            for row in data_rows:
+                table.append("<tr>{}</tr>".format(
+                    "".join(
+                        f"<td>{cell if cell is not None else ''}</td>" for cell in row)
+                ))
+            table.append("</tbody></table>")
+
+            messages = []
+            if total_rows > max_rows:
+                messages.append(f"Showing first {max_rows} of {total_rows} rows.")
+            if total_cols > max_cols:
+                messages.append(f"Showing first {max_cols} of {total_cols} columns.")
+
+            if messages:
+                table.append(f"<p>{' '.join(messages)}</p>")
+
+            return format_html("".join(table))
+
+        except Exception as e:
+            return format_html("<p>Error rendering Excel file: {}</p>", str(e))
+
+
 
     def html(self):
         if self.file.mime_type in files.HTML_MIMETYPES:

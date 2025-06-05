@@ -19,6 +19,8 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlencode
+
 
 from repository import forms, logic as repository_logic, models
 from core import (
@@ -329,31 +331,53 @@ def repository_subject_list(request):
     return render(request, template, context)
 
 
-
-def repository_list(request, subject_id=None):
+def redirect_old_subject(request, subject_id):
     """
-    Displays a list of all published preprints.
-    :param request: HttpRequest
-    :return: HttpResponse
+    Redirects our old url pattern to the new query string filtering.
     """
-    if subject_id:
-        subject = get_object_or_404(
-            models.Subject,
-            pk=subject_id,
-            repository=request.repository,
-        )
-        preprints = subject.preprint_set.filter(
-            repository=request.repository,
-            date_published__lte=timezone.now(),
-        ).order_by('-date_published')
-    else:
-        subject = None
-        preprints = models.Preprint.objects.filter(
-            date_published__lte=timezone.now(),
-            repository=request.repository,
-        ).order_by('-date_published')
+    return redirect(
+        f"{reverse('repository_list')}?subject={subject_id}",
+        permanent=True,
+    )
 
-    paginator = Paginator(preprints, 15)
+
+def repository_list(request):
+    form = forms.PreprintFilterForm(request.GET, repository=request.repository)
+
+    preprints = models.Preprint.objects.filter(
+        date_published__lte=timezone.now(),
+        repository=request.repository,
+    ).select_related('submission_type') \
+     .prefetch_related('organisation_units')
+
+    if form.is_valid():
+        subject = form.cleaned_data.get('subject')
+        submission_type = form.cleaned_data.get('submission_type')
+        search_term = form.cleaned_data.get('search_term', '').strip()
+
+        if subject:
+            preprints = preprints.filter(subject=subject)
+
+        if submission_type:
+            preprints = preprints.filter(submission_type=submission_type)
+
+        if search_term:
+            split_terms = [term for term in search_term.split() if term]
+
+            keyword_filter = Q(keywords__word__in=split_terms)
+            title_abstract_filter = Q(title__icontains=search_term) | Q(
+                abstract__icontains=search_term)
+
+            author_filter = Q(preprintauthor__account__first_name__in=split_terms) | \
+                            Q(preprintauthor__account__middle_name__in=split_terms) | \
+                            Q(preprintauthor__account__last_name__in=split_terms) | \
+                            Q(preprintauthor__account__institution__icontains=search_term)
+
+            preprints = preprints.filter(
+                title_abstract_filter | keyword_filter | author_filter
+            ).distinct()
+
+    paginator = Paginator(preprints.order_by('-date_published'), 15)
     page = request.GET.get('page', 1)
 
     try:
@@ -363,87 +387,28 @@ def repository_list(request, subject_id=None):
     except EmptyPage:
         preprints = paginator.page(paginator.num_pages)
 
-    template = 'repository/list.html'
-    context = {
+    return render(request, 'repository/list.html', {
         'preprints': preprints,
-        'subject': subject,
-        'subjects': models.Subject.objects.filter(enabled=True),
-    }
-
-    return render(request, template, context)
+        'form': form,
+        'subject': form.cleaned_data.get('subject') if form.is_valid() else None,
+        'submission_type': form.cleaned_data.get('submission_type') if form.is_valid() else None,
+    })
 
 
 def repository_search(request, search_term=None):
     """
-    Searches for and displays a list of Preprints.
+    Redirects legacy search URL with optional search_term to the
+    main repository list view.
     """
-    if request.POST and 'search_term' in request.POST:
-        search_term = request.POST.get('search_term')
-        return redirect(
-            reverse(
-                'repository_search_with_term',
-                kwargs={'search_term': search_term},
-            )
-        )
+    if request.method == "POST":
+        search_term = request.POST.get('search_term', '').strip()
 
-    # Grab all of the preprints that are published. We can then filter them
-    # if a search term is given or return them if none.
-    preprints = models.Preprint.objects.filter(
-        date_published__lte=timezone.now(),
-        repository=request.repository,
-    )
-
+    query = {}
     if search_term:
-        search_term = search_term.strip()
-        split_search_term = [
-            term.strip() for term in search_term.split(' ') if term
-        ]
+        query['search_term'] = search_term
 
-        # Initial filter on Title, Abstract and Keywords.
-        preprint_search = preprints.filter(
-            (Q(title__icontains=search_term) |
-             Q(abstract__icontains=search_term) |
-             Q(keywords__word__in=split_search_term))
-        )
+    return redirect(f"{reverse('repository_list')}?{urlencode(query)}")
 
-        from_author = models.PreprintAuthor.objects.filter(
-            (
-                Q(account__first_name__in=split_search_term) |
-                Q(account__middle_name__in=split_search_term) |
-                Q(account__last_name__in=split_search_term) |
-                Q(account__institution__icontains=search_term)
-            )
-            &
-            (
-                Q(preprint__repository=request.repository)
-            )
-        )
-
-        preprints_from_author = [pa.preprint for pa in models.PreprintAuthor.objects.filter(
-            pk__in=from_author,
-            preprint__date_published__lte=timezone.now(),
-        )]
-
-        preprints = list(set(list(preprint_search) + preprints_from_author))
-        preprints.sort(key=operator.attrgetter('date_published'), reverse=True)
-
-    paginator = Paginator(preprints, 15)
-    page = request.GET.get('page', 1)
-
-    try:
-        preprints = paginator.page(page)
-    except PageNotAnInteger:
-        preprints = paginator.page(1)
-    except EmptyPage:
-        preprints = paginator.page(paginator.num_pages)
-
-    template = 'repository/list.html'
-    context = {
-        'search_term': search_term,
-        'preprints': preprints,
-    }
-
-    return render(request, template, context)
 
 
 def repository_preprint(request, preprint_id):
@@ -2644,6 +2609,65 @@ def rou_hierarchy_view(request, rou_code=None):
                 date_published__lte=timezone.now(),
             ).order_by('-date_published')[:10],
             "page_text": repository.render_setting(repository.rou_struct_page_text),
+        },
+    )
+
+
+@is_repository_manager
+def submission_type_list(request):
+    types = (models.RepositorySubmissionType.objects.filter(
+        repository=request.repository,
+    ).annotate(
+        preprint_count=Count('preprint')
+    ))
+    return render(
+        request,
+        'repository/submission_type_list.html',
+        {
+            'submission_types': types,
+        },
+    )
+
+
+@is_repository_manager
+@require_POST
+def delete_submission_type(request, pk):
+    obj = get_object_or_404(
+        models.RepositorySubmissionType,
+        pk=pk,
+        repository=request.repository,
+    )
+    obj.delete()
+    return redirect('submission_type_list')
+
+
+@is_repository_manager
+def edit_submission_type(request, pk=None):
+    if pk:
+        submission_type = get_object_or_404(models.RepositorySubmissionType, pk=pk)
+    else:
+        submission_type = None
+
+    if request.method == "POST":
+        form = forms.RepositorySubmissionTypeForm(
+            request.POST,
+            instance=submission_type,
+        )
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.repository = request.repository  # assumes middleware provides this
+            obj.save()
+            return redirect("submission_type_list")
+    else:
+        form = forms.RepositorySubmissionTypeForm(instance=submission_type)
+
+    return render(
+        request,
+        "repository/submission_type_form.html",
+        {
+            "form": form,
+            "editing": submission_type is not None,
+            "submission_type": submission_type,
         },
     )
 

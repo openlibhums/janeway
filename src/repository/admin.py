@@ -16,8 +16,12 @@ class RepositoryAdmin(SimpleHistoryAdmin):
     list_display_links = ('short_name', 'name')
     list_filter = ('live',)
     search_fields = ('short_name', 'name',)
-    raw_id_fields = ('managers', 'homepage_preprints',
-                     'active_licenses')
+    raw_id_fields = (
+        'managers',
+        'homepage_preprints',
+        'active_licenses',
+        'submission_notification_recipients',
+    )
 
     inlines = [
         admin_utils.RepositoryRoleInline,
@@ -62,8 +66,10 @@ class PreprintAdmin(admin.ModelAdmin):
     list_filter = ('repository__short_name', 'date_started',
                    'date_submitted', 'date_accepted', 'date_declined',
                    'date_published', 'date_updated', 'current_step')
-    raw_id_fields = ('repository', 'owner', 'subject',
-                     'article', 'submission_file', 'license')
+    raw_id_fields = (
+        'repository', 'owner', 'subject', 'article', 'submission_file', 'license',
+        'submission_type',
+    )
     search_fields = ('pk', 'title', 'owner__email', 'owner__orcid',
                      'owner__first_name', 'owner__last_name', 'abstract',
                      'submission_file__original_filename', 'subject__name',
@@ -210,6 +216,26 @@ class RepositoryOrganisationUnitAdmin(admin.ModelAdmin):
     raw_id_fields = ('repository', 'parent')
 
 
+class RepositorySubmissionTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'slug',
+        'repository',
+        'pill_colour',
+    )
+    list_filter = (
+        'repository',
+    )
+    search_fields = (
+        'name',
+        'slug',
+        'repository__name',
+    )
+    prepopulated_fields = {
+        'slug': ('name',),
+    }
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.RepositoryRole, RepositoryRoleAdmin),
@@ -228,6 +254,7 @@ admin_list = [
     (models.Review, ReviewAdmin),
     (models.ReviewRecommendation, ReviewRecommendationAdmin),
     (models.RepositoryOrganisationUnit, RepositoryOrganisationUnitAdmin),
+    (models.RepositorySubmissionType, RepositorySubmissionTypeAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block title %}{{ preprint.title|striptags }} - Manager{% endblock %}
-{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
-{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name|capfirst }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name|capfirst }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
     <li>{{ preprint.title|safe }}</li>
 {% endblock %}
 
@@ -32,19 +32,21 @@
                         <td colspan="3">{{ preprint.title }}</td>
                     </tr>
                     <tr>
-                        <th colspan="2">Owner</th>
+                        <th>Owner</th>
                         <th>Licence</th>
+                        <th>Type</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{{ preprint.owner.full_name }}</td>
+                        <td>{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
+                        <td>{{ preprint.submission_type.name|default:"No submission type set" }}</td>
                     </tr>
                     <tr>
                         <th colspan="2">Preprint DOI</th>
                         <th>Published DOI</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{% if preprint.preprint_doi %}
+                        <td colspan=2">{% if preprint.preprint_doi %}
                             <a target="_blank" href="https://doi.org/{{ preprint.preprint_doi }}">
                             {{ preprint.preprint_doi }}{% else %}pending{% endif %}</a></td>
                         <td>{% if preprint.doi %}<a target="_blank" href="{{ preprint.doi }}">

@@ -1345,3 +1345,15 @@ button.list-group-item-danger.active:focus {
     margin-top: 0.5rem;
     font-weight: bold;
 }
+
+.submission-type-pill {
+    display: inline-block;
+    background-color: transparent;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}

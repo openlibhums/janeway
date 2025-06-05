@@ -54,7 +54,7 @@ urlpatterns = [
         name='repository_subject_list'),
 
     re_path(r'^list/(?P<subject_id>\d+)/$',
-        views.repository_list,
+        views.redirect_old_subject,
         name='repository_list_subject'),
 
     re_path(r'^editors/$',
@@ -112,6 +112,26 @@ urlpatterns = [
     re_path(r'^manager/(?P<preprint_id>\d+)/author/delete/$',
         views.delete_preprint_author,
         name='repository_manager_delete_author'),
+    re_path(
+        r'^manager/submission-types/$',
+        views.submission_type_list,
+        name='submission_type_list',
+    ),
+    re_path(
+        r"^manager/submission-types/create/$",
+        views.edit_submission_type,
+        name="create_submission_type",
+    ),
+    re_path(
+        r"^manager/submission-types/(?P<pk>\d+)/edit/$",
+        views.edit_submission_type,
+        name="edit_submission_type",
+    ),
+    re_path(
+        r'^manager/submission-types/(?P<pk>\d+)/delete/$',
+        views.delete_submission_type,
+        name='delete_submission_type',
+    ),
 
     # Review
     re_path(r'^manager/reviewers/$',

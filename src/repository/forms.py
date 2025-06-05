@@ -32,6 +32,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         model = models.Preprint
         fields = (
             'title',
+            'submission_type',
             'abstract',
             'license',
             'comments_editor',
@@ -59,13 +60,17 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         # If using this form and there is an instance then this has
         # previously been checked as it is required.
-        if self.instance:
+        if self.instance.id and 'submission_agreement' in self._meta.fields:
             self.fields['submission_agreement'].initial = True
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
             enabled=True,
             repository=self.request.repository,
         )
+        self.fields['submission_type'].queryset = models.RepositorySubmissionType.objects.filter(
+            repository=self.request.repository,
+        )
+
         if self.admin:
             self.fields['license'].queryset = submission_models.Licence.objects.filter(
                 journal__isnull=True,
@@ -733,3 +738,63 @@ class RecommendationForm(forms.ModelForm):
             recommendation.save()
 
         return recommendation
+
+
+class PreprintFilterForm(forms.Form):
+    subject = forms.ModelChoiceField(
+        queryset=models.Subject.objects.none(),
+        required=False,
+        label="Subject",
+        empty_label="— All Subjects —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    submission_type = forms.ModelChoiceField(
+        queryset=models.RepositorySubmissionType.objects.none(),
+        required=False,
+        label="Submission Type",
+        empty_label="— All Types —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    search_term = forms.CharField(
+        required=False,
+        label="Search",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Search preprints",
+        }),
+    )
+
+    def __init__(self, *args, repository=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if repository:
+            self.fields['subject'].queryset = models.Subject.objects.filter(
+                repository=repository,
+                enabled=True,
+            )
+            self.fields['submission_type'].queryset = models.RepositorySubmissionType.objects.filter(
+                repository=repository,
+            )
+
+
+class RepositorySubmissionTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositorySubmissionType
+        fields = [
+            "name",
+            "name_plural",
+            "slug",
+            "pill_colour",
+        ]
+        help_texts = {
+            "slug": (
+                "A URL-safe identifier for this type (e.g. 'preprint'). "
+                "Used in HTML classes and API filters. Must be unique within this site."
+            ),
+            "pill_colour": (
+                "Hex colour code used to style the label (e.g. #1e40af)."
+            ),
+        }
+        widgets = {
+            "pill_colour": forms.TextInput(attrs={"placeholder": "#1e40af"}),
+        }

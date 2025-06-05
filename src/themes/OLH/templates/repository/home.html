@@ -5,9 +5,13 @@
     {% if selected_rou %}
         {{ selected_rou.name }} - {{ request.repository.name }}
     {% else %}
-        {{ repository.name }}
+        {{ request.repository.name }}
     {% endif %}
 {% endblock %}
+
+{% block css %}
+  {% include "common/repository/style/submission_type_pills.html" %}
+{% endblock css %}
 
 {% block navbar %}
     {% include "repository/nav.html" %}
@@ -32,12 +36,12 @@
                 <ul class="inline-list text-center">
                     <li>
                         <a href="{% url 'repository_preprints_by_rou' selected_rou.code %}">
-                            View Unit's {{ request.repository.object_name_plural }}
+                            View {{ request.repository.rou_default_name }}'s {{ request.repository.object_name_plural }}
                         </a>
                     </li>
                     <li>
                         <a href="">
-                            Submit {{ request.repository.object_name }} to Unit
+                            Submit {{ request.repository.object_name }}
                         </a>
                     </li>
                 </ul>
@@ -47,8 +51,7 @@
         {% if not selected_rou %}
         <div class="large-6 columns end large-offset-3">
             <div class="input-group">
-                <form method="POST" action="{% url 'repository_search' %}">
-                    {% csrf_token %}
+                <form method="GET" action="{% url 'repository_list' %}">
                     <div class="input-group">
                         <span class="input-group-label"><i class="fa fa-search"></i></span>
                         <input class="input-group-field" type="search" name="search_term"
@@ -63,10 +66,8 @@
                 <a href="{% url 'repository_about' %}">
                     {{ request.repository.name }}
                 </a>
-                {% trans "or view list of" %}
-                <a href="{% url 'repository_list' %}">
-                    {{ request.repository.object_name_plural }}
-                </a>.
+                {% trans "or view " %}
+                <a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a>.
             </p>
           {% endif %}
         </div>
@@ -75,7 +76,7 @@
         {% if preprints %}
         <div class="large-8 columns large-offset-2 end">
             <h2 class="text-center">
-                {% trans "Latest" %} {{ request.repository.object_name_plural }}
+                {% trans "Latest" %} {{ request.repository.object_name_plural|capfirst }}
             </h2>
             {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
         </div>
@@ -85,9 +86,11 @@
         <div class="large-8 columns large-offset-2 end">
             <h2 class="text-center">
                 {% if selected_rou %}
-                    {% trans 'Select Sub-unit of' %} {{ selected_rou.name }}
+                    {% blocktrans with rou_name=request.repository.rou_default_name selected_name=selected_rou.name %}
+                        Select Sub-{{ rou_name }} of {{ selected_name }}
+                    {% endblocktrans %}
                 {% else %}
-                    {% trans 'Select Organisational Unit' %}
+                    {% trans 'Select' %} {{ request.repository.rou_default_name }}
                 {% endif %}
             </h2>
             {% if rous|length <= 5 %}
