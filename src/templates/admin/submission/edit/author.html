@@ -49,7 +49,7 @@
         <h2>{% trans "Name, bio, and identifiers" %}</h2>
         {% if not form %}
           <form method="GET">
-            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <input type="hidden" name="next" value="{{ request.GET.next|default_if_none:"" }}">
             <div class="button-group no-bottom-margin">
               <button
                 type="submit"
