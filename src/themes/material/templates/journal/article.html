@@ -71,6 +71,7 @@
 
                             </span>
                     {% endif %}
+                    {% include "elements/journal/reading.html" %}
                     {% if article.abstract and article.abstract != '' %}
                         <h2>{% trans "Abstract" %}</h2>
                         <p>{{ article.abstract | safe }}</p>
@@ -546,4 +547,5 @@
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "common/js/text_readability.js" %}"></script>
 {% endblock %}
