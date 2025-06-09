@@ -92,6 +92,12 @@
                             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
                                 <a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">{% trans 'Edit Article' %}</a>
                             {% endif %}
+                            {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
+                                <a class="dropdown-item" href="{% url 'manage_issues_id' issue.pk %}">{% trans 'Edit Issue' %}</a>
+                            {% endif %}
+                            {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
+                                <a class="dropdown-item" href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans 'Edit News Item' %}</a>
+                            {% endif %}
                         {% endif %}
                         {% if request.user.is_staff %}
                             <a class="dropdown-item" href="/admin/">{% trans 'Admin' %}</a>
