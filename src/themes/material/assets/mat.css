@@ -920,3 +920,59 @@ p + .btn-background {
     -o-transition: all 1s ease;
     -ms-transition: all 1s ease;
 }
+
+#reading-options{
+    background: #f1f1f1;
+    top: 0;
+    display: flex;
+    gap: 1rem;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    margin: 0;
+    float: right;
+    padding: 3px;
+    border: 1px solid #00897b;
+}
+
+.btn-opt {
+    border: 1px solid #00897b;
+    background: #f1f1f1;
+    text-transform: none;
+    color: black;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: Verdana !important;
+      color: #4c4c4c;
+    }
+
+    p, li {
+      font-family: Verdana !important;
+      color: #4c4c4c;
+      background-color: #F5F5DC;
+    }
+
+    i, em {
+        font-style: normal;
+        background-color: #FAFAC8;
+    }
+
+    .summary {
+        .top {
+            background-color: #F5F5DC;
+        }
+        .bottom {
+            background-color: #F5F5DC;
+        }
+    }
+}
