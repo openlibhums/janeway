@@ -14,7 +14,6 @@
 {% endblock %}
 
 {% block body %}
-
     <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
@@ -51,6 +50,7 @@
 
         <div class="col-md-7">
             <div id="article">
+                {% include "elements/journal/reading.html" %}
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>
@@ -365,6 +365,7 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "common/js/text_readability.js" %}"></script>
     <script src="{% static "clean/js/tooltip-init.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
 {% endblock js %}
