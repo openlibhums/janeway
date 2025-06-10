@@ -308,8 +308,19 @@ class Repository(model_utils.AbstractSiteModel):
         )
 
     def additional_submission_fields(self):
+        return self.all_additional_submission_fields
+
+    def all_additional_submission_fields(self):
         return RepositoryField.objects.filter(
             repository=self,
+        )
+
+    def type_additional_submission_fields(self, submission_type_slug=None):
+        return RepositoryField.objects.filter(
+            repository=self,
+        ).filter(
+            Q(submission_type__isnull=True) |
+            Q(submission_type__slug=submission_type_slug)
         )
 
     def site_url(self, path="", query=''):
@@ -416,6 +427,14 @@ class RepositoryField(models.Model):
     repository = models.ForeignKey(
         Repository,
         on_delete=models.CASCADE,
+    )
+    submission_type = models.ForeignKey(
+        'RepositorySubmissionType',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text='Optional, allows you to tie this field to a specific submission type. '
+                  'Leave blank to tie this to all submission types.',
     )
     name = models.CharField(max_length=255)
     input_type = models.CharField(
@@ -580,15 +599,6 @@ class Preprint(models.Model):
         return '{}'.format(
             self.title,
         )
-
-    def clean(self):
-        super().clean()
-        if self.submission_type and self.submission_type.repository != self.repository:
-            raise ValidationError({
-                'submission_type': _(
-                    "Submission type must belong to the same repository as the preprint."
-                )
-            })
 
     def old_versions(self):
         return PreprintVersion.objects.filter(

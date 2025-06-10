@@ -27,7 +27,7 @@
                             {% for field in fields %}
                                 <li class="list-group-item" id="fields-{{ field.pk }}">
                                     <i class="fa fa-arrows">&nbsp;</i>
-                                    {{ field.name }}
+                                    {{ field.name }} [Linked to {{ field.submission_type.name|default:"All" }}]
                                     <div class="float-right">
                                         <a href="{% url 'repository_fields_with_id' field.pk %}" class="tiny warning button"><i
                                                 class="fa fa-edit"></i></a>

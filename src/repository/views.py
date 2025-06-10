@@ -3,7 +3,6 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import operator
 from datetime import datetime
 from dateutil import tz
 
@@ -16,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 from django.utils.http import urlencode
@@ -536,13 +535,49 @@ def preprints_editors(request):
 
 
 @submission_authorised
-def repository_submit(request, preprint_id=None):
+def repository_submit(request):
+    form = forms.PreSubmissionStartForm(
+        repository=request.repository,
+    )
+    if request.POST:
+        form = forms.PreSubmissionStartForm(
+            request.POST,
+            repository=request.repository,
+        )
+        if form.is_valid():
+            submission_type = form.cleaned_data["submission_type"]
+            organisation_unit = form.cleaned_data.get("organisation_unit")
+
+            url = reverse('repository_info')
+            params = f"?submission_type={submission_type.slug}"
+
+            if organisation_unit:
+                params += f"&ou={organisation_unit.code}"
+
+            return redirect(f"{url}{params}")
+
+    template = 'admin/repository/submit/start.html'
+    context = {
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@submission_authorised
+def repository_info(request, preprint_id=None):
     """
     Handles initial steps of generating a preprints submission.
     :param request: HttpRequest
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
+    result = repository_logic.get_submission_type_or_redirect(request)
+    if isinstance(result, HttpResponseRedirect):
+        return result
+
+    submission_type = result
+    organisation_unit = getattr(request, 'organisation_unit', None)
+
     if preprint_id:
         preprint = get_object_or_404(
             models.Preprint,
@@ -556,6 +591,7 @@ def repository_submit(request, preprint_id=None):
     form = forms.PreprintInfo(
         instance=preprint,
         request=request,
+        submission_type_slug=submission_type.slug,
     )
 
     if request.POST:
@@ -563,22 +599,32 @@ def repository_submit(request, preprint_id=None):
             request.POST,
             instance=preprint,
             request=request,
+            submission_type_slug=submission_type.slug,
         )
 
         if form.is_valid():
-            preprint = form.save()
-            return redirect(
-                reverse(
-                    'repository_authors',
-                    kwargs={'preprint_id': preprint.pk},
-                ),
-            )
+            if form.is_valid():
+                preprint = form.save(commit=False)
+                preprint.submission_type = submission_type
+                if organisation_unit:
+                    preprint.organisation_units.add(organisation_unit)
 
-    template = 'admin/repository/submit/start.html'
+                preprint.save()
+
+                return redirect(
+                    reverse(
+                        'repository_authors',
+                        kwargs={'preprint_id': preprint.pk},
+                    ),
+                )
+
+    template = 'admin/repository/submit/info.html'
     context = {
         'form': form,
         'preprint': preprint,
-        'additional_fields': request.repository.additional_submission_fields(),
+        'additional_fields': request.repository.type_additional_submission_fields(
+            submission_type_slug=submission_type.slug,
+        ),
     }
 
     return render(request, template, context)
@@ -1052,7 +1098,9 @@ def repository_edit_metadata(request, preprint_id):
     context = {
         'preprint': preprint,
         'metadata_form': metadata_form,
-        'additional_fields': request.repository.additional_submission_fields(),
+        'additional_fields': request.repository.type_additional_submission_fields(
+            submission_type_slug=preprint.submission_type.slug if preprint.submission_type else None,
+        ),
     }
 
     return render(request, template, context)
@@ -1638,7 +1686,7 @@ def repository_fields(request, field_id=None):
     context = {
         'field': field,
         'form': form,
-        'fields': request.repository.additional_submission_fields(),
+        'fields': request.repository.all_additional_submission_fields(),
     }
 
     return render(request, template, context)

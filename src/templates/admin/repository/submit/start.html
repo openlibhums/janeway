@@ -2,126 +2,124 @@
 {% load static %}
 {% load i18n %}
 {% load foundation %}
-{% load field %}
+{% load field dict %}
 
 {% block title-section %}
-    Create a new {{ request.repository.object_name }}
+  Create a new {{ request.repository.object_name }}
 {% endblock %}
 
 {% block breadcrumbs %}
-{% include "admin/elements/breadcrumbs/repository_submission.html" with start=True %}
+  {% include "admin/elements/breadcrumbs/repository_submission.html" with start=True %}
 {% endblock %}
 
+{% block css %}
+  <style>
+      .custom-radio-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+      }
+
+      .custom-radio {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1rem;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: border-color 0.3s ease;
+          background: #fdfdfd;
+      }
+
+      .custom-radio:hover {
+          border-color: #2684ff;
+      }
+
+      .custom-radio input[type="radio"] {
+          margin: 0;
+      }
+
+      .ou-depth-1 {
+          margin-left: 1rem;
+      }
+
+      .ou-depth-2 {
+          margin-left: 2rem;
+      }
+
+      .ou-depth-3 {
+          margin-left: 3rem;
+      }
+
+      .ou-depth-4 {
+          margin-left: 4rem;
+      }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <div class="box">
-        <div class="row expanded">
-            <form method="POST">
-                {% csrf_token %}
-                <div class="large-6 columns end">
-                    <div class="row">
-                        <div class="title-area">
-                            <h2>{% trans "Submission Agreement" %}</h2>
-                        </div>
-                        {% include "elements/forms/errors.html" with form=form %}
-                        <div class="large-12 columns">
-                            <div class="row expanded">
-                                <div class="large-12 columns">
-                                    {{ request.repository.submission_agreement|safe }}
-                                    {{ form.submission_agreement }}<label for="id_submission_agreement">You must agree to the above in order to continue.</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="title-area">
-                            <h2>{% trans "Metadata" %}</h2>
-                        </div>
-                        <div class="large-12 columns">
-                            {{ form.title|foundation }}
-                        </div>
-                        <div class="large-12 columns">
-                            {{ form.submission_type|foundation }}
-                        </div>
-                        <div class="large-12 columns">
-                            {{ form.abstract|foundation }}
+  <div class="box">
+    <div class="row expanded">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="large-6 columns end">
+          <div class="title-area">
+            <h2>{% trans "Submission Agreement" %}</h2>
+          </div>
 
-                        </div>
-                        <div class="large-12 columns error">
-                            {{ form.license|foundation }}
-                        </div>
-                        <div class="large-12 columns error">
-                            {{ form.doi|foundation }}
-                        </div>
+          {% include "elements/forms/errors.html" with form=form %}
+          <div class="bs-callout bs-callout-primary" id="submission-agreement-text">
+            {{ request.repository.submission_agreement|safe }}
+            {{ form.submission_agreement }}
+            <label for="id_submission_agreement">
+              You must agree to the above in order to continue.
+            </label>
+          </div>
 
-                        <div class="large-12 columns">
-                            <div class="row expanded">
-                                <div class="large-12 columns">
-                                    <label for="id_subject">{{ form.subject.label }}<span class="red">*</span></label>
-                                    <ul class="tree">
-                                        {% include "admin/elements/repository/tree.html" with subjects=request.repository.top_level_subjects %}
-                                    </ul>
-                                    <p class="help-text">
-                                        Press the Caret (>) to view child subjects.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+          <div class="title-area">
+            <h2>{% trans "Submission Type" %}</h2>
+          </div>
 
-                        <div class="large-12 columns">
-                            <div class="row expanded">
-                                <div class="large-12 columns">
-                                    <label for="id_keywords">Keywords</label>
-                                    <input type="text" id="id_keywords" name="keywords" value="{% if form.cleaned_data.keywords %}{{ form.cleaned_data.keywords }}{% else %}{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
-                                    <p class="help-text">{% trans "Hit Enter to add a new keyword." %}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% if additional_fields %}
-                            {% for additional_field in additional_fields %}
-                                {% get_form_field form additional_field.name as field %}
-                                <div class="{{ field.field.widget.attrs.div_class }} columns">
-                                    {{ field|foundation }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+          <p>{{ form.submission_type.label }}</p>
 
-                        <div class="large-12 columns">
-                            {{ form.comments_editor|foundation }}
-                        </div>
+          <div class="custom-radio-group">
+            {% for radio in form.submission_type %}
+              <label class="custom-radio">
+                {{ radio.tag }}
+                {{ radio.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
 
-                        <div class="large-12 columns">
-                            <div class="row">
-                                <div class="large-12 columns">
-                                    <button class="button pull-right" type="submit" name="start_submission"><i
-                                            class="fa fa-check">&nbsp;</i>{% trans "Complete Step 1 of 4" %}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <div class="large-6 columns">
-                <div class="title-area">
-                    <h2>Information</h2>
-                </div>
-                <div class="content">
-                    {{ request.repository.start|safe }}
-                </div>
-            </div>
+          <div class="title-area">
+            <h2>{{ request.repository.rou_default_name }}</h2>
+          </div>
+
+          <p>{{ form.organisation_unit.help_text }}</p>
+          <div class="custom-radio-group">
+{% for radio in form.organisation_unit %}
+  {% with radio.data.value|stringformat:"s" as val %}
+    {% with form.ou_depth_map|get:val as depth %}
+      <label class="custom-radio ou-depth-{{ depth }}">
+        {{ radio.tag }}
+        {{ radio.choice_label }}
+      </label>
+    {% endwith %}
+  {% endwith %}
+{% endfor %}
+
+</div>
+
+
+          <button class="button pull-right spacer-top-20" type="submit"
+                  name="start_submission">
+            <i class="fa fa-check">&nbsp;</i>{% trans "Complete Step 1 of 4" %}
+          </button>
         </div>
+      </form>
     </div>
-{% endblock %}
-
-{% block js %}
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script src="{% static "common/js/tagit.js" %}"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#id_keywords").tagit(
-                {allowSpaces: true});
-        });
-    </script>
-    <script type="text/javascript" src="{% static 'common/js/tree.js' %}" ></script>
+  </div>
 {% endblock %}
