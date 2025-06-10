@@ -384,11 +384,17 @@
                         <h2>
                             {% trans "Licence" %}
                         </h2>
-                        <p>{{ article.license.name }} 
+                        <p>
                             {% if article.license.url %}
-                                <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
-                                    <i aria-hidden="true" class="fa fa-external-link"></i>
+                                <a rel="license" 
+                                    href="{{ article.license.url }}" 
+                                    title="{{ article.license.text|striptags|safe }}" 
+                                    aria-label="{{ article.license.name }} {% trans 'external link.' %}"
+                                    >
+                                    {{ article.license.name }} <i aria-hidden="true" class="fa fa-external-link"></i>
                                 </a>
+                            {% else  %}
+                                {{ article.license.name }} 
                             {% endif %}
                         </p>
 
