@@ -68,7 +68,7 @@ class KeywordModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         journal = getattr(self.instance, 'journal', self.instance)
-        if journal and journal.submissionconfiguration.hierarchical_keywords:
+        if journal and journal.submissionconfiguration.hierarchical_keywords or journal.submissionconfiguration.autocomplete_keywords:
             self.fields['keywords'] = ModelMultipleChoiceField(
                 queryset=submission_models.Keyword.objects.all(),
                 required=False,
@@ -97,7 +97,7 @@ class KeywordModelForm(ModelForm):
         instance.keywords.clear()
         journal = getattr(instance, 'journal', instance)
         if posted_keywords:
-            if journal and journal.submissionconfiguration.hierarchical_keywords:
+            if journal and journal.submissionconfiguration.hierarchical_keywords or journal.submissionconfiguration.autocomplete_keywords:
                 for keyword in posted_keywords:
                     self.instance.keywords.add(keyword)
             else:

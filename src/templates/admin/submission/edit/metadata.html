@@ -97,11 +97,11 @@
                         <div class="row expanded">
                          <div class="large-12 columns">
                             <label for="id_keywords">Keywords</label>
-                            {% if not request.journal.submissionconfiguration.hierarchical_keywords %}
+                            {% if request.journal.submissionconfiguration.hierarchical_keywords or journal.submissionconfiguration.autocomplete_keywords %}
+                                {{ info_form.keywords }}
+                            {% else%}
                                 <input type="text" id="id_keywords" name="keywords" value="
                                 {% if info_form.cleaned_data.keywords %}{{ info_form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
-                            {% else %}
-                                {{ info_form.keywords }}
                             {% endif %}
                             <p>Hit Enter to add a new keyword.</p>
                         </div>
