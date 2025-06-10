@@ -48,6 +48,13 @@ class Migration(migrations.Migration):
             name='submission_type',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='repository.repositorysubmissiontype'),
         ),
+        migrations.AddField(
+            model_name='repositoryfield',
+            name='submission_type',
+            field=models.ForeignKey(blank=True, null=True,
+                                    on_delete=django.db.models.deletion.CASCADE,
+                                    to='repository.repositorysubmissiontype'),
+        ),
         migrations.RunPython(
             create_preprint_submission_type,
             reverse_code=migrations.RunPython.noop,

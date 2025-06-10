@@ -53,6 +53,7 @@ urlpatterns = [
     ),
     re_path(r"^editors/$", views.preprints_editors, name="preprints_editors"),
     re_path(r"^submit/start/$", views.repository_submit, name="repository_submit"),
+    re_path(r"^submit/info/$", views.repository_info, name="repository_info"),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/$",
         views.repository_submit,
