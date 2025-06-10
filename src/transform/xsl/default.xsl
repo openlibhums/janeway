@@ -1542,7 +1542,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                        <a href="{$graphics}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
                             <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="img-fluid"/>
                         </a>
                     </div>
@@ -1585,7 +1585,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                        <a href="{@xlink:href}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
                             <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
