@@ -3117,9 +3117,15 @@ def affiliation_create(request, organization_id):
         core_models.Organization,
         pk=organization_id,
     )
+    user_has_affils = core_models.ControlledAffiliation.objects.filter(
+        account=request.user,
+    ).exists()
     form = forms.AccountAffiliationForm(
         account=request.user,
         organization=organization,
+        initial = {
+            'is_primary': not user_has_affils,
+        }
     )
 
     if request.method == 'POST':
