@@ -32,6 +32,7 @@ from security.decorators import (
     article_edit_user_required,
     production_user_or_editor_required,
     editor_user_required,
+    editor_user_required_and_can_see_pii,
     submission_authorised,
     article_is_not_submitted,
     role_can_access,
@@ -886,8 +887,7 @@ def edit_metadata(request, article_id):
     return render(request, template, context)
 
 
-@GET_language_override
-@production_user_or_editor_required
+@editor_user_required_and_can_see_pii
 def edit_author_metadata(request, article_id):
     """
     Allows the editor to add, remove, and reorder authors.
