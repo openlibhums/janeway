@@ -340,7 +340,15 @@ def get_revision_request_content(request, article, revision, draft=False):
     else:
         email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
-    return render_template.get_message_content(request, email_context, 'request_revisions')
+    template = 'request_revisions'
+    if revision.type == ED.CONDITIONAL_ACCEPT.value:
+        template = 'conditional_accept'
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        template,
+    )
 
 
 def get_share_review_content(request, article, review):
