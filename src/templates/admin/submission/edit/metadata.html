@@ -103,7 +103,7 @@
                                 <input type="text" id="id_keywords" name="keywords" value="
                                 {% if info_form.cleaned_data.keywords %}{{ info_form.cleaned_data.keywords }}{% else %}{% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
                             {% endif %}
-                            <p>Hit Enter to add a new keyword.</p>
+                            <p class="help-text">Hit Enter to add a new keyword.</p>
                         </div>
                        </div>
                       </div>
