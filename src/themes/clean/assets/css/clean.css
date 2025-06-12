@@ -564,3 +564,29 @@ a {
 .card-title{
     font-size: 1.5rem;
 }
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.dropdown-button{
+    background: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    border: 0;
+}
+        
+.background-button{
+    border: 0;
+    background: transparent;
+}
+
+.icon-recede{
+    opacity: 70%;
+}

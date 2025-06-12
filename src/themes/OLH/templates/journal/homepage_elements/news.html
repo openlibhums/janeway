@@ -25,10 +25,14 @@
                 {% if display_images %}
                     <div class="large-7 columns">
                 {% endif %}
-                <h3>{{ item.title|safe }}</h3>
+                <h3 id="news-{{ item.pk }}">{{ item.title|safe }}</h3>
                 <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                 <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                <a class="button" href="{% url 'core_news_item' item.pk %}"
+                    aria-describedby="news-{{ item.pk }}"
+                    >
+                    {% trans "Read More" %}
+                </a>
                 {% if display_images %}
                     </div>
                 {% endif %}

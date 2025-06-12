@@ -40,7 +40,7 @@
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
                     <div class="col-md-2">
-                        <a href="{{ request.journal.site_url }}">
+                        <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
                             <img src="{{ request.journal.header_image.url }}"
                                  class="img-fluid header-image top-bar-image"
                                  alt="{{ request.journal.name }} logo">
@@ -74,8 +74,11 @@
     <main id="main-content">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
-                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                {{ message|linebreaksbr }}
+                <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">{% trans 'Close message' %}</span>
+                </button>
+                <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>          
             </div>
         {% endfor %}
         {% block body %}{% endblock body %}

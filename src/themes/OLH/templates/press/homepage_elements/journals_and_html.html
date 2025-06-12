@@ -16,7 +16,10 @@
                         <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
 
                         <div class="content">
-                            <h3><a href="{{ current_journal.remote_view_url }}">{{ current_journal.name }}</a></h3>
+                            <h3><a href="{{ current_journal.remote_view_url }}" target="_blank">
+                                {{ current_journal.name }}
+                                {% include "elements/icons/link_external.html" %} 
+                            </a></h3>
                         </div>
 
                     {% else %}

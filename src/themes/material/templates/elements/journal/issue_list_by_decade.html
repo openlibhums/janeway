@@ -8,7 +8,9 @@
     <ul class="list-inline">
         {% for decade, issues in issues_by_decade.items %}
             <li class="list-inline-item decade-list-item">
-                <a href="#decade-{{ decade }}">{{ decade }}</a>
+                <a href="#decade-{{ decade }}">
+                    {{ decade }}
+                </a>
             </li>
         {% endfor %}
     </ul>
