@@ -6,7 +6,7 @@
             <div class="card" style="width: 100%;">
                 <div class="card-content">
                     <p>
-                        <small><a href="{% url 'preprints_article' preprint.pk %}">{{ preprint.title|safe }}</a></small>
+                        <small> {# LinkA11y #} <a href="{% url 'preprints_article' preprint.pk %}">{{ preprint.title|safe }}</a></small>
                     </p>
                     <p>
                         <small><i>

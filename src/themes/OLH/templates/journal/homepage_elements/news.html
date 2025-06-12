@@ -15,7 +15,7 @@
                 {% if display_images %}
                     {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                         <div class="large-5 columns">
-                            <a href="{% url 'core_news_item' item.pk %}"><img
+                             {# LinkA11y #} <a href="{% url 'core_news_item' item.pk %}"><img
                                     class="news-image"
                                     src="{{ item.best_image_url }}"
                                     alt="{{ item.title|striptags|unescape }}"/></a>
@@ -28,7 +28,7 @@
                 <h5>{{ item.title|safe }}</h5>
                 <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</h6>
                 <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                 {# LinkA11y #} <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                 {% if display_images %}
                     </div>
                 {% endif %}

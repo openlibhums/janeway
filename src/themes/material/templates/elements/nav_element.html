@@ -11,13 +11,13 @@
         </a>
     </li>
 {% elif not item.for_footer %}
-    <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+    <li> {# LinkA11y #} <a href="/{{ item.link }}">{{ item.link_name }}</a></li>
 {% endif %}
 
 {% if item.has_sub_nav %}
     <ul id="sub_nav_content" class="dropdown-content">
         {% for subnav in item.sub_nav_items %}
-            <li><a href="{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+            <li> {# LinkA11y #} <a href="{{ subnav.link }}">{{ subnav.link_name }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
