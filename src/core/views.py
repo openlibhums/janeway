@@ -1454,6 +1454,7 @@ def user_edit(request, user_id):
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user, request=request)
+    next_url = request.GET.get('next', '')
 
     if request.POST:
         form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -1462,14 +1463,16 @@ def user_edit(request, user_id):
         if form.is_valid() and registration_form.is_valid():
             registration_form.save()
             form.save()
-            messages.add_message(request, messages.SUCCESS, 'Profile updated.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'User account updated.',
+            )
 
-            if request.GET.get('return'):
-                return redirect(
-                    request.GET.get('return')
-                )
-
-            return redirect(reverse('core_manager_users'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
     context = {

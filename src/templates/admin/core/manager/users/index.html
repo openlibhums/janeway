@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static %}
+{% load next_url %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -61,7 +62,7 @@
                                 <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                 <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
                                 <td><a class="tiny success button"
-                                       href="{% url 'core_user_edit' user.id %}">Edit</a></td>
+                                       href="{% url_with_return 'core_user_edit' user.id %}">Edit</a></td>
                                 {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
                                     <td>
                                           <button formaction="{% url 'hijack:acquire' %}" name="user_pk" value="{{ user.pk }}" type="submit" class="tiny button"> Control User </button>
