@@ -121,7 +121,12 @@ def create_journals():
 
 
 def create_press():
-    return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+    press, created = press_models.Press.objects.get_or_create(
+        name='Press',
+        domain='localhost',
+        main_contact='a@b.com',
+    )
+    return press
 
 
 def create_issue(journal, vol=0, number=0, articles=None):
@@ -286,7 +291,7 @@ def create_article(journal, **kwargs):
         author_kwargs ={
             'salutation': 'Dr.',
             'name_suffix': 'Jr.',
-            'orcid': '1234-5678-9012-345X',
+            'orcid': '0004-5678-9012-345X',
             'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
         }
         author = create_author(journal, **author_kwargs)

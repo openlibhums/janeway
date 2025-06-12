@@ -910,7 +910,7 @@ class ReviewTests(TestCase):
 
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
-        self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+        self.press = helpers.create_press()
         self.press.save()
         update_settings(
             self.journal_one,

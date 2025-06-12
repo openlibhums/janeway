@@ -1,6 +1,7 @@
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.urls.base import clear_script_prefix
 
 from core.middleware import SiteSettingsMiddleware
 from journal import models
@@ -21,6 +22,9 @@ class TestJournalSite(TestCase):
             domain="sitetest.org",
         )
         self.journal = make_test_journal(**journal_kwargs)
+
+    def tearDown(self):
+        clear_script_prefix()
 
     @override_settings(URL_CONFIG="path")
     def test_path_mode_site_url_for_journal_in_context(self):
