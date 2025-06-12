@@ -6,7 +6,9 @@
 
 {% block title-section %}{% endblock title-section %}
 
-{% block breadcrumbs %}{% endblock breadcrumbs %}
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
 
 {% block body %}
   <div class="nitty-gritty">
