@@ -11,7 +11,7 @@
         <div class="col-md-12">
             <h1>{% trans issue_type.plural_name %}</h1>
             {% if request.journal.current_issue %}
-                <p>{% trans 'The current issue is' %}: 
+                <p>{% trans 'The current issue is' %}:
                     <a href="{% url 'journal_issue' request.journal.current_issue.id %}"
                         aria-label='{{ issue.display_title_a11y }} ({{ issue.articles.all.count }} {% trans "items" %})'
                         >
