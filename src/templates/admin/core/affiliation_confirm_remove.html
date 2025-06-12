@@ -1,8 +1,9 @@
-{% extends "admin/elements/confirm_delete.html" %}
+{% extends "admin/elements/confirm_remove.html" %}
 
 {% load i18n next_url static %}
 
 {% block breadcrumbs %}
+  {{ block.super }}
   {% if account and account == request.user %}
     {% include "elements/breadcrumbs/edit_profile_base.html" %}
     <li>
@@ -11,11 +12,11 @@
       </a>
     </li>
   {% elif article and author %}
-    {% include "elements/breadcrumbs/submit_authors_base.html" %}
+    {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
   {% endif %}
   <li>
     {% blocktrans with thing_to_delete=thing_to_delete|truncatewords:5 %}
-      Delete "{{ thing_to_delete }}"
+      Remove "{{ thing_to_delete }}"
     {% endblocktrans %}
   </li>
 {% endblock breadcrumbs %}

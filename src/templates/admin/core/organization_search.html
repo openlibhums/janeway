@@ -11,10 +11,11 @@
 {% endblock title-section %}
 
 {% block breadcrumbs %}
+  {{ block.super }}
   {% if account and account == request.user %}
     {% include "elements/breadcrumbs/edit_profile_base.html" %}
   {% elif article and author %}
-    {% include "elements/breadcrumbs/submit_authors_base.html" %}
+    {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
   {% endif %}
   <li>{% trans "Add Affiliation" %}</li>
 {% endblock breadcrumbs %}

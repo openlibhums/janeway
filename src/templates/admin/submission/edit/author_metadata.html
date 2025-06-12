@@ -1,27 +1,30 @@
-{% extends "admin/core/base.html" %}
+{% extends "admin/core/flat_base.html" %}
 {% load static %}
 {% load i18n %}
 {% load next_url %}
 {% load foundation %}
 {% load text %}
 
+{% block contextual_title %}
+  Edit author metadata
+{% endblock contextual_title %}
+
 {% block title-section %}
-  {% trans "Author Information" %}
+  {% trans "Edit author metadata" %}
 {% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li>
-      <a href="{{ article.step_to_url }}">
-        {% trans "Submit an Article" %}
-      </a>
-    </li>
-    <li>
-      {% trans "Author information" %}
-    </li>
+  {{ block.super }}
+  {% include "elements/breadcrumbs/edit_author_metadata_base.html" %}
 {% endblock %}
 
 {% block body %}
+  <div class="padding-inline-1">
+    <div class="button-group">
+      {% trans "Back to workflow" as back_label %}
+      {% include "elements/a_back.html" with label=back_label href=article.current_workflow_element_url %}
+    </div>
+  </div>
   {% include "elements/current_authors.html" %}
   <div class="columns">
     <div class="box">
@@ -29,26 +32,6 @@
         <div class="columns title-area">
           <h2>{% trans "Add more authors" %}</h2>
         </div>
-        {% if request.user not in article.author_accounts %}
-          <div class="large-12 columns">
-            <div class="callout">
-              <form method="POST">
-                {% csrf_token %}
-                <p>{% trans "Are you an author?" %}</p>
-                <div class="button-group no-bottom-margin">
-                  <input
-                    type="hidden"
-                    name="author_search_text"
-                    value="{{ request.user.email }}">
-                  <button class="button" name="search_authors">
-                    <span class="fa fa-plus-circle"></span>
-                    {% trans "Add Self as Author" %}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        {% endif %}
         <div class="large-12 columns max-w-40">
           <div class="callout">
             <p>
@@ -120,36 +103,5 @@
         </div>
       </div>
     </div>
-    <div class="box max-w-32 margin-block-end-10">
-      <div class="row expanded">
-        <div class="show-for-sr">
-          <h2>{% trans "Proceed to next step" %}</h2>
-        </div>
-        <div class="columns">
-          <p>{% blocktrans %}
-            Is the author information complete?
-          {% endblocktrans %}</p>
-          <form method="POST">
-            <div class="flex">
-              {% csrf_token %}
-              <button
-                class="success button"
-                type="submit"
-                name="save_continue">
-                <span class="fa fa-check"></span>
-                {% trans "Save and continue" %}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
   </div>
 {% endblock body %}
-
-{% block toastr %}
-  {% comment %}
-    Avoid showing the messages via Toastr since they should be included at the
-    top of the form.
-  {% endcomment %}
-{% endblock toastr %}

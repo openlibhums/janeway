@@ -78,7 +78,7 @@
         {% trans "Copy link to share" as label_copy %}
         {% trans "Link copied" as label_copied %}
         {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied %}
-        {% if article.authors_and_credits|length > 1 %}
+        {% if authors|length > 1 %}
           <p>{% blocktrans %}
             After they have made their account, remove and re-add
             them to the author list via the search.

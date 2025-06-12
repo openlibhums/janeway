@@ -24,6 +24,9 @@ from submission import models as submission_models
 
 
 ENTITIES_MAP = (("&amp;", "&"), ("&gt;", ">"), ("&lt;", "<"))
+ORCID_REGEX = re.compile(
+    '([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})'
+)
 
 
 class JanewayTranslationModelForm(mt_forms.TranslationModelForm):
@@ -162,8 +165,7 @@ def clean_orcid_id(orcid):
     Utility function that cleans an ORCID ID.
     """
     if orcid:
-        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
-        result = orcid_regex.search(orcid)
+        result = ORCID_REGEX.search(orcid)
 
         if result:
             return result.group(0)

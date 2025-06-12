@@ -1,21 +1,19 @@
-{% extends "admin/core/base.html" %}
+{% extends "admin/core/flat_base.html" %}
 
 {% load i18n %}
 {% load static %}
 {% load foundation %}
 {% load roles %}
 {% load next_url %}
+{% load securitytags %}
 
-{% block title %}
+{% block contextual_title %}
   Edit "{{ author }}"
-  - {% include "admin/elements/contextual_site_name.html" %}
-{% endblock title %}
+{% endblock contextual_title %}
 
 {% block breadcrumbs %}
-  {% include "elements/breadcrumbs/submit_authors_base.html" %}
-  <li>
-    Edit "{{ author }}"
-  </li>
+  {{ block.super }}
+  {% include "elements/breadcrumbs/edit_author_base.html" %}
 {% endblock breadcrumbs %}
 
 {% block title-section %}
@@ -23,26 +21,19 @@
 {% endblock title-section %}
 
 {% block body %}
+  {% is_editor as editor %}
   <div class="grid max-w-64 padding-inline-1 row-gap-0 margin-block-end-10">
     <div class="button-group">
+      {% if article.is_submitted %}
+        {% url 'submission_edit_author_metadata' article.pk as back_url %}
+      {% else %}
+        {% url 'submit_authors' article.pk as back_url %}
+      {% endif %}
       {% trans "Back to all authors" as back_label %}
-      {% include "elements/a_back.html" with label=back_label href=request.GET.next %}
+      {% include "elements/a_back.html" with label=back_label href=back_url %}
     </div>
     {% if not form %}
       {% include "admin/elements/forms/messages_in_callout.html" %}
-    {% endif %}
-    {% if author.owner == request.user and author.author and not form %}
-      <div class="card">
-        <div class="bs-callout bs-callout-info">
-          {% url_with_return 'core_edit_profile' as edit_profile_link %}
-          <p>{% blocktrans with article_title=article.safe_title journal_title=journal.name %}
-            This is the author information that will be
-            tied to "{{ article_title }}" when it is submitted.
-            It is separate from your user profile with <i>{{ journal_title }}</i>,
-            which can be edited at any time.
-          {% endblocktrans %}</p>
-        </div>
-      </div>
     {% endif %}
     <section class="card padding-block-1 padding-inline-2">
       <div class="title-area">
@@ -162,12 +153,28 @@
         {% include "admin/submission/submit_credit_roles.html" with author=author credit_form=credit_form %}
       </section>
     {% endif %}
+    <section class="card padding-block-1 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "User profile" %}</h2>
+      </div>
+      {% if author.author %}
+        <p>{% blocktrans with article_title=article.safe_title journal_title=journal.name %}
+          The details on this page are the author information that will be
+          tied to "{{ article_title }}" for publication.
+          They are separate from the author's user profile with
+          <i>{{ journal_title }}</i>, which can be edited at any time.
+        {% endblocktrans %}</p>
+        {% if editor %}
+          <div class="button-group">
+            {% url_with_return 'core_user_edit' author.author.pk as edit_href %}
+            {% include "elements/a_edit.html" with href=edit_href label="Edit user profile" %}
+          </div>
+        {% endif %}
+      {% else %}
+        <p>{% blocktrans with journal_title=journal.name %}
+          This author has not registerd for a user account with <i>{{ journal_title }}</i>.
+        {% endblocktrans %}</p>
+      {% endif %}
+    </section>
   </div>
 {% endblock body %}
-
-{% block toastr %}
-  {% comment %}
-    Avoid showing the messages via Toastr since they should be included at the
-    top of the form.
-  {% endcomment %}
-{% endblock toastr %}

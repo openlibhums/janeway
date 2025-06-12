@@ -5,7 +5,7 @@
 
 <div class="title-area">
   <h2>{% trans "Authors" %}</h2>
-  {% if article.is_submitted and any_editor %}
+  {% if article.is_submitted and any_editor and can_see_pii %}
     <a class="button" href="{% url_with_return 'submission_edit_author_metadata' article.pk %}">
       <span class="fa fa-edit"></span>
       Edit Author Metadata
@@ -32,10 +32,11 @@
         </td>
         <td>
           {% if author.email %}
-            {% if any_editor or author.display_email %}
+            {% if any_editor or author.display_email or request.user == article.owner %}
               {% comment %}
-                Only display emails to non-editors if
-                they are OK to display.
+                Only display emails to non-editors
+                if they are OK to display.
+                It's fine to display all emails to submitting authors.
               {% endcomment %}
               {{ author.email|se_can_see_pii:article }}
               {% if any_editor %}

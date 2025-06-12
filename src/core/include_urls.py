@@ -254,7 +254,16 @@ urlpatterns = [
     # Cache
     re_path(r'^manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
 
-    re_path(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/metadata/$',
+        submission_views.edit_metadata,
+        name='edit_metadata',
+    ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/author-metadata/$',
+        submission_views.edit_author_metadata,
+        name='submission_edit_author_metadata',
+    ),
     re_path(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
 
     # Public Profiles
