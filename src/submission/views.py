@@ -1414,9 +1414,15 @@ def affiliation_create(request, article_id, author_id, organization_id):
         core_models.Organization,
         pk=organization_id,
     )
+    user_has_affils = core_models.ControlledAffiliation.objects.filter(
+        frozen_author=author,
+    ).exists()
     form = forms.AuthorAffiliationForm(
         frozen_author=author,
         organization=organization,
+        initial = {
+            'is_primary': not user_has_affils,
+        }
     )
 
     if request.method == 'POST':
