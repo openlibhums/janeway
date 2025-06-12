@@ -15,7 +15,7 @@
                     <img class="card-img-top img-fluid editorial-image" src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
                          alt="Card image cap">
                     <div class="card-block">
-                        <h2 class="card-title">{{ author.full_name }}</h2>
+                        <h2 id="card-{{ author.id }}" class="card-title">{{ author.full_name }}</h2>
                         <p>
                             <small>{{ author.affiliation }}</small>
                         </p>
@@ -23,7 +23,12 @@
                         {% if author.enable_public_profile %}
                             <p>
                                 <small>
-                                    <a href="{% url 'core_public_profile' author.uuid %}">{% trans 'View Profile' %}</a>
+                                    <a href="{% url 'core_public_profile' author.uuid %}"
+                                        id="profile-link-{{ author.id }}"
+                                        aria-labelledby="profile-link-{{ author.id }} card-{{ author.id }}"
+                                        >
+                                        {% trans 'View Profile' %}
+                                    </a>
                                 </small>
                             </p>
                         {% endif %}

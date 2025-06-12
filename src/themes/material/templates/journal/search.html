@@ -36,14 +36,14 @@
                         <form method="POST">
                             {% csrf_token %}
                             {% if not keyword %}
-                                <label for="{{ form.article_search.id_for_label }}">Search titles, keywords, and authors</label>
+                                <label for="{{ form.article_search.id_for_label }}">{% trans 'Search titles, keywords, and authors' %}</label>
                             {% endif %}
                             <div class="input-field">
                             {% if not keyword %}
                                     {{ form.article_search.errors }}                                
                                     {{ form.article_search }}
                                 {% else %}
-                                    You are currently browsing by keyword. <p><a href="{% url 'search' %}">Search for an article.</a></p>
+                                    {% trans 'You are currently browsing by keyword.' %} <p><a href="{% url 'search' %}">{% trans 'Search for an article.' %}</a></p>
                             {% endif %}
                             </div>
                             <label for="{{ form.sort.id_for_label }}">{% trans "Sort articles by" %}</label>
@@ -53,11 +53,16 @@
                             </div>
                             <div class="form-group">
                                 <label>{% trans "Keywords" %}
-
-                                    {% for keyword in all_keywords %}
-                                        <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-
+                                    <ul class="list-inline">
+                                        {% for keyword in all_keywords %}
+                                            <li class="list-inline-item">
+                                            <a href="{% url 'search' %}?keyword={{ keyword.word }}">
+                                                {{ keyword.word }}
+                                            </a>
+                                        </li>
+                                        {% if not forloop.last %}<span aria-hidden="true">, </span> {% endif %}
+                                        {% endfor %}
+                                    </ul>
                                 </label>
                             </div>
                             <div class="input-field">

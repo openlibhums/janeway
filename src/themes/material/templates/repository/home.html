@@ -34,8 +34,14 @@
                    href="{% url 'repository_submit' %}">{% trans 'Start New Submission' %}</a>
             </div>
 
-            <p class="center">{% trans "Read about" %} <a href="{% url 'repository_about' %}">{{ request.repository.name }}</a>
-                {% trans "or view list of" %} <a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a>.
+            <p class="center">
+                <a href="{% url 'repository_about' %}">
+                    {% trans "Read about" %} {{ request.repository.name }}
+                </a>
+                {% trans "or" %} 
+                <a href="{% url 'repository_list' %}">
+                    {% trans "view list of" %} {{ request.repository.object_name_plural }}
+                </a>.
             </p>
         </div>
 

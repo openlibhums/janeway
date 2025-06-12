@@ -40,12 +40,15 @@
                     {% include "elements/journal/search_form.html" %}
                     <div class="section">
                         <label>{% trans "Keywords" %}</label>
-
-                        {% for keyword in all_keywords %}
-                            <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-
+                        <ul class="keywords-list">
+                            {% for keyword in all_keywords %}
+                                <li>
+                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">
+                                        {{ keyword.word }}<span aria-hidden="true">{% if not forloop.last %}, {% endif %}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </aside>

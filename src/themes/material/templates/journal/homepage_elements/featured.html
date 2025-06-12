@@ -29,9 +29,16 @@
                         {% endif %}
                     {% endif %}
                     <p>
-                        <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}">
-                            <strong>{{ fa.article.title|safe }}</strong>
-                        </a>
+                        {% if fa.article.is_remote %}
+                            <a href="{{ fa.article.remote_url }}" target="_blank">
+                                <strong>{{ fa.article.title|safe }}</strong>
+                                {% include "elements/icons/link_external.html" %} 
+                            </a>
+                        {% else %}
+                            <a href="{{ fa.article.url }}">
+                                <strong>{{ fa.article.title|safe }}</strong>
+                            </a>
+                        {% endif %}
                     </p>
                     <p class="card-text">{{ fa.article.author_list }}</p>
                 </div>

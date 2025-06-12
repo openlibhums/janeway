@@ -15,8 +15,17 @@
             <p>{{ news_item.body|safe }}</p>
             <br />
             {% if news_item.tags.all %}
-                <h2>{% trans 'Tags' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
-                <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                <h2 id="tags-heading">{% trans 'Tags' %}&nbsp;<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
+                <ul class="list-inline">
+                    {% for tag in news_item.tags.all %}
+                        <li class="list-inline-item">
+                            <a href="{% url 'core_news_list_tag' tag.text %}">
+                                {{ tag.text }}
+                            </a>
+                            {% if not forloop.last %}<span aria-hidden="true">, </span>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
             <a href="{% url 'core_news_list' %}">{% trans 'Back to News List' %}</a>
         </div>

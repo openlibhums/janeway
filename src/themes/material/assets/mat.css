@@ -838,3 +838,17 @@ a {
   font-weight: 400;
   line-height: 110%;
 }
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+   padding-left: 0.1rem;
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+.icon-recede{
+    opacity: 70%;
+}

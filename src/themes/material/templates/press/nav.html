@@ -34,7 +34,7 @@
             {% endfor %}
 
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li><a href="{% url 'press_journals' %}" class="nav-link">{% trans 'Journals' %}</a></li>
             {% endif %}
 
             {% if request.press.enable_preprints %}
@@ -94,7 +94,7 @@
                 {% endif %}
             {% endfor %}
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li><a href="{% url 'press_journals' %}" class="nav-link">{% trans 'Journals' %}</a></li>
             {% endif %}
             {% if request.press.enable_preprints %}
                 <li>
