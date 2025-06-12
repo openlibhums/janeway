@@ -11,20 +11,37 @@
 {% endblock title-section %}
 
 {% block breadcrumbs %}
+  {{ block.super }}
   {% if account and account == request.user %}
     {% include "elements/breadcrumbs/edit_profile_base.html" %}
-    <li>
-      <a href="{% url_with_next 'core_organization_search' %}">
-        {% trans "Add Affiliation" %}
-      </a>
-    </li>
+    {% if affiliation %}
+      <li>
+        <a href="{% url_with_next 'core_affiliation_update' affiliation.pk %}">
+          {% trans "Edit Affiliation" %}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="{% url_with_next 'core_organization_search' %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
   {% elif article and author %}
-    {% include "elements/breadcrumbs/submit_authors_base.html" %}
-    <li>
-      <a href="{% url_with_next 'submission_organization_search' article.pk author.pk %}">
-        {% trans "Add Affiliation" %}
-      </a>
-    </li>
+    {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
+    {% if affiliation %}
+      <li>
+        <a href="{% url_with_next 'submission_affiliation_update' article.pk author.pk affiliation.pk %}">
+          {% trans "Edit Affiliation" %}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="{% url_with_next 'submission_organization_search' article.pk author.pk %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
   {% endif %}
   <li>{% trans "Custom organization" %}</li>
 {% endblock breadcrumbs %}

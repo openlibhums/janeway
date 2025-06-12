@@ -306,34 +306,45 @@ class TestEditAuthor(TestSubmitViewsBase):
 
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_add_credit(self):
-        eliot_author = self.eliot.snapshot_as_author(self.article)
+        hobsbawm_author = helpers.create_frozen_author(
+            self.article,
+            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
         self.client.force_login(self.kathleen)
         post_data = {
             'add_credit': '',
             'role': 'writing-original-draft',
+            'author_pk': hobsbawm_author.pk,
         }
         self.client.post(
             reverse(
                 'submission_edit_author',
                 kwargs={
                     'article_id': self.article.pk,
-                    'author_id': eliot_author.pk,
+                    'author_id': hobsbawm_author.pk,
                 },
             ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        eliot_author.refresh_from_db()
+        hobsbawm_author.refresh_from_db()
         self.assertEqual(
-            eliot_author.credits[0].role,
+            hobsbawm_author.credits[0].role,
             'writing-original-draft',
         )
 
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_remove_credit(self):
         # Set up a second author with a credit role
-        eliot_author = self.eliot.snapshot_as_author(self.article)
-        writing_credit = eliot_author.add_credit('writing-original-draft')
+        hobsbawm_author = helpers.create_frozen_author(
+            self.article,
+            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        writing_credit = hobsbawm_author.add_credit('writing-original-draft')
 
         # Run test
         self.client.force_login(self.kathleen)
@@ -346,10 +357,10 @@ class TestEditAuthor(TestSubmitViewsBase):
                 'submission_edit_author',
                 kwargs={
                     'article_id': self.article.pk,
-                    'author_id': eliot_author.pk,
+                    'author_id': hobsbawm_author.pk,
                 },
             ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertFalse(eliot_author.credits.exists())
+        self.assertFalse(hobsbawm_author.credits.exists())

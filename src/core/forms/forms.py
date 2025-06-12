@@ -234,7 +234,10 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
 
 class EditAccountForm(forms.ModelForm):
-    """ A form that creates a user, with no privileges, from the given username and password."""
+    """
+    A form for modifying profile details of an account, such as
+    name, bio, signature, socials, picture, and interests.
+    """
 
     interests = forms.CharField(required=False)
 
@@ -245,8 +248,9 @@ class EditAccountForm(forms.ModelForm):
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
         widgets = {
-            'biography': TinyMCE(),
-            'signature': TinyMCE(),
+            'biography': TinyMCE,
+            'signature': TinyMCE,
+            'enable_public_profile': YesNoRadio,
         }
 
     def save(self, commit=True):
@@ -271,10 +275,18 @@ class EditAccountForm(forms.ModelForm):
 
 
 class AdminUserForm(forms.ModelForm):
+    """
+    A form for editors and staff to edit user accounts.
+    """
 
     class Meta:
         model = models.Account
-        fields = ('email', 'is_active', 'is_staff', 'is_admin', 'is_superuser')
+        fields = ('email', 'is_active', 'is_staff', 'is_superuser')
+        widgets = {
+            'is_active': YesNoRadio,
+            'is_staff': YesNoRadio,
+            'is_superuser': YesNoRadio,
+        }
 
     def __init__(self, *args, **kwargs):
         active = kwargs.pop('active', None)

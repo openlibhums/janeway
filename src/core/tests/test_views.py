@@ -61,9 +61,9 @@ class CoreViewTestsWithData(TestCase):
             account=cls.user,
             organization=cls.organization_bbk,
         )
-        cls.country_us = core_models.Country.objects.create(
+        cls.country_us, _ = core_models.Country.objects.get_or_create(
             code='US',
-            name='United States',
+            defaults={'name': 'United States'},
         )
         cls.location_oakland = core_models.Location.objects.create(
             name='Oakland',
@@ -838,7 +838,7 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.client.force_login(self.user)
         url = f'/profile/affiliation/{self.affiliation.pk}/delete/'
         response = self.client.get(url, {})
-        template = 'admin/core/affiliation_confirm_delete.html'
+        template = 'admin/core/affiliation_confirm_remove.html'
         self.assertTemplateUsed(response, template)
 
     def test_affiliation_delete_post(self):
