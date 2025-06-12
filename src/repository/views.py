@@ -96,6 +96,7 @@ def repository_home(
     # Fetch subjects related to the repository
     subjects = models.Subject.objects.filter(
         repository=repository,
+        enabled=True,
     ).prefetch_related("preprint_set")
 
     template = "repository/home.html"
