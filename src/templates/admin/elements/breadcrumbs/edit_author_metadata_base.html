@@ -1,0 +1,17 @@
+<li>Edit</li>
+<li>
+  <a href="{{ article.current_workflow_element_url }}">
+    {{ article.safe_title }}
+  </a>
+</li>
+{% if subpage %}
+  <li>
+    <a href="{% url 'submission_edit_author_metadata' article.pk %}">
+      Author metadata
+    </a>
+  </li>
+{% else %}
+  <li>
+    Author metadata
+  </li>
+{% endif %}
