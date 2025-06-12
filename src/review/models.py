@@ -541,6 +541,7 @@ def revision_type():
     return (
         (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
     )
 
 
@@ -592,7 +593,10 @@ class RevisionRequest(models.Model):
     date_completed = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return "Revision of {0} requested by {1}".format(self.article.title, self.editor.full_name())
+        return "Revision of {0} requested by {1}".format(
+            self.article.title,
+            self.editor.full_name(),
+        )
 
 
 class EditorOverride(models.Model):

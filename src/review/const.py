@@ -10,6 +10,7 @@ class EditorialDecisions(EnumContains):
     UNDECLINE = 'undecline'
     MINOR_REVISIONS = 'minor_revisions'
     MAJOR_REVISIONS = 'major_revisions'
+    CONDITIONAL_ACCEPT = 'conditional_accept'
     REVIEW = 'review'
 
 
