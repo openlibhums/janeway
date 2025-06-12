@@ -12,10 +12,17 @@
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h4>{{ item.title|safe }}</h4>
+                <h4 id="news-title-{{ forloop.counter }}">{{ item.title|safe }}</h4>
                 <h6>{{ item.byline }} on {{ item.posted|date_human }}</h6>
-                <p>{{ item.body|truncatewords_html:50|safe }}</p>
-                 {# LinkA11y #} <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
+                <p>
+                    {{ item.body|truncatewords_html:50|safe }} 
+                    <a href="{% url 'core_news_item' item.pk %}" 
+                        id="news-link-{{ forloop.counter }}"
+                        aria-labelledby="news-link-{{ forloop.counter }} news-title-{{ forloop.counter }}"
+                        >
+                        {% trans 'Read More' %}
+                    </a>
+                </p>
                 <hr/>
             </div>
         {% empty %}
@@ -25,16 +32,39 @@
     <div class="pagination-block">{{ page }}
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                 {# LinkA11y #} <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
-                &nbsp;{% endif %}
+                <a href="?page={{ news_items.previous_page_number }}" 
+                    class="btn btn-outline-primary" 
+                    aria-label="{% trans 'Previous page.' %}"
+                    >
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+                &nbsp;
+            {% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
-                 {# LinkA11y #} <a href="?page={{ page }}"
-                   class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
+                {% if news_items.number == page %}
+                    <a href="#"
+                        class="btn btn-primary"
+                        aria-label="{% trans 'Current page.'%}"
+                    >
+                {% else %}
+                    <a href="?page={{ page }}"
+                        class="btn btn-outline-primary"
+                        aria-label="{% trans 'Page'%} {{ page }}"
+                    >
+                {% endif %}
+                    {{ page }}
+                </a>
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                 {# LinkA11y #} <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" 
+                    class="btn btn-outline-primary" 
+                    aria-label="{% trans 'Next page.' %}"
+                    >
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+                &nbsp;
             {% endif %}
         </ul>
     </div>

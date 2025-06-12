@@ -804,7 +804,7 @@
 			
             if (enabled) {
                 html = '<td class="ui-timepicker-hour-cell" data-timepicker-instance-id="#' + inst.id.replace(/\\\\/g,"\\") + '" data-hour="' + hour.toString() + '">' +
-                   ' {# LinkA11y #} <a class="ui-state-default ' +
+                   '<a class="ui-state-default ' +
                    (hour == inst.hours ? 'ui-state-active' : '') +
                    '">' +
                    displayHour.toString() +
@@ -849,7 +849,7 @@
 			
              if (enabled) {
 	             html = '<td class="ui-timepicker-minute-cell" data-timepicker-instance-id="#' + inst.id.replace(/\\\\/g,"\\") + '" data-minute="' + minute.toString() + '" >' +
-	                   ' {# LinkA11y #} <a class="ui-state-default ' +
+	                   '<a class="ui-state-default ' +
 	                   (minute == inst.minutes ? 'ui-state-active' : '') +
 	                   '" >' +
 	                   displayText +

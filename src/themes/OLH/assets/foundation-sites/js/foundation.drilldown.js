@@ -341,7 +341,7 @@ Drilldown.defaults = {
    * @option
    * @example '<\li><\a>Back<\/a><\/li>'
    */
-  backButton: '<li class="js-drilldown-back"> {# LinkA11y #} <a tabindex="0">Back</a></li>',
+  backButton: '<li class="js-drilldown-back"><a tabindex="0">Back</a></li>',
   /**
    * Markup used to wrap drilldown menu. Use a class name for independent styling; the JS applied class: `is-drilldown` is required. Remove the backslash (`\`) if copy and pasting.
    * @option

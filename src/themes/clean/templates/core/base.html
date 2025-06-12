@@ -40,10 +40,11 @@
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
                     <div class="col-md-2">
-                         {# LinkA11y #} <a href="{{ request.journal.site_url }}">
+                        <a href="{{ request.journal.site_url }}">
+                            <span class="sr-only">{% trans 'Home Page ' %}</span>
                             <img src="{{ request.journal.header_image.url }}"
                                  class="img-fluid header-image top-bar-image"
-                                 alt="{{ request.journal.name }} logo">
+                                 alt="logo: {{ request.journal.name }}">
                         </a>
                     </div>
 
@@ -74,7 +75,7 @@
     <main id="main-content">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
-                 {# LinkA11y #} <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <a href="#" class="close" data-dismiss="alert" aria-label="{% trans 'dismiss message' %} {{ forloop.counter }}">&times;</a>
                 {{ message|linebreaksbr }}
             </div>
         {% endfor %}

@@ -1,14 +1,16 @@
 function figure_downloads() {
 	var figs = $("div[id^=F]");
 	$( figs ).each( function( index, element ){
-	    $(this).find('.fig-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i> {# LinkA11y #} <a target="_blank" href="' + $( this ).find('img').attr('src') +'">Download</a></p>' );
+        var label = $(this).find('.fig-label');
+        label.append('<span class="fig-download"><a target="_blank" href="' + $( this ).find('img').attr('src') +'"><i aria-hidden="true" class="fa fa-download">&nbsp;</i><span class="sr-only"> Download '+ label.text() +'</span></a></span>' );
 	});
 }
 
 function table_downloads() {
 	var tables = $("div[id^=T]");
 	$( tables ).each( function( index, element ){
-	    $(this).find('.table-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i> {# LinkA11y #} <a target="_blank" href="table/' + $( this ).attr('id') +'">Download</a></p>' );
+        var label = $(this).find('.table-label');
+	    label.append('<span class="fig-download"><a target="_blank" href="table/' + $( this ).attr('id') +'"><i aria-hidden="true" class="fa fa-download">&nbsp;</i><span class="sr-only"> Download '+ label.text() +'</span></a></span>' );
 	});
 }
 

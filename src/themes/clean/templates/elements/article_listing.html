@@ -20,7 +20,7 @@
                 </div>
             {% endif %}
             <div class="col article-block">
-                 {# LinkA11y #} <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
+                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                     {% if article.is_remote %}
                     <h2 class="card-title article-title">
                         <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
@@ -44,7 +44,7 @@
                     </span>
                     {% if article.issue %}
                     <i aria-hidden="true" class="fa fa-book"></i>
-                     {# LinkA11y #} <a href="{{ article.issue.url }}">
+                    <a href="{{ article.issue.url }}">
                         {{ article.issue_title }}
                     </a>
                     {% endif %}
@@ -55,7 +55,7 @@
                   {% if other != article.issue %}
                   <p>
                     <i aria-hidden="true" class="fa fa-book"></i>
-                     {# LinkA11y #} <a class="issue-link" href="{{ other.url }}">
+                    <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
                     </a>
                   </p>
