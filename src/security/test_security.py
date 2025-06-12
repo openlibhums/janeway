@@ -4149,7 +4149,7 @@ class TestSecurity(TestCase):
         if country_code and country_name:
             country_obj, c = core_models.Country.objects.get_or_create(
                 code=country_code,
-                name=country_name,
+                defaults={'name': country_name},
             )
 
         return helpers.create_user(
@@ -4230,7 +4230,7 @@ class TestSecurity(TestCase):
             last_name='Redshirt',
             institution='Starfleet Ops',
             department='Canon Fodder',
-            orcid='1234-1234-1234-0000',
+            orcid='0009-1234-1234-0000',
             country_name='United States of America',
             country_code='US',
         )
