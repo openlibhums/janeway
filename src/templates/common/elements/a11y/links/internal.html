@@ -1,0 +1,21 @@
+{% comment %}
+    Accessible internal link template that receives processed attributes from templatetags/links.py
+    
+    This template expects the following context variables:
+    - href: The link href
+    - classes: The link classes
+    - other_attrs_string: the remaining attributes as a string
+    - inner: The link inner html
+
+{% endcomment %}
+
+{% with classes_to_add="external-link" %}
+
+<a  href="{{ href }}"
+    class="{{ classes }} {{classes_to_add}}"
+    {{ other_attrs_string }}
+    >
+    {{ inner }}
+</a>
+
+{% endwith %}
