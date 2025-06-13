@@ -2057,7 +2057,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         max_length=300,
         blank=True,
         validators=[plain_text_validator],
-)
+    )
 
     frozen_biography = JanewayBleachField(
         blank=True,
