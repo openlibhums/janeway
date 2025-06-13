@@ -2475,7 +2475,7 @@ def draft_decision_text(request, article_id):
             author_review_url=author_review_url,
         )
 
-    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value}:
+    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value, ED.CONDITIONAL_ACCEPT.value}:
         revision = models.RevisionRequest(
             article=article,
             editor=request.user,
