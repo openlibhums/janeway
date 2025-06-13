@@ -526,7 +526,11 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **kwargs,
         )
-    elif draft.decision == 'minor_revisions' or draft.decision == 'major_revisions':
+    elif draft.decision in (
+        ED.MINOR_REVISIONS.value,
+        ED.MAJOR_REVISIONS.value,
+        ED.CONDITIONAL_ACCEPT.value,
+    ):
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,

@@ -63,6 +63,16 @@ def review_decision():
     )
 
 
+def draft_decision_choices():
+    return (
+        (ED.ACCEPT.value, 'Accept Without Revisions'),
+        (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
+        (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
+        (ED.DECLINE.value, 'Reject'),
+    )
+
+
 def review_type():
     return (
         ('traditional', 'Traditional'),
@@ -633,7 +643,7 @@ class DecisionDraft(models.Model):
     )
     decision = models.CharField(
         max_length=100,
-        choices=review_decision(),
+        choices=draft_decision_choices(),
         verbose_name='Draft Decision',
     )
     message_to_editor = model_utils.JanewayBleachField(
