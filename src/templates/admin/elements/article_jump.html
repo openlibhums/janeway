@@ -8,7 +8,8 @@
         <a class="button" href="{% url 'review_unassigned_article' article.pk %}">Editor Assignment</a>
         {% for element in article.distinct_workflow_elements %}
             <a class="button{% if element.element_name == 'review' and article.stage == 'Unassigned' %} disabled{% endif %}"
-               href="{% url element.jump_url article.pk %}">{{ element.element_name|capfirst }}</a>
+            {% if element.element_name != 'review' or article.stage != 'Unassigned' %}href="{% url element.jump_url article.pk %}"{% endif %}
+            >{{ element.element_name|capfirst }}</a>
         {% endfor %}
         <button class="button" type="button" data-toggle="more-dropdown">Logs, Documents and More</button>
 
