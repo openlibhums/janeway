@@ -11,7 +11,7 @@
             <div class="large-8 columns border-right">
                 <h1>{% trans "Keyword" %}: {{ keyword.word }}</h1>
                 <p>
-                    <small><a href="{% url 'keywords' %}">{% trans 'Back to Keywords List' %}</a></small>
+                    <small> {# LinkA11y #} <a href="{% url 'keywords' %}">{% trans 'Back to Keywords List' %}</a></small>
                 </p>
                 <p>{% trans "Articles that use this keyword are listed below." %}</p>
 

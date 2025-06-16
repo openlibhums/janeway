@@ -2,13 +2,13 @@
 
 {% if item.has_sub_nav %}
     <li class=".is-dropdown-submenu-parent">
-        <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
+         {# LinkA11y #} <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
         <ul class="menu vertical medium-horizontal">
         {% for subnav in item.sub_nav_items %}
-            <li><a href="{{ subnav.link }}">{{ subnav.link_name }}</a></li>
+            <li> {# LinkA11y #} <a href="{{ subnav.link }}">{{ subnav.link_name }}</a></li>
         {% endfor %}
         </ul>
     </li>
 {% elif not item.for_footer %}
-    <li><a href="/{{ item.link }}">{{ item.link_name }}</a></li>
+    <li> {# LinkA11y #} <a href="/{{ item.link }}">{{ item.link_name }}</a></li>
 {% endif %}

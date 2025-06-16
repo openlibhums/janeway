@@ -27,9 +27,9 @@
                 <div class="callout">
                     <div class="row column log-in-form">
                         <h4 class="text-center">{% trans "Log in with your account" %}</h4>
-                        <a href="https://orcid.org/oauth/authorize?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}" class="success button expanded">{% trans "Login with ORCiD" %}</a>
+                         {# LinkA11y #} <a href="https://orcid.org/oauth/authorize?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}" class="success button expanded">{% trans "Login with ORCiD" %}</a>
                         {% if settings.ENABLE_OIDC %}
-                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="success button expanded">{% trans "Login with" %}{{ settings.OIDC_SERVICE_NAME }}</a>
+                         {# LinkA11y #} <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}" class="success button expanded">{% trans "Login with" %}{{ settings.OIDC_SERVICE_NAME }}</a>
                         {% endif %}
                         <label>{% trans "Email" %}
                             <input name="user_name" type="text" placeholder="somebody@example.com">
@@ -38,7 +38,7 @@
                             <input type="password" placeholder="Password" name="user_pass">
                         </label>
                         <p><button type="submit" class="button expanded">{% trans "Log In" %}</button></p>
-                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
+                        <p class="text-center"> {# LinkA11y #} <a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
                     </div>
                 </div>
             </form>

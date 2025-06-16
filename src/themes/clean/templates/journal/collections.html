@@ -20,7 +20,7 @@
                         onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                     >
                     <div class="card-block">
-                        <a href="{% url 'journal_collection' collection.pk %}">
+                         {# LinkA11y #} <a href="{% url 'journal_collection' collection.pk %}">
                             <h4 class="card-title">{{ collection.issue_title }}</h4>
                         </a>
                         <p class="card-text"><small>Published: {{ collection.date|date_human }}</small></p>

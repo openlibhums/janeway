@@ -18,7 +18,7 @@
                 {% for collection in collections %}
                     <div class="large-4 columns {% if forloop.last %}end{% endif %}">
                         <div class="box collection " data-equalizer-watch>
-                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
+                             {# LinkA11y #} <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
                             <img
                                 src="{{ collection.hero_image_url }}"
                                 alt="{{ collection.issue_title }}"

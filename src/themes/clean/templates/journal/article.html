@@ -47,10 +47,10 @@
                                                                                         href="#"
                                                                                         {% if author.author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
                                                                                         {% if author.author.enable_public_profile %}
-                                                                                            <a class="profilelink"
+                                                                                             {# LinkA11y #} <a class="profilelink"
                                                                                                href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
                                                                                             {{ author.full_name }}{% endif %}
-                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
+                                    {% if author.orcid %} {# LinkA11y #} <a href="https://orcid.org/{{ author.orcid }}">
                                         <img src="{% static 'common/img/icons/orcid.png' %}" alt=""></a>
                                         <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
                                     </a>{% endif %}
@@ -60,7 +60,7 @@
                                                 itemprop="name">({{ author.institution }})</span></span>
                                     {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"> 
+                                         {# LinkA11y #} <a itemprop="email" href="mailto:{{ author.email }}"> 
                                            {% trans 'Email' %} {{author.full_name}}.
                                            <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                         </a>
@@ -92,7 +92,7 @@
                         {% for keyword in article.keywords.all %}
                             <li class="list-inline-item">
                                 {% if journal_settings.general.keyword_list_page %}
-                                    <a href="{% url 'keyword' keyword.pk %}">
+                                     {# LinkA11y #} <a href="{% url 'keyword' keyword.pk %}">
                                 {% endif %}
                                 <span aria-hidden=true>{{ keyword.word }}</span>
                                 <span class="sr-only">{% trans 'Keyword:' %} {{ keyword.word }}</span>
@@ -119,10 +119,10 @@
                             <strong>{% trans 'Downloads' %}</strong><br/>
                             {% if galleys %}
                                 {% for galley in galleys %}
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                     {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                     <br/>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                        <a target="_blank"
+                                         {# LinkA11y #} <a target="_blank"
                                         href="{% url 'article_view_galley' article.id galley.id %}">View
                                             PDF</a><br/>
                                     {% endif %}
@@ -174,7 +174,7 @@
                         <li>
                             {{ author.full_name }}
                             {% if author.orcid %}
-                                <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                 {# LinkA11y #} <a href="https://orcid.org/{{ author.orcid }}" class="">
                                     <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
                                     <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
                                 </a>
@@ -197,11 +197,11 @@
                             {% for galley in galleys %}
                                 {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
                                 <li>
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                     {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                         </li>
                                         <li>
-                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                             {# LinkA11y #} <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
                                     {% endif %}
                                 </li>
                                 {% endif %}
@@ -221,7 +221,7 @@
                     <h2>{% trans "Supplementary Files" %}</h2>
                     <ul>
                         {% for file in article.supplementary_files.all %}
-                            <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
+                            <li> {# LinkA11y #} <a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -264,11 +264,11 @@
                         </li>
                     {% endif %}
                     {% if article.license %}
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
+                    <li>{% trans "Licence" %}  {# LinkA11y #} <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
                                                  title="{{ article.license.text|safe }}">{{ article.license.name }}</a></li>{% endif %}
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>
-                            <a href="#" data-toggle="modal"
+                             {# LinkA11y #} <a href="#" data-toggle="modal"
                                data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
                         </li>
                     {% endif %}
@@ -290,7 +290,7 @@
                             <h2>{% trans "Open Peer Reviews" %}</h2>
                             <ul>
                                 {% for review in article.public_reviews %}
-                                    <li><a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
+                                    <li> {# LinkA11y #} <a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
                                 {% endfor %}<br/>
                             </ul>
                         {% endif %}
@@ -318,10 +318,10 @@
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-style Citation' %}</button>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-style Citation' %}</button>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-style Citation' %}</button>
-                        <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
+                         {# LinkA11y #} <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
                             {% trans 'Download' %} RIS
                         </a>
-                        <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
+                         {# LinkA11y #} <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
                             {% trans 'Download' %} BibTeX
                         </a>
                         <br/>
@@ -332,7 +332,7 @@
                         a {{ article.preprint.repository.object_name }}
                         in {{ article.preprint.repository.name }}.</p>
                       <p>
-                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                         {# LinkA11y #} <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
                       </p>
                     {% endif %}
                     <h2>{% trans 'File Checksums' %}</h2> (MD5)
@@ -349,7 +349,7 @@
                     {% endif %}
 
                     {% if journal_settings.general.use_credit %}
-                      <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
+                      <h2>{% trans 'CRediT Roles' %}  {# LinkA11y #} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
                       <ul>
                         {% for author, credit_records in article.authors_and_credits.items %}
                           <li>
