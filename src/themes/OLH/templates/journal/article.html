@@ -520,7 +520,7 @@
                             {% endif %}
                         </div>
 
-                        {% if journal_settings.general.use_credit %}
+                        {% if journal_settings.general.use_credit and author.credits.exists %}
                           <div class="section hide-for-small-only">
                             <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
                             <ul>
