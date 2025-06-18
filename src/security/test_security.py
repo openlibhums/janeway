@@ -2268,31 +2268,13 @@ class TestSecurity(TestCase):
                         "article_stage_accepted_or_later_required decorator wrongly blocks access to articles that are"
                         "in production")
 
-    # Tests for article_edit_user_required
-    def test_article_edit_user_required_allows_access_to_production_articles(self):
-        """
-        Tests that a user can edit a specific article in the production stage
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
-
-        request = self.prepare_request_with_user(self.regular_user, self.journal_one)
-        kwargs = {'article_id': self.article_in_production.id}
-
-        decorated_func(request, **kwargs)
-
-        # test that the callback was called
-        self.assertTrue(func.called, "article_edit_user_required decorator wrongly blocks access to articles that are "
-                                     "in production")
-
-    def test_article_edit_user_required_allows_staff_access_to_production_articles(self):
+    def test_user_can_edit_article_allows_staff_access_to_production_articles(self):
         """
         Tests that a staff user can edit a specific article in the production stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.admin_user, self.journal_one)
         kwargs = {'article_id': self.article_in_production.id}
@@ -2300,16 +2282,16 @@ class TestSecurity(TestCase):
         decorated_func(request, **kwargs)
 
         # test that the callback was called
-        self.assertTrue(func.called, "article_edit_user_required decorator wrongly blocks staff access to articles that"
+        self.assertTrue(func.called, "user_can_edit_article decorator wrongly blocks staff access to articles that"
                                      " are in production")
 
-    def test_article_edit_user_required_allows_staff_access_to_published_articles(self):
+    def test_user_can_edit_article_allows_staff_access_to_published_articles(self):
         """
         Tests that a staff user can edit a specific article in the published stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.admin_user, self.journal_one)
         kwargs = {'article_id': self.article_published.id}
@@ -2317,16 +2299,16 @@ class TestSecurity(TestCase):
         decorated_func(request, **kwargs)
 
         # test that the callback was called
-        self.assertTrue(func.called, "article_edit_user_required decorator wrongly blocks staff access to articles that"
+        self.assertTrue(func.called, "user_can_edit_article decorator wrongly blocks staff access to articles that"
                                      " are published")
 
-    def test_article_edit_user_required_allows_staff_access_to_rejected_articles(self):
+    def test_user_can_edit_article_allows_staff_access_to_rejected_articles(self):
         """
         Tests that a staff user can edit a specific article in the rejected stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.admin_user, self.journal_one)
         kwargs = {'article_id': self.article_rejected.id}
@@ -2334,76 +2316,73 @@ class TestSecurity(TestCase):
         decorated_func(request, **kwargs)
 
         # test that the callback was called
-        self.assertTrue(func.called, "article_edit_user_required decorator wrongly blocks staff access to articles that"
+        self.assertTrue(func.called, "user_can_edit_article decorator wrongly blocks staff access to articles that"
                                      " are rejected")
 
-    def test_article_edit_user_required_blocks_access_to_production_articles_if_no_user(self):
+    def test_user_can_edit_article_blocks_access_to_production_articles_if_no_user(self):
         """
         Tests that an anonymous user cannot edit a specific article in the production stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(AnonymousUser(), self.journal_one)
         kwargs = {'article_id': self.article_published.id}
 
         with self.assertRaises(PermissionDenied):
-            # test that production_user_or_editor_required raises a PermissionDenied exception
             decorated_func(request, **kwargs)
 
         # test that the callback was not called
         self.assertFalse(func.called,
-                         "article_edit_user_required decorator wrongly allows anonymous access to articles that are "
+                         "user_can_edit_article decorator wrongly allows anonymous access to articles that are "
                          "in production")
 
-    def test_article_edit_user_required_blocks_access_to_articles_if_not_owner(self):
+    def test_user_can_edit_article_blocks_access_to_articles_if_not_owner(self):
         """
         Tests that a user cannot edit an article in production that is not owned by the current user
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.second_user, self.journal_one)
         kwargs = {'article_id': self.article_in_production.id}
 
         with self.assertRaises(PermissionDenied):
-            # test that production_user_or_editor_required raises a PermissionDenied exception
             decorated_func(request, **kwargs)
 
         # test that the callback was not called
         self.assertFalse(func.called,
-                         "article_edit_user_required decorator wrongly allows access to articles that are "
+                         "user_can_edit_article decorator wrongly allows access to articles that are "
                          "in production and not owned by the current user")
 
-    def test_article_edit_user_required_blocks_access_to_published_articles(self):
+    def test_user_can_edit_article_blocks_access_to_published_articles(self):
         """
         Tests that a user cannot edit a specific article in the published stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.regular_user, self.journal_one)
         kwargs = {'article_id': self.article_published.id}
 
         with self.assertRaises(PermissionDenied):
-            # test that production_user_or_editor_required raises a PermissionDenied exception
             decorated_func(request, **kwargs)
 
         # test that the callback was not called
         self.assertFalse(func.called,
-                         "article_edit_user_required decorator wrongly allows access to articles that are "
+                         "user_can_edit_article decorator wrongly allows access to articles that are "
                          "published")
 
-    def test_article_edit_user_required_blocks_access_to_rejected_articles(self):
+    def test_user_can_edit_article_blocks_access_to_rejected_articles(self):
         """
         Tests that a user cannot edit a specific article in the rejected stage
         :return: None or raises an assertion
         """
         func = Mock()
-        decorated_func = decorators.article_edit_user_required(func)
+        decorated_func = decorators.user_can_edit_article(func)
 
         request = self.prepare_request_with_user(self.regular_user, self.journal_one)
         kwargs = {'article_id': self.article_rejected.id}
@@ -2414,8 +2393,79 @@ class TestSecurity(TestCase):
 
         # test that the callback was not called
         self.assertFalse(func.called,
-                         "article_edit_user_required decorator wrongly allows access to articles that are "
+                         "user_can_edit_article decorator wrongly allows access to articles that are "
                          "rejected")
+
+    # Tests for user_can_edit_author
+    def test_author_can_edit_their_own_author_record(self):
+        """
+        Tests that a user can edit their own author record before submission
+        """
+        func = Mock()
+        decorated_func = decorators.user_can_edit_author(func)
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+        kwargs = {'author_id': self.frozen_author_unsubmitted.id}
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called)
+
+    def test_editor_can_edit_author_records_after_submission(self):
+        """
+        Tests that an editor can edit an author after submission
+        """
+        func = Mock()
+        decorated_func = decorators.user_can_edit_author(func)
+
+        request = self.prepare_request_with_user(self.editor, self.journal_one)
+        kwargs = {'author_id': self.frozen_author_in_review.id}
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called)
+
+    def test_author_cannot_edit_an_author_record_for_another_account_holder(self):
+        """
+        Tests that an author cannot edit an author record
+        for someone else if that person has an account.
+        """
+        func = Mock()
+        decorated_func = decorators.user_can_edit_author(func)
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+        kwargs = {'author_id': self.frozen_coauthor_with_account.id}
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+        self.assertFalse(func.called)
+
+    def test_author_can_edit_an_author_record_that_has_no_associated_account(self):
+        """
+        Tests that an author can edit an author record
+        for someone else if that person has an account.
+        """
+        func = Mock()
+        decorated_func = decorators.user_can_edit_author(func)
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+        kwargs = {'author_id': self.frozen_coauthor_without_account.id}
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called)
+
+    def test_author_cannot_edit_an_author_record_after_submission(self):
+        """
+        Tests that an author can edit an author record
+        for someone else if that person has an account.
+        """
+        func = Mock()
+        decorated_func = decorators.user_can_edit_author(func)
+
+        request = self.prepare_request_with_user(self.author, self.journal_one)
+        kwargs = {'author_id': self.frozen_author_in_review.id}
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+        self.assertFalse(func.called)
 
     # Tests for file_user_required
     def test_file_user_required_blocks_access_to_anonymous_users_to_private_files(self):
@@ -3724,7 +3774,7 @@ class TestSecurity(TestCase):
         }
 
         request = self.prepare_request_with_user(
-            self.regular_user,
+            self.author,
             journal=self.journal_one,
         )
 
@@ -4387,7 +4437,9 @@ class TestSecurity(TestCase):
             journal_id=self.journal_one.id,
             correspondence_author=self.repo_manager,
         )
-        self.author.snapshot_as_author(self.article_in_review)
+        self.frozen_author_in_review = self.author.snapshot_as_author(
+            self.article_in_review,
+        )
         review_models.ReviewRound.objects.get_or_create(
             article=self.article_in_review,
             round_number=1,
@@ -4435,11 +4487,24 @@ class TestSecurity(TestCase):
                                                                         production_manager=self.production)
         self.proofing_assigned.save()
 
-        self.article_unsubmitted = submission_models.Article(owner=self.regular_user, title="A Test Article",
+        self.article_unsubmitted = submission_models.Article(owner=self.author, title="A Test Article",
                                                              abstract="An abstract",
                                                              stage=submission_models.STAGE_UNSUBMITTED,
                                                              journal_id=self.journal_one.id)
         self.article_unsubmitted.save()
+        self.frozen_author_unsubmitted = self.author.snapshot_as_author(
+            self.article_unsubmitted,
+        )
+        self.frozen_coauthor_with_account = helpers.create_frozen_author(
+            self.article_unsubmitted,
+            frozen_email='v7fkq3j0uj3dsqh3jg5j@example.org',
+            with_author=True,
+        )
+        self.frozen_coauthor_without_account = helpers.create_frozen_author(
+            self.article_unsubmitted,
+            frozen_email='nalxkzh1mxadoxhoiaaq@example.org',
+            with_author=False,
+        )
 
         self.article_unassigned = submission_models.Article(owner=self.regular_user, title="A Test Article",
                                                             abstract="An abstract",
@@ -4474,7 +4539,6 @@ class TestSecurity(TestCase):
                                                                                 journal_id=self.journal_one.id,
                                                                                 date_accepted=timezone.now())
 
-        self.editor.snapshot_as_author(self.article_author_is_owner)
         self.author.snapshot_as_author(self.article_author_is_owner)
 
         self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",

@@ -24,10 +24,10 @@
   {% is_editor as editor %}
   <div class="grid max-w-64 padding-inline-1 row-gap-0 margin-block-end-10">
     <div class="button-group">
-      {% if article.is_submitted %}
-        {% url 'submission_edit_author_metadata' article.pk as back_url %}
-      {% else %}
+      {% if article.is_unsubmitted %}
         {% url 'submit_authors' article.pk as back_url %}
+      {% else %}
+        {% url 'submission_edit_author_metadata' article.pk as back_url %}
       {% endif %}
       {% trans "Back to all authors" as back_label %}
       {% include "elements/a_back.html" with label=back_label href=back_url %}

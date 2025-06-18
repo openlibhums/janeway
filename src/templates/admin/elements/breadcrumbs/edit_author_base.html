@@ -1,7 +1,7 @@
-{% if article.is_submitted %}
-  {% include "elements/breadcrumbs/edit_author_metadata_base.html" with subpage="yes" %}
-{% else %}
+{% if article.is_unsubmitted %}
   {% include "elements/breadcrumbs/submit_authors_base.html" %}
+{% else %}
+  {% include "elements/breadcrumbs/edit_author_metadata_base.html" with subpage="yes" %}
 {% endif %}
 {% if subpage %}
   <li>

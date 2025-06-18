@@ -56,7 +56,7 @@
   {% endif %}
 {% endif %}
 
-{% if not article.is_submitted %}
+{% if article.is_unsubmitted %}
   <div class="row expanded">
     {% include "submission/timeline.html" with data=article %}
   </div>

@@ -196,9 +196,9 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
         cls.journal_two_authors = []
         # The first five authors are the same as journal 1
         for author in cls.journal_one_authors[:5]:
-            cls.journal_two_authors.append(
-                author.add_account_role('author', cls.journal_two)
-            )
+            author.add_account_role('author', cls.journal_two)
+            cls.journal_two_authors.append(author)
+
         # The next five are new
         for num in range(0,5):
             cls.journal_two_authors.append(

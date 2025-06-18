@@ -9,7 +9,7 @@ from submission import models
 
 def submission_is_enabled(func):
     """ This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
-    interest problems. Use the article_editor_user_required decorator (not yet written) to do a check against an
+    interest problems. Use the user_can_edit_article decorator (not yet written) to do a check against an
     article.
 
     :param func: the function to callback from the decorator

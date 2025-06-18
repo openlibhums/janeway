@@ -644,6 +644,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         article: submission.models.Article
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
+        self.add_account_role('author', article.journal)
         if self.name_prefix:
             name_prefix = self.name_prefix
         elif self.salutation:

@@ -10,7 +10,7 @@
           <div class="status">
             <h4>
               {% if article %}
-                {% if article.current_step >= 1 or article.is_submitted %}
+                {% if article.current_step >= 1 or not article.is_unsubmitted %}
                   <a href="{% url 'submit_info' article.id %}">
                     {% trans "Article Information" %}
                   </a>
