@@ -28,11 +28,3 @@ def get_allowed_attributes_minimal():
 
 def get_allowed_css_styles():
     return _all_styles
-
-def get_jats_allowed_tags():
-    return ["italic", "bold", "sup", "sub", "underline", "xref"]
-
-def get_jats_allowed_attrs():
-    return {
-        "xref": ["ref-type", "rid"],
-    }
