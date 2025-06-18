@@ -66,6 +66,7 @@ from journal import models as journal_models
 from review.const import (
     ReviewerDecisions as RD,
 )
+from transform import utils as transform_utils
 
 logger = get_logger(__name__)
 
@@ -2051,16 +2052,7 @@ class Article(AbstractLastModifiedModel):
         """
         if not self.abstract:
             return ""
-
-        # Clean the abstract bleach
-        cleaned = clean(
-            self.abstract,
-            tags=utils_const.get_jats_allowed_tags(),
-            attributes=utils_const.get_jats_allowed_attrs(),
-            strip=True,
-        ).strip()
-
-        return mark_safe(f"<p>{cleaned}</p>")
+        return transform_utils.convert_html_abstract_to_jats(self.abstract)
 
     @property
     def iso639_1_lang_code(self):
