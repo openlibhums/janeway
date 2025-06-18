@@ -10,7 +10,6 @@ import os
 from dateutil import parser as dateparser
 from itertools import chain
 import warnings
-from bleach import clean
 from iso639 import Lang
 
 from django.apps import apps
@@ -61,7 +60,6 @@ from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
 from utils.forms import plain_text_validator
-from utils import const as utils_const
 from journal import models as journal_models
 from review.const import (
     ReviewerDecisions as RD,
