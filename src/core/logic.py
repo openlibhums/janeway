@@ -68,6 +68,34 @@ def reverse_with_next(url_name, next_url, args=None, kwargs=None):
     return final_url
 
 
+def reverse_with_full_page_path(url_name, full_page_path, args=None, kwargs=None):
+    """
+    Reverse a URL and add 'full_page_path' as a GET parameter.
+
+    The value of 'full_page_path' should be in decoded form.
+
+    :param full_page_path: the result of calling request.get_full_path()
+    :param args: args to pass to django.shortcuts.reverse, if no kwargs
+    :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
+    """
+    # reverse can only accept either args or kwargs
+    if args:
+        reversed_url = reverse(url_name, args=args)
+    elif kwargs:
+        reversed_url = reverse(url_name, kwargs=kwargs)
+    else:
+        reversed_url = reverse(url_name)
+
+    if not full_page_path:
+        return reversed_url
+
+    final_url = utils_logic.add_query_parameters_to_url(
+        reversed_url,
+        {'full_page_path': full_page_path},
+    )
+    return final_url
+
+
 def send_reset_token(request, reset_token):
     core_reset_password_url = request.site_type.site_url(
         reverse(

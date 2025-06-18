@@ -7,43 +7,54 @@
 
 <div class="flex direction-column row-gap-0-5">
   {% if author.credits.exists %}
-    <form method="POST">
-      {% csrf_token %}
-      <input type="hidden" name="remove_credit">
-      <div class="button-group no-bottom-margin flex wrap items-center">
-        {% for credit in author.credits %}
-          <div class="shell-of-a-button no-bottom-margin flex items-center">
-            {{ credit.get_role_display }}
-            <button
-              class="button secondary hollow"
-              name="credit_pk"
-              value="{{ credit.pk }}"
-              type="submit">
-              <span class="sr-only">
-                {% blocktrans with credit_role=credit.get_role_display %}
-                  Remove {{ credit_role }}
-                {% endblocktrans %}
-              </span>
-              <span class="fa fa-remove"></span>
-            </button>
-          </div>
-        {% endfor %}
-      </div>
-    </form>
+    <div data-current-authors-action>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="remove_credit">
+        <div class="button-group no-bottom-margin flex wrap items-center">
+          {% for credit in author.credits %}
+            <div class="shell-of-a-button no-bottom-margin flex items-center">
+              {{ credit.get_role_display }}
+              <button
+                class="button secondary hollow"
+                name="credit_pk"
+                value="{{ credit.pk }}"
+                type="submit">
+                <span class="sr-only">
+                  {% blocktrans with credit_role=credit.get_role_display %}
+                    Remove {{ credit_role }}
+                  {% endblocktrans %}
+                </span>
+                <span class="fa fa-remove"></span>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      </form>
+    </div>
   {% else %}
     <div>
       {% trans "This author has no contributor roles." %}
     </div>
   {% endif %}
   <div
-    data-give-me-options-{{ pid }}
-    class="give-me-options bs-callout bs-callout-info flex direction-column gap-0-5">
+    data-current-authors-action
+    class="
+      give-me-options bs-callout bs-callout-info flex direction-column gap-0-5
+      {% if last_changed_credit_author == author %}
+        displayed
+      {% endif %}
+    ">
     <div class="button-group no-bottom-margin">
       <button
         data-give-me
         class="button hollow secondary"
         type="button"
-        aria-expanded="false"
+        {% if last_changed_credit_author == author %}
+          aria-expanded="true"
+        {% else %}
+          aria-expanded="false"
+        {% endif %}
         aria-controls="options-pane-{{ pid }}">
         <span class="fa fa-angle-up"></span>
         <span class="fa fa-angle-down"></span>
@@ -56,18 +67,18 @@
         <input type="hidden" name="author_pk" value="{{ author.pk }}">
         <input type="hidden" name="add_credit">
         <fieldset class="padding-block-0-5">
-          <legend>{% trans "Select a role:" %}</legend>
+          <legend class="show-for-sr">{% trans "Select a role:" %}</legend>
           <div class="auto-columns">
             {% for radio in credit_form.role %}
-              <div class="option max-w-20">
-                <input
+              <div class="button-group no-bottom-margin">
+                <button
                   id="{{ radio.id_for_label }}-{{ pid }}"
+                  class="button hollow secondary"
                   name="role"
-                  value="{{ radio.data.value }}"
-                  type="radio">
-                <label for="{{ radio.id_for_label }}-{{ pid }}">
+                  value="{{ radio.data.value }}">
+                  <span class="fa fa-plus"></span>
                   {{ radio.choice_label }}
-                </label>
+                </button>
               </div>
             {% endfor %}
           </div>
@@ -85,5 +96,3 @@
     </div>
   </div>
 </div>
-
-{% include "admin/elements/give_me_options_js.html" with pid=pid %}

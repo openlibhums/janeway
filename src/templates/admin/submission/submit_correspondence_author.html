@@ -4,7 +4,9 @@
 
 {% get_uuid4 as pid %}
 
-<div data-give-me-options-{{ pid }} class="give-me-options callout secondary">
+<div
+  data-current-authors-action
+  class="give-me-options callout secondary">
   <div class="flex wrap gap-1 items-center space-between">
     <strong>
       <span class="fa fa-envelope"></span>
@@ -20,13 +22,15 @@
         class="button hollow secondary"
         aria-expanded="false"
         aria-controls="options-pane-{{ pid }}">
-        <span class="fa fa-angle-up"></span>
-        <span class="fa fa-angle-down"></span>
-        {% if article.correspondence_author %}
-          {% trans "Change correspondence" %}
-        {% else %}
-          {% trans "Select correspondence author" %}
-        {% endif %}
+        <div>
+          <span class="fa fa-angle-up"></span>
+          <span class="fa fa-angle-down"></span>
+          {% if article.correspondence_author %}
+            {% trans "Change correspondence" %}
+          {% else %}
+            {% trans "Select correspondence author" %}
+          {% endif %}
+        </div>
       </button>
     </div>
   </div>
@@ -93,5 +97,3 @@
     </form>
   </div>
 </div>
-
-{% include "admin/elements/give_me_options_js.html" with pid=pid %}

@@ -1,0 +1,146 @@
+{% load text %}
+{% load static %}
+{% load i18n %}
+{% load next_url %}
+{% load securitytags %}
+
+{% is_any_editor as any_editor %}
+
+<div class="columns large-10">
+  <div class="box">
+    <div class="row expanded">
+      <div class="columns">
+        <div class="show-for-sr">
+          <h2>{% trans "Current authors" %}</h2>
+        </div>
+      </div>
+      <div class="columns">
+        {% if not last_changed_author %}
+          {% include "admin/elements/forms/messages_in_callout.html" %}
+        {% endif %}
+        {% if not article.correspondence_author %}
+          {% include "admin/submission/submit_correspondence_author.html" with article=article %}
+        {% endif %}
+      </div>
+      <div class="columns">
+        <div class="list-group">
+          {% for author, credits, credit_form in authors %}
+            {% with "author-"|concat:author.pk as section_id %}
+              <section
+                id="{{ section_id }}"
+                class="list-group-item static-bg">
+                <div class="flex direction-column">
+                  {% if last_changed_author == author %}
+                    {% include "admin/elements/forms/messages_in_callout.html" %}
+                  {% endif %}
+                  {% if article.correspondence_author and article.correspondence_author == author.author %}
+                    {% include "admin/submission/submit_correspondence_author.html" with article=article %}
+                  {% endif %}
+                  <div class="flex gap-2 direction-column-small">
+                    {% if authors|length > 1 %}
+                      <div class="stat">{{ forloop.counter }}</div>
+                    {% endif %}
+                    <div class="grow-1">
+                      <div class="list-group-item-heading flex wrap column-gap-2 space-between">
+                        <h3>
+                          {{ author.full_name|default:"[No name]" }}
+                        </h3>
+                        <div class="button-group no-bottom-margin flex items-center">
+                          {% if author.owner == request.user or any_editor %}
+                            <a
+                              href="{% url_with_return 'submission_edit_author' article.pk author.pk %}"
+                              class="button hollow secondary no-bottom-margin">
+                              <span class="fa fa-edit"></span>
+                              {% trans "Edit author details" %}
+                            </a>
+                          {% endif %}
+                          {% url_with_return 'submission_delete_frozen_author' article.pk author.pk as remove_url %}
+                          {% trans "Remove author" as remove_label %}
+                          {% include "elements/a_remove.html" with href=remove_url label=remove_label %}
+                        </div>
+                      </div>
+                      {% if author.owner != request.user and not any_editor %}
+                        <div class="card">
+                          <div class="bs-callout bs-callout-info">
+                            <p>{% blocktrans with journal=request.journal.name %}
+                              You cannot edit this author's details,
+                              because they have a user account with <i>{{ journal }}</i>.
+                              If their details are out of date, ask them to
+                              log in and edit their user profile.
+                            {% endblocktrans %}</p>
+                            {% site_url "core_edit_profile" as content %}
+                            {% trans "Copy link to share" as label_copy %}
+                            {% trans "Link copied" as label_copied %}
+                            {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied %}
+                            <p>{% blocktrans %}
+                              After they have made their changes, remove and re-add
+                              them to the author list via the search.
+                            {% endblocktrans %}</p>
+                          </div>
+                        </div>
+                      {% endif %}
+                      <dl class="no-bottom-margin">
+                        <div class="flex column-gap-4 wrap">
+                          {% trans "Email" as email_key %}
+                          {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
+                          {% trans "ORCID" as orcid_key %}
+                          {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+                          {% trans "Has user account" as account_key %}
+                          {% include "admin/elements/layout/key_value_above.html" with key=account_key value=author.author|yesno:"Yes,No" %}
+                        </div>
+                        <div class="key-value-pair key-above">
+                          <dt class="key">{% trans "Affiliations" %}</dt>
+                          <dd class="value">
+                            {% for affiliation in author.affiliations %}
+                              <div class="padding-block-0-25">
+                                {% if author.affiliations|length > 1 %}
+                                  {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=True %}
+                                {% else %}
+                                  {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=False %}
+                                {% endif %}
+                              </div>
+                            {% empty %}
+                              <div>{% trans "This author has no affiliations." %}</div>
+                            {% endfor %}
+                          </dd>
+                        </div>
+                        {% if journal_settings.general.use_credit %}
+                          <div class="key-value-pair key-above">
+                            <dt class="key">{% trans "Roles" %}</dt>
+                            <dd class="value">
+                              {% include "admin/submission/submit_credit_roles.html" with author=author credit_form=credit_form %}
+                            </dd>
+                          </div>
+                        {% endif %}
+                      </dl>
+                    </div>
+                    {% if authors|length > 1 %}
+                      {% include "admin/submission/submit_author_order.html" with author=author %}
+                    {% endif %}
+                  </div>
+                </div>
+              </section>
+            {% endwith %}
+          {% empty %}
+            <div class="list-group-item">
+              {% trans "This article has no authors." %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if authors|length > 1 %}
+  <div class="columns large-2">
+    <div class="box">
+      <div class="flex">
+        <p>{% blocktrans %}
+          Authors can be moved up or down to set their order. This order
+          will be used for the display of author names when the article is
+          published.
+        {% endblocktrans %}</p>
+      </div>
+    </div>
+  </div>
+{% endif %}
