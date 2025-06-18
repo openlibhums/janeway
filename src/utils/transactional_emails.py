@@ -1734,7 +1734,7 @@ def send_draft_decision_declined(**kwargs):
     description = '{user} has declined a draft decision {draft} written by {section_editor}'.format(
         user=request.user,
         draft=draft_decision.pk,
-        section_editor=draft_decision.section_editor.full_name,
+        section_editor=draft_decision.section_editor.full_name(),
     )
 
     log_dict = {
@@ -1790,7 +1790,7 @@ def access_request_complete(**kwargs):
     access_request = kwargs.get('access_request')
     decision = kwargs.get('decision')
     description = "Access request from {} evaluated by {}: {}".format(
-        access_request.user.full_name,
+        access_request.user.full_name(),
         request.user,
         decision,
     )
