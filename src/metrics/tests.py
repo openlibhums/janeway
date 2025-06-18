@@ -16,6 +16,7 @@ class ArticleAccessTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        helpers.create_roles(['author'])
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         install.update_settings(management_command=False)
