@@ -309,9 +309,14 @@ def save_frozen_author_order(request, article):
              and change_order (enum: "top", "up", "down", "bottom")
     """
     changed = False
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
     author = get_object_or_404(
         models.FrozenAuthor,
-        pk=int(request.POST.get('author_pk')),
+        pk=author_id,
         article=article,
     )
     change_order = request.POST.get('change_order')
@@ -481,14 +486,13 @@ def add_new_author_from_form(request, article):
 
     frozen_email = request.POST.get("frozen_email")
     if frozen_email:
-        try:
-            author = models.FrozenAuthor.objects.get(
-                Q(article=article) &
-                (Q(frozen_email=frozen_email) |
-                Q(author__username__iexact=frozen_email))
-            )
-        except models.FrozenAuthor.DoesNotExist:
-            pass
+        authors = models.FrozenAuthor.objects.filter(
+            Q(article=article) &
+            (Q(frozen_email=frozen_email) |
+            Q(author__username__iexact=frozen_email))
+        )
+        if authors.exists():
+            author = authors.first()
 
     if not author and new_author_form.is_valid():
         author = new_author_form.save()
@@ -549,9 +553,14 @@ def get_credit_form(request, author):
 
 
 def add_credit_role(request, article):
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
     author = get_object_or_404(
         models.FrozenAuthor,
-        pk=int(request.POST.get('author_pk')),
+        pk=author_id,
         article=article,
     )
     credit_form = CreditRecordForm(request.POST)
@@ -572,9 +581,14 @@ def add_credit_role(request, article):
 
 
 def remove_credit_role(request, article):
+    credit_id = request.POST.get('credit_pk')
+    try:
+        credit_id = int(credit_id)
+    except TypeError:
+        raise ValidationError('Invalid credit ID submitted')
     record = get_object_or_404(
         models.CreditRecord,
-        pk=int(request.POST.get('credit_pk')),
+        pk=credit_id,
         frozen_author__article=article,
     )
     author = record.frozen_author

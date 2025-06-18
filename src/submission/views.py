@@ -29,13 +29,14 @@ from core.forms import (
 )
 from repository import models as preprint_models
 from security.decorators import (
-    article_edit_user_required,
     production_user_or_editor_required,
     editor_user_required,
     editor_user_required_and_can_see_pii,
     submission_authorised,
     article_is_not_submitted,
     role_can_access,
+    user_can_edit_author,
+    user_can_edit_article,
 )
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
@@ -125,7 +126,7 @@ def submit_submissions(request):
 @decorators.submission_is_enabled
 @decorators.funding_is_enabled
 @article_is_not_submitted
-@article_edit_user_required
+@user_can_edit_article
 @submission_authorised
 def submit_funding(request, article_id):
     """
@@ -179,7 +180,7 @@ def submit_funding(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_is_not_submitted
-@article_edit_user_required
+@user_can_edit_article
 @submission_authorised
 def submit_info(request, article_id):
     """
@@ -265,7 +266,7 @@ def publisher_notes_order(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_is_not_submitted
-@article_edit_user_required
+@user_can_edit_article
 @submission_authorised
 def submit_authors(request, article_id):
     """
@@ -289,52 +290,56 @@ def submit_authors(request, article_id):
     new_author_form = forms.EditFrozenAuthor()
     last_changed_author = None
 
-    if request.POST and 'add_author' in request.POST:
-        last_changed_author = logic.add_new_author_from_form(request, article)
-
-    elif request.POST and 'search_authors' in request.POST:
-        search_term = request.POST.get('author_search_text')
-        author = logic.add_author_from_search(search_term, request, article)
-        last_changed_author = author
-
-    elif request.POST and 'corr_author' in request.POST:
-        author = logic.save_correspondence_author(request, article)
-        last_changed_author = author
-
-    elif request.POST and 'change_order' in request.POST:
-        author = logic.save_frozen_author_order(request, article)
-        last_changed_author = author
-
-    elif request.POST and 'add_credit' in request.POST:
-        last_changed_author = logic.add_credit_role(request, article)
-
-    elif request.POST and 'remove_credit' in request.POST:
-        last_changed_author = logic.remove_credit_role(request, article)
-
-    elif request.POST and 'save_continue' in request.POST:
-
-        if not article.correspondence_author:
-            messages.add_message(
+    if request.method == 'POST':
+        if 'add_author' in request.POST:
+            last_changed_author = logic.add_new_author_from_form(
                 request,
-                messages.WARNING,
-                _('The article does not have a correspondence author. '
-                  'Please select a correspondence author to continue.'),
+                article,
             )
+
+        elif 'search_authors' in request.POST:
+            search_term = request.POST.get('author_search_text')
+            author = logic.add_author_from_search(search_term, request, article)
+            last_changed_author = author
+
+        elif 'corr_author' in request.POST:
+            author = logic.save_correspondence_author(request, article)
+            last_changed_author = author
+
+        elif 'change_order' in request.POST:
+            author = logic.save_frozen_author_order(request, article)
+            last_changed_author = author
+
+        elif 'add_credit' in request.POST:
+            last_changed_author = logic.add_credit_role(request, article)
+
+        elif 'remove_credit' in request.POST:
+            last_changed_author = logic.remove_credit_role(request, article)
+
+        elif 'save_continue' in request.POST:
+
+            if not article.correspondence_author:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('The article does not have a correspondence author. '
+                      'Please select a correspondence author to continue.'),
+                )
+                return redirect(
+                    reverse(
+                        'submit_authors',
+                        kwargs={'article_id': article_id}
+                    )
+                )
+
+            article.current_step = 3
+            article.save()
             return redirect(
                 reverse(
-                    'submit_authors',
+                    'submit_files',
                     kwargs={'article_id': article_id}
                 )
             )
-
-        article.current_step = 3
-        article.save()
-        return redirect(
-            reverse(
-                'submit_files',
-                kwargs={'article_id': article_id}
-            )
-        )
 
     authors = []
     for author, credits in article.authors_and_credits().items():
@@ -353,7 +358,7 @@ def submit_authors(request, article_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
 @decorators.funding_is_enabled
 def edit_funder(request, article_id, funder_id):
     """
@@ -438,7 +443,7 @@ def edit_funder(request, article_id, funder_id):
 
 @login_required
 @decorators.funding_is_enabled
-@article_edit_user_required
+@user_can_edit_article
 def delete_funder(request, article_id, funder_id):
     """Allows submitting author to delete a funding object."""
     article = get_object_or_404(
@@ -461,7 +466,7 @@ def delete_funder(request, article_id, funder_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
 def delete_author(request, article_id, author_id):
     """Allows submitting author to remove an author from their article."""
     raise DeprecationWarning("Use delete_frozen_author instead.")
@@ -525,7 +530,7 @@ def delete_author(request, article_id, author_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
 def delete_frozen_author(request, article_id, author_id):
     """
     Allows the article owner or editor to
@@ -614,7 +619,7 @@ def delete_frozen_author(request, article_id, author_id):
 @login_required
 @decorators.submission_is_enabled
 @article_is_not_submitted
-@article_edit_user_required
+@user_can_edit_article
 @submission_authorised
 def submit_files(request, article_id):
     """
@@ -730,7 +735,7 @@ def submit_files(request, article_id):
 @login_required
 @decorators.submission_is_enabled
 @article_is_not_submitted
-@article_edit_user_required
+@user_can_edit_article
 @submission_authorised
 def submit_review(request, article_id):
     """
@@ -903,26 +908,33 @@ def edit_author_metadata(request, article_id):
     new_author_form = forms.EditFrozenAuthor()
     last_changed_author = None
 
-    if request.POST and 'add_author' in request.POST:
-        last_changed_author = logic.add_new_author_from_form(request, article)
+    if request.method == 'POST':
+        if 'add_author' in request.POST:
+            last_changed_author = logic.add_new_author_from_form(
+                request,
+                article,
+            )
 
-    elif request.POST and 'search_authors' in request.POST:
-        search_term = request.POST.get('author_search_text')
-        author = logic.add_author_from_search(search_term, request, article)
-        last_changed_author = author
+        elif 'search_authors' in request.POST:
+            search_term = request.POST.get('author_search_text')
+            author = logic.add_author_from_search(search_term, request, article)
+            last_changed_author = author
 
-    elif request.POST and 'corr_author' in request.POST:
-        author = logic.save_correspondence_author(request, article)
-        last_changed_author = author
+        elif 'corr_author' in request.POST:
+            author = logic.save_correspondence_author(request, article)
+            last_changed_author = author
 
-    elif request.POST and 'change_order' in request.POST:
-        last_changed_author = logic.save_frozen_author_order(request, article)
+        elif 'change_order' in request.POST:
+            last_changed_author = logic.save_frozen_author_order(
+                request,
+                article,
+            )
 
-    elif request.POST and 'add_credit' in request.POST:
-        last_changed_author = logic.add_credit_role(request, article)
+        elif 'add_credit' in request.POST:
+            last_changed_author = logic.add_credit_role(request, article)
 
-    elif request.POST and 'remove_credit' in request.POST:
-        last_changed_author = logic.remove_credit_role(request, article)
+        elif 'remove_credit' in request.POST:
+            last_changed_author = logic.remove_credit_role(request, article)
 
     authors = []
     for author, credits in article.authors_and_credits().items():
@@ -941,7 +953,8 @@ def edit_author_metadata(request, article_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
+@user_can_edit_author
 def edit_author(request, article_id, author_id):
     """
     Allows a submitting author or journal editor
@@ -963,8 +976,6 @@ def edit_author(request, article_id, author_id):
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     next_url = request.GET.get('next', '')
     form = None
     use_credit = setting_handler.get_setting(
@@ -1280,6 +1291,7 @@ class OrganizationListView(GenericFacetedListView):
 
 
 @login_required
+@user_can_edit_author
 def organization_name_create(request, article_id, author_id):
     """
     Allows a user to create a custom organization name
@@ -1298,8 +1310,6 @@ def organization_name_create(request, article_id, author_id):
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
 
     if request.method == 'POST':
         org_name = create_organization_name(request)
@@ -1325,7 +1335,8 @@ def organization_name_create(request, article_id, author_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
+@user_can_edit_author
 def organization_name_update(request, article_id, author_id, organization_name_id):
     """
     Allows a user to update a custom organization name
@@ -1342,8 +1353,6 @@ def organization_name_update(request, article_id, author_id, organization_name_i
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     organization_name = get_object_or_404(
         core_models.OrganizationName,
         pk=organization_name_id,
@@ -1390,6 +1399,8 @@ def organization_name_update(request, article_id, author_id, organization_name_i
 
 
 @login_required
+@user_can_edit_article
+@user_can_edit_author
 def affiliation_create(request, article_id, author_id, organization_id):
     """
     Allows a user to create a new affiliation
@@ -1408,8 +1419,6 @@ def affiliation_create(request, article_id, author_id, organization_id):
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     organization = get_object_or_404(
         core_models.Organization,
         pk=organization_id,
@@ -1460,7 +1469,8 @@ def affiliation_create(request, article_id, author_id, organization_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
+@user_can_edit_author
 def affiliation_update(request, article_id, author_id, affiliation_id):
     """
     Allows a user to update an affiliation for
@@ -1477,8 +1487,6 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     affiliation = get_object_or_404(
         core_models.ControlledAffiliation,
         pk=affiliation_id,
@@ -1527,7 +1535,8 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
+@user_can_edit_author
 def affiliation_delete(request, article_id, author_id, affiliation_id):
     """
     Allows a user to delete an author affiliation
@@ -1545,8 +1554,6 @@ def affiliation_delete(request, article_id, author_id, affiliation_id):
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     affiliation = get_object_or_404(
         core_models.ControlledAffiliation,
         pk=affiliation_id,
@@ -1587,7 +1594,8 @@ def affiliation_delete(request, article_id, author_id, affiliation_id):
 
 
 @login_required
-@article_edit_user_required
+@user_can_edit_article
+@user_can_edit_author
 def affiliation_update_from_orcid(
     request,
     article_id,
@@ -1611,8 +1619,6 @@ def affiliation_update_from_orcid(
         pk=author_id,
         article=article,
     )
-    if not author.can_edit(request.user):
-        raise Http404
     try:
         cleaned_orcid = clean_orcid_id(author.orcid)
     except ValueError:
