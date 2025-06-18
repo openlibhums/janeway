@@ -1,8 +1,12 @@
 import os
-from django.conf import settings
-from django.utils.safestring import mark_safe
+
 from lxml import etree
 
+from django.conf import settings
+from django.utils.safestring import mark_safe
+
+from utils.logger import get_logger
+logger = get_logger(__name__)
 
 def convert_html_abstract_to_jats(abstract_string):
     if not abstract_string:
@@ -36,4 +40,5 @@ def convert_html_abstract_to_jats(abstract_string):
         return mark_safe(xml_str)
 
     except Exception as e:
-        return mark_safe(f"")
+        logger.error(e)
+        return ""
