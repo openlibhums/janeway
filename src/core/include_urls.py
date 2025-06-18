@@ -264,6 +264,11 @@ urlpatterns = [
         submission_views.edit_author_metadata,
         name='submission_edit_author_metadata',
     ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/current-authors/$',
+        submission_views.edit_current_authors,
+        name='submission_edit_current_authors',
+    ),
     re_path(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
 
     # Public Profiles

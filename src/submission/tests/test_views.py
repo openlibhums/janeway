@@ -132,7 +132,10 @@ class TestSubmitAuthors(TestSubmitViewsBase):
             'corr_author': self.eliot.pk,
         }
         response = self.client.post(
-            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
@@ -152,7 +155,10 @@ class TestSubmitAuthors(TestSubmitViewsBase):
             'author_pk': self.eliot.pk,
         }
         self.client.post(
-            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )

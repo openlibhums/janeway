@@ -17,6 +17,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
 
 from core import files, models as core_models
 from core.logic import create_organization_name, reverse_with_next
@@ -270,7 +271,7 @@ def publisher_notes_order(request, article_id):
 @submission_authorised
 def submit_authors(request, article_id):
     """
-    Allows the submitting author to add, remove, and reorder authors.
+    Allows the submitting author to add more authors.
     :param request: HttpRequest object
     :param article_id: Article PK
     :return: HttpRedirect or HttpResponse
@@ -301,20 +302,6 @@ def submit_authors(request, article_id):
             search_term = request.POST.get('author_search_text')
             author = logic.add_author_from_search(search_term, request, article)
             last_changed_author = author
-
-        elif 'corr_author' in request.POST:
-            author = logic.save_correspondence_author(request, article)
-            last_changed_author = author
-
-        elif 'change_order' in request.POST:
-            author = logic.save_frozen_author_order(request, article)
-            last_changed_author = author
-
-        elif 'add_credit' in request.POST:
-            last_changed_author = logic.add_credit_role(request, article)
-
-        elif 'remove_credit' in request.POST:
-            last_changed_author = logic.remove_credit_role(request, article)
 
         elif 'save_continue' in request.POST:
 
@@ -352,6 +339,62 @@ def submit_authors(request, article_id):
         'authors': authors,
         'last_changed_author': last_changed_author,
         'new_author_form': new_author_form,
+    }
+
+    return render(request, template, context)
+
+
+@login_required
+@require_POST
+@user_can_edit_article
+def edit_current_authors(request, article_id):
+    """
+    Async partial view accessed via JavaScript.
+    Allows the editor to reorder authors,
+    change the correspondence author,
+    and add and remove roles.
+    :param request: HttpRequest object
+    :param article_id: Article PK
+    :return: HttpRedirect or HttpResponse
+    """
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    last_changed_author = None
+    last_changed_credit_author = None
+    full_page_path = request.GET.get('full_page_path', '')
+
+    if 'corr_author' in request.POST:
+        author = logic.save_correspondence_author(request, article)
+        last_changed_author = author
+
+    elif 'change_order' in request.POST:
+        last_changed_author = logic.save_frozen_author_order(
+            request,
+            article,
+        )
+
+    elif 'add_credit' in request.POST:
+        last_changed_author = logic.add_credit_role(request, article)
+        last_changed_credit_author = last_changed_author
+
+    elif 'remove_credit' in request.POST:
+        last_changed_author = logic.remove_credit_role(request, article)
+
+    authors = []
+    for author, credits in article.authors_and_credits().items():
+        credit_form = logic.get_credit_form(request, author)
+        authors.append((author, credits, credit_form))
+
+    template = 'admin/elements/current_authors_inner.html'
+    context = {
+        'article': article,
+        'authors': authors,
+        'last_changed_author': last_changed_author,
+        'last_changed_credit_author': last_changed_credit_author,
+        'full_page_path': full_page_path,
     }
 
     return render(request, template, context)
@@ -895,7 +938,7 @@ def edit_metadata(request, article_id):
 @editor_user_required_and_can_see_pii
 def edit_author_metadata(request, article_id):
     """
-    Allows the editor to add, remove, and reorder authors.
+    Allows the editor to add new authors.
     :param request: HttpRequest object
     :param article_id: Article PK
     :return: HttpRedirect or HttpResponse
@@ -919,22 +962,6 @@ def edit_author_metadata(request, article_id):
             search_term = request.POST.get('author_search_text')
             author = logic.add_author_from_search(search_term, request, article)
             last_changed_author = author
-
-        elif 'corr_author' in request.POST:
-            author = logic.save_correspondence_author(request, article)
-            last_changed_author = author
-
-        elif 'change_order' in request.POST:
-            last_changed_author = logic.save_frozen_author_order(
-                request,
-                article,
-            )
-
-        elif 'add_credit' in request.POST:
-            last_changed_author = logic.add_credit_role(request, article)
-
-        elif 'remove_credit' in request.POST:
-            last_changed_author = logic.remove_credit_role(request, article)
 
     authors = []
     for author, credits in article.authors_and_credits().items():
