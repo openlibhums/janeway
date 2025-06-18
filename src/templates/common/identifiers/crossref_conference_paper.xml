@@ -1,57 +1,16 @@
 {% spaceless %}<conference_paper publication_type="full_text">{% endspaceless %}
 
-            <contributors>
-                {% for author_bundle in article.object.frozen_authors_for_jats_contribs %}
-                    {% with author=author_bundle.author affiliations=author_bundle.affiliations %}
-                    <person_name
-                        contributor_role="author"
-                        sequence="{% if forloop.first %}first{% else %}additional{% endif %}">
-                        <given_name>{{ author.given_names }}</given_name>
-                        <surname>{{ author.last_name }}</surname>
-
-                        {% if affiliations %}
-                            <affiliations>
-                                {% for affil in affiliations %}
-                                    {% with org=affil.organization %}
-                                        <institution>
-                                            <institution_name>{{ org.name.value }}</institution_name>
-                                            {% if org.ror_id %}
-                                                <institution_id
-                                                        institution_id_type="ROR">
-                                                    https://ror.org/{{ org.ror_id }}</institution_id>
-                                            {% endif %}
-                                        </institution>
-                                    {% endwith %}
-                                {% endfor %}
-                            </affiliations>
-                        {% endif %}
-
-                        {% if author.orcid %}
-                            <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
-                        {% endif %}
-
-                        {% for credit in article.creditrecord_set.all %}
-                            {% if credit.frozen_author == author and credit.role %}
-                            <contrib_role>
-                                <role_name>{{ credit.role|title }}</role_name>
-                                <role_identifier>{{ credit.uri }}/</role_identifier>
-                            </contrib_role>
-                            {% endif %}
-                        {% endfor %}
-                    </person_name>
-                    {% endwith %}
-                {% endfor %}
-            </contributors>
-
             <titles>
                 <title>{{ article.title }}</title>
             </titles>
 
-            {% if article.publication_date %}
+            {% include "common/identifiers/crossref_contributors.xml" %}
+
+            {% if article.date_published %}
             <publication_date media_type="online">
-                <month>{{ article.publication_date|date:"m" }}</month>
-                <day>{{ article.publication_date|date:"d" }}</day>
-                <year>{{ article.publication_date|date:"Y" }}</year>
+                <month>{{ article.date_published|date:"m" }}</month>
+                <day>{{ article.date_published|date:"d" }}</day>
+                <year>{{ article.date_published|date:"Y" }}</year>
             </publication_date>
             {% endif %}
 
