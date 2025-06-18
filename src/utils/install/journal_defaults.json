@@ -5539,5 +5539,62 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to authors when an article is desk rejected.",
+            "is_translatable": true,
+            "name": "review_decision_desk_reject",
+            "pretty_name": "Article Desk Reject",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }}</p><p>Thank you for submitting your manuscript \"{{ article.safe_title }}\" to {{ article.journal.name }}. After careful consideration, we regret to inform you that your submission has not been selected for peer review.</p><p>We appreciate the opportunity to consider your work.</p><p>Regards,</p>{{ request.user.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Conditional Accept Email",
+            "is_translatable": true,
+            "name": "subject_conditional_accept",
+            "pretty_name": "Subject Conditional Accept",
+            "type": "char"
+        },
+        "value": {
+            "default": "Article Conditional Acceptance"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Desk Reject Email",
+            "is_translatable": true,
+            "name": "subject_review_decision_desk_reject",
+            "pretty_name": "Subject Desk Reject",
+            "type": "char"
+        },
+        "value": {
+            "default": "Decision on Your Submission "
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
