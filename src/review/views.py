@@ -1649,6 +1649,8 @@ def review_decision(request, article_id, decision):
     email_context = logic.get_decision_context(
         request, article, decision, author_review_url)
     setting_name = "review_decision_{0}".format(decision)
+    if article.stage == submission_models.STAGE_UNASSIGNED:
+        setting_name = 'review_decision_desk_reject'
 
     form = core_forms.SettingEmailForm(
             setting_name=setting_name,
