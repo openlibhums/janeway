@@ -1,0 +1,42 @@
+<contributors>
+    {% for author_bundle in article.object.frozen_authors_for_jats_contribs %}
+        {% with author=author_bundle.author affiliations=author_bundle.affiliations %}
+        <person_name
+            contributor_role="author"
+            sequence="{% if forloop.first %}first{% else %}additional{% endif %}">
+            <given_name>{{ author.given_names }}</given_name>
+            <surname>{{ author.last_name }}</surname>
+
+            {% if affiliations %}
+                <affiliations>
+                    {% for affil in affiliations %}
+                        {% with org=affil.organization %}
+                            <institution>
+                                <institution_name>{{ org.name.value }}</institution_name>
+                                {% if org.ror_id %}
+                                    <institution_id type="ror">
+                                        {{ org.uri }}
+                                    </institution_id>
+                                {% endif %}
+                            </institution>
+                        {% endwith %}
+                    {% endfor %}
+                </affiliations>
+            {% endif %}
+
+            {% if author.orcid %}
+                <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+            {% endif %}
+
+            {% if article.object.journal|setting:'use_credit' and author.credits.exists %}
+                {% for credit in author.credits %}
+                    <contrib_role>
+                        <role_name>{{ credit.get_role_display }}</role_name>
+                        <role_identifier>{{ credit.uri }}/</role_identifier>
+                    </contrib_role>
+                {% endfor %}
+            {% endif %}
+        </person_name>
+        {% endwith %}
+    {% endfor %}
+</contributors>
