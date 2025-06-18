@@ -35,11 +35,13 @@
               action.classList.contains('displayed'),
             );
           } else {
-            const fa = button.querySelector('.fa');
-            fa.className = 'fa fa-spinner fa-spin fa-pulse';
             const form = button.closest('form');
-            const formData = new FormData(form, button);
-            submitFormData(formData);
+            if (form) {
+              const fa = button.querySelector('.fa');
+              fa.className = 'fa fa-spinner fa-spin fa-pulse';
+              const formData = new FormData(form, button);
+              submitFormData(formData);
+            }
           }
         }
       });
@@ -48,14 +50,32 @@
         console.log(input);
         if (input) {
           event.stopPropagation();
-          const fa = document.createElement('span');
-          fa.className = 'fa fa-spinner fa-spin fa-pulse';
-          input.parentElement.append(fa);
           const form = input.closest('form');
-          const formData = new FormData(form);
-          submitFormData(formData);
+          if (form) {
+            const fa = document.createElement('span');
+            fa.className = 'fa fa-spinner fa-spin fa-pulse';
+            input.parentElement.append(fa);
+            const formData = new FormData(form);
+            submitFormData(formData);
+          }
         }
       });
+    }
+    for (const copyButton of currentAuthors.querySelectorAll(
+      '[data-copy-button]'
+    )) {
+      const content = copyButton.dataset.copyContent;
+      copyButton.addEventListener('click', () => writeToClipboard(content));
+      async function writeToClipboard(content) {
+        await navigator.clipboard.writeText(content);
+        if (copyButton.innerHTML.includes("{{ label_copy }}")) {
+          const label_copied = copyButton.dataset.labelCopied;
+          copyButton.innerHTML = `
+            <span class="fa fa-check-circle"></span>
+            ${ label_copied }
+          `
+        }
+      }
     }
   }
   activateAll(currentAuthors);
