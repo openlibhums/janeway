@@ -1,4 +1,4 @@
-let attentionTimeout = null;
+let attentionTimeouts = new Map(); // Track timeouts per element
 
 const headerElements = ['h1, h2, h3, h4, h5, h6'];
 const blockElements = ['p', 'li', 'ul', 'ol',' div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
@@ -7,12 +7,8 @@ const blockElements = ['p', 'li', 'ul', 'ol',' div', 'section', 'article', 'asid
 
 function drawUserAttention(targetElement){
  
-    // Clear any existing timeout (allows a second link to be clicked before the timeout ends)
-    if (attentionTimeout) {
-        clearTimeout(attentionTimeout);
-    }
-
     // if the target is not a heading or a block, uses closest block
+    let element;
     if(targetElement.matches(headerElements)  || targetElement.matches(blockElements)) {
         element = targetElement;
     }
@@ -24,8 +20,6 @@ function drawUserAttention(targetElement){
     function scrollToElementWithOffset(element, offset) {
         const rect = element.getBoundingClientRect();
         const elementTop = window.pageYOffset + rect.top;
-        const viewportHeight = window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
 
         // Only apply offset if element would scroll to top
         let finalPosition = elementTop;
@@ -40,21 +34,33 @@ function drawUserAttention(targetElement){
     }
 
     if (element) {
-
+        // Clear any existing timeout for this element
+        if (attentionTimeouts.has(element)) {
+            clearTimeout(attentionTimeouts.get(element));
+        }
+        
+        scrollToElementWithOffset(element, 100);
         element.classList.add('draw-attention');
-        scrollToElementWithOffset(targetElement, 100);
         
         //A11y for keyboard & screenreader
-        oldTabIndex = targetElement.tabIndex;
-        targetElement.tabIndex = "-1"
-        targetElement.focus();
+        const oldTabIndex = element.hasAttribute('tabIndex') ? element.tabIndex : null;
+        element.tabIndex = "-1"
+        element.focus();
         
-        attentionTimeout = setTimeout(() => {
-
+        const timeout = setTimeout(() => {
             element.classList.remove('draw-attention');
-            attentionTimeout = null;
-            targetElement.tabIndex = oldTabIndex;
+            if (element.classList.length === 0) {
+                element.removeAttribute('class');
+            }
+            if (oldTabIndex === null) {
+                element.removeAttribute('tabIndex');
+            } else {
+                element.tabIndex = oldTabIndex;
+            }
+            attentionTimeouts.delete(element);
         }, 2000);
+        
+        attentionTimeouts.set(element, timeout);
     }
 
 }
@@ -94,7 +100,7 @@ function getBlockContainerId(element) {
 // insert ids for all cross references, and backlinks for their destinations
 function initialiseCrossRefs(){
 
-    document.querySelectorAll('.cross-ref-entry').forEach(entry => {
+    document.querySelectorAll('#reflist li').forEach(entry => {
         const links = Array.from(document.querySelectorAll(`.xref-bibr[href="#${entry.id}"]`));
 
         links.forEach((link, i) => {
@@ -108,7 +114,8 @@ function initialiseCrossRefs(){
             const sectionLink = document.createElement('a');
             sectionLink.href = `#${containerId}`;
             sectionLink.textContent = links.length === 1 ? '---^' : `---^(${i + 1})`;
-            sectionLink.setAttribute('aria-label', `${link.textContent}, ${heading.title}`);
+            const prefix = links.length === 1 ? "" : `${i + 1} of ${links.length}, `
+            sectionLink.setAttribute('aria-label', `in text ${prefix}: ${heading.title}, ${link.textContent}`);
             sectionLink.className = 'section-link';
             sectionLink.title = `${heading.title}`;
 
