@@ -1875,7 +1875,11 @@ def request_revisions(request, article_id):
     )
 
     if request.POST:
-        form = forms.RevisionRequest(request.POST, article=article, editor=request.user)
+        form = forms.RevisionRequest(
+            request.POST,
+            article=article,
+            editor=request.user,
+        )
 
         if form.is_valid() and form.is_confirmed():
             revision_request = form.save()
@@ -1918,30 +1922,61 @@ def request_revisions_notification(request, article_id, revision_id):
         journal=request.journal,
     )
     revision = get_object_or_404(models.RevisionRequest, pk=revision_id)
-    email_content = logic.get_revision_request_content(request, article, revision)
+    do_revisions_url = request.journal.site_url(
+        path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ),
+    )
+    email_context = {
+        'article': article,
+        'revision': revision,
+        'do_revisions_url': do_revisions_url,
+    }
+
+    setting_name = 'request_revisions'
+    if revision.type == ED.CONDITIONAL_ACCEPT.value:
+        setting_name = 'conditional_accept'
+
+    form = core_forms.SettingEmailForm(
+        setting_name=setting_name,
+        email_context=email_context,
+        request=request,
+    )
 
     if request.POST:
-        user_message_content = request.POST.get('email_content')
-
-        kwargs = {
-            'user_message_content': user_message_content,
-            'revision': revision,
-            'request': request,
-            'skip': False,
-        }
-
-        if 'skip' in request.POST:
-            kwargs['skip'] = True
-
-        event_logic.Events.raise_event(event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY, **kwargs)
-
-        return redirect(reverse('review_in_review', kwargs={'article_id': article.pk}))
+        form = core_forms.SettingEmailForm(
+            request.POST, request.FILES,
+            setting_name="editor_assignment",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid():
+            kwargs = {
+                'email_data': form.as_dataclass(),
+                'revision': revision,
+                'request': request,
+                'skip': request.POST.get("skip"),
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
+                **kwargs,
+            )
+            return redirect(
+                reverse(
+                    'review_in_review',
+                    kwargs={'article_id': article.pk},
+                ),
+            )
 
     template = 'review/revision/request_revisions_notification.html'
     context = {
         'article': article,
-        'email_content': email_content,
         'revision': revision,
+        'form': form,
     }
 
     return render(request, template, context)
@@ -2476,17 +2511,34 @@ def draft_decision_text(request, article_id):
             decision=decision,
             author_review_url=author_review_url,
         )
-
-    elif decision in {ED.MINOR_REVISIONS.value, ED.MAJOR_REVISIONS.value, ED.CONDITIONAL_ACCEPT.value}:
+    elif decision in {
+        ED.MINOR_REVISIONS.value,
+        ED.MAJOR_REVISIONS.value,
+    }:
         revision = models.RevisionRequest(
             article=article,
             editor=request.user,
             type=decision,
             date_requested=timezone.now,
             date_due=date.strftime("%Y-%m-%d"),
-            editor_note="[[Add Editor Note Here]]",
+            editor_note="[Add Editor Note Here]",
         )
         decision_text = logic.get_revision_request_content(
+            request=request,
+            article=article,
+            revision=revision,
+            draft=True,
+        )
+    elif decision == ED.CONDITIONAL_ACCEPT.value:
+        revision = models.RevisionRequest(
+            article=article,
+            editor=request.user,
+            type=decision,
+            date_requested=timezone.now,
+            date_due=date.strftime("%Y-%m-%d"),
+            editor_note="[Add conditional acceptance reason here]",
+        )
+        decision_text = logic.get_conditional_accept_content(
             request=request,
             article=article,
             revision=revision,
