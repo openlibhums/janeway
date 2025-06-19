@@ -2135,8 +2135,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 # FrozenAuthor.owner is a property that considers both
                 # FrozenAuthor.author and FrozenAuthor.article.owner.
                 return True
-        else:
-            return False
+        return False
 
     def associate_with_account(self):
         if self.frozen_email:
