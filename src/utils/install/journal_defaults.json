@@ -5533,7 +5533,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }},</p><p>We are pleased to inform you that your article has been conditionally accepted for publication, subject to the successful completion of the required revisions.</p><p>You can view and respond to the revision requests here: {{ do_revisions_url }}</p><p>Please complete your revisions by {{ revision.date_due }}.</p><p>We look forward to receiving your updated manuscript.</p><p>Regards,</p>{{ request.user.signature|safe }}\n"
+            "default": "<p>Dear {{ article.correspondence_author.full_name|se_can_see_pii:article }},</p><p>We are pleased to inform you that your article has been conditionally accepted for publication, subject to the successful completion of the required revisions.</p><p>Details of the changes required are below:</p><p>{{ revision.editor_note }}</p><p>You can view and respond to the revision requests here: {{ do_revisions_url }}</p><p>Please complete your revisions by {{ revision.date_due }}.</p><p>We look forward to receiving your updated manuscript.</p><p>Regards,<br>{{ request.user.signature|safe }} </p>\n"
         },
         "editable_by": [
             "editor",

@@ -546,12 +546,8 @@ def send_article_decision(**kwargs):
 def send_revisions_request(**kwargs):
     request = kwargs['request']
     revision = kwargs['revision']
-    user_message_content = kwargs['user_message_content']
-
-    if 'skip' not in kwargs:
-        kwargs['skip'] = True
-
-    skip = kwargs['skip']
+    email_data = kwargs["email_data"]
+    skip = kwargs.get('skip', False)
 
     description = '{0} has requested revisions for {1} due on {2}'.format(
         request.user.full_name(),
@@ -559,18 +555,19 @@ def send_revisions_request(**kwargs):
         revision.date_due,
     )
 
-    log_dict = {'level': 'Info',
-                'action_text': description,
-                'types': 'Revision Request',
-                'target': revision.article,
-                }
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Revision Request',
+        'target': revision.article,
+    }
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            revision.article.correspondence_author,
+            email_data,
             request,
-            'subject_request_revisions',
-            revision.article.correspondence_author.email,
-            user_message_content,
+            article=revision.article,
             log_dict=log_dict,
         )
         notify_helpers.send_slack(
