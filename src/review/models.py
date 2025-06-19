@@ -52,23 +52,14 @@ def reviewer_decision_choices():
     )
 
 
-def review_decision():
-    return (
-        (ED.ACCEPT.value, 'Accept Without Revisions'),
-        (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
-        (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
-        # Preserved the inconsistent verbose name below to avoid confusion to
-        # existing section editors
-        (ED.DECLINE.value, 'Reject'),
-    )
-
-
 def draft_decision_choices():
     return (
         (ED.ACCEPT.value, 'Accept Without Revisions'),
         (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
         (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
+        # Preserved the inconsistent verbose name below to avoid confusion to
+        # existing section editors
         (ED.DECLINE.value, 'Reject'),
     )
 
