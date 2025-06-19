@@ -1005,12 +1005,6 @@ def edit_author(request, article_id, author_id):
     )
     next_url = request.GET.get('next', '')
     form = None
-    use_credit = setting_handler.get_setting(
-        "general",
-        "use_credit",
-        journal=request.journal,
-    ).processed_value
-    credit_form = logic.get_credit_form(request, author)
 
     if request.method == 'GET' and 'edit_author' in request.GET:
         form = forms.EditFrozenAuthor(instance=author)
@@ -1047,38 +1041,11 @@ def edit_author(request, article_id, author_id):
                 )
             )
 
-    elif request.method == 'POST' and 'add_credit' in request.POST:
-        logic.add_credit_role(request, article)
-        return redirect(
-            reverse_with_next(
-                'submission_edit_author',
-                next_url,
-                kwargs={
-                    'article_id': article.pk,
-                    'author_id': author.pk,
-                }
-            )
-        )
-
-    elif request.method == 'POST' and 'remove_credit' in request.POST:
-        logic.remove_credit_role(request, article)
-        return redirect(
-            reverse_with_next(
-                'submission_edit_author',
-                next_url,
-                kwargs={
-                    'article_id': article.pk,
-                    'author_id': author.pk,
-                }
-            )
-        )
-
     template = 'admin/submission/edit/author.html'
     context = {
         'article': article,
         'author': author,
         'form': form,
-        'credit_form': credit_form,
     }
 
     return render(request, template, context)

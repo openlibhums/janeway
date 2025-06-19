@@ -145,12 +145,20 @@
       </div>
       {% include "admin/core/affiliation_list_display_with_actions.html" with interface=author article=article %}
     </section>
-    {% if credit_form %}
+    {% if journal_settings.general.use_credit %}
       <section class="card padding-block-1 padding-inline-2">
         <div class="title-area">
           <h2>{% trans "Roles" %}</h2>
         </div>
-        {% include "admin/submission/submit_credit_roles.html" with author=author credit_form=credit_form %}
+        {% if article.is_unsubmitted %}
+          {% url 'submit_authors' article.pk as author_list_url %}
+        {% else %}
+          {% url 'submission_edit_author_metadata' article.pk as author_list_url %}
+        {% endif %}
+        {% blocktrans with author_list_url=author_list_url %}
+          CRediT roles can be edited on on the
+          <a href="{{ author_list_url}}">page listing all authors</a>.
+        {% endblocktrans %}
       </section>
     {% endif %}
     <section class="card padding-block-1 padding-inline-2">
