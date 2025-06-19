@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
+{% load hooks %}
 
 {% block title %}Review Request{% endblock title %}
 {% block title-section %}Review Request{% endblock %}
@@ -79,6 +80,7 @@
                         </div>
                     {% endif %}
                 {% endif %}
+                {% hook 'review_form_guidelines' %}
 
             </div>
             <div class="box">
