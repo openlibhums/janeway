@@ -6,7 +6,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import warnings
 
 from bs4 import BeautifulSoup
-import pypandoc
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404

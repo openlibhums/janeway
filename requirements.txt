@@ -5,7 +5,8 @@ bs4==0.0.1
 colorlog==3.1.4
 chardet==3.0.4
 crossrefapi==1.5.0
--e git+https://github.com/openlibhums/csl-styles@6a83ef2db5f7161ed673df0d46067fcd61232231#egg=cslstyles
+# We would need to make this a python project for it to be usable like this:
+# -e git+https://github.com/openlibhums/csl-styles@6a83ef2db5f7161ed673df0d46067fcd61232231#egg=cslstyles
 Django==4.2.20
 django-bleach==3.1.0
 django-bootstrap4==23.2
@@ -46,7 +47,6 @@ orcid==1.0.3
 packaging==23.2
 pdfkit==1.0.0
 pdfminer.six
-pypandoc_binary==1.15
 psycopg2-binary~=2.9.8
 pyasn1==0.1.9
 pycparser==2.14

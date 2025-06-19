@@ -10,7 +10,6 @@ import os
 import json
 from dateutil import parser as dateparser
 from itertools import chain
-import pypandoc
 
 from django.urls import reverse
 from django.db import (
@@ -856,72 +855,62 @@ class Article(AbstractLastModifiedModel):
 
         csl = logic.get_article_csl_json_for_article(self)
         json_string = json.dumps(csl)
-        extra_args = [
-            '--citeproc',
-            # '--csl=chicago-note-bibliography',
-            # Passing arbitrary styles will require local XML files,
-            # so we'd need
-            # to create a Python on this fork:
-            # https://github.com/openlibhums/csl-styles
-        ]
-        return pypandoc.convert_text(
-            json_string,
-            to='html5',
-            format='csljson',
-            extra_args=extra_args,
-        )
+        # Here we need to invoke Haskell citeproc library https://github.com/jgm/citeproc/
+        # to convert from the CSL string to the citation,
+        # using the XML in the csl-styles repository.
+        # https://github.com/openlibhums/csl-styles
 
 
-        template = "common/elements/how_to_cite.html"
-        authors = self.frozenauthor_set.all()
-        author_str = ''
-        for author in authors:
-            if author == authors.first():
-                author_str = author.citation_name()
-            elif not author == authors.last():
-                author_str = author_str + f", {author.citation_name()}"
-            else:
-                author_str = author_str + f" & {author.citation_name()}"
-        if author_str:
-            author_str += ","
-        year_str = ""
-        if self.date_published:
-            year_str = "({:%Y})".format(self.date_published)
-        journal_str = "<i>%s</i>" % (
-            self.publication_title or self.journal.name
-        )
-        issue_str = ""
-        issue = self.issue
-        if issue:
-            if issue.volume:
-                if issue.issue and issue.issue != "0":
-                    issue_str = "%s(%s)" % (issue.volume, issue.issue)
-                else:
-                    issue_str = str(issue.volume)
-            elif issue.issue and issue.issue != "0":
-                    issue_str = str(issue.issue)
-            if self.article_number:
-                issue_str += ": {}".format(self.article_number)
+        # template = "common/elements/how_to_cite.html"
+        # authors = self.frozenauthor_set.all()
+        # author_str = ''
+        # for author in authors:
+        #     if author == authors.first():
+        #         author_str = author.citation_name()
+        #     elif not author == authors.last():
+        #         author_str = author_str + f", {author.citation_name()}"
+        #     else:
+        #         author_str = author_str + f" & {author.citation_name()}"
+        # if author_str:
+        #     author_str += ","
+        # year_str = ""
+        # if self.date_published:
+        #     year_str = "({:%Y})".format(self.date_published)
+        # journal_str = "<i>%s</i>" % (
+        #     self.publication_title or self.journal.name
+        # )
+        # issue_str = ""
+        # issue = self.issue
+        # if issue:
+        #     if issue.volume:
+        #         if issue.issue and issue.issue != "0":
+        #             issue_str = "%s(%s)" % (issue.volume, issue.issue)
+        #         else:
+        #             issue_str = str(issue.volume)
+        #     elif issue.issue and issue.issue != "0":
+        #             issue_str = str(issue.issue)
+        #     if self.article_number:
+        #         issue_str += ": {}".format(self.article_number)
 
-        doi_str = ""
-        pages_str = ""
-        if self.page_range:
-            pages_str = " {0}.".format(self.page_range)
-        doi = self.get_doi()
-        if doi:
-            doi_str = ('doi: <a href="https://doi.org/{0}">'
-            'https://doi.org/{0}</a>'.format(doi))
+        # doi_str = ""
+        # pages_str = ""
+        # if self.page_range:
+        #     pages_str = " {0}.".format(self.page_range)
+        # doi = self.get_doi()
+        # if doi:
+        #     doi_str = ('doi: <a href="https://doi.org/{0}">'
+        #     'https://doi.org/{0}</a>'.format(doi))
 
-        context = {
-            "author_str": author_str,
-            "year_str": year_str,
-            "title": self.safe_title,
-            "journal_str": journal_str,
-            "issue_str": issue_str,
-            "doi_str": doi_str,
-            "pages_str": pages_str,
-        }
-        return render_to_string(template, context)
+        # context = {
+        #     "author_str": author_str,
+        #     "year_str": year_str,
+        #     "title": self.safe_title,
+        #     "journal_str": journal_str,
+        #     "issue_str": issue_str,
+        #     "doi_str": doi_str,
+        #     "pages_str": pages_str,
+        # }
+        # return render_to_string(template, context)
 
     @property
     def page_range(self):
