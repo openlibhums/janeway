@@ -326,6 +326,7 @@
                     {% endif %}
                 {% endif %}
             </div>
+             {% hook 'article_sidebar' %}
              {% if article_content %}
                 <div class="sticky-top" id="toc-section">
                     <h2>{% trans "Table of Contents" %}</h2>

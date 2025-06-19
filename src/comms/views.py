@@ -2,129 +2,175 @@ import urllib
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.utils import timezone
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
+from django.utils import translation
 
-from comms import models, forms
-from core import files, logic as core_logic, models as core_models
+from comms import models, forms, logic
+from core import models as core_models
 from security.decorators import editor_user_required, file_user_required, has_request
+from utils.decorators import GET_language_override
+from utils.shared import language_override_redirect
 
 
 @editor_user_required
+@GET_language_override
 def news(request):
     """
-    Allows an editor user to add or delete news items.
+    Displays a list of news items for an editor user.
+
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by("sequence", "-start_display")
-    form = forms.NewsItemForm()
-    new_file = None
+    with translation.override(request.override_language):
+        new_items = models.NewsItem.objects.filter(
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
 
-    if 'delete' in request.POST:
-        news_item_pk = request.POST.get('delete')
-        item = get_object_or_404(models.NewsItem,
-                                 pk=news_item_pk,
-                                 content_type=request.model_content_type,
-                                 object_id=request.site_type.pk)
-        item.delete()
-        return redirect(reverse('core_manager_news'))
+        if "delete" in request.POST:
+            news_item_pk = request.POST.get("delete")
+            item = get_object_or_404(
+                models.NewsItem,
+                pk=news_item_pk,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
+            item.delete()
+            return redirect(
+                reverse(
+                    "core_manager_news",
+                ),
+            )
 
-    if request.POST:
-        form = forms.NewsItemForm(request.POST)
+        template = "core/manager/news/news_list.html"
 
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
+        context = {
+            "news_items": new_items,
+        }
 
-            if not files.guess_mime(uploaded_file.name) in files.IMAGE_MIMETYPES:
-                form.add_error('image_file', 'File must be an image.')
-            else:
-                if request.model_content_type.name == 'journal':
-                    new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                    core_logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-                elif request.model_content_type.name == 'press':
-                    new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                    core_logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
-
-        if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.content_type = request.model_content_type
-            new_item.object_id = request.site_type.pk
-            new_item.posted_by = request.user
-            new_item.posted = timezone.now()
-            new_item.large_image_file = new_file
-            new_item.save()
-
-            return redirect(reverse('core_manager_news'))
-
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_items': new_items,
-        'action': 'new',
-        'form': form,
-    }
-
-    return render(request, template, context)
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 @editor_user_required
-def edit_news(request, news_pk):
+@GET_language_override
+def manage_news(request, news_pk=None):
     """
-    Allows an editor to edit an existing news item
+    Handles the creation or editing of a NewsItem.
+
+    If `news_pk` is provided, edits the existing NewsItem.
+    Otherwise, creates a new one.
+
     :param request: HttpRequest object
-    :param news_pk: PK of an NewsItem object
+    :param news_pk: Primary key of the NewsItem (optional)
     :return: HttpResponse object
     """
-    new_items = models.NewsItem.objects.filter(content_type=request.model_content_type,
-                                               object_id=request.site_type.pk).order_by('-posted')
-    news_item = get_object_or_404(models.NewsItem, pk=news_pk)
-    form = forms.NewsItemForm(instance=news_item)
-    new_file = None
-
-    if 'delete_image' in request.POST:
-        delete_image_id = request.POST.get('delete_image')
-        file = get_object_or_404(core_models.File, pk=delete_image_id)
-
-        if file.owner == request.user or request.user.is_staff:
-            file.delete()
-            messages.add_message(request, messages.SUCCESS, 'Image deleted')
+    with translation.override(request.override_language):
+        if news_pk:
+            news_item = get_object_or_404(
+                models.NewsItem,
+                pk=news_pk,
+            )
+            action = "edit"
         else:
-            messages.add_message(request, messages.WARNING, 'Only the owner or staff can delete this image.')
+            news_item = None
+            action = "new"
 
-        return redirect(reverse('core_manager_edit_news', kwargs={'news_pk': news_item.pk}))
+        form = forms.NewsItemForm(
+            instance=news_item,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+            posted_by=request.user,
+        )
 
-    if request.POST:
-        form = forms.NewsItemForm(request.POST, instance=news_item)
+        new_file = None
 
-        if request.FILES:
-            uploaded_file = request.FILES.get('image_file')
+        # Handle image deletion
+        if "delete_image" in request.POST:
+            delete_image_id = request.POST.get("delete_image")
+            file = get_object_or_404(
+                core_models.File,
+                pk=delete_image_id,
+            )
 
-            if request.model_content_type.name == 'journal':
-                new_file = files.save_file_to_journal(request, uploaded_file, 'News Item', 'News Item', public=True)
-                core_logic.resize_and_crop(new_file.journal_path(request.journal), [750, 324], 'middle')
-            elif request.model_content_type.name == 'press':
-                new_file = files.save_file_to_press(request, uploaded_file, 'News Item', 'News Item', public=True)
-                core_logic.resize_and_crop(new_file.press_path(), [750, 324], 'middle')
+            if file.owner == request.user or request.user.is_staff:
+                file.delete()
+                messages.success(
+                    request,
+                    "Image deleted",
+                )
+            else:
+                messages.warning(
+                    request,
+                    "Only the owner or staff can delete this image.",
+                )
+            return language_override_redirect(
+                request,
+                "core_manager_edit_news",
+                kwargs={"news_pk": news_item.pk},
+            )
 
-        if form.is_valid():
-            item = form.save(commit=False)
-            if new_file:
-                item.large_image_file = new_file
-            item.save()
-            return redirect(reverse('core_manager_news'))
+        # Handle form submission
+        if request.POST:
+            form = forms.NewsItemForm(
+                request.POST,
+                instance=news_item,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+                posted_by=request.user,
+            )
 
-    template = 'core/manager/news/index.html'
-    context = {
-        'news_item': news_item,
-        'news_items': new_items,
-        'action': 'edit',
-        'form': form,
-    }
+            if request.FILES:
+                uploaded_file = request.FILES.get("image_file")
+                new_file = logic.handle_uploaded_file(
+                    request,
+                    uploaded_file,
+                )
 
-    return render(request, template, context)
+                if isinstance(new_file, str):
+                    # If the function returns a string it is an error message.
+                    form.add_error(
+                        "image_file",
+                        new_file,
+                    )
+                    new_file = None
+
+            if form.is_valid():
+                news_item = form.save(
+                    commit=True,
+                )
+                if new_file:
+                    news_item.large_image_file = new_file
+                    news_item.save()
+                messages.success(
+                    request,
+                    "New item saved",
+                )
+
+                return language_override_redirect(
+                    request,
+                    "core_manager_edit_news",
+                    kwargs={"news_pk": news_item.pk},
+                )
+
+        template = "core/manager/news/manage_news.html"
+
+        context = {
+            "news_item": news_item,
+            "action": action,
+            "form": form,
+        }
+
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 @has_request
