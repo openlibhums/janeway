@@ -340,7 +340,36 @@ def get_revision_request_content(request, article, revision, draft=False):
     else:
         email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
-    return render_template.get_message_content(request, email_context, 'request_revisions')
+    return render_template.get_message_content(
+        request,
+        email_context,
+        template='request_revisions',
+    )
+
+
+def get_conditional_accept_content(request, article, revision, draft=False):
+    email_context = {
+        'article': article,
+        'revision': revision,
+    }
+
+    if not draft:
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        email_context['do_revisions_url'] = do_revisions_url
+    else:
+        email_context['do_revisions_url'] = "{{ do_revisions_url }}"
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        template='conditional_accept',
+    )
 
 
 def get_share_review_content(request, article, review):
@@ -518,7 +547,11 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **kwargs,
         )
-    elif draft.decision == 'minor_revisions' or draft.decision == 'major_revisions':
+    elif draft.decision in (
+        ED.MINOR_REVISIONS.value,
+        ED.MAJOR_REVISIONS.value,
+        ED.CONDITIONAL_ACCEPT.value,
+    ):
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,

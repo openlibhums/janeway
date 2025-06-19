@@ -24,9 +24,11 @@
                     available for you to view, these will be visible below. The manuscript and any additional files are
                     also listed below.
                 </p>
-                <p>
-                    The editor, {{ revision_request.editor.full_name }}, supplied the following note
-                </p>
+              <p>
+                Editor <strong>{{ revision_request.editor.full_name }}</strong> has made
+                the decision <em>{{ revision_request.get_type_display }}</em> and provided
+                the following note:
+              </p>
                 {{ revision_request.editor_note|safe }}
                 <br/><br/>
             </div>

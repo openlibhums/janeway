@@ -52,11 +52,12 @@ def reviewer_decision_choices():
     )
 
 
-def review_decision():
+def draft_decision_choices():
     return (
         (ED.ACCEPT.value, 'Accept Without Revisions'),
         (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
         # Preserved the inconsistent verbose name below to avoid confusion to
         # existing section editors
         (ED.DECLINE.value, 'Reject'),
@@ -541,6 +542,7 @@ def revision_type():
     return (
         (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
     )
 
 
@@ -592,7 +594,10 @@ class RevisionRequest(models.Model):
     date_completed = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return "Revision of {0} requested by {1}".format(self.article.title, self.editor.full_name())
+        return "Revision of {0} requested by {1}".format(
+            self.article.title,
+            self.editor.full_name(),
+        )
 
 
 class EditorOverride(models.Model):
@@ -629,7 +634,7 @@ class DecisionDraft(models.Model):
     )
     decision = models.CharField(
         max_length=100,
-        choices=review_decision(),
+        choices=draft_decision_choices(),
         verbose_name='Draft Decision',
     )
     message_to_editor = model_utils.JanewayBleachField(

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='decisiondraft',
             name='decision',
-            field=models.CharField(choices=[('accept', 'Accept Without Revisions'), ('minor_revisions', 'Minor Revisions Required'), ('major_revisions', 'Major Revisions Required'), ('decline', 'Reject')], max_length=100, verbose_name='Draft Decision'),
+            field=models.CharField(choices=[('accept', 'Accept Without Revisions'), ('minor_revisions', 'Minor Revisions Required'), ('major_revisions', 'Major Revisions Required'), ('conditional_accept', 'Conditional Accept'), ('decline', 'Reject')], max_length=100, verbose_name='Draft Decision'),
         ),
         migrations.AlterField(
             model_name='decisiondraft',
@@ -104,6 +104,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='revisionrequest',
             name='type',
-            field=models.CharField(choices=[('minor_revisions', 'Minor Revisions'), ('major_revisions', 'Major Revisions')], default='minor_revisions', max_length=20),
+            field=models.CharField(choices=[('minor_revisions', 'Minor Revisions'), ('major_revisions', 'Major Revisions'), ('conditional_accept', 'Conditional Accept')], default='minor_revisions', max_length=20),
         ),
     ]
