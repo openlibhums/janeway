@@ -141,12 +141,12 @@ def manage_news(request, news_pk=None):
                     new_file = None
 
             if form.is_valid():
-                item = form.save(
+                news_item = form.save(
                     commit=True,
                 )
                 if new_file:
-                    item.large_image_file = new_file
-                    item.save()
+                    news_item.large_image_file = new_file
+                    news_item.save()
                 messages.success(
                     request,
                     "New item saved",
