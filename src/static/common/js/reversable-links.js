@@ -103,9 +103,15 @@ function initialiseCrossRefs(){
     document.querySelectorAll('#reflist li').forEach(entry => {
         const links = Array.from(document.querySelectorAll(`.xref-bibr[href="#${entry.id}"]`));
 
-        links.forEach((link, i) => {
+        // Always create an ordered list, even for single items
+        const ol = document.createElement('ol');
+        ol.className = 'back-links-list';
+        
+        if (links.length === 1) {
+            // Single link behavior
+            const link = links[0];
             if (!link.id) {
-                link.id = `cite-${entry.id}-${i+1}`;
+                link.id = `cite-${entry.id}-1`;
             }
 
             const containerId = getBlockContainerId(link) || link.id;
@@ -113,16 +119,60 @@ function initialiseCrossRefs(){
 
             const sectionLink = document.createElement('a');
             sectionLink.href = `#${containerId}`;
-            sectionLink.textContent = links.length === 1 ? '---^' : `---^(${i + 1})`;
-            const prefix = links.length === 1 ? "" : `${i + 1} of ${links.length}, `
-            sectionLink.setAttribute('aria-label', `in text ${prefix}: ${heading.title}, ${link.textContent}`);
+            sectionLink.textContent = '---^';
+            sectionLink.setAttribute('aria-label', `${heading.title}, ${link.textContent}`);
             sectionLink.className = 'section-link';
             sectionLink.title = `${heading.title}`;
-
             sectionLink.dataset.citationId = link.id;
             
-            entry.appendChild(sectionLink);
-        });
+            const li = document.createElement('li');
+            li.appendChild(sectionLink);
+            ol.appendChild(li);
+        } else {
+            // Multiple links behavior - create ordered list with numbered aria-labels
+            const headingCounts = new Map(); // Track count of each heading title
+            
+            // First pass: count occurrences of each heading title
+            links.forEach(link => {
+                const heading = getHeading(link);
+                const title = heading.title;
+                headingCounts.set(title, (headingCounts.get(title) || 0) + 1);
+            });
+            
+            // Second pass: create links with appropriate numbering
+            const headingNumbers = new Map(); // Track current number for each heading
+            
+            links.forEach((link, i) => {
+                if (!link.id) {
+                    link.id = `cite-${entry.id}-${i+1}`;
+                }
+
+                const containerId = getBlockContainerId(link) || link.id;
+                const heading = getHeading(link);
+                const title = heading.title;
+
+                const sectionLink = document.createElement('a');
+                sectionLink.href = `#${containerId}`;
+                sectionLink.textContent = `---^(${i + 1})`;
+                sectionLink.className = 'section-link';
+                sectionLink.title = `${heading.title}`;
+                sectionLink.dataset.citationId = link.id;
+                
+                // Generate aria-label with numbering for duplicate headings
+                let ariaLabel = title;
+                if (headingCounts.get(title) > 1) {
+                    headingNumbers.set(title, (headingNumbers.get(title) || 0) + 1);
+                    ariaLabel = `${ariaLabel} ${headingNumbers.get(title)}, ${link.textContent}`;
+                }
+                sectionLink.setAttribute('aria-label', ariaLabel);
+                
+                const li = document.createElement('li');
+                li.appendChild(sectionLink);
+                ol.appendChild(li);
+            });
+        }
+        
+        entry.appendChild(ol);
     });
 }
 
