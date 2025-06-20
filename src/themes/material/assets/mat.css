@@ -760,3 +760,39 @@ main {
     padding: 0 10px;
     min-width: 40px;
 }
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}
