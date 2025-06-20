@@ -1,4 +1,4 @@
-{% extends "admin/elements/confirm_delete.html" %}
+{% extends "admin/elements/confirm_remove.html" %}
 
 {% load i18n next_url %}
 
@@ -6,7 +6,7 @@
   {% include "elements/breadcrumbs/submit_authors_base.html" %}
   <li>
     {% blocktrans %}
-      Delete "{{ thing_to_delete }}"
+      Remove "{{ thing_to_delete }}"
     {% endblocktrans %}
   </li>
 {% endblock breadcrumbs %}

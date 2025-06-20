@@ -539,3 +539,4 @@ class TestTypesetting(TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.galley.unlink_files()
+        super().tearDownClass()

@@ -21,6 +21,7 @@ from simplemathcaptcha.fields import MathCaptchaField
 from hcaptcha.fields import hCaptchaField
 
 from submission import models as submission_models
+from utils.orcid import COMPILED_ORCID_REGEX
 
 
 ENTITIES_MAP = (("&amp;", "&"), ("&gt;", ">"), ("&lt;", "<"))
@@ -162,8 +163,7 @@ def clean_orcid_id(orcid):
     Utility function that cleans an ORCID ID.
     """
     if orcid:
-        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
-        result = orcid_regex.search(orcid)
+        result = COMPILED_ORCID_REGEX.search(orcid)
 
         if result:
             return result.group(0)

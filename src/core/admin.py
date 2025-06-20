@@ -48,6 +48,9 @@ class AccountAdmin(UserAdmin):
                    'last_login')
     search_fields = ('id', 'username', 'email', 'first_name', 'middle_name',
                      'last_name', 'orcid',
+                     'controlledaffiliation__organization__labels__value',
+                     'controlledaffiliation__organization__acronyms__value',
+                     'controlledaffiliation__organization__custom_label__value',
                      'biography', 'signature')
 
     fieldsets = UserAdmin.fieldsets + (

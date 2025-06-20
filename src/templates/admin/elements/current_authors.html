@@ -1,0 +1,82 @@
+{% load next_url %}
+
+<div data-current-authors class="row expanded">
+  {% include "admin/elements/current_authors_inner.html" %}
+</div>
+
+<script type="module">
+  const currentAuthors = document.querySelector("[data-current-authors]");
+  async function submitFormData(formData) {
+    const url = "{% url_with_full_page_path 'submission_edit_current_authors' article.pk %}";
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      currentAuthors.innerHTML = await response.text();
+      activateAll(currentAuthors);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  function activateAll(currentAuthors) {
+    for (const action of currentAuthors.querySelectorAll(
+      '[data-current-authors-action]'
+    )) {
+      action?.addEventListener('click', event => {
+        const button = event.target.closest('button');
+        if (button) {
+          event.stopPropagation();
+          event.preventDefault();
+          if ('giveMe' in button.dataset) {
+            action.classList.toggle('displayed');
+            button.setAttribute(
+              'aria-expanded',
+              action.classList.contains('displayed'),
+            );
+          } else {
+            const form = button.closest('form');
+            if (form) {
+              const fa = button.querySelector('.fa');
+              fa.className = 'fa fa-spinner fa-spin fa-pulse';
+              const formData = new FormData(form, button);
+              submitFormData(formData);
+            }
+          }
+        }
+      });
+      action?.addEventListener('change', event => {
+        const input = event.target.closest('input');
+        console.log(input);
+        if (input) {
+          event.stopPropagation();
+          const form = input.closest('form');
+          if (form) {
+            const fa = document.createElement('span');
+            fa.className = 'fa fa-spinner fa-spin fa-pulse';
+            input.parentElement.append(fa);
+            const formData = new FormData(form);
+            submitFormData(formData);
+          }
+        }
+      });
+    }
+    for (const copyButton of currentAuthors.querySelectorAll(
+      '[data-copy-button]'
+    )) {
+      const content = copyButton.dataset.copyContent;
+      copyButton.addEventListener('click', () => writeToClipboard(content));
+      async function writeToClipboard(content) {
+        await navigator.clipboard.writeText(content);
+        if (copyButton.innerHTML.includes("{{ label_copy }}")) {
+          const label_copied = copyButton.dataset.labelCopied;
+          copyButton.innerHTML = `
+            <span class="fa fa-check-circle"></span>
+            ${ label_copied }
+          `
+        }
+      }
+    }
+  }
+  activateAll(currentAuthors);
+</script>

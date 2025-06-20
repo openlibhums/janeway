@@ -27,6 +27,7 @@
 {% endblock title-section %}
 
 {% block breadcrumbs %}
+  {{ block.super }}
   {% if account and account == request.user %}
     {% include "elements/breadcrumbs/edit_profile_base.html" %}
     {% if not affiliation %}
@@ -37,14 +38,7 @@
       </li>
     {% endif %}
   {% elif article and author %}
-    {% include "elements/breadcrumbs/submit_authors_base.html" %}
-    <li>
-      <a href="{% url_with_return 'submission_edit_author' article.pk author.pk %}">
-        {% blocktrans with author_name=author.full_name %}
-          Edit "{{ author_name }}"
-      {% endblocktrans %}
-      </a>
-    </li>
+    {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
     {% if not affiliation %}
       <li>
         <a href="{% url_with_next 'submission_organization_search' article.pk author.pk %}">

@@ -724,7 +724,7 @@ def affiliation_update_from_orcid(request, how_many='primary'):
             _("No affiliations were found on your public ORCID record "
               "for ID %(orcid_id)s. "
               "Please update your affiliations on orcid.org and try again.")
-                % {'orcid_id': request.user.orcid },
+                % {'orcid_id': clean_orcid_id },
         )
         if next_url:
             return redirect(next_url)
@@ -1383,7 +1383,8 @@ def users(request):
 @editor_user_required
 def add_user(request):
     """
-    Displays a form for adding users to JW,
+    Allows an editor or staff member
+    to create a new user account.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -1444,7 +1445,8 @@ def add_user(request):
 @editor_user_required
 def user_edit(request, user_id):
     """
-    Allows an editor to edit an existing user account.
+    Allows an editor or staff member
+    to edit an existing user account.
     :param request: HttpRequest object
     :param user_id: Account object PK
     :return: HttpResponse object
@@ -1452,6 +1454,7 @@ def user_edit(request, user_id):
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user, request=request)
+    next_url = request.GET.get('next', '')
 
     if request.POST:
         form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -1460,14 +1463,16 @@ def user_edit(request, user_id):
         if form.is_valid() and registration_form.is_valid():
             registration_form.save()
             form.save()
-            messages.add_message(request, messages.SUCCESS, 'Profile updated.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'User account updated.',
+            )
 
-            if request.GET.get('return'):
-                return redirect(
-                    request.GET.get('return')
-                )
-
-            return redirect(reverse('core_manager_users'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
     context = {
@@ -3112,9 +3117,15 @@ def affiliation_create(request, organization_id):
         core_models.Organization,
         pk=organization_id,
     )
+    user_has_affils = core_models.ControlledAffiliation.objects.filter(
+        account=request.user,
+    ).exists()
     form = forms.AccountAffiliationForm(
         account=request.user,
         organization=organization,
+        initial = {
+            'is_primary': not user_has_affils,
+        }
     )
 
     if request.method == 'POST':
@@ -3214,7 +3225,7 @@ def affiliation_delete(request, affiliation_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Affiliation deleted: %(affiliation)s")
+                _("Affiliation removed: %(affiliation)s")
                     % {"affiliation": affiliation},
             )
             if next_url:
@@ -3222,7 +3233,7 @@ def affiliation_delete(request, affiliation_id):
             else:
                 return redirect(reverse('core_edit_profile'))
 
-    template = 'admin/core/affiliation_confirm_delete.html'
+    template = 'admin/core/affiliation_confirm_remove.html'
     context = {
         'account': request.user,
         'form': form,

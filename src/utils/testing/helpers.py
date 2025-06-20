@@ -121,7 +121,12 @@ def create_journals():
 
 
 def create_press():
-    return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+    press, created = press_models.Press.objects.get_or_create(
+        name='Press',
+        domain='localhost',
+        main_contact='a@b.com',
+    )
+    return press
 
 
 def create_issue(journal, vol=0, number=0, articles=None):
@@ -238,15 +243,19 @@ def create_author(journal, **kwargs):
 
 
 def create_frozen_author(article, **kwargs):
+    frozen_email = kwargs.pop(
+        'frozen_email',
+        '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+    )
     if kwargs.pop('with_author', False):
         author_kwargs ={
             'first_name': 'Bob',
             'last_name': 'Loblaw',
             'name_suffix': 'Esq.',
             'orcid': '0000-0001-2345-6789',
-            'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            'email': frozen_email,
         }
-        account = create_author(journal, **author_kwargs)
+        account = create_author(article.journal, **author_kwargs)
         if not article.owner:
             article.owner = account
         if not article.correspondence_author:
@@ -259,11 +268,12 @@ def create_frozen_author(article, **kwargs):
             'last_name': 'Loblaw',
             'name_suffix': 'Esq.',
             'frozen_orcid': '0000-0001-2345-6789',
-            'frozen_email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            'frozen_email': frozen_email,
             'order': article.next_frozen_author_order(),
         }
         frozen_author, _created = sm_models.FrozenAuthor.objects.get_or_create(
             article=article,
+            frozen_email=frozen_email,
             defaults=frozen_dict,
         )
 
@@ -286,7 +296,7 @@ def create_article(journal, **kwargs):
         author_kwargs ={
             'salutation': 'Dr.',
             'name_suffix': 'Jr.',
-            'orcid': '1234-5678-9012-345X',
+            'orcid': '0004-5678-9012-345X',
             'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
         }
         author = create_author(journal, **author_kwargs)

@@ -61,9 +61,9 @@ class CoreViewTestsWithData(TestCase):
             account=cls.user,
             organization=cls.organization_bbk,
         )
-        cls.country_us = core_models.Country.objects.create(
+        cls.country_us, _ = core_models.Country.objects.get_or_create(
             code='US',
-            name='United States',
+            defaults={'name': 'United States'},
         )
         cls.location_oakland = core_models.Location.objects.create(
             name='Oakland',
@@ -196,9 +196,9 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
         cls.journal_two_authors = []
         # The first five authors are the same as journal 1
         for author in cls.journal_one_authors[:5]:
-            cls.journal_two_authors.append(
-                author.add_account_role('author', cls.journal_two)
-            )
+            author.add_account_role('author', cls.journal_two)
+            cls.journal_two_authors.append(author)
+
         # The next five are new
         for num in range(0,5):
             cls.journal_two_authors.append(
@@ -838,7 +838,7 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.client.force_login(self.user)
         url = f'/profile/affiliation/{self.affiliation.pk}/delete/'
         response = self.client.get(url, {})
-        template = 'admin/core/affiliation_confirm_delete.html'
+        template = 'admin/core/affiliation_confirm_remove.html'
         self.assertTemplateUsed(response, template)
 
     def test_affiliation_delete_post(self):

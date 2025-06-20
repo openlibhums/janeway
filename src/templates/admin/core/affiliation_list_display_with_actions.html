@@ -13,15 +13,15 @@
       <div class="button-group small stacked no-bottom-margin">
         {% if article %}
           {% url_with_return "submission_affiliation_update" article.pk author.pk affiliation.pk as edit_url %}
-          {% url_with_return "submission_affiliation_delete" article.pk author.pk affiliation.pk as delete_url %}
+          {% url_with_return "submission_affiliation_delete" article.pk author.pk affiliation.pk as remove_url %}
         {% else %}
           {% url_with_return 'core_affiliation_update' affiliation.pk as edit_url %}
-          {% url_with_return 'core_affiliation_delete' affiliation.pk as delete_url %}
+          {% url_with_return 'core_affiliation_delete' affiliation.pk as remove_url %}
         {% endif %}
         {% trans "Edit affiliation" as edit_label %}
         {% include "elements/a_edit.html" with href=edit_url label=edit_label %}
-        {% trans "Delete affiliation" as delete_label %}
-        {% include "elements/a_delete.html" with href=delete_url label=delete_label %}
+        {% trans "Remove affiliation" as remove_label %}
+        {% include "elements/a_remove.html" with href=remove_url label=remove_label %}
       </div>
     </div>
   {% empty %}

@@ -644,6 +644,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         article: submission.models.Article
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
+        self.add_account_role('author', article.journal)
         if self.name_prefix:
             name_prefix = self.name_prefix
         elif self.salutation:
@@ -2643,22 +2644,6 @@ class Organization(models.Model):
 
         # Set custom label if organization is not controlled by ROR
         if institution and not organization.ror_id:
-            # Remove and harvest any old custom primary org
-            try:
-                old_primary_org = cls.objects.get(
-                    controlledaffiliation__is_primary=True,
-                    controlledaffiliation__account=account,
-                    controlledaffiliation__frozen_author=frozen_author,
-                    controlledaffiliation__preprint_author=preprint_author,
-                    ror_id__exact='',
-                )
-                if not institution:
-                    institution = old_primary_org.custom_label
-                if not country and old_primary_org.locations.exists():
-                    country = old_primary_org.locations.first().country
-                old_primary_org.delete()
-            except cls.DoesNotExist:
-                pass
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={'value': institution},
                 custom_label_for=organization,
@@ -2723,7 +2708,7 @@ class ControlledAffiliation(models.Model):
         'Organization',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
     is_primary = models.BooleanField(
         default=False,

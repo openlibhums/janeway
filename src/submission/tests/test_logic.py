@@ -76,7 +76,10 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_pk': eliot_author.pk,
         }
         response = self.client.post(
-            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk}
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
@@ -89,7 +92,10 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_pk': eliot_author.pk,
         }
         self.client.post(
-            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )
@@ -102,7 +108,10 @@ class TestSubmitAuthorsLogic(TestCase):
             'author_pk': eric_author.pk,
         }
         self.client.post(
-            reverse('submit_authors', kwargs={'article_id': self.article.pk}),
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
             post_data,
             SERVER_NAME=self.journal_one.domain,
         )

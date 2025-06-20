@@ -478,13 +478,13 @@ class TestOrganizationModels(TestCase):
             [],
             domain='odhstswzfesoyhhjywzk.example.org',
         )
-        cls.country_gb = models.Country.objects.create(
+        cls.country_gb, _ = models.Country.objects.get_or_create(
             code='GB',
-            name='United Kingdom',
+            defaults={'name': 'United Kingdom'},
         )
-        cls.country_us = models.Country.objects.create(
+        cls.country_us, _ = models.Country.objects.get_or_create(
             code='US',
-            name='United States',
+            defaults={'name': 'United States'},
         )
         cls.location_london = models.Location.objects.create(
             name='London',
@@ -494,9 +494,10 @@ class TestOrganizationModels(TestCase):
             name='Farnborough',
             country=cls.country_gb,
         )
-        cls.location_uk_legacy = models.Location.objects.create(
+        cls.location_uk_legacy, _ = models.Location.objects.get_or_create(
             # Before integrating ROR we used country-wide locations
             # with no geonames ID or coordinates
+            name='',
             country=cls.country_gb,
         )
         cls.organization_bbk = models.Organization.objects.create(
@@ -1183,13 +1184,14 @@ class TestOrganizationManagers(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.country_gb = models.Country.objects.create(
+        cls.country_gb, _ = models.Country.objects.get_or_create(
             code='GB',
-            name='United Kingdom',
+            defaults={'name': 'United Kingdom'},
         )
-        cls.location_uk_legacy = models.Location.objects.create(
+        cls.location_uk_legacy, _ = models.Location.objects.get_or_create(
             # Before integrating ROR we used country-wide locations
             # with no geonames ID or coordinates
+            name='',
             country=cls.country_gb,
         )
         cls.organization_turing_legacy = models.Organization.objects.create(

@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ('end', models.DateField(blank=True, null=True, help_text='Leave empty for a current affiliation', verbose_name='End date')),
                 ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
                 ('frozen_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.frozenauthor')),
-                ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.organization')),
+                ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.organization')),
                 ('preprint_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintauthor')),
             ],
             options={

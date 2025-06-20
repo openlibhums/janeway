@@ -1,0 +1,18 @@
+{% load static %}
+
+{% if author.orcid_uri %}
+  {% comment %}
+    The orcid_uri property only displays a regex-valid orcid.
+  {% endcomment %}
+  <a href="{{ author.orcid_uri }}" target="_blank">
+    <span>{{ author.orcid }}</span>
+    <span class="show-for-sr">
+      {% trans "Opens in new tab." %}
+    </span>
+    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
+  </a>
+{% elif author.orcid %}
+  <span>{{ author.orcid }}</span>
+{% else %}
+  <span>---</span>
+{% endif %}

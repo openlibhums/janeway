@@ -6,31 +6,17 @@
   label_copy - label in original state
   label_copied - label in copied state
 {% endcomment %}
-{% load uuid %}
-
-{% get_uuid4 as pid %}
 
 <div>
   <div class="button-group">
     <button
-      data-copy-{{ pid }}
+      data-copy-button
+      data-copy-content="{{ content }}"
+      data-label-copied="{{ label_copied }}"
       class="button secondary hollow"
       type="button">
       <span class="fa fa-copy"></span>
       {{ label_copy }}
     </button>
   </div>
-  <script defer type="module">
-    const copyButton = document.querySelector("[data-copy-{{ pid }}]");
-    copyButton.addEventListener('click', () => writeToClipboard("{{ content }}"));
-    async function writeToClipboard(content) {
-      await navigator.clipboard.writeText(content);
-      if (copyButton.innerHTML.includes("{{ label_copy }}")) {
-        copyButton.innerHTML = `
-          <span class="fa fa-check-circle"></span>
-          {{ label_copied }}
-        `
-      }
-    }
-  </script>
 </div>

@@ -59,8 +59,8 @@ from review import models as review_models
 from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
-from utils.orcid import validate_orcid
-from utils.forms import clean_orcid_id, plain_text_validator
+from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
+from utils.forms import plain_text_validator
 from journal import models as journal_models
 from review.const import (
     ReviewerDecisions as RD,
@@ -1226,6 +1226,9 @@ class Article(AbstractLastModifiedModel):
         else:
             return self.author_accounts
 
+    def is_unsubmitted(self):
+        return self.stage == STAGE_UNSUBMITTED
+
     def is_accepted(self):
         if self.date_published:
             return True
@@ -1513,10 +1516,14 @@ class Article(AbstractLastModifiedModel):
         return ''
 
     def can_edit(self, user):
-        # returns True if a user can edit an article
-        # editing is always allowed when a user is staff
-        # otherwise, the user must own the article and it
-        # must not have already been published
+        """
+        Determines whether a user can edit the article.
+        They can if:
+          - they are staff of the press, or
+          - they are a section editor on the article's section, or
+          - they are an editor of the journal, or
+          - they are the owner and the article is unsubmitted.
+        """
 
         if user.is_staff:
             return True
@@ -1527,14 +1534,11 @@ class Article(AbstractLastModifiedModel):
             journal=self.journal,
         ):
             return True
-        else:
-            if self.owner != user:
-                return False
-
-            if self.stage == STAGE_PUBLISHED or self.stage == STAGE_REJECTED:
-                return False
-
+        elif self.owner == user and self.is_unsubmitted():
             return True
+        else:
+            return False
+
 
     def current_review_round(self):
         try:
@@ -1647,7 +1651,7 @@ class Article(AbstractLastModifiedModel):
         self.save()
 
     def user_is_author(self, user):
-        if user in self.author_accounts:
+        if user.email in [account.email for account in self.author_accounts]:
             return True
         return False
 
@@ -2054,7 +2058,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         max_length=300,
         blank=True,
         validators=[plain_text_validator],
-)
+    )
 
     frozen_biography = JanewayBleachField(
         blank=True,
@@ -2103,6 +2107,35 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.article.owner
         else:
             return None
+
+    def can_edit(self, user):
+        """
+        Determines whether a user can edit the author record.
+        They can if:
+          - they are staff of the press, or
+          - they are a section editor on the article's section, or
+          - they are an editor of the journal, or
+          - they are the author and the article is unsubmitted, or
+          - they are the owner of the article,
+            the author record has no associated account,
+            and the article is unsubmitted.
+        """
+
+        if user.is_staff:
+            return True
+        elif self.article:
+            if user in self.article.section_editors():
+                return True
+            elif not user.is_anonymous and user.is_editor(
+                request=None,
+                journal=self.article.journal,
+            ):
+                return True
+            elif self.owner == user and self.article.is_unsubmitted():
+                # FrozenAuthor.owner is a property that considers both
+                # FrozenAuthor.author and FrozenAuthor.article.owner.
+                return True
+        return False
 
     def associate_with_account(self):
         if self.frozen_email:
@@ -2242,6 +2275,16 @@ class FrozenAuthor(AbstractLastModifiedModel):
         return None
 
     @property
+    def orcid_uri(self):
+        if not self.orcid:
+            return ''
+        result = COMPILED_ORCID_REGEX.search(self.orcid)
+        if result:
+            return f'https://orcid.org/{result.group(0)}'
+        else:
+            return ''
+
+    @property
     def corporate_name(self):
         return self.primary_affiliation(as_object=False)
 
@@ -2313,6 +2356,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @classmethod
     def get_or_snapshot_if_email_found(cls, email, article):
+        """
+        Gets or creates a FrozenAuthor from an account
+        with a particular email.
+        """
         created = False
         try:
             author = cls.objects.get(
@@ -2332,6 +2379,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @classmethod
     def get_or_snapshot_if_orcid_found(cls, orcid, article):
+        """
+        Gets or creates a FrozenAuthor from an account
+        with a particular orcid.
+        Assumes orcid is cleaned to 16-digit ID, not the URI form.
+        """
         created = False
         try:
             author = cls.objects.get(
@@ -2374,8 +2426,11 @@ class CreditRecord(AbstractLastModifiedModel):
                                         blank=True,
                                         null=True,
                                         on_delete=models.CASCADE)
-    role = models.CharField(max_length=100,
-                            choices=CREDIT_ROLE_CHOICES)
+    role = models.CharField(
+        max_length=100,
+        choices=CREDIT_ROLE_CHOICES,
+        default='writing-original-draft',
+    )
 
     def __str__(self):
         return self.get_role_display()

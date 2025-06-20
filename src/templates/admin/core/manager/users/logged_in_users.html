@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static %}
+{% load next_url %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -37,7 +38,7 @@
                             <td>{{ user.last_name }}</td>
                             <td>{{ user.email }}</td>
                             <td><a class="btn btn-primary btn-round-half" style="width:75px"
-                                   href="{% url 'core_user_edit' user.id %}">Edit</a></td>
+                                   href="{% url_with_return 'core_user_edit' user.id %}">Edit</a></td>
                         </tr>
                     {% endfor %}
                 </table>

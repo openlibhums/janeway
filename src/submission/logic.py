@@ -19,7 +19,7 @@ from core import models as core_models
 from utils import orcid, setting_handler, shared as utils_shared
 from utils.forms import clean_orcid_id
 from submission import models
-from submission.forms import EditFrozenAuthor
+from submission.forms import EditFrozenAuthor, CreditRecordForm
 
 
 def add_self_as_author(user, article):
@@ -78,7 +78,7 @@ def get_author(request, article):
     try:
         author = frozen_authors.get(pk=author_id)
         return [author, 'author']
-    except core_models.Account.DoesNotExist:
+    except models.FrozenAuthor.DoesNotExist:
         return [None, None]
 
 
@@ -309,9 +309,14 @@ def save_frozen_author_order(request, article):
              and change_order (enum: "top", "up", "down", "bottom")
     """
     changed = False
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
     author = get_object_or_404(
         models.FrozenAuthor,
-        pk=int(request.POST.get('author_pk')),
+        pk=author_id,
         article=article,
     )
     change_order = request.POST.get('change_order')
@@ -472,4 +477,130 @@ def add_author_from_search(search_term, request, article):
             % {"search_term" : search_term},
         )
 
+    return author
+
+
+def add_new_author_from_form(request, article):
+    new_author_form = EditFrozenAuthor(request.POST)
+    author = None
+
+    frozen_email = request.POST.get("frozen_email")
+    if frozen_email:
+        authors = models.FrozenAuthor.objects.filter(
+            Q(article=article) &
+            (Q(frozen_email=frozen_email) |
+            Q(author__username__iexact=frozen_email))
+        )
+        if authors.exists():
+            author = authors.first()
+
+    if not author and new_author_form.is_valid():
+        author = new_author_form.save()
+        author.article = article
+        author.order = article.next_frozen_author_order()
+        author.save()
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            _('Could not add the author manually.'),
+        )
+
+    if author:
+        messages.add_message(
+            request, messages.SUCCESS,
+            _('%(author_name)s (%(email)s) added to the article.')
+                % {
+                    "author_name": author.full_name(),
+                    "email": author.email
+                },
+        )
+    return author
+
+
+def save_correspondence_author(request, article):
+    account = get_object_or_404(
+        core_models.Account,
+        pk=request.POST.get('corr_author', None),
+        frozenauthor__article=article,
+    )
+    article.correspondence_author = account
+    article.save()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s (%(email)s) made correspondence author.')
+            % {
+                "author_name": account.full_name(),
+                "email": account.email
+            },
+    )
+    author = account.frozen_author(article)
+    return author
+
+
+def get_credit_form(request, author):
+    use_credit = setting_handler.get_setting(
+        "general",
+        "use_credit",
+        journal=request.journal,
+    ).processed_value
+    if use_credit:
+        return CreditRecordForm(
+            frozen_author=author,
+        )
+    else:
+        return None
+
+
+def add_credit_role(request, article):
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=author_id,
+        article=article,
+    )
+    credit_form = CreditRecordForm(request.POST)
+    if credit_form.is_valid() and author:
+        record = credit_form.save()
+        record.frozen_author = author
+        record.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s now has role %(role)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "role": record.get_role_display(),
+                },
+        )
+    return author
+
+
+def remove_credit_role(request, article):
+    credit_id = request.POST.get('credit_pk')
+    try:
+        credit_id = int(credit_id)
+    except TypeError:
+        raise ValidationError('Invalid credit ID submitted')
+    record = get_object_or_404(
+        models.CreditRecord,
+        pk=credit_id,
+        frozen_author__article=article,
+    )
+    author = record.frozen_author
+    role_display = record.get_role_display()
+    record.delete()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s no longer has the role %(role)s.')
+            % {
+                "author_name": author.full_name(),
+                "role": role_display,
+            },
+    )
     return author
