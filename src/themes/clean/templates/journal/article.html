@@ -42,15 +42,18 @@
                         {% endif %}
                     </div>
                 </div>
+                {% include "elements/journal/reading.html" %}
             </div>
         </div>
+    {% else %}
+        {% include "elements/journal/reading.html" %}
     {% endif %}
+
     </div>
     <div id="article_metadata" class="row">
 
         <div class="col-md-7">
             <div id="article">
-                {% include "elements/journal/reading.html" %}
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>

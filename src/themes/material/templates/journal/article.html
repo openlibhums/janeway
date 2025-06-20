@@ -55,6 +55,7 @@
                         </span>
                     </div>
                 {% endif %}
+                {% include "elements/journal/reading.html" %}
                 <div>
 
                 </div>
@@ -71,7 +72,6 @@
 
                             </span>
                     {% endif %}
-                    {% include "elements/journal/reading.html" %}
                     {% if article.abstract and article.abstract != '' %}
                         <h2>{% trans "Abstract" %}</h2>
                         <p>{{ article.abstract | safe }}</p>
