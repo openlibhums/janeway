@@ -25,6 +25,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.management import call_command
+from django.template.loader import render_to_string
 
 from cms import models as cms_models
 from core import (
@@ -57,7 +58,7 @@ from security.decorators import (
     production_user_or_editor_required,
 )
 from submission import models as submission_models
-from utils import models as utils_models, shared, setting_handler
+from utils import models as utils_models, shared, setting_handler, xml_validation
 from utils.logger import get_logger
 from events import logic as event_logic
 from typesetting import models as typesetting_models
@@ -1316,6 +1317,41 @@ def publish_article_check(request, article_id):
         item_to_update.completed_on = timezone.now()
         item_to_update.save()
         return HttpResponse(json.dumps({'action': 'ok', 'id': value}), content_type="application/json")
+
+
+@staff_member_required
+def view_jats_stub(request, article_id):
+    """
+    A staff view for previewing, and validating JATS metadata. This view is only
+    accessible when DEBUG is set to True in settings.py.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    context = {
+        'article': article,
+        'include_declaration': True,
+        'validation_error': None,
+    }
+
+    xml_output = render_to_string(
+        'common/encoding/article_jats_1_2.xml',
+        context,
+    )
+    valid, error_message = xml_validation.validate_jats_with_remote_dtd(xml_output)
+
+    if not valid:
+        context['validation_error'] = f"JATS Validation Error: {error_message}"
+        xml_output = render_to_string(
+            'common/encoding/article_jats_1_2.xml',
+            context,
+        )
+
+    return HttpResponse(xml_output, content_type="application/xml")
 
 
 @editor_user_required
