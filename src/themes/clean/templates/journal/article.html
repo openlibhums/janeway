@@ -34,38 +34,7 @@
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
-                            <p></p><strong>{% if article.frozen_authors.count > 1 %}
-                                {% trans "Authors" %}:
-                                {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
-                                {% endif %}
-                            </strong>
-                            {% for author in article.frozen_authors.all %}
-                                <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                        itemtype="http://schema.org/Person"
-                                                                                        itemprop="author"
-                                                                                        href="#"
-                                                                                        {% if author.author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
-                                                                                        {% if author.author.enable_public_profile %}
-                                                                                            <a class="profilelink"
-                                                                                               href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
-                                                                                            {{ author.full_name }}{% endif %}
-                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                        <img src="{% static 'common/img/icons/orcid.png' %}" alt=""></a>
-                                        <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
-                                    </a>{% endif %}
-                                    {% if author.institution and author.institution != " " %}
-                                        <span itemprop="worksFor" itemscope
-                                              itemtype="http://schema.org/CollegeOrUniversity"><span
-                                                itemprop="name">({{ author.institution }})</span></span>
-                                    {% endif %}
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"> 
-                                           {% trans 'Email' %} {{author.full_name}}.
-                                           <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                                        </a>
-                                    {% endif %}
-                                </span></span>
-                            {% endfor %}
+                          {% include "common/elements/journal/article_authors_br.html" %}
                         {% endif %}
                     </div>
                 </div>
@@ -167,25 +136,14 @@
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
                 {% if journal_settings.article.disable_article_large_image %}
-                    <h2>{% trans "Authors" %}</h2>
-                    <ul>
-                    {% for author in article.frozen_authors.all %}
-                        <li>
-                            {{ author.full_name }}
-                            {% if author.orcid %}
-                                <a href="https://orcid.org/{{ author.orcid }}" class="">
-                                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
-                                    <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
-                                </a>
-                            {% endif %}
-                            {% if author.institution and author.institution != " " %}
-                                <span itemprop="worksFor" itemscope
-                                        itemtype="http://schema.org/CollegeOrUniversity"><span
-                                        itemprop="name">({{ author.institution }})</span></span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                     </ul>
+                  <h2>
+                    {% blocktrans count counter=article.frozen_authors.count %}
+                      Author
+                    {% plural %}
+                      Authors
+                    {% endblocktrans %}
+                  </h2>
+                  {% include "common/elements/journal/article_authors_ul.html" %}
                 {% endif %}
 
                 {% if article.is_published or proofing %}

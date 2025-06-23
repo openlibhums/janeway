@@ -12,23 +12,16 @@
 <body>
 <p class="uppercase">{{ article.section.name }}</p>
 <h3>{{ article.title|safe }}</h3>
-<p><strong>
-    {% if article.frozen_authors.all|length > 1 %}{% trans "Authors" %}{% else %}{% trans "Author" %}{% endif %}:</strong>
-    {% for author in article.frozen_authors.all %}
-        <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                itemtype="http://schema.org/Person"
-                                                                itemprop="author"
-                                                                href="#"
-                                                                {% if author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}"><a
-                itemprop="name" class="author-name">{{ author.full_name }}</a>{% if author.institution %}
-            <span itemprop="worksFor" itemscope
-                  itemtype="http://schema.org/CollegeOrUniversity"><span
-                    itemprop="name">({{ author.institution }})</span></span>{% endif %}
-            <a itemprop="email" href="mailto:{{ author.email }}">
-                {% trans 'Email' %} {{author.full_name}}.
-            </a></span></span>
-    {% endfor %}
-
+<p>
+  <strong>
+    {% blocktrans count counter=article.frozen_authors.count %}
+      Author
+    {% plural %}
+      Authors
+    {% endblocktrans %}
+  </strong>
+</p>
+{% include "common/elements/journal/article_authors_br.html" %}
 <h2>{% trans "Abstract" %}</h2>
 <p>{{ article.abstract | safe }}</p>
 {% if article.keywords %}

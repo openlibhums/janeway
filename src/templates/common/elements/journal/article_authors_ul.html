@@ -1,0 +1,7 @@
+<ul>
+  {% for author in article.frozen_authors.all %}
+    <li>
+      {% include "common/elements/journal/article_author_display.html" %}
+    </li>
+  {% endfor %}
+</ul>
