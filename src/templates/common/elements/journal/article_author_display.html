@@ -1,0 +1,68 @@
+{% load static %}
+
+{% spaceless %}
+  <span
+    itemscope
+    itemtype="http://schema.org/Person"
+    itemprop="author">
+    {% if author.author and author.author.enable_public_profile %}
+      <span itemprop="name">
+        <a
+          class="profilelink"
+          href="{% url 'core_public_profile' author.author.uuid %}">
+          <span>{{ author.full_name }}</span>
+        </a>
+      </span>
+      {% if author.orcid %}
+        <span>&nbsp;</span>
+        <a
+          href="https://orcid.org/{{ author.orcid }}"
+          target="_blank">
+          {% include "common/svg/orcid-mono.svg" %}
+          <span class="sr-only">
+            {{author.full_name}} {% trans 'ORCID profile.' %}
+          </span>
+          <span class="sr-only show-for-sr">
+            {% trans "(opens in new tab)" %}
+          </span>
+        </a>
+      {% endif %}
+    {% else %}
+      {% if author.orcid %}
+        <a
+          href="https://orcid.org/{{ author.orcid }}"
+          target="_blank">
+          <span itemprop="name">
+            <span>{{ author.full_name }}</span>
+          </span>
+          <span>&nbsp;</span>
+          {% include "common/svg/orcid-mono.svg" %}
+          <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
+          <span class="sr-only show-for-sr">
+            {% trans "(opens in new tab)" %}
+          </span>
+        </a>
+      {% else %}
+        <span itemprop="name">
+          <span>{{ author.full_name }}</span>
+        </span>
+      {% endif %}
+    {% endif %}
+    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+      <span>, </span>
+      <a
+        target="_blank"
+        itemprop="email"
+        href="mailto:{{ author.email }}">
+        <span>{{ author.email }}</span>
+        <span class="sr-only show-for-sr">
+          {% trans "(opens in new tab)" %}
+        </span>
+      </a>
+    {% endif %}
+    {% if author.affiliations.exists %}
+      <span>, </span>
+      {% include "common/elements/affiliation_display.html" with affiliation=author.primary_affiliation %}
+    {% endif %}
+  </span>
+{% endspaceless %}
