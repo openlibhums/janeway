@@ -96,10 +96,10 @@ class AbstractForwardLink(models.Model):
 
 class ArticleLink(AbstractForwardLink):
     journal_title = models.TextField()
-    journal_issn = models.CharField(max_length=20)
+    journal_issn = models.CharField(max_length=20, blank=True, null=True)
     article_title = models.TextField()
-    volume = models.CharField(max_length=10, blank=True, null=True)
-    issue = models.CharField(max_length=10, blank=True, null=True)
+    volume = models.CharField(max_length=100, blank=True, null=True)
+    issue = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return 'Article Link: {}'.format(
@@ -142,7 +142,7 @@ class AltMetric(models.Model):
         on_delete=models.CASCADE,
     )
     source = models.CharField(max_length=30, choices=alt_metric_choices())
-    pid = models.CharField(max_length=200)
+    pid = models.CharField(max_length=255)
     timestamp = models.DateTimeField()
 
     class Meta:
