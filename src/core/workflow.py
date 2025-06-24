@@ -91,7 +91,11 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
 
         if switch_stage:
-            log_stage_change(article, next_element)
+            log_stage_change(
+                article,
+                next_element,
+                user=request.user,
+            )
             clear_cache()
             article.stage = next_element.stage
             article.save()
@@ -129,14 +133,19 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     return response
 
 
-def log_stage_change(article, next_element):
+def log_stage_change(article, next_element, user=None):
     """
     Crates a WorkflowLog entry for this change.
     :param article: Article object
     :param next_element: WorkflowElement object
+    :param user: An Account object, optional
     :return: None
     """
-    models.WorkflowLog.objects.create(article=article, element=next_element)
+    models.WorkflowLog.objects.create(
+        article=article,
+        element=next_element,
+        user=user,
+    )
 
 
 def set_stage(article):

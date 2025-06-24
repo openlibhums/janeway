@@ -225,7 +225,7 @@ class StaffGroupMemberInline(admin.TabularInline):
 class WorkflowLogInline(admin.TabularInline):
     model = core_models.WorkflowLog
     extra = 0
-    raw_id_fields = ('element', 'article',)
+    raw_id_fields = ('element', 'article', 'user',)
 
 
 class RepositoryRoleInline(admin.TabularInline):
