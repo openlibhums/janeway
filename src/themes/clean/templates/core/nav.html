@@ -48,22 +48,34 @@
                 <li class="nav-item"><a href="{% url 'journal_submissions' %}" class="nav-link">{% trans 'Submission' %}</a>
                 </li>{% endif %}
             {% for item in navigation_items %}
+              {% if not item.for_footer %}
                 {% if item.has_sub_nav %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ item.link_name }}
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      href=""
+                      id="{{ item.link_name|slugify }}"
+                      data-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false">
+                        {{ item.link_name }}
+                    </a>
+                    <div
+                      class="dropdown-menu"
+                      aria-labelledby="{{ item.link_name|slugify }}">
+                      {% for subnav in item.sub_nav_items %}
+                        <a href="{{ subnav.url }}" class="dropdown-item">
+                          {{ subnav.link_name }}
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
-                            {% if item.link %}<a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
-                            {% for subnav in item.sub_nav_items %}
-                                <a href="{{ subnav.url }}" class="dropdown-item">{{ subnav.link_name }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
-                {% elif not item.for_footer %}
-                    <li class="nav-item"><a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a></li>
+                      {% endfor %}
+                    </div>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a href="{{ item.url }}" class="nav-link">{{ item.link_name }}</a>
+                  </li>
                 {% endif %}
+              {% endif %}
             {% endfor %}
             {% if request.journal.nav_contact %}
                 <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>{% endif %}
