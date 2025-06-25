@@ -563,7 +563,10 @@ def add_credit_role(request, article):
         pk=author_id,
         article=article,
     )
-    credit_form = CreditRecordForm(request.POST)
+    credit_form = CreditRecordForm(
+        request.POST,
+        frozen_author=author,
+    )
     if credit_form.is_valid() and author:
         record = credit_form.save()
         record.frozen_author = author

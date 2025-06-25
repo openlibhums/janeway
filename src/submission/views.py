@@ -349,10 +349,13 @@ def submit_authors(request, article_id):
 @user_can_edit_article
 def edit_current_authors(request, article_id):
     """
-    Async partial view accessed via JavaScript.
     Allows the editor to reorder authors,
     change the correspondence author,
     and add and remove roles.
+
+    Returns a partial page, so be sure to reverse the URL with
+    `url_with_full_page_path`.
+
     :param request: HttpRequest object
     :param article_id: Article PK
     :return: HttpRedirect or HttpResponse

@@ -125,46 +125,6 @@ class TestSubmitAuthors(TestSubmitViewsBase):
         logic_add_author.assert_called()
 
     @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_corr_author(self):
-        self.eliot.snapshot_as_author(self.article)
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'corr_author': self.eliot.pk,
-        }
-        response = self.client.post(
-            reverse(
-                'submission_edit_current_authors',
-                kwargs={'article_id': self.article.pk},
-            ),
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.article.refresh_from_db()
-        self.assertEqual(self.article.correspondence_author, self.eliot)
-
-    @patch('submission.logic.save_frozen_author_order')
-    @override_settings(URL_CONFIG='domain')
-    def test_submit_authors_change_order(self, logic_save_frozen_author_order):
-        # Add a second author
-        eliot_author = self.eliot.snapshot_as_author(self.article)
-
-        # Run test
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'change_order': 'up',
-            'author_pk': self.eliot.pk,
-        }
-        self.client.post(
-            reverse(
-                'submission_edit_current_authors',
-                kwargs={'article_id': self.article.pk},
-            ),
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        logic_save_frozen_author_order.assert_called()
-
-    @override_settings(URL_CONFIG='domain')
     def test_submit_authors_continue(self):
         self.client.force_login(self.kathleen)
         post_data = {
@@ -231,17 +191,109 @@ class TestSubmitAuthors(TestSubmitViewsBase):
         self.assertEqual(self.article.correspondence_author, self.kathleen)
 
 
+class TestEditCurrentAuthors(TestSubmitViewsBase):
+
+    @override_settings(URL_CONFIG='domain')
+    def test_submit_authors_corr_author(self):
+        self.eliot.snapshot_as_author(self.article)
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'corr_author': self.eliot.pk,
+        }
+        response = self.client.post(
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.correspondence_author, self.eliot)
+
+    @patch('submission.logic.save_frozen_author_order')
+    @override_settings(URL_CONFIG='domain')
+    def test_submit_authors_change_order(self, logic_save_frozen_author_order):
+        # Add a second author
+        eliot_author = self.eliot.snapshot_as_author(self.article)
+
+        # Run test
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'change_order': 'up',
+            'author_pk': self.eliot.pk,
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        logic_save_frozen_author_order.assert_called()
+
+    @override_settings(URL_CONFIG='domain')
+    def test_add_credit(self):
+        hobsbawm_author = helpers.create_frozen_author(
+            self.article,
+            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'add_credit': '',
+            'role': 'writing-original-draft',
+            'author_pk': hobsbawm_author.pk,
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        hobsbawm_author.refresh_from_db()
+        self.assertEqual(
+            hobsbawm_author.credits[0].role,
+            'writing-original-draft',
+        )
+
+    @override_settings(URL_CONFIG='domain')
+    def test_remove_credit(self):
+        # Set up a second author with a credit role
+        hobsbawm_author = helpers.create_frozen_author(
+            self.article,
+            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
+            first_name='Eric',
+            last_name='Hobsbawm',
+        )
+        writing_credit = hobsbawm_author.add_credit('writing-original-draft')
+
+        # Run test
+        self.client.force_login(self.kathleen)
+        post_data = {
+            'remove_credit': 'writing-original-draft',
+            'credit_pk': writing_credit.pk,
+        }
+        self.client.post(
+            reverse(
+                'submission_edit_current_authors',
+                kwargs={'article_id': self.article.pk},
+            ),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertFalse(hobsbawm_author.credits.exists())
+
+
 class TestEditAuthor(TestSubmitViewsBase):
 
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_get(self):
         self.client.force_login(self.kathleen)
-        setting_handler.save_setting(
-            'general',
-            'use_credit',
-            self.journal_one,
-            'on',
-        )
         get_data = {}
         response = self.client.get(
             reverse(
@@ -257,9 +309,6 @@ class TestEditAuthor(TestSubmitViewsBase):
         self.assertEqual(response.context['article'], self.article)
         self.assertEqual(response.context['author'], self.kathleen_author)
         self.assertEqual(response.context['form'], None)
-        self.assertTrue(
-            isinstance(response.context['credit_form'], forms.CreditRecordForm)
-        )
 
     @override_settings(URL_CONFIG='domain')
     def test_edit_author_edit_author(self):
@@ -309,64 +358,3 @@ class TestEditAuthor(TestSubmitViewsBase):
             self.kathleen_author.first_name,
             'K.',
         )
-
-    @override_settings(URL_CONFIG='domain')
-    def test_edit_author_add_credit(self):
-        hobsbawm_author = helpers.create_frozen_author(
-            self.article,
-            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
-            first_name='Eric',
-            last_name='Hobsbawm',
-        )
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'add_credit': '',
-            'role': 'writing-original-draft',
-            'author_pk': hobsbawm_author.pk,
-        }
-        self.client.post(
-            reverse(
-                'submission_edit_author',
-                kwargs={
-                    'article_id': self.article.pk,
-                    'author_id': hobsbawm_author.pk,
-                },
-            ),
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        hobsbawm_author.refresh_from_db()
-        self.assertEqual(
-            hobsbawm_author.credits[0].role,
-            'writing-original-draft',
-        )
-
-    @override_settings(URL_CONFIG='domain')
-    def test_edit_author_remove_credit(self):
-        # Set up a second author with a credit role
-        hobsbawm_author = helpers.create_frozen_author(
-            self.article,
-            frozen_email='dp0dcbdgtzq4e7ml50fe@example.org',
-            first_name='Eric',
-            last_name='Hobsbawm',
-        )
-        writing_credit = hobsbawm_author.add_credit('writing-original-draft')
-
-        # Run test
-        self.client.force_login(self.kathleen)
-        post_data = {
-            'remove_credit': 'writing-original-draft',
-            'credit_pk': writing_credit.pk,
-        }
-        self.client.post(
-            reverse(
-                'submission_edit_author',
-                kwargs={
-                    'article_id': self.article.pk,
-                    'author_id': hobsbawm_author.pk,
-                },
-            ),
-            post_data,
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.assertFalse(hobsbawm_author.credits.exists())

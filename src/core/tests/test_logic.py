@@ -60,6 +60,28 @@ class TestLogic(TestCase):
         reversed_url = logic.reverse_with_next('/test/', '')
         self.assertEqual(mock_reverse.return_value, reversed_url)
 
+    @patch('core.logic.reverse')
+    def test_reverse_with_query(self, mock_reverse):
+        mock_reverse.return_value = '/my/url/?my=params'
+        reversed_url = logic.reverse_with_query(
+            '/test/',
+            query_params={
+                'important': 'stuff',
+            },
+        )
+        self.assertIn('important=stuff', reversed_url)
+
+    @patch('core.logic.reverse')
+    def test_reverse_with_query_empty_values(self, mock_reverse):
+        mock_reverse.return_value = '/my/url/?my=params'
+        reversed_url = logic.reverse_with_query(
+            '/test/',
+            query_params={
+                'no_value': '',
+            },
+        )
+        self.assertEqual(mock_reverse.return_value, reversed_url)
+
     def test_get_confirm_account_url(self):
         url = logic.get_confirm_account_url(
             self.request,
