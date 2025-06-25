@@ -724,7 +724,7 @@ def affiliation_update_from_orcid(request, how_many='primary'):
             _("No affiliations were found on your public ORCID record "
               "for ID %(orcid_id)s. "
               "Please update your affiliations on orcid.org and try again.")
-                % {'orcid_id': clean_orcid_id },
+                % {'orcid_id': cleaned_orcid },
         )
         if next_url:
             return redirect(next_url)

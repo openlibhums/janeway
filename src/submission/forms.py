@@ -497,14 +497,14 @@ class CreditRecordForm(forms.ModelForm):
         self.fields['role'].choices = new_choices
 
     def __init__(self, *args, **kwargs):
-        frozen_author = kwargs.pop('frozen_author', None)
+        self.frozen_author = kwargs.pop('frozen_author', None)
         super().__init__(*args, **kwargs)
         self.fields['role'].choices = self.fields['role'].choices[1:]
 
-        if frozen_author:
+        if self.frozen_author:
             self._remove_choices_when_roles_already_exist(
                 models.CreditRecord.objects.filter(
-                    frozen_author=frozen_author,
+                    frozen_author=self.frozen_author,
                 )
             )
 

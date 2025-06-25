@@ -46,13 +46,7 @@ def reverse_with_next(url_name, next_url, args=None, kwargs=None):
     :param args: args to pass to django.shortcuts.reverse, if no kwargs
     :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
     """
-    # reverse can only accept either args or kwargs
-    if args:
-        reversed_url = reverse(url_name, args=args)
-    elif kwargs:
-        reversed_url = reverse(url_name, kwargs=kwargs)
-    else:
-        reversed_url = reverse(url_name)
+    reversed_url = reverse(url_name, args=args, kwargs=kwargs)
 
     if not next_url:
         return reversed_url
@@ -68,30 +62,24 @@ def reverse_with_next(url_name, next_url, args=None, kwargs=None):
     return final_url
 
 
-def reverse_with_full_page_path(url_name, full_page_path, args=None, kwargs=None):
+def reverse_with_query(url_name, args=None, kwargs=None, query_params=None):
     """
-    Reverse a URL and add 'full_page_path' as a GET parameter.
+    Reverse a URL and add arbitrary query parameters.
+    The parameter values should be in decoded form.
+    If all parameter values are empty, the parameters are not added.
 
-    The value of 'full_page_path' should be in decoded form.
-
-    :param full_page_path: the result of calling request.get_full_path()
-    :param args: args to pass to django.shortcuts.reverse, if no kwargs
-    :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
+    :param args: args to pass to django.shortcuts.reverse
+    :param kwargs: kwargs to pass to django.shortcuts.reverse
+    :param query_params: the dict or QueryDict of new query parameters to add
     """
-    # reverse can only accept either args or kwargs
-    if args:
-        reversed_url = reverse(url_name, args=args)
-    elif kwargs:
-        reversed_url = reverse(url_name, kwargs=kwargs)
-    else:
-        reversed_url = reverse(url_name)
+    reversed_url = reverse(url_name, args=args, kwargs=kwargs)
 
-    if not full_page_path:
+    if not any(query_params.values()):
         return reversed_url
 
     final_url = utils_logic.add_query_parameters_to_url(
         reversed_url,
-        {'full_page_path': full_page_path},
+        query_params,
     )
     return final_url
 

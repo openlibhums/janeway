@@ -740,7 +740,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
 def article_edit_user_required(func):
     raise DeprecationWarning('Use user_can_edit_article instead.')
-    return user_can_edit_author(func)
+    return user_can_edit_article(func)
 
 
 def user_can_edit_article(func):
