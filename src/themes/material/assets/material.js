@@ -1,12 +1,12 @@
 function figure_downloads() {
-	var figs = $("div[id^=F]");
+	var figs = $("div.fig-inline-img-set");
 	$( figs ).each( function( index, element ){
 	    $(this).find('.fig-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i><a target="_blank" href="' + $( this ).find('img').attr('src') +'">Download</a></p>' );
 	});
 }
 
 function table_downloads() {
-	var tables = $("div[id^=T]");
+	var tables = $("div.table-expansion");
 	$( tables ).each( function( index, element ){
 	    $(this).find('.table-caption').prepend('<p class="fig-download"><i class="fa fa-download">&nbsp;</i><a target="_blank" href="table/' + $( this ).attr('id') +'">Download</a></p>' );
 	});
