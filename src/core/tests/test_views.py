@@ -5,7 +5,6 @@ __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
 from uuid import uuid4
-
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
@@ -31,7 +30,6 @@ class CoreViewTestsWithData(TestCase):
             password=cls.user_password,
         )
         cls.user.confirmation_code = uuid4()
-
         cls.user.is_active = True
         cls.user_orcid = '0000-0001-2345-6789'
         cls.user_orcid_uri = f'https://orcid.org/{cls.user_orcid}/'
