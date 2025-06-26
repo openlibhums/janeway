@@ -73,15 +73,13 @@ def reverse_with_query(url_name, args=None, kwargs=None, query_params=None):
     :param query_params: the dict or QueryDict of new query parameters to add
     """
     reversed_url = reverse(url_name, args=args, kwargs=kwargs)
-
-    if not any(query_params.values()):
+    if query_params:
+        return utils_logic.add_query_parameters_to_url(
+            reversed_url,
+            query_params,
+        )
+    else:
         return reversed_url
-
-    final_url = utils_logic.add_query_parameters_to_url(
-        reversed_url,
-        query_params,
-    )
-    return final_url
 
 
 def send_reset_token(request, reset_token):
