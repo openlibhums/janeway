@@ -22,6 +22,9 @@ from django.utils.translation import gettext_lazy as _
 from utils.logger import get_logger
 from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
+from utils.shared import get_ip_address 
+
+logger = get_logger(__name__)
 
 
 logger = get_logger(__name__)
@@ -190,14 +193,35 @@ class Addressee(models.Model):
     def __str__(self):
         return self.email
 
+class VersionManager(models.Manager):
+    def get_last_known_version_number(self):
+        try:
+            return self.get_queryset().latest('date').number
+        except Version.DoesNotExist:
+            return None
+    
+    def log_version_change(self, version):
+        """Log a version change in the database.
+        :param version: The version to be compared and logged
+        :type version: str
+        """
+        last_version = self.get_last_known_version_number()
+        logger.debug(f"Last known version: {last_version}")
+
+        if last_version != version:
+            logger.info(f"Janeway version changed: {last_version} -> {version}")
+            self.get_queryset().create(number=version)
+
 
 class Version(models.Model):
     number = models.CharField(max_length=10)
     date = models.DateTimeField(default=timezone.now)
     rollback = models.DateTimeField(blank=True, null=True)
 
+    objects = VersionManager()
+
     def __str__(self):
-        return 'Version {number}, upgraded {date}'.format(number=self.number, date=self.date)
+        return 'Version {number}, changed on {date}'.format(number=self.number, date=self.date)
 
 
 class Plugin(models.Model):
