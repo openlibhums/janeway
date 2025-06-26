@@ -13,7 +13,7 @@
 
             {% if not code == 'already-reviewer' %}
                 {% if code == 'not-logged-in' %}
-                    <a class="btn" href="{% url_with_return 'core_login' %}">
+                     {# LinkA11y #} <a class="btn" href="{% url_with_return 'core_login' %}">
                       {% trans "Log in" %}
                     </a>
                 {% else %}

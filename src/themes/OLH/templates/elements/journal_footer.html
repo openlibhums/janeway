@@ -4,7 +4,7 @@
     <p>
     | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} |{% endif %}
     {% if request.journal.print_issn %}Print ISSN: {{ request.journal.print_issn }} |{% endif %}
-    {% if journal_settings.general.publisher_name %} {% trans 'Published by' %} {% if journal_settings.general.publisher_url %}<a href="{{ journal_settings.general.publisher_url}}">{% endif %}{{ journal_settings.general.publisher_name }}{% if journal_settings.general.publisher_url %}</a>{% endif %} | {% endif %}
+    {% if journal_settings.general.publisher_name %} {% trans 'Published by' %} {% if journal_settings.general.publisher_url %} {# LinkA11y #} <a href="{{ journal_settings.general.publisher_url}}">{% endif %}{{ journal_settings.general.publisher_name }}{% if journal_settings.general.publisher_url %}</a>{% endif %} | {% endif %}
     </p>
 </div>
 <div class="large-5 columns large-text-right">
@@ -23,14 +23,14 @@
             {% endif %}
         {% endfor %}
       {% if journal_settings.general.privacy_policy_url %}
-        <li><a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
+        <li> {# LinkA11y #} <a href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
       {% else %}
-        <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
+        <li> {# LinkA11y #} <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
-        <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        <li> {# LinkA11y #} <a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         {% if not request.user.is_authenticated %}
           <li>
-            <a href="{% url 'core_login' %}">
+             {# LinkA11y #} <a href="{% url 'core_login' %}">
               {% trans 'Log in' %}
             </a>
           </li>

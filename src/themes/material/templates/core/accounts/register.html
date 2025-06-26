@@ -26,7 +26,7 @@
                         {% include "common/elements/password_rules.html" %}
                     </ul>
                     <p>
-                        {% blocktrans trimmed %}For more information read our <a href="#" data-target="passwordmodal" class="modal-trigger">password guide</a>.{% endblocktrans %}
+                        {% blocktrans trimmed %}For more information read our  {# LinkA11y #} <a href="#" data-target="passwordmodal" class="modal-trigger">password guide</a>.{% endblocktrans %}
                     </p>
                         {% include "common/elements/orcid_registration.html" with button_classes="btn wide-button orcid-button" %}
                         <form method="POST">
@@ -58,7 +58,7 @@
                 like <i>Jfjfy&65^87</i> which would take just over 600 years on a standard computer.{% endblocktrans %}</p>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
+             {# LinkA11y #} <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
         </div>
     </div>
 {% endblock body %}

@@ -54,11 +54,11 @@
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
                     {% if request.journal.header_image %}
-                    <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
+                     {# LinkA11y #} <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
                         {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
                     </a>
                     {% else %}
-                        <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
+                         {# LinkA11y #} <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
                     {% endif %}
                 {% elif request.repository %}
                     {% if request.repository.logo %}
@@ -68,9 +68,9 @@
                     {% endif %}
                 {% else %}
                     {% if 'svg' in request.press_cover %}
-                        <a href="/">{% svg request.press_cover %}</a>
+                         {# LinkA11y #} <a href="/">{% svg request.press_cover %}</a>
                     {% else %}
-                        <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
+                         {# LinkA11y #} <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
                     {% endif %}
                 {% endif %}
             {% if request.journal  and journal_settings.styling.display_journal_title %}
@@ -81,12 +81,12 @@
 
                 <div class="title-bar toggle">
                     <div data-responsive-toggle="main-menu" data-hide-for="medium">
-                        <a href="#" data-responsive-toggle="main-menu" data-hide-for="medium" data-toggle>
+                         {# LinkA11y #} <a href="#" data-responsive-toggle="main-menu" data-hide-for="medium" data-toggle>
                             <span class="menu-icon"></span>
                         </a>
                     </div>
                     <div data-responsive-toggle="search-menu" data-hide-for="medium">
-                        <a href="#" class="search-toggle" data-toggle>
+                         {# LinkA11y #} <a href="#" class="search-toggle" data-toggle>
                             <i aria-hidden="true" class="fa fa-search"></i>
                             <span class="sr-only">{% trans 'Search' %}</span>
                         </a>
@@ -126,7 +126,7 @@
                 <ul class="dropdown menu" data-dropdown-menu>
                     {% if request.user.is_authenticated %}
                         <li class=".is-dropdown-submenu-parent">
-                            <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ request.user.full_name }}</a>
+                             {# LinkA11y #} <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ request.user.full_name }}</a>
                             {% if request.journal %}
                                 {% include "elements/right_hand_menu.html" %}
                             {% elif request.repository %}
@@ -138,10 +138,10 @@
                     {% else %}
                       <li>
                         <p>
-                          <a href="{% url 'core_login' %}">
+                           {# LinkA11y #} <a href="{% url 'core_login' %}">
                             {% trans "Log in" %}
                           </a> |
-                          <a href="{% url 'core_register' %}">
+                           {# LinkA11y #} <a href="{% url 'core_register' %}">
                             {% trans "Register" %}
                           </a>
                         </p>
@@ -189,9 +189,9 @@
             {% if request.journal.press_image_override %}
                 {% svg_or_image request.journal.press_image_override %}
             {% elif 'svg' in request.press_cover %}
-                <a href="{% press_url request %}">{% svg request.press_cover %}</a>
+                 {# LinkA11y #} <a href="{% press_url request %}">{% svg request.press_cover %}</a>
             {% else %}
-                <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
+                 {# LinkA11y #} <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
             {% endif %}
         </div>
         {% if request.journal %}

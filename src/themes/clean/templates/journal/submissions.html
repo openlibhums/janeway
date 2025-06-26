@@ -16,13 +16,13 @@
 
                 <div class="button-group">
                   {% if not request.user.is_authenticated %}
-                    <a href="{% url_with_return 'core_register' %}" class="btn btn-primary">
+                     {# LinkA11y #} <a href="{% url_with_return 'core_register' %}" class="btn btn-primary">
                       {% trans 'Register' %}
                     </a>
-                    <a href="{% url_with_return 'core_login' %}" class="btn btn-primary">
+                     {# LinkA11y #} <a href="{% url_with_return 'core_login' %}" class="btn btn-primary">
                       {% trans 'Log in' %}</a>
                     {% else %}
-                    <a href="{% url 'submission_start' %}" class="btn btn-primary">{% trans 'Start Submission' %}</a>{% endif %}
+                     {# LinkA11y #} <a href="{% url 'submission_start' %}" class="btn btn-primary">{% trans 'Start Submission' %}</a>{% endif %}
                 </div>
                 <hr/>
                 {% for item in submission_items %}

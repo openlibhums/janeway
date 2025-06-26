@@ -1,0 +1,26 @@
+{% comment %}
+    Accessible external link template that receives processed attributes from templatetags/links.py
+    
+    This template expects the following context variables:
+    - href: the destination
+    - classes: The link classes
+    - other_attrs_string: the remaining attributes as a string,
+    - inner: The link inner html
+
+    Refer to the python for processing of other attributes.
+
+{% endcomment %}
+
+
+<a  href="{{ href }}"
+    name="{{ name }}"
+    title="{{ title }}"
+    class="{{ classes }} external-link"
+    download="{{ download }}"
+    {{ other_attrs_string }}
+    >
+    {{ inner }}
+    <i aria-hidden="true" class="fa fa-external" ></i>
+    <span class="sr-only">{% trans "External link, opens in new tab" %}</span>
+</a>
+

@@ -11,9 +11,9 @@
                      alt="{{ current_journal.name }}'s cover image.">
                 <div class="card-block">
                     {% if current_journal.is_remote %}
-                        <a href="{{ current_journal.remote_view_url }}">
+                         {# LinkA11y #} <a href="{{ current_journal.remote_view_url }}">
                     {% else %}
-                        <a href="{{ current_journal.site_url }}">
+                         {# LinkA11y #} <a href="{{ current_journal.site_url }}">
                     {% endif %}
                     <p class="journal-card-title">{{ current_journal.name }}</p>
                     </a>

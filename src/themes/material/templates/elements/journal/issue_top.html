@@ -3,12 +3,12 @@
 {% if issue.large_image %}
     <div class="card">
         <div class="card-image">
-            <a href="{{ issue.url }}">
+             {# LinkA11y #} <a href="{{ issue.url }}">
                 <img class="activator" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title }} hero image.">
             </a>
             <span class="card-title">
             <div class="carousel-text-wrapper ">
-                <a href="{{ issue.url }}">
+                 {# LinkA11y #} <a href="{{ issue.url }}">
                     {{ issue.display_title }}
                 </a>
             </div>
@@ -26,7 +26,7 @@
 {% endif %}
 
 {% if issue.journal.display_issue_doi and issue.doi_url %}
-<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
+<p><b>DOI: </b> {# LinkA11y #} <a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
 {% endif %}
 
 {% include "common/elements/guest_editors.html" %}

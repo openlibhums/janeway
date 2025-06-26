@@ -1,0 +1,30 @@
+{% load i18n %}
+{% comment %}
+    Accessible external link template that receives processed attributes from templatetags/links.py
+    
+    This template expects the following context variables:
+    - href: the destination
+    - title: additional complementary information, not accessible to screen readers, but improving accessiblity for others.
+    - class_names: The link classes
+    - other_attrs_string: the remaining attributes as a string,
+    - inner_html_start: The link inner html before the last tag(s).
+    - inner_html_end: the closing tags the html inside the link.
+
+    Refer to the python for processing of other attributes.
+
+{% endcomment %}
+
+
+<a  href="{{ href }}"
+    title="{{ title }}"
+    class="{{ class_names }} external-link"
+    target="_blank"
+    rel="noopener noreferrer"
+    {{ other_attrs_string }}
+    >
+    {{ inner_html_start|safe }}
+    <i aria-hidden="true" class="fa fa-external-link" style="vertical-align: super; font-size: 0.8em;"> </i>
+    <span class="sr-only">{% trans "External link, opens in new tab" %}</span>
+    {{ inner_html_end|safe }}
+</a>
+
