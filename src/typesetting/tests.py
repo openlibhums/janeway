@@ -154,12 +154,9 @@ class TestTypesetting(TestCase):
                 self.journal_one,
             )
             
-            decorated_func(request, **kwargs)
+            with self.assertRaises(PermissionDenied):
+                decorated_func(request, **kwargs)
 
-            self.assertTrue(
-                func.called,
-                "Security Error: Priviledged user cannot manage file."
-            ) 
 
     def test_can_manage_file_bad_user(self):
         func = Mock()
