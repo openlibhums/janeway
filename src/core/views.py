@@ -244,7 +244,11 @@ def user_login_orcid(request):
                 if candidates.exists():
                     # Store ORCID for future authentication requests
                     candidates.update(orcid=orcid_id)
-                    login(request, candidates.first())
+                    login(
+                        request,
+                        candidates.first(),
+                        backend='django.contrib.auth.backends.ModelBackend',
+                    )
                     return redirect(
                         request.site_type.auth_success_url(next_url=next_url)
                     )
