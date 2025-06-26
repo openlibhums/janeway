@@ -442,7 +442,11 @@ def register(request, orcid_token=None):
                 if new_user.email == initial.get("email"):
                     new_user.is_active = True
                     new_user.save()
-                    login(request, new_user)
+                    login(
+                        request,
+                        new_user,
+                        backend='django.contrib.auth.backends.ModelBackend',
+                    )
                     return redirect(
                         request.site_type.auth_success_url(next_url=next_url)
                     )
