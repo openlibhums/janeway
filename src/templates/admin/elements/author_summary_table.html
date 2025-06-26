@@ -1,0 +1,109 @@
+{% load static next_url bool_fa securitytags %}
+
+{% is_any_editor as any_editor %}
+{% can_see_pii_tag article as can_see_pii %}
+
+<div class="title-area">
+  <h2>{% trans "Authors" %}</h2>
+  {% if not article.is_unsubmitted and any_editor and can_see_pii %}
+    <a class="button" href="{% url_with_return 'submission_edit_author_metadata' article.pk %}">
+      <span class="fa fa-edit"></span>
+      Edit Author Metadata
+    </a>
+  {% endif %}
+</div>
+<div class="content">
+  <table class="scroll hover small" id="unassigned">
+    <tr>
+      <th>{% trans "Order" %}</th>
+      <th>{% trans "Name" %}</th>
+      <th>{% trans "Email" %}</th>
+      {% if journal_settings.general.use_credit %}
+          <th>CRediT roles</th>
+      {% endif %}
+      <th>{% trans 'ORCID' %}</th>
+      <th>{% trans "Affiliation" %}</th>
+    </tr>
+    {% for author in article.frozenauthor_set.all %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>
+          {{ author.full_name|se_can_see_pii:article }}
+        </td>
+        <td>
+          {% if author.email %}
+            {% if any_editor or author.display_email or request.user == article.owner %}
+              {% comment %}
+                Only display emails to non-editors
+                if they are OK to display.
+                It's fine to display all emails to submitting authors.
+              {% endcomment %}
+              {{ author.email|se_can_see_pii:article }}
+              {% if any_editor %}
+                {% if author.display_email %}
+                  <div class="padding-block-0-25">
+                    <span class="fa fa-eye"></span>
+                    <span>{% trans "Public" %}</span>
+                  </div>
+                {% else %}
+                  <div class="padding-block-0-25">
+                    <span class="fa fa-eye-slash"></span>
+                    <span>{% trans "Hidden" %}</span>
+                  </div>
+                {% endif %}
+              {% endif %}
+              {% if author.is_correspondence_author %}
+                <div class="padding-block-0-25">
+                  <span class="fa fa-comments"></span>
+                  <span>{% trans "Correspondence" %}</span>
+                </div>
+              {% endif %}
+            {% endif %}
+            {% if not article.is_unsubmitted and can_see_pii and any_editor and author.author %}
+              <div class="padding-block-0-25">
+                <a
+                  target="_blank"
+                  href="{% url 'send_user_email' author.author.pk %}">
+                  <span class="fa fa-envelope"></span>
+                  <span>{% trans "Send email" %}</span>
+                  <span class="show-for-sr">(opens in new tab)</span>
+                </a>
+              </div>
+            {% endif %}
+          {% else %}
+            --
+          {% endif %}
+        </td>
+        {% if journal_settings.general.use_credit %}
+          <td>
+              <span class="credit">
+              {% for credit in author.credits %}
+                  {{ credit }}{% if not forloop.last %}, {% endif %}
+              {% empty %}
+                --
+              {% endfor %}
+              </span>
+          </td>
+        {% endif %}
+        <td>
+          {% if can_see_pii %}
+            {% include "admin/elements/orcid_display.html" %}
+          {% else %}
+            {% trans '[Anonymised data]' %}
+          {% endif %}
+        </td>
+        <td>
+          {% if author.primary_affiliation %}
+            {% if can_see_pii %}
+              {% include "admin/core/affiliation_display.html" with affiliation=author.primary_affiliation %}
+            {% else %}
+              {% trans '[Anonymised data]' %}
+            {% endif %}
+          {% else %}
+            --
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>

@@ -1,0 +1,16 @@
+/* This file resets some things for accessibility in the back-office UI
+ * and can also be expanded to hold other global variables */
+
+:root {
+
+  /* Back-office named colors */
+  --clr-blue-medium: #305AA3;
+  --clr-navy: #1a2a57;
+  --clr-black: #0a0a0a;
+  --clr-white: #fff;
+
+  /* Third-party named colors */
+  --clr-orcid: rgb(68, 116, 5);
+  --clr-orcid-light: rgb(245, 249, 232);
+
+}

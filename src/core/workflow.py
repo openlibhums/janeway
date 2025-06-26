@@ -22,7 +22,8 @@ ELEMENT_STAGES = {
     'copyediting': submission_models.COPYEDITING_STAGES,
     'production': [submission_models.STAGE_TYPESETTING],
     'proofing': [submission_models.STAGE_PROOFING],
-    'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION]
+    'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION],
+    'typesetting': [submission_models.STAGE_TYPESETTING_PLUGIN],
 }
 
 STAGES_ELEMENTS = {
@@ -38,6 +39,8 @@ STAGES_ELEMENTS = {
     submission_models.STAGE_TYPESETTING: 'production',
     submission_models.STAGE_PROOFING: 'proofing',
     submission_models.STAGE_READY_FOR_PUBLICATION: 'prepublication',
+
+    submission_models.STAGE_TYPESETTING_PLUGIN: 'typesetting'
 }
 
 
@@ -158,14 +161,17 @@ def create_default_workflow(journal):
 
     workflow, c = models.Workflow.objects.get_or_create(journal=journal)
 
-    for index, element in enumerate(models.BASE_ELEMENTS):
-        e, c = models.WorkflowElement.objects.get_or_create(journal=journal,
-                                                            element_name=element.get('name'),
-                                                            handshake_url=element['handshake_url'],
-                                                            stage=element['stage'],
-                                                            jump_url=element['jump_url'],
-                                                            article_url=element['article_url'],
-                                                            defaults={'order': index})
+    # Add the first 4 workflow elements (review, copyediting, typesetting and prepub)
+    for index, element in enumerate(models.BASE_ELEMENTS[0:4]):
+        e, c = models.WorkflowElement.objects.get_or_create(
+            journal=journal,
+            element_name=element.get('name'),
+            handshake_url=element['handshake_url'],
+            stage=element['stage'],
+            jump_url=element['jump_url'],
+            article_url=element['article_url'],
+            defaults={'order': index}
+        )
 
         workflow.elements.add(e)
 

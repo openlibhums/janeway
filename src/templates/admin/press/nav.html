@@ -76,12 +76,14 @@
                 <h1><a href="{{ request.site_type.site_url }}">{% if request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}</a></h1>
             </div>
             <div class="small-4 columns text-right">
-                <div class="profile">
+                {% if request.user.is_authenticated %}
+                  <div class="profile">
                     <a class="float-right" data-toggle="profile-dropdown">
                         <p class="show-for-medium">Hello, {{ request.user.first_name }}!</p>
                         {% include "elements/avatar.html" with user=request.user tooltip="off" %}
                     </a>
-                </div>
+                  </div>
+                {% endif %}
                 <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">
                     <ul class="menu vertical">
                         <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>

@@ -21,8 +21,8 @@
                                 {% endif %}
                              alt="{{ carousel_item.carousel_title|striptags }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
-                             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
-                             <h2>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
+                          <p>{{ carousel_item.carousel_subtitle|safe }}</p>
+                          <h2><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h2>
                         </div>
                     </div>
                 {% endfor %}
@@ -37,14 +37,12 @@
             </a>
               <div id="carousel-buttons">
                 <button id="carousel-play" type="button" class="btn btn-secondary btn-sm">
-                  <span class="fa fa-play">
-                    <span class="sr-only">{% trans 'Play' %}</span>
-                  </span>
+                  <i aria-hidden="true" class="fa fa-play" ></i>
+                  <span class="sr-only">{% trans 'Play' %}</span>
                </button>
                 <button id="carousel-pause" type="button" class="btn btn-secondary btn-sm">
-                  <span class="fa fa-pause">
-                    <span class="sr-only">{% trans 'Play' %}</span>
-                  </span>
+                  <i aria-hidden="true" class="fa fa-pause" ></i>
+                  <span class="sr-only">{% trans 'Pause' %}</span>
                 </button>
               </div>
         </div>

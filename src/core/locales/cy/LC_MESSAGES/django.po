@@ -393,7 +393,7 @@ msgstr ""
 
 #: src/core/views.py:355
 msgid ""
-"Your account has been created, please follow theinstructions in the email "
+"Your account has been created. Please follow the instructions in the email "
 "that has been sent to you."
 msgstr ""
 
@@ -3615,7 +3615,7 @@ msgstr "Hefyd yn rhan o:"
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:5
 #: src/themes/clean/templates/elements/journal/citation_modals.html:6
 #: src/themes/clean/templates/journal/article.html:294
-msgid "Harvard-Style Citation"
+msgid "Harvard-style Citation"
 msgstr "Cyfeirnod yn Arddull Harvard"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:9
@@ -3640,7 +3640,7 @@ msgstr "Cyfeirnodi yn Arddull APA "
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:27
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
 #: src/themes/clean/templates/journal/article.html:295
-msgid "Vancouver-Style Citation"
+msgid "Vancouver-style Citation"
 msgstr "Cyfeirnod yn Arddull Vancouver"
 
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
@@ -3652,7 +3652,7 @@ msgstr "Cyfeirnodi yn Arddull Harvard "
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/journal/article.html:296
-msgid "APA-Style Citation"
+msgid "APA-style Citation"
 msgstr "Cyfeirnodi yn Arddull APA"
 
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:4

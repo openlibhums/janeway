@@ -90,27 +90,7 @@
         </div>
 
         <div class="box">
-            <div class="title-area">
-                <h2>Authors</h2>
-            </div>
-            <div class="content">
-                <table class="hover stack scroll" id="unassigned">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Primary?</th>
-                    </tr>
-                    {% for order in article.articleauthororder_set.all %}
-                        <tr>
-                            <td>{{ order.author.full_name|se_can_see_pii:article }}</td>
-                            <td>{{ order.author.email|se_can_see_pii:article }}</td>
-                            <td>{% if order.author == article.correspondence_author %}
-                                <i class="fa fa-check-circle" style="color: green;"></i>{% else %}
-                                <i class="fa fa-times-circle" style="color: red;"></i>{% endif %}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
+          {% include "elements/author_summary_table.html" %}
         </div>
 
         <div class="box">

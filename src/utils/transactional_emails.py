@@ -546,12 +546,8 @@ def send_article_decision(**kwargs):
 def send_revisions_request(**kwargs):
     request = kwargs['request']
     revision = kwargs['revision']
-    user_message_content = kwargs['user_message_content']
-
-    if 'skip' not in kwargs:
-        kwargs['skip'] = True
-
-    skip = kwargs['skip']
+    email_data = kwargs["email_data"]
+    skip = kwargs.get('skip', False)
 
     description = '{0} has requested revisions for {1} due on {2}'.format(
         request.user.full_name(),
@@ -559,18 +555,19 @@ def send_revisions_request(**kwargs):
         revision.date_due,
     )
 
-    log_dict = {'level': 'Info',
-                'action_text': description,
-                'types': 'Revision Request',
-                'target': revision.article,
-                }
+    log_dict = {
+        'level': 'Info',
+        'action_text': description,
+        'types': 'Revision Request',
+        'target': revision.article,
+    }
 
     if not skip:
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            revision.article.correspondence_author,
+            email_data,
             request,
-            'subject_request_revisions',
-            revision.article.correspondence_author.email,
-            user_message_content,
+            article=revision.article,
             log_dict=log_dict,
         )
         notify_helpers.send_slack(
@@ -1328,7 +1325,7 @@ def send_prepub_notifications(**kwargs):
     article = kwargs['article']
     formset = kwargs['formset']
 
-    description = """
+    description = f"""
         {article.title} was set to be published {article.date_published}
         by {request.user.full_name()}
     """
@@ -1734,7 +1731,7 @@ def send_draft_decision_declined(**kwargs):
     description = '{user} has declined a draft decision {draft} written by {section_editor}'.format(
         user=request.user,
         draft=draft_decision.pk,
-        section_editor=draft_decision.section_editor.full_name,
+        section_editor=draft_decision.section_editor.full_name(),
     )
 
     log_dict = {
@@ -1790,7 +1787,7 @@ def access_request_complete(**kwargs):
     access_request = kwargs.get('access_request')
     decision = kwargs.get('decision')
     description = "Access request from {} evaluated by {}: {}".format(
-        access_request.user.full_name,
+        access_request.user.full_name(),
         request.user,
         decision,
     )

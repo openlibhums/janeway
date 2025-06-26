@@ -1,0 +1,8 @@
+{% comment %}
+A generic hollow cancel / go-back button with a cross icon
+{% endcomment %}
+
+{% load i18n %}
+
+{% trans "No, go back" as label %}
+{% include "admin/elements/a_cancel.html" with href=href size=size label=label %}

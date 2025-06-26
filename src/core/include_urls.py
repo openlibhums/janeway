@@ -23,30 +23,36 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 urlpatterns = [
-    path('submit/', include('submission.urls')),
     path('', include(journal_urls)),
-    path('review/', include('review.urls')),
-    path('metrics/', include('metrics.urls')),
+    path('api/', include('api.urls')),
+    path('api-auth/',
+    include('rest_framework.urls', namespace='rest_framework')),
+    path('cms/', include('cms.urls')),
+    path('copyediting/', include('copyediting.urls')),
+    path('cron/', include('cron.urls')),
+    path('discussion/', include('discussion.urls')),
+    path('feed/', include('rss.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
     path('identifiers/', include('identifiers.urls')),
+    path('install/', include('install.urls')),
+    path('metrics/', include('metrics.urls')),
+    path('news/', include('comms.urls')),
+    path('oidc/', include('mozilla_django_oidc.urls')),
     path('production/', include('production.urls')),
     path('proofing/', include('proofing.urls')),
-    path('cms/', include('cms.urls')),
-    path('transform/', include('transform.urls')),
-    path('copyediting/', include('copyediting.urls')),
-    path('rss/', include('rss.urls')),
-    path('feed/', include('rss.urls')),
-    path('cron/', include('cron.urls')),
-    path('install/', include('install.urls')),
-    path('i18n/', include('django.conf.urls.i18n')),
-    path('api/', include('api.urls')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('news/', include('comms.urls')),
     path('reports/', include('reports.urls')),
     path('repository/', include('repository.urls')),
+    path('review/', include('review.urls')),
+    path('rss/', include('rss.urls')),
+    path('submit/', include('submission.urls')),
+    path('transform/', include('transform.urls')),
+    # As part of the typesetting plugin's merge to core we need to support
+    # its original url path. Note that the plugin loader will no longer load
+    # the typesetting plugin.
+    path('plugins/typesetting/', include('typesetting.urls')),
+    path('typesetting/', include('typesetting.urls')),
     path('utils/', include('utils.urls')),
     path('workflow/', include('workflow.urls')),
-    path('discussion/', include('discussion.urls')),
-    path('oidc/', include('mozilla_django_oidc.urls')),
 
     # Root Site URLS
     re_path(r'^$', press_views.index, name='website_index'),
@@ -56,6 +62,11 @@ urlpatterns = [
     re_path(r'^login/$', core_views.user_login, name='core_login'),
     re_path(r'^login/orcid/$', core_views.user_login_orcid, name='core_login_orcid'),
     re_path(r'^register/step/1/$', core_views.register, name='core_register'),
+    re_path(
+        r'^register/step/1/(?P<orcid_token>[\w-]+)/$',
+        core_views.register,
+        name='core_register_with_orcid_token'
+    ),
     re_path(r'^register/step/2/(?P<token>[\w-]+)/$', core_views.activate_account, name='core_confirm_account'),
     re_path(r'^register/step/orcid/(?P<token>[\w-]+)/$', core_views.orcid_registration, name='core_orcid_registration'),
     re_path(r'^reset/step/1/$', core_views.get_reset_token, name='core_get_reset_token'),
@@ -117,6 +128,43 @@ urlpatterns = [
     re_path(r'^manager/user/add/$', core_views.add_user, name='core_add_user'),
     re_path(r'^manager/user/(?P<user_id>\d+)/edit/$', core_views.user_edit, name='core_user_edit'),
     re_path(r'^manager/user/(?P<user_id>\d+)/history/$', core_views.user_history, name='core_user_history'),
+
+    # Affiliations
+    re_path(
+        r'^profile/organization/search/$',
+        core_views.OrganizationListView.as_view(),
+        name='core_organization_search'
+    ),
+    re_path(
+        r'^profile/organization_name/create/$',
+        core_views.organization_name_create,
+        name='core_organization_name_create'
+    ),
+    re_path(
+        r'^profile/organization_name/(?P<organization_name_id>\d+)/update/$',
+        core_views.organization_name_update,
+        name='core_organization_name_update'
+    ),
+    re_path(
+        r'^profile/organization/(?P<organization_id>\d+)/affiliation/create/$',
+        core_views.affiliation_create,
+        name='core_affiliation_create'
+    ),
+    re_path(
+        r'^profile/affiliation/(?P<affiliation_id>\d+)/update/$',
+        core_views.affiliation_update,
+        name='core_affiliation_update'
+    ),
+    re_path(
+        r'^profile/affiliation/update-from-orcid/(?P<how_many>primary|all)/$',
+        core_views.affiliation_update_from_orcid,
+        name='core_affiliation_update_from_orcid'
+    ),
+    re_path(
+        r'^profile/affiliation/(?P<affiliation_id>\d+)/delete/$',
+        core_views.affiliation_delete,
+        name='core_affiliation_delete'
+    ),
 
     # Templates
     re_path(r'^manager/templates/$', core_views.email_templates, name='core_email_templates'),
@@ -206,7 +254,21 @@ urlpatterns = [
     # Cache
     re_path(r'^manager/cache/flush/$', core_views.flush_cache, name='core_flush_cache'),
 
-    re_path(r'^edit/article/(?P<article_id>\d+)/metadata/$', submission_views.edit_metadata, name='edit_metadata'),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/metadata/$',
+        submission_views.edit_metadata,
+        name='edit_metadata',
+    ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/author-metadata/$',
+        submission_views.edit_author_metadata,
+        name='submission_edit_author_metadata',
+    ),
+    re_path(
+        r'^edit/article/(?P<article_id>\d+)/current-authors/$',
+        submission_views.edit_current_authors,
+        name='submission_edit_current_authors',
+    ),
     re_path(r'^edit/article/(?P<article_id>\d+)/authors/order/$', submission_views.order_authors, name='order_authors'),
 
     # Public Profiles
@@ -279,7 +341,8 @@ if plugins:
                 "Failed to import urls for plugin %s: %s", plugin.name, error,
             )
         except Exception as error:
-            logger.error("Error loading plugin %s", block.name)
+            print("Error loading plugin %s", plugin.name)
+            logger.error("Error loading plugin %s", plugin.name)
             logger.exception(error)
 
 # load the notification plugins

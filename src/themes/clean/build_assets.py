@@ -51,5 +51,12 @@ def build():
     print('Creating folders')
     create_paths()
     print('Copying CSS')
-    copy_file('themes/clean/assets/css/clean.css', 'static/clean/css/clean.css')
+    copy_file(
+        'themes/clean/assets/css/clean.css',
+        'static/clean/css/clean.css',
+    )
+    copy_file(
+        'themes/clean/assets/js/tooltip-init.js',
+        'static/clean/js/tooltip-init.js',
+    )
     process_journals()

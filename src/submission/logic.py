@@ -12,10 +12,14 @@ from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.translation import get_language, gettext_lazy as _
 
+from core.forms import OrcidAffiliationForm
+from core.model_utils import generate_dummy_email
 from core import files
 from core import models as core_models
-from utils import setting_handler
+from utils import orcid, setting_handler, shared as utils_shared
+from utils.forms import clean_orcid_id
 from submission import models
+from submission.forms import EditFrozenAuthor, CreditRecordForm
 
 
 def add_self_as_author(user, article):
@@ -29,6 +33,7 @@ def add_user_as_author(user, article, give_role=True):
     :param article: An instance of submission.models.Article
     :param give_role: If true, the user is given the author role in the journal
     """
+    raise DeprecationWarning("Use FrozenAuthor instead.")
     if give_role:
         submission_requires_authorisation = article.journal.get_setting(
             group_name='general',
@@ -53,6 +58,9 @@ def add_user_as_author(user, article, give_role=True):
         author=user,
         defaults={'order': article.next_author_sort()},
     )
+    if not article.correspondence_author:
+        article.correspondence_author = user
+        article.save()
     return user
 
 
@@ -70,7 +78,7 @@ def get_author(request, article):
     try:
         author = frozen_authors.get(pk=author_id)
         return [author, 'author']
-    except core_models.Account.DoesNotExist:
+    except models.FrozenAuthor.DoesNotExist:
         return [None, None]
 
 
@@ -140,6 +148,9 @@ def add_keywords(soup, article):
 
 
 def import_from_jats_xml(path, journal, first_author_is_primary=False):
+    raise DeprecationWarning(
+        "Use the JATS importer in the imports plugin instead."
+    )
     with open(path) as file:
         soup = BeautifulSoup(file, 'lxml-xml')
         title = get_text(soup, 'article-title')
@@ -275,6 +286,7 @@ def order_fields(request, fields):
 
 
 def save_author_order(request, article):
+    raise DeprecationWarning("Use save_frozen_author_order instead.")
     author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
     for author in article.authors.all():
         order = author_pks.index(author.pk)
@@ -287,3 +299,311 @@ def save_author_order(request, article):
         if not c:
             author_order.order = order
             author_order.save()
+
+
+def save_frozen_author_order(request, article):
+    """
+    Calculate and make the needed change to FrozenAuthor.order
+    for each of the authors on the article.
+    request: HttpRequest with POST data including author_pk
+             and change_order (enum: "top", "up", "down", "bottom")
+    """
+    changed = False
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=author_id,
+        article=article,
+    )
+    change_order = request.POST.get('change_order')
+    all_authors = list(article.frozenauthor_set.all())
+    old_order = all_authors.index(author)
+    new_orders = {
+        'top': 0,
+        'up': max(old_order - 1, 0),
+        'down': min(old_order + 1, len(all_authors) - 1),
+        'bottom': len(all_authors) - 1,
+    }
+    new_order = new_orders[change_order]
+    if old_order != new_order:
+        all_authors.pop(old_order)
+        all_authors.insert(new_order, author)
+        for i, each_author in enumerate(all_authors):
+            each_author.order = i
+            each_author.save()
+        changed = True
+
+    if changed:
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s is now in '
+                     'position %(position)s.')
+                % {
+                    'author_name': author.full_name(),
+                    'position': str(author.order + 1),
+                },
+        )
+    else:
+        messages.add_message(
+            request,
+            messages.INFO,
+            _('%(author_name)s is already in '
+                     'position %(position)s.')
+                % {
+                    'author_name': author.full_name(),
+                    'position': str(author.order + 1),
+                },
+        )
+    return author
+
+
+def add_author_using_email(search_term, article):
+    email = search_term
+    author, created = models.FrozenAuthor.get_or_snapshot_if_email_found(
+        email,
+        article,
+    )
+    return author, created
+
+
+def add_author_using_orcid(search_term, article, request):
+    author = None
+    created = False
+    # Prep ORCID details if available
+    try:
+        cleaned_orcid = clean_orcid_id(search_term)
+    except ValueError:
+        cleaned_orcid = ""
+        return author, created
+
+    author, created = models.FrozenAuthor.get_or_snapshot_if_orcid_found(
+        cleaned_orcid,
+        article,
+    )
+    if author:
+        return author, created
+
+    # If there is no account or frozen author in Janeway with that orcid and article,
+    # get the public ORCID record.
+    orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
+    orcid_emails = orcid_details.get("emails", [])
+
+    # Check for accounts by email address.
+    for email in orcid_emails:
+        try:
+            account = core_models.Account.objects.get(
+                email=email,
+                orcid__isnull=True,
+            )
+            account.orcid=cleaned_orcid
+            account.save()
+            author = account.snapshot_as_author(article)
+            created = True
+            return author, created
+        except core_models.Account.DoesNotExist:
+            author = None
+
+    # Otherwise, make one.
+    form = EditFrozenAuthor(
+        {
+            'frozen_email': orcid_emails[0] if orcid_emails else '',
+            'first_name': orcid_details.get('first_name', ''),
+            'last_name': orcid_details.get('last_name', ''),
+        }
+    )
+    if form.is_valid():
+        author = form.save(commit=False)
+        author.article = article
+        author.frozen_orcid = cleaned_orcid
+        author.order = article.next_frozen_author_order()
+        author.save()
+        created = True
+
+    if created:
+        add_author_affiliation_from_orcid(author, orcid_details, request)
+
+    return author, created
+
+
+def add_author_affiliation_from_orcid(author, orcid_details, request):
+    orcid_affils = orcid_details.get("affiliations", [])
+    if orcid_affils:
+        tzinfo = author.author.preferred_timezone if author.author else None
+        orcid_affil_form = OrcidAffiliationForm(
+            orcid_affiliation=orcid_affils[0],
+            tzinfo=tzinfo,
+            data={'frozen_author': author}
+        )
+        if orcid_affil_form.is_valid():
+            affiliation = orcid_affil_form.save()
+
+
+def add_author_from_search(search_term, request, article):
+    """
+    Tries to add a FrozenAuthor from a search query.
+    """
+    author, created = add_author_using_email(search_term, article)
+    if not author:
+        author, created = add_author_using_orcid(search_term, article, request)
+
+    if author:
+        if created:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _('%(author_name)s is now an author.')
+                    % {
+                        "author_name": author.full_name(),
+                    },
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.INFO,
+                _('%(author_name)s is already an author.')
+                    % {
+                        "author_name": author.full_name(),
+                    },
+            )
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            _('No author found with search term: "%(search_term)s".')
+            % {"search_term" : search_term},
+        )
+
+    return author
+
+
+def add_new_author_from_form(request, article):
+    new_author_form = EditFrozenAuthor(request.POST)
+    author = None
+
+    frozen_email = request.POST.get("frozen_email")
+    if frozen_email:
+        authors = models.FrozenAuthor.objects.filter(
+            Q(article=article) &
+            (Q(frozen_email=frozen_email) |
+            Q(author__username__iexact=frozen_email))
+        )
+        if authors.exists():
+            author = authors.first()
+
+    if not author and new_author_form.is_valid():
+        author = new_author_form.save()
+        author.article = article
+        author.order = article.next_frozen_author_order()
+        author.save()
+    else:
+        messages.add_message(
+            request, messages.WARNING,
+            _('Could not add the author manually.'),
+        )
+
+    if author:
+        messages.add_message(
+            request, messages.SUCCESS,
+            _('%(author_name)s (%(email)s) added to the article.')
+                % {
+                    "author_name": author.full_name(),
+                    "email": author.email
+                },
+        )
+    return author
+
+
+def save_correspondence_author(request, article):
+    account = get_object_or_404(
+        core_models.Account,
+        pk=request.POST.get('corr_author', None),
+        frozenauthor__article=article,
+    )
+    article.correspondence_author = account
+    article.save()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s (%(email)s) made correspondence author.')
+            % {
+                "author_name": account.full_name(),
+                "email": account.email
+            },
+    )
+    author = account.frozen_author(article)
+    return author
+
+
+def get_credit_form(request, author):
+    use_credit = setting_handler.get_setting(
+        "general",
+        "use_credit",
+        journal=request.journal,
+    ).processed_value
+    if use_credit:
+        return CreditRecordForm(
+            frozen_author=author,
+        )
+    else:
+        return None
+
+
+def add_credit_role(request, article):
+    author_id = request.POST.get('author_pk')
+    try:
+        author_id = int(author_id)
+    except TypeError:
+        raise ValidationError('Invalid author ID submitted')
+    author = get_object_or_404(
+        models.FrozenAuthor,
+        pk=author_id,
+        article=article,
+    )
+    credit_form = CreditRecordForm(
+        request.POST,
+        frozen_author=author,
+    )
+    if credit_form.is_valid() and author:
+        record = credit_form.save()
+        record.frozen_author = author
+        record.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _('%(author_name)s now has role %(role)s.')
+                % {
+                    "author_name": author.full_name(),
+                    "role": record.get_role_display(),
+                },
+        )
+    return author
+
+
+def remove_credit_role(request, article):
+    credit_id = request.POST.get('credit_pk')
+    try:
+        credit_id = int(credit_id)
+    except TypeError:
+        raise ValidationError('Invalid credit ID submitted')
+    record = get_object_or_404(
+        models.CreditRecord,
+        pk=credit_id,
+        frozen_author__article=article,
+    )
+    author = record.frozen_author
+    role_display = record.get_role_display()
+    record.delete()
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _('%(author_name)s no longer has the role %(role)s.')
+            % {
+                "author_name": author.full_name(),
+                "role": role_display,
+            },
+    )
+    return author

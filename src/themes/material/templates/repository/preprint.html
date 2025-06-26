@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load bootstrap4 %}
+{% load next_url %}
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
@@ -53,8 +54,8 @@
                             <p>This {{ request.repository.object_name }} has no
                                 visible version.</p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
-                               class="waves-effect waves-light btn"><span
-                                    class="fa fa-download"></span>
+                               class="waves-effect waves-light btn">
+                               <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a>
                         {% else %}
@@ -63,21 +64,24 @@
                         {% endif %}
                     </div>
                 {% endif %}
+                {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
                 <div class="card">
                     <div class="card-content">
-                        <span class="card-title">{% trans 'Add a Comment' %}</span>
-                        {% if request.user.is_authenticated %}
-                            <div>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    {% bootstrap_form form %}
-                                    <button type="submit" class="btn btn-success">Add Comment</button>
-                                </form>
-                            </div>
-                            <br/>
-                        {% else %}
-                            <p>You must <a href="{% url 'core_login' %}">log in</a> to post a comment.</p>
-
+                        {% if request.repository.enable_comments %}
+                            <span class="card-title">{% trans 'Add a Comment' %}</span>
+                            {% if request.user.is_authenticated %}
+                                <div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {% bootstrap_form form %}
+                                        <button type="submit" class="btn btn-success">Add Comment</button>
+                                    </form>
+                                </div>
+                                <br/>
+                            {% else %}
+                                <p>You must <a href="{% url_with_return 'core_login' %}">log in</a>
+                                to post a comment.</p>
+                            {% endif %}
                         {% endif %}
                         <div class="divider"></div>
                         <br />
@@ -120,6 +124,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -129,8 +134,8 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
-                                    class="fa fa-download"></span>
+                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                                <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a></p>
                     {% endif %}
@@ -148,7 +153,7 @@
                     <div class="truncatejs">
                       <p class="authors">
                         {% for author in preprint.authors %}
-                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.gif' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>
@@ -179,7 +184,13 @@
                         <ul>
                         {% for version in preprint.preprintversion_set.all %}
                             {% if not version == preprint.current_version %}
-                                <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}"><i class="fa fa-download">&nbsp;</i>Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}</a></li>
+                                <li>
+                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                                        <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
+                                        <span class="sr-only">{% trans 'Download' %}</span>
+                                        Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                                    </a>
+                                </li>
                             {% endif %}
                         {% endfor %}
                         </ul>

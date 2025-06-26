@@ -6,7 +6,11 @@ We currently only support one major version of Janeway. The master development b
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.3.x   | :heavy_check_mark: |
+| 1.7.x   | ✅ |
+| 1.6.x   | :x: |
+| 1.5.x   | :x: |
+| 1.4.x   | :x: |
+| 1.3.x   | :x: |
 | <1.2.x   | :x:               |
 
 ## Advanced Notification

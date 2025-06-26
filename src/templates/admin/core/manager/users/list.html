@@ -3,6 +3,7 @@
 {% load foundation %}
 {% load press_url %}
 {% load securitytags %}
+{% load fqdn %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -27,10 +28,23 @@
         <aside class="box">
           <p> Note: This page lists all users with a role in
           <i>{{ request.journal.name }}</i>. If a broader search is needed,
-          try <a href="{{ request.press.url }}/user/all/">All Users
+          try <a href="{% stateless_site_url request.press 'press_all_users' %}">All Users
           at the press level</a>.</p>
-          {% comment %} The above URL is hardcoded because there is no other
-          way to form a press URL on a journal page at the moment. {% endcomment %}
+        </aside>
+      {% elif request.press and user.is_staff %}
+        <aside class="box">
+          <p>Note: This page lists everyone with an
+          account in {{ request.press.name }}.
+          You can also manage users at the journal level:
+          <ul>
+            {% for journal in request.press.journals_az %}
+              <li>
+                <a href="{% stateless_site_url journal 'journal_users' %}">
+                  {{ journal.name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
         </aside>
       {% endif %}
     </div>

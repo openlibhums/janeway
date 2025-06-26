@@ -5,6 +5,7 @@
 {% load i18n %}
 {% load roles %}
 {% load hooks %}
+{% load next_url %}
 
 <!doctype html>
 <html class="no-js" lang="en">
@@ -12,6 +13,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no"/>
     <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
@@ -42,13 +44,7 @@
         <link rel="alternate" type="application/rss+xml" title="Articles RSS Feed" href="{% url 'rss_articles' %}"/>
         <link  type="application/atom+xml" rel="alternate" title="News Feed for Journal" href="{% url 'rss_news' %}">
     {% endif %}
-
-    {% if request.journal and journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon" />
-    {% elif request.press.favicon %}
-        <link rel="icon" href="{{ request.press.favicon.url }}" type="image/vnd.microsoft.icon" />
-    {% endif %}
-
+    {% include "common/elements/favicons.html" %}
 </head>
 <body>
 {% include "common/elements/skip_to_main_content.html" %}
@@ -91,7 +87,8 @@
                     </div>
                     <div data-responsive-toggle="search-menu" data-hide-for="medium">
                         <a href="#" class="search-toggle" data-toggle>
-                            <i class="fa fa-search"></i>
+                            <i aria-hidden="true" class="fa fa-search"></i>
+                            <span class="sr-only">{% trans 'Search' %}</span>
                         </a>
                     </div>
                 </div>
@@ -139,7 +136,16 @@
                             {% endif %}
                         </li>
                     {% else %}
-                        <li><p><a href="{% url 'core_login' %}">{% trans "Login" %} </a>|<a href="{% url 'core_register' %}"> {% trans "Register" %}</a></p></li>
+                      <li>
+                        <p>
+                          <a href="{% url 'core_login' %}">
+                            {% trans "Log in" %}
+                          </a> |
+                          <a href="{% url 'core_register' %}">
+                            {% trans "Register" %}
+                          </a>
+                        </p>
+                      </li>
                     {% endif %}
                 </ul>
             </div>
@@ -150,7 +156,7 @@
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
                             <div class="input-group">
-                                <span class="input-group-label"><i class="fa fa-search"></i></span>
+                                <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
                                 <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
                                 <input type="hidden" name="sort" value="title">
 

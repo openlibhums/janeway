@@ -10,6 +10,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no"/>
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
@@ -21,11 +22,7 @@
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate"
           title="News Feed for Journal">
     {% endif %}
-    {% if request.journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
-    {% elif request.repository.favicon %}
-        <link rel="icon" href="{{ request.repository.favicon.url }}" type="image/vnd.microsoft.icon"/>
-    {% endif %}
+    {% include "common/elements/favicons.html" %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Roboto" rel="stylesheet">
     <link

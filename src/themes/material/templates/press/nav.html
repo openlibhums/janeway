@@ -3,6 +3,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
@@ -14,7 +15,6 @@
                                  alt="{{ request.press.name }}">
             {% endif %}
         </a>
-        {{ request.press.live_repositories }}
         <ul class="right hide-on-med-and-down">
             <li><a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}
@@ -25,7 +25,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}">
                             {{ item.link_name }}
-                            <i class="material-icons right">arrow_drop_down</i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% elif not item.for_footer %}
@@ -44,7 +44,7 @@
                         href="#!"
                         data-target="preprints">
                         {% trans "Repositories" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% endif %}
@@ -59,12 +59,20 @@
                         href="#!"
                         data-target="account">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
 
@@ -78,7 +86,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}-mobile">
                             {{ item.link_name }}
-                            <i class="material-icons right">arrow_drop_down</i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% elif not item.for_footer %}
@@ -95,7 +103,7 @@
                         href="#!"
                         data-target="preprints-mobile">
                         {% trans "Repositories" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% endif %}
@@ -107,19 +115,28 @@
                         href="#!"
                         data-target="dropdown1">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
         <a
             href="#!"
             data-target="nav-mobile"
             class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
     </div>
 </nav>

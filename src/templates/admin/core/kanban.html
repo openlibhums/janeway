@@ -33,6 +33,11 @@
                                     {% include "admin/elements/core/kanban/card.html" with article=article type='copyedit' %}
                                 {% endfor %}
 
+                            {% elif element.element_name == 'typesetting' %}
+                                {% for article in typesetting %}
+                                    {% include "typesetting/elements/card.html" with article=article type='typesetting' %}
+                                {% endfor %}
+
                             {% elif element.element_name == 'production' %}
                                 {% for article in production %}
                                     {% include "admin/elements/core/kanban/card.html" with article=article type='production' production_assigned=production_assigned %}

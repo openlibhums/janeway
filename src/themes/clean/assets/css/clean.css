@@ -243,6 +243,10 @@ main a:hover {
     background-color: rgba(55, 55, 55, .8);
 }
 
+.carousel-caption h2 a {
+    color: white;
+}
+
 .row-eq-height {
     display: -webkit-box;
     display: -webkit-flex;
@@ -456,4 +460,21 @@ header svg {
 
 .social-share-btn{
     border: 1px black solid;
+}
+
+#article blockquote {
+    background: #F0F0F0;
+    border-left: 10px solid #1C304A;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+}
+
+#reflist ul{
+    padding-left: 0;
+}
+
+#reflist li {
+    word-wrap: break-word;
+    list-style-type: none;
+    padding-bottom: 8px;
 }

@@ -1,14 +1,26 @@
 {% get_available_languages as LANGUAGES %}
 {% get_language_info_list for LANGUAGES as languages %}
 
-<label for="{{ field.id_for_label }}">
-    <strong>{{ field.label }}</strong>
+<div>
+  <label for="{{ field.id_for_label }}">
+    <strong>
+      {{ field.label }}
+      {% if field.field.required %}
+        <span aria-hidden="true">*</span>
+      {% endif %}
+    </strong>
     {% if languages|length > 1 and field.name in edit_form.translatable_field_names %}
-        <small class="green">[{% trans 'translatable' %}]</small>
+      <small class="green">[{% trans 'translatable' %}]</small>
     {% endif %}
-</label>
-{{ field }}
-<p class="help-text">{{ field.help_text|safe }}</p>
-{% for error in field.errors %}
-    <small{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
-{% endfor %}
+  </label>
+  {% for error in field.errors %}
+    <div {% if field.errors %}class="error"{% endif %}>
+      <span class="fa fa-warning"></span>
+      {{ error|escape }}
+    </div>
+  {% endfor %}
+  {{ field }}
+  {% if field.help_text %}
+    <p class="help-text">{{ field.help_text|safe }}</p>
+  {% endif %}
+</div>

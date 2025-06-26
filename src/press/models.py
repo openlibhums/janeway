@@ -11,7 +11,7 @@ import uuid
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
+from modeltranslation.utils import build_localized_fieldname
 from django.apps import apps
 
 from core import models as core_models
@@ -67,6 +67,12 @@ def press_text(type):
 
 
 class Press(AbstractSiteModel):
+
+    # There is no dashboard at the press level, and the press-level
+    # manager can only be viewed if account.is_admin, so we
+    # go to the site index after a successful login.
+    AUTH_SUCCESS_URL = "website_index"
+
     name = models.CharField(max_length=600)
     thumbnail_image = models.ForeignKey(
         'core.File',
@@ -129,8 +135,6 @@ class Press(AbstractSiteModel):
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
-    password_reset_text = JanewayBleachField(blank=True, null=True, default=press_text('reset'))
-    registration_text = JanewayBleachField(blank=True, null=True, default=press_text('registration'))
 
     password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
     password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
@@ -180,6 +184,32 @@ class Press(AbstractSiteModel):
         if filters:
             return journal_models.Journal.objects.filter(**filters)
         return journal_models.Journal.objects.all()
+
+    @property
+    def journals_az(self):
+        """
+        Get the a queryset of journals, ordered A-Z by journal name.
+        Note that this does not support multilingual journal names:
+        more work is needed on django-modeltranslation to
+        support Django subqueries.
+        """
+        Journal = apps.get_model('journal', 'Journal')
+        localized_column = build_localized_fieldname(
+            "value",
+            settings.LANGUAGE_CODE
+        )
+        name = core_models.SettingValue.objects.filter(
+            journal=models.OuterRef("pk"),
+            setting__name="journal_name",
+        )
+        journals = Journal.objects.all().annotate(
+            journal_name=models.Subquery(
+                name.values_list(localized_column, flat=True)[:1],
+                output_field=models.CharField(),
+            )
+        )
+        ordered = journals.order_by('journal_name')
+        return ordered
 
     @staticmethod
     def users():

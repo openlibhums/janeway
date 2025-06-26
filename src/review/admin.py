@@ -63,13 +63,13 @@ class ReviewFormAdmin(admin.ModelAdmin):
 
 
 class ElementAdmin(admin.ModelAdmin):
-    list_display = ('name', 'kind', 'required', 'order', 'width')
+    list_display = ('name', 'kind', 'required', 'order')
     list_filter = ('kind', 'required')
     search_fields = ('name', 'help_text')
 
 
 class FrozenReviewFormElementAdmin(admin.ModelAdmin):
-    list_display = ('name', 'kind', 'required', 'order', 'width')
+    list_display = ('name', 'kind', 'required', 'order')
     list_filter = ('kind', 'required')
     search_fields = ('name', 'help_text')
     raw_id_fields = ('form_element', 'answer',)

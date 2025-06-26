@@ -71,7 +71,8 @@
         <th colspan="4">Comments to Editor</th>
     </tr>
     <tr>
-        <td colspan="4">{% if article.comments_editor %}{{ article.comments_editor|linebreaksbr }}{% else %}No comments{% endif %}
+        <td colspan="4">
+          {{ article.comments_editor|safe|default:"No comment recorded" }}
         </td>
     </tr>
     {% if request.journal.submissionconfiguration.competing_interests %}
@@ -161,50 +162,8 @@
 </div>
 
 {% if article.frozenauthor_set.all %}
-    <div class="title-area">
-        <h2>Frozen Authors</h2>
-    </div>
-
-    <p>These records are those of the article authors frozen at the point of submission.</p>
-
-    <table class="scroll small" id="unassigned">
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Display Email Link?</th>
-            <th>Primary?</th>
-        </tr>
-        {% for f_author in article.frozenauthor_set.all %}
-            <tr>
-                <td>{{ f_author.full_name|se_can_see_pii:article }}</td>
-                <td>
-                    {% if f_author.author.email %}{{ f_author.author.email|se_can_see_pii:article }}
-                      {% if can_see_pii %}
-                        <span data-tooltip tabindex="1"
-                              title="Send an email to {{ f_author.author.email }}"><a
-                                onclick="return popitup('{% url 'send_user_email' f_author.author.pk %}')"><i
-                                class="fa fa-envelope">&nbsp;</i></a></span>
-                        <span data-tooltip tabindex="1"
-                              title="Account linked to author"><a
-                                href="{% url 'core_user_edit' f_author.author.pk %}"><i
-                                class="fa fa-user">&nbsp;</i></a></span>
-                      {% endif %}
-                    {% elif f_author.email %}
-                      {{ f_author.email|se_can_see_pii:article }}
-                    {% else %}
-                      No email address recorded.
-                    {% endif %}
-                </td>
-                <td>{{ f_author.display_email|bool_fa }}</td>
-                <td>{% if f_author.author == article.correspondence_author %}
-                    <i class="fa fa-check-circle" style="color: green;"></i>
-                {% else %}<i class="fa fa-times-circle" style="color: red;"></i>{% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+  {% include "elements/author_summary_table.html" %}
 {% endif %}
-
 
 {% if user_is_editor or not journal_settings.general.hide_editors_from_authors %}
 <div class="title-area">

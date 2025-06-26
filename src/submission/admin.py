@@ -25,12 +25,18 @@ class ArticleFundingAdmin(admin.ModelAdmin):
 
 class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ('pk', 'first_name', 'last_name',
-                    'frozen_email', 'frozen_orcid', 'institution', '_journal')
+                    'frozen_email', '_article', 'frozen_orcid', '_journal')
     list_filter = ('article__journal',)
     search_fields = ('frozen_email', 'frozen_orcid',
                      'first_name', 'last_name',
-                     'institution', 'frozen_biography', )
+                     'frozen_biography', )
     raw_id_fields = ('article', 'author',)
+
+    inlines = [
+        admin_utils.ControlledAffiliationInline,
+    ]
+    def _article(self, obj):
+        return truncatewords_html(obj.article, 6) if obj.article else ''
 
 
 class ArticleAdmin(admin_utils.JanewayModelAdmin):
@@ -108,6 +114,36 @@ class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
 
     def _article(self, obj):
         return truncatewords_html(str(obj.article), 10) if obj else ''
+
+
+class CreditRecordAdmin(admin.ModelAdmin):
+    list_display = ('role', '_article', 'frozen_author')
+    list_filter = ('frozen_author__article__journal', 'role')
+    search_fields = (
+        'role',
+        'frozen_author__article__title',
+        'frozen_author__first_name',
+        'frozen_author__last_name',
+        'frozen_author__frozen_email',
+        'frozen_author__author__email',
+        'preprint_author__account__first_name',
+        'preprint_author__account__last_name',
+        'preprint_author__account__email',
+    )
+
+    raw_id_fields = ('frozen_author', 'preprint_author')
+
+    def _article(self, obj):
+        if obj.frozen_author and obj.frozen_author.article:
+            return truncatewords_html(obj.frozen_author.article, 6)
+        else:
+            return ''
+
+    def _journal(self, obj):
+        if obj.frozen_author and obj.frozen_author.article:
+            return obj.frozen_author.article.journal
+        else:
+            return ''
 
 
 class LicenseAdmin(admin.ModelAdmin):
@@ -201,14 +237,6 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
     raw_id_fields = ('default_license', 'default_section')
 
 
-class ArticleAuthorOrderAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ('order', '_article', 'author', '_journal')
-    list_filter = ('article__journal', 'order')
-    search_fields = ('article__pk', 'article__title', 'author__email',
-                     'author__first_name', 'author__last_name')
-    raw_id_fields = ('article', 'author')
-
-
 admin_list = [
     (models.ArticleFunding, ArticleFundingAdmin),
     (models.Article, ArticleAdmin),
@@ -222,7 +250,7 @@ admin_list = [
     (models.FieldAnswer, FieldAnswerAdmin),
     (models.Keyword, KeywordAdmin),
     (models.SubmissionConfiguration, SubmissionConfigAdmin),
-    (models.ArticleAuthorOrder, ArticleAuthorOrderAdmin),
+    (models.CreditRecord, CreditRecordAdmin)
 ]
 
 [admin.site.register(*t) for t in admin_list]

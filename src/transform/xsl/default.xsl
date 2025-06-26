@@ -451,6 +451,14 @@
         </ol>
     </xsl:template>
 
+    <xsl:template match="back/notes/fn-group">
+        <!-- Render note items as an ordered list -->
+        <xsl:element name="ol">
+            <xsl:attribute name="class">footnotes</xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+
   <xsl:template match="back/notes/title[1]">
     <!-- Render the first title of the notes as a top level article header -->
     <xsl:element name="h2">
@@ -1758,7 +1766,9 @@
           <h2>References</h2>
         </xsl:if>
         <div id="reflist">
+          <ul>
             <xsl:apply-templates/>
+          </ul>
         </div>
     </xsl:template>
     <xsl:template match="ref-list/title">
@@ -1778,26 +1788,26 @@
   <!-- If ref/label, ref is a table row;
     If count(ref/citation) > 1, each citation is a table row -->
   <xsl:template match="ref">
-    <xsl:choose>
-      <xsl:when test="count(element-citation)=1">
-          <p id="{@id}">
-              <xsl:if test="label">
-                  <xsl:apply-templates select="label"/>
-              </xsl:if>
-            <xsl:apply-templates select="element-citation | nlm-citation"/>
-          </p>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
-            <p id="{parent::*/@id}">
-                <xsl:if test="parent::ref/label">
-                  <xsl:apply-templates select="parent::ref/label"/>
+      <xsl:choose>
+        <xsl:when test="count(element-citation)=1">
+            <li id="{@id}">
+                <xsl:if test="label">
+                    <xsl:apply-templates select="label"/>
                 </xsl:if>
-                <xsl:apply-templates select="."/>
-            </p>
-        </xsl:for-each>
-      </xsl:otherwise>
-    </xsl:choose>
+              <xsl:apply-templates select="element-citation | nlm-citation"/>
+            </li>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:for-each select="element-citation | nlm-citation | mixed-citation">
+              <li id="{parent::*/@id}">
+                  <xsl:if test="parent::ref/label">
+                    <xsl:apply-templates select="parent::ref/label"/>
+                  </xsl:if>
+                  <xsl:apply-templates select="."/>
+              </li>
+          </xsl:for-each>
+        </xsl:otherwise>
+      </xsl:choose>
   </xsl:template>
 
   <!-- becomes content of table cell, column 1-->
@@ -2928,19 +2938,23 @@
    -->
     <xsl:choose>
       <xsl:when test="self::person-group/@person-group-type='author'"> 
-          <xsl:apply-templates select="node()" mode="none"/>            
+        <xsl:apply-templates select="node()" mode="none"/>
         <xsl:if test="not(preceding-sibling::person-group)">
-        <xsl:text> (</xsl:text>
-        <xsl:value-of select="..//year"/>
-        <xsl:text>).</xsl:text>
+          <xsl:if test="..//year">
+            <xsl:text> (</xsl:text>
+            <xsl:value-of select="..//year"/>
+            <xsl:text>).</xsl:text>
+          </xsl:if>
         </xsl:if>
       </xsl:when>
       <xsl:when test="self::person-group/@person-group-type='editor'">
-          <xsl:apply-templates select="node()" mode="none"/>
+        <xsl:apply-templates select="node()" mode="none"/>
         <xsl:if test="not(preceding-sibling::person-group)">
-        <xsl:text>. (</xsl:text>
-        <xsl:value-of select="..//year"/>
-        <xsl:text>).</xsl:text>
+          <xsl:if test="..//year">
+            <xsl:text>. (</xsl:text>
+            <xsl:value-of select="..//year"/>
+            <xsl:text>).</xsl:text>
+          </xsl:if>
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>

@@ -1,25 +1,20 @@
-__copyright__ = "Copyright 2017 Birkbeck, University of London"
-__author__ = "Martin Paul Eve & Andy Byers"
+__copyright__ = "Copyright 2025 Birkbeck, University of London"
+__author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
-__maintainer__ = "Birkbeck Centre for Technology and Publishing"
-from datetime import datetime
-from dateutil import parser as dateparser
+__maintainer__ = "Open Library of Humanities"
+
 from mock import Mock
 import os
 
-from django.core.management import call_command
 from django.http import Http404
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase
 from django.utils import translation, timezone
 from django.urls.base import clear_script_prefix
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.test.utils import override_settings
 
-import swapper
-
-from core.models import Account, File, Galley
+from core.models import Account, File
 from identifiers import logic as id_logic
 from journal import models as journal_models
 from submission import (
@@ -29,10 +24,11 @@ from submission import (
     logic,
     models,
 )
+from utils.forms import clean_orcid_id
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from utils.shared import clear_cache
 from utils.testing import helpers
-from utils.testing.helpers import create_galley, request_context
+from utils.testing.helpers import create_galley
 
 FROZEN_DATETIME_2020 = timezone.make_aware(timezone.datetime(2020, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 0))
@@ -51,69 +47,81 @@ class SubmissionTests(TestCase):
         if not self.journal_one.submissionconfiguration:
             self.fail('Journal does not have a submissionconfiguration object.')
 
-    @staticmethod
-    def create_journal():
-        """
-        Creates a dummy journal for testing
-        :return: a journal
-        """
-        update_xsl_files()
-        update_settings()
-        journal_one = journal_models.Journal(code="TST", domain="testserver")
-        journal_one.title = "Test Journal: A journal of tests"
-        journal_one.save()
-        update_issue_types(journal_one)
-
-        return journal_one
-
-    @staticmethod
-    def create_authors():
+    @classmethod
+    def create_authors(cls):
         author_1_data = {
+            'email': 'one@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
-            'salutation': 'Prof.',
             'first_name': 'Martin',
+            'middle_name': '',
             'last_name': 'Eve',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
         author_2_data = {
+            'email': 'two@example.org',
             'is_active': True,
             'password': 'this_is_a_password',
-            'salutation': 'Sr.',
             'first_name': 'Mauro',
+            'middle_name': '',
             'last_name': 'Sanchez',
             'department': 'English & Humanities',
             'institution': 'Birkbeck, University of London',
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_2_data)
+        author_1 = helpers.create_author(cls.journal_one, **author_1_data)
+        author_2 = helpers.create_author(cls.journal_one, **author_2_data)
 
         return author_1, author_2
 
-    def create_sections(self):
-        self.section_1 = models.Section.objects.create(
+    @classmethod
+    def create_sections(cls):
+        cls.section_1 = models.Section.objects.create(
             name='Test Public Section',
-            journal=self.journal_one,
+            journal=cls.journal_one,
         )
-        self.section_2 = models.Section.objects.create(
+        cls.section_2 = models.Section.objects.create(
             name='Test Private Section',
             public_submissions=False,
-            journal=self.journal_one
+            journal=cls.journal_one
         )
-        self.section_3 = models.Section.objects.create(
-            journal=self.journal_one,
+        cls.section_3 = models.Section.objects.create(
+            journal=cls.journal_one,
         )
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         """
         Setup the test environment.
         :return: None
         """
-        self.journal_one = self.create_journal()
-        self.editor = helpers.create_editor(self.journal_one)
-        self.press = helpers.create_press()
-        self.create_sections()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.press = helpers.create_press()
+        cls.create_sections()
+        cls.licence = helpers.create_licence(
+            journal=cls.journal_one,
+            name="Creative Commons Attribution",
+            short_name="CC BY",
+        )
+        cls.article = helpers.create_article(cls.journal_one)
+
+        cls.boolean_field = models.Field.objects.create(
+            journal=cls.journal_one,
+            name='test_boolean',
+            kind='check',
+            order=1,
+            help_text='Test boolean field',
+            required=False
+        )
+        cls.text_field = models.Field.objects.create(
+            journal=cls.journal_one,
+            name='test_text',
+            kind='text',
+            order=1,
+            help_text='Test text field',
+            required=False,
+        )
 
     def test_article_image_galley(self):
         article = models.Article.objects.create(
@@ -159,7 +167,7 @@ class SubmissionTests(TestCase):
         <p>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
-        <i>Janeway JS</i> 1, 2-4.
+        <i>Journal One</i> 1, 2-4.
         doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
@@ -209,77 +217,41 @@ class SubmissionTests(TestCase):
         ):
             decorated(request)
 
-    def test_snapshot_author_metadata_correctly(self):
+    def test_snapshot_as_author_metadata_do_not_override(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
 
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()[0]
-        keys = {'first_name', 'last_name', 'department', 'institution'}
-
-        self.assertDictEqual(
-            {k: getattr(author, k) for k in keys},
-            {k: getattr(frozen, k) for k in keys},
-        )
-
-    def test_snapshot_author_order_correctly(self):
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-        )
-        author_1, author_2 = self.create_authors()
-        logic.add_user_as_author(author_1, article)
-        logic.add_user_as_author(author_2, article)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()
-        self.assertListEqual(
-            [author_1, author_2],
-            [f.author for f in article.frozen_authors().order_by("order")],
-            msg="Authors frozen in the wrong order",
-        )
-
-    def test_snapshot_author_metadata_do_not_override(self):
-        article = models.Article.objects.create(
-            journal = self.journal_one,
-            title="Test article: a test article",
-        )
-        author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()[0]
+        frozen = author.snapshot_as_author(article)
         new_department = "New department"
         frozen.department = new_department
         frozen.save()
-        article.snapshot_authors(force_update=False)
+        author.snapshot_as_author(article, force_update=False)
 
         self.assertEqual(
             frozen.department, new_department,
-            msg="Frozen author edits have been overriden by snapshot_authors",
+            msg="Frozen author info has been overridden by snapshot_as_author",
         )
 
-    def test_snapshot_author_metadata_override(self):
+    def test_snapshot_as_author_metadata_override(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
 
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
         new_department = "New department"
-        article.frozen_authors().update(department=new_department)
-        article.snapshot_authors(force_update=True)
-        frozen = article.frozen_authors().all()[0]
+        for frozen_author in article.frozen_authors():
+            frozen_author.department = new_department
+            frozen_author.save()
+        frozen = author.snapshot_as_author(article, force_update=True)
 
         self.assertEqual(
             frozen.department, author.department,
-            msg="Frozen author edits have been overriden by snapshot_authors",
+            msg="Frozen author edits have not been overridden by snapshot_as_author",
         )
 
     def test_frozen_author_prefix(self):
@@ -288,8 +260,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
 
         prefix = "Lord"
         article.frozen_authors().update(name_prefix=prefix)
@@ -303,8 +274,7 @@ class SubmissionTests(TestCase):
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
-        logic.add_user_as_author(author, article)
-        article.snapshot_authors()
+        author.snapshot_as_author(article)
 
         suffix = "Jr"
         article.frozen_authors().update(name_suffix=suffix)
@@ -312,26 +282,17 @@ class SubmissionTests(TestCase):
 
         self.assertTrue(frozen.full_name().endswith(suffix))
 
-    def test_snapshot_author_order_author_added_later(self):
+    def test_snapshot_as_author_order(self):
         article = models.Article.objects.create(
             journal = self.journal_one,
             title="Test article: a test article",
         )
         author_1, author_2 = self.create_authors()
-        logic.add_user_as_author(author_1, article)
-        logic.add_user_as_author(author_2, article)
-        no_order_author = Account.objects.create(
-            email="no_order@t.t",
-            first_name="no order",
-            last_name="no order",
-        )
-        article.authors.add(no_order_author)
-
-        article.snapshot_authors()
-        frozen = article.frozen_authors().all()
+        frozen_author_1 = author_1.snapshot_as_author(article)
+        frozen_author_2 = author_2.snapshot_as_author(article)
         self.assertListEqual(
-            [author_1, author_2, no_order_author],
-            [f.author for f in article.frozen_authors().order_by("order")],
+            [frozen_author_1.order, frozen_author_2.order],
+            [0, 1],
             msg="Authors frozen in the wrong order",
         )
 
@@ -458,7 +419,7 @@ class SubmissionTests(TestCase):
 
     @override_settings(URL_CONFIG='domain')
     def test_submit_info_view_form_selection_author(self):
-        author_1, author_2 = self.create_authors()
+        author_1, _ = self.create_authors()
         clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
@@ -522,7 +483,7 @@ class SubmissionTests(TestCase):
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
     def test_url_based_orcid_cleaned(self):
-        clean_orcid = forms.utility_clean_orcid(
+        clean_orcid = clean_orcid_id(
             'https://orcid.org/0000-0003-2126-266X'
         )
         self.assertEqual(
@@ -532,41 +493,7 @@ class SubmissionTests(TestCase):
 
     def test_orcid_value_error_raised(self):
         with self.assertRaises(ValueError):
-            forms.utility_clean_orcid('Mauro-sfak-orci-dtst')
-
-    def test_author_form_with_bad_orcid(self):
-        form = forms.AuthorForm(
-            {
-                'first_name': 'Mauro',
-                'last_name': 'Sanchez',
-                'biography': 'Mauro is a Jedi Master hailing from the planet Galicia.',
-                'institution': 'Birkbeck, University of London',
-                'email': 'mauro@janeway.systems',
-                'orcid': 'Mauro-sfak-orci-dtst',
-            }
-        )
-        self.assertFalse(
-            form.is_valid(),
-        )
-
-    def test_author_form_with_good_orcid(self):
-        form = forms.AuthorForm(
-            {
-                'first_name': 'Andy',
-                'last_name': 'Byers',
-                'biography': 'Andy is a Jedi Master hailing from the planet Scotland.',
-                'institution': 'Birkbeck, University of London',
-                'email': 'andy@janeway.systems',
-                'orcid': 'https://orcid.org/0000-0003-2126-266X',
-            }
-        )
-        self.assertTrue(
-            form.is_valid(),
-        )
-        self.assertEqual(
-            form.cleaned_data.get('orcid'),
-            '0000-0003-2126-266X',
-        )
+            clean_orcid_id('Mauro-sfak-orci-dtst')
 
     def test_author_form_harmful_inputs(self):
         harmful_string = '<span onClick="alert()"> This are not the droids you are looking for </span>'
@@ -575,18 +502,14 @@ class SubmissionTests(TestCase):
             "last_name",
             "middle_name",
             "name_prefix",
-            "suffix",
-            "institution",
-            "department",
+            "name_suffix",
         }):
-            form = forms.AuthorForm(
+            form = forms.EditFrozenAuthor(
                 {
                     'first_name': 'Andy',
                     'last_name': 'Byers',
-                    'biography': 'Andy',
-                    'institution': 'Birkbeck, University of London',
-                    'email': f'andy{i}@janeway.systems',
-                    'orcid': 'https://orcid.org/0000-0003-2126-266X',
+                    'frozen_biography': 'Andy',
+                    'frozen_email': f'andy{i}@janeway.systems',
                     **{attr: harmful_string},
                 }
             )
@@ -606,10 +529,9 @@ class SubmissionTests(TestCase):
         )
         helpers.create_issue(self.journal_one, 2, 1, articles=[article])
         author_a, author_b = self.create_authors()
-        logic.add_user_as_author(author_a, article)
-        logic.add_user_as_author(author_b, article)
+        author_a.snapshot_as_author(article)
+        author_b.snapshot_as_author(article)
 
-        article.snapshot_authors()
         # we have to clear cache here due to function cache relying on primary
         # keys being used for cache keys, which in tests will always be 1
         clear_cache()
@@ -648,10 +570,9 @@ class SubmissionTests(TestCase):
         )
         helpers.create_issue(self.journal_one, 2, 2, articles=[article])
         author_a, author_b = self.create_authors()
-        logic.add_user_as_author(author_a, article)
-        logic.add_user_as_author(author_b, article)
+        author_a.snapshot_as_author(article)
+        author_b.snapshot_as_author(article)
 
-        article.snapshot_authors()
         ris = encoding.encode_article_as_ris(article)
         expected = """
             TY  - JOUR
@@ -758,206 +679,97 @@ class SubmissionTests(TestCase):
             self.section_2.display_name_public_submission(),
         )
 
-
-class ArticleSearchTests(TransactionTestCase):
-    roles_path = os.path.join(
-        settings.BASE_DIR,
-        'utils',
-        'install',
-        'roles.json'
-    )
-    fixtures = [roles_path]
-
-    @staticmethod
-    def create_journal():
-        """
-        Creates a dummy journal for testing
-        :return: a journal
-        """
-        update_xsl_files()
-        update_settings()
-        journal_one = journal_models.Journal(code="TST", domain="testserver")
-        journal_one.title = "Test Journal: A journal of tests"
-        journal_one.save()
-        update_issue_types(journal_one)
-
-        return journal_one
-
-    @staticmethod
-    def create_authors():
-        author_1_data = {
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Prof.',
-            'first_name': 'Martin',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+    def test_boolean_field_unchecked_sets_false(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
         }
-        author_2_data = {
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Sr.',
-            'first_name': 'Mauro',
-            'last_name': 'Sanchez',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
+
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
+        )
+
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
+
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.boolean_field,
+        )
+        self.assertEqual(field_answer.answer, '')
+
+    def test_boolean_field_unchecked_sets_true(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
+            'test_boolean': 'on'
         }
-        author_1 = Account.objects.create(email="1@t.t", **author_1_data)
-        author_2 = Account.objects.create(email="2@t.t", **author_1_data)
 
-        return author_1, author_2
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
 
-    def setUp(self):
-        """
-        Setup the test environment.
-        :return: None
-        """
-        self.journal_one = self.create_journal()
-        self.editor = helpers.create_editor(self.journal_one)
-        self.press = helpers.create_press()
-
-    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
-    def test_article_full_text_search(self):
-        text_to_search = """
-            Exceeding reaction chamber thermal limit.
-            We have begun power-supply calibration.
-            Force fields have been established on all turbo lifts and crawlways.
-            Computer, run a level-two diagnostic on warp-drive systems.
-        """
-        from django.db import connection
-        if connection.vendor == "sqlite":
-            # No native support for full text search in sqlite
-            return
-        needle = "turbo lifts"
-
-        article = models.Article.objects.create(
-            journal=self.journal_one,
-            title="Testing the search of articles",
-            date_published=FROZEN_DATETIME_2020,
-            stage=models.STAGE_PUBLISHED,
-        )
-        _other_article = models.Article.objects.create(
-            journal=self.journal_one,
-            title="This article should not appear",
-            date_published=FROZEN_DATETIME_2020,
-        )
-        file_obj = File.objects.create(article_id=article.pk)
-        create_galley(article, file_obj)
-        FileText = swapper.load_model("core", "FileText")
-        text_to_search = FileText.preprocess_contents(text_to_search)
-        text = FileText.objects.create(
-            contents=text_to_search,
-        )
-        file_obj.text = text
-        file_obj.save()
-
-        # Mysql can't search at all without FULLTEXT indexes installed
-        call_command("generate_search_indexes")
-
-        search_filters = {"full_text": True}
-        queryset = models.Article.objects.search(needle, search_filters)
-        result = [a for a in queryset]
-
-        self.assertEqual(result, [article])
-
-    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
-    def test_article_search_abstract(self):
-        text_to_search = """
-            Exceeding reaction chamber thermal limit.
-            We have begun power-supply calibration.
-            Force fields have been established on all turbo lifts and crawlways.
-            Computer, run a level-two diagnostic on warp-drive systems.
-        """
-        needle = "Crawlways"
-
-        article = models.Article.objects.create(
-            journal=self.journal_one,
-            title="Test searching abstract",
-            date_published=FROZEN_DATETIME_2020,
-            stage=models.STAGE_PUBLISHED,
-            abstract=text_to_search,
-        )
-        other_article = models.Article.objects.create(
-            journal=self.journal_one,
-            title="This article should not appear",
-            date_published=FROZEN_DATETIME_2020,
-            abstract="Random abstract crawl text",
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
         )
 
-        # Mysql can't search at all without FULLTEXT indexes installed
-        call_command("generate_search_indexes")
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
 
-        search_filters = {"abstract": True}
-        queryset = models.Article.objects.search(needle, search_filters)
-        result = [a for a in queryset]
-
-        self.assertEqual(result, [article])
-
-    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
-    def test_article_search_title(self):
-        text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
-        needle = "diagnostic"
-
-        article = models.Article.objects.create(
-            journal=self.journal_one,
-            title=text_to_search,
-            date_published=FROZEN_DATETIME_2020,
-            stage=models.STAGE_PUBLISHED,
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.boolean_field,
         )
-        other_article = models.Article.objects.create(
-            journal=self.journal_one,
-            title="This article should not appear",
-            date_published=FROZEN_DATETIME_2020,
-        )
+        self.assertEqual(field_answer.answer, 'on')
 
-        # Mysql can't search at all without FULLTEXT indexes installed
-        call_command("generate_search_indexes")
+    def test_text_field_sets(self):
+        post_data = {
+            'title': 'Updated Title',
+            'absract': 'Test Abstract',
+            'language': 'eng',
+            'section': self.section_1.pk,
+            'license': self.licence.pk,
+            'test_text': 'Sometimes first contact is last contact.'
+        }
 
-        search_filters = {"title": True}
-        queryset = models.Article.objects.search(needle, search_filters)
-        result = [a for a in queryset]
+        request = helpers.get_request(journal=self.journal_one)
+        request.POST = post_data
 
-        self.assertEqual(result, [article])
-
-
-class FrozenAuthorModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.frozen_author = models.FrozenAuthor.objects.create(
-            name_prefix='Dr.',
-            first_name='S.',
-            middle_name='Bella',
-            last_name='Rogers',
-            name_suffix='Esq.',
+        form = forms.ArticleInfo(
+            data=post_data,
+            instance=self.article,
         )
 
-    def test_full_name(self):
-        self.assertEqual('Dr. S. Bella Rogers Esq.', self.frozen_author.full_name())
+        if form.is_valid():
+            form.save(
+                request=request,
+            )
+        else:
+            self.fail(f"Form is invalid: {form.errors}")
 
-
-class ArticleFormTests(TestCase):
-
-    def test_competing_interests_in_edit_article_metadata(self):
-        form = forms.EditArticleMetadata()
-        self.assertIn(
-            'competing_interests',
-            form.fields,
-            "'competing_interests' should be present in EditArticleMetadata",
+        field_answer = models.FieldAnswer.objects.get(
+            article=self.article,
+            field=self.text_field,
         )
-
-    def test_competing_interests_not_in_article_info_submit(self):
-        form = forms.ArticleInfoSubmit()
-        self.assertNotIn(
-            'competing_interests',
-            form.fields,
-            "'competing_interests' should NOT be present in ArticleInfoSubmit",
-        )
-
-    def test_competing_interests_not_in_editor_article_info_submit(self):
-        form = forms.EditorArticleInfoSubmit()
-        self.assertNotIn(
-            'competing_interests',
-            form.fields,
-            "'competing_interests' should NOT be present in EditorArticleInfoSubmit"
+        self.assertEqual(
+            field_answer.answer,
+            'Sometimes first contact is last contact.',
         )

@@ -1,0 +1,36 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}
+  {% block contextual_title %}{% endblock contextual_title %}
+  - {% include "admin/elements/contextual_site_name.html" %}
+{% endblock title %}
+
+{% block title-section %}
+  {{ block.super }}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="large-form">
+    <div class="padding-block-1">
+      <form method="POST">
+        {% csrf_token %}
+        {% include "admin/elements/forms/messages_in_callout.html" %}
+        <div class="card padding-block-2 padding-inline-2">
+          {% block form_content %}
+          {% endblock form_content %}
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock body %}
+
+{% block toastr %}
+  {% comment %}
+    Avoid showing the messages via Toastr since they should be included at the
+    top of the form.
+  {% endcomment %}
+{% endblock toastr %}

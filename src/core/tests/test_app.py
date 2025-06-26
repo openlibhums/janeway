@@ -5,6 +5,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from mock import patch
 
+from contextlib import redirect_stdout
+from io import StringIO
+
 from django.core.management import call_command
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
@@ -193,20 +196,19 @@ class CoreTests(TestCase):
                 "" % (email, email),
         )
 
-    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliation': 'Elk Valley University', 'country': 'US'}
+    orcid_record = {'orcid': "0000-0000-0000-0000", 'uri': "http://sandbox.orcid.org/0000-0000-0000-0000", 'emails': ["campbell@evu.edu"], 'last_name': 'Kasey', 'first_name': 'Campbell', 'affiliations': [{"organization": { "name": "Elk Valley University", "address": { "country": "US" }}}]}
 
-    @override_settings(CAPTCHA_TYPE=None)
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     @mock.patch('utils.orcid.get_orcid_record_details', return_value=orcid_record)
-    def test_orcid_registration(self, record_mock):
+    def test_register_with_orcid_token(self, record_mock):
         orcid_id = "0000-0000-0000-0000"
-        token  = models.OrcidToken.objects.create(orcid=orcid_id)
-        register_url = f"{reverse('core_register')}?token={token.token}"
+        token = models.OrcidToken.objects.create(orcid=orcid_id)
+        register_url = f'/register/step/1/{token.token}/'
 
         response = self.client.get(register_url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Campbell")
         self.assertContains(response, "Kasey")
-        self.assertContains(response, "Elk Valley University")
         self.assertContains(response, "campbell@evu.edu")
         self.assertNotContains(response, "Register with ORCiD")
         self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
@@ -356,7 +358,11 @@ class CoreTests(TestCase):
         clear_cache()
         response = self.client.post(reverse('core_register'), data, SERVER_NAME='testserver')
 
-        call_command('send_publication_notifications', self.article_two.journal.code)
+        with redirect_stdout(StringIO()):
+            call_command(
+                'send_publication_notifications',
+                self.article_two.journal.code,
+            )
 
         email = None
 

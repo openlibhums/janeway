@@ -22,15 +22,19 @@
                     {% endif %}
                 </div>
                 <div class="card-reveal">
-                    <span class="card-title grey-text text-darken-4"><i
-                            class="material-icons right">{% trans "close" %}</i></span>
+                    <span class="card-title grey-text text-darken-4">
+                        <i aria-hidden="true" class="fa fa-xmark" ></i>
+                        <span class="sr-only">{% trans 'Close.' %}</span>
+                    </span>
                     <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
                 </div>
                 <div class="card-action">
                     <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
                     {% if request.user and request.user.is_staff or user_is_editor %}
-                        <a href="{% url 'manage_issues_id' issue.pk %}"><i
-                                class="fa fa-edit">&nbsp;</i></a>
+                        <a href="{% url 'manage_issues_id' issue.pk %}">
+                            <i aria-hidden="true" class="fa fa-edit">&nbsp;</i>
+                            <span class="sr-only">{% trans "Edit Issue" %}</span>
+                        </a>
                     {% endif %}
                 </div>
             </div>

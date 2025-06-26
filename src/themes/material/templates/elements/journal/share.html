@@ -1,0 +1,19 @@
+<h4>{% trans "Share" %}</h4>
+{% with article.get_doi_url|default:article.url as share_url %}
+  <div class="share-container">
+    <label for="share-link" class="sr-only">{% trans "Article URL" %}</label>
+    <input
+            id="share-link"
+            type="text"
+            value="{{ share_url }}"
+            readonly
+    >
+    <button class="btn btn-small waves-effect waves-light teal darken-1 share-button"
+            type="button"
+            onclick="copyToClipboard()"
+            aria-label="{% trans 'Copy Share Link' %}"
+    >
+      <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;Copy
+    </button>
+  </div>
+{% endwith %}

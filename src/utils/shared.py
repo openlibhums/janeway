@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import random
 import mimetypes
 from datetime import datetime
+from ipware import get_client_ip
 from urllib.parse import urlencode, quote_plus
 
 from django.core.cache import cache
@@ -32,13 +33,12 @@ def get_ip_address(request):
     if request is None:
         return None
 
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')  # Real IP address of client Machine
-    return ip
+    client_ip, is_routable = get_client_ip(request)
 
+    if client_ip is None:
+        return None
+
+    return client_ip
 
 def clear_cache():
     cache.clear()

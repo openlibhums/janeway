@@ -10,10 +10,72 @@
 {% endblock %}
 
 {% block title-section %}User History{% endblock %}
-{% block title-sub %}Displays history objects that the user was involved with{% endblock %}
+{% block title-sub %}Displaying workflow history for {{ user.full_name }}{% endblock %}
 
 {% block body %}
     <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Submissions</h2>
+                </div>
+                <div class="content">
+                    <table class="scroll small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Article</th>
+                            <th>Stage</th>
+                            <th>Date Started</th>
+                            <th>Last Update</th>
+                        </tr>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>{{ submission.pk }}</td>
+                                {% if submission.stage == stages.STAGE_UNSUBMITTED %}
+                                    <td>{{ submission.safe_title }}</td>
+                                {% else %}
+                                    <td><a href="{% url 'manage_archive_article' submission.pk %}">{{ submission.safe_title }}</a></td>
+                                {% endif %}
+                                <td>{{ submission.stage }}</td>
+                                <td>{{ submission.date_started|date:"Y-m-d" }}</td>
+                                <td>{{ submission.date_updated|date:"Y-m-d" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No submissions</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Publications</h2>
+                </div>
+                <div class="content">
+                    <table class="scroll small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Article</th>
+                            <th>Date Started</th>
+                            <th>Date Published</th>
+                        </tr>
+                        {% for publication in publications %}
+                            <tr>
+                                <td>{{ publication.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' publication.pk %}">{{ publication.safe_title }}</a></td>
+                                <td>{{ publication.date_started|date:"Y-m-d" }}</td>
+                                <td>{{ publication.date_published|date:"Y-m-d" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No publications</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="row expanded">
             <div class="large-6 columns">
                 <div class="title-area">
@@ -22,6 +84,7 @@
                 <div class="content">
                 <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Notified</th>
@@ -29,14 +92,15 @@
                         </tr>
                         {% for assignment in user.editorassignment_set.all %}
                             <tr>
-                                <td>{{ assignment.article.safe_title }}</td>
+                                <td>{{ assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.article.pk %}">{{ assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.notified }}</td>
                                 <td>{{ assignment.editor_type|capfirst }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No editorial assignments</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -49,21 +113,25 @@
                 <div class="content">
                     <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Due</th>
-                            <th>Complete</th>
+                            <th>Status</th>
                         </tr>
                         {% for assignment in review_assignments %}
                             <tr>
-                                <td>{{ assignment.article.safe_title }}</td>
+                                <td>{{ assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.article.pk %}">{{ assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.date_requested }}</td>
-                                <td>{{ assignment.date_due }}</td>
-                                <td>{{ assignment.date_complete }}</td>
+                                <td>{{ assignment.date_due|date:"Y-m-d" }}</td>
+                                <td>
+                                  {{ assignment.request_decision_status }}
+                                </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No review assignments</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -78,6 +146,7 @@
                 <div class="content">
                     <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Due</th>
@@ -85,14 +154,15 @@
                         </tr>
                         {% for assignment in copyedit_assignments %}
                             <tr>
-                                <td>{{ assignment.article.safe_title }}</td>
+                                <td>{{ assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.article.pk %}">{{ assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.due }}</td>
                                 <td>{{ assignment.copyeditor_completed }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No copyediting assignments</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -105,6 +175,7 @@
                 <div class="content">
                     <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Accepted</th>
@@ -112,14 +183,15 @@
                         </tr>
                         {% for assignment in user.typesettask_set.all %}
                             <tr>
-                                <td>{{ assignment.assignment.article.safe_title }}</td>
+                                <td>{{ assignment.assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.assignment.article.pk %}">{{ assignment.assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.accepted }}</td>
                                 <td>{{ assignment.completed }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No typesetting assignments</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -134,6 +206,7 @@
                 <div class="content">
                     <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Notified</th>
@@ -141,14 +214,15 @@
                         </tr>
                         {% for assignment in user.productionassignment_set.all %}
                             <tr>
-                                <td>{{ assignment.article.safe_title }}</td>
+                                <td>{{ assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.article.pk %}">{{ assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.notified }}</td>
                                 <td>{{ assignment.closed }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No production manager assignments</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -161,6 +235,7 @@
                 <div class="content">
                     <table class="scroll small">
                         <tr>
+                            <th>ID</th>
                             <th>Article</th>
                             <th>Assigned</th>
                             <th>Due</th>
@@ -168,14 +243,15 @@
                         </tr>
                         {% for assignment in user.proofingtask_set.all %}
                             <tr>
-                                <td>{{ assignment.round.assignment.article.safe_title }}</td>
+                                <td>{{ assignment.round.assignment.article.pk }}</td>
+                                <td><a href="{% url 'manage_archive_article' assignment.round.assignment.article.pk %}">{{ assignment.round.assignment.article.safe_title }}</a></td>
                                 <td>{{ assignment.assigned }}</td>
                                 <td>{{ assignment.due }}</td>
                                 <td>{{ assignment.completed }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4">No review assignments</td>
+                                <td colspan="5">No proofing assignments</td>
                             </tr>
                         {% endfor %}
                     </table>

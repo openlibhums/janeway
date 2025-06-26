@@ -14,6 +14,7 @@ from repository import models as rm
 
 class TestModels(TestCase):
     def setUp(self):
+        helpers.create_roles(['author'])
         self.press = helpers.create_press()
         self.press.save()
         self.journal_one, self.journal_two = helpers.create_journals()

@@ -3,8 +3,9 @@
 {% load hooks %}
 {% load i18n %}
 
-{% block title %}{{ article.frozen_authors.all.0.last_name | striptags }} | {{ article.title | striptags }} |
-    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+{% block title %}
+  {% include "common/elements/journal/article_title.html" %}
+{% endblock %}
 
 {% block head %}
     <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
@@ -33,32 +34,7 @@
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
-                            <p></p><strong>{% if article.frozen_authors.count > 1 %}
-                                {% trans "Authors" %}:
-                                {% elif article.frozen_authors.count == 1 %}{% trans "Author" %}:
-                                {% endif %}
-                            </strong>
-                            {% for author in article.frozen_authors.all %}
-                                <span>{% if forloop.first == False %}, {% endif %}<span itemscope
-                                                                                        itemtype="http://schema.org/Person"
-                                                                                        itemprop="author"
-                                                                                        href="#"
-                                                                                        {% if author.author.biography %}data-toggle="author{{ forloop.counter }}{% endif %}">
-                                                                                        {% if author.author.enable_public_profile %}
-                                                                                            <a class="profilelink"
-                                                                                               href="{% url 'core_public_profile' author.author.uuid %}">{{ author.full_name }}</a>{% else %}
-                                                                                            {{ author.full_name }}{% endif %}
-                                    {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}">
-                                        <span style="background: url(https://orcid.org/sites/default/files/images/orcid_16x16.png) no-repeat;" class="orcid-img"></span>
-                                    </a>{% endif %}
-                                    {% if author.institution and author.institution != " " %}
-                                        <span itemprop="worksFor" itemscope
-                                              itemtype="http://schema.org/CollegeOrUniversity"><span
-                                                itemprop="name">({{ author.institution }})</span></span>{% endif %}
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}"
-                                           class="fa fa-envelope email-link"> {% trans 'Contact' %}</a>{% endif %}</span></span>
-                            {% endfor %}
+                          {% include "common/elements/journal/article_authors_br.html" %}
                         {% endif %}
                     </div>
                 </div>
@@ -79,11 +55,21 @@
                     <p>{{ article.abstract | safe }}</p>
                 {% endif %}
                 {% if article.keywords and article.keywords.count > 0 %}
-                    <p><strong>{% trans "Keywords" %}:</strong>
-                    {% for keyword in article.keywords.all %}
-                        {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}
-                    {{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}</p>
+                    <h3>{% trans "Keywords" %}:</h3>
+                    <ul class="list-inline">
+                        {% for keyword in article.keywords.all %}
+                            <li class="list-inline-item">
+                                {% if journal_settings.general.keyword_list_page %}
+                                    <a href="{% url 'keyword' keyword.pk %}">
+                                {% endif %}
+                                <span aria-hidden=true>{{ keyword.word }}</span>
+                                <span class="sr-only">{% trans 'Keyword:' %} {{ keyword.word }}</span>
+                                {% if journal_settings.general.keyword_list_page %}
+                                    </a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
                 {% if article.is_published or proofing %}
                     <p><strong>{% trans "How to Cite" %}:</strong>
@@ -111,7 +97,7 @@
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        <i class="fa fa-info"></i>
+                                        <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
                                 {% endif %}
@@ -150,37 +136,18 @@
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
                 {% if journal_settings.article.disable_article_large_image %}
-                    <h2>{% trans "Authors" %}</h2>
-                    <ul>
-                    {% for author in article.frozen_authors.all %}
-                        <li>
-                            {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}" class="">
-                                <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo">
-                            </a>{% endif %}
-                            {% if author.institution and author.institution != " " %}
-                                <span itemprop="worksFor" itemscope
-                                        itemtype="http://schema.org/CollegeOrUniversity"><span
-                                        itemprop="name">({{ author.institution }})</span></span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                     </ul>
+                  <h2>
+                    {% blocktrans count counter=article.frozen_authors.count %}
+                      Author
+                    {% plural %}
+                      Authors
+                    {% endblocktrans %}
+                  </h2>
+                  {% include "common/elements/journal/article_authors_ul.html" %}
                 {% endif %}
 
                 {% if article.is_published or proofing %}
-                    <h2>{% trans "Share" %}</h2>
-                    {% with article.get_doi_url as doi_url%}
-                        <a class="waves-effect waves-light btn btn-small social-share-btn facebook-bg"
-                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
-                        <a class="waves-effect waves-light btn btn-small social-share-btn twitter-x" 
-                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a>
-                        <a class="waves-effect waves-light btn btn-small social-share-btn linkedin-bg"
-                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
-                    {% endwith %}
+                    {% include "elements/journal/share.html" %}
                     <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}
                         <ul>
@@ -199,7 +166,7 @@
                         </ul>
                         {% if proofing %}
                             <p id="note_to_proofreader_2">
-                                <i class="fa fa-info"></i>
+                                <i aria-hidden="true" class="fa fa-info"></i>
                                 Note to proofreader: Download links on this page begin to work when the article is published.
                             </p>
                         {% endif %}
@@ -249,11 +216,13 @@
                     <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                     {% endif %}
                     {% if article.peer_reviewed %}
-                    <li>{% trans "Peer Reviewed" %} <span class="fa fa-check-circle"></span> </li>
+                        <li>{% trans "Peer Reviewed" %}
+                            <i aria-hidden="true" class="fa fa-check-circle"></i>
+                        </li>
                     {% endif %}
                     {% if article.license %}
-                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
-                                                 title="{{ article.license.text }}">{{ article.license.name }}</a></li>{% endif %}
+                    <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
+                                                 title="{{ article.license.text|safe }}">{{ article.license.name }}</a></li>{% endif %}
                     {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                         <li>
                             <a href="#" data-toggle="modal"
@@ -288,7 +257,9 @@
                     <h2>{% trans "Metrics" %}</h2>
                     <ul>
                         <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
-                        <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        {% if galleys %}
+                            <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                        {% endif %}
                         {% if article.metrics.alm.twitter %}
                             <li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
                         {% if article.metrics.alm.wikipedia %}
@@ -301,9 +272,9 @@
                     {% endif %}
                     <h2>{% trans "Citation" %}</h2>
                     <div class="btn-group-vertical">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-Style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-Style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-Style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-style Citation' %}</button>
                         <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
                             {% trans 'Download' %} RIS
                         </a>
@@ -312,6 +283,15 @@
                         </a>
                         <br/>
                     </div>
+                    {% if article.preprint and article.preprint.is_published %}
+                      <h2>{{ article.preprint.repository.object_name }}</h2>
+                      <p>This article is linked to
+                        a {{ article.preprint.repository.object_name }}
+                        in {{ article.preprint.repository.name }}.</p>
+                      <p>
+                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                      </p>
+                    {% endif %}
                     <h2>{% trans 'File Checksums' %}</h2> (MD5)
                     {% if galleys %}
                         <ul>
@@ -323,6 +303,22 @@
                         </ul>
                     {% else %}
                         <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                    {% endif %}
+
+                    {% if journal_settings.general.use_credit and author.credits.exists %}
+                      <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
+                      <ul>
+                        {% for author, credit_records in article.authors_and_credits.items %}
+                          <li>
+                            {{ author.full_name }}:
+                            <span class="credit">
+                              {% for record in credit_records %}
+                                {{ record }}{% if not forloop.last %}, {% endif %}
+                              {% endfor %}
+                            </span>
+                          </li>
+                        {% endfor %}
+                      </ul>
                     {% endif %}
                 {% endif %}
             </div>
@@ -358,4 +354,6 @@
     });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
+    <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "clean/js/tooltip-init.js" %}"></script>
 {% endblock js %}

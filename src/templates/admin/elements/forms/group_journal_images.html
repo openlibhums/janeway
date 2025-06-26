@@ -84,8 +84,8 @@
             {% include "admin/elements/forms/field.html" with field=attr_form.default_profile_image %}
         </div>
         <div class="large-4 columns">
-            {% if request.journal.default_editorial_team_image %}
-                <img src="{{ request.journal.default_editorial_team_image.url }}" class="thumbnail float-right">
+            {% if request.journal.default_profile_image %}
+                <img src="{{ request.journal.default_profile_image.url }}" class="thumbnail float-right">
             {% else %}
                 <img src="{% static "common/img/icons/users.png" %}" class="thumbnail float-right"/>
             {% endif %}

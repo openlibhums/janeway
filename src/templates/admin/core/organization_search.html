@@ -1,0 +1,96 @@
+{% extends "admin/elements/nitty_gritty.html" %}
+
+{% load i18n static next_url %}
+
+{% block contextual_title %}
+  {% trans "Add Affiliation" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Add Affiliation" %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if account and account == request.user %}
+    {% include "elements/breadcrumbs/edit_profile_base.html" %}
+  {% elif article and author %}
+    {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
+  {% endif %}
+  <li>{% trans "Add Affiliation" %}</li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "admin/core/affiliation_summary.html" %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Search for organization" %}
+{% endblock gritty_h2 %}
+
+{% block gritty %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  <form method="GET" id={{ facet_form.id }}>
+    <div class="input-group">
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      <label
+        for="{{ facet_form.q.id_for_label }}"
+        class="input-group-label">
+        {{ facet_form.q.label }}</label>
+      <input
+        id="{{ facet_form.q.id_for_label }}"
+        name="{{ facet_form.q.name }}"
+        class="input-group-field"
+        value="{{ facet_form.q.value|default:'' }}"
+        placeholder="e.g. birkbeck"
+        type="search">
+      <div class="input-group-button">
+        <button type="submit" class="button">
+          <span class="fa fa-search"></span>
+          Search
+        </button>
+      </div>
+    </div>
+  </form>
+  {% for organization in organization_list %}
+    <div class="callout">
+      <div class="flex space-between">
+        <div>
+          <h3>{{ organization.ror_display }}</h3>
+          <dl>
+            {% include "admin/elements/layout/key_value_above.html" with key="Locations" value=organization.locations.all list=True %}
+            {% if organization.also_known_as %}
+              {% include "admin/elements/layout/key_value_above.html" with key="Also known as" value=organization.also_known_as list=True %}
+            {% endif %}
+            {% include "admin/elements/layout/key_value_above.html" with key="ROR ID" value=organization.uri link=organization.uri %}
+            {% include "admin/elements/layout/key_value_above.html" with key="Website" value=organization.website link=organization.website %}
+          </dl>
+        </div>
+        <div>
+          {% if account %}
+            {% url_with_next 'core_affiliation_create' organization.pk as create_url %}
+          {% elif article and author %}
+            {% url_with_next 'submission_affiliation_create' article.pk author.pk organization.pk as create_url %}
+          {% endif %}
+          {% trans "Add affiliation" as add_affiliation %}
+          {% include "elements/a_create.html" with href=create_url label=add_affiliation %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p><strong>{% trans 'No organizations to display.' %}</strong></p>
+  {% endfor %}
+  <div class="callout">
+    <h3>{% trans "Organization not found?" %}</h3>
+    {% if account %}
+      {% url_with_next 'core_organization_name_create' as create_url %}
+    {% elif article and author %}
+      {% url_with_next 'submission_organization_name_create' article.pk author.pk as create_url %}
+    {% endif %}
+    {% trans "Create organization" as create_custom_organization %}
+    {% include "elements/a_create.html" with href=create_url label=create_custom_organization %}
+  </div>
+  {% if organization_list %}
+    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+  {% endif %}
+{% endblock gritty %}

@@ -59,7 +59,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         # If using this form and there is an instance then this has
         # previously been checked as it is required.
-        if self.instance:
+        if self.instance.id and 'submission_agreement' in self._meta.fields:
             self.fields['submission_agreement'].initial = True
 
         self.fields['subject'].queryset = models.Subject.objects.filter(
@@ -464,6 +464,8 @@ class RepositoryInitial(RepositoryBase):
             'theme',
             'display_public_metrics',
             'publisher',
+            'enable_comments',
+            'enable_invited_comments',
         )
         help_texts = {
             'domain': 'Using a custom domain requires configuring DNS. '

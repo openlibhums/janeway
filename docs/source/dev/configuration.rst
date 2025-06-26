@@ -15,7 +15,7 @@ Unlike traditional Django applications Janeway has two settings files, they are 
 
 Global Settings
 ---------------
-The global settings file is created by the Janeway team and is managed through version control. Generally speak you should not need to change anything in this file as you can use your local `settings.py` file to override variables.
+The global settings file is created by the Janeway team and is managed through version control. Generally speaking you should not need to change anything in this file as you can use your local `settings.py` file to override variables.
 
 Local Settings
 --------------
@@ -122,7 +122,7 @@ Theming
 --------
 Janeway includes three core themes by default:
 
-- OLH (Foudation)
+- OLH (Foundation)
 - material (Materialize)
 - clean (Bootstrap)
 
@@ -191,10 +191,13 @@ text field and text editor for each kind of text.
 There are four main field types, and there is a
 Janeway setting type for each one (`core.models.Setting`).
 
-| Display model | HTML            | No HTML           |
-| ------------- | --------------- | ----------------- |
-| Block         | Rich Text Field | Plain Text Field  |
-| Inline        | Mini HTML Field | Character Field   |
+=============   ===============   ================
+Display model   HTML              No HTML
+=============   ===============   ================
+Block           Rich Text Field   Plain Text Field
+Inline          Mini HTML Field   Character Field
+=============   ===============   ================
+
 
 Rich Text Fields
 ~~~~~~~~~~~~~~~~

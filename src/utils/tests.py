@@ -7,6 +7,7 @@ import io
 import os
 
 from django.apps import apps
+from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
 from django.core import mail
@@ -26,7 +27,12 @@ from utils import (
     logic,
     migration_utils,
 )
-from utils.orcid import get_orcid_record_details, build_redirect_uri
+from utils.orcid import (
+    get_orcid_record_details,
+    build_redirect_uri,
+    encode_state,
+    decode_state,
+)
 
 from utils import install
 from utils.transactional_emails import *
@@ -88,9 +94,9 @@ class UtilsTests(TestCase):
         )
 
         cls.submitted_article = helpers.create_article(cls.journal_one)
-        cls.submitted_article.authors.add(cls.author)
+        cls.author.snapshot_as_author(cls.submitted_article)
         cls.submitted_article.correspondence_author = cls.author
-        cls.submitted_article.authors.add(cls.coauthor)
+        cls.coauthor.snapshot_as_author(cls.submitted_article)
 
         cls.review_form = review_models.ReviewForm.objects.create(name="A Form", intro="i", thanks="t",
                                                                   journal=cls.journal_one)
@@ -104,8 +110,8 @@ class UtilsTests(TestCase):
             abstract="An abstract",
             stage=submission_models.STAGE_UNDER_REVIEW,
         )
-        cls.article_under_review.authors.add(cls.author)
-        cls.article_under_review.authors.add(cls.coauthor)
+        cls.author.snapshot_as_author(cls.article_under_review)
+        cls.coauthor.snapshot_as_author(cls.article_under_review)
 
         cls.review_assignment = review_models.ReviewAssignment.objects.create(article=cls.article_under_review,
                                                                               reviewer=cls.second_user,
@@ -1210,10 +1216,12 @@ class TestMigrationUtils(TestCase):
                 new_value,
                 saved_value,
             )
+
+
 class TestORCiDRecord(TestCase):
 
-    all_fields = {'orcid-identifier': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'preferences': {'locale': 'EN'}, 'history': {'creation-method': 'DIRECT', 'completion-date': None, 'submission-date': {'value': 1716899022299}, 'last-modified-date': {'value': 1717012729950}, 'claimed': True, 'source': None, 'deactivation-date': None, 'verified-email': True, 'verified-primary-email': True}, 'person': {'last-modified-date': {'value': 1717012710380}, 'name': {'created-date': {'value': 1716899022606}, 'last-modified-date': {'value': 1716931428927}, 'given-names': {'value': 'cdleschol'}, 'family-name': {'value': 'arship'}, 'credit-name': None, 'source': None, 'visibility': 'PUBLIC', 'path': '0000-0000-0000-0000'}, 'other-names': {'last-modified-date': None, 'other-name': [], 'path': '/0000-0000-0000-0000/other-names'}, 'biography': None, 'researcher-urls': {'last-modified-date': None, 'researcher-url': [], 'path': '/0000-0000-0000-0000/researcher-urls'}, 'emails': {'last-modified-date': {'value': 1717012710380}, 'email': [{'created-date': {'value': 1716899022599}, 'last-modified-date': {'value': 1717012710380}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'email': 'cdleschol@mailinator.com', 'path': None, 'visibility': 'PUBLIC', 'verified': True, 'primary': True, 'put-code': None}], 'path': '/0000-0000-0000-0000/email'}, 'addresses': {'last-modified-date': {'value': 1716931402191}, 'address': [{'created-date': {'value': 1716931402191}, 'last-modified-date': {'value': 1716931402191}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'country': {'value': 'US'}, 'visibility': 'PUBLIC', 'path': '/0000-0000-0000-0000/address/7884', 'put-code': 7884, 'display-index': 1}], 'path': '/0000-0000-0000-0000/address'}, 'keywords': {'last-modified-date': None, 'keyword': [], 'path': '/0000-0000-0000-0000/keywords'}, 'external-identifiers': {'last-modified-date': None, 'external-identifier': [], 'path': '/0000-0000-0000-0000/external-identifiers'}, 'path': '/0000-0000-0000-0000/person'}, 'activities-summary': {'last-modified-date': {'value': 1716931455651}, 'educations': {'last-modified-date': None, 'education-summary': [], 'path': '/0000-0000-0000-0000/educations'}, 'employments': {'last-modified-date': {'value': 1716931455651}, 'employment-summary': [{'created-date': {'value': 1716931455651}, 'last-modified-date': {'value': 1716931455651}, 'source': {'source-orcid': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'source-client-id': None, 'source-name': {'value': 'cdleschol arship'}}, 'department-name': None, 'role-title': None, 'start-date': None, 'end-date': None, 'organization': {'name': 'California Digital Library', 'address': {'city': 'Oakland', 'region': 'California', 'country': 'US'}, 'disambiguated-organization': {'disambiguated-organization-identifier': 'https://ror.org/03yrm5c26', 'disambiguation-source': 'ROR'}}, 'visibility': 'PUBLIC', 'put-code': 66225, 'path': '/0000-0000-0000-0000/employment/66225'}], 'path': '/0000-0000-0000-0000/employments'}, 'fundings': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/fundings'}, 'peer-reviews': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/peer-reviews'}, 'works': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/works'}, 'path': '/0000-0000-0000-0000/activities'}, 'path': '/0000-0000-0000-0000'}
-    min_fields = {'orcid-identifier': {'uri': 'http://sandbox.orcid.org/0000-0000-0000-0000', 'path': '0000-0000-0000-0000', 'host': 'sandbox.orcid.org'}, 'preferences': {'locale': 'EN'}, 'history': {'creation-method': 'DIRECT', 'completion-date': None, 'submission-date': {'value': 1716899022299}, 'last-modified-date': {'value': 1717012843372}, 'claimed': True, 'source': None, 'deactivation-date': None, 'verified-email': True, 'verified-primary-email': True}, 'person': {'last-modified-date': None, 'name': None, 'other-names': {'last-modified-date': None, 'other-name': [], 'path': '/0000-0000-0000-0000/other-names'}, 'biography': None, 'researcher-urls': {'last-modified-date': None, 'researcher-url': [], 'path': '/0000-0000-0000-0000/researcher-urls'}, 'emails': {'last-modified-date': None, 'email': [], 'path': '/0000-0000-0000-0000/email'}, 'addresses': {'last-modified-date': None, 'address': [], 'path': '/0000-0000-0000-0000/address'}, 'keywords': {'last-modified-date': None, 'keyword': [], 'path': '/0000-0000-0000-0000/keywords'}, 'external-identifiers': {'last-modified-date': None, 'external-identifier': [], 'path': '/0000-0000-0000-0000/external-identifiers'}, 'path': '/0000-0000-0000-0000/person'}, 'activities-summary': {'last-modified-date': None, 'educations': {'last-modified-date': None, 'education-summary': [], 'path': '/0000-0000-0000-0000/educations'}, 'employments': {'last-modified-date': None, 'employment-summary': [], 'path': '/0000-0000-0000-0000/employments'}, 'fundings': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/fundings'}, 'peer-reviews': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/peer-reviews'}, 'works': {'last-modified-date': None, 'group': [], 'path': '/0000-0000-0000-0000/works'}, 'path': '/0000-0000-0000-0000/activities'}, 'path': '/0000-0000-0000-0000'}
+    all_fields = helpers.get_orcid_record_all_fields()
+    min_fields = helpers.get_orcid_record_min_fields()
 
     @mock.patch('utils.orcid.get_orcid_record', return_value=all_fields)
     def test_record_details_all(self, mock_record):
@@ -1238,8 +1246,129 @@ class TestORCiDRecord(TestCase):
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
 
-    def test_redirect_uri(self):
-        press= helpers.create_press()
-        repo = helpers.create_repository(press, [], [])
-        self.assertEqual(build_redirect_uri(repo), "http://localhost/login/orcid/?state=login")
-        self.assertEqual(build_redirect_uri(repo, action="register"), "http://localhost/login/orcid/?state=register")
+    @mock.patch('utils.logic.get_current_request')
+    def test_redirect_uri(self, get_current_request):
+        press = helpers.create_press()
+        repo, _subject = helpers.create_repository(press, [], [])
+        request = helpers.Request()
+        request.site_type = repo
+        get_current_request.return_value = request
+        self.assertEqual(
+            build_redirect_uri(repo),
+            "http://repo.domain.com/login/orcid/"
+        )
+
+
+class URLLogicTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        # The raw unicode string of a 'next' URL
+        cls.next_url_raw = '/target/page/?a=b&x=y'
+        # The above string url-encoded with safe='/'
+        cls.next_url_encoded = '/target/page/%3Fa%3Db%26x%3Dy'
+        # The above string prepended with 'next='
+        cls.next_url_query_string = 'next=/target/page/%3Fa%3Db%26x%3Dy'
+        # The core_login url with encoded next url
+        cls.core_login_with_next = '/login/?next=/target/page/%3Fa%3Db%26x%3Dy'
+
+    def test_build_url_query_as_querydict(self):
+        querydict = QueryDict('a=b&a=c', mutable=True)
+        querydict.update({'next': self.next_url_raw})
+        url = logic.build_url(
+            'example.org',
+            scheme='https',
+            path='/path/',
+            query=querydict,
+        )
+        self.assertEqual(
+            url,
+            'https://example.org/path/?a=b&a=c&next=/target/page/%3Fa%3Db%26x%3Dy',
+        )
+
+    def test_build_url_query_as_plain_dict(self):
+        plain_dict = {
+            'a': 'b',
+            'next': self.next_url_raw,
+        }
+        url = logic.build_url(
+            'example.org',
+            scheme='https',
+            path='/path/',
+            query=plain_dict,
+        )
+        self.assertEqual(
+            url,
+            'https://example.org/path/?a=b&next=/target/page/%3Fa%3Db%26x%3Dy',
+        )
+
+    def test_build_url_query_as_string(self):
+        query_string = f'a=b&a=c&{ self.next_url_query_string }'
+        url = logic.build_url(
+            'example.org',
+            scheme='https',
+            path='/path/',
+            query=query_string,
+        )
+        self.assertEqual(
+            url,
+            'https://example.org/path/?a=b&a=c&next=/target/page/%3Fa%3Db%26x%3Dy',
+        )
+
+    def test_add_query_parameters_to_url(self):
+        url = 'https://example.org/path/?a=b&a=c'
+        new_url = logic.add_query_parameters_to_url(
+            url,
+            {'next': self.next_url_raw},
+        )
+        self.assertEqual(
+            f'https://example.org/path/?a=b&a=c&{self.next_url_query_string}',
+            new_url,
+        )
+
+    def test_orcid_encode_state(self):
+        result = encode_state(self.next_url_raw, 'login')
+        expected = f'next={self.next_url_encoded}&action=login'
+        self.assertEqual(result, expected)
+
+    def test_orcid_decode_state(self):
+        result = decode_state(
+            f'next={self.next_url_encoded}&action=register'
+        )
+        expected = {'next': [self.next_url_raw], 'action':['register']}
+        self.assertDictEqual(result, expected)
+
+
+class TestRORImport(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ror_records = helpers.get_ror_records()
+
+    def test_filter_new_records(self):
+        existing_rors = {
+            "00j1xwp39": "2013-12-10",
+        }
+        new_records = models.RORImport.filter_new_records(
+            self.ror_records,
+            existing_rors,
+        )
+        self.assertListEqual(
+            [os.path.split(record.get('id'))[-1] for record in new_records],
+            ["013yz9b19", "035dkdb55"]
+        )
+
+    def test_filter_updated_records(self):
+        existing_rors = {
+            "00j1xwp39": "2013-12-10",
+            "013yz9b19": "2024-12-10",
+            "035dkdb55": "2024-12-12",
+        }
+        updated_records = models.RORImport.filter_updated_records(
+            self.ror_records,
+            existing_rors,
+        )
+        self.assertListEqual(
+            [os.path.split(record.get('id'))[-1] for record in updated_records],
+            ["00j1xwp39", "013yz9b19"]
+        )

@@ -1,0 +1,20 @@
+{% if article.is_unsubmitted %}
+  {% include "elements/breadcrumbs/submit_authors_base.html" %}
+{% else %}
+  {% include "elements/breadcrumbs/edit_author_metadata_base.html" with subpage="yes" %}
+{% endif %}
+{% if subpage %}
+  <li>
+    <a href="{% url 'submission_edit_author' article.pk author.pk %}">
+      {% blocktrans with author_name=author.full_name %}
+        Edit "{{ author_name }}"
+      {% endblocktrans %}
+    </a>
+  </li>
+{% else %}
+  <li>
+    {% blocktrans with author_name=author.full_name %}
+      Edit "{{ author_name }}"
+    {% endblocktrans %}
+  </li>
+{% endif %}

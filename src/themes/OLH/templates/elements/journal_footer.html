@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n next_url %}
+
 <div class="large-5 columns">
     <p>
     | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} |{% endif %}
@@ -27,7 +28,13 @@
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
-        {% if not request.user.is_authenticated %}<li><a href="{% url 'core_login' %}">{% trans 'Login' %}</a></li>{% endif %}
+        {% if not request.user.is_authenticated %}
+          <li>
+            <a href="{% url 'core_login' %}">
+              {% trans 'Log in' %}
+            </a>
+          </li>
+        {% endif %}
         {% if journal_settings.general.switch_language %}
         <li>
             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}

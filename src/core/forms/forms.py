@@ -5,9 +5,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import uuid
 import json
+import os
 
 from django import forms
 from django.db.models import Q
+from django.utils.datastructures import MultiValueDict
 from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +29,7 @@ from utils.forms import (
     JanewayTranslationModelForm,
     CaptchaForm,
     HTMLDateInput,
+    YesNoRadio,
 )
 from utils.logger import get_logger
 from submission import models as submission_models
@@ -110,8 +113,23 @@ class EditorialGroupForm(JanewayTranslationModelForm):
 
 class PasswordResetForm(forms.Form):
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    password_1 = forms.CharField(
+        label=_('Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autofocus': True,
+                'autocomplete': 'new-password',
+            }
+        ),
+    )
+    password_2 = forms.CharField(
+        label=_('Repeat Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        ),
+    )
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -129,18 +147,36 @@ class GetResetTokenForm(forms.Form):
     """ A form that validates password reset email addresses"""
 
     email_address = forms.EmailField(
-        required=True, 
+        required=True,
         label=_("Email"),
-        widget=forms.EmailInput(attrs={"placeholder": "janeway@example.com"}),
+        widget=forms.EmailInput(
+            attrs={
+                'autofocus': True,
+            }
+        ),
     )
-    
+
 
 class RegistrationForm(forms.ModelForm, CaptchaForm):
     """ A form that creates a user, with no privileges,
     from the given username and password."""
 
-    password_1 = forms.CharField(widget=forms.PasswordInput, label=_('Password'))
-    password_2 = forms.CharField(widget=forms.PasswordInput, label=_('Repeat Password'))
+    password_1 = forms.CharField(
+        label=_('Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        )
+    )
+    password_2 = forms.CharField(
+        label=_('Repeat Password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'new-password',
+            }
+        )
+    )
     register_as_reader = forms.BooleanField(
         label='Register for Article Notifications',
         help_text=_('Check this box if you would like to receive notifications of new articles published in this journal'),
@@ -150,7 +186,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'department', 'institution', 'country', 'orcid',)
+                  'last_name', 'orcid',)
         widgets = {'orcid': forms.HiddenInput() }
 
     def __init__(self, *args, **kwargs):
@@ -198,7 +234,10 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
 
 class EditAccountForm(forms.ModelForm):
-    """ A form that creates a user, with no privileges, from the given username and password."""
+    """
+    A form for modifying profile details of an account, such as
+    name, bio, signature, socials, picture, and interests.
+    """
 
     interests = forms.CharField(required=False)
 
@@ -209,8 +248,9 @@ class EditAccountForm(forms.ModelForm):
                    'is_staff', 'is_admin', 'date_joined', 'password',
                    'is_superuser', 'enable_digest')
         widgets = {
-            'biography': TinyMCE(),
-            'signature': TinyMCE(),
+            'biography': TinyMCE,
+            'signature': TinyMCE,
+            'enable_public_profile': YesNoRadio,
         }
 
     def save(self, commit=True):
@@ -235,10 +275,18 @@ class EditAccountForm(forms.ModelForm):
 
 
 class AdminUserForm(forms.ModelForm):
+    """
+    A form for editors and staff to edit user accounts.
+    """
 
     class Meta:
         model = models.Account
-        fields = ('email', 'is_active', 'is_staff', 'is_admin', 'is_superuser')
+        fields = ('email', 'is_active', 'is_staff', 'is_superuser')
+        widgets = {
+            'is_active': YesNoRadio,
+            'is_staff': YesNoRadio,
+            'is_superuser': YesNoRadio,
+        }
 
     def __init__(self, *args, **kwargs):
         active = kwargs.pop('active', None)
@@ -480,7 +528,7 @@ class SectionForm(JanewayTranslationModelForm):
         fields = [
             'name', 'plural', 'number_of_reviewers',
             'is_filterable', 'sequence', 'section_editors',
-            'editors', 'public_submissions', 'indexing',
+            'editors', 'jats_article_type', 'public_submissions', 'indexing',
             'auto_assign_editors',
         ]
 
@@ -499,12 +547,20 @@ class SectionForm(JanewayTranslationModelForm):
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name', 'institution',)
+        fields = ('email', 'salutation', 'first_name', 'last_name',)
 
 
 class LoginForm(CaptchaForm):
     user_name = forms.CharField(max_length=255, label="Email")
-    user_pass = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
+    user_pass = forms.CharField(
+        max_length=255,
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                'autocomplete': 'current-password',
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         bad_logins = kwargs.pop('bad_logins', 0)
@@ -659,7 +715,7 @@ class CBVFacetForm(forms.Form):
                     choices.append((value, label_with_count))
 
                 choices = sorted(choices, key=lambda x: x[1])
-                self.fields[facet_key] = forms.ChoiceField(
+                self.fields[facet_key] = forms.MultipleChoiceField(
                     widget=forms.widgets.CheckboxSelectMultiple,
                     choices=choices,
                     required=False,
@@ -904,3 +960,130 @@ class AccountRoleForm(forms.ModelForm):
     class Meta:
         model = models.AccountRole
         fields = '__all__'
+
+
+class OrganizationNameForm(forms.ModelForm):
+
+    class Meta:
+        model = models.OrganizationName
+        fields = ('value',)
+
+
+class AccountAffiliationForm(forms.ModelForm):
+    """
+    A form for account holders to edit their own affiliations.
+    Not intended for editing someone else's affiliations.
+    """
+
+    class Meta:
+        model = models.ControlledAffiliation
+        fields = ('title', 'department', 'is_primary', 'start', 'end')
+        widgets = {
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.account = kwargs.pop('account', None)
+        self.organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.instance.pk:
+            query = Q(account=self.account, organization=self.organization)
+            for key, value in cleaned_data.items():
+                query &= Q((key, value))
+            if self._meta.model.objects.filter(query).exists():
+                self.add_error(
+                    None,
+                    "An affiliation with matching details already exists."
+                )
+        return cleaned_data
+
+    def save(self, commit=True):
+        affiliation = super().save(commit=False)
+        affiliation.account = self.account
+        affiliation.organization = self.organization
+        if commit:
+            affiliation.save()
+        return affiliation
+
+
+class OrcidAffiliationForm(forms.ModelForm):
+    """
+    A form for creating ControlledAffiliation objects
+    from ORCID data.
+    """
+
+    class Meta:
+        model = models.ControlledAffiliation
+        fields = '__all__'
+
+    def __init__(
+        self,
+        orcid_affiliation,
+        tzinfo=timezone.get_current_timezone(),
+        data=None,
+        *args,
+        **kwargs,
+    ):
+        if not data:
+            data = MultiValueDict()
+
+        # The `get` methods below are used together with `or`
+        # defensively because of the data population in the API.
+        # It can have keys pointing to None values like:
+        # {"year": {"value": 2019}, "month": None}
+
+        data['title'] = orcid_affiliation.get('role-title', '') or ''
+        data['department'] = orcid_affiliation.get('department-name', '') or ''
+
+        org = None
+        orcid_org = orcid_affiliation.get('organization', {}) or {}
+        disamb_org = orcid_org.get('disambiguated-organization', {}) or {}
+        disamb_id = disamb_org.get('disambiguated-organization-identifier', '') or ''
+        if disamb_id.startswith('https://ror.org/'):
+            ror_id = os.path.split(disamb_id)[-1]
+            try:
+                org = models.Organization.objects.get(ror_id=ror_id)
+            except models.Organization.DoesNotExist:
+                pass
+        if not org:
+            address = orcid_org.get('address', {}) or {}
+            org, _created = models.Organization.get_or_create_without_ror(
+                institution=orcid_org.get('name', '') or '',
+                country=address.get('country', '') or '',
+                account=data.get('account'),
+                frozen_author=data.get('frozen_author'),
+                preprint_author=data.get('preprint_author'),
+            )
+        data['organization'] = org
+
+        orcid_start = orcid_affiliation.get('start-date', {}) or {}
+        if orcid_start:
+            data['start'] = timezone.datetime(
+                int((orcid_start.get('year', {}) or {}).get('value', 1)),
+                int((orcid_start.get('month', {}) or {}).get('value', 1)),
+                int((orcid_start.get('day', {}) or {}).get('value', 1)),
+                tzinfo=tzinfo,
+            )
+        orcid_end = orcid_affiliation.get('end-date', {}) or {}
+        if orcid_end:
+            data['end'] = timezone.datetime(
+                int((orcid_end.get('year', {}) or {}).get('value', 1)),
+                int((orcid_end.get('month', {}) or {}).get('value', 1)),
+                int((orcid_end.get('day', {}) or {}).get('value', 1)),
+                tzinfo=tzinfo,
+            )
+
+        super().__init__(data=data, *args, **kwargs)
+
+
+class ConfirmDeleteForm(forms.Form):
+    """
+    A generic form for use on confirm-delete pages
+    where a valid form with POST data means yes, delete.
+    """
+    pass

@@ -1,0 +1,54 @@
+{% extends "admin/core/small_form.html" %}
+{% load i18n foundation next_url %}
+
+{% block contextual_title %}
+  {% trans "Unregistered ORCiD" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>{% trans "Unregistered ORCiD" %}</li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  <div class="text-align-center">
+    {% trans "Unregistered ORCiD" %}
+  </div>
+{% endblock %}
+
+{% block form_content %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  <p>{% blocktrans %}
+    The ORCiD you logged in with is not currently linked with an
+    account in our system. You can either register a new account, or login with
+    an existing account to link your ORCiD for future use.
+  {% endblocktrans %}</p>
+  <label for="user_name"><strong>
+    {% trans "Email" %}
+  </strong></label>
+  <input id="user_name" name="user_name" type="text">
+  <label for="user_pass"><strong>
+    {% trans "Password" %}
+  </strong></label>
+  <input id="user_pass" type="password" placeholder="Password" name="user_pass">
+  <input name="orcid_token" type="hidden" value="{{ token.token }}">
+  <div class="padding-block-1">
+    <button
+      type="submit"
+      formaction="{% url_with_next 'core_login' %}"
+      class="button secondary expanded">
+      {% trans 'Log in' %}
+    </button>
+  </div>
+  <p class="text-center">
+    <a href="{% url_with_next 'core_get_reset_token' %}">
+      {% trans "Forgotten your password?" %}
+    </a>
+  </p>
+  <p class="text-center">
+    <a href="{% url_with_next 'core_register_with_orcid_token' orcid_token=token.token %}">
+      {% trans "Register a new account" %}
+    </a>
+  </p>
+  {% include "admin/elements/forms/denotes_required.html" %}
+{% endblock form_content %}

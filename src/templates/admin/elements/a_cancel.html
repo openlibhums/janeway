@@ -1,0 +1,13 @@
+{% comment %}
+A generic hollow cancel button with a cross icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button secondary hollow {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-close"></span>
+  {% trans "Cancel" as default_label %}
+  {{ label|default:default_label }}
+</a>

@@ -49,10 +49,13 @@ def base_check(request, login_redirect=False):
     ):
         if login_redirect is True:
             request_params = request.GET.urlencode()
-            params = urlencode({"next": f"{request.path}?{request_params}"})
+            if request_params:
+                params = urlencode({"next": f"{request.path}?{request_params}"})
+            else:
+                params = urlencode({"next": request.path})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         elif isinstance(login_redirect, str):
-            params = urlencode({"next": redirect})
+            params = urlencode({"next": login_redirect})
             return redirect('{0}?{1}'.format(reverse('core_login'), params))
         else:
             return False
@@ -92,7 +95,7 @@ def editor_is_not_author(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if request.user in article.authors.all() and not article.editor_override(request.user):
+        if request.user in article.author_accounts and not article.editor_override(request.user):
             return redirect(
                 reverse(
                     'review_warning',
@@ -110,7 +113,7 @@ def editor_is_not_author(func):
 
 def senior_editor_user_required(func):
     """ This decorator checks that a user is an editor, Note that this decorator does NOT check for conflict of interest
-    problems. Use the article_editor_user_required decorator (not yet written) to do a check against an article.
+    problems. Use the user_can_edit_article to do a check against an article.
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -266,7 +269,7 @@ def editor_user_required(func):
     that the user is a section editor assigned to the article in the url.
 
     Note that this decorator does NOT check for conflict of interest
-    problems. Use the article_editor_user_required decorator (not yet written)
+    problems. Use the user_can_edit_article
     to do a check against an article.
 
     :param func: the function to callback from the decorator
@@ -354,8 +357,7 @@ def section_editor_draft_decisions(func):
 
 def reviewer_user_required(func):
     """ This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
-    interest problems. Use the article_editor_user_required decorator (not yet written) to do a check against an
-    article.
+    interest problems. Use the user_can_edit_article to do a check against an article.
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -728,7 +730,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
             deny_access(request)
         elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
             return func(request, *args, **kwargs)
-        elif request.user in article_object.section_editors():
+        elif article_object is not None and request.user in article_object.section_editors():
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -737,6 +739,11 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
 
 def article_edit_user_required(func):
+    raise DeprecationWarning('Use user_can_edit_article instead.')
+    return user_can_edit_article(func)
+
+
+def user_can_edit_article(func):
     """ This decorator checks permissions for a user to edit a specific article
 
     :param func: the function to callback from the decorator
@@ -749,6 +756,24 @@ def article_edit_user_required(func):
         article = models.Article.get_article(request.journal, 'id', article_id)
 
         if article.can_edit(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper
+
+
+def user_can_edit_author(func):
+    """ This decorator checks permissions for a user to edit a specific author
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        author_id = kwargs['author_id']
+        author = models.FrozenAuthor.objects.get(pk=author_id)
+        if author.can_edit(request.user):
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -1427,6 +1452,38 @@ def setting_is_enabled(setting_name, setting_group_name):
 
             # All other outcomes return permission denied.
             deny_access(request)
+
+        return inner
+    return decorator
+
+
+def repository_setting_enabled(attr_name, error_message='Setting disabled'):
+    """
+    Generally should only be used with boolean fields. Repository must be set
+    on request.
+
+    Usage:
+
+    @repository_setting_enabled(
+        attr_name='a_n_attr',
+        error_message='A N Error Message',
+    )
+    """
+    def decorator(func):
+        @wraps(func)
+        def inner(request, *args, **kwargs):
+            if request.repository is None:
+                raise Http404('No repository found.')
+
+            value = getattr(
+                request.repository,
+                attr_name
+            )
+
+            if value:
+                return func(request, *args, **kwargs)
+
+            raise Http404(error_message)
 
         return inner
     return decorator

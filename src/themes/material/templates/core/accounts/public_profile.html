@@ -11,8 +11,7 @@
                 {% include "common/elements/profile_image.html" with classes="responsive-img thumbnail editorial-image" user=user %}
                 <h3>{{ user.full_name }}</h3>
                 <p><strong>{% trans "Roles" %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-                <p><strong>{% trans "Affiliation" %}: </strong><br>{{ user.affiliation }}</p>
-                <p><strong>{% trans "Country" %}:</strong><br>{{ user.country }}</p>
+                {% include "common/elements/profile_affiliations.html" %}
             </div>
             <div class="col m9">
                 {% if user.biography %}

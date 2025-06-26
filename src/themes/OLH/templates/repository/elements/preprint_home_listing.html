@@ -5,7 +5,11 @@
                  data-equalizer-watch>
                 <p><small><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></small></p>
                 <p><small>{{ preprint.display_authors_compact }}</small></p>
-                <p><small><i class="fa fa-calendar">&nbsp;</i>{{ preprint.date_published|date:"Y-m-d" }}</small></p>
+                <p><small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
+                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
+                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
+                    </time>
+                </small></p>
             </div>
         </div>
         {% if forloop.counter|divisibleby:3 %}

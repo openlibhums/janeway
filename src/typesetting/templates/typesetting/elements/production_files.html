@@ -1,0 +1,47 @@
+{% comment %}
+Deprecated. Use file_list.html instead.
+{% endcomment %}
+
+<div class="box">
+    <div class="title-area">
+        <h2>Files for Typesetting</h2>
+        <a href="#" class="button" data-open="prodfile">Upload File</a>
+    </div>
+    <div class="content">
+        <p>
+            <small>Listed below are all the manuscripts, copyedited files and corrections for this paper. Typesetters will also get access to all figure files uploaded by the author. If you need to manage these files use the <a targer="_blank" href="{% url 'document_management' article.pk %}">Document Management</a> page. If you need to upload a newer version use the Upload File button in the top right of this box.</small>
+        </p>
+        <table class="scroll small">
+            <tr style="text-align: left">
+                <th>ID</th>
+                <th>Label</th>
+                <th width="25%">Filename</th>
+                <th>Type</th>
+                <th>Modified</th>
+                <th>Download</th>
+                <th>Make typeset file</th>
+            </tr>
+            {% for key, list in manuscript_files.items %}
+                {% for file in list %}
+                <tr>
+                    <td>{{ file.pk }}</td>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename|truncatechars:40 }}</td>
+                    <td>{{ key }}</td>
+                    <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
+                    <td>
+                        <a href="{% url 'typesetting_download_file' article.pk file.pk %}"><i
+                                class="fa fa-download">&nbsp;</i></a>
+                    </td>
+                    <td><a data-open="transform-{{ file.pk }}">Options</a></td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% for key, list in manuscript_files.items %}
+    {% for file in list %}
+        {% include "typesetting/elements/transform_modal.html" with article=article file=file request=request %}
+    {% endfor %}
+{% endfor %}

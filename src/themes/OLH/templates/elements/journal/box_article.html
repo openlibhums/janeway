@@ -19,19 +19,30 @@
         {% endif %}
     <div class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
         {% if article.pinned %}
-            <i class="float-right fa fa-thumb-tack"></i>
+            <i aria-hidden="true" class="float-right fa fa-thumb-tack"></i>
+            <span class="sr-only">{% trans 'Pinned' %}</span>
         {% endif %}
-            <h2>{{ article.title|safe }}{% if article.is_remote %}&nbsp;<i class="fa fa-external-link small-icon-text"></i>{% endif %}</h2>
+            <h2>{{ article.title|safe }}
+                {% if article.is_remote %}
+                    &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                    <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
+                {% endif %}
+            </h2>
            {% include "elements/journal/authors_block.html" %}
-            <p><span class="date"><i
-                    class="fa fa-calendar"></i> {{ article.date_published|date:"Y-m-d" }}</span> <i
-                    class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
+            <p>
+                <span class="date">
+                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                    <time datetime='{{ article.date_published|date:"Y-m-d" }}'>
+                        <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                    </time>
+                </span> 
+                <i aria-hidden="true" class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
             {% if article.issues.count > 1 %}
-              <p><strong><i class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
+              <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
               {% for other in article.issues.all %}
               {% if other != article.issue %}
               <p>
-                <i class="fa fa-book"></i>
+                <i aria-hidden="true" class="fa fa-book"></i>
                 <a class="issue-link" href="{{ other.url }}">
                     {{other.issue_type.pretty_name}}: {{ other.display_title }}
                 </a>

@@ -5,7 +5,6 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
 import re
-from importlib import import_module
 
 from django.conf import settings
 from django.contrib import messages
@@ -39,7 +38,7 @@ from core import (
 )
 from identifiers import models as id_models
 from journal import logic, models, issue_forms, forms, decorators
-from journal.logic import get_best_galley, get_galley_content
+from journal.logic import get_best_galley
 from metrics.logic import store_article_access
 from review import forms as review_forms, models as review_models
 from submission import encoding
@@ -61,7 +60,7 @@ from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler
 from utils.logger import get_logger
 from events import logic as event_logic
-from repository import models as repo_models
+from typesetting import models as typesetting_models
 
 logger = get_logger(__name__)
 
@@ -1208,7 +1207,6 @@ def publish_article(request, article_id):
 
         if 'publish' in request.POST:
             article.stage = submission_models.STAGE_PUBLISHED
-            article.snapshot_authors(force_update=False)
             article.close_core_workflow_objects()
 
             if not article.date_published:
@@ -2525,8 +2523,9 @@ def document_management(request, article_id):
                 request.user,
                 label=label,
             )
-            try:
-                typesetting_models = import_module('plugins.typesetting.models')
+            if request.journal.element_in_workflow(
+                element_name='typesetting',
+            ):
                 rounds = typesetting_models.TypesettingRound.objects.filter(
                     article=document_article,
                 )
@@ -2551,7 +2550,7 @@ def document_management(request, article_id):
                     messages.SUCCESS,
                     _('Proofing file uploaded.'),
                 )
-            except ModuleNotFoundError:
+            else:
                 messages.add_message(
                     request,
                     messages.SUCCESS,

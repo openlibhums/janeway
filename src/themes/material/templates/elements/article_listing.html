@@ -27,22 +27,24 @@
             </p>
             <p>
                 <span class="date">
-                    <i class="fa fa-calendar"></i>
-                    {{ article.date_published|date:"Y-m-d" }}
+                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                    <time datetime='{{ article.date_published|date:"Y-m-d"}}'>
+                        <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                    </time>
                 </span>
 
                 {% if article.issue %}
-                    <i class="fa fa-book"></i>
+                    <i aria-hidden="true" class="fa fa-book"></i>
                     <a class="issue-link" href="{{ article.issue.url }}">
                         {{ article.issue_title }}
                     </a>
                 {% endif %}
                 {% if article.issues.count > 1 %}
-                  <p><strong><i class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
+                  <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
                   {% for other in article.issues.all %}
                   {% if other != article.issue %}
                   <p>
-                    <i class="fa fa-book"></i>
+                    <i aria-hidden="true" class="fa fa-book"></i>
                     <a class="issue-link" href="{{ other.url }}">
                         {{other.issue_type.pretty_name}}: {{ other.display_title }}
                     </a>

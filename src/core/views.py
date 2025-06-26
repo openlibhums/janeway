@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
+from urllib.parse import unquote, urlencode
 import pytz
 import time
 import warnings
@@ -15,11 +16,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, QueryDict
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -27,6 +29,7 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
@@ -35,13 +38,18 @@ from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
-from core.model_utils import NotImplementedField, search_model_admin
+from core.model_utils import (
+    NotImplementedField,
+    SafePaginator,
+    search_model_admin
+)
 from security.decorators import (
     editor_user_required, article_author_required, has_journal,
     any_editor_user_required, role_can_access,
     user_can_edit_setting
 )
 from submission import models as submission_models
+from utils.forms import clean_orcid_id
 from review import models as review_models
 from copyediting import models as copyedit_models
 from production import models as production_models
@@ -66,12 +74,13 @@ def user_login(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
+    next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
-        if request.GET.get('next'):
-            return redirect(request.GET.get('next'))
-        else:
-            return redirect(reverse('website_index'))
+        return redirect(
+            request.site_type.auth_success_url(next_url=next_url)
+        )
+
     else:
         bad_logins = logic.check_for_bad_login_attempts(request)
 
@@ -89,10 +98,10 @@ def user_login(request):
         form = forms.LoginForm(request.POST, bad_logins=bad_logins)
 
         if form.is_valid():
-            user = request.POST.get('user_name').lower()
-            pawd = request.POST.get('user_pass')
+            username = request.POST.get('user_name').lower()
+            password = request.POST.get('user_pass')
 
-            user = authenticate(username=user, password=pawd)
+            user = authenticate(username=username, password=password)
 
             if user is not None:
                 login(request, user)
@@ -108,13 +117,10 @@ def user_login(request):
                         token_obj.delete()
                     except models.OrcidToken.DoesNotExist:
                         pass
+                return redirect(
+                    request.site_type.auth_success_url(next_url=next_url)
+                )
 
-                if request.GET.get('next'):
-                    return redirect(request.GET.get('next'))
-                elif request.journal:
-                    return redirect(reverse('core_dashboard'))
-                else:
-                    return redirect(reverse('website_index'))
             else:
 
                 empty_password_check = logic.no_password_check(request.POST.get('user_name').lower())
@@ -144,77 +150,131 @@ def user_login(request):
     context = {
         'form': form,
     }
-    template = 'core/login.html'
+    template = 'admin/core/accounts/login.html'
 
     return render(request, template, context)
 
+
 def user_login_orcid(request):
     """
-    Allows a user to login with ORCiD
+    Allow a user to log in with their ORCID account
+    or switch to registering if needed.
+
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    orcid_code = request.GET.get('code', None)
-    action = request.GET.get('state', 'login')
-
-    if orcid_code and django_settings.ENABLE_ORCID:
-        orcid_id = orcid.retrieve_tokens(
-            orcid_code,
-            request.site_type,
-            action=action
-        )
-
-        if orcid_id:
-            try:
-                user = models.Account.objects.get(orcid=orcid_id)
-                if action == 'login':
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user)
-
-                    if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
-
-            except models.Account.DoesNotExist:
-                # Lookup ORCID email addresses
-                orcid_details = orcid.get_orcid_record_details(orcid_id)
-                for email in orcid_details.get("emails", []):
-                    candidates = models.Account.objects.filter(email=email)
-                    if candidates.exists():
-                        # Store ORCID for future authentication requests
-                        candidates.update(orcid=orcid_id)
-                        login(request, candidates.first())
-                        if request.GET.get('next'):
-                            return redirect(request.GET.get('next'))
-                        elif request.journal:
-                            return redirect(reverse('core_dashboard'))
-                        else:
-                            return redirect(reverse('website_index'))
-
-            # Prepare ORCID Token for registration and redirect
-            models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
-
-            if action == 'register':
-                return redirect(reverse('core_register') + f'?token={new_token.token}')
-            else:
-                return redirect(reverse('core_orcid_registration', kwargs={'token': new_token.token}))
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                'Valid ORCiD not returned, please try again, or login with your username and password.'
-            )
-            return redirect(reverse('core_login'))
+    # First figure out what the user is trying to do (action) and where they want to
+    # be returned to in Janeway (next).
+    # This information may be encoded in a 'state' parameter that we get back from ORCID
+    # or it may be in the generic request parameters.
+    state_string = request.GET.get('state', '')
+    state = orcid.decode_state(state_string)
+    if 'action' in state:
+        action = state.get('action', 'login')
     else:
+        action = request.GET.get('action', 'login')
+
+    if 'next' in state:
+        next_url = state.get('next', '')
+    else:
+        next_url = request.GET.get('next', '')
+
+    # If ORCID is not enabled, redirect the user to the regular Janeway login page.
+    if not django_settings.ENABLE_ORCID:
         messages.add_message(
             request,
             messages.WARNING,
-            'No authorisation code provided, please try again or login with your username and password.')
-        return redirect(reverse('core_login'))
+            _('ORCID is not enabled.'
+            'Please log in with your username and password.')
+        )
+        return redirect(
+            logic.reverse_with_next('core_login', next_url)
+        )
+
+    # If the orcid code is missing, that means the user has not come from
+    # orcid.org, just from a Janeway link.
+    # Send them to orcid.org to authenticate first.
+    # Encode the next URL and the action via 'state',
+    # which the ORCID auth system will pass back.
+    orcid_code = request.GET.get('code', '')
+    if not orcid_code:
+        base = django_settings.ORCID_URL
+        query_dict = {
+            'client_id': django_settings.ORCID_CLIENT_ID,
+            'response_type': 'code',
+            'scope': '/authenticate',
+            'redirect_uri': orcid.build_redirect_uri(request.site_type),
+            'state': orcid.encode_state(next_url, action),
+        }
+        orcid_login_url = f'{base}?{urlencode(query_dict, safe="/")}'
+        return redirect(orcid_login_url)
+
+    # There is an orcid code, meaning the user has authenticated on orcid.org.
+    # Make another request to orcid.org to verify it.
+    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+
+    # If verification did not work, send them to the regular login page.
+    if not orcid_id:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Valid ORCID not returned. '
+            'Please try again, or log in with your username and password.'
+        )
+        return redirect(
+            logic.reverse_with_next('core_login', next_url)
+        )
+
+    # The verification worked.
+    # If the user wanted to log in, try to log them in.
+    if action == 'login':
+        try:
+            user = models.Account.objects.get(orcid=orcid_id)
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            return redirect(
+                request.site_type.auth_success_url(next_url=next_url)
+            )
+
+        except models.Account.DoesNotExist:
+            # Lookup ORCID email addresses
+            orcid_details = orcid.get_orcid_record_details(orcid_id)
+            for email in orcid_details.get("emails", []):
+                candidates = models.Account.objects.filter(email=email)
+                if candidates.exists():
+                    # Store ORCID for future authentication requests
+                    candidates.update(orcid=orcid_id)
+                    login(request, candidates.first())
+                    return redirect(
+                        request.site_type.auth_success_url(next_url=next_url)
+                    )
+
+        # If no account was found for login,
+        # then prepare an ORCID token for registration.
+        # Then send the user to a decision page that tells them
+        # the ORCID login did not work and they will need to register.
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_orcid_registration',
+                next_url,
+                kwargs={'token': str(new_token.token)},
+            )
+        )
+
+    # If the user wanted to register, send them to the registration page
+    # and pass along their orcid token so information can be pre-filled.
+    elif action == 'register':
+        models.OrcidToken.objects.filter(orcid=orcid_id).delete()
+        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        return redirect(
+            logic.reverse_with_next(
+                'core_register_with_orcid_token',
+                next_url,
+                kwargs={'orcid_token': str(new_token.token)},
+            )
+        )
 
 
 @login_required
@@ -236,6 +296,7 @@ def get_reset_token(request):
     :return: HttpResponse object
     """
     new_reset_token = None
+    next_url = request.GET.get('next', '')
     form = forms.GetResetTokenForm()
 
     if request.POST:
@@ -252,11 +313,11 @@ def get_reset_token(request):
             try:
                 account = models.Account.objects.get(email__iexact=email_address)
                 logic.start_reset_process(request, account)
-                return redirect(reverse('core_login'))
+                return redirect(logic.reverse_with_next('core_login', next_url))
             except models.Account.DoesNotExist:
-                return redirect(reverse('core_login'))
+                return redirect(logic.reverse_with_next('core_login', next_url))
 
-    template = 'core/accounts/get_reset_token.html'
+    template = 'admin/core/accounts/get_reset_token.html'
     context = {
         'new_reset_token': new_reset_token,
         'form': form,
@@ -267,11 +328,14 @@ def get_reset_token(request):
 
 def reset_password(request, token):
     """
-    Takes a reset token and checks if it is valid then allows a user to reset their password, adter it expires the token
+    Takes a reset token and checks if it is valid.
+    Then it allows a user to reset their password,
+    and finally it expires the token.
     :param request: HttpRequest
     :param token: string, PasswordResetToken.token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
     reset_token = get_object_or_404(models.PasswordResetToken, token=token, expired=False)
     form = forms.PasswordResetForm()
 
@@ -296,9 +360,9 @@ def reset_password(request, token):
             reset_token.expired = True
             reset_token.save()
             messages.add_message(request, messages.SUCCESS, 'Your password has been reset.')
-            return redirect(reverse('core_login'))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
-    template = 'core/accounts/reset_password.html'
+    template = 'admin/core/accounts/reset_password.html'
     context = {
         'reset_token': reset_token,
         'form': form,
@@ -307,18 +371,28 @@ def reset_password(request, token):
     return render(request, template, context)
 
 
-def register(request):
+def register(request, orcid_token=None):
     """
-    Displays a form for users to register with the journal. If the user is registering on a journal we give them
+    Displays a form for users to register with the press or journal.
+    If the user is registering on a journal we give them
     the Author role.
+
+    An ORCID token is passed when the user arrives here after they
+    tried to log in with ORCID, but Janeway said "No account found,
+    would you like to register instead?"
+
     :param request: HttpRequest object
+    :param orcid_token: str UUID4 belonging to an active OrcidToken
     :return: HttpResponse object
     """
     context = {}
     initial = {}
-    token, token_obj = request.GET.get('token', None), None
-    if token:
-        token_obj = get_object_or_404(models.OrcidToken, token=token)
+
+    token_obj = None
+    next_url = request.GET.get('next', '')
+
+    if orcid_token:
+        token_obj = get_object_or_404(models.OrcidToken, token=orcid_token)
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
         # we use the full orcid uri for display
         context["orcid"] = orcid_details["uri"]
@@ -328,11 +402,6 @@ def register(request):
         initial["last_name"] = orcid_details.get("last_name", "")
         if orcid_details.get("emails"):
             initial["email"] = orcid_details["emails"][0]
-        if orcid_details.get("affiliation"):
-            initial['institution'] = orcid_details['affiliation']
-        if orcid_details.get("country"):
-            if models.Country.objects.filter(code=orcid_details['country']).exists():
-                initial["country"] = models.Country.objects.get(code=orcid_details['country'])
 
     form = forms.RegistrationForm(
         journal=request.journal,
@@ -354,18 +423,26 @@ def register(request):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                if new_user.orcid:
+                    orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
+                    for orcid_affil in orcid_details.get("affiliations", []):
+                        orcid_affil_form = forms.OrcidAffiliationForm(
+                            orcid_affiliation=orcid_affil,
+                            tzinfo=new_user.preferred_timezone,
+                            data={'account': new_user}
+                        )
+                        if orcid_affil_form.is_valid():
+                            orcid_affil_form.save()
                 token_obj.delete()
                 # If the email matches the user email on ORCID, log them in
                 if new_user.email == initial.get("email"):
                     new_user.is_active = True
                     new_user.save()
                     login(request, new_user)
-                    if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))
-                    elif request.journal:
-                        return redirect(reverse('core_dashboard'))
-                    else:
-                        return redirect(reverse('website_index'))
+                    return redirect(
+                        request.site_type.auth_success_url(next_url=next_url)
+                    )
+
             else:
                 new_user = form.save()
 
@@ -375,21 +452,30 @@ def register(request):
 
             messages.add_message(
                 request, messages.SUCCESS,
-                _('Your account has been created, please follow the'
+                _('Your account has been created. Please follow the '
                 'instructions in the email that has been sent to you.'),
             )
-            return redirect(reverse('core_login'))
+            return redirect(logic.reverse_with_next('core_login', next_url))
 
-    template = 'core/accounts/register.html'
+    template = 'admin/core/accounts/register.html'
     context["form"] = form
 
     return render(request, template, context)
 
 
 def orcid_registration(request, token):
+    """
+    Users arrive at this view when they have tried to log in
+    via ORCID, but no suitable Janeway account was found.
+    The view suggests to them they might want to register a new
+    account instead, and gives them options.
+
+    :param request: HttpRequest object
+    :param token: str UUID4 belonging to active OrcidToken
+    """
     token = get_object_or_404(models.OrcidToken, token=token, expiry__gt=timezone.now())
 
-    template = 'core/accounts/orcid_registration.html'
+    template = 'admin/core/accounts/orcid_registration.html'
     context = {
         'token': token,
     }
@@ -405,12 +491,14 @@ def activate_account(request, token):
     :param token: string, Account.confirmation_token
     :return: HttpResponse object
     """
+    next_url = request.GET.get('next', '')
+
     try:
         account = models.Account.objects.get(confirmation_code=token, is_active=False)
     except models.Account.DoesNotExist:
         account = None
 
-    if account and request.POST:
+    if account and request.method == 'POST':
         account.is_active = True
         account.confirmation_code = None
         account.save()
@@ -421,9 +509,9 @@ def activate_account(request, token):
             _('Account activated'),
         )
 
-        return redirect(reverse('core_login'))
+        return redirect(logic.reverse_with_next('core_login', next_url))
 
-    template = 'core/accounts/activate_account.html'
+    template = 'admin/core/accounts/activate_account.html'
     context = {
         'account': account,
     }
@@ -441,6 +529,8 @@ def edit_profile(request):
     user = request.user
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
+    next_url = request.GET.get('next', '')
+
     if request.journal:
         send_reader_notifications = setting_handler.get_setting(
             'notifications',
@@ -461,7 +551,8 @@ def edit_profile(request):
             try:
                 validate_email(email_address)
                 try:
-                    logic.handle_email_change(request, email_address)
+                    next_url = reverse('core_edit_profile')
+                    logic.handle_email_change(request, email_address, next_url=next_url)
                     return redirect(reverse('website_index'))
                 except IntegrityError:
                     messages.add_message(
@@ -525,7 +616,10 @@ def edit_profile(request):
             if form.is_valid():
                 form.save()
                 messages.add_message(request, messages.SUCCESS, 'Profile updated.')
-                return redirect(reverse('core_edit_profile'))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('core_edit_profile'))
 
         elif 'edit_staff_member_info' in request.POST:
             form = press_forms.StaffGroupMemberForm(
@@ -536,17 +630,21 @@ def edit_profile(request):
             if form.is_valid():
                 form.save()
                 messages.add_message(request, messages.SUCCESS, 'Staff member info updated.')
-                return redirect(reverse('core_edit_profile'))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('core_edit_profile'))
 
         elif 'export' in request.POST:
             return logic.export_gdpr_user_profile(user)
 
-    template = 'core/accounts/edit_profile.html'
+    template = 'admin/core/accounts/edit_profile.html'
     context = {
         'form': form,
         'staff_group_membership_form': staff_group_membership_form,
         'user_to_edit': user,
         'send_reader_notifications': send_reader_notifications,
+        'user_is_reader': user.is_reader(request),
     }
 
     return render(request, template, context)
@@ -589,6 +687,86 @@ def public_profile(request, uuid):
         )
         context['staff_groups'] = user.staffgroupmember_set.all()
 
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_update_from_orcid(request, how_many='primary'):
+    """
+    Allows a user to update their own affiliations
+    from public ORCID records.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    next_url = request.GET.get('next', '')
+    try:
+        cleaned_orcid = clean_orcid_id(request.user.orcid)
+    except ValueError:
+        cleaned_orcid = None
+    if not cleaned_orcid:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Your account does not have an ORCID. "
+              "Please log in with ORCID and try again."),
+        )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(reverse('core_edit_profile'))
+
+    orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
+    orcid_affils = orcid_details.get("affiliations", [])
+    if not orcid_affils:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("No affiliations were found on your public ORCID record "
+              "for ID %(orcid_id)s. "
+              "Please update your affiliations on orcid.org and try again.")
+                % {'orcid_id': cleaned_orcid },
+        )
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(reverse('core_edit_profile'))
+
+    form = forms.ConfirmDeleteForm()
+    new_affils = []
+    if how_many == 'primary':
+        orcid_affils = orcid_affils[:1]
+    for orcid_affil in orcid_affils:
+        orcid_affil_form = forms.OrcidAffiliationForm(
+            orcid_affil,
+            tzinfo=request.user.preferred_timezone,
+            data={"account": request.user},
+        )
+        if orcid_affil_form.is_valid():
+            new_affils.append(orcid_affil_form.save(commit=False))
+
+    if request.method == 'POST':
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            request.user.affiliations.delete()
+            for affil in new_affils:
+                affil.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliations updated."),
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = "admin/core/affiliation_update_from_orcid.html"
+    context = {
+        'account': request.user,
+        'form': form,
+        'old_affils': request.user.affiliations,
+        'new_affils': new_affils,
+    }
     return render(request, template, context)
 
 
@@ -689,13 +867,13 @@ def dashboard(request):
             completed__isnull=False,
             typesetter=request.user).count(),
         'active_submissions': submission_models.Article.objects.filter(
-            authors=request.user,
+            owner=request.user,
             journal=request.journal
         ).exclude(
             stage__in=[submission_models.STAGE_UNSUBMITTED, submission_models.STAGE_PUBLISHED],
         ).order_by('-date_submitted'),
         'published_submissions': submission_models.Article.objects.filter(
-            authors=request.user,
+            frozenauthor__author=request.user,
             journal=request.journal,
             stage=submission_models.STAGE_PUBLISHED,
         ).order_by('-date_published'),
@@ -1125,7 +1303,9 @@ def role(request, slug):
 
     # Grab additional context for the reviewer page.
     if slug == 'reviewer':
-        account_roles = account_roles.prefetch_related(
+        account_roles = account_roles.filter(
+            user__is_active=True,
+        ).prefetch_related(
             'user__interest',
         ).annotate(
             total_assignments=Count(
@@ -1133,11 +1313,9 @@ def role(request, slug):
                 filter=Q(user__reviewer__article__journal=request.journal),
             ),
             last_completed_review=Subquery(
-                review_models.ReviewAssignment.objects.filter(
-                    reviewer=OuterRef('user__pk'),
-                    is_complete=True,
-                    date_complete__isnull=False,
+                review_models.ReviewAssignment.completed_reviews.filter(
                     article__journal=request.journal,
+                    reviewer=OuterRef('user__pk'),
                 ).order_by('-date_complete').values('date_complete')[:1]
             ),
             average_score=Subquery(
@@ -1205,7 +1383,8 @@ def users(request):
 @editor_user_required
 def add_user(request):
     """
-    Displays a form for adding users to JW,
+    Allows an editor or staff member
+    to create a new user account.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -1266,7 +1445,8 @@ def add_user(request):
 @editor_user_required
 def user_edit(request, user_id):
     """
-    Allows an editor to edit an existing user account.
+    Allows an editor or staff member
+    to edit an existing user account.
     :param request: HttpRequest object
     :param user_id: Account object PK
     :return: HttpResponse object
@@ -1274,6 +1454,7 @@ def user_edit(request, user_id):
     user = models.Account.objects.get(pk=user_id)
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user, request=request)
+    next_url = request.GET.get('next', '')
 
     if request.POST:
         form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
@@ -1282,14 +1463,16 @@ def user_edit(request, user_id):
         if form.is_valid() and registration_form.is_valid():
             registration_form.save()
             form.save()
-            messages.add_message(request, messages.SUCCESS, 'Profile updated.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'User account updated.',
+            )
 
-            if request.GET.get('return'):
-                return redirect(
-                    request.GET.get('return')
-                )
-
-            return redirect(reverse('core_manager_users'))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_manager_users'))
 
     template = 'core/manager/users/edit.html'
     context = {
@@ -1362,16 +1545,33 @@ def user_history(request, user_id):
     template = 'core/manager/users/history.html'
     context = {
         'user': user,
-        'review_assignments': review_models.ReviewAssignment.objects.filter(
-            reviewer=user,
-            article__journal=request.journal,
-        ),
         'copyedit_assignments':
             copyedit_models.CopyeditAssignment.objects.filter(
                 copyeditor=user,
                 article__journal=request.journal,
             ),
         'log_entries': log_entries,
+        'publications':
+            submission_models.Article.objects.filter(
+                frozenauthor__author=user,
+                journal=request.journal,
+                stage=submission_models.STAGE_PUBLISHED,
+                date_published__isnull=False,
+            ).order_by('-date_published'),
+        'review_assignments': review_models.ReviewAssignment.objects.filter(
+            reviewer=user,
+            article__journal=request.journal,
+        ),
+        'stages': {
+            'STAGE_UNSUBMITTED': submission_models.STAGE_UNSUBMITTED,
+        },
+        'submissions':
+            submission_models.Article.objects.filter(
+                frozenauthor__author=user,
+                journal=request.journal,
+            ).exclude(
+                stage=submission_models.STAGE_PUBLISHED,
+            ).order_by('-date_started'),
     }
 
     return render(request, template, context)
@@ -1685,23 +1885,24 @@ def editorial_team(request):
         )
         edit_form = forms.GeneratedSettingForm(settings=settings)
         if request.POST:
-            edit_form = forms.GeneratedSettingForm(
-                request.POST,
-                settings=settings,
-            )
+            if 'save' in request.POST:
+                edit_form = forms.GeneratedSettingForm(
+                    request.POST,
+                    settings=settings,
+                )
 
-            if edit_form.is_valid():
-                edit_form.save(
-                    group=setting_group,
-                    journal=request.journal,
-                )
-                # clear cache to ensure changes display immediately
-                clear_cache()
-                return language_override_redirect(
-                    request,
-                    'core_editorial_team',
-                    kwargs={},
-                )
+                if edit_form.is_valid():
+                    edit_form.save(
+                        group=setting_group,
+                        journal=request.journal,
+                    )
+                    # clear cache to ensure changes display immediately
+                    clear_cache()
+                    return language_override_redirect(
+                        request,
+                        'core_editorial_team',
+                        kwargs={},
+                    )
 
         if 'delete' in request.POST:
             delete_id = request.POST.get('delete')
@@ -1954,6 +2155,10 @@ def kanban(request):
     proof_assigned_articles = submission_models.Article.objects.filter(
         pk__in=proofing_assigned,
     )
+    typesetting_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_TYPESETTING_PLUGIN,
+        journal=request.journal,
+    )
 
     prepub = submission_models.Article.objects.filter(
         Q(stage=submission_models.STAGE_READY_FOR_PUBLICATION),
@@ -1970,6 +2175,7 @@ def kanban(request):
         'production_assigned': assigned_articles,
         'proofing': proof_articles,
         'proofing_assigned': proof_assigned_articles,
+        'typesetting': typesetting_articles,
         'prepubs': prepub,
         'articles_in_workflow_plugins': articles_in_workflow_plugins,
         'workflow': request.journal.workflow()
@@ -2455,7 +2661,7 @@ class GenericFacetedListView(generic.ListView):
     form_class = forms.CBVFacetForm
     model = NotImplementedField
     template_name = NotImplementedField
-
+    paginator_class = SafePaginator
     paginate_by = 25
     facets = {}
 
@@ -2799,3 +3005,240 @@ class BaseUserList(GenericFacetedListView):
                 messages.success(request, message)
 
         return super().post(request, *args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class OrganizationListView(GenericFacetedListView):
+    """
+    Allows a user to search for an organization to add
+    as one of their own affiliations.
+    """
+
+    model = core_models.Organization
+    template_name = 'admin/core/organization_search.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['account'] = self.request.user
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        # Exclude user-created organizations from search results
+        return queryset.exclude(custom_label__isnull=False)
+
+    def get_facets(self):
+        return {
+            'q': {
+                'type': 'search',
+                'field_label': 'Search',
+            },
+        }
+
+
+@login_required
+def organization_name_create(request):
+    """
+    Allows a user to create a custom organization name
+    if they cannot find one in ROR data.
+    """
+
+    next_url = request.GET.get('next', '')
+    form = forms.OrganizationNameForm()
+
+    if request.method == 'POST':
+        org_name = logic.create_organization_name(request)
+        if org_name:
+            return redirect(
+                logic.reverse_with_next(
+                    'core_affiliation_create',
+                    next_url,
+                    kwargs={
+                        'organization_id': org_name.custom_label_for.pk,
+                    }
+                )
+            )
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    template = 'admin/core/organizationname_form.html'
+    return render(request, template, context)
+
+
+@login_required
+def organization_name_update(request, organization_name_id):
+    """
+    Allows a user to update a custom organization name
+    if it is tied to their account via an affiliation.
+    """
+    next_url = request.GET.get('next', '')
+    organization_name = get_object_or_404(
+        core_models.OrganizationName,
+        pk=organization_name_id,
+        custom_label_for__controlledaffiliation__account=request.user,
+    )
+    form = forms.OrganizationNameForm(instance=organization_name)
+
+    if request.method == 'POST':
+        form = forms.OrganizationNameForm(
+            request.POST,
+            instance=organization_name,
+        )
+        if form.is_valid():
+            organization = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Custom organization updated: %(organization)s")
+                    % {"organization": organization},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/organizationname_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_create(request, organization_id):
+    """
+    Allows a user to create a new affiliation for themselves.
+    """
+
+    next_url = request.GET.get('next', '')
+    organization = get_object_or_404(
+        core_models.Organization,
+        pk=organization_id,
+    )
+    user_has_affils = core_models.ControlledAffiliation.objects.filter(
+        account=request.user,
+    ).exists()
+    form = forms.AccountAffiliationForm(
+        account=request.user,
+        organization=organization,
+        initial = {
+            'is_primary': not user_has_affils,
+        }
+    )
+
+    if request.method == 'POST':
+        form = forms.AccountAffiliationForm(
+            request.POST,
+            account=request.user,
+            organization=organization,
+        )
+        if form.is_valid():
+            affiliation = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation created: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'organization': organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_update(request, affiliation_id):
+    """
+    Allows a user to update one of their own affiliations.
+    """
+    next_url = request.GET.get('next', '')
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
+
+    form = forms.AccountAffiliationForm(
+        instance=affiliation,
+        account=request.user,
+        organization=affiliation.organization,
+    )
+
+    if request.method == 'POST':
+        form = forms.AccountAffiliationForm(
+            request.POST,
+            instance=affiliation,
+            account=request.user,
+            organization=affiliation.organization,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation updated: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_form.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+    }
+    return render(request, template, context)
+
+
+@login_required
+def affiliation_delete(request, affiliation_id):
+    """
+    Allows a user to delete one of their own affiliations.
+    """
+
+    next_url = request.GET.get('next', '')
+    affiliation = get_object_or_404(
+        core_models.ControlledAffiliation,
+        pk=affiliation_id,
+        account=request.user,
+    )
+    form = forms.ConfirmDeleteForm()
+
+    if request.method == 'POST':
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            affiliation.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Affiliation removed: %(affiliation)s")
+                    % {"affiliation": affiliation},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse('core_edit_profile'))
+
+    template = 'admin/core/affiliation_confirm_remove.html'
+    context = {
+        'account': request.user,
+        'form': form,
+        'affiliation': affiliation,
+        'organization': affiliation.organization,
+        'thing_to_delete': affiliation.organization.name,
+    }
+    return render(request, template, context)

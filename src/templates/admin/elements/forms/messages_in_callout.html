@@ -1,0 +1,16 @@
+{% for message in messages %}
+  <div class="card">
+    <div class="bs-callout bs-callout-{{ message.tags }}">
+      {{ message }}
+    </div>
+  </div>
+{% endfor %}
+{% if form.non_field_errors %}
+  <p>
+    <span class="fa fa-warning"></span>
+    {% trans 'Problems processing the form' %}
+  </p>
+  <ul>
+    {{ form.non_field_errors }}
+  </ul>
+{% endif %}

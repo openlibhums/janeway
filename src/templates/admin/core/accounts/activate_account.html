@@ -1,0 +1,44 @@
+{% extends "admin/core/small_form.html" %}
+{% load i18n foundation next_url %}
+
+{% block contextual_title %}
+  {% trans "Activate Account" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>{% trans "Activate Account" %}</li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  <div class="text-align-center">
+    {% if account %}
+      {% trans "Activate Account" %}
+    {% else %}
+      {% trans "No account to activate" %}
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block form_content %}
+  {% if account %}
+    {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+    <p>{% blocktrans %}
+      You can complete the activation process by clicking the button
+      below.
+    {% endblocktrans %}</p>
+    <button class="button secondary expanded" name="activate" autofocus>
+      {% trans "Activate Account" %}
+    </button>
+  {% else %}
+    <p>{% blocktrans %}
+      Sorry, we could not find an account to activate, or your account is active
+      already. You can check if it is active by attempting to log in.
+    {% endblocktrans %}</p>
+    <div>
+      <a class="button secondary expanded" href="{% url_with_next 'core_login' %}">
+        {% trans "Log in" %}
+      </a>
+    </div>
+  {% endif %}
+{% endblock form_content %}

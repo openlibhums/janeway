@@ -1,0 +1,10 @@
+<li>
+  <a href="{{ article.step_to_url }}">
+    {% trans "Submit an Article" %}
+  </a>
+</li>
+<li>
+  <a href="{% url 'submit_authors' article.id %}">
+    {% trans "Author information" %}
+  </a>
+</li>

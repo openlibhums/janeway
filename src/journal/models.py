@@ -97,6 +97,8 @@ def issue_large_image_path(instance, filename):
 
 
 class Journal(AbstractSiteModel):
+    AUTH_SUCCESS_URL = "core_dashboard"
+
     code = models.CharField(max_length=40, unique=True, help_text=gettext(
         'Short acronym for the journal. Used as part of the journal URL'
         'in path mode and to uniquely identify the journal'
@@ -331,6 +333,11 @@ class Journal(AbstractSiteModel):
     def use_crossref(self):
         return setting_handler.get_setting('Identifiers', 'use_crossref', self, default=True).processed_value
 
+    @property
+    @cache(120)
+    def register_doi_at_acceptance(self):
+        return setting_handler.get_setting('Identifiers', 'register_doi_at_acceptance', self, default=True).processed_value
+
     @issn.setter
     def issn(self, value):
         setting_handler.save_setting('general', 'journal_issn', self, value)
@@ -369,11 +376,6 @@ class Journal(AbstractSiteModel):
 
     def site_url(self, path="", query=''):
         if self.domain and not settings.URL_CONFIG == 'path':
-
-            # Handle domain journal being browsed in path mode
-            site_path = f'/{self.code}'
-            if path and path.startswith(site_path):
-                path = path[len(site_path):]
             return logic.build_url(
                     netloc=self.domain,
                     scheme=self._get_scheme(),
@@ -539,7 +541,10 @@ class Journal(AbstractSiteModel):
 
     def element_in_workflow(self, element_name):
         try:
-            element = core_models.WorkflowElement.objects.get(element_name=element_name, journal=self)
+            element = core_models.WorkflowElement.objects.get(
+                element_name=element_name,
+                journal=self,
+            )
             if element in self.workflow().elements.all():
                 return True
             else:
@@ -596,7 +601,6 @@ class Journal(AbstractSiteModel):
                 kind='textarea',
                 required=True,
                 order=1,
-                width='large-12 columns',
                 help_text=gettext('Please add as much detail as you can.'),
             )
 
@@ -1039,7 +1043,6 @@ class Issue(AbstractLastModifiedModel):
         ).values_list("order")
 
         issue_articles = self.articles.prefetch_related(
-            'authors',
             'frozenauthor_set',
             'manuscript_files',
         ).select_related(
@@ -1157,6 +1160,13 @@ class Issue(AbstractLastModifiedModel):
                 # set save as False to avoid infinite recursion
                 self.update_display_title(save=False)
         super().save(*args, **kwargs)
+
+    @property
+    def publisher(self):
+        return (
+            self.journal.publisher
+            or self.journal.press.name
+        )
 
     def __str__(self):
         return (

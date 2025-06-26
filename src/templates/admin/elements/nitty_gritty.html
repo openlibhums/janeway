@@ -1,0 +1,56 @@
+{% extends "admin/core/flat_base.html" %}
+
+{% load i18n foundation next_url uuid %}
+
+{% block contextual_title %}{% endblock contextual_title %}
+
+{% block title-section %}{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+{% endblock breadcrumbs %}
+
+{% block body %}
+  <div class="nitty-gritty">
+    <div class="flex direction-column">
+      {% get_uuid4 as pid %}
+      <section
+        aria-labelledby="{{ pid }}"
+        class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2 id="{{ pid }}">
+            {% block nitty_h2 %}
+              {% trans "Related info" %}
+            {% endblock nitty_h2 %}
+          </h2>
+        </div>
+        {% block nitty %}
+        {% endblock nitty %}
+      </section>
+    </div>
+    <div class="flex direction-column">
+      {% get_uuid4 as pid %}
+      <section
+        aria-labelledby="{{ pid }}"
+        class="card padding-block-2 padding-inline-2">
+        <div class="title-area">
+          <h2 id="{{ pid }}">
+            {% block gritty_h2 %}
+            {% endblock gritty_h2 %}
+          </h2>
+        </div>
+        {% block gritty %}
+          {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+          <form method="post" id="{{ form.id }}">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
+            {% block gritty_form %}
+            {% endblock gritty_form %}
+          </form>
+        {% endblock gritty %}
+      </section>
+    </div>
+  </div>
+{% endblock body %}

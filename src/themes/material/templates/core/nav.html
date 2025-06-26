@@ -4,6 +4,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 
 <nav class="header-overrides" role="navigation">
@@ -50,9 +51,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}">
                             {{ item.link_name }}
-                            <i class="material-icons right">
-                                arrow_drop_down
-                            </i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% elif not item.for_footer %}
@@ -61,7 +60,7 @@
             {% endfor %}
 
             {% if request.journal.nav_review %}
-                <li><a href="{% url 'become_reviewer' %}"><i class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
+                <li><a href="{% url 'become_reviewer' %}"><i aria-hidden="true" class="fa fa-trophy">&nbsp;</i>{% trans "Become a Reviewer" %}</a></li>
             {% endif %}
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
@@ -71,12 +70,20 @@
                         href="#!"
                         data-target="account">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
 
@@ -111,7 +118,7 @@
                             href="#!"
                             data-target="{{ item.link_name|slugify }}-mobile">
                             {{ item.link_name }}
-                            <i class="material-icons right">arrow_drop_down</i>
+                            <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                         </a>
                     </li>
                 {% else %}
@@ -126,19 +133,28 @@
                         href="#!"
                         data-target="dropdown1">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
-                <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+                <li>
+                  <a href="{% url 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'core_register' %}">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
         <a
             href="#!"
             data-target="nav-mobile"
             class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
     </div>
 </nav>
@@ -168,7 +184,9 @@
 
     <ul id="account" class="dropdown-content">
         <li><a class="dropdown-item" href="{% url 'core_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% if user_is_editor %}
         <li><a class="dropdown-item" href="{% url 'kanban' %}">{% trans "Kanban" %}</a></li>
+        {% endif %}
         {% if not journal_settings.general.disable_journal_submission %}
             <li><a class="dropdown-item" href="{% url 'submission_start' %}">{% trans "Submit" %}</a></li>{% endif %}
         {% user_has_role request 'editor' as user_is_editor %}

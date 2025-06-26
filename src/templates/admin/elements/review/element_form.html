@@ -11,7 +11,7 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ element_form|foundation }}
-                 <button type="submit" name="element" class="button success">Add Element</button>
+                 <button type="submit" name="element" class="button success">{% if modal %}<i class="fa fa-edit">&nbsp;</i>Edit Element{% else %}<i class="fa fa-plus">&nbsp;</i>Save New Element{% endif %}</button>
             </form>
         </div>
     </div>

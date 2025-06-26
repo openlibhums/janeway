@@ -1,0 +1,77 @@
+{% extends "admin/core/large_form.html" %}
+{% load i18n foundation %}
+
+{% block contextual_title %}
+  {% trans "Register for an account" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>{% trans "Register for an account" %}</li>
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  <div class="text-align-center">
+    {% trans "Register for an account" %}
+  </div>
+{% endblock %}
+
+{% block form_content %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  <div class="flex wrap gap-1">
+    {% include "common/elements/orcid_registration.html" with button_classes="button orcid-button" %}
+  </div>
+  <div class="flex wrap gap-1">
+    {% include "admin/elements/forms/field.html" with field=form.email %}
+  </div>
+  <div class="flex wrap gap-1">
+    {% include "admin/elements/forms/field.html" with field=form.salutation %}
+    {% include "admin/elements/forms/field.html" with field=form.first_name %}
+    {% include "admin/elements/forms/field.html" with field=form.middle_name %}
+    {% include "admin/elements/forms/field.html" with field=form.last_name %}
+  </div>
+  <div class="flex wrap gap-1">
+    {% include "admin/elements/forms/field.html" with field=form.department %}
+    {% include "admin/elements/forms/field.html" with field=form.institution %}
+    {% include "admin/elements/forms/field.html" with field=form.country %}
+  </div>
+  {% if form.register_as_reader %}
+    {% include "admin/elements/forms/field.html" with field=form.register_as_reader %}
+  {% endif %}
+  <div><strong>{% trans "Password Rules" %}</strong></div>
+  <ul class="no-top-margin">
+    {% include "common/elements/password_rules.html" %}
+  </ul>
+  <p>{% blocktrans %}
+    For more information read our <a href="#"
+    data-open="password-modal">password guide</a>.
+  {% endblocktrans %}</p>
+  <div class="flex wrap gap-1">
+    {% include "admin/elements/forms/field.html" with field=form.password_1 %}
+    {% include "admin/elements/forms/field.html" with field=form.password_2 %}
+  </div>
+  {% if journal_settings.general.display_register_page_notice %}
+    {{ journal_settings.general.register_page_notice|safe }}
+  {% endif %}
+  <p>
+    {% trans "By registering an account you agree to our" %}
+    {% include "common/accounts/register_privacy_policy.html" %}.
+  </p>
+  <div class="flex wrap gap-1">
+    {% include "admin/elements/forms/field.html" with field=form.captcha %}
+  </div>
+  <div class="flex wrap gap-1">
+    {% for hidden_field in form.hidden_fields %}
+      {{ hidden_field }}
+    {% endfor %}
+    <button type="submit" class="button secondary">
+      {% trans "Register" %}
+    </button>
+  </div>
+  {% include "admin/elements/forms/denotes_required.html" %}
+  {% include "admin/core/accounts/password_guide.html" %}
+{% endblock form_content %}
+
+{% block js %}
+  {% include "common/elements/edit_profile_js_block.html" %}
+{% endblock %}

@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import re
 import uuid
 import statistics
 import json
@@ -11,7 +12,11 @@ from datetime import timedelta
 from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
+from iso639 import Lang
+from iso639.exceptions import InvalidLanguageValue
 import warnings
+import tqdm
+import zipfile
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -19,6 +24,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.core.exceptions import ValidationError
 from django.db import (
     connection,
+    IntegrityError,
     models,
     transaction,
 )
@@ -26,9 +32,9 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
-from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
+from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -41,16 +47,22 @@ from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
     AbstractSiteModel,
+    AffiliationCompatibleQueryset,
     DynamicChoiceField,
     JanewayBleachField,
     JanewayBleachCharField,
     PGCaseInsensitiveEmailField,
     SearchLookup,
     default_press_id,
+    check_exclusive_fields_constraint,
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
+from repository import models as repository_models
+from utils.models import RORImportError
 from submission import models as submission_models
+from utils.forms import clean_orcid_id
+from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
@@ -173,12 +185,26 @@ class Country(models.Model):
         return self.name
 
 
-class AccountQuerySet(models.query.QuerySet):
+class AccountQuerySet(AffiliationCompatibleQueryset):
+
+    AFFILIATION_RELATED_NAME = 'account'
+
     def create(self, **kwargs):
+        # Remove kwargs pointing to deprecated fields so they
+        # can be handled by AffiliationCompatibleQueryset methods
+        affil_kwargs = self._pop_old_affiliation_lookups(kwargs)
+
+        # We overload this method to call .clean here and
+        # ensure emails are normalized prior to insertion
         obj = self.model(**kwargs)
         obj.clean()
         self._for_write = True
         obj.save(force_insert=True, using=self.db)
+
+        # Handle the deprecated fields using
+        # AffiliationCompatibleQueryset methods
+        if affil_kwargs:
+            self._create_affiliation(affil_kwargs, obj)
         return obj
 
 
@@ -255,6 +281,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         validators=[plain_text_validator],
     )
 
+    # activation_code is deprecated
     activation_code = models.CharField(max_length=100, null=True, blank=True)
     salutation = models.CharField(
         max_length=10,
@@ -274,18 +301,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('Biography'),
     )
     orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    institution = models.CharField(
-        max_length=1000,
-        blank=True,
-        verbose_name=_('Institution'),
-        validators=[plain_text_validator],
-    )
-    department = models.CharField(
-        max_length=300,
-        blank=True,
-        verbose_name=_('Department'),
-        validators=[plain_text_validator],
-    )
     twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
     linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
@@ -294,19 +309,19 @@ class Account(AbstractBaseUser, PermissionsMixin):
     profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
-    confirmation_code = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Confirmation Code"))
+    confirmation_code = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name=_("Confirmation Code"),
+        help_text='A UUID created upon registration and retrieved '
+                  'for authentication during account activation',
+    )
     signature = JanewayBleachField(
         blank=True,
         verbose_name=_("Signature"),
     )
     interest = models.ManyToManyField('Interest', null=True, blank=True)
-    country = models.ForeignKey(
-        Country,
-        null=True,
-        blank=True,
-        verbose_name=_('Country'),
-        on_delete=models.SET_NULL,
-    )
     preferred_timezone = DynamicChoiceField(
             max_length=300, null=True, blank=True,
             choices=tuple(),
@@ -377,6 +392,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def string_id(self):
         return str(self.id)
 
+    @property
+    def real_email(self):
+        if not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
+            return self.email
+        else:
+            return ''
+
     def get_full_name(self):
         """Deprecated in 1.5.2"""
         return self.full_name()
@@ -414,12 +436,62 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return 'N/A'
 
     def affiliation(self):
-        if self.institution and self.department:
-            return "{}, {}".format(self.department, self.institution)
-        elif self.institution:
-            return self.institution
-        else:
-            return ''
+        """
+        Use `primary_affiliation` or `affiliations` instead.
+
+        For backwards compatibility, this is a method.
+        Different from repository.models.Preprint.affiliation,
+        which is a property.
+        :rtype: str
+        """
+        return self.primary_affiliation(as_object=False)
+
+    def primary_affiliation(self, as_object=True):
+        return ControlledAffiliation.get_primary(
+            affiliated_object=self,
+            as_object=as_object,
+        )
+
+    @property
+    def affiliations(self):
+        return ControlledAffiliation.objects.filter(account=self)
+
+    @property
+    def institution(self):
+        affil = self.primary_affiliation()
+        return str(affil.organization) if affil else ''
+
+    @institution.setter
+    def institution(self, value):
+        ControlledAffiliation.get_or_create_without_ror(
+            institution=value,
+            account=self,
+        )
+
+    @property
+    def department(self):
+        affil = self.primary_affiliation()
+        return str(affil.department) if affil else ''
+
+    @department.setter
+    def department(self, value):
+        ControlledAffiliation.get_or_create_without_ror(
+            department=value,
+            account=self,
+        )
+
+    @property
+    def country(self):
+        affil = self.primary_affiliation()
+        organization = affil.organization if affil else None
+        return organization.country if organization else None
+
+    @country.setter
+    def country(self, value):
+        ControlledAffiliation.get_or_create_without_ror(
+            country=value,
+            account=self,
+        )
 
     def active_reviews(self):
         return review_models.ReviewAssignment.objects.filter(
@@ -543,41 +615,67 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return False
 
+    def is_reader(self, request):
+        return self.check_role(request.journal, 'reader', staff_override=False)
+
+    def snapshot_affiliations(self, frozen_author):
+        """
+        Delete any outdated affiliations on the frozen author and then
+        assign copies of account affiliations to the frozen author.
+        """
+        frozen_author.affiliations.delete()
+        for affiliation in self.affiliations:
+            affiliation.pk = None
+            affiliation.account = None
+            affiliation.frozen_author = frozen_author
+            affiliation.save()
+
     def snapshot_self(self, article, force_update=True):
+        """
+        Old function name for snapshot_as_author.
+        """
+        raise DeprecationWarning("Use snapshot_as_author instead.")
+        return self.snapshot_as_author(article, force_update)
+
+    def snapshot_as_author(self, article, force_update=True):
+        """
+        Create a submission.models.FrozenAuthor using the name fields
+        and other details from this Account.
+        article: submission.models.Article
+        force_update: whether to overwrite fields if a FrozenAuthor exists
+        """
+        self.add_account_role('author', article.journal)
+        if self.name_prefix:
+            name_prefix = self.name_prefix
+        elif self.salutation:
+            name_prefix = self.salutation
+        else:
+            name_prefix = ''
+
         frozen_dict = {
-            'name_prefix': self.name_prefix,
+            'name_prefix': name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
             'name_suffix': self.suffix,
-            'institution': self.institution,
-            'department': self.department,
             'display_email': True if self == article.correspondence_author else False,
+            'order': article.next_frozen_author_order(),
         }
 
-        frozen_author = self.frozen_author(article)
+        frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
+            author=self,
+            article=article,
+            defaults=frozen_dict,
+        )
+        if created or force_update:
+            self.snapshot_affiliations(frozen_author)
 
-        if frozen_author and force_update:
+        if not created and force_update:
             for k, v in frozen_dict.items():
                 setattr(frozen_author, k, v)
             frozen_author.save()
 
-        else:
-            try:
-                order_object = article.articleauthororder_set.get(author=self)
-            except submission_models.ArticleAuthorOrder.DoesNotExist:
-                order_integer = article.next_author_sort()
-                order_object, c = submission_models.ArticleAuthorOrder.objects.get_or_create(
-                    article=article,
-                    author=self,
-                    defaults={'order': order_integer}
-                )
-
-            submission_models.FrozenAuthor.objects.get_or_create(
-                author=self,
-                article=article,
-                defaults=dict(order=order_object.order, **frozen_dict)
-            )
+        return frozen_author
 
     def frozen_author(self, article):
         try:
@@ -596,11 +694,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return statistics.mean(ratings) if ratings else 0
 
     def articles(self):
-        return submission_models.Article.objects.filter(authors__in=[self])
+        return submission_models.Article.objects.filter(frozenauthor__author=self)
 
     def published_articles(self):
         articles = submission_models.Article.objects.filter(
-            authors=self,
+            frozenauthor__author=self,
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
         )
@@ -1592,7 +1690,7 @@ class Contact(models.Model):
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
     body = JanewayBleachField(verbose_name=_('Your message'))
-    client_ip = models.GenericIPAddressField()
+    client_ip = models.GenericIPAddressField(blank=True, null=True)
     date_sent = models.DateField(auto_now_add=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='contact_c_t',
@@ -1659,6 +1757,16 @@ BASE_ELEMENTS = [
      'jump_url': 'article_copyediting',
      'stage': submission_models.STAGE_EDITOR_COPYEDITING,
      'article_url': True},
+    {'name': 'typesetting',
+     'handshake_url': 'typesetting_articles',
+     'jump_url': 'typesetting_article',
+     'stage': submission_models.STAGE_TYPESETTING_PLUGIN,
+     'article_url': True},
+    {'name': 'prepublication',
+     'handshake_url': 'publish',
+     'jump_url': 'publish_article',
+     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
+     'article_url': True},
     {'name': 'production',
      'handshake_url': 'production_list',
      'jump_url': 'production_article',
@@ -1669,11 +1777,6 @@ BASE_ELEMENTS = [
      'jump_url': 'proofing_article',
      'stage': submission_models.STAGE_PROOFING,
      'article_url': False},
-    {'name': 'prepublication',
-     'handshake_url': 'publish',
-     'jump_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
-     'article_url': True}
 ]
 
 BASE_ELEMENT_NAMES = [
@@ -1903,3 +2006,993 @@ def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
 
 hijack_started.connect(log_hijack_started)
 hijack_ended.connect(log_hijack_ended)
+
+
+class OrganizationNameManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organization_names = []
+        logger.debug(f"Importing organization names")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            for name in record.get('names'):
+                kwargs = {}
+                kwargs['value'] = name.get('value', '')
+
+                if name.get('lang'):
+                    kwargs['language'] = name.get('language', '')
+
+                if 'ror_display' in name.get('types'):
+                    kwargs['ror_display_for'] = organization
+                if 'label' in name.get('types'):
+                    kwargs['label_for'] = organization
+                if 'alias' in name.get('types'):
+                    kwargs['alias_for'] = organization
+                if 'acronym' in name.get('types'):
+                    kwargs['acronym_for'] = organization
+                organization_names.append(OrganizationName(**kwargs))
+        return OrganizationName.objects.bulk_create(organization_names)
+
+    @transaction.atomic
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Finds records where the names have changed,
+        deletes those names in Janeway,
+        and sends those records through OrganizationName.bulk_create_from_ror
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in Organization.objects.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related(
+                "labels"
+            ).prefetch_related(
+                "aliases"
+            ).prefetch_related(
+                "acronyms"
+            )
+        }
+
+        ror_records_with_updated_names = []
+        org_name_pks_to_delete = set()
+        logger.debug(f"Updating names")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            # Note that this set does not need to include ror_display
+            # because all ror_display values are also labels in the
+            # ROR schema
+            janeway_names = set()
+            for name in organization.labels.all():
+                janeway_names.add(name)
+            for name in organization.aliases.all():
+                janeway_names.add(name)
+            for name in organization.acronyms.all():
+                janeway_names.add(name)
+
+            janeway_name_values = set([name.value for name in janeway_names])
+
+            ror_name_values = set([
+                name.get('value') for name in record.get('names', [])
+            ])
+
+            # Delete and recreate all authority-controlled names
+            # when the names differ between Janeway and ROR.
+            if janeway_name_values.difference(ror_name_values):
+                org_name_pks_to_delete.update(
+                    [name.pk for name in janeway_names]
+                )
+                ror_records_with_updated_names.append(record)
+
+        self.filter(pk__in=org_name_pks_to_delete).delete()
+
+        if ror_records_with_updated_names:
+            return self.bulk_create_from_ror(ror_records_with_updated_names)
+        else:
+            return []
+
+
+class OrganizationName(models.Model):
+    value = models.CharField(
+        max_length=1000,
+        verbose_name="Organization name",
+    )
+    ror_display_for = models.OneToOneField(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='ror_display',
+        blank=True,
+        null=True,
+        help_text="This name is a preferred ROR-provided display name.",
+    )
+    label_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='labels',
+        blank=True,
+        null=True,
+        help_text="This name is a preferred ROR-provided alternative, "
+            "often in a different language from the ROR display name.",
+    )
+    custom_label_for = models.OneToOneField(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='custom_label',
+        blank=True,
+        null=True,
+        help_text="This name is a custom label entered by the end user. "
+            "Only exists in Janeway, independent of ROR.",
+    )
+    alias_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='aliases',
+        blank=True,
+        null=True,
+        help_text="This name is a less preferred ROR-provided alternative.",
+    )
+    acronym_for = models.ForeignKey(
+        'Organization',
+        on_delete=models.CASCADE,
+        related_name='acronyms',
+        blank=True,
+        null=True,
+        help_text="This name is a ROR-provided acronym.",
+    )
+    language = models.CharField(
+        max_length=10,
+        blank=True,
+        choices=submission_models.LANGUAGE_CHOICES,
+    )
+    objects = OrganizationNameManager()
+
+    def __str__(self):
+        return self.value
+
+
+class OrganizationQueryset(models.query.QuerySet):
+
+    @transaction.atomic
+    def deduplicate_to_ror(self, limit=None):
+        """
+        Attempts to matching unstructured organization names to ROR names
+        and IDs, and then bulk update related affiliations.
+        Conservative, in that it only tolerates exact matches
+        between normalized (lowercased) strings, and does not
+        use country or other data to disambiguate globally ambigous names
+        like "Musuem of Modern Art".
+        This routine was about 33% effective in testing on live data.
+        """
+
+        # Identify names to deduplicate
+        uncontrolled_organizations = self.filter(
+            ror_id='',
+            custom_label__isnull=False,
+            controlledaffiliation__isnull=False,
+        ).prefetch_related(
+            'custom_label'
+        )
+        num_before = uncontrolled_organizations.count()
+        logger.debug(f"Trying to match {num_before} organization names to ROR data.")
+        if limit:
+            uncontrolled_organizations = uncontrolled_organizations[:limit]
+
+        # Create mapping from unique canonical names to org objects
+        orgs_by_name = {}
+        ambiguous_names_in_ror = set()
+        ambiguous_names_in_db = set()
+        labels = OrganizationName.objects.filter(
+            label_for__isnull=False
+        ).prefetch_related(
+            'ror_display_for'
+        ).prefetch_related(
+            'label_for'
+        )
+        for name in labels:
+            norm_name = name.value.lower()
+            org = name.ror_display_for or name.label_for
+            if norm_name in orgs_by_name:
+                ambiguous_names_in_ror.add(norm_name)
+            else:
+                orgs_by_name[norm_name] = org
+
+        for name in ambiguous_names_in_ror:
+            orgs_by_name.pop(name)
+
+        # Identify the affiliations to update
+        affils_by_org_id = {}
+        for affil in ControlledAffiliation.objects.filter(
+            organization__isnull=False
+        ).prefetch_related('organization'):
+            org_id = affil.organization.pk
+            if org_id not in affils_by_org_id:
+                affils_by_org_id[org_id] = set()
+            affils_by_org_id[org_id].add(affil)
+
+        affiliations_to_update = []
+        orgs_to_delete = set()
+        for old_org in uncontrolled_organizations:
+            norm_name = old_org.custom_label.value.lower()
+            if norm_name in orgs_by_name:
+                orgs_to_delete.add(old_org.pk)
+                new_org = orgs_by_name[norm_name]
+                for affil in affils_by_org_id[old_org.pk]:
+                    affil.organization = new_org
+                    affiliations_to_update.append(affil)
+            elif norm_name in ambiguous_names_in_ror:
+                ambiguous_names_in_db.add(norm_name)
+
+        # Run the update and delete operations
+        ControlledAffiliation.objects.bulk_update(affiliations_to_update, ['organization'], batch_size=3600)
+        Organization.objects.filter(pk__in=orgs_to_delete).delete()
+
+        # Report back to user
+        num_after = self.filter(
+            ror_id='',
+            custom_label__isnull=False,
+        ).count()
+        deduplicated = num_before - num_after
+        percent_matched = round(100 * deduplicated / num_before)
+        logger.debug(
+            f"Matched {deduplicated} "
+            f"organizations ({percent_matched}%) to ROR records."
+        )
+        logger.debug(
+            f"{num_after} uncontrolled organizations remain."
+        )
+        if ambiguous_names_in_db:
+            logger.debug(
+                f'Some ambiguous names ({len(ambiguous_names_in_db)}) could '
+                f'nearly be matched but were not globally unique. '
+            )
+            # logger.debug(f'Ambiguous names: {ambiguous_names_in_db}')
+
+        total_affils_with_org = ControlledAffiliation.objects.filter(
+            organization__isnull=False,
+        ).count()
+        affils_with_controlled_org = ControlledAffiliation.objects.filter(
+            models.Q(organization__isnull=False) & ~models.Q(organization__ror_id=''),
+        ).count()
+        ror_controlled_affils_percent = round(100 * affils_with_controlled_org / total_affils_with_org)
+        logger.debug(
+            f'{affils_with_controlled_org} ({ror_controlled_affils_percent}%) of the '
+            f'affiliations in this Janeway instance are now linked to ROR data.'
+        )
+
+
+class OrganizationManager(models.Manager):
+
+    def get_queryset(self):
+        return OrganizationQueryset(self.model)
+
+    def ror_ids_and_timestamps(self):
+        ror_ids_and_timestamps = {}
+        organizations = self.exclude(ror_id="")
+        for ror_id, ts in organizations.values_list("ror_id", "ror_record_timestamp"):
+            ror_ids_and_timestamps[ror_id] = ts
+        return ror_ids_and_timestamps
+
+    def bulk_link_locations_from_ror(self, ror_records):
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in Location.objects.filter(
+                geonames_id__isnull=False,
+            )
+        }
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            ).prefetch_related('locations')
+        }
+        organization_location_links = []
+        logger.debug(f"Linking locations")
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+            janeway_geonames_ids = set([
+                loc.geonames_id for loc in organization.locations.all()
+            ])
+            ror_geonames_ids = set([
+                loc.get('geonames_id') for loc in record.get('locations', [])
+            ])
+
+            # Unlink locations that have been removed from the record.
+            # Do this without a bulk operation because it is likely to be uncommon.
+            for geonames_id in janeway_geonames_ids - ror_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization.locations.remove(location)
+
+            # Link locations that have been added to the record.
+            for geonames_id in ror_geonames_ids - janeway_geonames_ids:
+                location = locations_by_geonames_id[geonames_id]
+                organization_location_links.append(
+                    Organization.locations.through(
+                        organization_id=organization.pk,
+                        location_id=location.pk,
+                    )
+                )
+
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links
+        )
+
+    def bulk_create_from_ror(self, ror_records):
+        new_organizations = []
+        logger.debug(
+            f"Importing organizations"
+        )
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            new_organizations.append(
+                Organization(
+                    ror_id=ror_id,
+                    ror_status=ror_status,
+                    ror_record_timestamp=last_modified.get("date", ""),
+                    website=website,
+                )
+            )
+        return self.bulk_create(new_organizations)
+
+    @transaction.atomic
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates organizations from ROR records.
+        """
+        organizations_by_ror_id = {
+            org.ror_id: org for org in self.filter(
+                ~models.Q(ror_id__exact="")
+            )
+        }
+        organizations_to_update = []
+        fields_to_update = set()
+        logger.debug(
+            f"Updating organizations"
+        )
+        for record in ror_records:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            organization = organizations_by_ror_id[ror_id]
+
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            timestamp=last_modified.get("date", "")
+            if organization.ror_record_timestamp != timestamp:
+                organization.ror_record_timestamp = timestamp
+                fields_to_update.add('ror_record_timestamp')
+
+            website = ''
+            for link in record.get('links', []):
+                if link.get('type') == 'website':
+                    website = link.get('value', '')
+                    break
+            if organization.website != website:
+                organization.website = website
+                fields_to_update.add('website')
+
+            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            if organization.ror_status != ror_status:
+                organization.ror_status = ror_status
+                fields_to_update.add('ror_status')
+
+            organizations_to_update.append(organization)
+
+        if organizations_to_update and fields_to_update:
+            return Organization.objects.bulk_update(
+                organizations_to_update,
+                fields_to_update,
+            )
+        else:
+            return []
+
+    def manage_ror_import(self, ror_import, limit=0):
+        """
+        Opens a previously downloaded data dump from
+        ROR's Zenodo endpoint, processes the records,
+        and records errors for exceptions raised during creation.
+        https://ror.readme.io/v2/docs/data-dump
+        """
+        logger.debug(f"Running ROR import with limit={limit}")
+        num_errors_before = RORImportError.objects.count()
+        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.endswith('v2.json'):
+                    string = zip_ref.read(file_info).decode()
+                    if limit:
+                        records = json.loads(string)[:limit]
+                    else:
+                        records = json.loads(string)
+                    break
+
+        new_records = ror_import.filter_new_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
+        if new_records:
+            try:
+                Location.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_create_from_ror(new_records)
+                Organization.objects.bulk_link_locations_from_ror(new_records)
+                OrganizationName.objects.bulk_create_from_ror(new_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
+
+        # Update modified records
+        updated_records = ror_import.filter_updated_records(
+            records,
+            self.ror_ids_and_timestamps(),
+        )
+        if updated_records:
+            try:
+                with transaction.atomic():
+                    Location.objects.bulk_update_from_ror(updated_records)
+                    Organization.objects.bulk_update_from_ror(updated_records)
+                    Organization.objects.bulk_link_locations_from_ror(
+                        updated_records
+                    )
+                    OrganizationName.objects.bulk_update_from_ror(updated_records)
+            except Exception as error:
+                message = f'{type(error)}: {error}'
+                RORImportError.objects.create(
+                    ror_import=ror_import,
+                    message=message,
+                )
+
+        if not new_records and not updated_records:
+            ror_import.status = ror_import.RORImportStatus.IS_UNNECESSARY
+        else:
+            ror_import.status = ror_import.RORImportStatus.IS_SUCCESSFUL
+        ror_import.stopped = timezone.now()
+        ror_import.save()
+
+        num_errors_after = RORImportError.objects.count()
+        if num_errors_after > num_errors_before:
+            logger.warn(
+                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+            )
+
+
+def validate_ror_id(ror_id):
+    ror_regex = r'^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
+    prog = re.compile(ror_regex)
+    if not prog.match(ror_id):
+        raise ValidationError(f'{ror_id} is not a valid ROR identifier')
+
+
+class Organization(models.Model):
+
+    class RORStatus(models.TextChoices):
+        ACTIVE = 'active', _('Active')
+        INACTIVE = 'inactive', _('Inactive')
+        WITHDRAWN = 'withdrawn', _('Withdrawn')
+        UNKNOWN = 'unknown', _('Unknown')
+
+    ror_id = models.CharField(
+        blank=True,
+        max_length=10,
+        validators=[validate_ror_id],
+        verbose_name='ROR ID',
+        help_text='Non-URI form of Research Organization Registry identifier',
+    )
+    ror_status = models.CharField(
+        blank=True,
+        max_length=10,
+        choices=RORStatus.choices,
+        default=RORStatus.UNKNOWN,
+    )
+    ror_record_timestamp = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text='The admin.last_modified.date string from ROR data',
+    )
+    website = models.CharField(
+        blank=True,
+        max_length=2000,
+    )
+    locations = models.ManyToManyField(
+        'Location',
+        blank=True,
+        null=True,
+    )
+    objects = OrganizationManager()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ror_id'],
+                condition=~models.Q(ror_id__exact=''),
+                name='filled_unique',
+            )
+        ]
+
+    @property
+    def name_location(self):
+        elements = [
+            str(self.name) if self.name else '',
+            str(self.location) if self.location else '',
+        ]
+        return ', '.join([element for element in elements if element])
+
+    def __str__(self):
+        return str(self.name) if self.name else ''
+
+    @property
+    def uri(self):
+        return f'https://ror.org/{self.ror_id}' if self.ror_id else ''
+
+    @property
+    def name(self):
+        """
+        Return the OrganizationName that ROR uses for display, or if none,
+        the first one that was manually entered, or if none,
+        the first one designated by ROR as a label.
+        Can be expanded in future to support choosing a label by language.
+        """
+        try:
+            return self.ror_display
+        except Organization.ror_display.RelatedObjectDoesNotExist:
+            try:
+                return self.custom_label
+            except Organization.custom_label.RelatedObjectDoesNotExist:
+                return self.labels.first()
+
+    @property
+    def location(self):
+        """
+        Return the first location.
+        """
+        return self.locations.first() if self.locations else None
+
+    @property
+    def country(self):
+        """
+        Return the country of the first location.
+        """
+        return self.location.country if self.location else None
+
+    @property
+    def names(self):
+        """
+        All names.
+        """
+        return OrganizationName.objects.filter(
+            models.Q(ror_display_for=self) |
+            models.Q(custom_label_for=self) |
+            models.Q(label_for=self) |
+            models.Q(alias_for=self) |
+            models.Q(acronym_for=self),
+        )
+
+    @property
+    def also_known_as(self):
+        """
+        All names excluding the ROR display name.
+        """
+        return self.names.exclude(ror_display_for=self)
+
+    @classmethod
+    def get_or_create_without_ror(
+        cls,
+        institution='',
+        country='',
+        account=None,
+        frozen_author=None,
+        preprint_author=None,
+    ):
+        """
+        Backwards-compatible API for finding a matching organization,
+        or creating one along with a location that just records country.
+        Intended for use in batch importers where ROR data is not available
+        in the data being imported.
+        Does not support ROR ids, ROR name types, or geonames locations.
+
+        :type institution: str
+        :param country: ISO-3166-1 alpha-2 country code or Janeway Country object
+        :type country: str or core.models.Country
+        :type account: core.models.Account
+        :type frozen_author: submission.models.FrozenAuthor
+        :type preprint_author: repository.models.PreprintAuthor
+        """
+
+        created = False
+        # Is there a single exact match in the
+        # canonical name data from ROR (e.g. labels)?
+        try:
+            organization = cls.objects.get(labels__value=institution)
+        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+            # Or maybe one in the alternate name data
+            # from ROR (e.g. aliases)?
+            try:
+                organization = cls.objects.get(aliases__value=institution)
+            except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                # Or maybe a primary affiliation has already been
+                # entered without a ROR for this
+                # account / frozen author / preprint author?
+                try:
+                    # If there is no `institution`, this method is being used to update
+                    # the department or country in isolation, so we want the primary
+                    # affiliation's org regardless of what its custom label is.
+                    query = models.Q(
+                        controlledaffiliation__is_primary=True,
+                        controlledaffiliation__account=account,
+                        controlledaffiliation__frozen_author=frozen_author,
+                        controlledaffiliation__preprint_author=preprint_author,
+                        ror_id__exact='',
+                    )
+                    # If there is an institution name, we should only match organizations
+                    # with that as a custom label.
+                    if institution:
+                        query &= models.Q(custom_label__value=institution)
+                    organization = cls.objects.get(query)
+                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                    # Otherwise, create a new, disconnected record.
+                    organization = cls.objects.create()
+                    created = True
+
+        # Set custom label if organization is not controlled by ROR
+        if institution and not organization.ror_id:
+            organization_name, _created = OrganizationName.objects.update_or_create(
+                defaults={'value': institution},
+                custom_label_for=organization,
+            )
+
+        # Prep the country
+        if country and not isinstance(country, Country):
+            try:
+                country = Country.objects.get(code=country)
+            except Country.DoesNotExist:
+                country = ''
+
+        # Set country data if organization is not controlled by ROR
+        if country and not organization.ror_id:
+            location, _created = Location.objects.get_or_create(
+                name='',
+                country=country,
+            )
+            organization.locations.clear()
+            organization.locations.add(location)
+
+        return organization, created
+
+
+class ControlledAffiliation(models.Model):
+    """
+    A model to record affiliations for authors and other actors in Janeway.
+    This model has authority control via the Organization model and its ties
+    to the Research Organization Registry.
+    Named ControlledAffiliation to avoid a name clash
+    with an old field named 'affiliation'.
+    """
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    frozen_author = models.ForeignKey(
+        submission_models.FrozenAuthor,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    preprint_author = models.ForeignKey(
+        repository_models.PreprintAuthor,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    title = models.CharField(
+        blank=True,
+        max_length=300,
+        verbose_name=_('Title, position, or role'),
+    )
+    department = models.CharField(
+        blank=True,
+        max_length=300,
+        verbose_name=_('Department, unit, or team'),
+    )
+    organization = models.ForeignKey(
+        'Organization',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Each author or user can have one primary affiliation",
+    )
+    start = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Start date",
+    )
+    end = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="End date",
+        help_text="Leave empty for a current affiliation",
+    )
+
+    class Meta:
+        constraints = [
+            check_exclusive_fields_constraint(
+                'controlled_affiliation',
+                ['account', 'frozen_author', 'preprint_author'],
+            )
+        ]
+        ordering = ['-is_primary', '-end', '-start', '-pk']
+
+    def title_department(self):
+        elements = [
+            self.title,
+            self.department,
+        ]
+        return ', '.join([element for element in elements if element])
+
+    def __str__(self):
+        elements = [
+            self.title,
+            self.department,
+            str(self.organization.name) if self.organization else '',
+        ]
+        return ', '.join([element for element in elements if element])
+
+
+    @property
+    def is_current(self):
+        if self.start and self.start > timezone.now():
+            return False
+        if self.end and self.end < timezone.now():
+            return False
+        return True
+
+    @classmethod
+    def set_primary_if_first(cls, obj):
+        other_affiliations = cls.objects.filter(
+            account=obj.account,
+            frozen_author=obj.frozen_author,
+            preprint_author=obj.preprint_author,
+        ).exclude(
+            pk=obj.pk
+        ).exists()
+        if not other_affiliations:
+            obj.is_primary = True
+
+    @classmethod
+    def keep_is_primary_unique(cls, obj):
+        if obj.is_primary:
+            cls.objects.filter(
+                is_primary=True,
+                account=obj.account,
+                frozen_author=obj.frozen_author,
+                preprint_author=obj.preprint_author,
+            ).exclude(
+                pk=obj.pk
+            ).update(
+                is_primary=False,
+            )
+
+    @classmethod
+    def get_primary(
+        cls,
+        affiliated_object,
+        as_object=True,
+    ):
+        """
+        Get the primary affiliation, or if none,
+        the current affiliation with the most recent start date, or if none,
+        the affiliation with the highest pk, or if none,
+        an empty string.
+        :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
+        :param as_object: whether to return a Python object
+        """
+        if not affiliated_object.affiliations.exists():
+            return None if as_object else ''
+        try:
+            affil = affiliated_object.affiliations.get(is_primary=True)
+        except ControlledAffiliation.DoesNotExist:
+            affil = affiliated_object.affiliations.first()
+        return affil if as_object else str(affil)
+
+    @classmethod
+    def get_or_create_without_ror(
+        cls,
+        institution='',
+        department='',
+        title='',
+        country='',
+        account=None,
+        frozen_author=None,
+        preprint_author=None,
+        defaults=None,
+    ):
+        """
+        Backwards-compatible API for setting affiliation from unstructured text.
+        Intended for use in batch importers where ROR data is not available.
+        Does not support ROR ids, multiple affiliations, or start or end dates.
+        When possible, include department and country to create unified records.
+        Only include one of author, frozen_author, or preprint_author.
+
+        :param institution: the uncontrolled organization name as a string
+        :type institution: str
+        :type department: str
+        :param country: ISO-3166-1 alpha-2 country code or Janeway Country object
+        :type country: str or core.models.Country
+        :type account: core.models.Account
+        :type frozen_author: submission.models.FrozenAuthor
+        :type preprint_author: repository.models.PreprintAuthor
+        :param defaults: default dict passed to ControlledAffiliation.get_or_create:
+        :type defaults: dict:
+        """
+        organization, _created = Organization.get_or_create_without_ror(
+            institution=institution,
+            country=country,
+            account=account,
+            frozen_author=frozen_author,
+            preprint_author=preprint_author,
+        )
+        if not defaults:
+            defaults = {}
+
+        defaults.update({
+            'organization': organization,
+        })
+        if department:
+            defaults['department'] = department
+        if title:
+            defaults['title'] = title
+        kwargs = {
+            'is_primary': True,
+            'account': account,
+            'frozen_author': frozen_author,
+            'preprint_author': preprint_author,
+        }
+
+        # Create or update the actual affiliation if the associated
+        # account / frozen author / preprint author has been saved already
+        try:
+            affiliation, created = ControlledAffiliation.objects.update_or_create(
+                defaults=defaults,
+                **kwargs,
+            )
+        except (ValueError, IntegrityError):
+            logger.warning(
+                f'The affiliation could not be created '
+                f'with defaults {defaults} and kwargs {kwargs}.'
+            )
+            affiliation = None
+            created = False
+        return affiliation, created
+
+    def save(self, *args, **kwargs):
+        self.set_primary_if_first(self)
+        self.keep_is_primary_unique(self)
+        super().save(*args, **kwargs)
+
+
+class LocationManager(models.Manager):
+
+    def bulk_create_from_ror(self, ror_records):
+        """
+        Bulk creates location objects for which a matching Geonames ID
+        is not found in Janeway.
+        Guards against duplicate locations because the input
+        ror_records will only have been filtered
+        at the organization level, not the location level.
+        """
+        current_geonames_ids = set(
+            loc.geonames_id for loc in self.all() if loc.geonames_id
+        )
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        new_locations = []
+        logger.debug(
+            f"Importing locations"
+        )
+        for record in ror_records:
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if geonames_id and geonames_id not in current_geonames_ids:
+                    details = record_location.get('geonames_details', {})
+                    new_locations.append(
+                        Location(
+                            geonames_id=geonames_id,
+                            name=details.get('name', ''),
+                            country=countries_by_code.get(
+                                details.get('country_code', '')
+                            ),
+                        )
+                    )
+                    current_geonames_ids.add(geonames_id)
+        return Location.objects.bulk_create(new_locations)
+
+    @transaction.atomic
+    def bulk_update_from_ror(self, ror_records):
+        """
+        Bulk updates location objects for which a matching Geonames ID
+        is found in Janeway.
+        Also handles new location objects by calling Location.bulk_create_from_ror;
+        this is needed when a ROR record has been modified by the addition of
+        new locations.
+        """
+        locations_by_geonames_id = {
+            loc.geonames_id: loc for loc in self.all() if loc.geonames_id
+        }
+        countries_by_code = {
+            country.code: country for country in Country.objects.all()
+        }
+        locations_to_update = []
+        ror_records_with_new_loc = []
+        fields_to_update = set()
+        logger.debug(
+            f"Updating locations"
+        )
+        for record in ror_records:
+            for record_location in record.get('locations'):
+                geonames_id = record_location.get('geonames_id')
+                if not geonames_id:
+                    break
+                if geonames_id in locations_by_geonames_id:
+                    details = record_location.get('geonames_details', {})
+                    location = locations_by_geonames_id[geonames_id]
+                    country = countries_by_code.get(
+                        details.get('country_code', '')
+                    )
+                    if location.name != details.get('name', ''):
+                        location.name = details.get('name', '')
+                        fields_to_update.add('name')
+                    if location.country != country:
+                        location.country = country
+                        fields_to_update.add('country')
+                    locations_to_update.append(location)
+                elif geonames_id not in locations_by_geonames_id:
+                    ror_records_with_new_loc.append(record)
+        if ror_records_with_new_loc:
+            Location.objects.bulk_create_from_ror(ror_records_with_new_loc)
+        if locations_to_update and fields_to_update:
+            return Location.objects.bulk_update(
+                locations_to_update,
+                fields_to_update,
+            )
+        else:
+            return []
+
+
+class Location(models.Model):
+    name = models.CharField(
+        max_length=200,
+        help_text="City or place name",
+        blank=True,
+    )
+    country = models.ForeignKey(
+        Country,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    geonames_id = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+    objects = LocationManager()
+
+    def __str__(self):
+        elements = [
+            self.name if self.name else '',
+            str(self.country) if self.country else '',
+        ]
+        return ', '.join([element for element in elements if element])

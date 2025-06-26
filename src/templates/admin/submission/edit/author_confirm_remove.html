@@ -1,0 +1,16 @@
+{% extends "admin/elements/confirm_remove.html" %}
+
+{% load i18n next_url %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/submit_authors_base.html" %}
+  <li>
+    {% blocktrans %}
+      Remove "{{ thing_to_delete }}"
+    {% endblocktrans %}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "admin/submission/edit/author_nitty.html" %}
+{% endblock nitty %}

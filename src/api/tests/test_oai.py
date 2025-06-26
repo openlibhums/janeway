@@ -15,6 +15,7 @@ from lxml import etree
 from api.oai.base import OAIPaginationMixin
 from submission import models as sm_models
 from utils.testing import helpers
+from utils import setting_handler
 
 FROZEN_DATETIME_2012 = timezone.make_aware(timezone.datetime(2012, 1, 14, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 0, 0, 0))
@@ -28,13 +29,15 @@ class TestOAIViews(TestCase):
         cls.press = helpers.create_press()
         cls.journal, _ = helpers.create_journals()
         cls.author = helpers.create_author(cls.journal)
-
         cls.article = helpers.create_submission(
             journal_id=cls.journal.pk,
             stage=sm_models.STAGE_PUBLISHED,
             date_published="1986-07-12T17:00:00.000+0200",
             authors=[cls.author],
         )
+        cls.frozen_author = cls.author.frozen_author(cls.article)
+        cls.frozen_author.add_credit('data-curation')
+        cls.frozen_author.add_credit('writing-original-draft')
         cls.issue = helpers.create_issue(
             journal=cls.journal, vol=1, number=1,
             articles=[cls.article],
@@ -139,10 +142,14 @@ class TestOAIViews(TestCase):
         expected = GET_RECORD_DATA_JATS
         # Add a non correspondence author
         author_2 = helpers.create_author(self.journal, email="no@email.com")
-        self.article.authors.add(author_2)
-        self.article.snapshot_authors()
+        author_2.snapshot_as_author(self.article)
 
-
+        setting_handler.save_setting(
+            "general",
+            "use_credit",
+            journal=self.journal,
+            value="on",
+        )
         path = reverse('OAI_list_records')
         query_params = dict(
             verb="GetRecord",
@@ -526,6 +533,18 @@ GET_RECORD_DATA_JATS = """
                             <given-names>Author A</given-names>
                         </name>
                         <email>authoruser@martineve.com</email>
+                        <role
+                            vocab="credit" vocab-identifier="https://credit.niso.org/"
+                            vocab-term="Data Curation"
+                            vocab-term-identifier="https://credit.niso.org/contributor-roles/data-curation/">
+                            Data Curation
+                        </role>
+                        <role
+                            vocab="credit" vocab-identifier="https://credit.niso.org/"
+                            vocab-term="Writing - Original Draft"
+                            vocab-term-identifier="https://credit.niso.org/contributor-roles/writing-original-draft/">
+                            Writing - Original Draft
+                        </role>
                         <xref ref-type="aff" rid="aff-1"/>
                     </contrib>
                     <contrib contrib-type="author">

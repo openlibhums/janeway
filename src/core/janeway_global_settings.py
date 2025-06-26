@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'security',
     'submission',
     'transform',
+    'typesetting',
     'utils',
     'workflow',
 
@@ -307,7 +308,8 @@ BLEACH_ALLOWED_STYLES = get_allowed_css_styles()
 BLEACH_STRIP_TAGS = True
 
 # Strip comments, or leave them in.
-BLEACH_STRIP_COMMENTS = False
+# WARNING: Allowing comments can re-introduce a bug: #4695
+BLEACH_STRIP_COMMENTS = True
 
 # Which widget to use for bleached HTML fields
 BLEACH_DEFAULT_WIDGET = 'tinymce.widgets.TinyMCE'
@@ -680,3 +682,39 @@ TINYMCE_DEFAULT_CONFIG = {
         "| a11ycheck ltr rtl | code",
     **TINYMCE_CLIPBOARD_CLEANER,
 }
+
+JATS_ARTICLE_TYPES = (
+    ("abstract", ("Abstract")),
+    ("addendum", ("Addendum")),
+    ("announcement", ("Announcement")),
+    ("article-commentary", ("Article Commentary")),
+    ("book-review", ("Book Review")),
+    ("books-received", ("Books Received")),
+    ("brief-report", ("Brief Report")),
+    ("calendar", ("Calendar")),
+    ("case-report", ("Case Report")),
+    ("collection", ("Collection")),
+    ("correction", ("Correction")),
+    ("discussion", ("Discussion")),
+    ("dissertation", ("Dissertation")),
+    ("editorial", ("Editorial")),
+    ("in-brief", ("In-Brief")),
+    ("introduction", ("Introduction")),
+    ("letter", ("Letter")),
+    ("meeting-report", ("Meeting Report")),
+    ("news", ("News")),
+    ("obituary", ("Obituary")),
+    ("oration", ("Oration")),
+    ("partial-retraction", ("Partial Retraction")),
+    ("product-review", ("Product Review")),
+    ("rapid-communication", ("Rapid Communication")),
+    ("reply", ("Reply")),
+    ("reprint", ("Reprint")),
+    ("research-article", ("Research Article")),
+    ("retraction", ("Retraction")),
+    ("review-article", ("Review Article")),
+    ("translation", ("Translation")),
+    ("other", "Other")
+)
+
+ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"

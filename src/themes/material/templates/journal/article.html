@@ -6,8 +6,9 @@
 
 {% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
-{% block title %}{{ article.frozen_authors.0.last_name | striptags }} | {{ article.title | striptags }} |
-    {{ journal_settings.general.journal_name | striptags }} {% endblock %}
+{% block title %}
+  {% include "common/elements/journal/article_title.html" %}
+{% endblock %}
 
 {% block head %}
     <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
@@ -135,7 +136,7 @@
                                 </p>
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
-                                        <i class="material-icons left">info</i>
+                                        <i aria-hidden="true" class="fa fa-info-circle" ></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
                                     </p>
                                 {% endif %}
@@ -160,20 +161,22 @@
                                     <h5>
                                         {{ article.metrics.views }}
                                     </h5>
-                                    <p><i class="fa fa-eye"></i>{% trans "Views" %}</p>
+                                    <p><i aria-hidden="true" class="fa fa-eye"></i>{% trans "Views" %}</p>
                                 </div>
-                                <div class="alm">
-                                    <h5>
-                                        {{ article.metrics.downloads }}
-                                    </h5>
-                                    <p><i class="fa fa-download"></i>{% trans "Downloads" %}</p>
-                                </div>
+                                {% if galleys %}
+                                    <div class="alm">
+                                        <h5>
+                                            {{ article.metrics.downloads }}
+                                        </h5>
+                                        <p><i aria-hidden="true" class="fa fa-download"></i>{% trans "Downloads" %}</p>
+                                    </div>
+                                {% endif %}
                                 {% if article.metrics.alm.twitter %}
                                     <div class="alm">
                                         <h5>
                                             {{ article.metrics.alm.twitter }}
                                         </h5>
-                                        <p><i class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
+                                        <p><i aria-hidden="true" class="fa fa-twitter"></i>{% trans "Tweets" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.wikipedia %}
@@ -181,7 +184,7 @@
                                         <h5>
                                             {{ article.metrics.alm.wikipedia }}
                                         </h5>
-                                        <p><i class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
+                                        <p><i aria-hidden="true" class="fa fa-wikipedia-w"></i>{% trans "Wikipedia" %}</p>
                                     </div>
                                 {% endif %}
                                 {% if article.metrics.alm.reddit %}
@@ -189,7 +192,7 @@
                                         <h5>
                                             {{ article.metrics.alm.reddit }}
                                         </h5>
-                                        <p><i class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
+                                        <p><i aria-hidden="true" class="fa fa-reddit"></i>{% trans "Reddit" %}</p>
                                     </div>
                                 {% endif %}
 
@@ -198,7 +201,7 @@
                                         <h5>
                                             {{ article.citation_count }}
                                         </h5>
-                                        <p><i class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
+                                        <p><i aria-hidden="true" class="fa fa-quote-left"></i>{% trans "Citations" %}</p>
                                     </div>
                                 {% endif %}
                             </div>
@@ -227,42 +230,32 @@
             <div class="card">
                 <div class="card-content">
                     {% include "common/elements/altmetric_badges.html" with article=article %}
-                    <h4>
-                        {% trans "Share" %}
-                    </h4>
-                      {% with article.get_doi_url as doi_url%}
-                        <a class="waves-effect waves-light btn btn-small facebook-bg"
-                            href="https://www.facebook.com/share.php?p[url]={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}" 
-                            target="_blank" aria-label="{% trans 'Share on Facebook' %}"><i class="fa fa-facebook"></i></a>
-                        <a class="waves-effect waves-light btn btn-small twitter-bg twitter-x" 
-                            href="https://twitter.com/intent/tweet?text={{ article.title }} {% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on X' %}">&#120143;</a>
-                        <a class="waves-effect waves-light btn btn-small linkedin-bg"
-                            href="https://www.linkedin.com/sharing/share-offsite?url={% if doi_url %}{{ doi_url }}{% else %}{{ article.url }}{% endif %}"
-                            target="_blank" aria-label="{% trans 'Share on LinkedIn' %}"><i class="fa fa-linkedin"></i></a></button>
-                      {% endwith %}
-
-                    {% if article.frozen_authors.count > 0 %}
-                    <div class="spacer">
-                        <div class="divider"></div>
-                    </div>
-                    <h4>
-                        {% trans "Authors" %}
-                    </h4>
-
-                    {% for author in article.frozen_authors.all %}
-                            {% if not forloop.first %}<br/> {% endif %}
-                            {{ author.full_name }}
-                            {% if author.orcid %}<a href="https://orcid.org/{{ author.orcid }}"
-                                class=""><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="orcid logo"></a>{% endif %}
-                            {% if author.institution  and author.institution != " " %}
-                                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity"></span>
-                                <span itemprop="name">({{ author.institution }})</span>
-                            {% endif %}
-                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                <a itemprop="email" href="mailto:{{ author.email }}"
-                                   class="fa fa-envelope email-link"></a>{% endif %}
-                    {% endfor %}
+                    {% include "elements/journal/share.html" %}
+                    {% if article.frozen_authors.exists %}
+                        <div class="spacer">
+                            <div class="divider"></div>
+                        </div>
+                        <h4>
+                          {% blocktrans count counter=article.frozen_authors.count %}
+                            Author
+                          {% plural %}
+                            Authors
+                          {% endblocktrans %}
+                        </h4>
+                        <ul id="author-list">
+                            {% for author in article.frozen_authors.all %}
+                                <li>
+                                  {% include "common/elements/journal/article_author_display.html" %}
+                                     {% if journal_settings.general.use_credit and author.credits.exists %}
+                                       [<span class="credit">
+                                         {% for credit in author.credits %}
+                                           {{ credit }}{% if not forloop.last %}, {% endif %}
+                                         {% endfor %}
+                                       </span>]
+                                     {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>    
                     {% endif %}
 
                     <div class="spacer">
@@ -287,7 +280,7 @@
                             </ul>
                             {% if proofing %}
                                 <p id="note_to_proofreader_2">
-                                    <i class="material-icons left">info</i>
+                                    <i aria-hidden="true" class="fa fa-info-circle" ></i>
                                     Note to proofreader: Download links on this page begin to work when the article is published.
                                 </p>
                             {% endif %}
@@ -309,49 +302,49 @@
                         <table class="sidebar-table">
                             {% if article.page_range %}
                             <tr>
-                                <th>{% trans "Pages" %}</th>
+                                <th scope="row" >{% trans "Pages" %}</th>
                                 <td>{{ article.page_range }}</td>
                             </tr>
                             {% endif %}
                             {% if article.article_number %}
                             <tr>
-                                <th>{% trans "Article No." %}</th>
+                                <th scope="row" >{% trans "Article No." %}</th>
                                 <td>{{ article.article_number }}</td>
                             </tr>
                             {% endif %}
                             {% if article.publisher_name %}
                             <tr>
-                                <th>{% trans "Publisher" %}</th>
+                                <th scope="row" >{% trans "Publisher" %}</th>
                                 <td>{{ article.publisher_name }}</td>
                             </tr>
                             {% endif %}
                             {% if article.publication_title %}
                             <tr>
-                                <th>{% trans "Publication" %}</th>
+                                <th scope="row" >{% trans "Publication" %}</th>
                                 <td>{{ article.publication_title }}</td>
                             </tr>
                             {% endif %}
                             {% if article.ISSN_override %}
                             <tr>
-                                <th>{% trans "Original ISSN" %}</th>
+                                <th scope="row" >{% trans "Original ISSN" %}</th>
                                 <td>{{ article.ISSN_override}}</td>
                             </tr>
                             {% endif %}
                             {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                                 <tr>
-                                    <th>{% trans "Submitted on" %}</th>
+                                    <th scope="row" >{% trans "Submitted on" %}</th>
                                     <td>{{ article.date_submitted|date:"Y-m-d" }}</td>
                                 </tr>
                             {% endif %}
                             {% if journal_settings.article.display_date_accepted and article.date_accepted %}
                                 <tr>
-                                    <th>{% trans "Accepted on" %}</th>
+                                    <th scope="row" >{% trans "Accepted on" %}</th>
                                     <td>{{ article.date_accepted|date:"Y-m-d" }}</td>
                                 </tr>
                             {% endif %}
                             {% if article.date_published or proofing %}
                             <tr>
-                                <th>{% trans "Published on" %}</th>
+                                <th scope="row" >{% trans "Published on" %}</th>
                                 <td id="article_date_published">
                                     {{ article.date_published|date:"Y-m-d" }}
                                 </td>
@@ -388,8 +381,13 @@
                     <h4>
                         {% trans "Licence" %}
                     </h4>
-                    <p>{{ article.license.name }} {% if article.license.url %}
-                        <a rel="license" href="{{ article.license.url }}"><i class="fa fa-external-link"></i></a>{% endif %}</p>
+                    <p>{{ article.license.name }} 
+                        {% if article.license.url %}
+                            <a rel="license" href="{{ article.license.url }}" aria-label="External link to more license information.">
+                                <i aria-hidden="true" class="fa fa-external-link"></i>
+                            </a>
+                        {% endif %}
+                    </p>
 
                     {% if article.competing_interests %}
                     <div class="spacer">
@@ -422,7 +420,7 @@
                             {% trans "Peer Review" %}
                         </h4>
                         <p>
-                            <i class="fa fa-check-circle-o" style="color: green"></i>
+                            <i aria-hidden="true" class="fa fa-check-circle-o" style="color: green"></i>
                             {% trans "This article has been peer reviewed." %}
                         </p>
                             {% if journal_settings.general.open_peer_review %}
@@ -447,6 +445,16 @@
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
+                    {% endif %}
+
+                    {% if article.preprint and article.preprint.is_published %}
+                      <h4>{{ article.preprint.repository.object_name }}</h4>
+                      <p>This article is linked to
+                        a {{ article.preprint.repository.object_name }}
+                        in {{ article.preprint.repository.name }}.</p>
+                      <p>
+                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                      </p>
                     {% endif %}
 
                     {% if article.is_published or proofing %}
@@ -524,4 +532,5 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    <script src="{% static "common/js/clipboard.js" %}"></script>
 {% endblock %}

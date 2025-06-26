@@ -22,8 +22,10 @@
                                     {% if editor.profile_image %}{{ editor.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}">
                             {% if user.enable_public_profile %}
                                 <a href="{% url 'core_public_profile' editor.uuid %}"
-                                   class="btn-floating halfway-fab waves-effect waves-light red"><i class="fa fa-user"
-                                                                                                    aria-hidden="true"></i>
+                                   class="btn-floating halfway-fab waves-effect waves-light red"
+                                   >
+                                   <i class="fa fa-user" aria-hidden="true"></i>
+                                   <span class="sr-only">{% trans "User profile" %}</span>
                                 </a>{% endif %}
                         </div>
                         <div class="card-content" style="min-height: 180px;">

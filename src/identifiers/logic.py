@@ -339,7 +339,9 @@ def create_crossref_article_context(article, identifier=None):
         'date_accepted': article.date_accepted,
         'date_published': article.date_published,
         'license': article.license.url if article.license else '',
-        'pages': article.page_numbers,
+        'first_page': article.first_page,
+        'last_page': article.last_page,
+        'other_pages': article.page_numbers,
         'scheduled': article.scheduled_for_publication,
     }
 
@@ -567,6 +569,7 @@ def preview_registration_information(article):
         return ''
 
 def get_preprint_tempate_context(request, identifier):
+    raise DeprecationWarning("Not used.")
     article = identifier.article
 
     template_context = {
@@ -586,7 +589,7 @@ def get_preprint_tempate_context(request, identifier):
             identifier.article.title,
             ' ' if identifier.article.subtitle is not None else '',
             identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
+        'authors': identifier.article.author_accounts.all(),
         'article_month': identifier.article.date_published.month,
         'article_day': identifier.article.date_published.day,
         'article_year': identifier.article.date_published.year,
@@ -603,7 +606,7 @@ def register_preprint_doi(request, crossref_enabled, identifier):
     :param identifier: Identifier object
     :return: Nothing
     """
-
+    raise DeprecationWarning("Not used.")
     if not crossref_enabled:
         messages.add_message(request, messages.WARNING, 'Crossref DOIs are not enabled for this preprint service.')
     else:

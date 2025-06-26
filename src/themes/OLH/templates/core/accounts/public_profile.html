@@ -33,12 +33,7 @@
                     {% comment %}No support yet for multiple staff groups{% endcomment %}
                   </p>
                 {% endif %}
-                {% if user.affiliation %}
-                  <p><strong>{% trans "Affiliation" %}: </strong><br>{{ user.affiliation }}</p>
-                {% endif %}
-                {% if user.country %}
-                  <p><strong>{% trans "Country" %}:</strong><br>{{ user.country }}</p>
-                {% endif %}
+                {% include "common/elements/profile_affiliations.html" %}
             </div>
             <div class="large-9 columns">
                 {% if user.biography %}

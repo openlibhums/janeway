@@ -11,28 +11,75 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
+from urllib.parse import unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.template.loader import get_template
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 
-from core import models, files, plugin_installed_apps
+from core import forms, models, files, plugin_installed_apps
 from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
 from submission import models as submission_models
 from comms import models as comms_models
-from utils import shared
+from utils import shared, logic as utils_logic
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def reverse_with_next(url_name, next_url, args=None, kwargs=None):
+    """
+    Reverse a URL but keep the 'next' parameter.
+
+    The value of 'next_url' should be in decoded form.
+
+    :param next_url: a string with the path and query parts of a destination URL
+    :param args: args to pass to django.shortcuts.reverse, if no kwargs
+    :param kwargs: kwargs to pass to django.shortcuts.reverse, if no args
+    """
+    reversed_url = reverse(url_name, args=args, kwargs=kwargs)
+
+    if not next_url:
+        return reversed_url
+
+    if reversed_url == next_url:
+        # Avoid circular next URLs
+        return reversed_url
+
+    final_url = utils_logic.add_query_parameters_to_url(
+        reversed_url,
+        {'next': next_url},
+    )
+    return final_url
+
+
+def reverse_with_query(url_name, args=None, kwargs=None, query_params=None):
+    """
+    Reverse a URL and add arbitrary query parameters.
+    The parameter values should be in decoded form.
+    If all parameter values are empty, the parameters are not added.
+
+    :param args: args to pass to django.shortcuts.reverse
+    :param kwargs: kwargs to pass to django.shortcuts.reverse
+    :param query_params: the dict or QueryDict of new query parameters to add
+    """
+    reversed_url = reverse(url_name, args=args, kwargs=kwargs)
+    if query_params:
+        return utils_logic.add_query_parameters_to_url(
+            reversed_url,
+            query_params,
+        )
+    else:
+        return reversed_url
 
 
 def send_reset_token(request, reset_token):
@@ -40,76 +87,63 @@ def send_reset_token(request, reset_token):
         reverse(
             'core_reset_password',
             kwargs={'token': reset_token.token},
-        )
+        ),
+        query={'next': request.GET.get('next', '')},
     )
     context = {
         'reset_token': reset_token,
         'core_reset_password_url': core_reset_password_url,
     }
     log_dict = {'level': 'Info', 'types': 'Reset Token', 'target': None}
-    if not request.journal:
-        message = render_template.get_message_content(
-            request,
-            context,
-            request.press.password_reset_text,
-            template_is_setting=True,
-        )
-    else:
-        message = render_template.get_message_content(
-            request,
-            context,
-            'password_reset',
-        )
-
-    subject = 'subject_password_reset'
-
-    notify_helpers.send_email_with_body_from_user(
+    notify_helpers.send_email_with_body_from_setting_template(
         request,
-        subject,
+        'password_reset',
+        'subject_password_reset',
         reset_token.account.email,
-        message,
+        context,
         log_dict=log_dict,
     )
 
 
-def send_confirmation_link(request, new_user):
-    core_confirm_account_url = request.site_type.site_url(
+def get_confirm_account_url(request, user, next_url=''):
+    """
+    :param user: core.models.Account
+    :param next_url: decoded string form of next URL
+    """
+    return request.site_type.site_url(
         reverse(
             'core_confirm_account',
-            kwargs={'token': new_user.confirmation_code},
-        )
+            kwargs={'token': user.confirmation_code},
+        ),
+        query={'next': next_url or request.GET.get('next', '')},
     )
+
+
+def send_confirmation_link(request, new_user):
+    core_confirm_account_url = get_confirm_account_url(request, new_user)
+    if request.journal:
+        site_name = request.journal.name
+    elif request.repository:
+        site_name = request.repository.name
+    else:
+        site_name = request.press.name
     context = {
         'user': new_user,
+        'site_name': site_name,
         'core_confirm_account_url': core_confirm_account_url,
     }
-    if not request.journal:
-        message = render_template.get_message_content(
-            request,
-            context,
-            request.press.registration_text,
-            template_is_setting=True,
-        )
-    else:
-        message = render_template.get_message_content(
-            request,
-            context,
-            'new_user_registration',
-        )
-
-    subject = 'subject_new_user_registration'
-
     notify_helpers.send_slack(
         request,
         'New registration: {0}'.format(new_user.full_name()),
         ['slack_admins'],
     )
     log_dict = {'level': 'Info', 'types': 'Account Confirmation', 'target': None}
-    notify_helpers.send_email_with_body_from_user(
+    notify_helpers.send_email_with_body_from_setting_template(
         request,
-        subject,
+        'new_user_registration',
+        'subject_new_user_registration',
         new_user.email,
-        message,
+        context,
         log_dict=log_dict,
     )
 
@@ -273,9 +307,6 @@ def get_settings_to_edit(display_group, journal, user):
              'object': setting_handler.get_setting('general', 'editors_for_notification', journal),
              'choices': journal.editor_pks()
              },
-            {'name': 'user_automatically_author',
-             'object': setting_handler.get_setting('general', 'user_automatically_author', journal),
-             },
             {'name': 'submission_summary',
              'object': setting_handler.get_setting('general', 'submission_summary', journal),
              },
@@ -429,7 +460,7 @@ def get_settings_to_edit(display_group, journal, user):
 
     elif display_group == 'crossref':
         xref_settings = [
-            'use_crossref', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
+            'use_crossref', 'register_doi_at_acceptance', 'crossref_test', 'crossref_username', 'crossref_password', 'crossref_email',
             'crossref_name', 'crossref_prefix', 'crossref_registrant', 'doi_display_prefix', 'doi_display_suffix',
             'doi_pattern', 'doi_manager_action_maximum_size', 'title_doi', 'issue_doi_pattern', 'register_issue_dois'
         ]
@@ -452,10 +483,10 @@ def get_settings_to_edit(display_group, journal, user):
             'publisher_url', 'contact_info', 'privacy_policy_url', 'auto_signature',
             'slack_logging', 'slack_webhook', 'twitter_handle',
             'switch_language', 'enable_language_text', 'google_analytics_code',
-            'use_ga_four', 'display_login_page_notice', 'login_page_notice', 
+            'use_ga_four', 'display_login_page_notice', 'login_page_notice',
             'display_register_page_notice', 'register_page_notice',
             'support_email', 'support_contact_message_for_staff',
-            'from_address', 'replyto_address',
+            'from_address', 'replyto_address', "use_credit"
         ]
 
         group_of_settings = process_setting_list(journal_settings, 'general', journal)
@@ -644,20 +675,18 @@ def handle_article_thumb_image_file(uploaded_file, article, request):
         article.save()
 
 
-def handle_email_change(request, email_address):
+def handle_email_change(request, email_address, next_url=''):
     request.user.email = email_address
     request.user.is_active = False
     request.user.confirmation_code = uuid.uuid4()
     request.user.clean()
     request.user.save()
 
-    core_confirm_account_url = request.site_type.site_url(
-        reverse(
-            'core_confirm_account',
-            kwargs={'token': request.user.confirmation_code},
-        )
+    core_confirm_account_url = get_confirm_account_url(
+        request,
+        request.user,
+        next_url=next_url,
     )
-
     context = {
         'user': request.user,
         'core_confirm_account_url': core_confirm_account_url,
@@ -854,7 +883,8 @@ def get_ua_and_ip(request):
 def add_failed_login_attempt(request):
     user_agent, ip_address = get_ua_and_ip(request)
 
-    models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
+    if ip_address:
+        models.LoginAttempt.objects.create(user_agent=user_agent, ip_address=ip_address)
 
 
 def clear_bad_login_attempts(request):
@@ -868,7 +898,7 @@ def check_for_bad_login_attempts(request):
     time = timezone.now() - timedelta(minutes=10)
 
     attempts = models.LoginAttempt.objects.filter(user_agent=user_agent, ip_address=ip_address, timestamp__gte=time)
-    print(time, attempts.count())
+    logger.debug(f'Bad login attempt {attempts.count()+1} at {time}')
     return attempts.count()
 
 
@@ -1013,3 +1043,19 @@ def filter_articles_to_editor_assigned(request, articles):
     )
     assignment_article_pks = [assignment.article.pk for assignment in assignments]
     return articles.filter(pk__in=assignment_article_pks)
+
+
+def create_organization_name(request):
+    form = forms.OrganizationNameForm(request.POST)
+    if form.is_valid():
+        organization_name = form.save()
+        organization = models.Organization.objects.create()
+        organization_name.custom_label_for = organization
+        organization_name.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("Custom organization created: %(organization)s")
+                % {"organization": organization_name},
+        )
+        return organization_name

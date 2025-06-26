@@ -11,6 +11,7 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
+    {% include "admin/elements/core/deprecation_notice.html" with deprecation_notice="The Proofing workflow element is deprecated as of version 1.8 and will be removed in a future Janeway release. Please use the Typesetting workflow element instead." classes="bg-white" %}
     <div class="row expanded column">
         <div class="kanban">
             <div class="inner">

@@ -1511,11 +1511,12 @@ h6 {
 
 a {
   line-height: inherit;
-  color: #5a98e5;
+  color: var(--clr-blue-medium);
   text-decoration: none;
   cursor: pointer; }
   a:hover, a:focus {
-    color: #3380df; }
+    color: var(--clr-navy);
+  }
   a img {
     border: 0; }
 
@@ -2195,7 +2196,7 @@ select {
     color: #0a0a0a; }
 
 .breadcrumbs {
-  margin: 0 0 1rem 0;
+  margin: 0.5rem 0 1rem 0;
   list-style: none; }
   .breadcrumbs::before, .breadcrumbs::after {
     display: table;
@@ -2216,7 +2217,8 @@ select {
       content: "/";
       color: #b7bac0; }
   .breadcrumbs a {
-    color: #5a98e5; }
+    color: var(--clr-blue-medium);
+  }
     .breadcrumbs a:hover {
       text-decoration: underline; }
   .breadcrumbs .disabled {

@@ -1,0 +1,60 @@
+{% extends "admin/core/small_form.html" %}
+{% load static i18n orcid next_url %}
+
+{% block contextual_title %}
+  {% trans "Log in" %}
+{% endblock contextual_title %}
+
+{% block breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block title-section %}
+  <div class="text-align-center">
+    {% trans "Log in" %}
+  </div>
+{% endblock %}
+
+{% block form_content %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  {% if settings.ENABLE_ORCID %}
+    <div>
+      <a
+        href="{% url_with_next_and_orcid_action 'core_login_orcid' action='login' %}"
+        class="button expanded orcid-button">
+        <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}">
+        {% trans "Log in with ORCiD" %}
+      </a>
+    </div>
+  {% endif %}
+  {% if settings.ENABLE_OIDC %}
+    <div>
+      <a
+        href="{% url_with_next 'oidc_authentication_init' %}"
+        class="button secondary hollow expanded">
+        {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
+      </a>
+    </div>
+  {% endif %}
+  {% if journal_settings.general.display_login_page_notice %}
+    {{ journal_settings.general.login_page_notice|safe }}
+  {% endif %}
+  {% include "admin/elements/forms/field.html" with field=form.user_name %}
+  {% include "admin/elements/forms/field.html" with field=form.user_pass %}
+  {{ form.captcha }}
+  <div>
+    <button type="submit" class="button secondary expanded">
+      {% trans "Log in with your account" %}
+    </button>
+  </div>
+  <p class="text-center">
+    <a href="{% url_with_next 'core_get_reset_token' %}">
+      {% trans "Forgotten your password?" %}
+    </a>
+  </p>
+  <p class="text-center">
+    <a href="{% url_with_next 'core_register' %}">
+      {% trans "Register a new account" %}
+    </a>
+  </p>
+  {% include "admin/elements/forms/denotes_required.html" %}
+{% endblock form_content %}

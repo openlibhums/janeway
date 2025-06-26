@@ -16,6 +16,8 @@ from utils.forms import (
     KeywordModelForm,
     JanewayTranslationModelForm,
     HTMLDateInput,
+    clean_orcid_id,
+    YesNoRadio,
 )
 from utils import setting_handler
 
@@ -219,14 +221,30 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             additional_fields = models.Field.objects.filter(journal=request.journal)
 
             for field in additional_fields:
-                answer = request.POST.get(field.name, None)
-                if answer:
+                posted_value = request.POST.get(field.name)
+
+                # Determine answer depending on field kind
+                if field.kind == 'check':
+                    # Keep 'on' if checked otherwise store an empty string
+                    answer = posted_value if posted_value is not None else ''
+                else:
+                    answer = posted_value
+
+                # Checkbox type inputs should pass here so they are recorded
+                if answer or field.kind == 'check':
                     try:
-                        field_answer = models.FieldAnswer.objects.get(article=article, field=field)
+                        field_answer = models.FieldAnswer.objects.get(
+                            article=article,
+                            field=field,
+                        )
                         field_answer.answer = answer
                         field_answer.save()
                     except models.FieldAnswer.DoesNotExist:
-                        field_answer = models.FieldAnswer.objects.create(article=article, field=field, answer=answer)
+                        models.FieldAnswer.objects.create(
+                            article=article,
+                            field=field,
+                            answer=answer,
+                        )
 
             if self.pop_disabled_fields:
                 request.journal.submissionconfiguration.handle_defaults(article)
@@ -257,66 +275,31 @@ class EditorArticleInfoSubmit(ArticleInfo):
 
 class EditArticleMetadata(ArticleInfo):
     class Meta(ArticleInfo.Meta):
-        fields = ArticleInfo.Meta.fields + ('competing_interests',)
+        fields = ArticleInfo.Meta.fields + ('competing_interests', 'jats_article_type_override')
 
 
 class AuthorForm(forms.ModelForm):
+    """
+    A barebones account form that authors can use to create
+    accounts for their co-authors.
+    """
 
     class Meta:
         model = core_models.Account
-        exclude = (
-            'date_joined',
-            'activation_code'
-            'date_confirmed'
-            'confirmation_code'
-            'reset_code'
-            'reset_code_validated'
-            'roles'
-            'interest'
-            'is_active'
-            'is_staff'
-            'is_admin'
-            'password',
-            'username',
-            'roles',
+        fields = (
+            'email',
+            'name_prefix',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'salutation',
+            'suffix',
+            'biography',
         )
 
-        widgets = {
-            'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
-            'middle_name': forms.TextInput(attrs={'placeholder': _('Middle name')}),
-            'last_name': forms.TextInput(attrs={'placeholder': _('Last name')}),
-            'biography': forms.Textarea(
-                attrs={'placeholder': _('Enter biography here')}),
-            'institution': forms.TextInput(attrs={'placeholder': _('Institution')}),
-            'department': forms.TextInput(attrs={'placeholder': _('Department')}),
-            'twitter': forms.TextInput(attrs={'placeholder': _('Twitter handle')}),
-            'linkedin': forms.TextInput(attrs={'placeholder': _('LinkedIn profile')}),
-            'impactstory': forms.TextInput(attrs={'placeholder': _('ImpactStory profile')}),
-            'orcid': forms.TextInput(attrs={'placeholder': _('ORCID ID')}),
-            'email': forms.TextInput(attrs={'placeholder': _('Email address')}),
-        }
-
     def __init__(self, *args, **kwargs):
-        super(AuthorForm, self).__init__(*args, **kwargs)
-        self.fields['password'].required = False
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-
-    def clean_orcid(self):
-        orcid_string = self.cleaned_data.get('orcid')
-        try:
-            return utility_clean_orcid(orcid_string)
-        except ValueError:
-            self.add_error(
-                'orcid',
-                 'An ORCID must be entered in the pattern '
-                'https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000. You can find out '
-                'about valid ORCID patterns on the ORCID support site: '
-                'https://support.orcid.org/hc/en-us/articles/'
-                '360006897674-Structure-of-the-ORCID-Identifier',
-            )
-        return orcid_string
+        return DeprecationWarning("Use frozen authors instead.")
+        super(FileDetails, self).__init__(*args, **kwargs)
 
 
 class SubmissionCommentsForm(forms.ModelForm):
@@ -343,27 +326,6 @@ class FileDetails(forms.ModelForm):
 
 
 class EditFrozenAuthor(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        instance = kwargs.pop("instance", None)
-        if instance:
-            if instance.author:
-                self.fields["frozen_email"].help_text += gettext(
-                    "Currently linked to %s, leave blank to use this address"
-                    "" % instance.author.email,
-                )
-                if instance.author.orcid:
-                    self.fields["frozen_orcid"].help_text += gettext(
-                        "If left blank, the account ORCiD will be used (%s)"
-                        "" % instance.author.orcid,
-                    )
-            del self.fields["is_corporate"]
-            if instance.is_corporate:
-                del self.fields["name_prefix"]
-                del self.fields["first_name"]
-                del self.fields["middle_name"]
-                del self.fields["last_name"]
-                del self.fields["name_suffix"]
 
     class Meta:
         model = models.FrozenAuthor
@@ -373,45 +335,22 @@ class EditFrozenAuthor(forms.ModelForm):
             'middle_name',
             'last_name',
             'name_suffix',
-            'institution',
-            'department',
             'frozen_biography',
-            'country',
             'is_corporate',
             'frozen_email',
-            'frozen_orcid',
             'display_email',
         )
+        widgets = {
+            'is_corporate': YesNoRadio,
+            'display_email': YesNoRadio,
+        }
 
     def save(self, commit=True, *args, **kwargs):
-        obj = super().save(*args, **kwargs)
-        if commit is True and obj.frozen_email:
-            try:
-                # Associate with account if one exists
-                account = core_models.Account.objects.get(
-                    username=obj.frozen_email.lower())
-                obj.author = account
-                obj.frozen_email = None
-            except core_models.Account.DoesNotExist:
-                pass
+        obj = super().save(commit=False, *args, **kwargs)
+        if commit is True:
+            obj.associate_with_account()
             obj.save()
         return obj
-
-    def clean_frozen_orcid(self):
-        orcid_string = self.cleaned_data.get('frozen_orcid')
-        try:
-            return utility_clean_orcid(orcid_string)
-        except ValueError:
-            self.add_error(
-                'frozen_orcid',
-                'An ORCID must be entered in the pattern '
-                'https://orcid.org/0000-0000-0000-0000 or'
-                ' 0000-0000-0000-0000. You can find out '
-                'about valid ORCID patterns on the ORCID support site: '
-                'https://support.orcid.org/hc/en-us/articles/'
-                '360006897674-Structure-of-the-ORCID-Identifier',
-            )
-        return orcid_string
 
 
 class IdentifierForm(forms.ModelForm):
@@ -527,20 +466,8 @@ class ArticleFundingForm(forms.ModelForm):
 
 
 def utility_clean_orcid(orcid):
-    """
-    Utility function that cleans an ORCID ID.
-    """
-    if orcid:
-        orcid_regex = re.compile('([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})')
-        result = orcid_regex.search(orcid)
-
-        if result:
-            return result.group(0)
-        else:
-            raise ValueError('ORCID is not valid.')
-
-    # ORCID is None.
-    return orcid
+    raise DeprecationWarning('Use utils.forms.clean_orcid_id')
+    return clean_orcid_id(orcid)
 
 
 class PubDateForm(forms.ModelForm):
@@ -557,3 +484,76 @@ class PubDateForm(forms.ModelForm):
             article.fixedpubcheckitems.save()
             article.save()
         return article
+
+
+class CreditRecordForm(forms.ModelForm):
+
+    def _remove_choices_when_roles_already_exist(self, credit_records):
+        credit_slugs = set(record.role for record in credit_records)
+        new_choices = []
+        for old_choice in self.fields['role'].choices:
+            if old_choice[0] not in credit_slugs:
+                new_choices.append(old_choice)
+        self.fields['role'].choices = new_choices
+
+    def __init__(self, *args, **kwargs):
+        self.frozen_author = kwargs.pop('frozen_author', None)
+        super().__init__(*args, **kwargs)
+        self.fields['role'].choices = self.fields['role'].choices[1:]
+
+        if self.frozen_author:
+            self._remove_choices_when_roles_already_exist(
+                models.CreditRecord.objects.filter(
+                    frozen_author=self.frozen_author,
+                )
+            )
+
+    class Meta:
+        model = models.CreditRecord
+        fields = ('role', )
+        widgets = {
+            'role': forms.widgets.RadioSelect,
+        }
+
+
+class AuthorAffiliationForm(forms.ModelForm):
+    """
+    A form for author affiliations.
+    Can be used by submitting authors during submission,
+    or editors during the subsequent workflow.
+    """
+
+    class Meta:
+        model = core_models.ControlledAffiliation
+        fields = ('title', 'department', 'is_primary', 'start', 'end')
+        widgets = {
+            'start': HTMLDateInput,
+            'end': HTMLDateInput,
+            'is_primary': YesNoRadio,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.frozen_author = kwargs.pop('frozen_author', None)
+        self.organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.instance:
+            query = Q(account=self.frozen_author, organization=self.organization)
+            for key, value in cleaned_data.items():
+                query &= Q((key, value))
+            if self._meta.model.objects.filter(query).exists():
+                self.add_error(
+                    None,
+                    "An affiliation with matching details already exists."
+                )
+        return cleaned_data
+
+    def save(self, commit=True):
+        affiliation = super().save(commit=False)
+        affiliation.frozen_author = self.frozen_author
+        affiliation.organization = self.organization
+        if commit:
+            affiliation.save()
+        return affiliation

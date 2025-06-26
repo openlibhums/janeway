@@ -40,20 +40,23 @@ class SettingAdmin(admin.ModelAdmin):
 class AccountAdmin(UserAdmin):
     """Displays Account objects in the Django admin interface."""
     list_display = ('id', 'email', 'orcid', 'first_name', 'middle_name',
-                    'last_name', 'institution', '_roles_in', 'last_login')
+                    'last_name', '_roles_in', 'last_login')
     list_display_links = ('id', 'email')
     list_filter = ('accountrole__journal',
                    'repositoryrole__repository__short_name',
                    'is_active', 'is_staff', 'is_admin', 'is_superuser',
                    'last_login')
     search_fields = ('id', 'username', 'email', 'first_name', 'middle_name',
-                     'last_name', 'orcid', 'institution',
+                     'last_name', 'orcid',
+                     'controlledaffiliation__organization__labels__value',
+                     'controlledaffiliation__organization__acronyms__value',
+                     'controlledaffiliation__organization__custom_label__value',
                      'biography', 'signature')
 
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': (
             'name_prefix', 'middle_name', 'orcid',
-            'institution', 'department', 'country', 'twitter',
+            'twitter',
             'linkedin', 'facebook', 'github', 'website', 'biography', 'enable_public_profile',
             'signature', 'profile_image', 'interest', "preferred_timezone",
         )}),
@@ -71,6 +74,7 @@ class AccountAdmin(UserAdmin):
     raw_id_fields = ('interest',)
 
     inlines = [
+        admin_utils.ControlledAffiliationInline,
         admin_utils.AccountRoleInline,
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
@@ -398,6 +402,96 @@ class AccessRequestAdmin(admin.ModelAdmin):
     date_hierarchy = ('requested')
 
 
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'ror_id', '_ror_display', '_custom_label',
+                    'website', '_locations', 'ror_status')
+    list_display_links = ('pk', 'ror_id')
+    list_filter = (
+        'ror_status',
+        admin_utils.ROROrgNameTypeFilter,
+        'locations__country',
+    )
+    search_fields = ('pk', 'ror_display__value', 'custom_label__value', 'labels__value',
+                     'aliases__value', 'acronyms__value', 'website', 'ror_id')
+    raw_id_fields = ('locations', )
+
+    inlines = [
+        admin_utils.OrgRORDisplayInline,
+        admin_utils.OrgRORLabelInline,
+        admin_utils.OrgAliasInline,
+        admin_utils.OrgAcronymInline,
+        admin_utils.OrgCustomLabelInline,
+    ]
+
+    def _ror_display(self, obj):
+        return obj.ror_display if obj and obj.ror_display else ''
+
+    def _locations(self, obj):
+        return '; '.join([str(l) for l in obj.locations.all()]) if obj else ''
+
+    def _custom_label(self, obj):
+        return obj.custom_label if obj and obj.custom_label else ''
+
+
+class OrganizationNameAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'value', 'language')
+    list_display_links = ('pk', 'value')
+    search_fields = ('pk', 'value')
+    raw_id_fields = ('ror_display_for', 'custom_label_for',
+                     'label_for', 'alias_for', 'acronym_for')
+
+    def _ror_display(self, obj):
+        return obj.ror_display if obj and obj.ror_display else ''
+
+    def _locations(self, obj):
+        return '; '.join([str(l) for l in obj.locations.all()]) if obj else ''
+
+    def _custom_label(self, obj):
+        return obj.custom_label if obj and obj.custom_label else ''
+
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'country', 'geonames_id')
+    list_display_links = ('pk', 'name')
+    list_filter = ('country',)
+    search_fields = ('pk', 'name', 'country__code', 'country__name',
+                     'geonames_id')
+
+
+class ControlledAffiliationAdmin(admin.ModelAdmin):
+    list_display = ('pk', '_person', 'organization',
+                    'title', 'department', 'start', 'end')
+    list_display_links = ('pk', '_person')
+    list_filter = ('start', 'end', 'organization__locations__country')
+    search_fields = (
+        'pk',
+        'title',
+        'department',
+        'organization__ror_display__value',
+        'organization__custom_label__value',
+        'organization__labels__value',
+        'organization__aliases__value',
+        'organization__acronyms__value',
+        'account__first_name',
+        'account__last_name',
+        'account__email',
+        'frozen_author__first_name',
+        'frozen_author__last_name',
+        'frozen_author__frozen_email',
+        'preprint_author__account__first_name',
+        'preprint_author__account__last_name',
+        'preprint_author__account__email',
+    )
+    raw_id_fields = ('account', 'frozen_author',
+                     'preprint_author', 'organization')
+
+    def _person(self, obj):
+        if obj:
+            return obj.account or obj.frozen_author or obj.preprint_author
+        else:
+            return ''
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -427,6 +521,10 @@ admin_list = [
     (models.Contacts, ContactsAdmin),
     (models.Contact, ContactAdmin),
     (models.AccessRequest, AccessRequestAdmin),
+    (models.Organization, OrganizationAdmin),
+    (models.OrganizationName, OrganizationNameAdmin),
+    (models.Location, LocationAdmin),
+    (models.ControlledAffiliation, ControlledAffiliationAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -52,6 +52,8 @@
             </table>
         </div>
 
+        {% include "elements/author_summary_table.html" with article=copyedit.article %}
+
         <div class="title-area">
             <h2>Article Files</h2>
         </div>
@@ -73,7 +75,7 @@
         </div>
 
         <div class="title-area">
-            <h2>Copy-edited Files</h2>
+            <h2>Copyedited Files</h2>
             <a href="{% url 'do_copyedit_add_file' copyedit.pk %}" class="button"><i class="fa fa-upload">&nbsp</i>Upload File</a>
         </div>
         <div class="content">
@@ -91,7 +93,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3">There are no copy-edited files. Upload one.</td>
+                    <td colspan="3">There are no copyedited files. Upload one.</td>
                 </tr>
                 {% endfor %}
             </table>

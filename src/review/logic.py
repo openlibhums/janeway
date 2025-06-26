@@ -22,6 +22,7 @@ from django.db.models import (
     When,
     BooleanField,
     Value,
+    Q,
 )
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
@@ -43,14 +44,21 @@ from submission import models as submission_models
 
 def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
-        'reviewer',
-        queryset=models.ReviewAssignment.objects.filter(
-            article__journal=article.journal
-        ).exclude(date_complete__isnull=True).order_by("-date_complete")
+        "reviewer",
+        queryset=models.ReviewAssignment.completed_reviews.filter(
+            article__journal=article.journal,
+        ).order_by("-date_complete"),
     )
+
     active_reviews_count = models.ReviewAssignment.objects.filter(
+        date_complete__isnull=True,
+        date_declined__isnull=True,
+        date_accepted__isnull=False,
         is_complete=False,
+        article__journal=article.journal,
         reviewer=OuterRef("id"),
+    ).exclude(
+        decision="withdrawn",
     ).values(
         "reviewer_id",
     ).annotate(
@@ -73,7 +81,9 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
     )
 
     # TODO swap the below subqueries with filtered annotations on Django 2.0+
-    reviewers = candidate_queryset.exclude(
+    reviewers = candidate_queryset.filter(
+        is_active=True
+    ).exclude(
         pk__in=exclude_pks,
     ).prefetch_related(
         prefetch_review_assignment,
@@ -330,7 +340,36 @@ def get_revision_request_content(request, article, revision, draft=False):
     else:
         email_context['do_revisions_url'] = "{{ do_revisions_url }}"
 
-    return render_template.get_message_content(request, email_context, 'request_revisions')
+    return render_template.get_message_content(
+        request,
+        email_context,
+        template='request_revisions',
+    )
+
+
+def get_conditional_accept_content(request, article, revision, draft=False):
+    email_context = {
+        'article': article,
+        'revision': revision,
+    }
+
+    if not draft:
+        do_revisions_url = request.journal.site_url(path=reverse(
+            'do_revisions',
+            kwargs={
+                'article_id': article.pk,
+                'revision_id': revision.pk,
+            }
+        ))
+        email_context['do_revisions_url'] = do_revisions_url
+    else:
+        email_context['do_revisions_url'] = "{{ do_revisions_url }}"
+
+    return render_template.get_message_content(
+        request,
+        email_context,
+        template='conditional_accept',
+    )
 
 
 def get_share_review_content(request, article, review):
@@ -508,7 +547,11 @@ def handle_decision_action(article, draft, request):
             task_object=article,
             **kwargs,
         )
-    elif draft.decision == 'minor_revisions' or draft.decision == 'major_revisions':
+    elif draft.decision in (
+        ED.MINOR_REVISIONS.value,
+        ED.MAJOR_REVISIONS.value,
+        ED.CONDITIONAL_ACCEPT.value,
+    ):
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,
@@ -824,11 +867,6 @@ def process_reviewer_csv(path, request, article, form):
         reader = csv.DictReader(csv_file)
         reviewers = []
         for row in reader:
-            try:
-                country = core_models.Country.objects.get(code=row.get('country'))
-            except core_models.Country.DoesNotExist:
-                country = None
-
             reviewer, created = core_models.Account.objects.get_or_create(
                 email=row.get('email_address'),
                 defaults={
@@ -836,12 +874,20 @@ def process_reviewer_csv(path, request, article, form):
                     'first_name': row.get('firstname', ''),
                     'middle_name': row.get('middlename', ''),
                     'last_name': row.get('lastname', ''),
-                    'department': row.get('department', ''),
-                    'institution': row.get('institution', ''),
-                    'country': country,
                     'is_active': True,
                 }
             )
+            if (
+                row.get('institution')
+                or row.get('department')
+                or row.get('country')
+            ):
+                core_models.ControlledAffiliation.get_or_create_without_ror(
+                    institution=row.get('institution', ''),
+                    department=row.get('department', ''),
+                    country=row.get('country', ''),
+                    account=reviewer,
+                )
 
             try:
                 review_interests = row.get('interests')

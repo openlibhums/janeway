@@ -1,0 +1,67 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load static %}
+
+{% block title %}Assign Typesetter{% endblock %}
+{% block title-sub %}
+    {% include 'typesetting/elements/title_sub.html' %}
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "typesetting/breadcrumbs/typesetting_base.html" %}
+    <li>Assign Typesetter</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Assign Typesetter to {{ article.title|safe }}</h2>
+        </div>
+        <div class="content">
+            {% if not article.issue and not article.projected_issue %}
+            <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
+                <h5>Article missing primary or projected issue</h5>
+                <p>
+                    This article doesn't have a primary or projected issue, so the typesetter won't know what issue it belongs to. You can
+                    <a href="{% url 'review_projected_issue' article.pk %}?return={{ request.path|urlencode }}">
+                        assign one here.
+                    </a>
+                </p>
+                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
+            <p>Select a typesetter and detail what files you would like them to generate. They will have access to:</p>
+            <ul>
+                <li>Any files you select to share with them.</li>
+                <li>Any galley files they have uploaded in this or previous rounds.</li>
+                <li>All of the article’s metadata.</li>
+            </ul>
+        </div>
+    </div>
+    <form id="assign_typesetter" method="POST">
+        {% include "elements/forms/errors.html" %}
+        {% csrf_token %}
+        <div class="box">
+            <div class="content">
+                {% include 'typesetting/elements/typesetting_assignment_fields.html' %}
+                <button name="{{ form.CONFIRMABLE_BUTTON_NAME }}" class="button">Save Step 1</button>
+            </div>
+        </div>
+
+    </form>
+
+    {% if form.modal %}
+        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="assign_typesetter" %}
+    {% endif %}
+
+{% endblock %}
+
+{% block js %}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
+    {% include "elements/datatables.html" with target="#typesetter #file_list" %}
+{% endblock js %}

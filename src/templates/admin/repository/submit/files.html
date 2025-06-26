@@ -26,7 +26,7 @@
                         <a href="#" data-open="submission_information" aria-controls="submission_information" aria-haspopup="true" tabindex="0">Review submission requirements.</a>
                     </p>
                     {% if request.repository.limit_upload_to_pdf %}
-                        <p>{{ request.repository.name }} {{ request.repository.require_pdf_help }}</p>
+                        {{ request.repository.require_pdf_help|safe }}
                     {% endif %}
 
                     {% if request.repository.file_upload_help %}

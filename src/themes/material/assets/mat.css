@@ -359,8 +359,14 @@ a:hover .article-title {
     width: 50%;
 }
 
-#reflist p {
+#reflist ul{
+  padding-left: 0 !important;
+}
+
+#reflist li {
     word-wrap: break-word;
+    list-style-type: none;
+    padding-bottom: 8px;
 }
 
 .issue-link {
@@ -738,4 +744,19 @@ main {
 
 .decade-list-item:hover {
     text-decoration: underline;
+}
+
+.share-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.share-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 10px;
+    min-width: 40px;
 }

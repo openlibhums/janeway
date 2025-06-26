@@ -3,6 +3,7 @@
 {% load roles %}
 {% load i18n %}
 {% load hooks %}
+{% load next_url %}
 
 
 <nav class="header-overrides" role="navigation">
@@ -29,12 +30,20 @@
                         href="#!"
                         data-target="account">
                         Account
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
-                <li><a href="{% url 'core_login' %}" class="nav-link">Login</a></li>
-                <li><a href="{% url 'core_register' %}">Register</a></li>
+                <li>
+                  <a href="{% url 'core_login' %}" class="nav-link">
+                    {% trans "Log in" %}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'core_register' %}" class="nav-link">
+                    {% trans "Register" %}
+                  </a>
+                </li>
             {% endif %}
         </ul>
 
@@ -52,7 +61,7 @@
                         href="#!"
                         data-target="dropdown1">
                         {% trans "Account" %}
-                        <i class="material-icons right">arrow_drop_down</i>
+                        <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
                 </li>
             {% else %}
@@ -64,7 +73,8 @@
             href="#!"
             data-target="nav-mobile"
             class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
     </div>
 </nav>

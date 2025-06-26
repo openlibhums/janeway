@@ -3,7 +3,11 @@
 {% for field, addressees in email_fields %}
     {% if field %}<strong>{{ field }}: </strong>{% endif %}
     {% for addressee in addressees %}
-        {{ addressee.email|se_can_see_pii:article }}{% if not forloop.last %}, {% endif %}
+        {% if article %}
+            {{ addressee.email|se_can_see_pii:article }}{% if not forloop.last %}, {% endif %}
+        {% else %}
+           {{ addressee.email }}{% if not forloop.last %}, {% endif %}
+       {% endif %}
     {% endfor %}
     {% if not forloop.last %}<br>{% endif %}
 {% endfor %}

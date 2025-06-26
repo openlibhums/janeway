@@ -1,0 +1,9 @@
+<li>
+    <a href="{% url 'typesetting_articles' %}">Articles in Typesetting</a>
+</li>
+
+{% if article %}
+    <li>
+        <a href="{% url 'typesetting_article' article.pk %}">{{ article.title|safe }}</a>
+    </li>
+{% endif %}

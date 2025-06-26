@@ -3,10 +3,12 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import json as jason
+import json
 import os
 from uuid import uuid4
 import requests
+import tqdm
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from django.utils import timezone
@@ -15,9 +17,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
-from utils.shared import get_ip_address, join_lists
+from utils.logger import get_logger
+from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
+
+
+logger = get_logger(__name__)
 
 
 LOG_TYPES = [
@@ -295,7 +302,7 @@ class ImportCacheEntry(models.Model):
             # first, check whether there's an auth file
             if up_auth_file != '':
                 with open(up_auth_file, 'r', encoding="utf-8") as auth_in:
-                    auth_dict = jason.loads(auth_in.read())
+                    auth_dict = json.loads(auth_in.read())
                     do_auth = True
                     username = auth_dict['username']
                     password = auth_dict['password']
@@ -348,3 +355,191 @@ class ImportCacheEntry(models.Model):
 
     def __str__(self):
         return self.url
+
+
+class RORImport(models.Model):
+    """
+    A record of an import of ROR organization data into Janeway.
+    """
+    class RORImportStatus(models.TextChoices):
+        IS_ONGOING = 'is_ongoing', _('Ongoing')
+        IS_UNNECESSARY = 'is_unnecessary', _('Unnecessary')
+        IS_SUCCESSFUL = 'is_successful', _('Successful')
+        IS_FAILED = 'is_failed', _('Failed')
+
+    started = models.DateTimeField(
+        auto_now_add=True,
+    )
+    stopped = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=RORImportStatus.choices,
+        default=RORImportStatus.IS_ONGOING,
+    )
+    records = models.JSONField(
+        default=dict,
+    )
+
+    class Meta:
+        get_latest_by = 'started'
+        verbose_name = 'ROR import'
+        verbose_name_plural = 'ROR imports'
+
+    def __str__(self):
+        return f'{self.get_status_display()} RORImport started { self.started }'
+
+    @property
+    def previous_import(self):
+        try:
+            return RORImport.objects.exclude(pk=self.pk).latest()
+        except RORImport.DoesNotExist:
+            return None
+
+    @property
+    def new_download_needed(self):
+        if not self.previous_import:
+            return True
+        elif self.previous_import.status == self.RORImportStatus.IS_FAILED:
+            return True
+        elif not self.source_data_created or self.source_data_created > self.previous_import.started:
+            return True
+        else:
+            return False
+
+    @property
+    def zip_path(self):
+        temp_dir = os.path.join(settings.BASE_DIR, 'files', 'temp')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        try:
+            file_id = self.records['hits']['hits'][0]['files'][-1]['id']
+        except (KeyError, AttributeError) as error:
+            self.fail(error)
+            return ''
+        zip_name = f'ror-download-{file_id}.zip'
+        return os.path.join(temp_dir, zip_name)
+
+    @property
+    def download_link(self):
+        try:
+            return self.records['hits']['hits'][0]['files'][-1]['links']['self']
+        except (KeyError, AttributeError) as error:
+            self.fail(error)
+            return ''
+
+    @property
+    def source_data_created(self):
+        try:
+            timestamp = self.records['hits']['hits'][0]['created']
+            return timezone.datetime.fromisoformat(timestamp)
+        except (KeyError, AttributeError) as error:
+            self.fail(error)
+            return None
+
+    def fail(self, error):
+        self.stopped = timezone.datetime.now()
+        self.status = self.RORImportStatus.IS_FAILED
+        self.save()
+        logger.exception(error)
+        logger.error(error)
+        RORImportError.objects.create(ror_import=self, message=error)
+
+    @property
+    def is_ongoing(self):
+        return self.status == self.RORImportStatus.IS_ONGOING
+
+    def get_records(self):
+        """
+        Gets the manifest of available data and checks if it contains
+        anything new. If the previous import failed or there is new data,
+        the import is marked as ongoing.
+        """
+        logger.debug("Checking for availability of new ROR data")
+        records_url = settings.ROR_RECORDS_FILE
+        try:
+            response = requests.get(records_url, timeout=settings.HTTP_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            self.records = response.json()
+            self.save()
+            if not self.new_download_needed:
+                self.status = self.RORImportStatus.IS_ONGOING
+                self.save()
+        except requests.RequestException as error:
+            self.fail(error)
+
+    def delete_previous_download(self):
+        if not self.previous_import:
+            return
+        try:
+            os.unlink(self.previous_import.zip_path)
+        except FileNotFoundError:
+            logger.debug('Previous import had no zip file.')
+
+    def download_data(self):
+        """
+        Downloads the current data dump from Zenodo.
+        Then removes previous files to save space.
+        """
+        logger.debug("Downloading new ROR data")
+        try:
+            response = requests.get(
+                self.download_link,
+                timeout=settings.HTTP_TIMEOUT_SECONDS,
+                stream=True,
+            )
+            response.raise_for_status()
+            with open(self.zip_path, 'wb') as zip_ref:
+                for chunk in response.iter_content(chunk_size=128):
+                    zip_ref.write(chunk)
+            if os.path.exists(self.zip_path):
+                self.delete_previous_download()
+        except requests.RequestException as error:
+            self.fail(error)
+
+    @staticmethod
+    def filter_new_records(ror_data, existing_rors):
+        """
+        Finds records from the data dump that are new to Janeway,
+        either because no earlier ROR import put them in Janeway,
+        or because they have been recently added to the dump by ROR.
+        """
+        filtered_data = []
+        for record in ror_data:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            if ror_id and ror_id not in existing_rors:
+                filtered_data.append(record)
+        logger.debug(f"{len(filtered_data)} new ROR records found")
+        return filtered_data
+
+    @staticmethod
+    def filter_updated_records(ror_data, existing_rors):
+        """
+        Finds records from the data dump that Janeway already has,
+        but which have been modified by ROR since the last Janeway import.
+        """
+        filtered_data = []
+        for record in ror_data:
+            ror_id = os.path.split(record.get('id', ''))[-1]
+            last_modified = record.get("admin", {}).get("last_modified", {})
+            timestamp = last_modified.get("date", "")
+            if ror_id and timestamp and timestamp > existing_rors.get(ror_id, ''):
+                filtered_data.append(record)
+        logger.debug(f"{len(filtered_data)} updated ROR records found")
+        return filtered_data
+
+
+class RORImportError(models.Model):
+    ror_import = models.ForeignKey(
+        RORImport,
+        on_delete=models.CASCADE,
+    )
+    message = models.TextField(
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'ROR import error'
+        verbose_name_plural = 'ROR import errors'

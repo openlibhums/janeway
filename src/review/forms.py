@@ -41,6 +41,8 @@ class DraftDecisionForm(forms.ModelForm):
         self.fields['decision'].widget.attrs[
             'onfocus'] = 'store_previous_decision()'
         self.fields['editor'].queryset = editors
+        self.fields['editor'].label_from_instance = lambda \
+            obj: f"{obj.full_name()} ({obj.email})"
         if not newly_created:
             self.fields['message_to_editor'].widget = forms.HiddenInput()
             self.fields['editor'].widget = forms.HiddenInput()
@@ -347,7 +349,7 @@ class GeneratedForm(forms.Form):
         for element in elements:
             if element.kind == 'text':
                 self.fields[str(element.pk)] = forms.CharField(
-                    widget=forms.TextInput(attrs={'div_class': element.width}),
+                    widget=forms.TextInput(),
                     required=element.required if fields_required else False)
             elif element.kind == 'textarea':
                 self.fields[str(element.pk)] = forms.CharField(
@@ -356,23 +358,24 @@ class GeneratedForm(forms.Form):
                 )
             elif element.kind == 'date':
                 self.fields[str(element.pk)] = forms.CharField(
-                    widget=forms.DateInput(attrs={'class': 'datepicker', 'div_class': element.width}),
+                    widget=forms.DateInput(attrs={'class': 'datepicker'}),
                     required=element.required if fields_required else False)
             elif element.kind == 'upload':
                 self.fields[str(element.pk)] = forms.FileField(required=element.required if fields_required else False)
             elif element.kind == 'select':
                 choices = logic.render_choices(element.choices)
                 self.fields[str(element.pk)] = forms.ChoiceField(
-                    widget=forms.Select(attrs={'div_class': element.width}), choices=choices,
+                    widget=forms.Select(), choices=choices,
                     required=element.required if fields_required else False)
             elif element.kind == 'email':
                 self.fields[str(element.pk)] = forms.EmailField(
-                    widget=forms.TextInput(attrs={'div_class': element.width}),
+                    widget=forms.TextInput(),
                     required=element.required if fields_required else False)
             elif element.kind == 'check':
                 self.fields[str(element.pk)] = forms.BooleanField(
                     widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
                     required=element.required if fields_required else False)
+                self.fields[str(element.pk)].label_suffix = ''
 
             self.fields[str(element.pk)].help_text = element.help_text
             self.fields[str(element.pk)].label = element.name

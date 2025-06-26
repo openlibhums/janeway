@@ -52,11 +52,12 @@ def reviewer_decision_choices():
     )
 
 
-def review_decision():
+def draft_decision_choices():
     return (
         (ED.ACCEPT.value, 'Accept Without Revisions'),
         (ED.MINOR_REVISIONS.value, 'Minor Revisions Required'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions Required'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
         # Preserved the inconsistent verbose name below to avoid confusion to
         # existing section editors
         (ED.DECLINE.value, 'Reject'),
@@ -151,6 +152,24 @@ class ReviewRound(models.Model):
         return cls.objects.get(article=article, round_number=latest_round)
 
 
+class CompletedReviewsManager(models.Manager):
+    """
+    This manager allows you to filter for reviews that were
+    completed by a human. It checks that:
+    1. The review was not declined
+    2. is_complete is True
+    3. A decision was made
+    4. That decision is not 'withdrawn'
+    """
+    def get_queryset(self):
+        return super(CompletedReviewsManager, self).get_queryset().filter(
+            date_declined__isnull=True,
+            is_complete=True,
+            decision__isnull=False,
+        ).exclude(
+            decision="withdrawn",
+        )
+
 class ReviewAssignment(models.Model):
     # FKs
     article = models.ForeignKey(
@@ -227,6 +246,10 @@ class ReviewAssignment(models.Model):
                                                     help_text='This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.')
     display_public = models.BooleanField(default=False, help_text='Whether this review should be publicly displayed.')
 
+    # set the default and completed reviews managers
+    objects = models.Manager()
+    completed_reviews = CompletedReviewsManager()
+
     def review_form_answers(self):
         return ReviewAssignmentAnswer.objects.filter(assignment=self).order_by('frozen_element__order')
 
@@ -287,7 +310,7 @@ class ReviewAssignment(models.Model):
                 'date': '',
                 'reminder': None,
             }
-        elif self.date_complete:
+        elif self.date_complete and self.date_accepted:
             return {
                 'code': 'complete',
                 'display': 'Complete',
@@ -323,6 +346,8 @@ class ReviewAssignment(models.Model):
     def request_decision_status(self):
         if self.decision == RD.DECISION_WITHDRAWN.value:
             return f'Withdrawn {self.date_complete.date()}'
+        elif self.date_complete and self.date_accepted:
+            return f'Complete {self.date_complete.date()}'
         elif self.date_accepted:
             return f'Accepted {self.date_accepted.date()}'
         elif self.date_declined:
@@ -349,16 +374,13 @@ class ReviewForm(models.Model):
         'journal.Journal',
         on_delete=models.CASCADE,
     )
-
     name = models.CharField(max_length=200)
-
     intro = model_utils.JanewayBleachField(
         help_text="Message displayed at the start of the review form.",
     )
     thanks = model_utils.JanewayBleachField(
         help_text="Message displayed after the reviewer is finished.",
     )
-
     elements = models.ManyToManyField('ReviewFormElement')
     deleted = models.BooleanField(default=False)
 
@@ -378,14 +400,6 @@ def element_kind_choices():
     )
 
 
-def element_width_choices():
-    return (
-        ('large-4 columns', 'third'),
-        ('large-6 columns', 'half'),
-        ('large-12 columns', 'full'),
-    )
-
-
 class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=element_kind_choices())
@@ -393,7 +407,6 @@ class BaseReviewFormElement(models.Model):
                                help_text='Seperate choices with the bar | character.')
     required = models.BooleanField(default=True)
     order = models.IntegerField()
-    width = models.CharField(max_length=20, choices=element_width_choices())
     help_text = model_utils.JanewayBleachField(blank=True, null=True)
 
     default_visibility = models.BooleanField(default=True, help_text='If true, this setting will be available '
@@ -426,7 +439,6 @@ class ReviewFormElement(BaseReviewFormElement):
                 choices=self.choices,
                 required=self.required,
                 order=self.order,
-                width=self.width,
                 help_text=self.help_text,
                 default_visibility=self.default_visibility,
             )
@@ -530,6 +542,7 @@ def revision_type():
     return (
         (ED.MINOR_REVISIONS.value, 'Minor Revisions'),
         (ED.MAJOR_REVISIONS.value, 'Major Revisions'),
+        (ED.CONDITIONAL_ACCEPT.value, 'Conditional Accept'),
     )
 
 
@@ -581,7 +594,10 @@ class RevisionRequest(models.Model):
     date_completed = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return "Revision of {0} requested by {1}".format(self.article.title, self.editor.full_name())
+        return "Revision of {0} requested by {1}".format(
+            self.article.title,
+            self.editor.full_name(),
+        )
 
 
 class EditorOverride(models.Model):
@@ -618,7 +634,7 @@ class DecisionDraft(models.Model):
     )
     decision = models.CharField(
         max_length=100,
-        choices=review_decision(),
+        choices=draft_decision_choices(),
         verbose_name='Draft Decision',
     )
     message_to_editor = model_utils.JanewayBleachField(

@@ -3,11 +3,19 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import os
 from contextlib import ContextDecorator
+from unittest.mock import Mock
+import datetime
 
+from django.http import HttpRequest
+from django.test.client import QueryDict
 from django.utils import translation, timezone
 from django.conf import settings
-import datetime
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from utils import template_override_middleware
+from django.template.engine import Engine
 
 from core import (
     middleware,
@@ -26,6 +34,11 @@ from utils import setting_handler
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
+from utils.testing.data import (
+    orcid_record_all_fields,
+    orcid_record_min_fields,
+    ror_records,
+)
 from uuid import uuid4
 from review.const import ReviewerDecisions as RD
 from cms import models as cms_models
@@ -108,7 +121,12 @@ def create_journals():
 
 
 def create_press():
-    return press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+    press, created = press_models.Press.objects.get_or_create(
+        name='Press',
+        domain='localhost',
+        main_contact='a@b.com',
+    )
+    return press
 
 
 def create_issue(journal, vol=0, number=0, articles=None):
@@ -172,15 +190,39 @@ def create_peer_reviewer(journal, **kwargs):
     return reviewer
 
 
+def create_affiliation(
+    institution='',
+    department='',
+    account=None,
+    frozen_author=None,
+    preprint_author=None,
+):
+    organization = core_models.Organization.objects.create()
+    core_models.OrganizationName.objects.create(
+        value=institution,
+        custom_label_for=organization,
+    )
+    affiliation = core_models.ControlledAffiliation.objects.create(
+        organization=organization,
+        department=department,
+        account=account,
+        frozen_author=frozen_author,
+        preprint_author=preprint_author,
+    )
+    return affiliation
+
+
 def create_author(journal, **kwargs):
+    """
+    Creates an Account with the AccountRole of 'author'.
+    Use create_frozen_author to get an actual FrozenAuthor record.
+    """
     roles = kwargs.pop('roles', ['author'])
     email = kwargs.pop('email', "authoruser@martineve.com")
     attrs = {
         "first_name": "Author",
         "middle_name": "A",
         "last_name": "User",
-        "institution": "Author institution",
-        "department": "Author Department",
         "biography": "Author test biography"
     }
     attrs.update(kwargs)
@@ -192,7 +234,53 @@ def create_author(journal, **kwargs):
     )
     author.is_active = True
     author.save()
+    create_affiliation(
+        institution="Author institution",
+        department="Author Department",
+        account=author,
+    )
     return author
+
+
+def create_frozen_author(article, **kwargs):
+    frozen_email = kwargs.pop(
+        'frozen_email',
+        '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+    )
+    if kwargs.pop('with_author', False):
+        author_kwargs ={
+            'first_name': 'Bob',
+            'last_name': 'Loblaw',
+            'name_suffix': 'Esq.',
+            'orcid': '0000-0001-2345-6789',
+            'email': frozen_email,
+        }
+        account = create_author(article.journal, **author_kwargs)
+        if not article.owner:
+            article.owner = account
+        if not article.correspondence_author:
+            article.correspondence_author = account
+        article.save()
+        frozen_author = account.snapshot_as_author(article)
+    else:
+        frozen_dict = {
+            'first_name': 'Bob',
+            'last_name': 'Loblaw',
+            'name_suffix': 'Esq.',
+            'frozen_orcid': '0000-0001-2345-6789',
+            'frozen_email': frozen_email,
+            'order': article.next_frozen_author_order(),
+        }
+        frozen_author, _created = sm_models.FrozenAuthor.objects.get_or_create(
+            article=article,
+            frozen_email=frozen_email,
+            defaults=frozen_dict,
+        )
+
+    for k, v in kwargs.items():
+        setattr(frozen_author, k ,v)
+        frozen_author.save()
+    return frozen_author
 
 
 def create_article(journal, **kwargs):
@@ -208,14 +296,13 @@ def create_article(journal, **kwargs):
         author_kwargs ={
             'salutation': 'Dr.',
             'name_suffix': 'Jr.',
-            'orcid': '1234-5678-9012-345X',
+            'orcid': '0004-5678-9012-345X',
             'email': '{}{}'.format(uuid4(), settings.DUMMY_EMAIL_DOMAIN)
         }
         author = create_author(journal, **author_kwargs)
-        article.authors.add(author)
+        author.snapshot_as_author(article)
         article.owner = author
         article.save()
-        author.snapshot_self(article)
     else:
         article.save()
     for k,v in kwargs.items():
@@ -265,7 +352,8 @@ def create_submission(
     authors=None,
     **kwargs,
 ):
-
+    if not authors:
+        authors = []
     section, _ = sm_models.Section.objects.get_or_create(
         journal__id=journal_id, name="Article",
     )
@@ -278,9 +366,8 @@ def create_submission(
         section=section,
         **kwargs
     )
-    if authors:
-        article.authors.add(*authors)
-        article.snapshot_authors()
+    for author in authors:
+        author.snapshot_as_author(article)
     return article
 
 
@@ -348,30 +435,42 @@ def create_preprint(repository, author, subject, title='This is a Test Preprint'
         size=100,
     )
     preprint.submission_file = file
-    repo_models.PreprintAuthor.objects.create(
+    preprint_author = repo_models.PreprintAuthor.objects.create(
         preprint=preprint,
         account=author,
         order=1,
-        affiliation='Made Up University',
+    )
+    preprint_author.save()
+    create_affiliation(
+        institution="Made Up University",
+        preprint_author=preprint_author,
     )
     return preprint
 
 
-class Request(object):
+class Request(HttpRequest):
     """
-    A fake request class for sending emails outside of the
+    A fake request class for running tests outside of the
     client-server request loop.
     """
 
-    def __init__(self):
-        self.journal = None
-        self.site_type = None
-        self.port = 8000
-        self.secure = False
-        self.user = False
-        self.FILES = None
-        self.META = {'REMOTE_ADDR': '127.0.0.1'}
-        self.model_content_type = None
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.press = kwargs.get('press', None)
+        self.repository = kwargs.get('repository', None)
+        self.journal = kwargs.get('journal', None)
+        self.site_type = kwargs.get('site_type', None)
+        self.port = kwargs.get('port', 8000)
+        self.secure = kwargs.get('secure', False)
+        self.user = kwargs.get('user', None)
+        self.FILES = kwargs.get('FILES', None)
+        self.META = kwargs.get(
+            'META',
+            {'REMOTE_ADDR': '127.0.0.1'}
+        )
+        self.GET = QueryDict()
+        self.POST = QueryDict()
+        self.model_content_type = kwargs.get('model_content_type', None)
 
     def is_secure(self):
         if self.secure is False:
@@ -381,6 +480,21 @@ class Request(object):
 
     def get_host(self):
         return 'testserver'
+
+
+def get_request(**kwargs):
+    journal = kwargs.get('journal', None)
+    press = kwargs.get('press', None)
+    if journal:
+        journal_type = ContentType.objects.get_for_model(journal)
+        kwargs['model_content_type'] = journal_type
+        kwargs['site_type'] = journal
+    elif press:
+        press_type = ContentType.objects.get_for_model(press)
+        kwargs['model_content_type'] = press_type
+        kwargs['site_type'] = press
+    request = Request(**kwargs)
+    return request
 
 
 class activate_translation(ContextDecorator):
@@ -641,4 +755,22 @@ def create_setting(
         description,
         is_translatable=is_translatable,
         default_value=default_value,
+    )
+
+def get_orcid_record_all_fields():
+    return orcid_record_all_fields.ORCID_RECORD_ALL_FIELDS
+
+def get_orcid_record_min_fields():
+    return orcid_record_min_fields.ORCID_RECORD_MIN_FIELDS
+
+def get_ror_records():
+    return ror_records.ROR_RECORDS
+
+def create_licence(journal, name, short_name, **kwargs):
+    return sm_models.Licence.objects.create(
+        journal=journal,
+        name=name,
+        short_name=short_name,
+        url='https://example.com',
+        **kwargs,
     )

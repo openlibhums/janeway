@@ -1,0 +1,33 @@
+<table class="scroll small" id="typesetter">
+    <thead>
+    <tr>
+        <th>Select</th>
+        <th>Name</th>
+        <th>Email Address</th>
+        <th>Active Typesetting Tasks</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for typesetter in typesetters %}
+        <tr>
+            <td><input type="radio" name="typesetter" value="{{ typesetter.id }}"
+                       {% if form.cleaned_data.typesetter.id == typesetter.id %}checked="checked"
+                       {% elif form.instance.typesetter == typesetter %}checked="checked"
+                       {% elif forloop.first and forloop.last %}checked="checked"
+                       {% elif typesetter == form.last_typesetter %}checked="checked"
+                       {% endif %}></td>
+            <td>{{ typesetter.full_name }}</td>
+            <td>{{ typesetter.email }}</td>
+            <td>{{ typesetter.active_typesets|length }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>No suitable typesetters.</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

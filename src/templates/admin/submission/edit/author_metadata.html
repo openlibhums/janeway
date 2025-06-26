@@ -1,0 +1,107 @@
+{% extends "admin/core/flat_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load next_url %}
+{% load foundation %}
+{% load text %}
+
+{% block contextual_title %}
+  Edit author metadata
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Edit author metadata" %}
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% include "elements/breadcrumbs/edit_author_metadata_base.html" %}
+{% endblock %}
+
+{% block body %}
+  <div class="padding-inline-1">
+    <div class="button-group">
+      {% trans "Back to workflow" as back_label %}
+      {% include "elements/a_back.html" with label=back_label href=article.current_workflow_element_url %}
+    </div>
+  </div>
+  {% include "elements/current_authors.html" %}
+  <div class="columns">
+    <div class="box">
+      <div class="row expanded">
+        <div class="columns title-area">
+          <h2>{% trans "Add more authors" %}</h2>
+        </div>
+        <div class="large-12 columns max-w-40">
+          <div class="callout">
+            <p>
+              {% blocktrans with journal=request.journal.name press=request.press.name %}
+                Some authors may already be registered in <i>{{ journal }}</i>,
+                {{ press }}, or <a href="https://orcid.org/"
+                target="_blank">the ORCID registry<span
+                class="show-for-sr">(opens in new tab)</span></a>.
+                You can check by searching for
+                their email or ORCID. If a match is found, they will be added to
+                the author list.
+              {% endblocktrans %}
+            </p>
+            <form method="POST">
+              {% csrf_token %}
+              <label for="author_search_text">
+                <strong>{% trans "Search" %}</strong>
+              </label>
+              <input
+                id="author_search_text"
+                name="author_search_text"
+                placeholder="e.g. 0000-0001-2345-6789"
+                type="search">
+              <div class="button-group">
+                <button type="submit" class="button" name="search_authors">
+                  <span class="fa fa-search"></span>
+                  {% trans "Add author from search" %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="large-12 columns max-w-56 float-left">
+          <div class="callout">
+            <p>{% blocktrans %}
+              If you cannot find the author in the search,
+              you can add them manually.
+            {% endblocktrans %}</p>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="flex direction-column row-gap-0">
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.first_name %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.middle_name %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.last_name %}
+                </div>
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.name_prefix %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.name_suffix %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.is_corporate %}
+                </div>
+                <div class="grid auto row-gap-0">
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.frozen_email %}
+                  {% include "admin/elements/forms/field.html" with field=new_author_form.display_email %}
+                </div>
+                <div class="flex wrap gap-1 items-end">
+                  <div class="button-group">
+                    <button
+                      name="add_author"
+                      class="button">
+                      <span class="fa fa-user-plus"></span>
+                      {% trans "Add author manually" %}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock body %}

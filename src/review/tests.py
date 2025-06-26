@@ -714,8 +714,8 @@ class ReviewTests(TestCase):
                                                                                 journal_id=self.journal_one.id,
                                                                                 date_accepted=timezone.now())
 
-        self.article_author_is_owner.authors.add(self.editor)
-        self.article_author_is_owner.authors.add(self.author)
+        self.editor.snapshot_as_author(self.article_author_is_owner)
+        self.author.snapshot_as_author(self.article_author_is_owner)
 
         self.review_form = review_models.ReviewForm(name="A Form", intro="i", thanks="t",
                                                     journal=self.journal_one)
@@ -725,7 +725,6 @@ class ReviewTests(TestCase):
             name='Review',
             kind='text',
             order=1,
-            width='full',
             required=True,
         )
         self.review_form.elements.add(self.review_form_element)
@@ -733,7 +732,6 @@ class ReviewTests(TestCase):
             name='Second Review Form Element',
             kind='text',
             order=2,
-            width='full',
             required=True,
         )
         self.review_form.elements.add(self.second_review_form_element)
@@ -912,7 +910,7 @@ class ReviewTests(TestCase):
 
         self.journal_one.name = 'Journal One'
         self.journal_two.name = 'Journal Two'
-        self.press = press_models.Press.objects.create(name='Press', domain='localhost', main_contact='a@b.com')
+        self.press = helpers.create_press()
         self.press.save()
         update_settings(
             self.journal_one,

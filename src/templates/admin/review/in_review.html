@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static itertools roles securitytags %}
+{% load hooks %}
 
 {% block title %}Review {{ article.title }}{% endblock %}
 {% block title-section %}Peer Review{% endblock %}
@@ -301,6 +302,7 @@
                             <a href="{% url 'upload_reviewers_from_csv' article.id %}" class="expanded"><span class="fa fa-file-text"></span> Create Review Assignments from CSV</a>
                         </li>
                     {% endif %}
+                        {% hook 'in_review_editor_actions' %}
                     </ul>
                 </div>
             </div>

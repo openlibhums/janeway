@@ -58,11 +58,11 @@ class TestLogic(TestCase):
         cls.issue_five_three.articles.add(cls.article_one)
         cls.article_one.primary_issue = cls.issue_five_three
         cls.article_one.abstract = 'Test abstract.'
-        cls.article_one.snapshot_authors()
         cls.article_one.license = submission_models.Licence.objects.filter(
             journal=cls.journal_one,
         ).first()
-        cls.article_one.page_numbers = '1-72'
+        cls.article_one.first_page = 1
+        cls.article_one.last_page = 72
         cls.article_one.save()
 
         cls.issue_five_three.save()
@@ -116,11 +116,11 @@ class TestLogic(TestCase):
         cls.issue_nine_nine.articles.add(cls.article_six)
         cls.article_six.primary_issue = cls.issue_nine_nine
         cls.article_six.abstract = 'Test abstract.'
-        cls.article_six.snapshot_authors()
         cls.article_six.license = submission_models.Licence.objects.filter(
             journal=cls.journal_two,
         ).first()
-        cls.article_six.page_numbers = '58-62'
+        cls.article_six.first_page = 58
+        cls.article_six.last_page = 62
         cls.article_six.save()
 
         cls.article_seven = helpers.create_article(cls.journal_two, with_author=True)
@@ -241,7 +241,9 @@ class TestLogic(TestCase):
             'doi': f'10.0000/TST.{self.article_published.id}',
             'id': self.article_published.id,
             'license': '',
-            'pages': self.article_published.page_numbers,
+            'first_page': self.article_published.first_page,
+            'last_page': self.article_published.last_page,
+            'other_pages': None,
             'scheduled': True,
         }
 
@@ -265,7 +267,9 @@ class TestLogic(TestCase):
             'license': submission_models.Licence.objects.filter(
                 journal=self.journal_one,
             ).first().url,
-            'pages': self.article_one.page_numbers,
+            'first_page': self.article_one.first_page,
+            'last_page': self.article_one.last_page,
+            'other_pages': None,
             'scheduled': False,
         }
 

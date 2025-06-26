@@ -34,7 +34,7 @@ By default OIDC is disabled in janeway_global_settings module. You can overwrite
         'utils.oidc.JanewayOIDCAB',
     )
 
-.. note:: All of the urls above are examples derived from a Keycloak instance. You can get the real URLs by using your service providers .well-known url which will look something like:     https://exmaple/org/.well-known/openid-configuration. You can get your Client ID and Secret from your service provider admin console or can request one from your technical staff. If you use RS256 for OIDC_RP_SIGN_ALGO you must also complete OIDC_OP_JWKS_ENDPOINT otherwise login will fail.
+.. note:: All of the urls above are examples derived from a Keycloak instance. You can get the real URLs by using your service providers .well-known url which will look something like:     https://example.org/.well-known/openid-configuration. You can get your Client ID and Secret from your service provider admin console or can request one from your technical staff. If you use RS256 for OIDC_RP_SIGN_ALGO you must also complete OIDC_OP_JWKS_ENDPOINT otherwise login will fail.
 
 New Accounts
 ------------

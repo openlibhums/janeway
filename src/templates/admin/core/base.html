@@ -1,6 +1,7 @@
 {% load static %}
 {% load press_url from press_url %}
 {% load svg from press_url %}
+{% load next_url %}
 
 {% load hijack %}
 
@@ -24,16 +25,10 @@
     } catch (e) {
     }</script>
     {% block css %}{% endblock %}
-
-    {% if journal.favicon %}
-        <link rel="icon" href="{{ journal.favicon.url }}" type="image/vnd.microsoft.icon"/>
-    {% elif request.repository.favicon %}
-        <link rel="icon" href="{{ request.repository.favicon.url }}" type="image/vnd.microsoft.icon"/>
-    {% elif press.favicon %}
-        <link rel="icon" href="{{ press.favicon.url }}" type="image/vnd.microsoft.icon"/>
+    {% include "common/elements/favicons.html" %}
+    {% if settings.HIJACK_USERS_ENABLED %}
+      <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
     {% endif %}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
 </head>
 <body>
 
@@ -51,12 +46,17 @@
         <div class="large-12 columns">
             {% include "hijack/notification.html" %}
             <nav aria-label="You are here:" role="navigation">
-                <ul class="breadcrumbs">
-                    {% block breadcrumbs %}
-                        {% if request.journal %}
-                            <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>{% endif %}
-                    {% endblock breadcrumbs %}
-                </ul>
+              <ul class="breadcrumbs">
+                {% block breadcrumbs %}
+                  {% if request.user.is_authenticated %}
+                    {% if request.journal %}
+                      <li><a href="{% url 'core_dashboard' %}">Dashboard</a></li>
+                    {% endif %}
+                  {% else %}
+                    <li><a href="{% url 'core_login' %}">Log in</a></li>
+                  {% endif %}
+                {% endblock breadcrumbs %}
+              </ul>
             </nav>
             {% if article.pk %}
                 {% include "admin/elements/article_jump.html" %}
@@ -65,10 +65,10 @@
     </div>
 
     <section class="title">
-        <div class="row expanded column">
-            <h1>{% block title-section %}{% endblock %}</h1>
-            <p>{% block title-sub %}{% endblock %}</p>
-        </div>
+      <div class="row expanded column padding-block-end-0-5">
+          <h1>{% block title-section %}{% endblock %}</h1>
+          <p>{% block title-sub %}{% endblock %}</p>
+      </div>
     </section>
 
     {% block body %}
@@ -82,8 +82,9 @@
 <script src="{% static "common/js/tinymce/tinymce.min.js" %}"></script>
 {% endif %}
 <script src="{% static "django_tinymce/init_tinymce.js" %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-<script>
+{% block toastr %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script>
     toastr.options = {
         "closeButton": true,
         "debug": true,
@@ -115,7 +116,8 @@
             toastr.success("{{ message|linebreaksbr }}")
         {% endif %}
     {% endfor %}
-</script>
+  </script>
+{% endblock toastr %}
 
 {% block js %}{% endblock %}
 </body>
