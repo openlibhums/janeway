@@ -30,12 +30,14 @@
                         <tr>
                             <th>Stage</th>
                             <th>Date</th>
+                            <th>Stage Assigned By</th>
                             <th></th>
                         </tr>
                         {% for stage in article.workflow_stages %}
                             <tr>
                                 <td>{{ stage.element.element_name|capfirst }}</td>
                                 <td>{{ stage.timestamp }}</td>
+                                <td>{{ stage.user|default:"No user recorded" }}</td>
                                 <td>
                                     {% if stage.element.stage == article.stage or stage.element.stage == 'Unassigned' and article.stage == 'Under Review' %}
                                     Current Stage
