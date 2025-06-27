@@ -1,4 +1,5 @@
-{% load files %}
+{% load files roles %}
+{% user_has_role request 'editor' as user_is_editor %}
 
 <fieldset>
     {% if checkboxes  %}
