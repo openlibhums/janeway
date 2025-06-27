@@ -25,7 +25,7 @@
             {% endif %}
 
             {% if author.orcid %}
-                <ORCID>https://orcid.org/{{ author.orcid }}</ORCID>
+                <ORCID>{{ author.orcid_uri }}</ORCID>
             {% endif %}
 
             {% if article.object.journal|setting:'use_credit' and author.credits.exists %}
