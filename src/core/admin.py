@@ -281,7 +281,7 @@ class WorkflowLogAdmin(admin_utils.ArticleFKModelAdmin):
     search_fields = ('article__title', 'element__element_name',
                      'element__stage', 'element__journal__code')
     date_hierarchy = ('timestamp')
-    raw_id_fields = ('article',)
+    raw_id_fields = ('article', 'user')
 
     def _stage(self, obj):
         return obj.element.stage if obj else ''
