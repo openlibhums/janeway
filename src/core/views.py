@@ -230,8 +230,11 @@ def user_login_orcid(request):
     if action == 'login':
         try:
             user = models.Account.objects.get(orcid=orcid_id)
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
+            login(
+                request,
+                user,
+                backend='django.contrib.auth.backends.ModelBackend',
+            )
             return redirect(
                 request.site_type.auth_success_url(next_url=next_url)
             )
@@ -244,7 +247,11 @@ def user_login_orcid(request):
                 if candidates.exists():
                     # Store ORCID for future authentication requests
                     candidates.update(orcid=orcid_id)
-                    login(request, candidates.first())
+                    login(
+                        request,
+                        candidates.first(),
+                        backend='django.contrib.auth.backends.ModelBackend',
+                    )
                     return redirect(
                         request.site_type.auth_success_url(next_url=next_url)
                     )
@@ -438,7 +445,11 @@ def register(request, orcid_token=None):
                 if new_user.email == initial.get("email"):
                     new_user.is_active = True
                     new_user.save()
-                    login(request, new_user)
+                    login(
+                        request,
+                        new_user,
+                        backend='django.contrib.auth.backends.ModelBackend',
+                    )
                     return redirect(
                         request.site_type.auth_success_url(next_url=next_url)
                     )
