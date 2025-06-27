@@ -230,8 +230,11 @@ def user_login_orcid(request):
     if action == 'login':
         try:
             user = models.Account.objects.get(orcid=orcid_id)
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
+            login(
+                request,
+                user,
+                backend='django.contrib.auth.backends.ModelBackend',
+            )
             return redirect(
                 request.site_type.auth_success_url(next_url=next_url)
             )
