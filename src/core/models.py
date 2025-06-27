@@ -1844,6 +1844,11 @@ class WorkflowLog(models.Model):
         on_delete=models.CASCADE,
     )
     timestamp = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(
+        'core.Account',
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
     class Meta:
         ordering = ('timestamp',)
