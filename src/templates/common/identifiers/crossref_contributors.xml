@@ -24,7 +24,7 @@
                 </affiliations>
             {% endif %}
 
-            {% if author.orcid %}
+            {% if author.orcid_uri %}
                 <ORCID>{{ author.orcid_uri }}</ORCID>
             {% endif %}
 

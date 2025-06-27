@@ -39,7 +39,7 @@
                 {% for item in article.frozen_authors_for_jats_contribs %}
                     {% with author=item.author affiliations=item.affiliations %}
                         <contrib contrib-type="author"{% if author.is_correspondence_author %} corresp="yes"{% endif %}>
-                            {% if author.orcid %}
+                            {% if author.orcid_uri %}
                                 <contrib-id contrib-id-type="orcid">{{ author.orcid_uri }}</contrib-id>
                             {% endif %}
                             <name>
