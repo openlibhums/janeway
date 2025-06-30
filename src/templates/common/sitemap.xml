@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
+{% comment %}
+  This template has been deprecated. Use templates/common/site_map_index.xml.
+{% endcomment %}
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {{ sitemap_content }}
+  {{ sitemap_content }}
 </sitemapindex>

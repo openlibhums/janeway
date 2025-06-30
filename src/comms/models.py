@@ -138,7 +138,12 @@ class NewsItem(models.Model):
     def byline(self):
         if self.custom_byline:
             return _("Posted by {byline}").format(byline=self.custom_byline)
-        return _("Posted by  {byline}").format(byline=self.posted_by.full_name())
+        elif self.posted_by:
+            return _("Posted by {byline}").format(
+                byline=self.posted_by.full_name()
+            )
+        else:
+            return ""
 
     def best_image_url(self):
         """
