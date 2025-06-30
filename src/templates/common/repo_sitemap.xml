@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {% for subject in repo.subject_set.all %}
+<sitemapindex
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:janeway="https://janeway.systems">
+  <janeway:sitemap_name>
+    {{ repo.name }}
+  </janeway:sitemap_name>
+  <janeway:higher_sitemap>
+    <janeway:loc>
+      {% stateless_site_url repo.press url_name='website_sitemap' %}
+    </janeway:loc>
+    <janeway:loc_label>
+      {{ repo.press.name }}
+    </janeway:loc_label>
+  </janeway:higher_sitemap>
+  <sitemap>
+    <urlset>
+      {% include "common/sitemap_url.xml" with obj=repo url_name='website_index' label="Home" %}
+      {% include "common/sitemap_url.xml" with obj=repo url_name='repository_about' label="About" %}
+      {% include "common/sitemap_url.xml" with obj=repo url_name='repository_list' label=repo.object_name_plural|capfirst %}
+      {% include "common/sitemap_url.xml" with obj=repo url_name='repository_list' label="Subjects" %}
+      {% include "common/sitemap_url.xml" with obj=repo url_name='repository_list' label="Submit" %}
+    </urlset>
+  </sitemap>
+  {% for subject in repo.subject_set.all %}
     <sitemap>
-        <loc>{{ repo.site_url }}{% url 'repository_sitemap' subject.pk %}</loc>
+      <loc>{{ repo.site_url }}{% url 'repository_sitemap' subject.pk %}</loc>
+      <janeway:loc_label>{{ subject.name }} - {{ repo.name }}</janeway:loc_label>
     </sitemap>
-    {% endfor %}
+  {% endfor %}
 </sitemapindex>

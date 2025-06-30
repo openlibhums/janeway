@@ -11,7 +11,9 @@ import uuid
 import os
 import re
 
+from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import (
     OuterRef,
@@ -560,6 +562,15 @@ class Journal(AbstractSiteModel):
             date_published__lte=timezone.now(),
         )
 
+    @property
+    def published_articles_not_in_issues(self):
+        return submission_models.Article.objects.filter(
+            journal=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+            articleordering__issue__isnull=True,
+        )
+
     def article_keywords(self):
         return submission_models.Keyword.objects.filter(
             article__in=self.published_articles
@@ -689,6 +700,30 @@ class Journal(AbstractSiteModel):
         ).order_by(
             '-date_declined'
         )
+
+    @property
+    def navigation_items_for_sitemap(self):
+        NavigationItem = apps.get_model('cms.NavigationItem')
+        journal_type = ContentType.objects.get_for_model(self)
+        return NavigationItem.objects.filter(
+            content_type=journal_type,
+            object_id=self.pk,
+            link__isnull=False,
+            is_external=False,
+        ).order_by('sequence')
+
+    @property
+    def active_news_items(self):
+        """
+        Get the active news items belonging to the press,
+        excluding any journal news.
+        """
+        NewsItem = apps.get_model('comms.NewsItem')
+        return NewsItem.active_objects.filter(
+            content_type__model='journal',
+            object_id=self.id,
+        )
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(
