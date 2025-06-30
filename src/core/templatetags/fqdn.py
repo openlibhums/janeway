@@ -47,10 +47,10 @@ def site_url(context, url_name=None, *args):
 
 
 @register.simple_tag
-def stateless_site_url(site, url_name=None, query=None, *args):
-    """A tag for constructing a url for a site without global request state
+def stateless_site_url(site, url_name=None, query=None, *args, **kwargs):
+    """A tag for constructing a url for a site without global request state.
     This should eventually become the canonical site builder for all other
-    tags in this file
+    tags in this file.
     :param site: The site model instance for which to construct the url
     :type site: core.model_utils.AbstractSiteModel
     :param url_name: A django url name to match
@@ -60,7 +60,7 @@ def stateless_site_url(site, url_name=None, query=None, *args):
     :param *args: additional arguments for reversing the url by name
     """
     if url_name is not None:
-        path = reverse(url_name, args=args)
+        path = reverse(url_name, args=args, kwargs=kwargs)
     else:
         path = None
 
