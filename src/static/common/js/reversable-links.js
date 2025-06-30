@@ -1,6 +1,6 @@
 let attentionTimeouts = new Map(); // Track timeouts per element
 
-const headerElements = ['h1, h2, h3, h4, h5, h6'];
+const headerElements = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 const blockElements = ['p', 'li', 'ul', 'ol',' div', 'section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
 
 
@@ -19,7 +19,7 @@ function drawUserAttention(targetElement){
     // Function to smoothly scroll to element with offset if needed
     function scrollToElementWithOffset(element, offset) {
         const rect = element.getBoundingClientRect();
-        const elementTop = window.pageYOffset + rect.top;
+        const elementTop = window.scrollY + rect.top;
 
         // Only apply offset if element would scroll to top
         let finalPosition = elementTop;
