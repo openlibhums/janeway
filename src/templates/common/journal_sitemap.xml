@@ -1,9 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {% for issue in journal.published_issues %}
+<sitemapindex
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:janeway="https://janeway.systems">
+  <janeway:sitemap_name>
+    {{ journal.name }}
+  </janeway:sitemap_name>
+  <janeway:higher_sitemap>
+    <janeway:loc>
+      {% stateless_site_url journal.press url_name='website_sitemap' %}
+    </janeway:loc>
+    <janeway:loc_label>
+      {{ journal.press.name }}
+    </janeway:loc_label>
+  </janeway:higher_sitemap>
+  <sitemap>
+    <urlset>
+      {% if journal.nav_home %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='website_index' label="Home" %}
+      {% endif %}
+      {% if journal.nav_news %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='core_news_list' label="News" %}
+      {% endif %}
+      {% for nav_item in journal.navigation_items_for_sitemap %}
+        <url>
+          {% comment %}
+            The following if / else is necessary because of the way users
+            are required to enter nav item links, and the way the links
+            are hard-coded into the nav templates.
+          {% endcomment %}
+          {% if url_config == 'path' %}
+            <loc>{% stateless_site_url journal.press url_name='website_index' %}{{ nav_item.link }}</loc>
+          {% else %}
+            <loc>{% stateless_site_url journal url_name='website_index' %}{{ nav_item.link }}</loc>
+          {% endif %}
+          <janeway:loc_label>
+            {{ nav_item.link_name }}
+          </janeway:loc_label>
+        </url>
+      {% endfor %}
+      {% if journal.nav_articles %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='journal_articles' label="Articles" %}
+      {% endif %}
+      {% if journal.nav_issues %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='journal_issues' label="Issues" %}
+      {% endif %}
+      {% if enable_editorial_display %}
+        {% if multi_page_editorial %}
+          {% for group in journal.editorial_groups %}
+            <url>
+              <loc>{% stateless_site_url journal url_name='editorial_team_group' group_id=group.pk label=group.name %}</loc>
+            </url>
+          {% endfor %}
+        {% else %}
+          {% include "common/sitemap_url.xml" with obj=journal url_name='editorial_team' label="Editorial team" %}
+        {% endif %}
+      {% endif %}
+      {% if journal.nav_sub %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='journal_submissions' label="Submissions" %}
+      {% endif %}
+      {% if journal.nav_contact %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='contact' label="Contact" %}
+      {% endif %}
+      {% if journal.nav_start and not disable_journal_submission %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='submission_start' label="Start submission" %}
+      {% endif %}
+      {% if journal.nav_review %}
+        {% include "common/sitemap_url.xml" with obj=journal url_name='become_reviewer' label="Become a reviewer" %}
+      {% endif %}
+      {% include "common/sitemap_url.xml" with obj=journal url_name='core_login' label="Log in" %}
+      {% include "common/sitemap_url.xml" with obj=journal url_name='core_register' label="Register" %}
+      {% for news_item in journal.active_news_items %}
+        <url>
+          <loc>{{ news_item.url }}</loc>
+          <lastmod>{{ news_item.posted.isoformat }}</lastmod>
+          <janeway:loc_label>{{ news_item.title }}</janeway:loc_label>
+        </url>
+      {% endfor %}
+      {% for article in journal.published_articles_not_in_issues %}
+        <url>
+          <loc>{{ article.url }}</loc>
+          <lastmod>{{ article.fast_last_modified_date.isoformat }}</lastmod>
+          <changefreq>yearly</changefreq>
+          <janeway:loc_label>{{ article.title|striptags }}</janeway:loc_label>
+        </url>
+      {% endfor %}
+    </urlset>
+  </sitemap>
+  {% for issue in journal.published_issues %}
     <sitemap>
-        <loc>{{ journal.site_url }}{% url 'journal_sitemap' issue.pk %}</loc>
+      <loc>{{ journal.site_url }}{% url 'journal_sitemap' issue.pk %}</loc>
+      <janeway:loc_label>{{ issue.non_pretty_issue_identifier }}</janeway:loc_label>
     </sitemap>
-    {% endfor %}
+  {% endfor %}
 </sitemapindex>

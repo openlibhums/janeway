@@ -18,6 +18,9 @@ from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
 from submission import models as submission_models
+from comms import models as comms_models
+from cms import models as cms_models
+
 
 logger = get_logger(__name__)
 
@@ -206,7 +209,7 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
     """
     template, context = None, None
     if press:
-        journals = journal_models.Journal.objects.filter(
+        journals = press.journals_az.filter(
             hide_from_press=False,
             is_remote=False,
         )
@@ -215,11 +218,28 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
         context = {
             'journals': journals,
             'repos': repos,
+            'press': press,
         }
     elif journal:
+        news_items = comms_models.NewsItem.objects.all()
+        url_config = settings.URL_CONFIG
         template = 'common/journal_sitemap.xml'
         context = {
             'journal': journal,
+            'news_items': news_items,
+            'url_config': url_config,
+            'enable_editorial_display': journal.get_setting(
+                'general',
+                'enable_editorial_display',
+            ),
+            'multi_page_editorial': journal.get_setting(
+                'styling',
+                'multi_page_editorial',
+            ),
+            'disable_journal_submission': journal.get_setting(
+                'general',
+                'disable_journal_submission',
+            )
         }
     elif repository:
         template = 'common/repo_sitemap.xml',
