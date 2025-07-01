@@ -12,9 +12,9 @@
                                 {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
                         <div class="card-block">
                             {% if current_journal.is_remote %}
-                                <a href="{{ current_journal.remote_view_url }}">
+                                {# LinkA11y #} <a href="{{ current_journal.remote_view_url }}">
                             {% else %}
-                                <a href="{{ current_journal.site_url }}">
+                                {# LinkA11y #} <a href="{{ current_journal.site_url }}">
                             {% endif %}
                             <h7 class="card-title">{{ current_journal.name }}</h7>
                             </a>

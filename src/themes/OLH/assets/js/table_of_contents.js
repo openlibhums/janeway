@@ -31,7 +31,7 @@ $(document).ready(function () {
 
         js = "$('html, body').animate({scrollTop: $( $.attr(this, 'href') ).offset().top - 35}, 500);return false;";
 
-        newLine = "<li class=\"sidebar-item\"><a href='" + linkid + "' onclick=\"" + js + "\">" + title + "</a></li>";
+        newLine = "<li class=\"sidebar-item\">{# LinkA11y #} <a href='" + linkid + "' onclick=\"" + js + "\">" + title + "</a></li>";
 
         toc += newLine;
         iter++;

@@ -32,9 +32,9 @@
                 <p class="preprint-text">
                     This is a {{ request.repository.object_name }} and has not been peer reviewed.
                     {% if preprint.doi %}
-                        The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                        The published version of this {{ request.repository.object_name }} is available: {# LinkA11y #} <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
                     {% elif preprint.article %}
-                        A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
+                        A published version of this {{ request.repository.object_name }} is available on {# LinkA11y #} <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
                     This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
                 </p>
@@ -54,7 +54,7 @@
                         {% if preprint.current_version.file %}
                             <p>This {{ request.repository.object_name }} has no
                                 visible version.</p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                            {# LinkA11y #} <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                                class="waves-effect waves-light btn">
                                <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
@@ -80,7 +80,7 @@
                                 </div>
                                 <br/>
                             {% else %}
-                                <p>You must <a href="{% url_with_return 'core_login' %}">log in</a>
+                                <p>You must {# LinkA11y #} <a href="{% url_with_return 'core_login' %}">log in</a>
                                 to post a comment.</p>
                             {% endif %}
                         {% endif %}
@@ -135,7 +135,7 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                            {# LinkA11y #} <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
                                 <i aria-hidden="true" class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a></p>
@@ -144,7 +144,7 @@
                         <h2>{% trans "Supplementary Files" %}</h2>
                         <ul>
                         {% for link in preprint.supplementaryfiles %}
-                            <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                            <li>{# LinkA11y #} <a href="{{ link.url }}">{{ link.label }}</a></li>
                         {% empty %}
                             <li>No Supplementary File</li>
                         {% endfor %}
@@ -154,7 +154,7 @@
                     <div class="truncatejs">
                       <p class="authors">
                         {% for author in preprint.authors %}
-                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;{# LinkA11y #} <a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>
@@ -165,7 +165,7 @@
 
                     {% if preprint.preprint_doi %}
                     <h2>DOI</h2>
-                    <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    <p>{# LinkA11y #} <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}
@@ -186,7 +186,7 @@
                         {% for version in preprint.preprintversion_set.all %}
                             {% if not version == preprint.current_version %}
                                 <li>
-                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                                    {# LinkA11y #} <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
                                         <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                         <span class="sr-only">{% trans 'Download' %}</span>
                                         Version {{ version.version }} - {{ version.date_time|date_human}}
@@ -199,7 +199,7 @@
 
                     {% if preprint.license %}
                     <h2>{% trans "License" %}</h2>
-                    <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
+                    <p>{% if preprint.license.url %}{# LinkA11y #} <a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
                 {% endif %}
 
                     {% if preprint.display_additional_fields %}

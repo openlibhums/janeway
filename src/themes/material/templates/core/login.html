@@ -18,11 +18,11 @@
                     <div class="card-content">
                         <span class="card-title">{% trans "Login with your account" %}</span>
                          {% if settings.ENABLE_ORCID %}
-                        <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
+                        {# LinkA11y #} <a href="{{ settings.ORCID_URL }}?client_id={{ settings.ORCID_CLIENT_ID }}&response_type=code&scope=/authenticate&redirect_uri={% orcid_redirect_uri 'login' %}"
                            class="btn wide-button orcid-button">{% trans "Log in with ORCiD" %}</a>
                         {% endif %}
                         {% if settings.ENABLE_OIDC %}
-                        <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
+                        {# LinkA11y #} <a href="/oidc/authenticate{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.journal %}?next={{ request.journal.site_url }}{% elif request.repository %}?next={{ request.repository.site_url }}{% else %}?next={{ request.press.site_url }}{% endif %}"
                            class="waves-effect waves-light btn wide-button  blue lighten-2">{% trans "Login with" %} {{ settings.OIDC_SERVICE_NAME }}</a>
                             <br />
                         {% endif %}
@@ -46,10 +46,10 @@
                             <button class="waves-effect waves-light btn wide-button">{% trans "Login" %}</button>
                         </p>
                         <p class="center-align">
-                            <a href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
+                            {# LinkA11y #} <a href="{% url 'core_register' %}">{% trans "Register an Account" %}</a>
                         </p>
                         <p class="center-align">
-                            <a href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
+                            {# LinkA11y #} <a href="{% url 'core_get_reset_token' %}">{% trans "Reset Your Password" %}</a>
                         </p>
 
                     </div>

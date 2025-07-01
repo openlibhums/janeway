@@ -38,7 +38,7 @@
                         </label>
                         <input name="orcid_token" type="hidden" value="{{ token.token }}">
                         <p><button type="submit" class="button expanded">{% trans 'Log In' %}</button></p>
-                        <p class="text-center"><a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
+                        <p class="text-center">{# LinkA11y #} <a href="{% url 'core_get_reset_token' %}">{% trans "Forgot your password?" %}</a></p>
                     </div>
                 </div>
             </form>
@@ -51,7 +51,7 @@
                     <div class="row column log-in-form">
                         <h5>{% trans "Register" %}</h5>
                         <br />
-                        <a href="{% url 'core_register' %}?token={{ token.token }}" class="button expanded">{% trans "Register" %}</a>
+                        {# LinkA11y #} <a href="{% url 'core_register' %}?token={{ token.token }}" class="button expanded">{% trans "Register" %}</a>
                     </div>
                 </div>
 

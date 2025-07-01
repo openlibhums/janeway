@@ -6,7 +6,7 @@
             {% if journal_settings.general.publisher_name %} 
                 <li>{% trans 'Published by' %}
                 {% if journal_settings.general.publisher_url %}
-                    <a href="{{ journal_settings.general.publisher_url }}">
+                    {# LinkA11y #} <a href="{{ journal_settings.general.publisher_url }}">
                 {% endif %}
                     {{ journal_settings.general.publisher_name }}
                 {% if journal_settings.general.publisher_url %}

@@ -14,44 +14,44 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto font-weight-bold">
             {% if request.journal.nav_home %}
-            <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
+            <li class="nav-item">{# LinkA11y #} <a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
-                <li class="nav-item"><a href="{% url 'core_news_list' %}" class="nav-link">{{ journal_settings.news.news_title }}</a></li>{% endif %}
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'core_news_list' %}" class="nav-link">{{ journal_settings.news.news_title }}</a></li>{% endif %}
 
             {% if request.journal.nav_articles %}
-                <li class="nav-item"><a href="{% url 'journal_articles' %}" class="nav-link">{% trans 'Articles' %}</a>
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'journal_articles' %}" class="nav-link">{% trans 'Articles' %}</a>
                 </li>{% endif %}
             {% if request.journal.nav_issues %}
-                <li class="nav-item"><a href="{% url 'journal_issues' %}" class="nav-link">{% trans 'Issues' %}</a></li>{% endif %}
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'journal_issues' %}" class="nav-link">{% trans 'Issues' %}</a></li>{% endif %}
 
 
             {% if journal_settings.general.enable_editorial_display %}
                 {% if journal_settings.general.multi_page_editorial %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="editorial_team"
+                    {# LinkA11y #} <a class="nav-link dropdown-toggle" href="" id="editorial_team"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{ journal_settings.styling.editorial_group_page_name }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="editorial_team">
                         {% for group in request.journal.editorial_groups %}
-                            <a href="{% url 'editorial_team_group' group.pk %}" class="dropdown-item">{{ group.name }}</a>
+                            {# LinkA11y #} <a href="{% url 'editorial_team_group' group.pk %}" class="dropdown-item">{{ group.name }}</a>
                         {% endfor %}
                     </div>
                 </li>
                 {% else %}
-                <li class="nav-item"><a href="{% url 'editorial_team' %}" class="nav-link">{{ journal_settings.styling.editorial_group_page_name }}</a>
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'editorial_team' %}" class="nav-link">{{ journal_settings.styling.editorial_group_page_name }}</a>
                 </li>
                 {% endif %}
             {% endif %}
 
             {% if request.journal.nav_sub %}
-                <li class="nav-item"><a href="{% url 'journal_submissions' %}" class="nav-link">{% trans 'Submission' %}</a>
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'journal_submissions' %}" class="nav-link">{% trans 'Submission' %}</a>
                 </li>{% endif %}
             {% for item in navigation_items %}
               {% if not item.for_footer %}
                 {% if item.has_sub_nav %}
                   <li class="nav-item dropdown">
-                    <a
+                    {# LinkA11y #} <a
                       class="nav-link dropdown-toggle"
                       href=""
                       id="{{ item.link_name|slugify }}"
@@ -78,54 +78,54 @@
               {% endif %}
             {% endfor %}
             {% if request.journal.nav_contact %}
-                <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>{% endif %}
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>{% endif %}
             {% hook 'nav_block' %}
             {% if request.journal.nav_start and not journal_settings.general.disable_journal_submission %}
-                <li class="nav-item"><a href="{% url 'submission_start' %}" class="nav-link">{% trans 'Start Submission' %}</a></li>{% endif %}
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'submission_start' %}" class="nav-link">{% trans 'Start Submission' %}</a></li>{% endif %}
             {% if request.journal.nav_review %}
-                <li class="nav-item"><a href="{% url 'become_reviewer' %}" class="nav-link">
+                <li class="nav-item">{# LinkA11y #} <a href="{% url 'become_reviewer' %}" class="nav-link">
                     {% trans 'Become a Reviewer' %}</a>
                 </li>{% endif %}
         </ul>
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="user"
+                    {# LinkA11y #} <a class="nav-link dropdown-toggle" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account '%}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="user">
-                        <a class="dropdown-item" href="{% url 'core_dashboard' %}">{% trans 'Dashboard' %}</a>
-                        {% if not journal_settings.general.disable_journal_submission %}<a class="dropdown-item" href="{% url 'submission_start' %}">{% trans 'Submit' %}</a>{% endif %}
+                        {# LinkA11y #} <a class="dropdown-item" href="{% url 'core_dashboard' %}">{% trans 'Dashboard' %}</a>
+                        {% if not journal_settings.general.disable_journal_submission %}{# LinkA11y #} <a class="dropdown-item" href="{% url 'submission_start' %}">{% trans 'Submit' %}</a>{% endif %}
                         {% user_has_role request 'editor' as user_is_editor %}
                         {% if user_is_editor or request.user.is_staff %}
-                            <a class="dropdown-item" href="{% url 'kanban' %}">{% trans 'Kanban' %}</a>
-                            <a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a>
+                            {# LinkA11y #} <a class="dropdown-item" href="{% url 'kanban' %}">{% trans 'Kanban' %}</a>
+                            {# LinkA11y #} <a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans 'Manager' %}</a>
                             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'article_view' and article %}
-                                <a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">{% trans 'Edit Article' %}</a>
+                                {# LinkA11y #} <a class="dropdown-item" href="{% url 'manage_archive_article' article.pk %}">{% trans 'Edit Article' %}</a>
                             {% endif %}
                             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'journal_issue' and issue %}
-                                <a class="dropdown-item" href="{% url 'manage_issues_id' issue.pk %}">{% trans 'Edit Issue' %}</a>
+                                {# LinkA11y #} <a class="dropdown-item" href="{% url 'manage_issues_id' issue.pk %}">{% trans 'Edit Issue' %}</a>
                             {% endif %}
                             {% if request.resolver_match.url_name and request.resolver_match.url_name == 'core_news_item' and news_item %}
-                                <a class="dropdown-item" href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans 'Edit News Item' %}</a>
+                                {# LinkA11y #} <a class="dropdown-item" href="{% url 'core_manager_edit_news' news_item.pk %}">{% trans 'Edit News Item' %}</a>
                             {% endif %}
                         {% endif %}
                         {% if request.user.is_staff %}
-                            <a class="dropdown-item" href="/admin/">{% trans 'Admin' %}</a>
+                            {# LinkA11y #} <a class="dropdown-item" href="/admin/">{% trans 'Admin' %}</a>
                         {% endif %}
-                        <a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a>
-                        <a class="dropdown-item" href="{% url 'core_logout' %}">{% trans 'Logout' %}</a>
+                        {# LinkA11y #} <a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a>
+                        {# LinkA11y #} <a class="dropdown-item" href="{% url 'core_logout' %}">{% trans 'Logout' %}</a>
                     </div>
                 </li>
             {% else %}
                 <li class="nav-item">
-                  <a href="{% url 'core_login' %}" class="nav-link">
+                  {# LinkA11y #} <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans 'Log in' %}
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="{% url 'core_register' %}" class="nav-link">
+                  {# LinkA11y #} <a href="{% url 'core_register' %}" class="nav-link">
                     {% trans 'Register' %}
                   </a>
                 </li>

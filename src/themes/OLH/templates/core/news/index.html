@@ -16,7 +16,7 @@
                     <div class="row">
                         {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                         <div class="large-5 columns">
-                            <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
+                            {# LinkA11y #} <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
                                 src="{{ item.best_image_url }}"
                                 alt="{{ item.title|striptags|unescape }}"/></a>
                         </div>
@@ -25,7 +25,7 @@
                             <h4>{{ item.title|safe }}</h4>
                             <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</h6>
                             <p>{{ item.body|truncatewords_html:50|safe}}</p>
-                            <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                            {# LinkA11y #} <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                         </div>
                     </div>
 
@@ -38,7 +38,7 @@
         <div class="pagination-block">
             <ul class="pagination">
                 {% if news_items.has_previous %}
-                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">&laquo;</a>
+                    <li class="arrow">{# LinkA11y #} <a href="?page={{ news_items.previous_page_number }}">&laquo;</a>
                     </li>{% endif %}
                 {{ news_items.page.page_range }}
                 {% for page in news_items.paginator.page_range %}
@@ -46,7 +46,7 @@
                             href="?page={{ page }}">{{ page }}</a></li>
                 {% endfor %}
                 {% if news_items.has_next %}
-                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">&raquo;</a>
+                    <li class="arrow">{# LinkA11y #} <a href="?page={{ news_items.next_page_number }}">&raquo;</a>
                     </li>{% endif %}
             </ul>
         </div>

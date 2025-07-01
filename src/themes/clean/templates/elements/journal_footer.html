@@ -8,7 +8,7 @@
             {% if request.journal.print_issn %}<li class="list-inline-item"> {% trans 'Print ISSN' %}: {{ request.journal.print_issn }}</li>{% endif %}
             {% if journal_settings.general.publisher_name %} <li class="list-inline-item">{% trans 'Published by' %}
                 {% if journal_settings.general.publisher_url %}
-                    <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
+                    {# LinkA11y #} <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
                 {% if journal_settings.general.publisher_url %}</a>{% endif %} </li>{% endif %}
             </ul>
         </div></small>
@@ -37,10 +37,10 @@
                     <li class="list-inline-item"><a
                             href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
                 {% endif %}
-                <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+                <li class="list-inline-item">{# LinkA11y #} <a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 {% if not request.user.is_authenticated %}
                   <li class="list-inline-item">
-                    <a href="{% url 'core_login' %}">
+                    {# LinkA11y #} <a href="{% url 'core_login' %}">
                       {% trans 'Log in' %}
                     </a>
                   </li>

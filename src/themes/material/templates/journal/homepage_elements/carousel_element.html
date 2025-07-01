@@ -1,7 +1,7 @@
 <div class="carousel-item white-text" href="#four!"
      style="background-size: cover; background-image: url({% include "elements/article_image.html" %});">
     <div class="carousel-text-wrapper">
-        <a href="{{ carousel_item.url }}">
+        {# LinkA11y #} <a href="{{ carousel_item.url }}">
             <h2>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
             <p class="">{{ carousel_item.carousel_subtitle|safe }}</p></a>
     </div>

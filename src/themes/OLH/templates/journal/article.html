@@ -94,33 +94,33 @@
                                     data-responsive-menu="dropdown">
                                     {% hook 'article_buttons' %}
                                     <li>
-                                        <a href="{{ article.local_url }}print/" >
+                                        {# LinkA11y #} <a href="{{ article.local_url }}print/" >
                                             <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Print article' %}</span>
                                         </a>
                                     </li>
-                                    <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
-                                    <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
+                                    <li>{# LinkA11y #} <a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
+                                    <li>{# LinkA11y #} <a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}" >
+                                            {# LinkA11y #} <a href="mailto:{{ article.correspondence_author.email }}" >
                                                 <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                                 <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
                                             </a>
                                         </li>
                                     {% endif %}
-                                    <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
+                                    <li>{# LinkA11y #} <a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
-                                        <a href="#">
+                                        {# LinkA11y #} <a href="#">
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Cite article' %}</span>
                                         </a>
                                         <ul class="menu vertical">
-                                            <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
-                                            <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
-                                            <li><a href="#" data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
-                                            <li><a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
-                                            <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
+                                            <li>{# LinkA11y #} <a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
+                                            <li>{# LinkA11y #} <a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>
+                                            <li>{# LinkA11y #} <a href="#" data-open="APAModal">{% trans "APA Citation Style" %}</a></li>
+                                            <li>{# LinkA11y #} <a href="{% url 'serve_article_ris' 'id' article.pk %}"> {% trans 'Download' %} RIS</a></li>
+                                            <li>{# LinkA11y #} <a href="{% url 'serve_article_bib' 'id' article.pk %}">{% trans ' Download' %} BibTeX</a></li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -155,7 +155,7 @@
                                 <h3>{% trans "Abstract" %}</h3>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
-                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}{# LinkA11y #} <a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published or proofing %}
                             {% if not journal_settings.article.suppress_how_to_cite %}
                             <p id="article_how_to_cite">
@@ -187,10 +187,10 @@
                                     <strong>{% trans 'Downloads' %}:</strong><br/>
                                     {% if galleys %}
                                         {% for galley in galleys %}
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                            {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                             <br/>
                                             {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a><br/>
+                                                {# LinkA11y #} <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a><br/>
                                             {% endif %}
                                         {% endfor %}
                                         </p>
@@ -265,7 +265,7 @@
                                         <div class="large-6 columns" data-equalizer-watch>
                                         {% endif %}
                                             <p>{% trans "License" %}</p>
-                                            <a class="has-tip scroll-link" rel="license" data-allow-html="true" id="license" title="{{ article.license.text|safe }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><p>{{ article.license.name }}</p></a>
+                                            {# LinkA11y #} <a class="has-tip scroll-link" rel="license" data-allow-html="true" id="license" title="{{ article.license.text|safe }}" data-tooltip="2cc6nw-tooltip" aria-haspopup="true" data-fade-out-duration="1000" aria-describedby="pyltep-tooltip" data-yeti-box="pyltep-tooltip" data-toggle="pyltep-tooltip" data-resize="pyltep-tooltip" data-events="resize" href="{{ article.license.url }}"><p>{{ article.license.name }}</p></a>
                                         </div>
                                     </div>
                                 </div>
@@ -309,11 +309,11 @@
                                         <ul>
                                             {% for galley in galleys %}
                                                 <li>
-                                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                                    {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                                         </li>
                                                         <li>
-                                                        <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
+                                                        {# LinkA11y #} <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans 'View PDF' %}</a>
                                                         </li>
                                                     {% endif %}
                                                 </li>
@@ -340,7 +340,7 @@
                          <div class="section">
                              <h3>{% trans "Identifiers" %}</h3>
                              <ul>
-                                 <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                                 <li>DOI: {# LinkA11y #} <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                              </ul>
                          </div>
                          {% endif %}
@@ -381,7 +381,7 @@
                                 <ul>
                                     {% for file in article.supplementary_files.all %}
                                         <li>
-                                            <a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
+                                            {# LinkA11y #} <a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -400,7 +400,7 @@
                             <div class="section hide-for-small-only">
                                 <h3>{% trans "Non Specialist Summary" %}</h3>
                                 <ul>
-                                    <li><a href="#" data-open="summarymodal">{% trans 'View Summary' %}</a></li>
+                                    <li>{# LinkA11y #} <a href="#" data-open="summarymodal">{% trans 'View Summary' %}</a></li>
                                 </ul>
                             </div>
                         {% endif %}
@@ -428,7 +428,7 @@
                         <div class="section hide-for-small-only">
                             <h3>{{ article.preprint.repository.object_name }}</h3>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
-                            <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
+                            <p>{# LinkA11y #} <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
                         </div>
                         {% endif %}
 
@@ -449,7 +449,7 @@
 
                         {% if journal_settings.general.use_credit and author.credits.exists %}
                           <div class="section hide-for-small-only">
-                            <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
+                            <h3>{% trans "CRediT Roles" %} {# LinkA11y #} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
                             <ul>
                               {% for author, credit_records in article.authors_and_credits.items %}
                                 <li>
@@ -471,7 +471,7 @@
                                     <h3>{% trans "Peer Review" %}</h3>
                                     <p>
                                         {% for review in article.public_reviews %}
-                                            <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
+                                            {# LinkA11y #} <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
                                         {% endfor %}<br/>
                                     </p>
                                 {% endif %}
@@ -502,7 +502,7 @@
     <script>
     $('.table-expansion').each(function(){
         var child = $(this).children(":first")
-        child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
+        child.append('<br /><small>{# LinkA11y #} <a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
     });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>

@@ -8,15 +8,15 @@
 <div class="large-5 columns large-text-right" data-equalizer-watch>
     <ul class="inline-list">
       {% if press.privacy_policy_url %}
-        <li><a href="{{ press.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
+        <li>{# LinkA11y #} <a href="{{ press.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
       {% else %}
-        <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
+        <li>{# LinkA11y #} <a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
-        <li><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
-        <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        <li>{# LinkA11y #} <a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
+        <li>{# LinkA11y #} <a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         {% if not request.user.is_authenticated %}
           <li>
-            <a href="{% url 'core_login' %}">
+            {# LinkA11y #} <a href="{% url 'core_login' %}">
               {% trans 'Log in' %}
             </a>
           </li>
