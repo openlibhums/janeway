@@ -19,11 +19,11 @@
                 {% if preprint.doi %}
                     The published version of this
                     {{ request.repository.object_name }} is available:
-                    <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    {# LinkA11y #} <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
                 {% elif preprint.article %}
                     A published version of this
                     {{ request.repository.object_name }} is available on
-                    <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
+                    {# LinkA11y #} <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
                     .
                 {% endif %}
                 This is version {{ preprint.current_version.version }} of
@@ -36,7 +36,7 @@
                 <p class="authors">
                     {% for author in preprint.authors %}
                         {{ author.full_name }}{% if author.orcid %}&nbsp;
-                            <a href="https://orcid.org/{{ author.orcid }}"
+                            {# LinkA11y #} <a href="https://orcid.org/{{ author.orcid }}"
                                target="_blank"><img
                                     src="{% static 'common/img/icons/orcid.png' %}"></a>
                         {% endif %}{% if not forloop.last %}, {% endif %}
@@ -117,7 +117,7 @@
                     {% if preprint.current_version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                            {# LinkA11y #} <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
                                 <i aria-hidden="true"  class="fa fa-download"></i>
                                 Download {{ request.repository.object_name }}
                             </a>
@@ -128,7 +128,7 @@
                         <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
                         <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
-                          {% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
+                          {% trans "License" %}: {# LinkA11y #} <a href="{{ preprint.license.url }}" data-toggle="tooltip"
                                                      title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
                         {% endif %}
                         </li>
@@ -136,13 +136,13 @@
                         {% if preprint.keywords.all %}
                           <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
                         {% endif %}
-                        {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
+                        {% if preprint.preprint_doi %}<li>DOI: {# LinkA11y #} <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
                     </ul>
                     {% if preprint.preprintversion_set.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
+                            <li>{# LinkA11y #} <a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
                                 <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                 <span class="sr-only">{% trans 'Download' %}</span>
                                 {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}
@@ -160,7 +160,7 @@
                         <li>{% trans "Downloads" %}: {{ preprint.downloads.count }}</li>
                       </ul>
                     {% endif %}
-                    <a href="{% url 'repository_list' %}">
+                    {# LinkA11y #} <a href="{% url 'repository_list' %}">
                         <i aria-hidden="true"  class="fa fa-arrow-left"></i> 
                         {% trans "All Preprints" %}
                     </a>

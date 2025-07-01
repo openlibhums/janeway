@@ -3,7 +3,7 @@
 {% for issue in issues %}
     <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
         <div class="box issue">
-            <a href="{% url 'journal_issue' issue.id %}" class="box-link"></a>
+            {# LinkA11y #} <a href="{% url 'journal_issue' issue.id %}" class="box-link"></a>
             {% if issue.cover_image %}
                 {% svg_or_image issue.cover_image alt_text=issue.title %}
             {% elif journal.default_cover_image %}

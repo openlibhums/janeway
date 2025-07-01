@@ -5,7 +5,7 @@
             {% if request.journal.print_issn %} Print ISSN: {{ request.journal.print_issn }} | {% endif %}
             {% if journal_settings.general.publisher_name %} {% trans 'Published by' %}
             {% if journal_settings.general.publisher_url %}
-                <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
+                {# LinkA11y #} <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
         {% if journal_settings.general.publisher_url %}</a>{% endif %}
             | {% endif %}
             {% for item in request.journal.press.navigation_items %}

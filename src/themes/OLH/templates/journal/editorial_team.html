@@ -38,7 +38,7 @@
                                 </i><br/>
                                 {% if member.user.enable_public_profile %}
                                     <p>
-                                        <small><a href="{% url 'core_public_profile' member.user.uuid %}">View
+                                        <small>{# LinkA11y #} <a href="{% url 'core_public_profile' member.user.uuid %}">View
                                             Profile</a></small>
                                     </p>{% endif %}
                                 {% include "elements/journal/editorial_social_content.html" with user=member.user %}

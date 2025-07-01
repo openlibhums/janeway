@@ -115,14 +115,14 @@
                         <ul>
                             {% for galley in galleys %}
                                 <li>
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
                         <h5>{% trans "Metadata" %}</h5>
                         <ul>
                             <li>{% trans "Published on" %} {{ article.date_published|date_human }}</li>
-                            <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
+                            <li>{% trans "License" %} {# LinkA11y #} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                          title="{{ article.license.text }}">{{ article.license.name }}</a>
                             </li>
                             {% if article.identifier.id_type == 'doi' %}
@@ -145,12 +145,12 @@
                         </ul>
                         <h5>{% trans "Citation" %}</h5>
                         <div class="btn-group-vertical">
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Harvard Citation" %}</a>
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Vancouver Citation" %}</a>
-                            <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "APA Citation" %}</a>
+                            {# LinkA11y #} <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Harvard Citation" %}</a>
+                            {# LinkA11y #} <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Vancouver Citation" %}</a>
+                            {# LinkA11y #} <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "APA Citation" %}</a>
                         </div>
 
-                        <p><br/><a href="{% url 'preprints_list' %}"><i aria-hidden="true" class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
+                        <p><br/>{# LinkA11y #} <a href="{% url 'preprints_list' %}"><i aria-hidden="true" class="fa fa-arrow-left"></i>{% trans "All Preprints" %}</a>
                         </p>
                     </small>
                 </div>

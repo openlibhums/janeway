@@ -9,7 +9,7 @@
         {% for fa in featured_articles %}
             <div class="large-4 columns" >
                 <div class="box" data-equalizer-watch>
-                    <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}"
+                    {# LinkA11y #} <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}"
                        class="box-link"></a>
 
                     {% if not journal_settings.article.disable_article_large_image %}

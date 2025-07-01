@@ -7,7 +7,7 @@
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper container">
-        <a id="logo-container" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo">
+        {# LinkA11y #} <a id="logo-container" href="{% if request.journal %}{{ request.journal.site_url }}{% else %}{{ request.press_base_url }}{% endif %}" class="brand-logo">
             {% if 'svg' in request.press_cover %}
                 {% svg request.press_cover %}
             {% else %}
@@ -16,7 +16,7 @@
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="/">{% trans "Home" %}</a></li>
+            <li>{# LinkA11y #} <a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li>
@@ -29,12 +29,12 @@
                         </a>
                     </li>
                 {% elif not item.for_footer %}
-                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                    <li>{# LinkA11y #} <a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li>{# LinkA11y #} <a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
             {% endif %}
 
             {% if request.press.enable_preprints %}
@@ -49,7 +49,7 @@
                 </li>
             {% endif %}
 
-            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
+            <li>{# LinkA11y #} <a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
@@ -64,12 +64,12 @@
                 </li>
             {% else %}
                 <li>
-                  <a href="{% url 'core_login' %}" class="nav-link">
+                  {# LinkA11y #} <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans "Log in" %}
                   </a>
                 </li>
                 <li>
-                  <a href="{% url 'core_register' %}">
+                  {# LinkA11y #} <a href="{% url 'core_register' %}">
                     {% trans "Register" %}
                   </a>
                 </li>
@@ -77,7 +77,7 @@
         </ul>
 
         <ul class="sidenav" id="nav-mobile">
-            <li><a href="/">{% trans "Home" %}</a></li>
+            <li>{# LinkA11y #} <a href="/">{% trans "Home" %}</a></li>
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li>
@@ -90,11 +90,11 @@
                         </a>
                     </li>
                 {% elif not item.for_footer %}
-                    <li><a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
+                    <li>{# LinkA11y #} <a href="/{{ item.link }}" class="nav-link">{{ item.link_name }}</a></li>
                 {% endif %}
             {% endfor %}
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li>{# LinkA11y #} <a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
             {% endif %}
             {% if request.press.enable_preprints %}
                 <li>
@@ -107,7 +107,7 @@
                     </a>
                 </li>
             {% endif %}
-            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
+            <li>{# LinkA11y #} <a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
             {% if request.user.is_authenticated %}
                 <li>
                     <a
@@ -120,12 +120,12 @@
                 </li>
             {% else %}
                 <li>
-                  <a href="{% url 'core_login' %}" class="nav-link">
+                  {# LinkA11y #} <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans "Log in" %}
                   </a>
                 </li>
                 <li>
-                  <a href="{% url 'core_register' %}">
+                  {# LinkA11y #} <a href="{% url 'core_register' %}">
                     {% trans "Register" %}
                   </a>
                 </li>
@@ -144,37 +144,37 @@
 {% if request.user.is_authenticated %}
     <ul id="dropdown1" class="dropdown-content">
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% endif %}
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
         {% endif %}
-        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
-        <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
+        <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
+        <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
     </ul>
 
     <ul id="account" class="dropdown-content">
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% endif %}
         {% if request.user.is_staff %}
-            <li><a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="/admin/">{% trans "Admin" %}</a></li>
         {% endif %}
-        <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
-        <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
+        <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans "Profile" %}</a></li>
+        <li>{# LinkA11y #} <a class="dropdown-item" href="{% url 'core_logout' %}">{% trans "Logout" %}</a></li>
     </ul>
 {% endif %}
 
 {% if request.press.enable_preprints %}
     <ul id="preprints" class="dropdown-content">
         {% for repo in request.press.live_repositories %}
-            <li><a class="dropdown-item" href="{{ repo.site_url }}">{{ repo.name }}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="{{ repo.site_url }}">{{ repo.name }}</a></li>
         {% endfor %}
     </ul>
 
     <ul id="preprints-mobile" class="dropdown-content">
         {% for repo in request.press.live_repositories %}
-            <li><a class="dropdown-item" href="{{ repo.site_url }}">{{ repo.name }}</a></li>
+            <li>{# LinkA11y #} <a class="dropdown-item" href="{{ repo.site_url }}">{{ repo.name }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -182,9 +182,9 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}" class="dropdown-content">
-            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
+            {% if item.link %}<li>{# LinkA11y #} <a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+                <li>{# LinkA11y #} <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -193,9 +193,9 @@
 {% for item in navigation_items %}
     {% if item.has_sub_nav %}
         <ul id="{{ item.link_name|slugify }}-mobile" class="dropdown-content">
-            {% if item.link %}<li><a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
+            {% if item.link %}<li>{# LinkA11y #} <a href="{{ item.url }}" class="dropdown-item">{{ item.link_name }}</a></li>{% endif %}
             {% for subnav in item.sub_nav_items %}
-                <li><a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
+                <li>{# LinkA11y #} <a href="/{{ subnav.link }}" class="dropdown-item">{{ subnav.link_name }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}

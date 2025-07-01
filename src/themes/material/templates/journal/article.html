@@ -82,7 +82,7 @@
                     {% if article.keywords.count > 0 %}
                         <h2>{% trans "Keywords" %}</h2>
                         <p>{% for keyword in article.keywords.all %}
-                            {% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %},
+                            {% if journal_settings.general.keyword_list_page %}{# LinkA11y #} <a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %},
                         {% endif %}{% endfor %}</p>
                         <div class="spacer">
                             <div class="divider"></div>
@@ -126,10 +126,10 @@
                             {% if galleys %}
                                 <p>
                                     {% for galley in galleys %}
-                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                        {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                         <br/>
                                         {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            <a target="_blank"
+                                            {# LinkA11y #} <a target="_blank"
                                             href="{% url 'article_view_galley' article.id galley.id %}">View
                                                 PDF</a><br/>
                                         {% endif %}
@@ -244,7 +244,7 @@
                                 <li>
                                     {{ author.full_name }}
                                     {% if author.orcid %}
-                                        <a href="https://orcid.org/{{ author.orcid }}" class="">
+                                        {# LinkA11y #} <a href="https://orcid.org/{{ author.orcid }}" class="">
                                             <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
                                             <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
                                         </a>
@@ -254,7 +254,7 @@
                                         <span itemprop="name">({{ author.institution }})</span>
                                     {% endif %}
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <a itemprop="email" href="mailto:{{ author.email }}">
+                                        {# LinkA11y #} <a itemprop="email" href="mailto:{{ author.email }}">
                                             <i aria-hidden="true" class="fa fa-envelope email-link"></i>
                                             <span class="sr-only">{% trans "Email" %} {{ author.full_name }}.</span>
                                         </a>
@@ -282,11 +282,11 @@
                             <ul>
                                 {% for galley in galleys %}
                                     <li>
-                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                        {# LinkA11y #} <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                         {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                             </li>
                                             <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                                {# LinkA11y #} <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
                                         {% endif %}
                                     </li>
                                 {% endfor %}
@@ -375,7 +375,7 @@
 
                         <ul>
                             {% for file in article.supplementary_files.all %}
-                                <li><a href="{{ file.url }}">{{ file.label }}</a></li>
+                                <li>{# LinkA11y #} <a href="{{ file.url }}">{{ file.label }}</a></li>
                             {% endfor %}
                         </ul>
 
@@ -386,7 +386,7 @@
 
                     {% if journal_settings.general.submission_summary %}
                         <h4>{% trans "Non Specialist Summary" %}</h4>
-                        <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
+                        {# LinkA11y #} <a href="#summarymodal" class="modal-trigger">{% trans "View Summary" %}</a>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
@@ -397,7 +397,7 @@
 
                     <p>
                         {% if article.license.url %}
-                            <a rel="license" 
+                            {# LinkA11y #} <a rel="license" 
                                 href="{{ article.license.url }}" 
                                 title="{{ article.license.text|striptags|safe }}" 
                                 aria-label="{{ article.license.name }} {% trans 'external link.' %}"
@@ -427,7 +427,7 @@
                     {% if doi_url %}
                     <h4>{% trans "Identifiers" %}</h4>
                     <ul>
-                        <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                        <li>DOI: {# LinkA11y #} <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                     </ul>
                     <div class="spacer">
                         <div class="divider"></div>
@@ -473,7 +473,7 @@
                         a {{ article.preprint.repository.object_name }}
                         in {{ article.preprint.repository.name }}.</p>
                       <p>
-                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                        {# LinkA11y #} <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
                       </p>
                     {% endif %}
 
@@ -547,7 +547,7 @@
     <script>
     $('.table-expansion').each(function(){
         var child = $(this).children(":first")
-        child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
+        child.append('<br /><small>{# LinkA11y #} <a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
     });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>

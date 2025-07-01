@@ -37,7 +37,7 @@
                                     {{ form|materializecss }}
                                 {% else %}
                                     You are currently browsing by keyword.
-                                    <a href="{% url 'search' %}">Search for an article.</a>
+                                    {# LinkA11y #} <a href="{% url 'search' %}">Search for an article.</a>
                                 {% endif %}
                             </div>
                             {% if all_keywords %}
@@ -46,7 +46,7 @@
                                     {% trans "Keywords" %}
 
                                     {% for keyword in all_keywords %}
-                                        <a href="{% url 'search' %}?keyword={{ keyword.word }}">
+                                        {# LinkA11y #} <a href="{% url 'search' %}?keyword={{ keyword.word }}">
                                             {{ keyword.word }}
                                         </a>{% if not forloop.last %},
                                         {% endif %}
