@@ -156,7 +156,6 @@ def manager_index(request):
     :param request: django request
     :return: contextualised template
     """
-
     with translation.override(settings.LANGUAGE_CODE):
         form = journal_forms.JournalForm()
         modal = None

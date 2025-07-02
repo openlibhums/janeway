@@ -1,6 +1,7 @@
 import os
 from tqdm import tqdm
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from utils import logic
@@ -35,7 +36,7 @@ class Command(ProfiledCommand):
         )
 
     def handle(self, *args, **options):
-        with translation.override("en"):
+        with translation.override(settings.LANGUAGE_CODE):
             site_type = options.get("site_type")
             codes = options.get("codes")
 
