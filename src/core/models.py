@@ -1847,6 +1847,7 @@ class WorkflowLog(models.Model):
         'core.Account',
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
     )
 
     class Meta:
