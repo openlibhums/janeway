@@ -1,0 +1,17 @@
+{% load i18n %}
+{% comment %}
+    Standard internal link template that receives processed attributes from templatetags/links.py
+
+    This template expects the following context variables:
+    - attrs: all attributes for the link
+    - inner_content: content inside the a tags
+
+    Refer to the python for processing of other attributes, in particular accessiblity settings.
+
+{% endcomment %}
+
+
+<a  {{attrs|safe }}
+    >
+    {{ content | safe }}
+</a>
