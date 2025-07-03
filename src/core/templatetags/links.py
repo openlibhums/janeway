@@ -15,144 +15,123 @@ These link filters take the following general syntax:
 {{ link_html|linktype_link:"contextual" }}  # contextual mode (skips a11y check)
 
 They return the corresponding template from common/elements/links/
+
+generic link context values:
+block_input: the whole string that was input when calling the filter
+content: the html between the <a> tags
+attrs: all attributes that haven't been extracted or deleted by mods
+
+context that may be created by mods:
+<attr-name>: values for an extracted attribute
+inner_html_start: the html up to the closing tags at the end (for positioning of any icons 'after' text but within the link)
+inner_html_end: companion to inner_html_start, the closing tags that come after.
+
 """
 
 # Filters
 @register.filter(name='external_link')
-def external_link_filter(value, contextual=False):
+def external_link(value, contextual=False):
+    modifications = [attr_remove("target"), attr_remove("rel"), attr_extract("class"), split_html_before_last_tags]
+    template = 'common/elements/links/external.html'
+    return generic_link(value, contextual, modifications, template)
 
-    if not value:
-        return value
-    
-    # Convert contextual parameter to boolean if it's a string
+@register.filter(name='internal_link')
+def internal_link(value, contextual=False):
+    modifications = []
+    template = 'common/elements/links/internal.html'
+    return generic_link(value, contextual, modifications, template)
+
+def generic_link(value, contextual, modifications, template_src):
+    def split_attributes_content(context):
+        # Expected pattern: <a attributes>content</a>
+        match = re.match(r'^<a\s+([^>]*)>(.*)</a>$', context['block_input'].strip(), re.DOTALL)
+        if match:
+            context['attrs'] = match.group(1)
+            context['content'] = match.group(2)
+            return True
+        return False
+
+    generic_modifications = [attr_exists("href")]
+
+    # Handle links not marked as contextual, include an a11y check
     if isinstance(contextual, str):
         contextual = contextual.lower() in ('true', '1', 'yes', 'contextual')
-    
     html_string = str(value).strip()
-
     link_context = {
         'block_input': html_string,
     }
-    
-    modifications = [check_input_syntax, check_has_href, extract_classes, split_html_before_last_tags]
     if not contextual:
-        modifications.append(check_a11y)
+        generic_modifications.append(check_a11y)
     
+    # modify link context
+    split_attributes_content(link_context)
+    modifications.extend(generic_modifications)
     for mod in modifications:
         success = mod(link_context)
         if not success:
             mod_name = getattr(mod, '__name__', str(mod))
-            error_message = "invalid link syntax: " + mod_name
+            error_message = "invalid link syntax: " + mod_name + ", template: " + template_src
             if settings.DEBUG:
                 raise TemplateSyntaxError(error_message)
             else:
                 logger.error(error_message)
-                return mark_safe(link_context['block_input'])
-    
+                return mark_safe(link_context['block_input'])  
+            
     # Render the template
-    t = template.loader.get_template('common/elements/links/external.html')
+    t = template.loader.get_template(template_src)
     return mark_safe(t.render(link_context))
 
-def process(parser, token, parse_end, mods, template_src):
-    bits = token.split_contents()
-    contextual = False
-    if len(bits) > 1:
-        for bit in bits[1:]:
-            if bit.strip() == 'contextual':
-                contextual = True
-                break
+# modification helpers
+def get_attribute_pattern(attr_name):
+    return rf'{attr_name}=["\']([^"\']*)["\']'
 
-    nodelist = parser.parse((parse_end))
-    parser.delete_first_token()
-    if not contextual:
-        mods += [check_a11y]
-    return LinkNode(nodelist, template_src, mods)
-    
-class LinkNode(template.Node):
-    def __init__(self, nodelist, template_src, modifications):
-        self.nodelist = nodelist
-        self.template_src = template_src
-        self.modifications = [check_input_syntax, check_has_href] + modifications 
+# modification generators
+def attr_exists(attr: str) -> callable:
+    def exists_specific_attr(context):
+        pattern = get_attribute_pattern(attr)
+        return re.search(pattern, context['attrs'])
+    exists_specific_attr.__name__ = f"attr_exists({attr})"
+    return exists_specific_attr
 
-    def render(self, context):
-        block_input = self.nodelist.render(context)  
+def attr_extract(attr: str) -> callable:
+    def extract_specific_attr(context):
+        pattern = get_attribute_pattern(attr)
+        match = re.search(pattern, context['attrs'])
+        if match:
+            context[attr] = match.group(1)
+            context['attrs'] = re.sub(pattern, '', context['attrs']).strip()
+        else:
+            context[attr] = ""
+        return True
+    extract_specific_attr.__name__ = f"attr_extract({attr})"
+    return extract_specific_attr
 
-        link_context ={
-            'block_input': block_input,
-        }
+def attr_remove(attr: str) -> callable:
+    def remove_specific_attr(context):
+        pattern = get_attribute_pattern(attr)
+        context['attrs'] = re.sub(pattern, '', context['attrs']).strip()
+        return True
+    remove_specific_attr.__name__ = f"attr_remove({attr})"
+    return remove_specific_attr
 
-        for mod in self.modifications:
-            success = mod(link_context)
-            if not success:
-                mod_name = getattr(mod, '__name__', str(mod))
-                error_message = "Link modification failure: " + mod_name
-                if settings.DEBUG:
-                    raise TemplateSyntaxError(error_message)
-                else:
-                    logger.error(error_message)
-                    return block_input
-        
-        t = template.loader.get_template(self.template_src)
-        return t.render(link_context)
-
-# Modifications
-"""
-check_ these do not change the link context
-everything else may change it
-Modifications return true for continue, and false for error logging.
-"""
-patterns = {
-    'link': r'^<a\s+([^>]*)>(.*)</a>$',
-    'href': r'href=["\']([^"\']*)["\']',
-    'class' : r'class=["\']([^"\']*)["\']',
-    'tag': r'<[^>]+>',
-    'aria-label': r'aria-label=["\']([^"\']*)["\']',
-    'aria-labelledby': r'aria-labelledby=["\']([^"\']*)["\']',
-    'aria-describedby': r'aria-describedby=["\']([^"\']*)["\']',
-}
-
+# modifications
 def check_a11y(context):
     """
     Check for accessibility attributes.
     Requires at least one of: aria-label, aria-labelledby, or aria-describedby
     to be present for proper screen reader support.
     """
-    aria_labelledby_match = re.search(patterns['aria-labelledby'], context['attrs'])
-    if aria_labelledby_match and aria_labelledby_match.group(1).strip():
-        return True
-    
-    aria_describedby_match = re.search(patterns['aria-describedby'], context['attrs'])
-    if aria_describedby_match and aria_describedby_match.group(1).strip():
-        return True
-    
-    aria_label_match = re.search(patterns['aria-label'], context['attrs'])
-    if aria_label_match and aria_label_match.group(1).strip():
-        return True
+    aria_labelledby_exists = attr_exists("aria-labelledby")
+    aria_describedby_exists = attr_exists("aria-describedby")
+    aria_label_exists = attr_exists("aria-label")
 
-    return False
-
-def check_has_href(context):
-    return re.search(patterns['href'], context['attrs'])
-
-def check_input_syntax(context):
-    # Expected pattern: <a attributes>content</a>
-    match = re.match(patterns['link'], context['block_input'].strip(), re.DOTALL)
-    if match:
-        context['attrs'] = match.group(1)
-        context['inner_content'] = match.group(2)
+    if aria_labelledby_exists(context):
+        return True
+    if aria_describedby_exists(context):
+        return True
+    if aria_label_exists(context):
         return True
     return False
-
-def extract_classes(context):
-    class_match = re.search(patterns['class'], context['attrs'])
-    if class_match:
-        context['class_names'] = class_match.group(1)
-        context['other_attrs'] = re.sub(patterns['class'], '', context['attrs'])
-        context['other_attrs'] = context['other_attrs'].strip()
-    else:
-        context['class_names'] = ""
-        context['other_attrs'] = context['attrs']
-    return True
 
 def split_html_before_last_tags(context):
     """
@@ -168,15 +147,25 @@ def split_html_before_last_tags(context):
     
     Input: '<h2><span>text more <em>and </em> more </span></h2>'
     Output: ('<h2><span>text more <em>and </em> more' , '</span></h2>')
+
+    Input: '<span>text</span> and more'
+    Output: ('<span>text</span> and more', '')
+
+    Input: 'text,<span> more text</span> and even more'
+    Output: ('text,<span> more text</span> and even more', '')
     """
+
     def return_default():
-        context["inner_html_start"] = context['inner_content']
+        context["inner_html_start"] = context['content']
         context["inner_html_end"] = ""
         return True
+    
+    if context['content'].rstrip()[-1] != '>':
+        return return_default()
 
-    tags = re.findall(patterns['tag'], context['inner_content'])
+    tags = re.findall(r'<[^>]+>', context['content'])
     if not tags:
-        return_default()
+        return return_default()
 
     # Find the last closing tag in the content
     last_closing_tag_index = -1
@@ -186,15 +175,15 @@ def split_html_before_last_tags(context):
             break
 
     if last_closing_tag_index == -1:
-        return_default()
+        return return_default()
 
     # Find the position of the first closing tag in the final set
     # (in case there are multiple adjacent closing tags at the end)
     first_final_closing_tag = tags[last_closing_tag_index]
-    first_final_closing_tag_pos = context['inner_content'].rfind(first_final_closing_tag)
+    first_final_closing_tag_pos = context['content'].rfind(first_final_closing_tag)
     
     # Split the content
-    context["inner_html_start"] = context['inner_content'][:first_final_closing_tag_pos]
-    context["inner_html_end"] = context['inner_content'][first_final_closing_tag_pos:]
+    context["inner_html_start"] = context['content'][:first_final_closing_tag_pos]
+    context["inner_html_end"] = context['content'][first_final_closing_tag_pos:]
     return True
 
