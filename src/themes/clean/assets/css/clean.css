@@ -509,7 +509,6 @@ header svg {
 
 #article iframe {
     max-width: 100%;
-    width: 100%;
     height: auto;
     aspect-ratio: 16/9;
     margin: 1rem 0;
