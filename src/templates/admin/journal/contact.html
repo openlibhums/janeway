@@ -42,7 +42,7 @@
                                 </select>
                             </div>
                         </div>
-                        <p>{% trans "Required fields are marked with" %} <abbr class="red req" title='{% trans "required" %}'>*</abbr>.</p>
+                        {% include "admin/elements/forms/required_field_info.html" %}
                         {{ contact_form.sender|foundation }}
                         {{ contact_form.subject|foundation }}
                         {{ contact_form.body|foundation }}
