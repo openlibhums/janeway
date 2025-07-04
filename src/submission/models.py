@@ -1955,6 +1955,24 @@ class Article(AbstractLastModifiedModel):
                 )
             )
             return mark_safe(template.render(Context()))
+        
+    @property
+    def issue_title_a11y(self):
+        """ The accessible issue title in the context of the article
+            see issue_title above.
+        """
+        if not self.issue:
+            return ''
+
+        if self.issue.issue_type.code != 'issue':
+            return self.issue.issue_title
+        else:
+            template = Template(", ".join([
+                title_part
+                for title_part in self.issue.issue_title_parts(article=self)
+                if title_part
+            ]))
+            return template.render(Context())
 
     def author_list(self):
         return ", ".join([author.full_name() for author in self.frozenauthor_set.all()])
