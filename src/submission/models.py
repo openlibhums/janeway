@@ -413,8 +413,22 @@ class PublisherNote(AbstractLastModifiedModel):
         return "{0}: {1}".format(self.creator.full_name(), self.date_time)
 
 
+class KeywordGroup(models.Model):
+    name = models.CharField(max_length=200, blank=False, null=False)
+    parent_group = models.ForeignKey('self', null=True, blank=True, on_delete=models.PROTECT)
+    order = models.PositiveIntegerField(default=1)
+    notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Keyword(models.Model):
     word = models.CharField(max_length=200, unique=True)
+    group = models.ForeignKey("submission.KeywordGroup", null=True, blank=True, on_delete=models.PROTECT, related_name='keywords')
+    created = models.DateTimeField(auto_now_add=True)
+    deactivated = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.word
@@ -430,6 +444,8 @@ class KeywordArticle(models.Model):
         on_delete=models.CASCADE,
     )
     order = models.PositiveIntegerField(default=1)
+    weight = models.PositiveIntegerField(blank=True, null=True)
+
 
     class Meta:
         ordering = ["order"]
@@ -2741,6 +2757,8 @@ class SubmissionConfiguration(models.Model):
     language = models.BooleanField(default=True)
     license = models.BooleanField(default=True)
     keywords = models.BooleanField(default=True)
+    autocomplete_keywords = models.BooleanField(default=False)
+    hierarchical_keywords = models.BooleanField(default=False)
     section = models.BooleanField(default=True)
     funding = models.BooleanField(default=False)
 

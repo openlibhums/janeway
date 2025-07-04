@@ -4,6 +4,9 @@
 {% load i18n %}
 
 {% block title-section %}{% trans "Article Info" %}{% endblock %}
+{% block css %}
+    {{ form.media.css }}
+{% endblock %}
 
 {% block head %}
     {{ block.super }}
@@ -128,6 +131,8 @@
                 {allowSpaces: true});
         });
     </script>
+
+    {{ form.media.js }}
 {% endblock %}
 
 {% block toastr %}

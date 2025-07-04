@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.urls import re_path
 
 from submission import views
+from submission.views import KeywordAutocomplete
 
 urlpatterns = [
 
@@ -89,4 +90,5 @@ urlpatterns = [
         views.delete_license,
         name='submission_delete_license'),
     re_path(r'^manager/licences/(?P<license_pk>\d+)/', views.licenses, name='submission_licenses_id'),
+    re_path(r'^keyword-autocomplete/', KeywordAutocomplete.as_view(), name='keyword-autocomplete'),
 ]
