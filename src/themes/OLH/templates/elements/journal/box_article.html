@@ -39,7 +39,7 @@
                 </span> 
                 <i aria-hidden="true" class="fa fa-book"></i> 
                 {% if article.issue.issue_type.code == 'issue' %}
-                    <span aria-label='{{ article.issue_title|cut:"•" }}'>{{ article.issue_title }}</span>
+                    <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                 {% else %}  
                     {{ article.issue.issue_title }}
                 {% endif %}
