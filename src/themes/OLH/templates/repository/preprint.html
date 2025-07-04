@@ -19,7 +19,7 @@
                 {% if preprint.doi %}
                     The published version of this
                     {{ request.repository.object_name }} is available:
-                    <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
                 {% elif preprint.article %}
                     A published version of this
                     {{ request.repository.object_name }} is available on
@@ -136,7 +136,9 @@
                         {% if preprint.keywords.all %}
                           <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
                         {% endif %}
-                        {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
+                        {% if preprint.preprint_doi %}
+                            <li>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</li>
+                        {% endif %}
                     </ul>
                     {% if preprint.preprintversion_set.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
