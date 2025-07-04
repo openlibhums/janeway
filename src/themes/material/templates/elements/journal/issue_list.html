@@ -16,7 +16,7 @@
                             <br/> {{ issue.get_sorted_articles.count }} {% trans "items" %}
                         </p>
                     {% else %}
-                        <p> <span aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</span>
+                        <p> <span aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</span>
                             <br/> {{ issue.get_sorted_articles.count }} {% trans "items" %}
                         </p>
                     {% endif %}
