@@ -4,12 +4,12 @@
     <div class="card">
         <div class="card-image">
             <a href="{{ issue.url }}">
-                <img class="activator" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title|cut:"&bull;" }} hero image.">
+                <img class="activator" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} hero image.">
             </a>
             <span class="card-title">
             <div class="carousel-text-wrapper ">
                 <a href="{{ issue.url }}"
-                    aria-label='{{ issue.display_title|cut:"&bull;" }}'
+                    aria-label='{{ issue.display_title_a11y }}'
                     >
                     {{ issue.display_title }}
                 </a>
@@ -23,7 +23,7 @@
         {% endif %}
     </div>
 {% else %}
-    <h1 aria-label='{{ issue.display_title|cut:"&bull;" }}'>{{ issue.display_title }}</h1>
+    <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
     {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
 {% endif %}
 
