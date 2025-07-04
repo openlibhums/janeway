@@ -37,7 +37,7 @@
                 {% if article.issue %}
                     <i aria-hidden="true" class="fa fa-book"></i>
                     <a class="issue-link" href="{{ article.issue.url }}">
-                        <span aria-label='{{ article.issue_title|cut:"•" }}'>{{ article.issue_title }}</span>
+                        <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
                 {% endif %}
                 {% if article.issues.count > 1 %}
