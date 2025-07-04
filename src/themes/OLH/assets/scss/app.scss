@@ -400,6 +400,7 @@ pre {@extend blockquote; @extend p;}
 
 .inline-list-bar li:not(:last-child)::after {
   content: " | ";  
+  margin-left: rem-calc(10px);
 }
 
 body, main, #orbiter, #orbitsection {

@@ -813,15 +813,15 @@ a {
   content: " ";
 }
 
-.list-inline {
+.list-inline-bar {
     padding-left: 0;
     list-style: none;
 }
 
-.list-inline li {
+.list-inline-bar li {
     display: inline-block;
 }
 
-.list-inline li:not(:last-child)::after {
+.list-inline-bar li:not(:last-child)::after {
   content: " | ";   
 }
