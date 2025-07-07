@@ -3,7 +3,7 @@
     Standard external link template that receives processed attributes from templatetags/links.py
 
     This template expects the following context variables:
-    - class_names: The existing link classes.
+    - class: The existing link classes.
     - attrs: the remaining attributes as a string. 
     - inner_html_start: The link inner html before the last tag(s).
     - inner_html_end: the closing tags of the html inside the link.
@@ -14,7 +14,7 @@
 
 
 <a  {% if attrs %}{{ attrs|safe }}{% endif %}
-    class="{{ class_names }} external-link"
+    class="{{ class }} external-link"
     target="_blank"
     rel="external noopener noreferrer"
     >

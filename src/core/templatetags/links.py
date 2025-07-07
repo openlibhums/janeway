@@ -41,6 +41,8 @@ def internal_link(value, contextual=False):
     template = 'common/elements/links/internal.html'
     return generic_link(value, contextual, modifications, template)
 
+
+
 def generic_link(value, contextual, modifications, template_src):
     def split_attributes_content(context):
         # Expected pattern: <a attributes>content</a>
