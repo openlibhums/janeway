@@ -261,7 +261,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
     username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
 
-    name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(
         max_length=300,
         blank=False,
@@ -349,6 +348,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
+    name_prefix = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="The 'name_prefix' field is deprecated. Use 'salutation'.",
+    )
+
     objects = AccountManager()
 
     USERNAME_FIELD = 'email'
@@ -356,6 +361,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
     class Meta:
         ordering = ('first_name', 'last_name', 'username')
         unique_together = ('email', 'username')
+
+    def __getattribute__(self, name):
+        if name == "name_prefix":
+            warnings.warn(
+                "The 'name_prefix' field is deprecated. Use 'salutation'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
     def clean(self, *args, **kwargs):
         """ Normalizes the email address
@@ -411,8 +425,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return ' '.join([self.first_name, self.middle_name])
 
     def full_name(self):
+        """
+        A string formed from all the name fields and the name suffix.
+        """
         name_elements = [
-            self.name_prefix,
             self.first_name,
             self.middle_name,
             self.last_name,
@@ -421,6 +437,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return " ".join([name for name in name_elements if name])
 
     def salutation_name(self):
+        """
+        Used in salutations of templated emails.
+        """
         if self.salutation:
             return u"%s %s" % (self.salutation, self.last_name)
         else:
@@ -645,15 +664,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
         self.add_account_role('author', article.journal)
-        if self.name_prefix:
-            name_prefix = self.name_prefix
-        elif self.salutation:
-            name_prefix = self.salutation
-        else:
-            name_prefix = ''
 
         frozen_dict = {
-            'name_prefix': name_prefix,
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,

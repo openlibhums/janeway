@@ -186,7 +186,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
     class Meta:
         model = models.Account
         fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'orcid',)
+                  'last_name', 'suffix', 'orcid',)
         widgets = {'orcid': forms.HiddenInput() }
 
     def __init__(self, *args, **kwargs):
