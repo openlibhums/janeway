@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='account',
             name='name_prefix',
-            field=models.CharField(blank=True, max_length=10),
+            field=models.CharField(
+                blank=True,
+                max_length=10,
+                help_text="The 'name_prefix' field is deprecated. Use 'salutation'.",
+            ),
         ),
     ]
