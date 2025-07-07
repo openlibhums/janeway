@@ -288,7 +288,7 @@ class AuthorForm(forms.ModelForm):
         model = core_models.Account
         fields = (
             'email',
-            'name_prefix',
+            'salutation',
             'first_name',
             'middle_name',
             'last_name',

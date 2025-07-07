@@ -126,7 +126,7 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
         model = core_models.Account
         fields = (
             'pk', 'email', 'first_name', 'middle_name', 'last_name',
-            'salutation', 'orcid', 'is_active',
+            'salutation', 'suffix', 'orcid', 'is_active',
         )
 
 class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
@@ -135,7 +135,7 @@ class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
         model = core_models.Account
         fields = (
             'pk', 'first_name', 'middle_name', 'last_name',
-            'salutation', 'orcid',
+            'salutation', 'suffix', 'orcid',
         )
 
 class AccountRoleSerializer(serializers.ModelSerializer):
