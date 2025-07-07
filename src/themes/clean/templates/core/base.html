@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n hooks press_url %}
+
 {% get_current_language as current_language %}
 <!DOCTYPE html>
 <html lang="{{ current_language }}">
@@ -40,11 +41,8 @@
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
                     <div class="col-md-2">
-                        {# LinkA11y #} <a href="{{ request.journal.site_url }}">
-                            <img src="{{ request.journal.header_image.url }}"
-                                 class="img-fluid header-image top-bar-image"
-                                 alt="{{ request.journal.name }} logo">
-                        </a>
+                        {% render_string '<a href="{{ request.journal.site_url }}"><img src="{{ request.journal.header_image.url }}" class="img-fluid header-image top-bar-image" alt="{{ request.journal.name }} logo"></a>' as link_html %}
+                        {{ link_html|internal_link:"contextual" }}
                     </div>
 
                     {% if journal_settings.styling.display_journal_title %}
@@ -74,7 +72,7 @@
     <main id="main-content">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
-                {# LinkA11y #} <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {# ButtonA11y #} <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                 {{ message|linebreaksbr }}
             </div>
         {% endfor %}
