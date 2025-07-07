@@ -147,6 +147,16 @@ class NavigationItem(models.Model):
 
     class Meta:
         ordering = ('sequence',)
+        constraints = [
+            models.CheckConstraint(
+                check=(Q(('link__isnull', True)) & Q(('has_sub_nav', True)))
+                    | (Q(('link__isnull', False)) & Q(('has_sub_nav', False)))
+                    | (Q(('link__isnull', True)) & Q(('has_sub_nav', False))),
+                name='nav_item_has_either_link_or_sub_nav',
+                violation_error_message='There cannot be both a link and a '
+                    'sub navigation.'
+            ),
+        ]
 
     def __str__(self):
         return self.link_name
