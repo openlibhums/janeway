@@ -98,15 +98,6 @@ CREDIT_ROLE_CHOICES = [
     ("writing-review-editing", "Writing - Review & Editing"),
 ]
 
-SALUTATION_CHOICES = [
-    ("", "---"),
-    ("Dr", "Dr"),
-    ("Prof", "Prof"),
-    ("Miss", "Miss"),
-    ("Ms", "Ms"),
-    ("Mrs", "Mrs"),
-    ("Mr", "Mr"),
-]
 
 # This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (

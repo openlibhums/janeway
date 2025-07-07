@@ -171,6 +171,7 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
             "middle_name",
             "last_name",
             "salutation",
+            "suffix",
             "orcid",
             "is_active",
         )
@@ -185,6 +186,7 @@ class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
             "middle_name",
             "last_name",
             "salutation",
+            "suffix",
             "orcid",
         )
 
