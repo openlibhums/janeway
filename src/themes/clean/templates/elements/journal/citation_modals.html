@@ -4,7 +4,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="HarvardModalLabel">{% trans 'Harvard-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="harvard-close" type="button" class="close" data-dismiss="modal" aria-labelledby="harvard-close HarvardModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -37,7 +38,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="VancouverModalLabel">{% trans 'Vancouver-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="vancouver-close" type="button" class="close" data-dismiss="modal" aria-labelledby="vancouver-close VancouverModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -67,7 +69,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="APAModalLabel">{% trans 'APA-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="APA-close" type="button" class="close" data-dismiss="modal" aria-labelledby="APA-close APAModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
