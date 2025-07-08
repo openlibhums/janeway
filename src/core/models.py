@@ -1675,29 +1675,56 @@ class EditorialGroupMember(models.Model):
         return f'{self.user} in {self.group}'
 
 
-class Contacts(models.Model):
+class ContactPerson(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
                                      related_name='contact_content_type', null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
 
-    name = models.CharField(max_length=300)
-    email = models.EmailField()
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     role = models.CharField(max_length=200)
-    sequence = models.PositiveIntegerField(default=999)
+    sequence = models.PositiveIntegerField(default=1)
+
+    name = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="The 'name' field is deprecated. Use 'account.full_name'.",
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text="The 'email' field is deprecated. Use 'account.email'.",
+    )
 
     class Meta:
-        # This verbose name will hopefully more clearly
-        # distinguish this model from the below model `Contact`
-        # in the admin area.
-        verbose_name_plural = 'contacts'
-        ordering = ('sequence', 'name')
+        ordering = ('sequence',)
+        verbose_name_plural = 'contact people'
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
+        name = self.account.full_name() if self.account else ''
+        return "{0}, {1} - {2}".format(name, self.object, self.role)
+
+    def __getattribute__(self, name):
+        if name == "name":
+            warnings.warn(
+                "The 'name' field is deprecated. Use 'account.full_name'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        elif name == "email":
+            warnings.warn(
+                "The 'email' field is deprecated. Use 'account.email'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
 
-class Contact(models.Model):
+class ContactMessage(models.Model):
     recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact?'))
     sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
     subject = models.CharField(max_length=300, verbose_name=_('Subject'))
@@ -1709,12 +1736,6 @@ class Contact(models.Model):
                                      null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey('content_type', 'object_id')
-
-    class Meta:
-        # This verbose name will hopefully more clearly
-        # distinguish this model from the above model `Contacts`
-        # in the admin area.
-        verbose_name_plural = 'contact messages'
 
 
 class DomainAlias(AbstractSiteModel):

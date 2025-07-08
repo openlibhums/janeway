@@ -496,7 +496,11 @@ class Journal(AbstractSiteModel):
         return max(orderings) + 1 if orderings else 0
 
     def next_contact_order(self):
-        contacts = core_models.Contacts.objects.filter(content_type__model='journal', object_id=self.pk)
+        content_type = ContentType.objects.get_for_model(self)
+        contacts = core_models.ContactPerson.objects.filter(
+            content_type=content_type,
+            object_id=self.pk,
+        )
         orderings = [contact.sequence for contact in contacts]
         return max(orderings) + 1 if orderings else 0
 
