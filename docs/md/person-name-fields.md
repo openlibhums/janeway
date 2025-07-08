@@ -6,9 +6,7 @@ These fields are generally subjected to plain text validation to ensure no marku
 
 ## Account name fields
 
-We have three fields for first, middle, and last name. Separate fields are useful needed for producing citations, consistent alphabetization, and downstream metadata requirements from ORCID, Crossref, JATS.
-
-However, there are well-documented problems with separate name fields and making them required fields. See [this W3C article about different conventions](https://www.w3.org/International/questions/qa-personal-names), and this [list of falsehoods programmers believe about names](https://shinesolutions.com/2018/01/08/falsehoods-programmers-believe-about-names-with-examples/). If possible, future Janeway development on name fields should make them more flexible.
+We have three fields for first, middle, and last name. Separate fields are needed to produce citations, alphabetize consistently, and meet downstream metadata requirements from ORCID, Crossref, JATS.
 
 We also have `salutation` and `suffix` fields.
 
