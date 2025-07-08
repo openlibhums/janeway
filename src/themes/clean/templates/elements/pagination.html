@@ -12,6 +12,7 @@
                             value="{{ page_obj.previous_page_number }}"
                             form={{ form_id }}>
                             &laquo;
+                            <span class="sr-only">{% trans 'previous page' %}</span>
                         </button>
                     </li>
                 {% endif %}
@@ -42,6 +43,7 @@
                             value="{{ page_obj.next_page_number }}"
                             form={{ form_id }}>
                             &raquo;
+                            <span class="sr-only">{% trans 'next page' %}</span>
                         </button>
                     </li>
                 {% endif %}

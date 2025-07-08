@@ -22,7 +22,10 @@
                 <div class="pagination-block">
                     <ul class="pagination">
                         {% if preprints.has_previous %}
-                            <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a></li>
+                            <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">
+                            &laquo;
+                            <span class="sr-only">{% trans 'previous page' %}</span>
+                        </a></li>
                             &nbsp;{% endif %}
                         {{ preprints.page.page_range }}
                         {% for page in preprints|slice_pages:3 %}
@@ -31,7 +34,10 @@
                             </li>
                         {% endfor %}
                         {% if preprints.has_next %}
-                            <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                            <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">
+                            &raquo;
+                            <span class="sr-only">{% trans 'next page' %}</span>
+                        </a>
                             </li>
                         {% endif %}
                     </ul>
