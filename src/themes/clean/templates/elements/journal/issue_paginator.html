@@ -1,24 +1,32 @@
 {% load pages %}
 
 {% if articles and articles.paginator %}
-<div class="pagination-block">
-    <ul class="d-flex justify-content-center">
-        {% if articles.has_previous %}
-            <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">
-                &laquo;
-                <span class="sr-only">{% trans 'previous page' %}</span>
-            </a>
-            &nbsp;{% endif %}
-        {{ articles.page.page_range }}
-        {% for page in articles.paginator.page_range %}
-            <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
-        {% endfor %}
-        {% if articles.has_next %}
-            <a href="?page={{ articles.next_page_number }}" class="btn btn-primary">
-                &raquo;
-                <span class="sr-only">{% trans 'next page' %}</span>
-            </a>
-        {% endif %}
-    </ul>
-</div>
+<section aria-label="pagination">
+    <div class="pagination-block">
+        <ul class="d-flex justify-content-center list-inline">
+            {% if articles.has_previous %}
+                <li class="list-inline-item">
+                    <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">
+                        &laquo;
+                        <span class="sr-only">{% trans 'previous page' %}</span>
+                    </a>
+                </li>
+            {% endif %}
+            {{ articles.page.page_range }}
+            {% for page in articles.paginator.page_range %}
+                <li class="list-inline-item">
+                    <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
+                </li>
+            {% endfor %}
+            {% if articles.has_next %}
+                <li class="list-inline-item">
+                    <a href="?page={{ articles.next_page_number }}" class="btn btn-primary">
+                        &raquo;
+                        <span class="sr-only">{% trans 'next page' %}</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</section>
 {% endif %}

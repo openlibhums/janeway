@@ -22,26 +22,41 @@
             <h2>{% trans 'This journal currently has no news items to display' %}.</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
-        <ul class="d-flex justify-content-center">
-            {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
-                    &laquo;
-                    <span class="sr-only">{% trans 'previous page' %}</span>
-                </a>
-                &nbsp;{% endif %}
-            {{ news_items.page.page_range }}
-            {% for page in news_items.paginator.page_range %}
-                <a href="?page={{ page }}"
-                   class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
-                &nbsp;
-            {% endfor %}
-            {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
-                    &raquo;
-                    <span class="sr-only">{% trans 'next page' %}</span>
-                </a>
-            {% endif %}
-        </ul>
-    </div>
+    <section aria-label="pagination">
+        <div class="pagination-block">{{ page }}
+            <ul class="d-flex justify-content-center list-inline">
+                {% if news_items.has_previous %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                            &laquo;
+                            <span class="sr-only">{% trans 'previous page' %}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {{ news_items.page.page_range }}
+                {% for page in news_items.paginator.page_range %}
+                    <li class="list-inline-item">
+                        {% if news_items.number == page %}
+                            <a href="?page={{ page }}"
+                                class="btn btn-primary">
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page }}
+                            </a>
+                        {% else %}
+                            <a href="?page={{ page }}"
+                            class="btn btn-outline-primary">{{ page }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                {% if news_items.has_next %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                            &raquo;
+                            <span class="sr-only">{% trans 'next page' %}</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
 {% endblock body %}
