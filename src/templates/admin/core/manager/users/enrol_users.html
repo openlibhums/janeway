@@ -45,9 +45,17 @@
                     </form>
                 </div>
 
-                     {% for user in user_search %}
-                        {% include "admin/elements/core/user_search_list.html" %}
-                     {% endfor %}
+                    {% if first_name or last_name or email %}
+                        {% if user_search %}
+                            {% for user in user_search %}
+                                {% include "admin/elements/core/user_search_list.html" %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="callout warning">
+                                <strong>No matching user accounts found.</strong>
+                            </div>
+                        {% endif %}
+                    {% endif %}
 
             </div>
         </div>
