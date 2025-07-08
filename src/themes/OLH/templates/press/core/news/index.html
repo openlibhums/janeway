@@ -36,7 +36,10 @@
         <div class="pagination-block">
             <ul class="pagination">
                 {% if news_items.has_previous %}
-                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">&laquo;</a>
+                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">
+                        &laquo;
+                        <span class="sr-only">{% trans 'previous page' %}</span>
+                    </a>
                     </li>{% endif %}
                 {{ news_items.page.page_range }}
                 {% for page in news_items.paginator.page_range %}
@@ -44,7 +47,10 @@
                             href="?page={{ page }}">{{ page }}</a></li>
                 {% endfor %}
                 {% if news_items.has_next %}
-                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">&raquo;</a>
+                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">
+                        &raquo;
+                        <span class="sr-only">{% trans 'next page' %}</span>
+                    </a>
                     </li>{% endif %}
             </ul>
         </div>

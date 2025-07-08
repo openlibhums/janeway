@@ -52,7 +52,10 @@
                     <div class="pagination-block">
                         <ul class="pagination">
                             {% if preprints.has_previous %}
-                                <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
+                                <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">
+                                &laquo;
+                                <span class="sr-only">{% trans 'previous page' %}</span>
+                            </a>
                                 </li>{% endif %}
                             {{ preprints.page.page_range }}
                             {% for page in preprints.paginator.page_range %}
@@ -60,7 +63,10 @@
                                         href="?page={{ page }}">{{ page }}</a></li>
                             {% endfor %}
                             {% if preprints.has_next %}
-                                <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                                <li class="arrow"><a href="?page={{ preprints.next_page_number }}">
+                                &raquo;
+                                <span class="sr-only">{% trans 'next page' %}</span>
+                            </a>
                                 </li>{% endif %}
                         </ul>
                     </div>
