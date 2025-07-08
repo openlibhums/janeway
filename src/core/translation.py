@@ -13,6 +13,6 @@ class EditorialGroupTranslationOptions(TranslationOptions):
     fields = ('name', 'description',)
 
 
-@register(models.Contacts)
+@register(models.ContactPerson)
 class ContactTranslationOptions(TranslationOptions):
     fields = ('name', 'role',)

@@ -37,12 +37,12 @@ class JournalForm(forms.ModelForm):
         }
 
 
-class ContactForm(forms.ModelForm, CaptchaForm):
+class ContactMessageForm(forms.ModelForm, CaptchaForm):
 
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop('subject', None)
         contacts = kwargs.pop('contacts', None)
-        super(ContactForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if subject:
             self.fields['subject'].initial = subject
@@ -54,8 +54,14 @@ class ContactForm(forms.ModelForm, CaptchaForm):
             self.fields['recipient'].widget = forms.Select(choices=contact_choices)
 
     class Meta:
-        model = core_models.Contact
+        model = core_models.ContactMessage
         fields = ('recipient', 'sender', 'subject', 'body')
+
+
+class ContactForm(ContactMessageForm):
+    def __init__(self, *args, **kwargs):
+        return DeprecationWarning("Use ContactMessageForm instead.")
+        super().__init__(*args, **kwargs)
 
 
 class ResendEmailForm(forms.Form):

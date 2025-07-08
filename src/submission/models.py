@@ -398,7 +398,7 @@ class ArticleStageLog(models.Model):
 
 class PublisherNote(AbstractLastModifiedModel):
     text = JanewayBleachField(max_length=4000, blank=False, null=False)
-    sequence = models.PositiveIntegerField(default=999)
+    sequence = models.PositiveIntegerField(default=1)
     creator = models.ForeignKey(
         'core.Account',
         default=None,

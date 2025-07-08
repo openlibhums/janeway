@@ -20,7 +20,7 @@ from core.forms.forms import (
     GetResetTokenForm,
     JournalArticleForm,
     JournalAttributeForm,
-    JournalContactForm,
+    ContactPersonForm,
     JournalImageForm,
     JournalStylingForm,
     JournalSubmissionForm,

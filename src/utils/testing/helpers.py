@@ -716,17 +716,23 @@ def create_cms_page(content_type, object_id, **kwargs):
     )
 
 
-def create_contact(content_type, object_id, **kwargs):
+def create_contact_person(content_type, object_id, **kwargs):
     name = kwargs.get('name', 'Test Contact')
     email = kwargs.get('email', 'contact@example.org')
     role = kwargs.get('role', 'Test contact role')
-    return core_models.Contacts.objects.create(
+    return core_models.ContactPerson.objects.create(
         content_type=content_type,
         object_id=object_id,
         name=name,
         email=email,
         role=role,
     )
+
+
+def create_contact(content_type, object_id, **kwargs):
+    raise DeprecationWarning('Use create_contact_person instead.')
+    return create_contact_person(content_type, object_id, **kwargs)
+
 
 def create_setting(
         setting_group_name='test_group',
