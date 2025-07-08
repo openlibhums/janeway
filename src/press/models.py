@@ -9,6 +9,7 @@ import os
 import uuid
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from modeltranslation.utils import build_localized_fieldname
@@ -308,7 +309,11 @@ class Press(AbstractSiteModel):
             return max_number + 1
 
     def next_contact_order(self):
-        contacts = core_models.Contacts.objects.filter(content_type__model='press', object_id=self.pk)
+        content_type = ContentType.objects.get_for_model(self)
+        contacts = core_models.ContactPerson.objects.filter(
+            content_type=content_type,
+            object_id=self.pk,
+        )
         orderings = [contact.sequence for contact in contacts]
         return max(orderings) + 1 if orderings else 0
 

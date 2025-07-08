@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load bootstrap4 %}
+{% load dates %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
@@ -120,7 +121,7 @@
                         </ul>
                         <h5>{% trans "Metadata" %}</h5>
                         <ul>
-                            <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                            <li>{% trans "Published on" %} {{ article.date_published|date_human }}</li>
                             <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                          title="{{ article.license.text }}">{{ article.license.name }}</a>
                             </li>

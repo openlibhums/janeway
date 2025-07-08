@@ -2013,13 +2013,13 @@ def contact(request):
     :return: HttpResponse or HttpRedirect if POST
     """
     subject = request.GET.get('subject', '')
-    contacts = core_models.Contacts.objects.filter(content_type=request.model_content_type,
+    contacts = core_models.ContactPerson.objects.filter(content_type=request.model_content_type,
                                                    object_id=request.site_type.pk)
 
-    contact_form = forms.ContactForm(subject=subject, contacts=contacts)
+    contact_form = forms.ContactMessageForm(subject=subject, contacts=contacts)
 
     if request.POST:
-        contact_form = forms.ContactForm(request.POST, contacts=contacts)
+        contact_form = forms.ContactMessageForm(request.POST, contacts=contacts)
 
         if contact_form.is_valid():
             new_contact = contact_form.save(commit=False)

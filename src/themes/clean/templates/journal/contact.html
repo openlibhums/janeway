@@ -28,6 +28,11 @@
                     <select id="id_recipient" name="recipient" class="form-control custom-select">
                         {% for contact in contacts %}
                             <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
+                            <option
+                              value="{{ contact.email }}"
+                              {{ if contact.email == recipient_email }} selected="selected"{% endif %}>
+                              {{ contact.name }}, {{ contact.role }}
+                            </option>
                     </select>
                 </div>
                 {% bootstrap_field contact_form.sender %}

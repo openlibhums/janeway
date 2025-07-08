@@ -2,6 +2,7 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}
   {% include "common/elements/journal/article_title.html" %}
@@ -17,18 +18,22 @@
     <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
-            <div class="card">
+            {% if article.large_image_file.id or article.issue.large_image or journal.default_large_image %}
+                <div class="card">
                     <img class="card-img img-fluid article-img"
                         {% if article.large_image_file.id %}
-                         src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                            src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
                         {% elif article.issue.large_image %}
-                         src="{{ article.issue.large_image.url }}"
+                            src="{{ article.issue.large_image.url }}"
                         {% elif journal.default_large_image %}
-                         src="{{ journal.default_large_image.url }}"
-                        {% else %}
-                         src=""
+                            src="{{ journal.default_large_image.url }}"
                         {% endif %}
-                         alt="{{ article.title | striptags }}">
+                        onerror="this.onerror=null; this.parentElement.classList.add('no-image');"
+                        alt="{{ article.title | striptags }}">
+            {% else %}
+                <div class="card no-image">  
+                    <img class="card-img img-fluid article-img" aria-hidden="true" src="">
+            {% endif %}                   
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
@@ -187,17 +192,17 @@
                 <ul>
                     {% if journal_settings.article.display_date_submitted and article.date_submitted %}
                         <li>
-                            {% trans "Submitted on" %} {{ article.date_submitted|date:"Y-m-d" }}
+                            {% trans "Submitted on" %} {{ article.date_submitted|date_human }}
                         </li>
                     {% endif %}
                     {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
                         <li>
-                            {% trans "Accepted on" %} {{ article.date_accepted|date:"Y-m-d" }}
+                            {% trans "Accepted on" %} {{ article.date_accepted|date_human }}
                         </li>
                     {% endif %}
                     {% if article.is_published or proofing %}
                         <li id="article_date_published">
-                            {% trans "Published on" %} {{ article.date_published|date:"Y-m-d" }}
+                            {% trans "Published on" %} {{ article.date_published|date_human }}
                         </li>
                     {% endif %}
                     {% if article.page_range %}
