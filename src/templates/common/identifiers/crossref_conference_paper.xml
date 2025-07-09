@@ -1,10 +1,10 @@
 {% spaceless %}<conference_paper publication_type="full_text">{% endspaceless %}
 
+            {% include "common/identifiers/crossref_contributors.xml" %}
+
             <titles>
                 <title>{{ article.title }}</title>
             </titles>
-
-            {% include "common/identifiers/crossref_contributors.xml" %}
 
             {% if article.date_published %}
             <publication_date media_type="online">
