@@ -29,5 +29,6 @@ class Migration(migrations.Migration):
             name='number',
             field=models.CharField(max_length=10),
         ),
-        migrations.RunPython(upgrade, reverse_code=rollback),
+        # Version data migrations are handled via signals now
+        # migrations.RunPython(upgrade, reverse_code=rollback),
     ]

@@ -25,5 +25,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(upgrade, reverse_code=rollback),
+        # Version data migrations are handled via signals now
+        # migrations.RunPython(upgrade, reverse_code=rollback),
     ]
