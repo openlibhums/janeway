@@ -11,16 +11,24 @@ from metrics import models
 from identifiers import models as ident_models
 from journal import models as journal_models
 
+CROSSREF_TEMP_DIR = os.path.join(settings.BASE_DIR, 'files', 'temp', 'crossref')
 
-def process_events():
 
-    for journal in journal_models.Journal.objects.all():
-        if journal.use_crossref:
-            crossref_prefix = journal.get_setting('Identifiers', 'crossref_prefix')
+def process_events(journal_prefixes):
 
-            file_path = os.path.join(settings.BASE_DIR, 'files', 'temp', '{prefix}.json'.format(prefix=crossref_prefix))
-            with open(file_path, encoding='utf-8') as json_file:
-                json_data = json.loads(json_file.read())
+    for prefix in journal_prefixes:
+        file_path = os.path.join(
+            CROSSREF_TEMP_DIR,
+            '{prefix}-{date}.json'.format(
+                prefix=prefix,
+                date=timezone.localdate(),
+            )
+        )
+        json_file = open(file_path, encoding='utf-8')
+        lines = json_file.readlines()
+        for line in lines:
+            if line:
+                json_data = json.loads(line)
                 for event in json_data['message']['events']:
                     obj_id_parts = event['obj_id'].split('/')
                     doi = '{0}/{1}'.format(obj_id_parts[3], obj_id_parts[4])
@@ -28,27 +36,33 @@ def process_events():
                     try:
                         identifier = ident_models.Identifier.objects.get(id_type='doi', identifier=doi)
                         print('{0} found.'.format(doi))
-                        print(event['subj']['pid'])
 
-                        try:
-                            models.AltMetric.objects.get_or_create(
+                        if event.get('action'):
+                            print('ACTION:', event['action'])
+                        subject = event.get('subj')
+                        if subject:
+                            pid = subject.get('pid')
+                        if subject and pid:
+                            obj, c = models.AltMetric.objects.get_or_create(
                                 article=identifier.article,
                                 source=event['source_id'],
                                 pid=event['subj']['pid'],
-                                timestamp=event['timestamp'],
+                                defaults={
+                                    'timestamp': event['timestamp']
+                                }
                             )
-                        except IntegrityError:
-                            print('Duplicate found, skipping.')
-                    except ident_models.Identifier.DoesNotExist:
+                            if c:
+                                print("ALM created {}".format(event['subj']['pid']))
+                            else:
+                                print("Duplicate {}".format(event['subj']['pid']))
+                    except (ident_models.Identifier.DoesNotExist, ident_models.Identifier.MultipleObjectsReturned):
                         # This doi isn't found
                         pass  # print('{0} not found.'.format(doi))
 
 
-def fetch_crossref_data():
+def setup_prefixes(journals):
     journal_prefixes = list()
-    temp_folder = os.path.join(settings.BASE_DIR, 'files', 'temp')
-
-    for journal in journal_models.Journal.objects.all():
+    for journal in journals:
         if journal.use_crossref:
             try:
                 crossref_prefix = journal.get_setting('Identifiers', 'crossref_prefix')
@@ -56,17 +70,46 @@ def fetch_crossref_data():
             except IndexError:
                 print('{0} has no DOI Prefix set.'.format(journal))
 
-    journal_prefixes = set(journal_prefixes)
+    return set(journal_prefixes)
 
-    for prefix in journal_prefixes:
-        file_path = os.path.join(temp_folder, '{prefix}.json'.format(prefix=prefix))
 
-        if not os.path.isfile(file_path):
-            r = requests.get(
-                'https://query.eventdata.crossref.org/events?rows=10000&filter=obj-id.prefix:{0}'.format(prefix))
+def request_crossref_data(prefix, cursor):
+    if cursor:
+        response = requests.get(
+            'https://api.eventdata.crossref.org/v1/events?mailto=andy.byers@openlibhums.org&obj-id.prefix={}&cursor={}'.format(prefix, cursor)
+        )
+    else:
+        response = requests.get(
+            'https://api.eventdata.crossref.org/v1/events?mailto=andy.byers@openlibhums.org&obj-id.prefix={}'.format(prefix)
+        )
+    return response
 
-            with open(file_path, 'w') as file:
-                file.write(json.dumps(r.json()))
+
+def fetch_crossref_data(prefix, cursor=None):
+
+    file_path = os.path.join(
+        CROSSREF_TEMP_DIR, '{prefix}-{date}.json'.format(
+            prefix=prefix,
+            date=timezone.localdate(),
+        )
+    )
+
+    if not os.path.isfile(file_path):
+        responses = []
+        cursor = None
+
+        while True:
+            response = request_crossref_data(prefix, cursor)
+            responses.append(response.json())
+            _dict = response.json()
+            cursor = _dict['message'].get('next-cursor', None)
+
+            if not cursor:
+                break
+
+        for r in responses:
+            with open(file_path, 'a') as file:
+                file.write('{}\n'.format(json.dumps(r)))
 
 
 class Command(BaseCommand):
@@ -93,19 +136,26 @@ class Command(BaseCommand):
         """
 
         translation.activate(settings.LANGUAGE_CODE)
+        journals = journal_models.Journal.objects.all()
+        journal_prefixes = setup_prefixes(journals)
 
-        file_name = '{date}.json'.format(date=timezone.localdate())
-        file_path = os.path.join(settings.BASE_DIR, 'files', 'temp', file_name)
+        if not os.path.exists(CROSSREF_TEMP_DIR):
+            os.makedirs(CROSSREF_TEMP_DIR)
 
-        if os.path.isfile(file_path):
+        for prefix in journal_prefixes:
+            file_name = '{prefix}-{date}.json'.format(
+                prefix=prefix,
+                date=timezone.localdate(),
+            )
+            file_path = os.path.join(CROSSREF_TEMP_DIR, file_name)
 
-            # Process file
-            print('Existing file found.')
-            process_events()
+            if os.path.isfile(file_path):
+                # Process file
+                print('Existing file found.')
+                process_events(journal_prefixes)
 
-        else:
-
-            # Fetch data
-            print('Fetching data from crossref event tracking API.')
-            fetch_crossref_data()
-            process_events()
+            else:
+                # Fetch data
+                print('Fetching data from crossref event tracking API.')
+                fetch_crossref_data(prefix)
+                process_events(journal_prefixes)
