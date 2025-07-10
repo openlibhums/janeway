@@ -1268,7 +1268,8 @@ class TestORCiDRecord(TestCase):
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
 
-    @mock.patch("utils.logic.get_current_request")
+    @override_settings(URL_CONFIG='domain')
+    @mock.patch('utils.logic.get_current_request')
     def test_redirect_uri(self, get_current_request):
         press = helpers.create_press()
         repo, _subject = helpers.create_repository(press, [], [])
