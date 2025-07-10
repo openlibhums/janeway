@@ -2802,6 +2802,7 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     class Meta:
+        ordering = ('ror_display__value', 'custom_label__value')
         constraints = [
             models.UniqueConstraint(
                 fields=["ror_id"],
