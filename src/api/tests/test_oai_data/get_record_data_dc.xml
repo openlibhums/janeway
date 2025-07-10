@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
+>
+  <responseDate>2012-01-14T00:00:00Z</responseDate>
+  <request verb="GetRecord" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:TST:id:1</identifier>
+        <datestamp>1986-07-12T15:00:00Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc
+          xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        >
+          <dc:articleTitle>A Test Article</dc:articleTitle>
+          <dc:title>A Test Article</dc:title>
+          <dc:creator>User, Author A</dc:creator>
+          <dc:description>A Test article abstract</dc:description>
+          <dc:date>1986-07-12T15:00:00Z</dc:date>
+          <dc:type>info:eu-repo/semantics/article</dc:type>
+          <dc:volume>1</dc:volume>
+          <dc:issue>1</dc:issue>
+          <dc:publisher>Press</dc:publisher>
+          <dc:journalTitle>Journal One</dc:journalTitle>
+          <dc:identifier>http://testserver/article/id/1/</dc:identifier>
+          <dc:fullTextUrl>http://testserver/article/id/1/</dc:fullTextUrl>
+          <dc:source>0000-0000</dc:source>
+          <dc:format.extent>1</dc:format.extent>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>
