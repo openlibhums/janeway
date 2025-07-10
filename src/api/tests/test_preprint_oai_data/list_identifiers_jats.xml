@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
+>
+  <responseDate>2022-09-01T00:00:00Z</responseDate>
+  <request verb="ListIdentifiers" metadataPrefix="jats">http://repo.domain.com/api/oai/</request>
+  <ListIdentifiers>
+    <header>
+      <identifier>oai:testrepo:id:3</identifier>
+      <datestamp>2022-08-29T00:00:00Z</datestamp>
+    </header>
+    <header>
+      <identifier>oai:testrepo:id:1</identifier>
+      <datestamp>2022-08-31T00:00:00Z</datestamp>
+    </header>
+  </ListIdentifiers>
+</OAI-PMH>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
+>
+  <responseDate>2022-09-01T00:00:00Z</responseDate>
+  <request verb="Identify" metadataPrefix="oai_dc">http://repo.domain.com/api/oai/</request>
+  <Identify>
+    <repositoryName>Test Repository</repositoryName>
+    <baseURL>http://repo.domain.com/api/oai/</baseURL>
+    <protocolVersion>2.0</protocolVersion>
+    <adminEmail>a@b.com</adminEmail>
+    <earliestDatestamp>2022-08-29T00:00:00Z</earliestDatestamp>
+    <deletedRecord>no</deletedRecord>
+    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
+    <description>
+      <toolkit
+        xmlns="http://oai.dlib.vt.edu/OAI/metadata/toolkit"
+        xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd"
+      >
+        <title>Janeway</title>
+        <author>
+          <name>Birkbeck, University of London</name>
+          <email>olh-tech@bbk.ac.uk</email>
+        </author>
+        <version/>
+        <URL>http://janeway.systems/</URL>
+      </toolkit>
+    </description>
+  </Identify>
+</OAI-PMH>

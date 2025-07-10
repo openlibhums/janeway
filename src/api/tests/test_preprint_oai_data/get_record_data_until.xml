@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
+>
+  <responseDate>2022-09-01T00:00:00Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_dc">http://repo.domain.com/api/oai/</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>oai:testrepo:id:3</identifier>
+        <datestamp>2022-08-29T00:00:00Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc
+          xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        >
+          <dc:title>Older Test Preprint</dc:title>
+          <dc:creator>Author, Preprint</dc:creator>
+          <dc:description>This is a fake abstract.</dc:description>
+          <dc:date>2022-08-29T00:00:00Z</dc:date>
+          <dc:date>2022-08-31T00:00:00Z</dc:date>
+          <dc:type>PREPRINTS</dc:type>
+          <dc:publisher>Press</dc:publisher>
+          <dc:identifier>http://repo.domain.com/repository/object/3/download/3/</dc:identifier>
+          <dc:identifier>3</dc:identifier>
+          <dc:source>Test Repository</dc:source>
+          <dc:subject>Repo Subject</dc:subject>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </ListRecords>
+</OAI-PMH>
