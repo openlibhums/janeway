@@ -490,6 +490,13 @@ class TransactionalReviewEmailTests(UtilsTests):
             article=self.article_under_review,
             editor=self.editor,
         )
+        subject_setting_name = 'subject_request_revisions'
+        subject_setting = self.get_default_email_subject(subject_setting_name)
+        email_data = core_email.EmailData(
+            subject=subject_setting,
+            body=self.test_message,
+        )
+        kwargs["email_data"] = email_data
 
         send_revisions_request(**kwargs)
 
@@ -501,7 +508,9 @@ class TransactionalReviewEmailTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[0].subject)
 
-    def test_send_revisions_complete(self):
+    @mock.patch('utils.render_template.get_message_content')
+    def test_send_revisions_complete(self, render_template):
+        render_template.return_value = self.test_message
         kwargs = dict(**self.base_kwargs)
         kwargs["revision"] = helpers.create_revision_request(
             article=self.article_under_review,
