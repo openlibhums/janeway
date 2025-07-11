@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {% for preprint in subject.published_preprints %}
+<urlset
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:janeway="https://janeway.systems">
+  <janeway:sitemap_name>
+    {{ subject.name }} - {{ subject.repository.name }}
+  </janeway:sitemap_name>
+  <janeway:higher_sitemap>
+    <janeway:loc>
+      {% stateless_site_url subject.repository url_name='website_sitemap' %}
+    </janeway:loc>
+    <janeway:loc_label>
+      {{ subject.repository.name }}
+    </janeway:loc_label>
+  </janeway:higher_sitemap>
+  {% for preprint in subject.published_preprints %}
     <url>
-        <loc>{{ preprint.url }}</loc>
-        <lastmod>{{ preprint.date_published|date:"Y-m-d" }}</lastmod>
-        <changefreq>monthly</changefreq>
+      <loc>{{ preprint.url }}</loc>
+      {% if preprint.last_updated %}
+        <lastmod>{{ preprint.last_updated.isoformat }}</lastmod>
+      {% else %}
+        <lastmod>{{ preprint.date_published.isoformat }}</lastmod>
+      {% endif %}
+      <changefreq>monthly</changefreq>
+      <janeway:loc_label>{{ preprint.title }}</janeway:loc_label>
     </url>
-    {% endfor%}
+  {% endfor%}
 </urlset>
