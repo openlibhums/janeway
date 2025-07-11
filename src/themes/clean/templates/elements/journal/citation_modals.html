@@ -4,17 +4,29 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="HarvardModalLabel">{% trans 'Harvard-style Citation' %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="harvard-close" type="button" class="close" data-dismiss="modal" aria-labelledby="harvard-close HarvardModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
-                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
-                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        ({{ article.date_published.year }}) '{{ article.title|safe }}',
-                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                    <p id="harvard-cite">{% for author in article.frozenauthor_set.all %}
+                        {% if not forloop.first and not forloop.last %},
+                        {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                            ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                            <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                        {% if article.identifier.id_type == 'doi' %}
+                            {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                        {% endif %}
+                    </p>
+                    <button class="button" 
+                        type="button"
+                        onclick="copyToClipboard('harvard-cite', event, '{% trans 'Copied' %}' )"
+                        aria-label="{% trans 'Copy citation formatted in Harvard-style' %}"
+                        >
+                        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -26,16 +38,26 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="VancouverModalLabel">{% trans 'Vancouver-style Citation' %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="vancouver-close" type="button" class="close" data-dismiss="modal" aria-labelledby="vancouver-close VancouverModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
+                    <p id="vancouver-cite">{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
                     {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                         {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                        {% if article.identifier.id_type == 'doi' %}
+                            {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                        {% endif %}</p>
+                    <button class="button" 
+                        type="button"
+                        onclick="copyToClipboard('vancouver-cite', event, '{% trans 'Copied' %}' )"
+                        aria-label="{% trans 'Copy citation formatted in Vancouver-style' %}"
+                        >
+                        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -47,17 +69,27 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="APAModalLabel">{% trans 'APA-style Citation' %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button id="APA-close" type="button" class="close" data-dismiss="modal" aria-labelledby="APA-close APAModalLabel">
+                        <span class="sr-only">{% trans 'close' %}</span>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
+                    <p id="apa-cite">{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
                         &amp; {% endif %}{% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                         ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
                         <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                        {% if article.identifier.id_type == 'doi' %}
+                            {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                        {% endif %}</p>
+                        <button class="button" 
+                            type="button"
+                            onclick="copyToClipboard('apa-cite', event, '{% trans 'Copied' %}' )"
+                            aria-label="{% trans 'Copy citation formatted in APA-style' %}"
+                            >
+                            <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                        </button>
                 </div>
 
             </div>
