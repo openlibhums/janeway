@@ -630,8 +630,12 @@ div.caption span.label {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
   }
-  aside {
-
+  .side-info {
+    h2 {
+      text-transform: uppercase;
+      font-size: rem-calc(18px);
+      color: var(--primary-dark-color);
+    }
     .sticky {
       width: 100%;
     }
@@ -643,11 +647,6 @@ div.caption span.label {
     .section {
       border-bottom: 1px solid $light-gray;
       padding: rem-calc(40px) rem-calc(40px);
-    }
-    h3 {
-      text-transform: uppercase;
-      font-size: rem-calc(18px);
-      color: var(--primary-dark-color);
     }
     ul {
       list-style-type: none;
