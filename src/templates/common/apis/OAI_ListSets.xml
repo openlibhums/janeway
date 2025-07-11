@@ -1,5 +1,6 @@
 {% extends "apis/OAI_base.xml" %}
 {% block body %}
+  {% if journals %}
     <ListSets>
         {% for journal in journals %}
             <set>
@@ -20,4 +21,7 @@
             </set>
         {% endfor %}
     </ListSets>
+  {% else %}
+    <ListSets />
+  {% endif %}
 {% endblock body %}

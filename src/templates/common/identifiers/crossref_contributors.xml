@@ -27,15 +27,6 @@
             {% if author.orcid_uri %}
                 <ORCID>{{ author.orcid_uri }}</ORCID>
             {% endif %}
-
-            {% if article.object.journal|setting:'use_credit' and author.credits.exists %}
-                {% for credit in author.credits %}
-                    <contrib_role>
-                        <role_name>{{ credit.get_role_display }}</role_name>
-                        <role_identifier>{{ credit.uri }}/</role_identifier>
-                    </contrib_role>
-                {% endfor %}
-            {% endif %}
         </person_name>
         {% endwith %}
     {% endfor %}

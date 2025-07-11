@@ -150,7 +150,7 @@ class TestTypesetting(TestCase):
 
         for user in users:
             request = self.prepare_request_with_user(
-                self.production_manager,
+                user,
                 self.journal_one,
             )
             
@@ -434,7 +434,7 @@ class TestTypesetting(TestCase):
 
         self.workflow_element = core_models.WorkflowElement.objects.create(
             journal=self.journal_one,
-            element_name='Typesetting',
+            element_name='typesetting',
             handshake_url='dummy',
             jump_url='dummy',
             stage=submission_models.STAGE_TYPESETTING_PLUGIN,

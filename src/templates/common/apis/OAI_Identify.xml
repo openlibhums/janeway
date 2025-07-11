@@ -14,8 +14,7 @@
         <description>
             <toolkit
                     xmlns="http://oai.dlib.vt.edu/OAI/metadata/toolkit"
-                    xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit
-					http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd">
+                    xsi:schemaLocation="http://oai.dlib.vt.edu/OAI/metadata/toolkit http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd">
                 <title>Janeway</title>
                 <author>
                     <name>Birkbeck, University of London</name>
