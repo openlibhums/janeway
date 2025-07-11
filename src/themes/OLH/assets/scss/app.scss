@@ -398,6 +398,11 @@ pre {@extend blockquote; @extend p;}
   }
 }
 
+.inline-list-bar li:not(:last-child)::after {
+  content: " | ";  
+  margin-left: rem-calc(10px);
+}
+
 body, main, #orbiter, #orbitsection {
   position: relative;
   z-index: 0;
@@ -712,7 +717,7 @@ footer {
     padding-bottom: rem-calc(20px);
     height: $footer-height;
   }
-  p {
+  p, li {
     font-family: $header-font-family;
     font-size: rem-calc(12px);
     color: #333;
