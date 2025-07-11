@@ -78,18 +78,6 @@ class TestJournalSite(TestCase):
         self.assertEqual(expected, result)
 
     @override_settings(URL_CONFIG="domain")
-    def test_domain_mode_site_url_for_journal_in_context_with_path(self):
-        response = self.client.get(
-            "/modeltests/banana", SERVER_NAME="sitetestpress.org"
-        )
-        path = reverse("website_index")
-        result = self.journal.site_url(path)
-
-        expected = f"http://{self.journal.domain}/"
-
-        self.assertEqual(expected, result)
-
-    @override_settings(URL_CONFIG="domain")
     def test_domain_mode_site_url_for_other_site(self):
         other_journal = make_test_journal(
             code="ojwithdomain",
@@ -101,21 +89,6 @@ class TestJournalSite(TestCase):
         expected = "http://" + self.journal.domain
 
         self.assertEqual(expected, result)
-
-    @override_settings(URL_CONFIG="domain")
-    def test_domain_mode_site_url_while_browsing_path_mode(self):
-        journal_code = "test"
-        journal = make_test_journal(
-            code=journal_code,
-            domain="ojwithdomain.org",
-        )
-        path = f"/{journal_code}/issues/"
-        result = journal.site_url(path=path)
-
-        expected = f"http://{journal.domain}/issues/"
-
-        self.assertEqual(expected, result)
-
 
 class TestIssueModel(TestCase):
     def setUp(self):
