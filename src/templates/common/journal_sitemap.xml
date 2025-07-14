@@ -51,7 +51,10 @@
         {% if multi_page_editorial %}
           {% for group in journal.editorial_groups %}
             <url>
-              <loc>{% stateless_site_url journal url_name='editorial_team_group' group_id=group.pk label=group.name %}</loc>
+              <loc>{% stateless_site_url journal url_name='editorial_team_group' group_id=group.pk %}</loc>
+              <janeway:loc_label>
+                {{ group.name }}
+              </janeway:loc_label>
             </url>
           {% endfor %}
         {% else %}
