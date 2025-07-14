@@ -44,7 +44,10 @@
     <div class="pagination-block">{{ page }}
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                    &laquo;
+                    <span class="sr-only">{% trans 'previous page' %}</span>
+                </a>
                 &nbsp;{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
@@ -53,7 +56,10 @@
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                    &raquo;
+                    <span class="sr-only">{% trans 'next page' %}</span>
+                </a>
             {% endif %}
         </ul>
     </div>
