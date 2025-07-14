@@ -12,10 +12,12 @@
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h4>{{ item.title }}</h4>
+                <h4 id="news-{{ item.pk }}">{{ item.title }}</h4>
                 <h6>Posted by {{ item.posted_by.full_name }} on {{ item.posted|date_human }}</h6>
                 <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                {# LinkA11y #} <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
+                <a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-{{ item.pk }}">
+                    {% trans 'Read more.' %}
+                </a>
                 <hr/>
             </div>
         {% empty %}
@@ -25,16 +27,16 @@
     <div class="pagination-block">{{ page }}
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                {# LinkA11y #} <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
                 &nbsp;{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
-                {# LinkA11y #} <a href="?page={{ page }}"
+                <a href="?page={{ page }}"
                    class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                {# LinkA11y #} <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
             {% endif %}
         </ul>
     </div>

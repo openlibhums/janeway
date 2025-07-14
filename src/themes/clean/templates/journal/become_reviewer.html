@@ -10,13 +10,13 @@
 
     {% if not code == 'already-reviewer' %}
         {% if code == 'not-logged-in' %}
-            {# LinkA11y #} <a class="success button" href="{% url_with_return 'core_login' %}">
+            {# ButtonA11y #} <a class="success button" href="{% url_with_return 'core_login' %}">
               {% trans "Log in" %}
             </a>
         {% else %}
             <form method="POST">
             {% csrf_token %}
-            <button type="submit" name="action" value="go" class="success button" >{% trans "Become a Reviewer" %}</button>
+            {# ButtonA11y #} <button type="submit" name="action" value="go" class="success button" >{% trans "Become a Reviewer" %}</button>
             </form>
         {% endif %}
     {% endif %}

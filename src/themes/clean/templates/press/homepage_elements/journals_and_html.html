@@ -12,12 +12,15 @@
                                 {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
                         <div class="card-block">
                             {% if current_journal.is_remote %}
-                                {# LinkA11y #} <a href="{{ current_journal.remote_view_url }}">
+                                <a href="{{ current_journal.remote_view_url }}" target="_blank">
+                                    <h3 class="card-title">{{ current_journal.name }}</h3>
+                                    {% include "elements/icons/link_external.html" %} 
+                                </a>
                             {% else %}
-                                {# LinkA11y #} <a href="{{ current_journal.site_url }}">
+                                <a href="{{ current_journal.site_url }}">
+                                    <h3 class="card-title">{{ current_journal.name }}</h3>
+                                </a>
                             {% endif %}
-                            <h7 class="card-title">{{ current_journal.name }}</h7>
-                            </a>
                         </div>
                     </div>
                 </div>

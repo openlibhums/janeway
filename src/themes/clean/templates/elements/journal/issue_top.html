@@ -15,6 +15,6 @@
 {% endif %}
 
 {% if issue.journal.display_issue_doi and issue.doi_url %}
-<p><b>DOI: </b>{# LinkA11y #} <a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
+<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
 {% endif %}
 <br/>
