@@ -569,7 +569,7 @@ class TestOrganizationModels(TestCase):
             organization=cls.organization_bbk,
             is_primary=True,
         )
-        cls.affiliation_scientist = models.ControlledAffiliation.objects.create(
+        cls.affiliation_researcher = models.ControlledAffiliation.objects.create(
             account=cls.kathleen_booth,
             department="Research Association",
             organization=cls.organization_brp,
@@ -783,7 +783,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.save()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(),
-            self.affiliation_scientist,
+            self.affiliation_officer,
         )
 
     def test_account_affiliation_with_no_dates_and_no_primary(self):
@@ -801,7 +801,7 @@ class TestOrganizationModels(TestCase):
     def test_account_affiliation_with_no_affiliations(self):
         self.affiliation_lecturer.delete()
         self.affiliation_officer.delete()
-        self.affiliation_scientist.delete()
+        self.affiliation_researcher.delete()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(as_object=False),
             "",
@@ -811,7 +811,7 @@ class TestOrganizationModels(TestCase):
         self.affiliation_lecturer.delete()
         self.assertEqual(
             self.kathleen_booth.primary_affiliation(),
-            self.affiliation_scientist,
+            self.affiliation_officer,
         )
 
     def test_frozen_author_affiliation(self):
@@ -837,7 +837,7 @@ class TestOrganizationModels(TestCase):
     def test_affiliation_is_current(self, now):
         now.return_value = date.fromisoformat("1963-01-31")
         self.assertFalse(self.affiliation_lecturer.is_current)
-        self.assertTrue(self.affiliation_scientist.is_current)
+        self.assertTrue(self.affiliation_researcher.is_current)
         self.assertTrue(self.affiliation_officer.is_current)
 
     def test_organization_location(self):
