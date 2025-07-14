@@ -63,3 +63,9 @@ Also think about how new pages fit into existing documentation, and add cross-re
 We are centred in the UK, so we adopt British spelling in all user-facing writing, taking the first variant listed in the [Oxford English Dictionary](https://www.oed.com/dictionary/centre_n1) when in doubt.
 
 However, for much of our code, we use American spelling for consistency with a third party, like CSS `color` or Creative Commons `license`.
+
+## A-Z list
+
+We record spelling or usage of words here if they are not specified on the Google style guide’s A-Z list and not listed in the OED.
+
+* sitemap, sitemaps
