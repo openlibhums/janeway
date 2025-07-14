@@ -3027,7 +3027,7 @@ class ControlledAffiliation(models.Model):
                 ["account", "frozen_author", "preprint_author"],
             )
         ]
-        ordering = ["-is_primary", "-end", "-start", "-pk"]
+        ordering = ['-is_primary', '-pk']
 
     def title_department(self):
         elements = [
@@ -3086,7 +3086,6 @@ class ControlledAffiliation(models.Model):
     ):
         """
         Get the primary affiliation, or if none,
-        the current affiliation with the most recent start date, or if none,
         the affiliation with the highest pk, or if none,
         an empty string.
         :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
