@@ -322,7 +322,7 @@ def use_salutation_name_in_email_salutations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0107_alter_controlledaffiliation_options_and_more'),
+        ('core', '0108_workflowlog_user'),
     ]
 
     operations = [
