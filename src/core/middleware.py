@@ -194,8 +194,9 @@ class PressMiddleware(BaseMiddleware):
                 'core_confirm_account', 'core_orcid_registration', 'core_get_reset_token', 'core_reset_password',
                 'core_edit_profile', 'core_logout', 'press_cover_download', 'core_manager_index',
                 'django_summernote-editor', 'django_summernote-upload_attachment', 'cms_index', 'cms_page_new',
-                'cms_page_edit', 'cms_page', 'cms_nav', 'website_index', 'core_journal_contacts',
-                'core_journal_contact', 'core_journal_contacts_order', 'contact', 'core_edit_settings_group',
+                'cms_page_edit', 'cms_page', 'cms_nav', 'website_index', 'core_contact_people',
+                'core_contact_person_search', 'core_contact_person_create', 'core_contact_person_update',
+                'core_contact_people_reorder', 'contact', 'core_edit_settings_group',
             ]
             allowed_pattern = 'press_'
 
