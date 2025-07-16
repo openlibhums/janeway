@@ -6,3 +6,4 @@ marshmallow
 freezegun
 snakeviz
 django-browser-reload
+ruff
