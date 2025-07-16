@@ -25,7 +25,7 @@
           <name>Birkbeck, University of London</name>
           <email>olh-tech@bbk.ac.uk</email>
         </author>
-        <version />
+        <version>{janeway_version}</version>
         <URL>http://janeway.systems/</URL>
       </toolkit>
     </description>

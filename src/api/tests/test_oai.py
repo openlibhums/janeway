@@ -26,6 +26,7 @@ from api.tests.test_oai_data import (
 from submission import models as sm_models
 from utils.testing import helpers
 from utils import setting_handler
+from utils.upgrade import shared
 
 FROZEN_DATETIME_2012 = timezone.make_aware(timezone.datetime(2012, 1, 14, 0, 0, 0))
 FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 0, 0, 0))
@@ -204,7 +205,9 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_identify_dc(self):
-        expected = IDENTIFY_DATA_DC
+        expected = IDENTIFY_DATA_DC.format(
+            janeway_version=shared.current_version().number,
+        )
 
         path = reverse("OAI_list_records")
         query_params = dict(
