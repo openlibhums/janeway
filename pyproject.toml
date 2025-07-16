@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Janeway"
+version = "1.8.0"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "Django>=4.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 88 # Matches ruff and black formatting
+target-version = "py39"
+include = ["src/**/*.py"]
+exclude = [
+    "src/__pycache__",
+    "src/static",
+    "src/media",
+    "src/files",
+    "src/plugins",
+    "src/dynamicsites",
+    "src/ebooklib",
+    "src/foundationform",
+    "src/transform/cassius",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
