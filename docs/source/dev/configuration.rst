@@ -24,7 +24,7 @@ This file is usually created during the setup process and can be based on the pr
 - DEBUG
   - Should be set to False in any environment where an external user can access the install.
 - URL_CONFIG
-  - Set to either 'domain' or 'path' dependind on whether the primary way to access sites is via individual domains for each or path based urls eg. journal.press.com or press.com/journal/.
+  - Set to either 'domain' or 'path' dependind on whether the primary way to access sites is via individual domains for each or path based urls eg. journal.press.com or press.com/journal/. Sites can always be accessed by either their path URL or their domain URL, but this setting helps you declare what is the canonical URL (the URL used for rendering links to the site in emails or cross-site links. In most production environments, you want to use domain mode, as sites without a domain will still work under their path mode equivalent. Similarly, in development, path mode is useful so you can more easily work with journals with a domain set using path mode.
 - DATABASES
   - You can set the database connection details for the install.
 - CAPTCHA_TYPE: Can be one of three different variables: 'simple_math', 'recaptcha' or 'hcaptcha'.
