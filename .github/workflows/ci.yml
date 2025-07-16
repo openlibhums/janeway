@@ -38,15 +38,14 @@ jobs:
           ruff format --check .
           echo "Formatting check completed."
 
-      - name: Run Django unit tests
-        run: |
-          echo "Running unit tests"
-          python src/manage.py test
-          echo "Test run completed."
-
       - name: Check presence of unmigrated model changes
         run: |
           echo "Running migration checks..."
           python src/manage.py makemigrations --check
           echo "Migration checks completed."
 
+      - name: Run Django unit tests
+        run: |
+          echo "Running unit tests"
+          python src/manage.py test
+          echo "Test run completed."
