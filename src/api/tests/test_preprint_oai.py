@@ -30,14 +30,18 @@ class TestPreprintOAIViews(TestCase):
     maxDiff = None
 
     def assertXMLEqual(self, a, b):
-        ET.register_namespace('', 'http://www.openarchives.org/OAI/2.0/')
-        ET.register_namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-        ET.register_namespace('jats1_0', 'http://www.ncbi.nlm.nih.gov/JATS1') # Crossref uses this
-        ET.register_namespace('jats1_2', 'https://jats.nlm.nih.gov/publishing/1.2/') # We use this
-        ET.register_namespace('dc', 'http://purl.org/dc/elements/1.1/')
-        ET.register_namespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/')
-        ET.register_namespace('tk', 'http://oai.dlib.vt.edu/OAI/metadata/toolkit')
-        ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
+        ET.register_namespace("", "http://www.openarchives.org/OAI/2.0/")
+        ET.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        ET.register_namespace(
+            "jats1_0", "http://www.ncbi.nlm.nih.gov/JATS1"
+        )  # Crossref uses this
+        ET.register_namespace(
+            "jats1_2", "https://jats.nlm.nih.gov/publishing/1.2/"
+        )  # We use this
+        ET.register_namespace("dc", "http://purl.org/dc/elements/1.1/")
+        ET.register_namespace("oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/")
+        ET.register_namespace("tk", "http://oai.dlib.vt.edu/OAI/metadata/toolkit")
+        ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
         a_element = ET.fromstring(bytes(a, encoding="utf-8"))
         b_element = ET.fromstring(bytes(b, encoding="utf-8"))
         ET.indent(a_element)
@@ -96,10 +100,7 @@ class TestPreprintOAIViews(TestCase):
             metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME=REPO_DOMAIN
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME=REPO_DOMAIN)
 
         self.assertXMLEqual(expected, response.content.decode())
 

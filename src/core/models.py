@@ -2802,7 +2802,7 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     class Meta:
-        ordering = ('ror_display__value', 'custom_label__value')
+        ordering = ("ror_display__value", "custom_label__value")
         constraints = [
             models.UniqueConstraint(
                 fields=["ror_id"],
@@ -3027,7 +3027,7 @@ class ControlledAffiliation(models.Model):
                 ["account", "frozen_author", "preprint_author"],
             )
         ]
-        ordering = ['-is_primary', '-pk']
+        ordering = ["-is_primary", "-pk"]
 
     def title_department(self):
         elements = [

@@ -420,9 +420,9 @@ class TestTypesetting(TestCase):
 
         self.workflow_element = core_models.WorkflowElement.objects.create(
             journal=self.journal_one,
-            element_name='typesetting',
-            handshake_url='dummy',
-            jump_url='dummy',
+            element_name="typesetting",
+            handshake_url="dummy",
+            jump_url="dummy",
             stage=submission_models.STAGE_TYPESETTING_PLUGIN,
             article_url=True,
         )
