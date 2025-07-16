@@ -35,6 +35,7 @@ jobs:
       - name: Run Django unit tests
         run: |
           export DB_VENDOR=sqlite
+          export JANEWAY_SETTINGS_MODULE=core.janeway_global_settings
           echo "Running unit tests"
           python src/manage.py test
           echo "Test run completed."
