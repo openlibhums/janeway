@@ -8,6 +8,7 @@ from freezegun import freeze_time
 from xml.etree import ElementTree as ET
 
 from utils.testing import helpers
+from utils.upgrade import shared
 from api.tests.test_preprint_oai_data import (
     LIST_RECORDS_DATA_DC,
     LIST_RECORDS_DATA_JATS,
@@ -179,7 +180,9 @@ class TestPreprintOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_202209)
     def test_identify_dc(self):
-        expected = IDENTIFY_DATA_DC
+        expected = IDENTIFY_DATA_DC.format(
+            janeway_version=shared.current_version().number,
+        )
 
         path = reverse("OAI_list_records")
         query_params = dict(

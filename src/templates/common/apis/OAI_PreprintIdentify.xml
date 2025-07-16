@@ -19,11 +19,7 @@
                     <name>Birkbeck, University of London</name>
                     <email>olh-tech@bbk.ac.uk</email>
                 </author>
-                {% if version %}
-                  <version>{{ version.number }}</version>
-                {% else %}
-                  <version />
-                {% endif %}
+                <version>{{ version.number }}</version>
                 <URL>http://janeway.systems/</URL>
             </toolkit>
         </description>
