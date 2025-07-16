@@ -11,10 +11,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name="controlledaffiliation",
-            options={"ordering": ["-is_primary", "-end", "-start", "-pk"]},
+            options={"ordering": ["-is_primary", "-pk"]},
         ),
         migrations.AlterModelOptions(
             name="organization",
-            options={},
+            options={"ordering": ("ror_display__value", "custom_label__value")},
         ),
     ]
