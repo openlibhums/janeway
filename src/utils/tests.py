@@ -197,7 +197,6 @@ class UtilsTests(TestCase):
 
 
 class SitemapTests(UtilsTests):
-
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -216,17 +215,17 @@ class SitemapTests(UtilsTests):
             file=file,
             press=self.press,
         )
-        soup = BeautifulSoup(file.getvalue(), 'xml')
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            soup.select('sitemap_name')[0].get_text(strip=True),
-            'Press',
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Press",
         )
         self.assertEqual(
-            soup.select('loc_label')[0].get_text(strip=True),
-            'Home',
+            soup.select("loc_label")[0].get_text(strip=True),
+            "Home",
         )
         self.assertEqual(
-            soup.select('lastmod')[0].get_text(strip=True),
+            soup.select("lastmod")[0].get_text(strip=True),
             self.news_item.posted.isoformat(),
         )
 
@@ -237,21 +236,21 @@ class SitemapTests(UtilsTests):
             file=file,
             journal=self.journal_one,
         )
-        soup = BeautifulSoup(file.getvalue(), 'xml')
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            soup.select('sitemap_name')[0].get_text(strip=True),
-            'Journal One',
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Journal One",
         )
         self.assertEqual(
-            soup.select('higher_sitemap loc_label')[0].get_text(strip=True),
-            'Press',
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Press",
         )
         self.assertEqual(
-            soup.select('sitemap urlset url loc')[0].get_text(strip=True),
-            self.journal_one.site_url(path='/'),
+            soup.select("sitemap urlset url loc")[0].get_text(strip=True),
+            self.journal_one.site_url(path="/"),
         )
         self.assertEqual(
-            soup.select('sitemap > loc_label')[0].get_text(strip=True),
+            soup.select("sitemap > loc_label")[0].get_text(strip=True),
             self.issue_one.non_pretty_issue_identifier,
         )
 
@@ -262,21 +261,21 @@ class SitemapTests(UtilsTests):
             file=file,
             issue=self.issue_one,
         )
-        soup = BeautifulSoup(file.getvalue(), 'xml')
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertIn(
             self.issue_one.non_pretty_issue_identifier,
-            soup.select('sitemap_name')[0].get_text(strip=True),
+            soup.select("sitemap_name")[0].get_text(strip=True),
         )
         self.assertEqual(
-            soup.select('higher_sitemap loc_label')[0].get_text(strip=True),
-            'Journal One',
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Journal One",
         )
         self.assertEqual(
-            soup.select('urlset url loc')[0].get_text(strip=True),
+            soup.select("urlset url loc")[0].get_text(strip=True),
             self.article_one.url,
         )
         self.assertEqual(
-            soup.select('urlset url loc_label')[0].get_text(strip=True),
+            soup.select("urlset url loc_label")[0].get_text(strip=True),
             self.article_one.title,
         )
 

@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def split_links_from_top_level_navs(apps, schema_editor):
-    NavigationItem = apps.get_model('cms.NavigationItem')
+    NavigationItem = apps.get_model("cms.NavigationItem")
     for nav_item in NavigationItem.objects.filter(
         link__isnull=False,
         has_sub_nav=True,
@@ -26,9 +26,8 @@ def split_links_from_top_level_navs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0020_historicalpage_content_es_and_more'),
+        ("cms", "0020_historicalpage_content_es_and_more"),
     ]
 
     operations = [

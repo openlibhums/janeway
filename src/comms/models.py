@@ -139,9 +139,7 @@ class NewsItem(models.Model):
         if self.custom_byline:
             return _("Posted by {byline}").format(byline=self.custom_byline)
         elif self.posted_by:
-            return _("Posted by {byline}").format(
-                byline=self.posted_by.full_name()
-            )
+            return _("Posted by {byline}").format(byline=self.posted_by.full_name())
         else:
             return ""
 
