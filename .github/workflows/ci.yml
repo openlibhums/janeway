@@ -40,3 +40,9 @@ jobs:
           python src/manage.py test
           echo "Test run completed."
 
+      - name: Check presence of unmigrated model changes
+        run: |
+          echo "Running migration checks..."
+          python src/manage.py makemigrations --check
+          echo "Migration checks completed."
+
