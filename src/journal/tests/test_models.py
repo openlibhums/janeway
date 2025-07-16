@@ -90,6 +90,7 @@ class TestJournalSite(TestCase):
 
         self.assertEqual(expected, result)
 
+
 class TestIssueModel(TestCase):
     def setUp(self):
         self.press = helpers.create_press()

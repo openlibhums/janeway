@@ -33,18 +33,21 @@ FROZEN_DATETIME_1976 = timezone.make_aware(timezone.datetime(1976, 1, 2, 0, 0, 0
 
 
 class TestOAIViews(TestCase):
-
     maxDiff = None
 
     def assertXMLEqual(self, a, b):
-        ET.register_namespace('', 'http://www.openarchives.org/OAI/2.0/')
-        ET.register_namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-        ET.register_namespace('jats1_0', 'http://www.ncbi.nlm.nih.gov/JATS1') # Crossref uses this
-        ET.register_namespace('jats1_2', 'https://jats.nlm.nih.gov/publishing/1.2/') # We use this
-        ET.register_namespace('dc', 'http://purl.org/dc/elements/1.1/')
-        ET.register_namespace('oai_dc', 'http://www.openarchives.org/OAI/2.0/oai_dc/')
-        ET.register_namespace('tk', 'http://oai.dlib.vt.edu/OAI/metadata/toolkit')
-        ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
+        ET.register_namespace("", "http://www.openarchives.org/OAI/2.0/")
+        ET.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        ET.register_namespace(
+            "jats1_0", "http://www.ncbi.nlm.nih.gov/JATS1"
+        )  # Crossref uses this
+        ET.register_namespace(
+            "jats1_2", "https://jats.nlm.nih.gov/publishing/1.2/"
+        )  # We use this
+        ET.register_namespace("dc", "http://purl.org/dc/elements/1.1/")
+        ET.register_namespace("oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/")
+        ET.register_namespace("tk", "http://oai.dlib.vt.edu/OAI/metadata/toolkit")
+        ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
         a_element = ET.fromstring(bytes(a, encoding="utf-8"))
         b_element = ET.fromstring(bytes(b, encoding="utf-8"))
         ET.indent(a_element)
@@ -85,9 +88,7 @@ class TestOAIViews(TestCase):
 
     @classmethod
     def validate_oai_schema(cls, xml):
-        xml_schema = ET.XMLSchema(
-            "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
-        )
+        xml_schema = ET.XMLSchema("http://www.openarchives.org/OAI/2.0/oai_dc.xsd")
         xml_dom = ET.XML(xml)
         return xml_schema.validate(xml_dom)
 
@@ -95,7 +96,9 @@ class TestOAIViews(TestCase):
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_dc(self):
         expected = LIST_RECORDS_DATA_DC
-        response = self.client.get(reverse('OAI_list_records'), SERVER_NAME="testserver")
+        response = self.client.get(
+            reverse("OAI_list_records"), SERVER_NAME="testserver"
+        )
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -108,10 +111,7 @@ class TestOAIViews(TestCase):
             metadataPrefix="jats",
         )
         query_string = urlencode(query_params)
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -127,10 +127,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -161,10 +158,7 @@ class TestOAIViews(TestCase):
             date_published="1977-01-01T17:00:00.000+0200",
             authors=[self.author],
         )
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -189,10 +183,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -207,10 +198,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -225,10 +213,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
@@ -256,10 +241,7 @@ class TestOAIViews(TestCase):
         )
         query_string = urlencode(query_params)
 
-        response = self.client.get(
-            f'{path}?{query_string}',
-            SERVER_NAME="testserver"
-        )
+        response = self.client.get(f"{path}?{query_string}", SERVER_NAME="testserver")
         self.assertXMLEqual(expected, response.content.decode())
 
     @override_settings(URL_CONFIG="domain")
