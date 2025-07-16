@@ -21,6 +21,12 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Set up environment variables
+        run: |
+          echo "DB_VENDOR=sqlite" >> "$GITHUB_ENV"
+          echo "JANEWAY_SETTINGS_MODULE=core.janeway_global_settings" >> "$GITHUB_ENV"
+
+
       - name: Install all dependencies
         run: |
           python -m pip install --upgrade pip
@@ -34,8 +40,6 @@ jobs:
 
       - name: Run Django unit tests
         run: |
-          export DB_VENDOR=sqlite
-          export JANEWAY_SETTINGS_MODULE=core.janeway_global_settings
           echo "Running unit tests"
           python src/manage.py test
           echo "Test run completed."
