@@ -53,7 +53,8 @@ def offset_date(context, days=0, input_type="date"):
     elif input_type == "datetime-local":
         return due.strftime("%Y-%m-%dT%H:%M")
 
-@register.filter(name='date_human', is_safe=True)
+
+@register.filter(name="date_human", is_safe=True)
 def date_human(value):
     """Convert a date to a human readable Day Month(text) Year format e.g. 3 January 2025"""
     if isinstance(value, datetime):
@@ -63,7 +64,9 @@ def date_human(value):
             use_l10n=True,
         )
     else:
-        error_message = "The value filtered by `date_human` must be a `datetime.datetime`"
+        error_message = (
+            "The value filtered by `date_human` must be a `datetime.datetime`"
+        )
         if settings.DEBUG:
             raise TemplateSyntaxError(error_message)
         else:

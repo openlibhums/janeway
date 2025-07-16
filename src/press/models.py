@@ -236,7 +236,7 @@ class Press(AbstractSiteModel):
         Get the active news items belonging to the press,
         excluding any journal news.
         """
-        NewsItem = apps.get_model('comms.NewsItem')
+        NewsItem = apps.get_model("comms.NewsItem")
         press_type = ContentType.objects.get_for_model(self)
         return NewsItem.active_objects.filter(
             content_type=press_type,
@@ -428,14 +428,14 @@ class Press(AbstractSiteModel):
 
     @property
     def navigation_items_for_sitemap(self):
-        NavigationItem = apps.get_model('cms.NavigationItem')
+        NavigationItem = apps.get_model("cms.NavigationItem")
         press_type = ContentType.objects.get_for_model(self)
         return NavigationItem.objects.filter(
             content_type=press_type,
             object_id=self.pk,
             link__isnull=False,
             is_external=False,
-        ).order_by('sequence')
+        ).order_by("sequence")
 
     @property
     def code(self):

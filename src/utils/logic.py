@@ -243,7 +243,7 @@ def generate_sitemap(
             "disable_journal_submission": journal.get_setting(
                 "general",
                 "disable_journal_submission",
-            )
+            ),
         }
     elif repository:
         template = ("common/repo_sitemap.xml",)
