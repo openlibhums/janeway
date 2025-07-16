@@ -8,32 +8,65 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('submission', '0001_initial'),
+        ("submission", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ArticleAccess',
+            name="ArticleAccess",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('download', 'Download'), ('view', 'View')], max_length=20)),
-                ('identifier', models.CharField(max_length=200)),
-                ('accessed', models.DateTimeField(default=django.utils.timezone.now)),
-                ('galley_type', models.CharField(max_length=200)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("download", "Download"), ("view", "View")],
+                        max_length=20,
+                    ),
+                ),
+                ("identifier", models.CharField(max_length=200)),
+                ("accessed", models.DateTimeField(default=django.utils.timezone.now)),
+                ("galley_type", models.CharField(max_length=200)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='HistoricArticleAccess',
+            name="HistoricArticleAccess",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('views', models.PositiveIntegerField(default=0)),
-                ('downloads', models.PositiveIntegerField(default=0)),
-                ('article', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("views", models.PositiveIntegerField(default=0)),
+                ("downloads", models.PositiveIntegerField(default=0)),
+                (
+                    "article",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
             ],
         ),
     ]

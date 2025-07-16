@@ -21,14 +21,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not settings.BLEACH_STRIP_COMMENTS:
-            self.stdout.write(self.style.ERROR(
-                "BLEACH_STRIP_COMMENTS setting is not enabled"
-            ))
+            self.stdout.write(
+                self.style.ERROR("BLEACH_STRIP_COMMENTS setting is not enabled")
+            )
 
         articles = Article.active_objects.filter(abstract__contains="&amp;amp;")
         for article in tqdm(articles):
             article.save()
             if article.abstract and "&amp;amp;" in article.abstract:
-                tqdm.write(self.style.ERROR(
-                    f"Failed to clean article: {article}"
-                ))
+                tqdm.write(self.style.ERROR(f"Failed to clean article: {article}"))

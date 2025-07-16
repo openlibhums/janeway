@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0023_upgrade_1_4_0'),
+        ("utils", "0023_upgrade_1_4_0"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='logentry',
-            name='email_subject',
+            model_name="logentry",
+            name="email_subject",
             field=models.TextField(blank=True, null=True),
         ),
     ]

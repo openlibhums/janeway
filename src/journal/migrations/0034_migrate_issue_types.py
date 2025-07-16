@@ -24,11 +24,12 @@ def migrate_current_issue_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0033_migrate_issue_types'),
+        ("journal", "0033_migrate_issue_types"),
     ]
 
     operations = [
-        migrations.RunPython(migrate_current_issue_types, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            migrate_current_issue_types, reverse_code=migrations.RunPython.noop
+        ),
     ]

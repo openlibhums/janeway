@@ -7,27 +7,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0083_article_jats_article_type_override_and_more'),
-        ('core', '0105_migrate_affiliation_institution'),
+        ("submission", "0083_article_jats_article_type_override_and_more"),
+        ("core", "0105_migrate_affiliation_institution"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='account',
-            name='country',
+            model_name="account",
+            name="country",
         ),
         migrations.RemoveField(
-            model_name='account',
-            name='department',
+            model_name="account",
+            name="department",
         ),
         migrations.RemoveField(
-            model_name='account',
-            name='institution',
+            model_name="account",
+            name="institution",
         ),
         migrations.RemoveField(
-            model_name='organization',
-            name='migration_id',
+            model_name="organization",
+            name="migration_id",
         ),
     ]

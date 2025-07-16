@@ -11,10 +11,10 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-PLUGIN_NAME = 'About'
-DESCRIPTION = 'This is a homepage element that renders About this Journal section.'
-AUTHOR = 'Martin Paul Eve & Andy Byers'
-VERSION = '1.1'
+PLUGIN_NAME = "About"
+DESCRIPTION = "This is a homepage element that renders About this Journal section."
+AUTHOR = "Martin Paul Eve & Andy Byers"
+VERSION = "1.1"
 
 
 def get_self():
@@ -34,11 +34,11 @@ def install():
     plugin, c = models.Plugin.objects.get_or_create(
         name=PLUGIN_NAME,
         defaults={
-            'homepage_element': True,
-            'enabled': True,
-            'version': VERSION,
-            'display_name': 'About',
-        }
+            "homepage_element": True,
+            "enabled": True,
+            "version": VERSION,
+            "display_name": "About",
+        },
     )
 
     if not c:
@@ -46,29 +46,29 @@ def install():
         plugin.save()
 
     if c:
-        logger.debug('Plugin installed.')
+        logger.debug("Plugin installed.")
 
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    plugin_group_name = "plugin:{plugin_name}".format(plugin_name=plugin.name)
     setting_group, c = core_models.SettingGroup.objects.get_or_create(
         name=plugin_group_name,
     )
     setting, c = core_models.Setting.objects.get_or_create(
-        name='about_title',
+        name="about_title",
         group=setting_group,
         defaults={
-            'pretty_name': 'About Block Title',
-            'types': 'text',
-            'description': 'Sets the title of the About Block',
-            'is_translatable': True,
-        }
+            "pretty_name": "About Block Title",
+            "types": "text",
+            "description": "Sets the title of the About Block",
+            "is_translatable": True,
+        },
     )
 
     if c:
-        logger.debug('Setting created')
+        logger.debug("Setting created")
 
     setting_handler.get_or_create_default_setting(
         setting,
-        default_value='About this Journal',
+        default_value="About this Journal",
     )
 
     # check whether this homepage element has already
@@ -79,11 +79,12 @@ def install():
         content_type = ContentType.objects.get_for_model(journal)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='journal_description',
-            template_path='journal/homepage_elements/about.html',
+            configure_url="journal_description",
+            template_path="journal/homepage_elements/about.html",
             content_type=content_type,
             object_id=journal.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
 
@@ -91,12 +92,11 @@ def install():
 def hook_registry():
     try:
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.about.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.about.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
-
         }
     except OperationalError:
         # if we get here the database hasn't yet been created

@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0062_auto_20240312_0922'),
-        ('journal', '0062_journal_display_issues_grouped_by_decade'),
+        ("journal", "0062_auto_20240312_0922"),
+        ("journal", "0062_journal_display_issues_grouped_by_decade"),
     ]
 
-    operations = [
-    ]
+    operations = []

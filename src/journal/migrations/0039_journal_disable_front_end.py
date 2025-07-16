@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0038_auto_20200428_0803'),
+        ("journal", "0038_auto_20200428_0803"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='disable_front_end',
+            model_name="journal",
+            name="disable_front_end",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -7,23 +7,30 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0003_auto_20170829_1501'),
-        ('core', '0006_auto_20170816_0900'),
+        ("press", "0003_auto_20170829_1501"),
+        ("core", "0006_auto_20170816_0900"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LoginAttempt',
+            name="LoginAttempt",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ip_address', models.GenericIPAddressField()),
-                ('user_agent', models.TextField()),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ip_address", models.GenericIPAddressField()),
+                ("user_agent", models.TextField()),
+                ("timestamp", models.DateTimeField(default=django.utils.timezone.now)),
             ],
         ),
         migrations.DeleteModel(
-            name='NewsItem',
+            name="NewsItem",
         ),
     ]

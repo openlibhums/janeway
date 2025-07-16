@@ -12,8 +12,8 @@ from django.test import TestCase, override_settings
 from core import logic
 from utils.testing import helpers
 
-class TestLogic(TestCase):
 
+class TestLogic(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
@@ -23,53 +23,53 @@ class TestLogic(TestCase):
             press=cls.press,
             journal=cls.journal_one,
         )
-        cls.inactive_user = helpers.create_user('zlwdi6frbtlh4gditdir@example.org')
+        cls.inactive_user = helpers.create_user("zlwdi6frbtlh4gditdir@example.org")
         cls.inactive_user.is_active = False
-        cls.inactive_user.confirmation_code = '8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55'
+        cls.inactive_user.confirmation_code = "8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55"
         cls.inactive_user.clean()
         cls.inactive_user.save()
 
         # A decoded next URL
-        cls.next_url_raw = '/target/page/?q=a'
+        cls.next_url_raw = "/target/page/?q=a"
 
         # An encoded next URL
-        cls.next_url_encoded = '/target/page/%3Fq%3Da'
+        cls.next_url_encoded = "/target/page/%3Fq%3Da"
 
     def test_render_nested_settings(self):
-        expected_rendered_setting = "<p>For help with Janeway, contact <a href=\"mailto:--No support email set--\">--No support email set--</a>.</p>"
+        expected_rendered_setting = '<p>For help with Janeway, contact <a href="mailto:--No support email set--">--No support email set--</a>.</p>'
         rendered_setting = logic.render_nested_setting(
-            'support_contact_message_for_staff',
-            'general',
+            "support_contact_message_for_staff",
+            "general",
             self.request,
-            nested_settings=[('support_email','general')],
+            nested_settings=[("support_email", "general")],
         )
         self.assertEqual(expected_rendered_setting, rendered_setting)
 
-    @patch('core.logic.reverse')
+    @patch("core.logic.reverse")
     def test_reverse_with_next_in_kwarg(self, mock_reverse):
-        mock_reverse.return_value = '/my/path/?my=params'
+        mock_reverse.return_value = "/my/path/?my=params"
         reversed_url = logic.reverse_with_next(
-            '/test/',
+            "/test/",
             next_url=self.next_url_raw,
         )
         self.assertIn(self.next_url_encoded, reversed_url)
 
-    @patch('core.logic.reverse')
+    @patch("core.logic.reverse")
     def test_reverse_with_next_no_next(self, mock_reverse):
-        mock_reverse.return_value = '/my/url/?my=params'
-        reversed_url = logic.reverse_with_next('/test/', '')
+        mock_reverse.return_value = "/my/url/?my=params"
+        reversed_url = logic.reverse_with_next("/test/", "")
         self.assertEqual(mock_reverse.return_value, reversed_url)
 
-    @patch('core.logic.reverse')
+    @patch("core.logic.reverse")
     def test_reverse_with_query(self, mock_reverse):
-        mock_reverse.return_value = '/my/url/?my=params'
+        mock_reverse.return_value = "/my/url/?my=params"
         reversed_url = logic.reverse_with_query(
-            '/test/',
+            "/test/",
             query_params={
-                'important': 'stuff',
+                "important": "stuff",
             },
         )
-        self.assertIn('important=stuff', reversed_url)
+        self.assertIn("important=stuff", reversed_url)
 
     def test_get_confirm_account_url(self):
         url = logic.get_confirm_account_url(
@@ -78,6 +78,6 @@ class TestLogic(TestCase):
             next_url=self.next_url_raw,
         )
         self.assertIn(
-            f'/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={ self.next_url_encoded }',
+            f"/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={self.next_url_encoded}",
             url,
         )

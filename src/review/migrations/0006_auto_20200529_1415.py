@@ -6,15 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0005_merge_20180716_1312'),
+        ("review", "0005_merge_20180716_1312"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='comments_for_editor',
-            field=models.TextField(blank=True, help_text='If you have any comments for the Editor you can add them here;                                            these will not be shared with the Author.', null=True, verbose_name='Comments for the Editor'),
+            model_name="reviewassignment",
+            name="comments_for_editor",
+            field=models.TextField(
+                blank=True,
+                help_text="If you have any comments for the Editor you can add them here;                                            these will not be shared with the Author.",
+                null=True,
+                verbose_name="Comments for the Editor",
+            ),
         ),
     ]

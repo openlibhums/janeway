@@ -10,11 +10,7 @@ register = template.Library()
 def user_has_role(request, role, staff_override=True):
     if not request.user.is_authenticated:
         return None
-    return request.user.check_role(
-        request.journal,
-        role,
-        staff_override=staff_override
-    )
+    return request.user.check_role(request.journal, role, staff_override=staff_override)
 
 
 @register.simple_tag
@@ -22,16 +18,11 @@ def user_roles(journal, user, slugs=False):
     if slugs:
         return [
             ar.role.slug
-            for ar in models.AccountRole.objects.filter(
-                user=user, journal=journal
-            )
+            for ar in models.AccountRole.objects.filter(user=user, journal=journal)
         ]
     else:
         return [
-            ar
-            for ar in models.AccountRole.objects.filter(
-                user=user, journal=journal
-            )
+            ar for ar in models.AccountRole.objects.filter(user=user, journal=journal)
         ]
 
 

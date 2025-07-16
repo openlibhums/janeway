@@ -13,12 +13,12 @@ logger = get_logger(__name__)
 _local = threading.local()
 
 
-class BaseMiddleware():
+class BaseMiddleware:
     def __init__(self, callable):
         self.get_response = callable
 
     def __call__(self, request):
-        """ Base implementation to ease the transition to Django 3.2
+        """Base implementation to ease the transition to Django 3.2
 
         Prior versions of Django used a method called 'process_request'. In
         this base implementation we maintain that behaviour by calling the older
@@ -26,34 +26,34 @@ class BaseMiddleware():
         django documentation for 3.2+
         """
 
-        if hasattr(self, 'process_request'):
+        if hasattr(self, "process_request"):
             response = self.process_request(request)
             if response is not None:
                 return response
 
         response = self.get_response(request)
 
-        if hasattr(self, 'process_response'):
+        if hasattr(self, "process_response"):
             self.process_response(request, response)
 
         return response
 
 
 class ThemeEngineMiddleware(object):
-    """ Handles theming through middleware
-    """
+    """Handles theming through middleware"""
 
     def process_request(self, request):
         _local.request = request
 
     def process_response(self, request, response):
-        if hasattr(_local, 'request'):
+        if hasattr(_local, "request"):
             del _local.request
         return response
 
 
 class TimeMonitoring(BaseMiddleware):
-    """Monitors the resource usage of a request/response cycle """
+    """Monitors the resource usage of a request/response cycle"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.usage_start = None
@@ -71,10 +71,9 @@ class TimeMonitoring(BaseMiddleware):
     @classmethod
     def _diff_usages(cls, start, end=None):
         end = end or cls._get_usage()
-        return tuple(b-a for a,b in zip(start, end))
+        return tuple(b - a for a, b in zip(start, end))
 
     @staticmethod
     def _get_usage():
         utime, stime, *_ = resource.getrusage(resource.RUSAGE_THREAD)
         return (time.time(), utime, stime)
-

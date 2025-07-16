@@ -8,100 +8,155 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('journal', '0001_initial'),
+        ("journal", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0001_initial'),
-        ('submission', '0001_initial'),
-        ('carousel', '0002_auto_20170711_1203'),
+        ("core", "0001_initial"),
+        ("submission", "0001_initial"),
+        ("carousel", "0002_auto_20170711_1203"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sectionordering',
-            name='section',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Section'),
+            model_name="sectionordering",
+            name="section",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Section"
+            ),
         ),
         migrations.AddField(
-            model_name='presetpublicationcheckitem',
-            name='journal',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="presetpublicationcheckitem",
+            name="journal",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Journal"
+            ),
         ),
         migrations.AddField(
-            model_name='prepublicationchecklistitem',
-            name='article',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="prepublicationchecklistitem",
+            name="article",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='prepublicationchecklistitem',
-            name='completed_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="prepublicationchecklistitem",
+            name="completed_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='notifications',
-            name='journal',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="notifications",
+            name="journal",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Journal"
+            ),
         ),
         migrations.AddField(
-            model_name='notifications',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="notifications",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='carousel',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='journal', to='carousel.Carousel'),
+            model_name="journal",
+            name="carousel",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="journal",
+                to="carousel.Carousel",
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='current_issue',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='current_issue', to='journal.Issue'),
+            model_name="journal",
+            name="current_issue",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="current_issue",
+                to="journal.Issue",
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='press_image_override',
-            field=models.ForeignKey(blank=True, help_text='Replaces the press logo in the footer.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='press_image_override', to='core.File'),
+            model_name="journal",
+            name="press_image_override",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Replaces the press logo in the footer.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="press_image_override",
+                to="core.File",
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='thumbnail_image',
-            field=models.ForeignKey(blank=True, help_text="The default thumbnail for articles, not to be confused with 'Default cover image'.", null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='thumbnail_image', to='core.File'),
+            model_name="journal",
+            name="thumbnail_image",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="The default thumbnail for articles, not to be confused with 'Default cover image'.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="thumbnail_image",
+                to="core.File",
+            ),
         ),
         migrations.AddField(
-            model_name='issue',
-            name='articles',
-            field=models.ManyToManyField(blank=True, null=True, related_name='issues', to='submission.Article'),
+            model_name="issue",
+            name="articles",
+            field=models.ManyToManyField(
+                blank=True, null=True, related_name="issues", to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='issue',
-            name='guest_editors',
-            field=models.ManyToManyField(blank=True, null=True, related_name='guest_editors', to=settings.AUTH_USER_MODEL),
+            model_name="issue",
+            name="guest_editors",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                related_name="guest_editors",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='issue',
-            name='journal',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="issue",
+            name="journal",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Journal"
+            ),
         ),
         migrations.AddField(
-            model_name='fixedpubcheckitems',
-            name='article',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="fixedpubcheckitems",
+            name="article",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='articleordering',
-            name='article',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="articleordering",
+            name="article",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='articleordering',
-            name='issue',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.Issue'),
+            model_name="articleordering",
+            name="issue",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journal.Issue"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='articleordering',
-            unique_together=set([('article', 'issue')]),
+            name="articleordering",
+            unique_together=set([("article", "issue")]),
         ),
     ]

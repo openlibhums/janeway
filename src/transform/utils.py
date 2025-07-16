@@ -6,7 +6,9 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 
 from utils.logger import get_logger
+
 logger = get_logger(__name__)
+
 
 def convert_html_abstract_to_jats(abstract_string):
     if not abstract_string:

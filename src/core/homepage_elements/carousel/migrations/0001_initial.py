@@ -6,30 +6,68 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Carousel',
+            name="Carousel",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('mode', models.CharField(choices=[('off', 'Off'), ('latest', 'Latest Articles'), ('news', 'News'), ('selected-articles', 'Selected Articles'), ('mixed', 'Latest Articles and News'), ('mixed-selected', 'Selected Articles and News')], default='Latest', max_length=200)),
-                ('exclude', models.BooleanField(default=False)),
-                ('article_limit', models.IntegerField(default=3, verbose_name='Maximum Number of Articles to Show')),
-                ('news_limit', models.IntegerField(default=0, verbose_name='Maximum Number of News Items to Show')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "mode",
+                    models.CharField(
+                        choices=[
+                            ("off", "Off"),
+                            ("latest", "Latest Articles"),
+                            ("news", "News"),
+                            ("selected-articles", "Selected Articles"),
+                            ("mixed", "Latest Articles and News"),
+                            ("mixed-selected", "Selected Articles and News"),
+                        ],
+                        default="Latest",
+                        max_length=200,
+                    ),
+                ),
+                ("exclude", models.BooleanField(default=False)),
+                (
+                    "article_limit",
+                    models.IntegerField(
+                        default=3, verbose_name="Maximum Number of Articles to Show"
+                    ),
+                ),
+                (
+                    "news_limit",
+                    models.IntegerField(
+                        default=0, verbose_name="Maximum Number of News Items to Show"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CarouselObject',
+            name="CarouselObject",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.CharField(blank=True, max_length=5000, null=True)),
-                ('title', models.CharField(max_length=300)),
-                ('index', models.IntegerField(default=1)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.CharField(blank=True, max_length=5000, null=True)),
+                ("title", models.CharField(max_length=300)),
+                ("index", models.IntegerField(default=1)),
             ],
         ),
     ]

@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('copyediting', '0008_fix_copyeditor_notify_author'),
+        ("copyediting", "0008_fix_copyeditor_notify_author"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='copyeditassignment',
-            options={'ordering': ('assigned',)},
+            name="copyeditassignment",
+            options={"ordering": ("assigned",)},
         ),
     ]

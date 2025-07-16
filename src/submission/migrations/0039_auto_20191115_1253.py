@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0038_merge_20190812_1614'),
+        ("submission", "0038_merge_20190812_1614"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='competing_interests',
-            field=models.TextField(blank=True, help_text='If you have any conflict of interests in the publication of this article please state them here.', null=True),
+            model_name="article",
+            name="competing_interests",
+            field=models.TextField(
+                blank=True,
+                help_text="If you have any conflict of interests in the publication of this article please state them here.",
+                null=True,
+            ),
         ),
     ]

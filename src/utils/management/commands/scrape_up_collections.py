@@ -7,7 +7,7 @@ from utils.importers import up
 
 
 class Command(BaseCommand):
-    """ Takes a UP journal and imports its collections into Janeway."""
+    """Takes a UP journal and imports its collections into Janeway."""
 
     help = "Takes an UP url and pulls collections nto Janeway."
 
@@ -17,14 +17,16 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('url')
-        parser.add_argument('journal_code')
-        parser.add_argument('user_id')
-        parser.add_argument('-u', '--update',
-                            action='store_true',
-                            dest='update',
-                            default=False,
-                            help='Updates metadata if the item already exists',
+        parser.add_argument("url")
+        parser.add_argument("journal_code")
+        parser.add_argument("user_id")
+        parser.add_argument(
+            "-u",
+            "--update",
+            action="store_true",
+            dest="update",
+            default=False,
+            help="Updates metadata if the item already exists",
         )
 
     def handle(self, *args, **options):
@@ -38,4 +40,3 @@ class Command(BaseCommand):
         owner = Account.objects.get(pk=options["user_id"])
         update = options["update"]
         up.import_collections(journal, options["url"], owner, update=update)
-

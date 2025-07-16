@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0029_journal_code_unique'),
+        ("journal", "0029_journal_code_unique"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='code',
+            model_name="journal",
+            name="code",
             field=models.CharField(max_length=15, unique=True),
         ),
     ]

@@ -6,19 +6,20 @@ from django.db import migrations
 
 
 def update_default_press_theme(apps, schema_editor):
-    Press = apps.get_model('press', 'Press')
+    Press = apps.get_model("press", "Press")
 
     for press in Press.objects.all():
-        press.theme = 'OLH'
+        press.theme = "OLH"
         press.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0022_press_privacy_policy_url'),
+        ("press", "0022_press_privacy_policy_url"),
     ]
 
     operations = [
-        migrations.RunPython(update_default_press_theme, reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(
+            update_default_press_theme, reverse_code=migrations.RunPython.noop
+        )
     ]

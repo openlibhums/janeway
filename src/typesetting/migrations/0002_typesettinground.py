@@ -7,23 +7,36 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0040_article_projected_issue'),
-        ('typesetting', '0001_initial'),
+        ("submission", "0040_article_projected_issue"),
+        ("typesetting", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TypesettingRound',
+            name="TypesettingRound",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('round_number', models.PositiveIntegerField(default=1)),
-                ('date_created', models.DateTimeField(auto_now_add=True)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("round_number", models.PositiveIntegerField(default=1)),
+                ("date_created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('-round_number',),
+                "ordering": ("-round_number",),
             },
         ),
     ]

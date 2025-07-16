@@ -9,7 +9,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -18,16 +17,36 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='TypesettingClaim',
+            name="TypesettingClaim",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('claimed', models.DateTimeField(default=django.utils.timezone.now)),
-                ('article', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
-                ('editor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("claimed", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "article",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "editor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AlterUniqueTogether(
-            name='typesettingclaim',
-            unique_together=set([('editor', 'article')]),
+            name="typesettingclaim",
+            unique_together=set([("editor", "article")]),
         ),
     ]

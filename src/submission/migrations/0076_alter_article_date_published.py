@@ -5,15 +5,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0075_auto_20240312_0922'),
+        ("submission", "0075_auto_20240312_0922"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='date_published',
+            model_name="article",
+            name="date_published",
             field=core.model_utils.DateTimePickerModelField(blank=True, null=True),
         ),
     ]

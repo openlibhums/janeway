@@ -1,6 +1,7 @@
 """
 Routines for handling Janeway version upgrades.
 """
+
 __copyright__ = "Copyright 2025 Open Library of Humanties"
 __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
@@ -15,10 +16,9 @@ from utils.logic import get_janeway_version
 
 @receiver(post_migrate)
 def version_change_signal(sender, **kwargs):
-    """ Signal handler that commits Janeway version changes
-    """
+    """Signal handler that commits Janeway version changes"""
     if sender.name == "utils":
         # Ensure we only log the version change once after any migrations
         # affecting the model have run
-        Version = apps.get_model('utils', 'Version')
+        Version = apps.get_model("utils", "Version")
         Version.objects.log_version_change(get_janeway_version())

@@ -8,20 +8,39 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
-        ('core', '0011_auto_20171010_1535'),
+        ("submission", "0019_auto_20171130_1115"),
+        ("core", "0011_auto_20171010_1535"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WorkflowLog',
+            name="WorkflowLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
-                ('element', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.WorkflowElement')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "element",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="core.WorkflowElement",
+                    ),
+                ),
             ],
         ),
     ]

@@ -5,19 +5,17 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('comms', '0006_merge_0004_auto_20230223_1328_0005_historicalnewsitem'),
+        ("comms", "0006_merge_0004_auto_20230223_1328_0005_historicalnewsitem"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalnewsitem',
-            name='pinned',
+            model_name="historicalnewsitem",
+            name="pinned",
             field=models.BooleanField(
                 default=False,
-                help_text='Pinned news items will appear at the top of the news '
-                          'list',
+                help_text="Pinned news items will appear at the top of the news list",
             ),
         ),
     ]

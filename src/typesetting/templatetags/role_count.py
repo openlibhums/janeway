@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def typesetting_tasks_count(context):
-    request = context['request']
+    request = context["request"]
     return models.TypesettingAssignment.objects.filter(
         typesetter=request.user,
         round__article__journal=request.journal,
@@ -19,7 +19,7 @@ def typesetting_tasks_count(context):
 
 @register.simple_tag(takes_context=True)
 def proofreading_tasks_count(context):
-    request = context['request']
+    request = context["request"]
     return models.GalleyProofing.objects.filter(
         round__article__journal=request.journal,
         proofreader=request.user,
@@ -30,7 +30,7 @@ def proofreading_tasks_count(context):
 
 @register.simple_tag(takes_context=True)
 def articles_in_stage_count(context):
-    request = context['request']
+    request = context["request"]
 
     return submission_models.Article.objects.filter(
         journal=request.journal,

@@ -9,20 +9,26 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0007_auto_20170829_1501'),
+        ("core", "0007_auto_20170829_1501"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='uuid',
+            model_name="account",
+            name="uuid",
             field=models.UUIDField(default=uuid.uuid4, editable=False),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='profile_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/home/ajrbyers/Code/janeway/src/media'), upload_to=core.models.profile_images_upload_path),
+            model_name="account",
+            name="profile_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/home/ajrbyers/Code/janeway/src/media"
+                ),
+                upload_to=core.models.profile_images_upload_path,
+            ),
         ),
     ]

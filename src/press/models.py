@@ -37,7 +37,7 @@ fs = JanewayFileSystemStorage()
 
 def cover_images_upload_path(instance, filename):
     try:
-        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        filename = str(uuid.uuid4()) + "." + str(filename.split(".")[1])
     except IndexError:
         filename = str(uuid.uuid4())
 
@@ -47,27 +47,25 @@ def cover_images_upload_path(instance, filename):
 
 def press_carousel_choices():
     return (
-        ('articles', 'Latest Articles'),
-        ('news', 'Latest News'),
-        ('news_and_articles', 'Latest News and Articles')
+        ("articles", "Latest Articles"),
+        ("news", "Latest News"),
+        ("news_and_articles", "Latest News and Articles"),
     )
 
 
 def press_text(type):
-    path = os.path.join(
-        settings.BASE_DIR, 'utils', 'install', 'press_text.json')
-    with open(path, 'r', encoding="utf-8") as f:
+    path = os.path.join(settings.BASE_DIR, "utils", "install", "press_text.json")
+    with open(path, "r", encoding="utf-8") as f:
         text = json.loads(f.read())[0]
-        if type == 'registration':
-            return text.get('registration')
-        elif type == 'reset':
-            return text.get('reset')
+        if type == "registration":
+            return text.get("registration")
+        elif type == "reset":
+            return text.get("reset")
         else:
             return text.get(type)
 
 
 class Press(AbstractSiteModel):
-
     # There is no dashboard at the press level, and the press-level
     # manager can only be viewed if account.is_admin, so we
     # go to the site index after a successful login.
@@ -75,100 +73,122 @@ class Press(AbstractSiteModel):
 
     name = models.CharField(max_length=600)
     thumbnail_image = models.ForeignKey(
-        'core.File',
+        "core.File",
         null=True,
         blank=True,
-        related_name='press_thumbnail_image',
-        verbose_name='Press Logo',
+        related_name="press_thumbnail_image",
+        verbose_name="Press Logo",
         on_delete=models.SET_NULL,
     )
     description = JanewayBleachField(
         blank=True,
-        verbose_name='Publisher description',
-        help_text='This will appear in web search results and on social media when the press URL is shared',
+        verbose_name="Publisher description",
+        help_text="This will appear in web search results and on social media when the press URL is shared",
     )
     footer_description = JanewayBleachField(
         blank=True,
-        verbose_name='Footer text',
-        help_text='Additional HTML for the press footer.',
+        verbose_name="Footer text",
+        help_text="Additional HTML for the press footer.",
     )
     journal_footer_text = JanewayBleachField(
         blank=True,
-        verbose_name='Journal footer text',
-        help_text='Text that will appear in the footer '
-                  'of every journal, to display publisher '
-                  'address or other essential info. ',
+        verbose_name="Journal footer text",
+        help_text="Text that will appear in the footer "
+        "of every journal, to display publisher "
+        "address or other essential info. ",
     )
     secondary_image = SVGImageField(
         upload_to=cover_images_upload_path,
         null=True,
         blank=True,
         storage=fs,
-        help_text='Optional secondary logo for footer. '
-                  'Not implemented in all themes.',
+        help_text="Optional secondary logo for footer. Not implemented in all themes.",
     )
     secondary_image_url = models.URLField(
         null=True,
         blank=True,
-        help_text='Turns secondary image into a link.',
+        help_text="Turns secondary image into a link.",
     )
-    main_contact = models.EmailField(default='janeway@voyager.com', blank=False, null=False)
-    theme = models.CharField(max_length=255, default='OLH', blank=False, null=False)
+    main_contact = models.EmailField(
+        default="janeway@voyager.com", blank=False, null=False
+    )
+    theme = models.CharField(max_length=255, default="OLH", blank=False, null=False)
     homepage_news_items = models.PositiveIntegerField(default=5)
-    carousel_type = models.CharField(max_length=30, default='articles', choices=press_carousel_choices())
+    carousel_type = models.CharField(
+        max_length=30, default="articles", choices=press_carousel_choices()
+    )
     carousel_items = models.PositiveIntegerField(default=4)
     carousel = models.OneToOneField(
-        'carousel.Carousel',
-        related_name='press',
+        "carousel.Carousel",
+        related_name="press",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
     )
-    default_carousel_image = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
-    favicon = models.ImageField(upload_to=cover_images_upload_path, null=True, blank=True, storage=fs)
+    default_carousel_image = models.ImageField(
+        upload_to=cover_images_upload_path, null=True, blank=True, storage=fs
+    )
+    favicon = models.ImageField(
+        upload_to=cover_images_upload_path, null=True, blank=True, storage=fs
+    )
     random_featured_journals = models.BooleanField(default=False)
-    featured_journals = models.ManyToManyField('journal.Journal', blank=True, null=True)
-    carousel_news_items = models.ManyToManyField('comms.NewsItem', blank=True, null=True)
+    featured_journals = models.ManyToManyField("journal.Journal", blank=True, null=True)
+    carousel_news_items = models.ManyToManyField(
+        "comms.NewsItem", blank=True, null=True
+    )
     tracking_code = models.TextField(blank=True, null=True)
     privacy_policy_url = models.URLField(
-        max_length=999, blank=True, null=True,
+        max_length=999,
+        blank=True,
+        null=True,
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
 
-    password_number = models.BooleanField(default=False, help_text='If set, passwords must include one number.')
-    password_upper = models.BooleanField(default=False, help_text='If set, passwords must include one upper case.')
+    password_number = models.BooleanField(
+        default=False, help_text="If set, passwords must include one number."
+    )
+    password_upper = models.BooleanField(
+        default=False, help_text="If set, passwords must include one upper case."
+    )
     password_length = models.PositiveIntegerField(
         default=12,
         validators=[MinValueValidator(9)],
-        help_text='The minimum length of an account password.',
+        help_text="The minimum length of an account password.",
     )
 
     enable_preprints = models.BooleanField(
         default=False,
-        help_text='Enables the repository system for this press.',
-        verbose_name='Enable repository system',
+        help_text="Enables the repository system for this press.",
+        verbose_name="Enable repository system",
     )
     preprints_about = JanewayBleachField(blank=True, null=True)
     preprint_start = JanewayBleachField(blank=True, null=True)
-    preprint_pdf_only = models.BooleanField(default=True, help_text='Forces manuscript files to be PDFs for Preprints.')
-    preprint_submission = JanewayBleachField(blank=True, null=True, default=press_text('submission'))
-    preprint_publication = JanewayBleachField(blank=True, null=True, default=press_text('publication'))
-    preprint_decline = JanewayBleachField(blank=True, null=True, default=press_text('decline'))
+    preprint_pdf_only = models.BooleanField(
+        default=True, help_text="Forces manuscript files to be PDFs for Preprints."
+    )
+    preprint_submission = JanewayBleachField(
+        blank=True, null=True, default=press_text("submission")
+    )
+    preprint_publication = JanewayBleachField(
+        blank=True, null=True, default=press_text("publication")
+    )
+    preprint_decline = JanewayBleachField(
+        blank=True, null=True, default=press_text("decline")
+    )
 
     random_homepage_preprints = models.BooleanField(default=False)
-    homepage_preprints = models.ManyToManyField('submission.Article', blank=True)
+    homepage_preprints = models.ManyToManyField("submission.Article", blank=True)
 
     disable_journals = models.BooleanField(
-        default=False,
-        help_text='If enabled, the journals page will no longer render.'
+        default=False, help_text="If enabled, the journals page will no longer render."
     )
 
     def __str__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def __repr__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     @staticmethod
     def get_press(request):
@@ -181,6 +201,7 @@ class Press(AbstractSiteModel):
     @staticmethod
     def journals(**filters):
         from journal import models as journal_models
+
         if filters:
             return journal_models.Journal.objects.filter(**filters)
         return journal_models.Journal.objects.all()
@@ -193,11 +214,8 @@ class Press(AbstractSiteModel):
         more work is needed on django-modeltranslation to
         support Django subqueries.
         """
-        Journal = apps.get_model('journal', 'Journal')
-        localized_column = build_localized_fieldname(
-            "value",
-            settings.LANGUAGE_CODE
-        )
+        Journal = apps.get_model("journal", "Journal")
+        localized_column = build_localized_fieldname("value", settings.LANGUAGE_CODE)
         name = core_models.SettingValue.objects.filter(
             journal=models.OuterRef("pk"),
             setting__name="journal_name",
@@ -208,7 +226,7 @@ class Press(AbstractSiteModel):
                 output_field=models.CharField(),
             )
         )
-        ordered = journals.order_by('journal_name')
+        ordered = journals.order_by("journal_name")
         return ordered
 
     @staticmethod
@@ -221,6 +239,7 @@ class Press(AbstractSiteModel):
             filters = {}
         filters["journal__press"] = self
         from journal import models as journal_models
+
         if filters:
             return journal_models.Issue.objects.filter(**filters)
         return journal_models.Journal.objects.all()
@@ -230,14 +249,14 @@ class Press(AbstractSiteModel):
         return core_models.Account.objects.all()
 
     def journal_path_url(self, journal, path=None):
-        """ Returns a Journal's path mode url relative to its press """
+        """Returns a Journal's path mode url relative to its press"""
         return self.site_path_url(journal, path)
 
     def repository_path_url(self, repository, path=None):
-        """ Returns a Repo's path mode url relative to its press """
+        """Returns a Repo's path mode url relative to its press"""
         return self.site_path_url(repository, path)
 
-    def site_path_url(self, child_site, path=None, query=''):
+    def site_path_url(self, child_site, path=None, query=""):
         """Returns the path mode URL of a site relative to its press"""
         _path = "/" + child_site.code
         request = logic.get_current_request()
@@ -248,7 +267,7 @@ class Press(AbstractSiteModel):
         if path is not None:
             # Ignore duplicate site code if provided in code
             if path.startswith(_path):
-                path = path[len(_path):]
+                path = path[len(_path) :]
             _path += path
 
         return logic.build_url(
@@ -263,16 +282,22 @@ class Press(AbstractSiteModel):
     def press_cover(request, absolute=True):
         if request.press.thumbnail_image:
             if absolute:
-                return os.path.join(settings.BASE_DIR, 'files', 'press',
-                                    str(request.press.thumbnail_image.uuid_filename))
+                return os.path.join(
+                    settings.BASE_DIR,
+                    "files",
+                    "press",
+                    str(request.press.thumbnail_image.uuid_filename),
+                )
             else:
-                return os.path.join('files', 'press', str(request.press.thumbnail_image.uuid_filename))
+                return os.path.join(
+                    "files", "press", str(request.press.thumbnail_image.uuid_filename)
+                )
         else:
             return None
 
     @staticmethod
     def install_cover(press, request):
-        """ Installs the default cover for the press (stored in Files/press/cover.png)
+        """Installs the default cover for the press (stored in Files/press/cover.png)
 
         :param press: the press object
         :param request: the current request or None
@@ -280,7 +305,11 @@ class Press(AbstractSiteModel):
         """
 
         if request:
-            owner = request.user if request.user is not None and not request.user.is_anonymous else core_models.Account(id=1)
+            owner = (
+                request.user
+                if request.user is not None and not request.user.is_anonymous
+                else core_models.Account(id=1)
+            )
         else:
             owner = core_models.Account(id=1)
 
@@ -290,7 +319,7 @@ class Press(AbstractSiteModel):
             uuid_filename="cover.png",
             label="Press logo",
             description="Logo for the press",
-            owner=owner
+            owner=owner,
         )
 
         core_models.File.add_root(instance=thumbnail_file)
@@ -300,7 +329,10 @@ class Press(AbstractSiteModel):
 
     def next_journal_order(self):
         from journal import models as journal_models
-        max_number = max([journal.sequence for journal in journal_models.Journal.objects.all()])
+
+        max_number = max(
+            [journal.sequence for journal in journal_models.Journal.objects.all()]
+        )
 
         if not max_number:
             return 0
@@ -308,13 +340,15 @@ class Press(AbstractSiteModel):
             return max_number + 1
 
     def next_contact_order(self):
-        contacts = core_models.Contacts.objects.filter(content_type__model='press', object_id=self.pk)
+        contacts = core_models.Contacts.objects.filter(
+            content_type__model="press", object_id=self.pk
+        )
         orderings = [contact.sequence for contact in contacts]
         return max(orderings) + 1 if orderings else 0
 
     @property
     def active_carousel(self):
-        """ Renders a carousel for the press homepage.
+        """Renders a carousel for the press homepage.
         :return: a tuple containing the active carousel and list of associated articles
         """
         if self.carousel is None or not self.carousel.enabled:
@@ -330,7 +364,7 @@ class Press(AbstractSiteModel):
         try:
             return PressSetting.objects.get(press=self, name=name).value
         except PressSetting.DoesNotExist:
-            return ''
+            return ""
 
     @property
     def publishes_conferences(self):
@@ -343,6 +377,7 @@ class Press(AbstractSiteModel):
     @cache(600)
     def live_repositories(self):
         from repository import models as repository_models
+
         return repository_models.Repository.objects.filter(
             live=True,
         )
@@ -350,6 +385,7 @@ class Press(AbstractSiteModel):
     @cache(600)
     def preprint_editors(self):
         from repository import models as repository_models
+
         editors = list()
         subjects = repository_models.Subject.objects.all()
 
@@ -378,19 +414,19 @@ class Press(AbstractSiteModel):
 
     @property
     def code(self):
-        return 'press'
+        return "press"
 
     @property
     def public_journals(self):
-        Journal = apps.get_model('journal.Journal')
+        Journal = apps.get_model("journal.Journal")
         return Journal.objects.filter(
             hide_from_press=False,
             is_conference=False,
-        ).order_by('sequence')
+        ).order_by("sequence")
 
     @property
     def published_articles(self):
-        Article = apps.get_model('submission.Article')
+        Article = apps.get_model("submission.Article")
         return Article.objects.filter(
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
@@ -401,7 +437,7 @@ class Press(AbstractSiteModel):
         return max(orderings) + 1 if orderings else 0
 
     class Meta:
-        verbose_name_plural = 'presses'
+        verbose_name_plural = "presses"
 
 
 class PressSetting(models.Model):
@@ -414,7 +450,7 @@ class PressSetting(models.Model):
     is_boolean = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{name} - {press}'.format(name=self.name, press=self.press.name)
+        return "{name} - {press}".format(name=self.name, press=self.press.name)
 
 
 class StaffGroup(models.Model):
@@ -431,10 +467,10 @@ class StaffGroup(models.Model):
         return self.staffgroupmember_set.all()
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
-        return f'{self.name}, {self.press.name}'
+        return f"{self.name}, {self.press.name}"
 
 
 class StaffGroupMember(models.Model):
@@ -443,7 +479,7 @@ class StaffGroupMember(models.Model):
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         on_delete=models.CASCADE,
     )
     job_title = models.CharField(max_length=300, blank=True)
@@ -452,7 +488,7 @@ class StaffGroupMember(models.Model):
     sequence = models.PositiveIntegerField()
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
-        return f'{self.user} in {self.group}'
+        return f"{self.user} in {self.group}"

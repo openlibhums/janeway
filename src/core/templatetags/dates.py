@@ -5,8 +5,8 @@ from django import template
 from django.utils import timezone
 
 
-
 register = template.Library()
+
 
 @register.simple_tag(takes_context=True)
 def offset_date(context, days=0, input_type="date"):

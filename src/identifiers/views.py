@@ -31,18 +31,18 @@ def pingback(request):
     # TODO: not sure what Crossref will actually
     #  send here so for now it just dumps all data
 
-    output = ''
+    output = ""
 
     for key, value in request.POST.items():
-        output += '{0}: {1}\n'.format(key, value)
+        output += "{0}: {1}\n".format(key, value)
 
     util_models.LogEntry.add_entry(
-        'Submission',
+        "Submission",
         "Response from Crossref pingback: {0}".format(output),
-        'Info',
+        "Info",
     )
 
-    return HttpResponse('')
+    return HttpResponse("")
 
 
 @production_user_or_editor_required
@@ -60,10 +60,10 @@ def article_identifiers(request, article_id):
     )
     identifiers = models.Identifier.objects.filter(article=article)
 
-    template = 'identifiers/article_identifiers.html'
+    template = "identifiers/article_identifiers.html"
     context = {
-        'article': article,
-        'identifiers': identifiers,
+        "article": article,
+        "identifiers": identifiers,
     }
 
     return render(request, template, context)
@@ -83,11 +83,15 @@ def manage_identifier(request, article_id, identifier_id=None):
         pk=article_id,
         journal=request.journal,
     )
-    identifier = get_object_or_404(
-        models.Identifier,
-        pk=identifier_id,
-        article=article,
-    ) if identifier_id else None
+    identifier = (
+        get_object_or_404(
+            models.Identifier,
+            pk=identifier_id,
+            article=article,
+        )
+        if identifier_id
+        else None
+    )
 
     form = forms.IdentifierForm(
         instance=identifier,
@@ -110,16 +114,16 @@ def manage_identifier(request, article_id, identifier_id=None):
             )
             return redirect(
                 reverse(
-                    'article_identifiers',
-                    kwargs={'article_id': article.pk},
+                    "article_identifiers",
+                    kwargs={"article_id": article.pk},
                 )
             )
 
-    template = 'identifiers/manage_identifier.html'
+    template = "identifiers/manage_identifier.html"
     context = {
-        'article': article,
-        'identifier': identifier,
-        'form': form,
+        "article": article,
+        "identifier": identifier,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -135,6 +139,7 @@ def show_doi(request, article_id, identifier_id):
     :return: HttpRedirect
     """
     from utils import setting_handler
+
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -144,7 +149,7 @@ def show_doi(request, article_id, identifier_id):
         models.Identifier,
         pk=identifier_id,
         article=article,
-        id_type='doi',
+        id_type="doi",
     )
 
     try:
@@ -153,8 +158,10 @@ def show_doi(request, article_id, identifier_id):
             raise AttributeError
         return HttpResponse(document, content_type="application/xml")
     except AttributeError:
-        template_context = logic.create_crossref_doi_batch_context(request.journal, set([identifier]))
-        template = 'common/identifiers/crossref_doi_batch.xml'
+        template_context = logic.create_crossref_doi_batch_context(
+            request.journal, set([identifier])
+        )
+        template = "common/identifiers/crossref_doi_batch.xml"
         return render(None, template, template_context, content_type="application/xml")
 
 
@@ -168,6 +175,7 @@ def poll_doi(request, article_id, identifier_id):
     :return: HttpRedirect
     """
     from utils import setting_handler
+
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -177,7 +185,7 @@ def poll_doi(request, article_id, identifier_id):
         models.Identifier,
         pk=identifier_id,
         article=article,
-        id_type='doi',
+        id_type="doi",
     )
 
     # Scenario 1: The identifier has not been polled or deposited before.
@@ -190,9 +198,7 @@ def poll_doi(request, article_id, identifier_id):
     elif identifier.crossrefstatus.latest_deposit:
         status, error = identifier.crossrefstatus.latest_deposit.poll()
         messages.add_message(
-            request,
-            messages.INFO if not error else messages.ERROR,
-            status
+            request, messages.INFO if not error else messages.ERROR, status
         )
 
     # Scenario 3: The identifier has only been polled before
@@ -205,8 +211,8 @@ def poll_doi(request, article_id, identifier_id):
 
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
+            "article_identifiers",
+            kwargs={"article_id": article.pk},
         )
     )
 
@@ -221,6 +227,7 @@ def poll_doi_output(request, article_id, identifier_id):
     :return: HttpRedirect
     """
     from utils import setting_handler
+
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -230,20 +237,25 @@ def poll_doi_output(request, article_id, identifier_id):
         models.Identifier,
         pk=identifier_id,
         article=article,
-        id_type='doi',
+        id_type="doi",
     )
 
     if not identifier.crossrefstatus:
-        return HttpResponse('Error: no deposit found')
-    elif 'doi_batch' not in identifier.crossrefstatus.latest_deposit.result_text:
+        return HttpResponse("Error: no deposit found")
+    elif "doi_batch" not in identifier.crossrefstatus.latest_deposit.result_text:
         return HttpResponse(identifier.crossrefstatus.latest_deposit.result_text)
     else:
-        text = identifier.crossrefstatus.latest_deposit.get_record_diagnostic(identifier.identifier)
+        text = identifier.crossrefstatus.latest_deposit.get_record_diagnostic(
+            identifier.identifier
+        )
         if text:
             resp = HttpResponse(text, content_type="application/xml")
         else:
-            resp = HttpResponse(identifier.crossrefstatus.latest_deposit.result_text, content_type="application/xml")
-        resp['Content-Disposition'] = 'inline;'
+            resp = HttpResponse(
+                identifier.crossrefstatus.latest_deposit.result_text,
+                content_type="application/xml",
+            )
+        resp["Content-Disposition"] = "inline;"
         return resp
 
 
@@ -266,20 +278,18 @@ def issue_doi(request, article_id, identifier_id):
         models.Identifier,
         pk=identifier_id,
         article=article,
-        id_type='doi',
+        id_type="doi",
     )
 
     status, error = identifier.register()
     messages.add_message(
-        request,
-        messages.INFO if not error else messages.ERROR,
-        status
+        request, messages.INFO if not error else messages.ERROR, status
     )
 
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
+            "article_identifiers",
+            kwargs={"article_id": article.pk},
         )
     )
 
@@ -306,64 +316,60 @@ def delete_identifier(request, article_id, identifier_id):
     )
 
     identifier.delete()
-    messages.add_message(
-        request, messages.SUCCESS,
-        'Identifier deleted.'
-    )
+    messages.add_message(request, messages.SUCCESS, "Identifier deleted.")
 
     return redirect(
         reverse(
-            'article_identifiers',
-            kwargs={'article_id': article.pk},
+            "article_identifiers",
+            kwargs={"article_id": article.pk},
         )
     )
 
 
-@method_decorator(editor_user_required, name='dispatch')
+@method_decorator(editor_user_required, name="dispatch")
 class IdentifierManager(journal_views.FacetedArticlesListView):
-    template_name = 'core/manager/identifier_manager.html'
+    template_name = "core/manager/identifier_manager.html"
 
     # None or integer
     action_queryset_chunk_size = 100
 
     def get_facets(self):
-
         crossref_status_obj = models.CrossrefStatus.objects.filter(
-            identifier__article=OuterRef('pk'),
+            identifier__article=OuterRef("pk"),
         )
 
-        status = Subquery(
-            crossref_status_obj.values('message')[:1]
-        )
+        status = Subquery(crossref_status_obj.values("message")[:1])
 
         facets = {
-            'date_published__date__gte': {
-                'type': 'date',
-                'field_label': 'Pub date from',
+            "date_published__date__gte": {
+                "type": "date",
+                "field_label": "Pub date from",
             },
-            'date_published__date__lte': {
-                'type': 'date',
-                'field_label': 'Pub date to',
+            "date_published__date__lte": {
+                "type": "date",
+                "field_label": "Pub date to",
             },
-            'status': {
-                'type': 'charfield_with_choices',
-                'annotations': {
-                    'status': status,
+            "status": {
+                "type": "charfield_with_choices",
+                "annotations": {
+                    "status": status,
                 },
-                'model_choices': models.CrossrefStatus._meta.get_field('message').choices,
-                'field_label': 'Status',
+                "model_choices": models.CrossrefStatus._meta.get_field(
+                    "message"
+                ).choices,
+                "field_label": "Status",
             },
-            'journal__pk': {
-                'type': 'foreign_key',
-                'model': journal_models.Journal,
-                'field_label': 'Journal',
-                'choice_label_field': 'name',
+            "journal__pk": {
+                "type": "foreign_key",
+                "model": journal_models.Journal,
+                "field_label": "Journal",
+                "choice_label_field": "name",
             },
-            'primary_issue__pk': {
-                'type': 'foreign_key',
-                'model': journal_models.Issue,
-                'field_label': 'Primary issue',
-                'choice_label_field': 'display_title',
+            "primary_issue__pk": {
+                "type": "foreign_key",
+                "model": journal_models.Issue,
+                "field_label": "Primary issue",
+                "choice_label_field": "display_title",
             },
         }
         return self.filter_facets_if_journal(facets)
@@ -371,13 +377,13 @@ class IdentifierManager(journal_views.FacetedArticlesListView):
     def get_actions(self):
         return [
             {
-                'name': 'register_dois',
-                'value': 'Register DOIs',
-                'action': logic.register_batch_of_crossref_dois,
+                "name": "register_dois",
+                "value": "Register DOIs",
+                "action": logic.register_batch_of_crossref_dois,
             },
             {
-                'name': 'poll_doi_status',
-                'value': 'Poll for status',
-                'action': logic.poll_dois_for_articles,
+                "name": "poll_doi_status",
+                "value": "Poll for status",
+                "action": logic.poll_dois_for_articles,
             },
         ]

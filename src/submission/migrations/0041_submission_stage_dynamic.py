@@ -7,15 +7,39 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0040_article_projected_issue'),
+        ("submission", "0040_article_projected_issue"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='stage',
-            field=submission.models.DynamicChoiceField(blank=True,  choices=[('Unsubmitted', 'Unsubmitted'), ('Unassigned', 'Unassigned'), ('Assigned', 'Assigned to Editor'), ('Under Review', 'Peer Review'), ('Under Revision', 'Revision'), ('Rejected', 'Rejected'), ('Accepted', 'Accepted'), ('Editor Copyediting', 'Editor Copyediting'), ('Author Copyediting', 'Author Copyediting'), ('Final Copyediting', 'Final Copyediting'), ('Typesetting', 'Typesetting'), ('typesetting_plugin', 'typesetting_plugin'), ('Proofing', 'Proofing'), ('pre_publication', 'Pre Publication'), ('Published', 'Published'), ('preprint_review', 'Preprint Review'), ('preprint_published', 'Preprint Published'), ('Archived', 'Archived')], default='Unsubmitted', help_text="<strong>WARNING</strong>: Manually changing the stage of a submission             overrides Janeway's workflow. It should only be changed to a value             which is know to be safe such as a stage an article has already             been a part of before.", max_length=200),
+            model_name="article",
+            name="stage",
+            field=submission.models.DynamicChoiceField(
+                blank=True,
+                choices=[
+                    ("Unsubmitted", "Unsubmitted"),
+                    ("Unassigned", "Unassigned"),
+                    ("Assigned", "Assigned to Editor"),
+                    ("Under Review", "Peer Review"),
+                    ("Under Revision", "Revision"),
+                    ("Rejected", "Rejected"),
+                    ("Accepted", "Accepted"),
+                    ("Editor Copyediting", "Editor Copyediting"),
+                    ("Author Copyediting", "Author Copyediting"),
+                    ("Final Copyediting", "Final Copyediting"),
+                    ("Typesetting", "Typesetting"),
+                    ("typesetting_plugin", "typesetting_plugin"),
+                    ("Proofing", "Proofing"),
+                    ("pre_publication", "Pre Publication"),
+                    ("Published", "Published"),
+                    ("preprint_review", "Preprint Review"),
+                    ("preprint_published", "Preprint Published"),
+                    ("Archived", "Archived"),
+                ],
+                default="Unsubmitted",
+                help_text="<strong>WARNING</strong>: Manually changing the stage of a submission             overrides Janeway's workflow. It should only be changed to a value             which is know to be safe such as a stage an article has already             been a part of before.",
+                max_length=200,
+            ),
         ),
     ]

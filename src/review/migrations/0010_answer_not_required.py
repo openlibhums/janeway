@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0009_review_form_element_order'),
+        ("review", "0009_review_form_element_order"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reviewassignmentanswer',
-            name='answer',
+            model_name="reviewassignmentanswer",
+            name="answer",
             field=models.TextField(blank=True, null=True),
         ),
     ]

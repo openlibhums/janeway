@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 
 
 def install_cover(journal, request):
-    """ Installs the default cover for the journal (stored in Files/journal/<id>/cover.png)
+    """Installs the default cover for the journal (stored in Files/journal/<id>/cover.png)
 
     :param journal: the journal object
     :param request: the current request or None
@@ -51,7 +51,7 @@ def install_cover(journal, request):
         uuid_filename="cover.png",
         label="Journal logo",
         description="Logo for the journal",
-        owner=owner
+        owner=owner,
     )
 
     thumbnail_file.save()
@@ -61,18 +61,16 @@ def install_cover(journal, request):
 
 
 def list_scss(journal):
-    """ Lists the SCSS override files for a journal
+    """Lists the SCSS override files for a journal
 
     :param journal: the journal in question
     :return: a list of SCSS files
     """
-    scss_path = join(
-            settings.BASE_DIR, 'files', 'styling', 'journals', str(journal.id))
+    scss_path = join(settings.BASE_DIR, "files", "styling", "journals", str(journal.id))
     try:
         makedirs(scss_path, exist_ok=True)
         file_paths = [
-                join(scss_path, f)
-                for f in listdir(scss_path) if isfile(join(scss_path, f))
+            join(scss_path, f) for f in listdir(scss_path) if isfile(join(scss_path, f))
         ]
     except FileNotFoundError:
         logger.warning("Failed to load scss from %s" % scss_path)
@@ -88,9 +86,11 @@ def create_galley_from_file(file_object, article_object, owner=None):
     warnings.warn(
         "'create_galley_from_file' is deprecated and will be removed,"
         " use production.logic.save_galley instead."
-        )
+    )
     new_filename = str(uuid4()) + str(os.path.splitext(file_object.uuid_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article_object.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR, "files", "articles", str(article_object.id)
+    )
 
     old_path = os.path.join(folder_structure, str(file_object.uuid_filename))
     new_path = os.path.join(folder_structure, str(new_filename))
@@ -105,7 +105,7 @@ def create_galley_from_file(file_object, article_object, owner=None):
         label=file_object.label,
         description=file_object.description,
         owner=owner,
-        is_galley=True
+        is_galley=True,
     )
 
     new_file.save()
@@ -146,7 +146,6 @@ def get_best_galley(article, galleys):
         except core_models.Galley.DoesNotExist:
             pass
         try:
-
             image_galley = galleys.get(
                 file__mime_type__in=files.IMAGE_MIMETYPES,
                 public=True,
@@ -171,14 +170,14 @@ def get_galley_content(article, galleys, recover=False):
     if galley:
         return galley.file_content(recover=recover)
     else:
-        return ''
+        return ""
 
 
 def get_doi_data(article):
     request = get_current_request()
     try:
-        doi = identifier_models.Identifier.objects.get(id_type='doi', article=article)
-        doi_url= doi.get_doi_url()
+        doi = identifier_models.Identifier.objects.get(id_type="doi", article=article)
+        doi_url = doi.get_doi_url()
         logger.info("Fetching %s.." % doi_url)
         r = requests.get(doi_url, timeout=settings.HTTP_TIMEOUT_SECONDS)
         return [r, doi]
@@ -204,7 +203,7 @@ def handle_new_issue(request):
         new_issue.save()
     else:
         new_issue = None
-    return [form, 'issue', new_issue]
+    return [form, "issue", new_issue]
 
 
 def handle_assign_issue(request, article, issue):
@@ -213,16 +212,16 @@ def handle_assign_issue(request, article, issue):
         messages.add_message(
             request,
             messages.WARNING,
-            _('Articles without a section cannot be added to an issue.'),
+            _("Articles without a section cannot be added to an issue."),
         )
     elif issue not in article.journal.issues:
         messages.add_message(
-            request, messages.WARNING, 'Issue not in this journal’s issue list.')
+            request, messages.WARNING, "Issue not in this journal’s issue list."
+        )
     else:
         issue.articles.add(article)
         issue.save()
-        messages.add_message(
-            request, messages.SUCCESS, 'Article assigned to issue.')
+        messages.add_message(request, messages.SUCCESS, "Article assigned to issue.")
         event_logic.Events.raise_event(
             event_logic.Events.ON_ARTICLE_ASSIGNED_TO_ISSUE,
             article=article,
@@ -235,55 +234,59 @@ def handle_assign_issue(request, article, issue):
 
 def handle_unassign_issue(request, article, issues):
     try:
-        issue_to_unassign = journal_models.Issue.objects.get(pk=request.POST.get('unassign_issue', None))
+        issue_to_unassign = journal_models.Issue.objects.get(
+            pk=request.POST.get("unassign_issue", None)
+        )
 
         if issue_to_unassign in issues:
             issue_to_unassign.articles.remove(article)
             issue_to_unassign.save()
-            messages.add_message(request, messages.SUCCESS, 'Article unassigned from issue.')
+            messages.add_message(
+                request, messages.SUCCESS, "Article unassigned from issue."
+            )
         else:
-
-            messages.add_message(request, messages.WARNING, 'Issue not in this journal’s issue list.')
+            messages.add_message(
+                request, messages.WARNING, "Issue not in this journal’s issue list."
+            )
     except journal_models.Issue.DoesNotExist:
-        messages.add_message(request, messages.WARNING, 'Issue does not exist.')
+        messages.add_message(request, messages.WARNING, "Issue does not exist.")
 
 
 def get_initial_for_prepub_notifications(request, article):
     author_initial = {}
-    author_initial['to'] = article.correspondence_author.email if article.correspondence_author else  None
+    author_initial["to"] = (
+        article.correspondence_author.email if article.correspondence_author else None
+    )
     cc = [au.email for au in article.non_correspondence_authors()]
     notify_section_editors = request.journal.get_setting(
-        'general',
-        'notify_section_editors_of_publication',
+        "general",
+        "notify_section_editors_of_publication",
     )
     if notify_section_editors:
         cc.extend([ed.email for ed in article.section_editors()])
-    author_initial['cc'] = ','.join(cc)
+    author_initial["cc"] = ",".join(cc)
 
     notify_peer_reviewers = request.journal.get_setting(
-        'general',
-        'notify_peer_reviewers_of_publication',
+        "general",
+        "notify_peer_reviewers_of_publication",
     )
 
     if not notify_peer_reviewers or not article.peer_reviewers():
         return [author_initial]
     else:
         peer_reviewer_initial = {}
-        custom_reply_to = request.journal.get_setting(
-            'general',
-            'replyto_address'
-        )
-        peer_reviewer_initial['to'] = custom_reply_to or request.user.email
+        custom_reply_to = request.journal.get_setting("general", "replyto_address")
+        peer_reviewer_initial["to"] = custom_reply_to or request.user.email
         reviewer_emails = article.peer_reviewers(emails=True, completed=True)
-        peer_reviewer_initial['bcc'] = ','.join(reviewer_emails)
+        peer_reviewer_initial["bcc"] = ",".join(reviewer_emails)
         return [author_initial, peer_reviewer_initial]
 
 
 def handle_prepub_notifications(request, article, formset):
     kwargs = {
-        'request': request,
-        'article': article,
-        'formset': formset,
+        "request": request,
+        "article": article,
+        "formset": formset,
     }
 
     event_logic.Events.raise_event(
@@ -293,35 +296,30 @@ def handle_prepub_notifications(request, article, formset):
     )
     article.fixedpubcheckitems.send_notifications = True
     article.fixedpubcheckitems.save()
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        'Notifications sent.'
-    )
+    messages.add_message(request, messages.SUCCESS, "Notifications sent.")
 
 
 def notify_author(request, article):
-    """ Note: This function is deprecated. Use handle_prepub_notifications instead.
-    """
+    """Note: This function is deprecated. Use handle_prepub_notifications instead."""
     kwargs = {
-        'request': request,
-        'article': article,
-        'user_message': request.POST.get('email_to_author', 'No message from Editor.'),
-        'section_editors': request.POST.get('section_editors', False),
-        'peer_reviewers': request.POST.get('peer_reviewers', False),
+        "request": request,
+        "article": article,
+        "user_message": request.POST.get("email_to_author", "No message from Editor."),
+        "section_editors": request.POST.get("section_editors", False),
+        "peer_reviewers": request.POST.get("peer_reviewers", False),
     }
 
-    event_logic.Events.raise_event(event_logic.Events.ON_AUTHOR_PUBLICATION,
-                                   task_object=article,
-                                   **kwargs)
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_AUTHOR_PUBLICATION, task_object=article, **kwargs
+    )
 
     article.fixedpubcheckitems.notify_the_author = True
     article.fixedpubcheckitems.save()
-    messages.add_message(request, messages.INFO, 'Author notified.')
+    messages.add_message(request, messages.INFO, "Author notified.")
 
 
 def set_render_galley(request, article):
-    galley_id = request.POST.get('render_galley')
+    galley_id = request.POST.get("render_galley")
 
     if galley_id:
         galley = core_models.Galley.objects.get(pk=galley_id)
@@ -330,9 +328,9 @@ def set_render_galley(request, article):
         article.fixedpubcheckitems.save()
         article.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Render galley has been set.')
+        messages.add_message(request, messages.SUCCESS, "Render galley has been set.")
     else:
-        messages.add_message(request, messages.WARNING, 'No galley id supplied.')
+        messages.add_message(request, messages.WARNING, "No galley id supplied.")
 
 
 def set_open_reviews(request, article):
@@ -340,54 +338,62 @@ def set_open_reviews(request, article):
     reviews = article.completed_reviews_with_permission
 
     for review in reviews:
-        review.display_public = bool(request.POST.get('open-review-' + str(review.pk), False))
+        review.display_public = bool(
+            request.POST.get("open-review-" + str(review.pk), False)
+        )
         review.save()
 
 
 def set_article_image(request, article):
     from core import logic as core_logic
 
-    if 'delete_image' in request.POST:
-        delete_id = request.POST.get('delete_image')
-        file_to_delete = get_object_or_404(core_models.File, pk=delete_id, article_id=article.pk)
+    if "delete_image" in request.POST:
+        delete_id = request.POST.get("delete_image")
+        file_to_delete = get_object_or_404(
+            core_models.File, pk=delete_id, article_id=article.pk
+        )
 
-        if file_to_delete == article.large_image_file and request.user.is_staff or request.user == file_to_delete.owner:
+        if (
+            file_to_delete == article.large_image_file
+            and request.user.is_staff
+            or request.user == file_to_delete.owner
+        ):
             file_to_delete.delete()
 
         article.fixedpubcheckitems.select_article_image = False
         article.fixedpubcheckitems.save()
 
     if request.POST and request.FILES:
-        uploaded_file = request.FILES.get('image_file')
+        uploaded_file = request.FILES.get("image_file")
 
         if not article.large_image_file:
             new_file = files.save_file_to_article(uploaded_file, article, request.user)
-            new_file.label = 'Banner image'
-            new_file.description = 'Banner image'
-            new_file.privacy = 'public'
+            new_file.label = "Banner image"
+            new_file.description = "Banner image"
+            new_file.privacy = "public"
             new_file.save()
 
             article.large_image_file = new_file
             article.save()
-            messages.add_message(request, messages.SUCCESS, 'New file loaded')
+            messages.add_message(request, messages.SUCCESS, "New file loaded")
         else:
             new_file = files.overwrite_file(
-                    uploaded_file,
-                    article.large_image_file,
-                    ('articles', article.pk),
+                uploaded_file,
+                article.large_image_file,
+                ("articles", article.pk),
             )
             article.large_image_file = new_file
             article.save()
-            messages.add_message(request, messages.SUCCESS, 'File overwritten.')
+            messages.add_message(request, messages.SUCCESS, "File overwritten.")
 
             article.fixedpubcheckitems.select_article_image = True
             article.fixedpubcheckitems.save()
 
-        core_logic.resize_and_crop(new_file.self_article_path(), [750, 324], 'middle')
+        core_logic.resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
 
 
 def send_contact_message(new_contact, request):
-    body = new_contact.body.replace('\n', '<br>')
+    body = new_contact.body.replace("\n", "<br>")
     message = """
     <p>This message is from {0}'s contact form.</p>
     <br />
@@ -396,8 +402,13 @@ def send_contact_message(new_contact, request):
     <p>Subject: {3}</p>
     <p>Body:</p>
     <p>{4}</p>
-    """.format(request.journal if request.journal else request.press, new_contact.sender, new_contact.recipient,
-               new_contact.subject, body)
+    """.format(
+        request.journal if request.journal else request.press,
+        new_contact.sender,
+        new_contact.recipient,
+        new_contact.subject,
+        body,
+    )
 
     notify_email.send_email(
         new_contact.subject,
@@ -411,46 +422,57 @@ def send_contact_message(new_contact, request):
 
 def handle_article_controls(request, sections):
     if request.POST:
-        page = request.GET.get('page', 1)
-        filters = request.POST.getlist('filter[]')
-        show = int(request.POST.get('show', 10))
-        sort = request.POST.get('sort', '-date_published')
+        page = request.GET.get("page", 1)
+        filters = request.POST.getlist("filter[]")
+        show = int(request.POST.get("show", 10))
+        sort = request.POST.get("sort", "-date_published")
         filters = [int(filter) for filter in filters]
 
-        return page, show, filters, sort, set_article_session_variables(request, page, filters, show, sort), True
+        return (
+            page,
+            show,
+            filters,
+            sort,
+            set_article_session_variables(request, page, filters, show, sort),
+            True,
+        )
     else:
-        page = request.GET.get('page', 1)
-        filters = request.session.get('article_filters', [section.pk for section in sections])
-        show = request.session.get('article_show', 10)
-        sort = request.session.get('article_sort', '-date_published')
-        active_filters = request.session.get('active_filters', False)
+        page = request.GET.get("page", 1)
+        filters = request.session.get(
+            "article_filters", [section.pk for section in sections]
+        )
+        show = request.session.get("article_show", 10)
+        sort = request.session.get("article_sort", "-date_published")
+        active_filters = request.session.get("active_filters", False)
 
         return page, show, filters, sort, None, active_filters
 
 
 def set_article_session_variables(request, page, filters, show, sort):
-    request.session['article_filters'] = filters
-    request.session['article_show'] = show
-    request.session['article_sort'] = sort
-    request.session['active_filters'] = True
+    request.session["article_filters"] = filters
+    request.session["article_show"] = show
+    request.session["article_sort"] = sort
+    request.session["active_filters"] = True
 
-    return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
+    return redirect("{0}?page={1}".format(reverse("journal_articles"), page))
 
 
 def unset_article_session_variables(request):
-    del request.session['article_filters']
-    del request.session['article_show']
-    del request.session['article_sort']
-    del request.session['active_filters']
+    del request.session["article_filters"]
+    del request.session["article_show"]
+    del request.session["article_sort"]
+    del request.session["active_filters"]
 
     request.session.modified = True
 
-    page = request.GET.get('page', 1)
+    page = request.GET.get("page", 1)
 
-    return redirect("{0}?page={1}".format(reverse('journal_articles'), page))
+    return redirect("{0}?page={1}".format(reverse("journal_articles"), page))
 
 
-def handle_search_controls(request, search_term=None, keyword=None, redir=False, sort='title'):
+def handle_search_controls(
+    request, search_term=None, keyword=None, redir=False, sort="title"
+):
     """Takes in request and handles post and get and handles for search
     :param request: required Request object
     :param search_term: None or incoming st
@@ -460,34 +482,39 @@ def handle_search_controls(request, search_term=None, keyword=None, redir=False,
     :return: strings: search_term, keyword, sort, and redirect() or None.
     """
     if request.POST:
-
         form = SearchForm(request.POST)
         if form.is_valid():
-            search_term = form.cleaned_data['article_search']
-            sort = form.cleaned_data['sort']
+            search_term = form.cleaned_data["article_search"]
+            sort = form.cleaned_data["sort"]
 
             if search_term:
-                form = SearchForm({'article_search':search_term, 'sort':sort})
+                form = SearchForm({"article_search": search_term, "sort": sort})
             else:
                 # must get keyword from the GET request. there is no way to POST a keyword in current implementation.
-                keyword = request.GET.get('keyword', False)
-                form = SearchForm({'article_search':'', 'sort':sort})
-            return search_term, keyword, sort, form, set_search_GET_variables(search_term, keyword, sort)
+                keyword = request.GET.get("keyword", False)
+                form = SearchForm({"article_search": "", "sort": sort})
+            return (
+                search_term,
+                keyword,
+                sort,
+                form,
+                set_search_GET_variables(search_term, keyword, sort),
+            )
         # if form not valid no redir to send form w/errors
         else:
             return search_term, keyword, sort, form, redir
     else:
-        search_term = request.GET.get('article_search', '')
-        keyword = request.GET.get('keyword', False)
-        sort = request.GET.get('sort', 'title')
+        search_term = request.GET.get("article_search", "")
+        keyword = request.GET.get("keyword", False)
+        sort = request.GET.get("sort", "title")
         if sort == "relevance":
-            sort = 'title'
+            sort = "title"
         form = SearchForm(request.GET or None)
 
         return search_term, keyword, sort, form, None
 
 
-def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
+def set_search_GET_variables(search_term=False, keyword=False, sort="title"):
     """Sets the incoming variables to be GET params and returns redirect
     :param search_term: string or false
     :param keyword: string or false
@@ -495,52 +522,53 @@ def set_search_GET_variables(search_term=False, keyword=False, sort='title'):
     :return: redirect()
     """
     if search_term:
-        get_params = urlencode({'article_search' : search_term, 'sort' : sort})
-        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+        get_params = urlencode({"article_search": search_term, "sort": sort})
+        redir_str = "{0}?{1}".format(reverse("search"), get_params)
     elif keyword:
-        get_params = urlencode({'keyword' : keyword, 'sort' : sort})
-        redir_str = '{0}?{1}'.format(reverse('search'), get_params)
+        get_params = urlencode({"keyword": keyword, "sort": sort})
+        redir_str = "{0}?{1}".format(reverse("search"), get_params)
     else:
-        redir_str = reverse('search')
+        redir_str = reverse("search")
 
     return redirect(redir_str)
 
 
 def fire_submission_notifications(**kwargs):
-    request = kwargs.get('request')
+    request = kwargs.get("request")
 
-    active_notifications = journal_models.Notifications.objects.filter(journal=request.journal,
-                                                                       active=True,
-                                                                       type='submission')
-    handle_notification(active_notifications, 'submission', **kwargs)
+    active_notifications = journal_models.Notifications.objects.filter(
+        journal=request.journal, active=True, type="submission"
+    )
+    handle_notification(active_notifications, "submission", **kwargs)
 
 
 def fire_acceptance_notifications(**kwargs):
-    request = kwargs.get('request')
-    active_notifications = journal_models.Notifications.objects.filter(journal=request.journal,
-                                                                       active=True,
-                                                                       type='acceptance')
-    handle_notification(active_notifications, 'acceptance', **kwargs)
+    request = kwargs.get("request")
+    active_notifications = journal_models.Notifications.objects.filter(
+        journal=request.journal, active=True, type="acceptance"
+    )
+    handle_notification(active_notifications, "acceptance", **kwargs)
 
 
 def handle_notification(notifications, type, **kwargs):
-    request = kwargs.pop('request')
-    article = kwargs.pop('article')
-    domain = article.correspondence_author.email.split('@')[1]
+    request = kwargs.pop("request")
+    article = kwargs.pop("article")
+    domain = article.correspondence_author.email.split("@")[1]
 
     for notification in notifications:
         if notification.domain == domain:
-            notify_helpers.send_email_with_body_from_setting_template(request,
-                                                                      'notification_{0}'.format(type),
-                                                                      'Article Notification',
-                                                                      notification.user.email,
-                                                                      {'article': article,
-                                                                       'notification': notification})
+            notify_helpers.send_email_with_body_from_setting_template(
+                request,
+                "notification_{0}".format(type),
+                "Article Notification",
+                notification.user.email,
+                {"article": article, "notification": notification},
+            )
 
 
 def create_html_snippet(note):
-    template = get_template('elements/notes/note_snippet.html')
-    html_content = template.render({'note': note})
+    template = get_template("elements/notes/note_snippet.html")
+    html_content = template.render({"note": note})
 
     return html_content
 
@@ -557,28 +585,32 @@ def validate_to_list(to_list):
 
 
 def resend_email(article, log_entry, request, form):
-    to_list = [x.strip() for x in form.cleaned_data['to'].split(';') if x]
+    to_list = [x.strip() for x in form.cleaned_data["to"].split(";") if x]
     valid_email_addresses = validate_to_list(to_list)
 
-    subject = form.cleaned_data['subject']
-    message = form.cleaned_data['body']
-    log_dict = {'level': 'Info',
-                'action_text': 'Resending an email.',
-                'types': 'Email Resend',
-                'target': article}
+    subject = form.cleaned_data["subject"]
+    message = form.cleaned_data["body"]
+    log_dict = {
+        "level": "Info",
+        "action_text": "Resending an email.",
+        "types": "Email Resend",
+        "target": article,
+    }
 
-    notify_helpers.send_email_with_body_from_user(request, subject, valid_email_addresses, message, log_dict=log_dict)
+    notify_helpers.send_email_with_body_from_user(
+        request, subject, valid_email_addresses, message, log_dict=log_dict
+    )
 
 
 def send_email(user, form, request, article):
-    subject = form.cleaned_data['subject']
-    message = form.cleaned_data['body']
+    subject = form.cleaned_data["subject"]
+    message = form.cleaned_data["body"]
 
     log_dict = {
-        'level': 'Info',
-        'action_text': 'Contact User',
-        'types': 'Email',
-        'target': article if article else user
+        "level": "Info",
+        "action_text": "Contact User",
+        "types": "Email",
+        "target": article if article else user,
     }
 
     notify_helpers.send_email_with_body_from_user(
@@ -587,9 +619,9 @@ def send_email(user, form, request, article):
         user.email,
         message,
         log_dict=log_dict,
-        cc=form.cleaned_data['cc'],
-        bcc=form.cleaned_data['bcc'],
-        attachment=form.cleaned_data['attachments'],
+        cc=form.cleaned_data["cc"],
+        bcc=form.cleaned_data["bcc"],
+        attachment=form.cleaned_data["attachments"],
     )
 
 
@@ -601,8 +633,8 @@ def get_table_from_html(table_name, content):
     :return: A table object
     """
 
-    soup = BeautifulSoup(str(content), 'lxml')
-    table_div = soup.find("div", {'id': table_name})
+    soup = BeautifulSoup(str(content), "lxml")
+    table_div = soup.find("div", {"id": table_name})
     table = table_div.find("table")
     return table
 
@@ -612,10 +644,10 @@ def get_all_tables_from_html(content):
     Uses BS4 to fetch all tables in html.
     :param content: HTML content
     """
-    soup = BeautifulSoup(str(content), 'lxml')
+    soup = BeautifulSoup(str(content), "lxml")
     tables = []
 
-    for table in soup.findAll('div', attrs={'class': 'table-expansion'}):
+    for table in soup.findAll("div", attrs={"class": "table-expansion"}):
         original_id = table.get("id")
         if original_id:
             table["id"] = "copy-of-" + original_id
@@ -626,36 +658,37 @@ def get_all_tables_from_html(content):
                     child["id"] = "copy-of-" + child["id"]
             except AttributeError:
                 pass
-        tables.append(
-            {
-                'id': original_id,
-                'content': str(table)
-            }
-        )
+        tables.append({"id": original_id, "content": str(table)})
 
     return tables
 
 
 def parse_html_table_to_csv(table, table_name):
-    filepath = files.get_temp_file_path_from_name('{0}.csv'.format(table_name))
+    filepath = files.get_temp_file_path_from_name("{0}.csv".format(table_name))
     headers = [th.text for th in table.select("tr th")]
 
     with open(filepath, "w", encoding="utf-8") as f:
         wr = csv.writer(f)
         wr.writerow(headers)
-        wr.writerows([[td.text for td in row.find_all("td")] for row in table.select("tr + tr")])
+        wr.writerows(
+            [[td.text for td in row.find_all("td")] for row in table.select("tr + tr")]
+        )
 
     return filepath
 
 
 def potential_issue_editors(journal, current_editors):
-    return {role.user for role in
-            core_models.AccountRole.objects.filter(
-                journal=journal,
-                user__is_active=True,
-            ).select_related('user').exclude(
-                user__in=current_editors,
-            )}
+    return {
+        role.user
+        for role in core_models.AccountRole.objects.filter(
+            journal=journal,
+            user__is_active=True,
+        )
+        .select_related("user")
+        .exclude(
+            user__in=current_editors,
+        )
+    }
 
 
 def sort_issues(request, issue_list):
@@ -665,21 +698,21 @@ def sort_issues(request, issue_list):
     :param issue_list: Issue queryset for sorting
     :return: None
     """
-    sort_type = request.POST.get('sort', None)
+    sort_type = request.POST.get("sort", None)
 
     if not sort_type:
         messages.add_message(
             request,
             messages.WARNING,
-            'No sort type provided.',
+            "No sort type provided.",
         )
 
         return
 
-    if sort_type == 'date_sort_desc':
-        order = '-date'
+    if sort_type == "date_sort_desc":
+        order = "-date"
     else:
-        order = 'date'
+        order = "date"
 
     ordered_issues = issue_list.order_by(order)
 
@@ -689,7 +722,7 @@ def sort_issues(request, issue_list):
 
 
 def merge_issues(destination, to_merge):
-    """ Moves the articles from to_merge issues into the destination issue
+    """Moves the articles from to_merge issues into the destination issue
     :param destination: models.Issue
     :param destination: list(models.Issue):
     """
@@ -705,7 +738,7 @@ def merge_issues(destination, to_merge):
 
 
 def merge_sections(destination, to_merge):
-    """ Moves the articles from to_merge sections into the destination section
+    """Moves the articles from to_merge sections into the destination section
     :param destination: submission.models.Section
     :param destination: list(submission.models.Section):
     """

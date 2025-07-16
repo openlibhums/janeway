@@ -4,6 +4,6 @@ from django import template
 register = template.Library()
 
 
-@register.simple_tag(name='chain')
+@register.simple_tag(name="chain")
 def chain_tag(*iterables):
     return chain(*iterables)

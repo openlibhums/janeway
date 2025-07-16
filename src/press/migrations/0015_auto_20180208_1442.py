@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0014_auto_20171127_1502'),
+        ("press", "0014_auto_20171127_1502"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='press',
-            name='theme',
-            field=models.CharField(default='default', max_length=255),
+            model_name="press",
+            name="theme",
+            field=models.CharField(default="default", max_length=255),
         ),
     ]

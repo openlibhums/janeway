@@ -12,7 +12,6 @@ from core import model_utils as model_utils
 
 
 class TestModelUtils(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
@@ -26,17 +25,17 @@ class TestModelUtils(TestCase):
 
     @override_settings(URL_CONFIG="path")
     def test_auth_success_url_with_next(self):
-        next_url = '/special/path/'
+        next_url = "/special/path/"
         self.assertEqual(
             self.request.site_type.auth_success_url(next_url=next_url),
-            '/special/path/',
+            "/special/path/",
         )
 
     @override_settings(URL_CONFIG="path")
     def test_auth_success_url_with_journal(self):
         self.assertEqual(
             self.request.site_type.auth_success_url(),
-            reverse('core_dashboard'),
+            reverse("core_dashboard"),
         )
 
     @override_settings(URL_CONFIG="path")
@@ -49,7 +48,7 @@ class TestModelUtils(TestCase):
         self.request.site_type = self.repository
         self.assertEqual(
             self.request.site_type.auth_success_url(),
-            reverse('repository_dashboard'),
+            reverse("repository_dashboard"),
         )
 
     @override_settings(URL_CONFIG="path")
@@ -57,7 +56,7 @@ class TestModelUtils(TestCase):
         self.request.site_type = self.press
         self.assertEqual(
             self.request.site_type.auth_success_url(),
-            reverse('website_index'),
+            reverse("website_index"),
         )
 
     @override_settings(BLEACH_STRIP_COMMENTS=True)
@@ -68,8 +67,8 @@ class TestModelUtils(TestCase):
         But also the &amp; would be turned into &amp;amp;amp;amp;amp;
         and each save after that would add amp; two more times.
         """
-        abstract_with_comment = 'My abstract<!-- &amp; -->'
-        abstract_without_comment = 'My abstract'
+        abstract_with_comment = "My abstract<!-- &amp; -->"
+        abstract_without_comment = "My abstract"
         self.article.abstract = abstract_with_comment
         self.article.save()
         self.article.save()

@@ -15,7 +15,6 @@ from utils import setting_handler
 
 
 class PressForm(forms.ModelForm):
-
     press_logo = forms.FileField(
         required=False,
         widget=JanewayFileInput,
@@ -24,42 +23,40 @@ class PressForm(forms.ModelForm):
     class Meta:
         model = models.Press
         fields = (
-            'name',
-            'main_contact',
-            'theme',
-            'description',
-            'footer_description',
-            'journal_footer_text',
-            'secondary_image',
-            'secondary_image_url',
-            'default_carousel_image',
-            'favicon',
-            'enable_preprints',
-            'is_secure',
-            'password_number',
-            'password_upper',
-            'password_length',
-            'tracking_code',
-            'disable_journals',
-            'privacy_policy_url',
+            "name",
+            "main_contact",
+            "theme",
+            "description",
+            "footer_description",
+            "journal_footer_text",
+            "secondary_image",
+            "secondary_image_url",
+            "default_carousel_image",
+            "favicon",
+            "enable_preprints",
+            "is_secure",
+            "password_number",
+            "password_upper",
+            "password_length",
+            "tracking_code",
+            "disable_journals",
+            "privacy_policy_url",
         )
         widgets = {
-            'theme': forms.Select(
-                choices=logic.get_theme_list()
-            ),
-            'footer_description': TinyMCE(),
-            'journal_footer_text': TinyMCE(),
-            'description': TinyMCE(),
+            "theme": forms.Select(choices=logic.get_theme_list()),
+            "footer_description": TinyMCE(),
+            "journal_footer_text": TinyMCE(),
+            "description": TinyMCE(),
         }
 
     def save(self, commit=True):
         press = super(PressForm, self).save(commit=False)
         request = GlobalRequestMiddleware.get_current_request()
 
-        file = self.cleaned_data.get('press_logo', None)
+        file = self.cleaned_data.get("press_logo", None)
 
         if file:
-            file = files.save_file_to_press(request, file, 'Press Logo', '')
+            file = files.save_file_to_press(request, file, "Press Logo", "")
 
             # Delete the old file from the disk
             if press.thumbnail_image:
@@ -74,35 +71,36 @@ class PressForm(forms.ModelForm):
 
 
 class PressJournalDescription(forms.Form):
-
     description = forms.CharField(widget=TinyMCE)
 
     def __init__(self, *args, **kwargs):
-        self.journal = kwargs.pop('journal')
+        self.journal = kwargs.pop("journal")
         super(PressJournalDescription, self).__init__(*args, **kwargs)
-        self.fields['description'].initial = self.journal.get_setting(
-            group_name='general',
-            setting_name='press_journal_description',
+        self.fields["description"].initial = self.journal.get_setting(
+            group_name="general",
+            setting_name="press_journal_description",
         )
 
     def save(self, commit=True):
-        description = self.cleaned_data.get('description')
+        description = self.cleaned_data.get("description")
 
         if commit:
             setting_handler.save_setting(
-                'general',
-                'press_journal_description',
+                "general",
+                "press_journal_description",
                 self.journal,
                 description,
             )
+
 
 class StaffGroupMemberForm(forms.ModelForm):
     """Lets a staff member edit a few fields related to their
     press staff profile
     """
+
     class Meta:
         model = models.StaffGroupMember
-        exclude = ('group', 'user', 'sequence')
+        exclude = ("group", "user", "sequence")
         widgets = {
-            'publications': TinyMCE(),
+            "publications": TinyMCE(),
         }

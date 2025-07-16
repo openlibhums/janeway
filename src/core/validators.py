@@ -6,16 +6,21 @@ from django.template import Template
 from django.template.exceptions import TemplateSyntaxError
 from django.utils.translation import gettext_lazy as _
 
+
 class FileTypeValidator(object):
-    """ Validates file against given lists of extensions and mimetypes
+    """Validates file against given lists of extensions and mimetypes
     :param extensions: iterable object (ideally a set)
     :param mimetypes: iterable object (ideally a set)
     """
+
     error_messages = {
-        "ext": _("Extension {extension} is not allowed. "
-                 "Allowed extensions are: {validator.extensions}"),
-        "mime": _("MIME type {mimetype} is not valid. "
-                  "Valid types are: {validator.mimetypes}"),
+        "ext": _(
+            "Extension {extension} is not allowed. "
+            "Allowed extensions are: {validator.extensions}"
+        ),
+        "mime": _(
+            "MIME type {mimetype} is not valid. Valid types are: {validator.mimetypes}"
+        ),
     }
 
     def __init__(self, extensions=None, mimetypes=None):

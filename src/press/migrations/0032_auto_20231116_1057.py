@@ -2,10 +2,12 @@
 
 from django.db import migrations, models
 
+
 def set_constraints_immediately(apps, schema_editor):
     """Circumvents psql not allowing transactions with DDL operations"""
     if schema_editor.connection.vendor.startswith("postgresql"):
         schema_editor.execute("SET CONSTRAINTS ALL IMMEDIATE")
+
 
 def set_constraints_deferred(apps, schema_editor):
     if schema_editor.connection.vendor.startswith("postgresql"):
@@ -13,29 +15,47 @@ def set_constraints_deferred(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0031_press_journal_footer_text'),
+        ("press", "0031_press_journal_footer_text"),
     ]
     operations = [
-        migrations.RunPython(set_constraints_immediately, reverse_code=set_constraints_deferred),
+        migrations.RunPython(
+            set_constraints_immediately, reverse_code=set_constraints_deferred
+        ),
         migrations.AlterField(
-            model_name='press',
-            name='description',
-            field=models.TextField(blank=True, default='', help_text='This will appear in web search results and on social media when the press URL is shared', verbose_name='Publisher description'),
+            model_name="press",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="This will appear in web search results and on social media when the press URL is shared",
+                verbose_name="Publisher description",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='press',
-            name='footer_description',
-            field=models.TextField(blank=True, default='', help_text='Additional HTML for the press footer.', verbose_name='Footer text'),
+            model_name="press",
+            name="footer_description",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="Additional HTML for the press footer.",
+                verbose_name="Footer text",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='press',
-            name='journal_footer_text',
-            field=models.TextField(blank=True, default='', help_text='Text that will appear in the footer of every journal, to display publisher address or other essential info. ', verbose_name='Journal footer text'),
+            model_name="press",
+            name="journal_footer_text",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="Text that will appear in the footer of every journal, to display publisher address or other essential info. ",
+                verbose_name="Journal footer text",
+            ),
             preserve_default=False,
         ),
-        migrations.RunPython(set_constraints_deferred, reverse_code=set_constraints_immediately),
+        migrations.RunPython(
+            set_constraints_deferred, reverse_code=set_constraints_immediately
+        ),
     ]

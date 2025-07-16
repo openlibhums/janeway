@@ -5,6 +5,7 @@ class NetworkResolver(etree.Resolver):
     """
     Custom resolver to allow loading external DTDs and entities over the network.
     """
+
     def resolve(self, url, pubid, context):
         return self.resolve_filename(url, context)
 

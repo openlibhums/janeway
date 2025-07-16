@@ -7,19 +7,24 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0005_repository_new_comment'),
+        ("repository", "0005_repository_new_comment"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprint',
-            name='curent_version',
+            model_name="preprint",
+            name="curent_version",
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='repository.Subject'),
+            model_name="subject",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="children",
+                to="repository.Subject",
+            ),
         ),
     ]

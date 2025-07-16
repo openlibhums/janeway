@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0007_null_help_text'),
+        ("review", "0007_null_help_text"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reviewform',
-            name='deleted',
+            model_name="reviewform",
+            name="deleted",
             field=models.BooleanField(default=False),
         ),
     ]

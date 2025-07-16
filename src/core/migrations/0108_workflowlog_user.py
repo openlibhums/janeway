@@ -6,15 +6,14 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0107_alter_controlledaffiliation_options_and_more'),
+        ("core", "0107_alter_controlledaffiliation_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='workflowlog',
-            name='user',
+            model_name="workflowlog",
+            name="user",
             field=models.ForeignKey(
                 blank=True,
                 null=True,

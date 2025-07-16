@@ -8,15 +8,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0071_xslt_1-4-2'),
+        ("core", "0071_xslt_1-4-2"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='text',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='file', to=settings.CORE_FILETEXT_MODEL),
+            model_name="file",
+            name="text",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="file",
+                to=settings.CORE_FILETEXT_MODEL,
+            ),
         ),
     ]

@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0063_merge_20211207_1133'),
+        ("submission", "0063_merge_20211207_1133"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='frozenauthor',
-            name='frozen_biography',
-            field=models.TextField(blank=True, null=True, verbose_name='Frozen Biography'),
+            model_name="frozenauthor",
+            name="frozen_biography",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Frozen Biography"
+            ),
         ),
     ]

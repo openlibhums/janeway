@@ -9,45 +9,97 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('submission', '0047_merge_20200626_1336'),
-        ('repository', '0009_auto_20200820_1212'),
+        ("submission", "0047_merge_20200626_1336"),
+        ("repository", "0009_auto_20200820_1212"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('posted', models.DateTimeField(default=django.utils.timezone.now)),
-                ('body', models.TextField()),
-                ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("posted", models.DateTimeField(default=django.utils.timezone.now)),
+                ("body", models.TextField()),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ('posted', 'pk'),
+                "ordering": ("posted", "pk"),
             },
         ),
         migrations.CreateModel(
-            name='Thread',
+            name="Thread",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('subject', models.CharField(help_text='Max. 300 characters.', max_length=300)),
-                ('started', models.DateTimeField(default=django.utils.timezone.now)),
-                ('article', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='submission.Article')),
-                ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('preprint', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='repository.Preprint')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "subject",
+                    models.CharField(help_text="Max. 300 characters.", max_length=300),
+                ),
+                ("started", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "preprint",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="repository.Preprint",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('started', 'pk'),
+                "ordering": ("started", "pk"),
             },
         ),
         migrations.AddField(
-            model_name='post',
-            name='thread',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='discussion.Thread'),
+            model_name="post",
+            name="thread",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="discussion.Thread",
+            ),
         ),
     ]

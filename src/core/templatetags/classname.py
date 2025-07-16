@@ -8,4 +8,4 @@ def classname(obj):
     try:
         return obj.__class__.__name__
     except AttributeError:
-        return ''
+        return ""

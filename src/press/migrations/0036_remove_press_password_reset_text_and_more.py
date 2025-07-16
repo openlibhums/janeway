@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0035_alter_staffgroup_press'),
+        ("press", "0035_alter_staffgroup_press"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='press',
-            name='password_reset_text',
+            model_name="press",
+            name="password_reset_text",
         ),
         migrations.RemoveField(
-            model_name='press',
-            name='registration_text',
+            model_name="press",
+            name="registration_text",
         ),
     ]

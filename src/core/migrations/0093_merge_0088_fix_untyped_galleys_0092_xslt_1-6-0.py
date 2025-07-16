@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0088_fix_untyped_galleys'),
-        ('core', '0092_xslt_1-6-0'),
+        ("core", "0088_fix_untyped_galleys"),
+        ("core", "0092_xslt_1-6-0"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -7,55 +7,100 @@ import utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0095_account_fields_null_to_string'),
+        ("core", "0095_account_fields_null_to_string"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='biography',
-            field=core.model_utils.JanewayBleachField(blank=True, verbose_name='Biography'),
+            model_name="account",
+            name="biography",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, verbose_name="Biography"
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='department',
-            field=models.CharField(blank=True, max_length=300, verbose_name='Department', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="department",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                verbose_name="Department",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='first_name',
-            field=models.CharField(max_length=300, verbose_name='First name', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="first_name",
+            field=models.CharField(
+                max_length=300,
+                verbose_name="First name",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='institution',
-            field=models.CharField(blank=True, max_length=1000, verbose_name='Institution', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="institution",
+            field=models.CharField(
+                blank=True,
+                max_length=1000,
+                verbose_name="Institution",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='last_name',
-            field=models.CharField(max_length=300, verbose_name='Last name', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="last_name",
+            field=models.CharField(
+                max_length=300,
+                verbose_name="Last name",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='middle_name',
-            field=models.CharField(blank=True, max_length=300, verbose_name='Middle name', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="middle_name",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                verbose_name="Middle name",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='salutation',
-            field=models.CharField(blank=True, choices=[('Miss', 'Miss'), ('Ms', 'Ms'), ('Mrs', 'Mrs'), ('Mr', 'Mr'), ('Mx', 'Mx'), ('Dr', 'Dr'), ('Prof.', 'Prof.')], max_length=10, verbose_name='Salutation', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="salutation",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Miss", "Miss"),
+                    ("Ms", "Ms"),
+                    ("Mrs", "Mrs"),
+                    ("Mr", "Mr"),
+                    ("Mx", "Mx"),
+                    ("Dr", "Dr"),
+                    ("Prof.", "Prof."),
+                ],
+                max_length=10,
+                verbose_name="Salutation",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='signature',
-            field=core.model_utils.JanewayBleachField(blank=True, verbose_name='Signature'),
+            model_name="account",
+            name="signature",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, verbose_name="Signature"
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='suffix',
-            field=models.CharField(blank=True, max_length=300, verbose_name='Name suffix', validators=[utils.forms.plain_text_validator]),
+            model_name="account",
+            name="suffix",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                verbose_name="Name suffix",
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
     ]

@@ -6,24 +6,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0040_article_projected_issue'),
-        ('typesetting', '0005_auto_20200220_1158'),
+        ("submission", "0040_article_projected_issue"),
+        ("typesetting", "0005_auto_20200220_1158"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='typesettinground',
-            options={'ordering': ('-round_number', 'date_created')},
+            name="typesettinground",
+            options={"ordering": ("-round_number", "date_created")},
         ),
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='task',
-            field=models.TextField(help_text='If there is any additional information or direction you can give the proofreader to complete their task you can add it here.', verbose_name='Proofing Task'),
+            model_name="galleyproofing",
+            name="task",
+            field=models.TextField(
+                help_text="If there is any additional information or direction you can give the proofreader to complete their task you can add it here.",
+                verbose_name="Proofing Task",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='typesettinground',
-            unique_together=set([('round_number', 'article')]),
+            name="typesettinground",
+            unique_together=set([("round_number", "article")]),
         ),
     ]

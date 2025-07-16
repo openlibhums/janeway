@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0096_alter_account_activation_code_and_more'),
-        ('core', '0096_update_review_ack_email'),
+        ("core", "0096_alter_account_activation_code_and_more"),
+        ("core", "0096_update_review_ack_email"),
     ]
 
-    operations = [
-    ]
+    operations = []

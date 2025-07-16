@@ -5,34 +5,38 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0016_store_blank_string'),
+        ("typesetting", "0016_store_blank_string"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='notes',
+            model_name="galleyproofing",
+            name="notes",
             field=core.model_utils.JanewayBleachField(blank=True),
         ),
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='task',
-            field=core.model_utils.JanewayBleachField(help_text='Add any additional information or instructions for the proofreader here.', verbose_name='Proofing Task'),
-        ),
-        migrations.AlterField(
-            model_name='typesettingassignment',
-            name='task',
+            model_name="galleyproofing",
+            name="task",
             field=core.model_utils.JanewayBleachField(
-                blank=True,
-                help_text='The task description if not explained in the typesetting guidelines.',
-                verbose_name='Typesetting Task',
+                help_text="Add any additional information or instructions for the proofreader here.",
+                verbose_name="Proofing Task",
             ),
         ),
         migrations.AlterField(
-            model_name='typesettingassignment',
-            name='typesetter_note',
-            field=core.model_utils.JanewayBleachField(blank=True, verbose_name='Note to Editor'),
+            model_name="typesettingassignment",
+            name="task",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="The task description if not explained in the typesetting guidelines.",
+                verbose_name="Typesetting Task",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="typesettingassignment",
+            name="typesetter_note",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, verbose_name="Note to Editor"
+            ),
         ),
     ]

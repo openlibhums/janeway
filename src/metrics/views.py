@@ -41,68 +41,178 @@ def sushi(request):
     #      <sushi:Filters>\n          <sushi:UsageDateRange>\n            <sushi:Begin>2015-01-01</sushi:Begin>\n
     #        <sushi:End>2017-01-31</sushi:End>\n          </sushi:UsageDateRange>\n        </sushi:Filters>\n
     #    </sushi:ReportDefinition>\n    </sushicounter:ReportRequest>\n  </SOAP-ENV:Body>\n</SOAP-ENV:Envelope>\n'
-    body = BeautifulSoup(request.body, 'xml')
+    body = BeautifulSoup(request.body, "xml")
 
     # TODO: pass through parameters like the requestor ID etc. and echo them back in the XML
     try:
-        report_type = body.find('ReportDefinition').attrs['Name']
-        report_request_id = body.find('ReportRequest').attrs['ID']
+        report_type = body.find("ReportDefinition").attrs["Name"]
+        report_request_id = body.find("ReportRequest").attrs["ID"]
 
-        requestor = body.find('Requestor')
-        requestor_id = requestor.find('ID').text
-        requestor_email = requestor.find('Email').text
-        requestor_name = requestor.find('Name').text
+        requestor = body.find("Requestor")
+        requestor_id = requestor.find("ID").text
+        requestor_email = requestor.find("Email").text
+        requestor_name = requestor.find("Name").text
 
-        customer = body.find('CustomerReference')
-        customer_ID = customer.find('ID').text
-        customer_name = customer.find('Name').text
+        customer = body.find("CustomerReference")
+        customer_ID = customer.find("ID").text
+        customer_name = customer.find("Name").text
     except AttributeError:
-        return HttpResponse(json.dumps({'Error': 'Malformed request.'}))
+        return HttpResponse(json.dumps({"Error": "Malformed request."}))
 
-    if report_type.upper() == 'JR1':
-        return jr_one_no_date(request, 'xml', compat=True, requestor_id=requestor_id, requestor_email=requestor_email,
-                              requestor_name=requestor_name, customer_ID=customer_ID, customer_name=customer_name,
-                              report_request_id=report_request_id)
-    elif report_type.upper() == 'JR1GOA':
-        return jr_one_goa_no_date(request, 'xml', compat=True, requestor_id=requestor_id,
-                                  requestor_email=requestor_email, requestor_name=requestor_name,
-                                  customer_ID=customer_ID, customer_name=customer_name,
-                                  report_request_id=report_request_id)
-    elif report_type.upper() == 'JR2':
-        return jr_two_no_date(request, 'xml', compat=True, requestor_id=requestor_id, requestor_email=requestor_email,
-                              requestor_name=requestor_name, customer_ID=customer_ID, customer_name=customer_name,
-                              report_request_id=report_request_id)
+    if report_type.upper() == "JR1":
+        return jr_one_no_date(
+            request,
+            "xml",
+            compat=True,
+            requestor_id=requestor_id,
+            requestor_email=requestor_email,
+            requestor_name=requestor_name,
+            customer_ID=customer_ID,
+            customer_name=customer_name,
+            report_request_id=report_request_id,
+        )
+    elif report_type.upper() == "JR1GOA":
+        return jr_one_goa_no_date(
+            request,
+            "xml",
+            compat=True,
+            requestor_id=requestor_id,
+            requestor_email=requestor_email,
+            requestor_name=requestor_name,
+            customer_ID=customer_ID,
+            customer_name=customer_name,
+            report_request_id=report_request_id,
+        )
+    elif report_type.upper() == "JR2":
+        return jr_two_no_date(
+            request,
+            "xml",
+            compat=True,
+            requestor_id=requestor_id,
+            requestor_email=requestor_email,
+            requestor_name=requestor_name,
+            customer_ID=customer_ID,
+            customer_name=customer_name,
+            report_request_id=report_request_id,
+        )
 
 
-def jr_one_no_date(request, output_format, compat=False, report_request_id='', requestor_id='',
-                   requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_one_no_date(
+    request,
+    output_format,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     start_date = timezone.now() - relativedelta(years=2)
-    return jr_one_no_end_date(request, output_format, start_date.year, start_date.month, start_date.day, compat,
-                              report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                              customer_name)
+    return jr_one_no_end_date(
+        request,
+        output_format,
+        start_date.year,
+        start_date.month,
+        start_date.day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one_no_end_date(request, output_format, start_year, start_month, start_day, compat=False, report_request_id='',
-                       requestor_id='', requestor_email='', requestor_name='', customer_ID='', customer_name=''):
-    return jr_one_all_dates(request, output_format, start_year, start_month, start_day, timezone.now().year,
-                            timezone.now().month, timezone.now().day, compat, report_request_id, requestor_id,
-                            requestor_email, requestor_name, customer_ID, customer_name)
+def jr_one_no_end_date(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_one_all_dates(
+        request,
+        output_format,
+        start_year,
+        start_month,
+        start_day,
+        timezone.now().year,
+        timezone.now().month,
+        timezone.now().day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one_all_dates(request, output_format, start_year, start_month, start_day, end_year, end_month, end_day,
-                     compat=False, report_request_id='', requestor_id='', requestor_email='', requestor_name='',
-                     customer_ID='', customer_name=''):
-    return jr_one(request, output_format,
-                  timezone.datetime(int(start_year), int(start_month), int(start_day),
-                                    tzinfo=timezone.get_current_timezone()),
-                  timezone.datetime(int(end_year), int(end_month), int(end_day),
-                                    tzinfo=timezone.get_current_timezone()),
-                  compat, report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                  customer_name)
+def jr_one_all_dates(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    end_year,
+    end_month,
+    end_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_one(
+        request,
+        output_format,
+        timezone.datetime(
+            int(start_year),
+            int(start_month),
+            int(start_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        timezone.datetime(
+            int(end_year),
+            int(end_month),
+            int(end_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one(request, output_format, start_date, end_date, compat=False, report_request_id='', requestor_id='',
-           requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_one(
+    request,
+    output_format,
+    start_date,
+    end_date,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     """
     Produces COUNTER R1 report in either TSV or XML formats
     :param request: the request object
@@ -116,43 +226,67 @@ def jr_one(request, output_format, start_date, end_date, compat=False, report_re
     press_object = press.models.Press.get_press(request)
 
     # fetch the metrics
-    press_total, press_views, press_downloads, press_months, journals = logic.get_press_totals(start_date,
-                                                                                               end_date,
-                                                                                               report_months,
-                                                                                               compat=compat)
+    press_total, press_views, press_downloads, press_months, journals = (
+        logic.get_press_totals(start_date, end_date, report_months, compat=compat)
+    )
 
-    if output_format.upper() == 'TSV':
+    if output_format.upper() == "TSV":
         # output a TSV report
-        return j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_total, press_views,
-                      report_months, request, press_object, 'Journal Report 1(R4)',
-                      'Number of Successful Full-text Article Requests by Month and Journal')
+        return j1_tsv(
+            start_date,
+            end_date,
+            journals,
+            press_downloads,
+            press_months,
+            press_total,
+            press_views,
+            report_months,
+            request,
+            press_object,
+            "Journal Report 1(R4)",
+            "Number of Successful Full-text Article Requests by Month and Journal",
+        )
     else:
         # output an XML report
-        template = 'metrics/counter_jr1.xml'
+        template = "metrics/counter_jr1.xml"
 
         # SUSHI COUNTER spec at: http://www.niso.org/apps/group_public/download.php/14101/COUNTER4_1.png
         # unknown variables:
         # vendor_id
 
-        context = {'start_date': start_date.strftime('%Y-%m-%d'),
-                   'end_date': end_date.strftime('%Y-%m-%d'),
-                   'report_items': journals,
-                   'report_created': timezone.now(),
-                   'vendor_name': press_object.name,
-                   'item_publisher': press_object.name,
-                   'vendor_email': press_object.main_contact,
-                   'report_ID': report_request_id,
-                   'requestor_ID': requestor_id,
-                   'requestor_name': requestor_name,
-                   'requestor_email': requestor_email,
-                   'customer_ID': customer_ID,
-                   'customer_name': customer_name}
+        context = {
+            "start_date": start_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "report_items": journals,
+            "report_created": timezone.now(),
+            "vendor_name": press_object.name,
+            "item_publisher": press_object.name,
+            "vendor_email": press_object.main_contact,
+            "report_ID": report_request_id,
+            "requestor_ID": requestor_id,
+            "requestor_name": requestor_name,
+            "requestor_email": requestor_email,
+            "customer_ID": customer_ID,
+            "customer_name": customer_name,
+        }
 
-        return render(request, template, context, content_type='text/xml')
+        return render(request, template, context, content_type="text/xml")
 
 
-def j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_total, press_views, report_months,
-           request, press_object, report_title, report_description):
+def j1_tsv(
+    start_date,
+    end_date,
+    journals,
+    press_downloads,
+    press_months,
+    press_total,
+    press_views,
+    report_months,
+    request,
+    press_object,
+    report_title,
+    report_description,
+):
     """
     COUNTER SPEC:
 
@@ -195,65 +329,79 @@ def j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_
     Similarly, Cell L10 down to Cell L[n], Cell M10 down to Cell M[n] etc. contain the Full Text Requests for the corresponding months
     Cell H9 and Cell K9 across to Cell M7 (or whatever column corresponds to the last column of the table) gives totals for each column. The figure reported in these cells in Row 9 must equal the sum of the cells for that column from Row 10 to the bottom of the table.
     """
-    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = create_tsv_header(request,
-                                                                                            start_date,
-                                                                                            end_date,
-                                                                                            report_title,
-                                                                                            report_description,
-                                                                                            press_object)
+    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = (
+        create_tsv_header(
+            request,
+            start_date,
+            end_date,
+            report_title,
+            report_description,
+            press_object,
+        )
+    )
 
     row_eight = []
     row_nine = []
 
-    rows = [row_one, row_two, row_three, row_four, row_five, row_six, row_seven, row_eight, row_nine]
+    rows = [
+        row_one,
+        row_two,
+        row_three,
+        row_four,
+        row_five,
+        row_six,
+        row_seven,
+        row_eight,
+        row_nine,
+    ]
 
     # A8
-    row_eight.append('Journal')
+    row_eight.append("Journal")
 
     # B8
-    row_eight.append('Publisher')
+    row_eight.append("Publisher")
 
     # C8
-    row_eight.append('Platform')
+    row_eight.append("Platform")
 
     # D8
-    row_eight.append('Journal DOI')
+    row_eight.append("Journal DOI")
 
     # E8
-    row_eight.append('Proprietary Identifier')
+    row_eight.append("Proprietary Identifier")
 
     # F8
-    row_eight.append('Print ISSN')
+    row_eight.append("Print ISSN")
 
     # G8
-    row_eight.append('Online ISSN')
+    row_eight.append("Online ISSN")
 
     # H8
     # The game, not the player.
-    row_eight.append('Reporting Period Total')
+    row_eight.append("Reporting Period Total")
 
     # I8
-    row_eight.append('Reporting Period HTML')
+    row_eight.append("Reporting Period HTML")
 
     # J8
-    row_eight.append('Reporting Period PDF')
+    row_eight.append("Reporting Period PDF")
 
     # K8 -> [X]8
     for date in report_months:
-        row_eight.append('{0}-{1}'.format(date.strftime('%b'), date.year))
+        row_eight.append("{0}-{1}".format(date.strftime("%b"), date.year))
 
     # A9
-    row_nine.append('Total for all Journals')
+    row_nine.append("Total for all Journals")
 
     # B9
     row_nine.append(press_object.name)
 
     # C9
-    row_nine.append('Janeway')
+    row_nine.append("Janeway")
 
     # D9 -> G9
     for x in range(1, 5):
-        row_nine.append('')
+        row_nine.append("")
 
     # H9
     row_nine.append(press_total)
@@ -266,24 +414,36 @@ def j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_
 
     # K9 -> [X]9
     for date in report_months:
-        row_nine.append(press_months['{0}-{1}'.format(date.strftime('%b'), date.year)])
+        row_nine.append(press_months["{0}-{1}".format(date.strftime("%b"), date.year)])
 
     for journal_dict in journals:
-        journal = journal_dict['journal']
-        journal_row = [journal.name, press_object.name, 'Janeway', '', '', '', journal.issn,
-                       journal_dict['total'], journal_dict['total_views'], journal_dict['total_downloads']]
+        journal = journal_dict["journal"]
+        journal_row = [
+            journal.name,
+            press_object.name,
+            "Janeway",
+            "",
+            "",
+            "",
+            journal.issn,
+            journal_dict["total"],
+            journal_dict["total_views"],
+            journal_dict["total_downloads"],
+        ]
 
         for date in report_months:
-            journal_row.append(journal_dict['{0}-{1}'.format(date.strftime('%b'), date.year)])
+            journal_row.append(
+                journal_dict["{0}-{1}".format(date.strftime("%b"), date.year)]
+            )
 
         rows.append(journal_row)
 
     # Create the HttpResponse object with the appropriate TSV header.
-    response = HttpResponse(content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename="JR1.tsv"'
+    response = HttpResponse(content_type="text/tsv")
+    response["Content-Disposition"] = 'attachment; filename="JR1.tsv"'
 
     # output the TSV
-    writer = csv.writer(response, delimiter='\t')
+    writer = csv.writer(response, delimiter="\t")
 
     for row in rows:
         writer.writerow(row)
@@ -291,7 +451,9 @@ def j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_
     return response
 
 
-def create_tsv_header(request, start_date, end_date, report_title, report_description, press_object):
+def create_tsv_header(
+    request, start_date, end_date, report_title, report_description, press_object
+):
     row_one = []
     row_two = []
     row_three = []
@@ -318,59 +480,154 @@ def create_tsv_header(request, start_date, end_date, report_title, report_descri
 
     # We do not use institutional identifiers
     # A3
-    row_three.append('')
+    row_three.append("")
 
     # A4
-    row_four.append('Period covered by Report')
+    row_four.append("Period covered by Report")
 
     # A5
-    row_five.append('{0}-{1}-{2} to {3}-{4}-{5}'.format(start_date.year,
-                                                        start_date.strftime('%m'),
-                                                        start_date.strftime('%d'),
-                                                        end_date.year,
-                                                        end_date.strftime('%m'),
-                                                        end_date.strftime('%d')))
+    row_five.append(
+        "{0}-{1}-{2} to {3}-{4}-{5}".format(
+            start_date.year,
+            start_date.strftime("%m"),
+            start_date.strftime("%d"),
+            end_date.year,
+            end_date.strftime("%m"),
+            end_date.strftime("%d"),
+        )
+    )
 
     # A6
-    row_six.append('Date run')
+    row_six.append("Date run")
 
     # A7
-    row_seven.append('{0}-{1}-{2}'.format(timezone.now().year, timezone.now().strftime('%m'),
-                                          timezone.now().strftime('%d')))
+    row_seven.append(
+        "{0}-{1}-{2}".format(
+            timezone.now().year,
+            timezone.now().strftime("%m"),
+            timezone.now().strftime("%d"),
+        )
+    )
 
     return row_one, row_two, row_three, row_four, row_five, row_six, row_seven
 
 
-def jr_one_goa_no_date(request, output_format, compat=False, report_request_id='', requestor_id='',
-                       requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_one_goa_no_date(
+    request,
+    output_format,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     start_date = timezone.now() - relativedelta(years=2)
-    return jr_one_goa_no_end_date(request, output_format, start_date.year, start_date.month, start_date.day, compat,
-                                  report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                                  customer_name)
+    return jr_one_goa_no_end_date(
+        request,
+        output_format,
+        start_date.year,
+        start_date.month,
+        start_date.day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one_goa_no_end_date(request, output_format, start_year, start_month, start_day, compat=False,
-                           report_request_id='', requestor_id='', requestor_email='', requestor_name='',
-                           customer_ID='', customer_name=''):
-    return jr_one_goa_all_dates(request, output_format, start_year, start_month, start_day, timezone.now().year,
-                                timezone.now().month, timezone.now().day, compat, report_request_id, requestor_id,
-                                requestor_email, requestor_name, customer_ID, customer_name)
+def jr_one_goa_no_end_date(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_one_goa_all_dates(
+        request,
+        output_format,
+        start_year,
+        start_month,
+        start_day,
+        timezone.now().year,
+        timezone.now().month,
+        timezone.now().day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one_goa_all_dates(request, output_format, start_year, start_month, start_day, end_year, end_month, end_day,
-                         compat=False, report_request_id='', requestor_id='', requestor_email='', requestor_name='',
-                         customer_ID='', customer_name=''):
-    return jr_one_goa(request, output_format,
-                      timezone.datetime(int(start_year), int(start_month), int(start_day),
-                                        tzinfo=timezone.get_current_timezone()),
-                      timezone.datetime(int(end_year), int(end_month), int(end_day),
-                                        tzinfo=timezone.get_current_timezone()),
-                      compat, report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                      customer_name)
+def jr_one_goa_all_dates(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    end_year,
+    end_month,
+    end_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_one_goa(
+        request,
+        output_format,
+        timezone.datetime(
+            int(start_year),
+            int(start_month),
+            int(start_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        timezone.datetime(
+            int(end_year),
+            int(end_month),
+            int(end_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_one_goa(request, output_format, start_date, end_date, compat=False, report_request_id='', requestor_id='',
-               requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_one_goa(
+    request,
+    output_format,
+    start_date,
+    end_date,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     """
     Produces COUNTER JR1 GOA report in either TSV or XML formats
     :param request: the request object
@@ -384,70 +641,169 @@ def jr_one_goa(request, output_format, start_date, end_date, compat=False, repor
     press_object = press.models.Press.get_press(request)
 
     # fetch the metrics
-    press_total, press_views, press_downloads, press_months, journals = logic.get_press_totals(start_date,
-                                                                                               end_date,
-                                                                                               report_months,
-                                                                                               compat=compat)
+    press_total, press_views, press_downloads, press_months, journals = (
+        logic.get_press_totals(start_date, end_date, report_months, compat=compat)
+    )
 
-    if output_format.upper() == 'TSV':
+    if output_format.upper() == "TSV":
         # output a TSV report
-        return j1_tsv(start_date, end_date, journals, press_downloads, press_months, press_total, press_views,
-                      report_months, request, press_object, 'Journal Report 1 GOA (R4)',
-                      'Number of Successful Gold Open Access Full-Text Article Requests by Month and Journal')
+        return j1_tsv(
+            start_date,
+            end_date,
+            journals,
+            press_downloads,
+            press_months,
+            press_total,
+            press_views,
+            report_months,
+            request,
+            press_object,
+            "Journal Report 1 GOA (R4)",
+            "Number of Successful Gold Open Access Full-Text Article Requests by Month and Journal",
+        )
     else:
         # output an XML report
-        template = 'metrics/counter_jr1_goa.xml'
+        template = "metrics/counter_jr1_goa.xml"
 
         # SUSHI COUNTER spec at: http://www.niso.org/apps/group_public/download.php/14101/COUNTER4_1.png
         # unknown variables:
         # vendor_id
 
-        context = {'start_date': start_date.strftime('%Y-%m-%d'),
-                   'end_date': end_date.strftime('%Y-%m-%d'),
-                   'report_items': journals,
-                   'report_created': timezone.now(),
-                   'vendor_name': press_object.name,
-                   'item_publisher': press_object.name,
-                   'vendor_email': press_object.main_contact,
-                   'report_ID': report_request_id,
-                   'requestor_ID': requestor_id,
-                   'requestor_name': requestor_name,
-                   'requestor_email': requestor_email,
-                   'customer_ID': customer_ID,
-                   'customer_name': customer_name}
+        context = {
+            "start_date": start_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "report_items": journals,
+            "report_created": timezone.now(),
+            "vendor_name": press_object.name,
+            "item_publisher": press_object.name,
+            "vendor_email": press_object.main_contact,
+            "report_ID": report_request_id,
+            "requestor_ID": requestor_id,
+            "requestor_name": requestor_name,
+            "requestor_email": requestor_email,
+            "customer_ID": customer_ID,
+            "customer_name": customer_name,
+        }
 
-        return render(request, template, context, content_type='text/xml')
+        return render(request, template, context, content_type="text/xml")
 
 
-def jr_two_no_date(request, output_format, compat=False, report_request_id='', requestor_id='',
-                   requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_two_no_date(
+    request,
+    output_format,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     start_date = timezone.now() - relativedelta(years=2)
-    return jr_two_no_end_date(request, output_format, start_date.year, start_date.month, start_date.day, compat,
-                              report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                              customer_name)
+    return jr_two_no_end_date(
+        request,
+        output_format,
+        start_date.year,
+        start_date.month,
+        start_date.day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_two_no_end_date(request, output_format, start_year, start_month, start_day, compat=False, report_request_id='',
-                       requestor_id='', requestor_email='', requestor_name='', customer_ID='', customer_name=''):
-    return jr_two_all_dates(request, output_format, start_year, start_month, start_day, timezone.now().year,
-                            timezone.now().month, timezone.now().day, compat, report_request_id, requestor_id,
-                            requestor_email, requestor_name, customer_ID, customer_name)
+def jr_two_no_end_date(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_two_all_dates(
+        request,
+        output_format,
+        start_year,
+        start_month,
+        start_day,
+        timezone.now().year,
+        timezone.now().month,
+        timezone.now().day,
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_two_all_dates(request, output_format, start_year, start_month, start_day, end_year, end_month, end_day,
-                     compat=False, report_request_id='', requestor_id='', requestor_email='', requestor_name='',
-                     customer_ID='', customer_name=''):
-    return jr_two(request, output_format,
-                  timezone.datetime(int(start_year), int(start_month), int(start_day),
-                                    tzinfo=timezone.get_current_timezone()),
-                  timezone.datetime(int(end_year), int(end_month), int(end_day),
-                                    tzinfo=timezone.get_current_timezone()),
-                  compat, report_request_id, requestor_id, requestor_email, requestor_name, customer_ID,
-                  customer_name)
+def jr_two_all_dates(
+    request,
+    output_format,
+    start_year,
+    start_month,
+    start_day,
+    end_year,
+    end_month,
+    end_day,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
+    return jr_two(
+        request,
+        output_format,
+        timezone.datetime(
+            int(start_year),
+            int(start_month),
+            int(start_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        timezone.datetime(
+            int(end_year),
+            int(end_month),
+            int(end_day),
+            tzinfo=timezone.get_current_timezone(),
+        ),
+        compat,
+        report_request_id,
+        requestor_id,
+        requestor_email,
+        requestor_name,
+        customer_ID,
+        customer_name,
+    )
 
 
-def jr_two(request, output_format, start_date, end_date, compat=False, report_request_id='', requestor_id='',
-           requestor_email='', requestor_name='', customer_ID='', customer_name=''):
+def jr_two(
+    request,
+    output_format,
+    start_date,
+    end_date,
+    compat=False,
+    report_request_id="",
+    requestor_id="",
+    requestor_email="",
+    requestor_name="",
+    customer_ID="",
+    customer_name="",
+):
     """
     Produces COUNTER JR1 GOA report in either TSV or XML formats
     :param request: the request object
@@ -461,102 +817,136 @@ def jr_two(request, output_format, start_date, end_date, compat=False, report_re
     press_object = press.models.Press.get_press(request)
 
     # fetch the metrics
-    press_total, press_views, press_downloads, press_months, journals = logic.get_press_totals(start_date,
-                                                                                               end_date,
-                                                                                               report_months,
-                                                                                               compat=compat)
+    press_total, press_views, press_downloads, press_months, journals = (
+        logic.get_press_totals(start_date, end_date, report_months, compat=compat)
+    )
 
-    if output_format.upper() == 'TSV':
+    if output_format.upper() == "TSV":
         # output a TSV report
-        return j2_tsv(start_date, end_date, journals, report_months, request, press_object, 'Journal Report 2 (R4)',
-                      'Access Denied to Full-text Articles by Month, Journal and Category')
+        return j2_tsv(
+            start_date,
+            end_date,
+            journals,
+            report_months,
+            request,
+            press_object,
+            "Journal Report 2 (R4)",
+            "Access Denied to Full-text Articles by Month, Journal and Category",
+        )
     else:
         # output an XML report
-        template = 'metrics/counter_jr2.xml'
+        template = "metrics/counter_jr2.xml"
 
         # SUSHI COUNTER spec at: http://www.niso.org/apps/group_public/download.php/14101/COUNTER4_1.png
         # unknown variables:
         # vendor_id
 
-        context = {'start_date': start_date.strftime('%Y-%m-%d'),
-                   'end_date': end_date.strftime('%Y-%m-%d'),
-                   'report_items': journals,
-                   'report_created': timezone.now(),
-                   'vendor_name': press_object.name,
-                   'item_publisher': press_object.name,
-                   'vendor_email': press_object.main_contact,
-                   'report_ID': report_request_id,
-                   'requestor_ID': requestor_id,
-                   'requestor_name': requestor_name,
-                   'requestor_email': requestor_email,
-                   'customer_ID': customer_ID,
-                   'customer_name': customer_name}
+        context = {
+            "start_date": start_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "report_items": journals,
+            "report_created": timezone.now(),
+            "vendor_name": press_object.name,
+            "item_publisher": press_object.name,
+            "vendor_email": press_object.main_contact,
+            "report_ID": report_request_id,
+            "requestor_ID": requestor_id,
+            "requestor_name": requestor_name,
+            "requestor_email": requestor_email,
+            "customer_ID": customer_ID,
+            "customer_name": customer_name,
+        }
 
-        return render(request, template, context, content_type='text/xml')
+        return render(request, template, context, content_type="text/xml")
 
 
-def j2_tsv(start_date, end_date, journals, report_months, request, press_object, report_title, report_description):
-
-    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = create_tsv_header(request,
-                                                                                            start_date,
-                                                                                            end_date,
-                                                                                            report_title,
-                                                                                            report_description,
-                                                                                            press_object)
+def j2_tsv(
+    start_date,
+    end_date,
+    journals,
+    report_months,
+    request,
+    press_object,
+    report_title,
+    report_description,
+):
+    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = (
+        create_tsv_header(
+            request,
+            start_date,
+            end_date,
+            report_title,
+            report_description,
+            press_object,
+        )
+    )
 
     row_eight = []
     row_nine = []
     row_ten = []
 
-    rows = [row_one, row_two, row_three, row_four, row_five, row_six, row_seven, row_eight, row_nine, row_ten]
+    rows = [
+        row_one,
+        row_two,
+        row_three,
+        row_four,
+        row_five,
+        row_six,
+        row_seven,
+        row_eight,
+        row_nine,
+        row_ten,
+    ]
 
     # A8
-    row_eight.append('Journal')
+    row_eight.append("Journal")
 
     # B8
-    row_eight.append('Publisher')
+    row_eight.append("Publisher")
 
     # C8
-    row_eight.append('Platform')
+    row_eight.append("Platform")
 
     # D8
-    row_eight.append('Journal DOI')
+    row_eight.append("Journal DOI")
 
     # E8
-    row_eight.append('Proprietary Identifier')
+    row_eight.append("Proprietary Identifier")
 
     # F8
-    row_eight.append('Print ISSN')
+    row_eight.append("Print ISSN")
 
     # G8
-    row_eight.append('Online ISSN')
+    row_eight.append("Online ISSN")
 
     # H8
     # The game, not the player.
-    row_eight.append('Access Denied Category')
+    row_eight.append("Access Denied Category")
 
     # I8
-    row_eight.append('Reporting Period Total')
+    row_eight.append("Reporting Period Total")
 
     # J8 -> [X]8
     for date in report_months:
-        row_eight.append('{0}-{1}'.format(date.strftime('%b'), date.year))
+        row_eight.append("{0}-{1}".format(date.strftime("%b"), date.year))
 
     # A9
-    row_nine.append('Total for all Journals')
+    row_nine.append("Total for all Journals")
 
     # B9
     row_nine.append(press_object.name)
 
     # C9
-    row_nine.append('Janeway')
+    row_nine.append("Janeway")
 
     # D9 -> G9
     for x in range(1, 5):
-        row_nine.append('')
+        row_nine.append("")
 
     # H9
-    row_nine.append('Access denied: concurrent/simultaneous user license limit exceeded')
+    row_nine.append(
+        "Access denied: concurrent/simultaneous user license limit exceeded"
+    )
 
     # I9
     row_nine.append(0)
@@ -566,20 +956,20 @@ def j2_tsv(start_date, end_date, journals, report_months, request, press_object,
         row_nine.append(0)
 
     # A10
-    row_ten.append('Total for all Journals')
+    row_ten.append("Total for all Journals")
 
     # B10
     row_ten.append(press_object.name)
 
     # C1-
-    row_ten.append('Janeway')
+    row_ten.append("Janeway")
 
     # D10 -> G10
     for x in range(1, 5):
-        row_ten.append('')
+        row_ten.append("")
 
     # H10
-    row_ten.append('Access denied: content item not licensed')
+    row_ten.append("Access denied: content item not licensed")
 
     # I10
     row_ten.append(0)
@@ -589,17 +979,35 @@ def j2_tsv(start_date, end_date, journals, report_months, request, press_object,
         row_ten.append(0)
 
     for journal_dict in journals:
-        journal = journal_dict['journal']
-        journal_row = [journal.name, press_object.name, 'Janeway', '', '', '', journal.issn,
-                       'Access denied: concurrent/simultaneous user license limit exceeded', 0]
+        journal = journal_dict["journal"]
+        journal_row = [
+            journal.name,
+            press_object.name,
+            "Janeway",
+            "",
+            "",
+            "",
+            journal.issn,
+            "Access denied: concurrent/simultaneous user license limit exceeded",
+            0,
+        ]
 
         for date in report_months:
             journal_row.append(0)
 
         rows.append(journal_row)
 
-        journal_row_two = [journal.name, press_object.name, 'Janeway', '', '', '', journal.issn,
-                           'Access denied: content item not licensed', 0]
+        journal_row_two = [
+            journal.name,
+            press_object.name,
+            "Janeway",
+            "",
+            "",
+            "",
+            journal.issn,
+            "Access denied: content item not licensed",
+            0,
+        ]
 
         for date in report_months:
             journal_row_two.append(0)
@@ -607,11 +1015,11 @@ def j2_tsv(start_date, end_date, journals, report_months, request, press_object,
         rows.append(journal_row_two)
 
     # Create the HttpResponse object with the appropriate TSV header.
-    response = HttpResponse(content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename="JR2.tsv"'
+    response = HttpResponse(content_type="text/tsv")
+    response["Content-Disposition"] = 'attachment; filename="JR2.tsv"'
 
     # output the TSV
-    writer = csv.writer(response, delimiter='\t')
+    writer = csv.writer(response, delimiter="\t")
 
     for row in rows:
         writer.writerow(row)
@@ -619,65 +1027,90 @@ def j2_tsv(start_date, end_date, journals, report_months, request, press_object,
     return response
 
 
-def j5_tsv(start_date, end_date, journals, yops, request, press_object, report_title, report_description):
-
-    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = create_tsv_header(request,
-                                                                                            start_date,
-                                                                                            end_date,
-                                                                                            report_title,
-                                                                                            report_description,
-                                                                                            press_object)
+def j5_tsv(
+    start_date,
+    end_date,
+    journals,
+    yops,
+    request,
+    press_object,
+    report_title,
+    report_description,
+):
+    row_one, row_two, row_three, row_four, row_five, row_six, row_seven = (
+        create_tsv_header(
+            request,
+            start_date,
+            end_date,
+            report_title,
+            report_description,
+            press_object,
+        )
+    )
 
     row_eight = []
     row_nine = []
     row_ten = []
 
-    rows = [row_one, row_two, row_three, row_four, row_five, row_six, row_seven, row_eight, row_nine, row_ten]
+    rows = [
+        row_one,
+        row_two,
+        row_three,
+        row_four,
+        row_five,
+        row_six,
+        row_seven,
+        row_eight,
+        row_nine,
+        row_ten,
+    ]
 
     # A8
-    row_eight.append('Journal')
+    row_eight.append("Journal")
 
     # B8
-    row_eight.append('Publisher')
+    row_eight.append("Publisher")
 
     # C8
-    row_eight.append('Platform')
+    row_eight.append("Platform")
 
     # D8
-    row_eight.append('Journal DOI')
+    row_eight.append("Journal DOI")
 
     # E8
-    row_eight.append('Proprietary Identifier')
+    row_eight.append("Proprietary Identifier")
 
     # F8
-    row_eight.append('Print ISSN')
+    row_eight.append("Print ISSN")
 
     # G8
-    row_eight.append('Online ISSN')
+    row_eight.append("Online ISSN")
 
     # H8
     # The game, not the player.
-    row_eight.append('Articles in Press')
+    row_eight.append("Articles in Press")
 
     # I8 -> [X]8
     for year in yops:
-        row_eight.append('YOP {0}'.format(yops[year]))
+        row_eight.append("YOP {0}".format(yops[year]))
 
     # A9
-    row_nine.append('Total for all Journals')
+    row_nine.append("Total for all Journals")
 
     # B9
     row_nine.append(press_object.name)
 
     # C9
-    row_nine.append('Janeway')
+    row_nine.append("Janeway")
 
     # D9 -> G9
     for x in range(1, 5):
-        row_nine.append('')
+        row_nine.append("")
 
     # H9
-    row_nine.append('Access denied: concurrent/simultaneous user license limit exceeded')
+    row_nine.append(
+        "Access denied: concurrent/simultaneous user license limit exceeded"
+    )
 
     # I9
     row_nine.append(0)
@@ -687,20 +1120,20 @@ def j5_tsv(start_date, end_date, journals, yops, request, press_object, report_t
         row_nine.append(0)
 
     # A10
-    row_ten.append('Total for all Journals')
+    row_ten.append("Total for all Journals")
 
     # B10
     row_ten.append(press_object.name)
 
     # C1-
-    row_ten.append('Janeway')
+    row_ten.append("Janeway")
 
     # D10 -> G10
     for x in range(1, 5):
-        row_ten.append('')
+        row_ten.append("")
 
     # H10
-    row_ten.append('Access denied: content item not licensed')
+    row_ten.append("Access denied: content item not licensed")
 
     # I10
     row_ten.append(0)
@@ -710,17 +1143,35 @@ def j5_tsv(start_date, end_date, journals, yops, request, press_object, report_t
         row_ten.append(0)
 
     for journal_dict in journals:
-        journal = journal_dict['journal']
-        journal_row = [journal.name, press_object.name, 'Janeway', '', '', '', journal.issn,
-                       'Access denied: concurrent/simultaneous user license limit exceeded', 0]
+        journal = journal_dict["journal"]
+        journal_row = [
+            journal.name,
+            press_object.name,
+            "Janeway",
+            "",
+            "",
+            "",
+            journal.issn,
+            "Access denied: concurrent/simultaneous user license limit exceeded",
+            0,
+        ]
 
         for date in report_months:
             journal_row.append(0)
 
         rows.append(journal_row)
 
-        journal_row_two = [journal.name, press_object.name, 'Janeway', '', '', '', journal.issn,
-                           'Access denied: content item not licensed', 0]
+        journal_row_two = [
+            journal.name,
+            press_object.name,
+            "Janeway",
+            "",
+            "",
+            "",
+            journal.issn,
+            "Access denied: content item not licensed",
+            0,
+        ]
 
         for date in report_months:
             journal_row_two.append(0)
@@ -728,11 +1179,11 @@ def j5_tsv(start_date, end_date, journals, yops, request, press_object, report_t
         rows.append(journal_row_two)
 
     # Create the HttpResponse object with the appropriate TSV header.
-    response = HttpResponse(content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename="JR2.tsv"'
+    response = HttpResponse(content_type="text/tsv")
+    response["Content-Disposition"] = 'attachment; filename="JR2.tsv"'
 
     # output the TSV
-    writer = csv.writer(response, delimiter='\t')
+    writer = csv.writer(response, delimiter="\t")
 
     for row in rows:
         writer.writerow(row)

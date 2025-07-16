@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0057_unique_keywords'),
-        ('submission', '0057_frozen_email_and_orcid'),
+        ("submission", "0057_unique_keywords"),
+        ("submission", "0057_frozen_email_and_orcid"),
     ]
 
-    operations = [
-    ]
+    operations = []

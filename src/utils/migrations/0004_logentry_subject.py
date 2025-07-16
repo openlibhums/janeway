@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0003_auto_20171113_1251'),
+        ("utils", "0003_auto_20171113_1251"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='logentry',
-            name='subject',
+            model_name="logentry",
+            name="subject",
             field=models.TextField(blank=True, null=True),
         ),
     ]

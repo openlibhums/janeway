@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0056_auto_20210913_0818'),
+        ("core", "0056_auto_20210913_0818"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='galley',
-            name='public',
+            model_name="galley",
+            name="public",
             field=models.BooleanField(default=True),
         ),
     ]

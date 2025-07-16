@@ -11,13 +11,12 @@ from cron import models
 
 
 class ReminderForm(forms.ModelForm):
-
     class Meta:
         model = models.Reminder
-        exclude = ('journal',)
+        exclude = ("journal",)
 
     def __init__(self, *args, **kwargs):
-        self.journal = kwargs.pop('journal')
+        self.journal = kwargs.pop("journal")
         super(ReminderForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):

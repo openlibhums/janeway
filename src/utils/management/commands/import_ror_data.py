@@ -55,6 +55,5 @@ class Command(BaseCommand):
                 limit=limit,
             )
         logger.debug(
-            f'ROR import exited with status: '
-            f'{ ror_import.get_status_display() }'
+            f"ROR import exited with status: {ror_import.get_status_display()}"
         )

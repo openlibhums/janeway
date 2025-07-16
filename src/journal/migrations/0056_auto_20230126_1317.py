@@ -6,20 +6,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('journal', '0055_issue_isbn'),
+        ("journal", "0055_issue_isbn"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='issueeditor',
-            options={'ordering': ('sequence', 'account')},
+            name="issueeditor",
+            options={"ordering": ("sequence", "account")},
         ),
         migrations.AddField(
-            model_name='issueeditor',
-            name='sequence',
-            field=models.PositiveIntegerField(default=1, help_text='Provides for ordering of the Issue Editors.'),
+            model_name="issueeditor",
+            name="sequence",
+            field=models.PositiveIntegerField(
+                default=1, help_text="Provides for ordering of the Issue Editors."
+            ),
         ),
     ]

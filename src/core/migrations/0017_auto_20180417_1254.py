@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0016_merge_20180417_1131'),
+        ("core", "0016_merge_20180417_1131"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='supplementaryfile',
-            name='doi',
+            model_name="supplementaryfile",
+            name="doi",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

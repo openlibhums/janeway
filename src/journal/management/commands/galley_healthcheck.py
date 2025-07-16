@@ -14,10 +14,10 @@ class Command(BaseCommand):
     help = "Checks the health of all the published article galleys"
 
     def add_arguments(self, parser):
-        parser.add_argument('journal_codes', nargs='*', default=None)
+        parser.add_argument("journal_codes", nargs="*", default=None)
 
     def handle(self, *args, **options):
-        """ Healthchecks of all article galleys in two ways
+        """Healthchecks of all article galleys in two ways
         1. Verifies all published articles have a PDF or a render galley
         2. Verifies that all the images are available for each render galley
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        journal_codes = options.get('journal_codes')
+        journal_codes = options.get("journal_codes")
 
         journals = journal_models.Journal.objects.all()
         if journal_codes:
@@ -33,10 +33,13 @@ class Command(BaseCommand):
 
         for journal in journals:
             articles = models.Article.objects.filter(
-                    stage=models.STAGE_PUBLISHED, journal=journal)
+                stage=models.STAGE_PUBLISHED, journal=journal
+            )
 
             for article in articles:
-                print("Verifying {article.pk} - {article.title}".format(article=article))
+                print(
+                    "Verifying {article.pk} - {article.title}".format(article=article)
+                )
                 render_galley = article.get_render_galley
                 has_pdf = article.pdfs.exists()
                 if not (has_pdf or render_galley):
@@ -52,12 +55,9 @@ class Command(BaseCommand):
 def retrieve_image_urls_from_galley(galley):
     xml_file_contents = galley.file.get_file(galley.article)
 
-    souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
+    souped_xml = BeautifulSoup(xml_file_contents, "lxml")
 
-    elements = {
-        'img': 'src',
-        'graphic': 'xlink:href'
-    }
+    elements = {"img": "src", "graphic": "xlink:href"}
 
     return [
         val.get(attribute)

@@ -7,20 +7,23 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preprint', '0002_auto_20171009_1134'),
+        ("preprint", "0002_auto_20171009_1134"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='body',
-            field=models.TextField(verbose_name='Write your comment:'),
+            model_name="comment",
+            name="body",
+            field=models.TextField(verbose_name="Write your comment:"),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='reply_to',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='preprint.Comment'),
+            model_name="comment",
+            name="reply_to",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="preprint.Comment",
+            ),
         ),
     ]

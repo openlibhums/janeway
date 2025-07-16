@@ -6,20 +6,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0046_merge_20200604_1040'),
+        ("submission", "0046_merge_20200604_1040"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='subtitle',
-            field=models.CharField(blank=True, help_text='Do not use--deprecated in version 1.4.1 and later.', max_length=999, null=True),
+            model_name="article",
+            name="subtitle",
+            field=models.CharField(
+                blank=True,
+                help_text="Do not use--deprecated in version 1.4.1 and later.",
+                max_length=999,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title',
-            field=models.CharField(help_text='Your article title', max_length=999),
+            model_name="article",
+            name="title",
+            field=models.CharField(help_text="Your article title", max_length=999),
         ),
     ]

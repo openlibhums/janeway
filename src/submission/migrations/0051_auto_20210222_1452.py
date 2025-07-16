@@ -7,15 +7,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0050_support_ordered_keywords'),
+        ("submission", "0050_support_ordered_keywords"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='keywords',
-            field=core.model_utils.M2MOrderedThroughField(blank=True, null=True, through='submission.KeywordArticle', to='submission.Keyword'),
+            model_name="article",
+            name="keywords",
+            field=core.model_utils.M2MOrderedThroughField(
+                blank=True,
+                null=True,
+                through="submission.KeywordArticle",
+                to="submission.Keyword",
+            ),
         ),
     ]

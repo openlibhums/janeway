@@ -6,20 +6,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0013_auto_20171004_1002'),
+        ("submission", "0013_auto_20171004_1002"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='preprint_decision_notification',
+            model_name="article",
+            name="preprint_decision_notification",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='stage',
-            field=models.CharField(choices=[('Unsubmitted', 'Unsubmitted'), ('Unassigned', 'Unassigned'), ('Assigned', 'Assigned'), ('Under Review', 'Under Review'), ('Under Revision', 'Under Revision'), ('Rejected', 'Rejected'), ('Accepted', 'Accepted'), ('Editor Copyediting', 'Editor Copyediting'), ('Author Copyediting', 'Author Copyediting'), ('Final Copyediting', 'Final Copyediting'), ('Typesetting', 'Typesetting'), ('Proofing', 'Proofing'), ('pre_publication', 'Pre Publication'), ('Published', 'Published'), ('preprint_review', 'Preprint Review'), ('preprint_published', 'Preprint Published')], default='Unsubmitted', max_length=200),
+            model_name="article",
+            name="stage",
+            field=models.CharField(
+                choices=[
+                    ("Unsubmitted", "Unsubmitted"),
+                    ("Unassigned", "Unassigned"),
+                    ("Assigned", "Assigned"),
+                    ("Under Review", "Under Review"),
+                    ("Under Revision", "Under Revision"),
+                    ("Rejected", "Rejected"),
+                    ("Accepted", "Accepted"),
+                    ("Editor Copyediting", "Editor Copyediting"),
+                    ("Author Copyediting", "Author Copyediting"),
+                    ("Final Copyediting", "Final Copyediting"),
+                    ("Typesetting", "Typesetting"),
+                    ("Proofing", "Proofing"),
+                    ("pre_publication", "Pre Publication"),
+                    ("Published", "Published"),
+                    ("preprint_review", "Preprint Review"),
+                    ("preprint_published", "Preprint Published"),
+                ],
+                default="Unsubmitted",
+                max_length=200,
+            ),
         ),
     ]

@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0023_auto_20240312_0922'),
+        ("review", "0023_auto_20240312_0922"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='frozenreviewformelement',
-            name='width',
+            model_name="frozenreviewformelement",
+            name="width",
         ),
         migrations.RemoveField(
-            model_name='reviewformelement',
-            name='width',
+            model_name="reviewformelement",
+            name="width",
         ),
     ]

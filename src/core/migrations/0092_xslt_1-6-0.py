@@ -18,7 +18,7 @@ Changes from v1.5.1
 
 
 def upgrade(apps, schema_editor):
-    """ Installs the latest default XSLT preserving the previous one
+    """Installs the latest default XSLT preserving the previous one
 
     Only runs if the previous version XSLT was installed.
     If it was, it relabels it (the old label had no version), installs
@@ -39,7 +39,7 @@ def upgrade(apps, schema_editor):
         not XSLFile.objects.filter(label=LATEST_LABEL).exists()
         and LATEST_LABEL == settings.DEFAULT_XSL_FILE_LABEL
     ):
-        with open(xsl_path, 'rb') as f:
+        with open(xsl_path, "rb") as f:
             xsl_file = ContentFile(f.read())
             xsl_file.name = FILE_NAME
 
@@ -57,11 +57,8 @@ def upgrade(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0091_merge_20240425_1555'),
+        ("core", "0091_merge_20240425_1555"),
     ]
 
-    operations = [
-        migrations.RunPython(upgrade, reverse_code=migrations.RunPython.noop)
-    ]
+    operations = [migrations.RunPython(upgrade, reverse_code=migrations.RunPython.noop)]

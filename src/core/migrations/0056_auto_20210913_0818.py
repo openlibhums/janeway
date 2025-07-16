@@ -10,29 +10,26 @@ def remove_popular_article(apps, schema_editor):
     Removes a popular_articles in case a migration was run before the reversion of this
     plugin name.
     """
-    SettingGroup = apps.get_model('core', 'SettingGroup')
-    Setting = apps.get_model('core', 'Setting')
-    SettingValue = apps.get_model('core', 'SettingValue')
-    Plugin = apps.get_model('utils', 'Plugin')
+    SettingGroup = apps.get_model("core", "SettingGroup")
+    Setting = apps.get_model("core", "Setting")
+    SettingValue = apps.get_model("core", "SettingValue")
+    Plugin = apps.get_model("utils", "Plugin")
 
     SettingValue.objects.filter(
-        setting__group__name='plugin:popular_articles',
+        setting__group__name="plugin:popular_articles",
     ).delete()
     Setting.objects.filter(
-        group__name='plugin:popular_articles',
+        group__name="plugin:popular_articles",
     ).delete()
     SettingGroup.objects.filter(
-        name='plugin:popular_articles',
+        name="plugin:popular_articles",
     ).delete()
-    Plugin.objects.filter(
-        name='popular_articles'
-    ).delete()
+    Plugin.objects.filter(name="popular_articles").delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0055_extend_file_label_field'),
+        ("core", "0055_extend_file_label_field"),
     ]
 
     operations = [

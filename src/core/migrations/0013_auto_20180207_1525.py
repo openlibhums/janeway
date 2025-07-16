@@ -6,23 +6,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0012_workflowlog'),
+        ("core", "0012_workflowlog"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='account',
-            options={'ordering': ('first_name', 'last_name', 'username')},
+            name="account",
+            options={"ordering": ("first_name", "last_name", "username")},
         ),
         migrations.AlterModelOptions(
-            name='workflowlog',
-            options={'ordering': ('timestamp',)},
+            name="workflowlog",
+            options={"ordering": ("timestamp",)},
         ),
         migrations.AddField(
-            model_name='workflowelement',
-            name='article_url',
+            model_name="workflowelement",
+            name="article_url",
             field=models.BooleanField(default=True),
         ),
     ]

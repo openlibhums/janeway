@@ -6,50 +6,49 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0049_modeltranslations_tidy'),
+        ("core", "0049_modeltranslations_tidy"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='editorialgroup',
-            name='description_cy',
+            model_name="editorialgroup",
+            name="description_cy",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='description_de',
+            model_name="editorialgroup",
+            name="description_de",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='description_en',
+            model_name="editorialgroup",
+            name="description_en",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='description_fr',
+            model_name="editorialgroup",
+            name="description_fr",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='name_cy',
+            model_name="editorialgroup",
+            name="name_cy",
             field=models.CharField(max_length=500, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='name_de',
+            model_name="editorialgroup",
+            name="name_de",
             field=models.CharField(max_length=500, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='name_en',
+            model_name="editorialgroup",
+            name="name_en",
             field=models.CharField(max_length=500, null=True),
         ),
         migrations.AddField(
-            model_name='editorialgroup',
-            name='name_fr',
+            model_name="editorialgroup",
+            name="name_fr",
             field=models.CharField(max_length=500, null=True),
         ),
     ]

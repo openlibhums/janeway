@@ -10,10 +10,8 @@ from reports import views
 
 
 urlpatterns = [
-
     # Editor URLs
-    re_path(r'^$', views.index, name='reports_index'),
-    re_path(r'^metrics/$', views.metrics, name='reports_metrics'),
-    re_path(r'^doiresolution/$', views.dois, name='reports_dois'),
-
+    re_path(r"^$", views.index, name="reports_index"),
+    re_path(r"^metrics/$", views.metrics, name="reports_metrics"),
+    re_path(r"^doiresolution/$", views.dois, name="reports_dois"),
 ]

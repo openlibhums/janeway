@@ -8,30 +8,28 @@ from utils import setting_handler
 
 
 def delete_display_about_on_submissions(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
     Setting.objects.filter(
-        group__name='general',
-        name='display_about_on_submissions',
+        group__name="general",
+        name="display_about_on_submissions",
     ).delete()
 
 
 def add_display_about_on_submissions(apps, schema_editor):
     setting_handler.create_setting(
-        setting_group_name='general',
-        setting_name='display_about_on_submissions',
-        type='boolean',
+        setting_group_name="general",
+        setting_name="display_about_on_submissions",
+        type="boolean",
         pretty_name="Display 'About' on submissions",
-        description='If enabled, the journal about block will be rendered in the submissions page',
+        description="If enabled, the journal about block will be rendered in the submissions page",
         is_translatable=False,
-        default_value=' ',
+        default_value=" ",
     )
 
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0059_auto_20211013_1657'),
+        ("core", "0059_auto_20211013_1657"),
     ]
 
     operations = [

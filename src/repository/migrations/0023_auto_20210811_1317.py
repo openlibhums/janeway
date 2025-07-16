@@ -8,15 +8,14 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('repository', '0022_auto_20210303_1450'),
+        ("repository", "0022_auto_20210303_1450"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='preprintauthor',
-            unique_together=set([('account', 'preprint')]),
+            name="preprintauthor",
+            unique_together=set([("account", "preprint")]),
         ),
     ]

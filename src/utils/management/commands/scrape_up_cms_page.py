@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 from django.utils import translation
 
@@ -10,6 +9,7 @@ class Command(BaseCommand):
     """
     Scrapes a given CMS page from an UP journal
     """
+
     help = "Scrapes a given CMS page from an UP journal"
 
     def add_arguments(self, parser):
@@ -18,22 +18,19 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('page_url', default=None)
+        parser.add_argument("page_url", default=None)
         parser.add_argument(
-            'page_name',
+            "page_name",
             help="The display name for the page in Janeway",
         )
-        parser.add_argument('journal_code', default=None)
+        parser.add_argument("journal_code", default=None)
 
     def handle(self, *args, **options):
-        translation.activate('en')
+        translation.activate("en")
         try:
-            journal = models.Journal.objects.get(
-                code=options.get('journal_code')
-            )
+            journal = models.Journal.objects.get(code=options.get("journal_code"))
         except models.Journal.DoesNotExist:
-            exit('[Error] No journal found with that code.')
+            exit("[Error] No journal found with that code.")
         else:
-            print('Scraping into {}'.format(journal.name))
+            print("Scraping into {}".format(journal.name))
             scrape_cms_page(journal, options["page_url"], options["page_name"])
-

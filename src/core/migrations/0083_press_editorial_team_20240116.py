@@ -18,44 +18,48 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('journal', '0059_alter_prepublicationchecklistitem_completed_by'),
-        ('press', '0031_staffgroup_staffgroupmember'),
-        ('core', '0082_account_name_prefix_20231204_1231'),
+        ("journal", "0059_alter_prepublicationchecklistitem_completed_by"),
+        ("press", "0031_staffgroup_staffgroupmember"),
+        ("core", "0082_account_name_prefix_20231204_1231"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='editorialgroup',
-            name='press',
+            model_name="editorialgroup",
+            name="press",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to='press.press',
+                to="press.press",
                 null=True,
             ),
         ),
-        migrations.RunPython(set_default_press_id, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            set_default_press_id, reverse_code=migrations.RunPython.noop
+        ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='press',
+            model_name="editorialgroup",
+            name="press",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to='press.press',
+                to="press.press",
                 default=core.models.default_press_id,
             ),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='journal',
+            model_name="editorialgroup",
+            name="journal",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to='journal.journal'
+                to="journal.journal",
             ),
         ),
         migrations.AddField(
-            model_name='editorialgroupmember',
-            name='statement',
-            field=models.TextField(blank=True, help_text='A statement of interest or purpose'),
+            model_name="editorialgroupmember",
+            name="statement",
+            field=models.TextField(
+                blank=True, help_text="A statement of interest or purpose"
+            ),
         ),
     ]

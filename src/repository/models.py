@@ -28,63 +28,61 @@ from submission import models as submission_models
 from events import logic as event_logic
 
 
-STAGE_PREPRINT_UNSUBMITTED = 'preprint_unsubmitted'
-STAGE_PREPRINT_REVIEW = 'preprint_review'
-STAGE_PREPRINT_PUBLISHED = 'preprint_published'
-STAGE_PREPRINT_REJECTED = 'preprint_rejected'
+STAGE_PREPRINT_UNSUBMITTED = "preprint_unsubmitted"
+STAGE_PREPRINT_REVIEW = "preprint_review"
+STAGE_PREPRINT_PUBLISHED = "preprint_published"
+STAGE_PREPRINT_REJECTED = "preprint_rejected"
 
 SUBMITTED_STAGES = {
     STAGE_PREPRINT_REVIEW,
     STAGE_PREPRINT_PUBLISHED,
-    STAGE_PREPRINT_REJECTED
+    STAGE_PREPRINT_REJECTED,
 }
 
 
 def html_input_types():
     return (
-        ('text', 'Text'),
-        ('select', 'Dropdown'),
-        ('checkbox', 'Checkbox'),
-        ('number', 'Number'),
-        ('date', 'Date'),
-        ('textarea', 'Text Area'),
+        ("text", "Text"),
+        ("select", "Dropdown"),
+        ("checkbox", "Checkbox"),
+        ("number", "Number"),
+        ("date", "Date"),
+        ("textarea", "Text Area"),
     )
 
 
 def width_choices():
     return (
-        (3, '3'),
-        (6, '6'),
-        (9, '9'),
-        (12, '12'),
+        (3, "3"),
+        (6, "6"),
+        (9, "9"),
+        (12, "12"),
     )
 
 
 def theme_choices():
-    return(
-        (theme, theme) for theme in settings.REPOSITORY_THEMES
-    )
+    return ((theme, theme) for theme in settings.REPOSITORY_THEMES)
 
 
-fs_path = os.path.join('files/')
+fs_path = os.path.join("files/")
 preprint_file_store = JanewayFileSystemStorage(location=fs_path)
 preprint_media_store = JanewayFileSystemStorage()
 
 
 def preprint_file_upload(instance, filename):
     try:
-        uuid_filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        uuid_filename = str(uuid.uuid4()) + "." + str(filename.split(".")[1])
     except IndexError:
         uuid_filename = str(uuid.uuid4())
 
-    path = os.path.join('repos', str(instance.preprint.pk), uuid_filename)
+    path = os.path.join("repos", str(instance.preprint.pk), uuid_filename)
     instance.original_filename = filename
     return path
 
 
 def repo_media_upload(instance, filename):
     try:
-        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        filename = str(uuid.uuid4()) + "." + str(filename.split(".")[1])
     except IndexError:
         filename = str(uuid.uuid4())
 
@@ -96,28 +94,27 @@ class Repository(model_utils.AbstractSiteModel):
     AUTH_SUCCESS_URL = "repository_dashboard"
 
     press = models.ForeignKey(
-        'press.Press',
+        "press.Press",
         null=True,
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=255)
     short_name = models.CharField(
-        max_length=15,
-        help_text='Shortened version of the name eg. olh. Max 15 chars.'
+        max_length=15, help_text="Shortened version of the name eg. olh. Max 15 chars."
     )
     object_name = models.CharField(
         max_length=255,
-        help_text='eg. preprint or article',
+        help_text="eg. preprint or article",
     )
     object_name_plural = models.CharField(
         max_length=255,
-        help_text='eg. preprints or articles',
+        help_text="eg. preprints or articles",
     )
-    managers = models.ManyToManyField('core.Account', blank=True)
+    managers = models.ManyToManyField("core.Account", blank=True)
     submission_notification_recipients = models.ManyToManyField(
-        'core.Account',
+        "core.Account",
         blank=True,
-        related_name='submission_notification_repositories',
+        related_name="submission_notification_repositories",
     )
     logo = model_utils.SVGImageField(
         blank=True,
@@ -139,52 +136,53 @@ class Repository(model_utils.AbstractSiteModel):
     )
     publisher = models.CharField(
         max_length=255,
-        help_text=_('Used for outputs including DC and Citation metadata'),
+        help_text=_("Used for outputs including DC and Citation metadata"),
     )
     custom_js_code = models.TextField(
         blank=True,
         null=True,
-        help_text=_('The contents of this field are output into the JS area'
-                    'at the foot of every Repository page.')
+        help_text=_(
+            "The contents of this field are output into the JS area"
+            "at the foot of every Repository page."
+        ),
     )
-    live = models.BooleanField(
-        default=False,
-        verbose_name='Repository is Live?'
-    )
+    live = models.BooleanField(default=False, verbose_name="Repository is Live?")
     limit_upload_to_pdf = models.BooleanField(
         default=False,
-        help_text=_('If set to True, this will require all file uploads from'
-                    'authors to be PDF files.')
+        help_text=_(
+            "If set to True, this will require all file uploads from"
+            "authors to be PDF files."
+        ),
     )
     about = model_utils.JanewayBleachField(blank=True, null=True)
     start = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        verbose_name='Submission Start Text',
+        verbose_name="Submission Start Text",
     )
     file_upload_help = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text="Add any information that the author may need to know as "
-                  "part of the file upload process.",
+        "part of the file upload process.",
         verbose_name="File Upload Help",
     )
     require_pdf_help = model_utils.JanewayBleachField(
-        default='requires that all author uploads be PDF files.',
-        help_text='When a repository requires that all manuscripts be PDF this text is combined with the repository '
-                  'name and displayed with the default text it would diplay: RepositoryName requires that all author '
-                  'uploads be PDF files.',
+        default="requires that all author uploads be PDF files.",
+        help_text="When a repository requires that all manuscripts be PDF this text is combined with the repository "
+        "name and displayed with the default text it would diplay: RepositoryName requires that all author "
+        "uploads be PDF files.",
         verbose_name="Limit Upload to PDF Help",
         null=True,
         blank=True,
     )
     additional_version_help = model_utils.JanewayBleachField(
         blank=True,
-        help_text='This text allows repository managers to provide additional '
-                  'information to authors when they are uploading an update '
-                  'to their submission.',
-        default='',
-        verbose_name="Additional version upload help text"
+        help_text="This text allows repository managers to provide additional "
+        "information to authors when they are uploading an update "
+        "to their submission.",
+        default="",
+        verbose_name="Additional version upload help text",
     )
     submission = model_utils.JanewayBleachField(blank=True, null=True)
     publication = model_utils.JanewayBleachField(blank=True, null=True)
@@ -193,85 +191,85 @@ class Repository(model_utils.AbstractSiteModel):
     decline_version = model_utils.JanewayBleachField(blank=True, null=True)
     enable_comments = models.BooleanField(
         default=True,
-        help_text='Enabling this will turn on the comment feature.',
+        help_text="Enabling this will turn on the comment feature.",
     )
     enable_invited_comments = models.BooleanField(
         default=True,
-        help_text='Enable to display the invited comments interface.',
+        help_text="Enable to display the invited comments interface.",
     )
     new_comment = model_utils.JanewayBleachField(blank=True, null=True)
     review_invitation = model_utils.JanewayBleachField(blank=True, null=True)
     review_helper = model_utils.JanewayBleachField(blank=True, null=True)
     manager_review_status_change = model_utils.JanewayBleachField(blank=True, null=True)
-    reviewer_review_status_change = model_utils.JanewayBleachField(blank=True, null=True)
+    reviewer_review_status_change = model_utils.JanewayBleachField(
+        blank=True, null=True
+    )
     footer = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        default='<p>Powered by Janeway</p>',
+        default="<p>Powered by Janeway</p>",
     )
     login_text = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        help_text='If text is added it will display on the login '
-                  'and register pages.',
-        verbose_name='Account Page Text'
+        help_text="If text is added it will display on the login and register pages.",
+        verbose_name="Account Page Text",
     )
     submission_agreement = model_utils.JanewayBleachField(
         null=True,
         help_text="Add any information that the author may need to know as "
-                  "part of their submission, eg. Copyright transfer etc.'",
+        "part of their submission, eg. Copyright transfer etc.'",
         default="<p>Authors grant us the right to publish, on this website, "
-                "their uploaded manuscript, supplementary materials and "
-                "any supplied metadata.</p>",
+        "their uploaded manuscript, supplementary materials and "
+        "any supplied metadata.</p>",
     )
 
     random_homepage_preprints = models.BooleanField(default=False)
     homepage_preprints = models.ManyToManyField(
-        'submission.Article',
+        "submission.Article",
         blank=True,
     )
     limit_access_to_submission = models.BooleanField(
         default=False,
-        help_text='If enabled, users need to request access to submit preprints.',
+        help_text="If enabled, users need to request access to submit preprints.",
     )
     submission_access_request_text = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        help_text='Describe any supporting information you want users to supply when requesting'
-                  'access permissions for this repository. Linked to Limit Access to Submissions.',
+        help_text="Describe any supporting information you want users to supply when requesting"
+        "access permissions for this repository. Linked to Limit Access to Submissions.",
     )
     review_submission_text = model_utils.JanewayBleachField(
         blank=True,
         default="<p>Please review your submission carefully. Make any "
-                "necessary changes to ensure that all information is accurate "
-                "and complete.</p><p>When you are satisfied with your review "
-                "click the button below to finalize your submission.</p>",
+        "necessary changes to ensure that all information is accurate "
+        "and complete.</p><p>When you are satisfied with your review "
+        "click the button below to finalize your submission.</p>",
         help_text="Text that displays on the review page just before the "
-                  "author completes their submission."
+        "author completes their submission.",
     )
     submission_access_contact = models.EmailField(
         blank=True,
         null=True,
-        help_text='Will be notified of new submission access requests.',
+        help_text="Will be notified of new submission access requests.",
     )
     active_licenses = models.ManyToManyField(
-        'submission.Licence',
+        "submission.Licence",
         blank=True,
     )
     history = HistoricalRecords()
     theme = models.CharField(
         max_length=20,
         blank=False,
-        default='OLH',
+        default="OLH",
         choices=theme_choices(),
     )
     display_public_metrics = models.BooleanField(
-        default=False,
-        help_text='Enable this setting to display metrics publicly.'
+        default=False, help_text="Enable this setting to display metrics publicly."
     )
 
     class Meta:
-        verbose_name_plural = 'repositories'
+        verbose_name_plural = "repositories"
 
     @classmethod
     def get_by_request(cls, request):
@@ -279,7 +277,7 @@ class Repository(model_utils.AbstractSiteModel):
         if not obj:
             # Lookup by short_name
             try:
-                short_name = request.path.split('/')[1]
+                short_name = request.path.split("/")[1]
                 obj = cls.objects.get(short_name=short_name)
                 path = short_name
             except (IndexError, cls.DoesNotExist):
@@ -287,8 +285,8 @@ class Repository(model_utils.AbstractSiteModel):
         return obj, path
 
     def __str__(self):
-        return '[{}] {}'.format(
-            'live' if self.live else 'disabled',
+        return "[{}] {}".format(
+            "live" if self.live else "disabled",
             self.name,
         )
 
@@ -296,23 +294,21 @@ class Repository(model_utils.AbstractSiteModel):
         return Subject.objects.filter(
             repository=self,
             parent=None,
-        ).prefetch_related(
-            'children'
-        )
+        ).prefetch_related("children")
 
     def additional_submission_fields(self):
         return RepositoryField.objects.filter(
             repository=self,
         )
 
-    def site_url(self, path="", query=''):
-        if self.domain and not settings.URL_CONFIG == 'path':
+    def site_url(self, path="", query=""):
+        if self.domain and not settings.URL_CONFIG == "path":
             return logic.build_url(
-                    netloc=self.domain,
-                    scheme=self._get_scheme(),
-                    port=None,
-                    path=path,
-                    query=query,
+                netloc=self.domain,
+                scheme=self._get_scheme(),
+                port=None,
+                path=path,
+                query=query,
             )
         else:
             return self.press.site_path_url(self, path, query=query)
@@ -324,8 +320,8 @@ class Repository(model_utils.AbstractSiteModel):
     def reviewer_accounts(self):
         reviewer_ids = RepositoryRole.objects.filter(
             repository=self,
-            role__slug='reviewer',
-        ).values_list('user__id')
+            role__slug="reviewer",
+        ).values_list("user__id")
         return core_models.Account.objects.filter(
             pk__in=reviewer_ids,
         )
@@ -337,16 +333,16 @@ class RepositoryRole(models.Model):
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         on_delete=models.CASCADE,
     )
     role = models.ForeignKey(
-        'core.Role',
+        "core.Role",
         on_delete=models.CASCADE,
     )
 
     def __str__(self):
-        return 'User {} registered as {} on Repo {}'.format(
+        return "User {} registered as {} on Repo {}".format(
             self.user.full_name(),
             self.role,
             self.repository.name,
@@ -367,7 +363,7 @@ class RepositoryField(models.Model):
         max_length=1000,
         null=True,
         blank=True,
-        help_text='Separate choices with the bar | character.',
+        help_text="Separate choices with the bar | character.",
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
@@ -377,23 +373,26 @@ class RepositoryField(models.Model):
     )
     display = models.BooleanField(
         default=False,
-        help_text='Whether or not display this field in the article page',
+        help_text="Whether or not display this field in the article page",
     )
     dc_metadata_type = models.CharField(
         max_length=255,
         help_text=_(
-            'If this field is to be output as a dc metadata field you can add'
-            'the type here.'
+            "If this field is to be output as a dc metadata field you can add"
+            "the type here."
         ),
         blank=True,
         null=True,
     )
 
     class Meta:
-        ordering = ('order', 'name',)
+        ordering = (
+            "order",
+            "name",
+        )
 
     def __str__(self):
-        return '{}: {}'.format(self.repository.name, self.name)
+        return "{}: {}".format(self.repository.name, self.name)
 
 
 class RepositoryFieldAnswer(models.Model):
@@ -404,13 +403,13 @@ class RepositoryFieldAnswer(models.Model):
         on_delete=models.SET_NULL,
     )
     preprint = models.ForeignKey(
-        'Preprint',
+        "Preprint",
         on_delete=models.CASCADE,
     )
     answer = models.TextField()
 
     def __str__(self):
-        return '{}: {}'.format(self.preprint, self.answer)
+        return "{}: {}".format(self.preprint, self.answer)
 
 
 class Preprint(models.Model):
@@ -420,23 +419,23 @@ class Preprint(models.Model):
         on_delete=models.SET_NULL,
     )
     owner = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-        help_text='The account that submitted this item.',
+        help_text="The account that submitted this item.",
     )
     stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
     title = models.CharField(
         max_length=300,
-        help_text=_('Your article title'),
+        help_text=_("Your article title"),
     )
     abstract = model_utils.JanewayBleachField(
         blank=True,
         null=True,
     )
     submission_file = models.ForeignKey(
-        'PreprintFile',
-        related_name='submission_file',
+        "PreprintFile",
+        related_name="submission_file",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -448,16 +447,18 @@ class Preprint(models.Model):
         storage=preprint_media_store,
     )
     subject = models.ManyToManyField(
-        'Subject',
+        "Subject",
         blank=False,
         null=True,
     )
     keywords = model_utils.M2MOrderedThroughField(
         "submission.Keyword",
-        blank=True, null=True, through='repository.KeywordPreprint',
+        blank=True,
+        null=True,
+        through="repository.KeywordPreprint",
     )
     license = models.ForeignKey(
-        'submission.Licence',
+        "submission.Licence",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -472,16 +473,16 @@ class Preprint(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        verbose_name='Published DOI',
-        help_text='You can add a DOI linking to this item\'s published version using this field. '
-                  'Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.'
+        verbose_name="Published DOI",
+        help_text="You can add a DOI linking to this item's published version using this field. "
+        "Please provide the full DOI ie. https://doi.org/10.1017/CBO9781316161012.",
     )
     preprint_doi = models.CharField(
         max_length=100,
         blank=True,
         null=True,
-        verbose_name='Preprint DOI',
-        help_text='System supplied DOI. '
+        verbose_name="Preprint DOI",
+        help_text="System supplied DOI. ",
     )
     preprint_decline_note = model_utils.JanewayBleachField(
         blank=True,
@@ -499,15 +500,15 @@ class Preprint(models.Model):
     current_step = models.IntegerField(default=1)
 
     article = models.OneToOneField(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text='Linked article of this preprint.',
+        help_text="Linked article of this preprint.",
     )
 
     def __str__(self):
-        return '{}'.format(
+        return "{}".format(
             self.title,
         )
 
@@ -527,7 +528,8 @@ class Preprint(models.Model):
 
     def version_files(self):
         return [
-            version.file for version in self.preprintversion_set.filter(
+            version.file
+            for version in self.preprintversion_set.filter(
                 Q(moderated_version__approved=True) | Q(moderated_version__isnull=True)
             )
         ]
@@ -535,10 +537,7 @@ class Preprint(models.Model):
     @property
     @cache(300)
     def views(self):
-        return PreprintAccess.objects.filter(
-            preprint=self,
-            file__isnull=True
-        )
+        return PreprintAccess.objects.filter(preprint=self, file__isnull=True)
 
     @property
     @cache(300)
@@ -566,7 +565,7 @@ class Preprint(models.Model):
     def authors(self):
         preprint_authors = PreprintAuthor.objects.filter(
             preprint=self,
-        ).select_related('account')
+        ).select_related("account")
 
         return [pa.account for pa in preprint_authors if pa.account]
 
@@ -594,13 +593,15 @@ class Preprint(models.Model):
         return etal
 
     def display_authors(self):
-        return ", ".join([author.full_name() for author in self.authors if author is not None])
+        return ", ".join(
+            [author.full_name() for author in self.authors if author is not None]
+        )
 
     def add_user_as_author(self, user):
         preprint_author, created = PreprintAuthor.objects.get_or_create(
             account=user,
             preprint=self,
-            defaults={'order': self.next_author_order()},
+            defaults={"order": self.next_author_order()},
         )
         for affiliation in user.affiliations.all():
             core_models.ControlledAffiliation.objects.get_or_create(
@@ -625,12 +626,10 @@ class Preprint(models.Model):
 
     def add_supplementary_file(self, supplementary):
         return PreprintSupplementaryFile.objects.get_or_create(
-            label=supplementary.cleaned_data['label'],
-            url=supplementary.cleaned_data['url'],
+            label=supplementary.cleaned_data["label"],
+            url=supplementary.cleaned_data["url"],
             preprint=self,
-            defaults={
-                'order': self.next_supp_file_order()
-            },
+            defaults={"order": self.next_supp_file_order()},
         )
 
     def next_supp_file_order(self):
@@ -714,9 +713,9 @@ class Preprint(models.Model):
 
     def current_version_file_type(self):
         if self.current_version.file.mime_type in files.HTML_MIMETYPES:
-            return 'html'
+            return "html"
         elif self.current_version.file.mime_type in files.PDF_MIMETYPES:
-            return 'pdf'
+            return "pdf"
         return None
 
     @property
@@ -727,13 +726,17 @@ class Preprint(models.Model):
     @property
     def local_url(self):
         url = reverse(
-            'repository_preprint',
-            kwargs={'preprint_id': self.id,}
+            "repository_preprint",
+            kwargs={
+                "preprint_id": self.id,
+            },
         )
 
         return url
 
-    def create_article(self, journal, workflow_stage, journal_license, journal_section, force=False):
+    def create_article(
+        self, journal, workflow_stage, journal_license, journal_section, force=False
+    ):
         """
         Creates an article in a given journal and workflow stage.
         """
@@ -747,7 +750,7 @@ class Preprint(models.Model):
                 license=journal_license,
                 section=journal_section,
                 date_submitted=timezone.now(),
-                comments_editor='Submitted from {}'.format(self.repository.name),
+                comments_editor="Submitted from {}".format(self.repository.name),
                 stage=workflow_stage,
             )
 
@@ -785,7 +788,7 @@ class KeywordPreprint(models.Model):
 
     class Meta:
         ordering = ["order"]
-        unique_together = ('keyword', 'preprint')
+        unique_together = ("keyword", "preprint")
 
     def __str__(self):
         return self.keyword.word
@@ -831,18 +834,18 @@ class PreprintFile(models.Model):
 
     def reverse_kwargs(self):
         return {
-            'preprint_id': self.preprint.pk,
-            'file_id': self.pk,
+            "preprint_id": self.preprint.pk,
+            "file_id": self.pk,
         }
 
     def download_url(self):
         return reverse(
-            'repository_file_download',
+            "repository_file_download",
             kwargs=self.reverse_kwargs(),
         )
 
     def contents(self):
-        file = open(self.file.path, mode='r')
+        file = open(self.file.path, mode="r")
         contents = file.read()
         file.close()
         return contents
@@ -854,12 +857,14 @@ class PreprintSupplementaryFile(models.Model):
         on_delete=models.CASCADE,
     )
     url = models.URLField()
-    label = models.CharField(max_length=200, verbose_name=_('Label'), default='Supplementary File')
+    label = models.CharField(
+        max_length=200, verbose_name=_("Label"), default="Supplementary File"
+    )
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ('order',)
-        unique_together = ('url', 'preprint')
+        ordering = ("order",)
+        unique_together = ("url", "preprint")
 
 
 class PreprintAccess(models.Model):
@@ -876,7 +881,7 @@ class PreprintAccess(models.Model):
     identifier = models.TextField(blank=True, null=True)
     accessed = models.DateTimeField(auto_now_add=True)
     country = models.ForeignKey(
-        'core.Country',
+        "core.Country",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -885,29 +890,29 @@ class PreprintAccess(models.Model):
     @property
     def access_type(self):
         if self.file:
-            return 'download'
-        return 'view'
+            return "download"
+        return "view"
 
     class Meta:
-        verbose_name_plural = 'preprint access records'
+        verbose_name_plural = "preprint access records"
 
 
 class PreprintAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
-    AFFILIATION_RELATED_NAME = 'preprint_author'
+    AFFILIATION_RELATED_NAME = "preprint_author"
 
 
 class PreprintAuthorManager(models.Manager):
     def get_queryset(self):
-        return PreprintAuthorQueryset(self.model).select_related('account')
+        return PreprintAuthorQueryset(self.model).select_related("account")
 
 
 class PreprintAuthor(models.Model):
     preprint = models.ForeignKey(
-        'Preprint',
+        "Preprint",
         on_delete=models.CASCADE,
     )
     account = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -916,12 +921,12 @@ class PreprintAuthor(models.Model):
     objects = PreprintAuthorManager()
 
     class Meta:
-        ordering = ('order',)
-        unique_together = ('account', 'preprint')
+        ordering = ("order",)
+        unique_together = ("account", "preprint")
 
     def __str__(self):
-        return '{author} linked to {preprint}'.format(
-            author=self.account.full_name() if self.account else '',
+        return "{author} linked to {preprint}".format(
+            author=self.account.full_name() if self.account else "",
             preprint=self.preprint.title,
         )
 
@@ -960,9 +965,9 @@ class PreprintAuthor(models.Model):
     @property
     def full_name(self):
         if not self.account.middle_name:
-            return '{} {}'.format(self.account.first_name, self.account.last_name)
+            return "{} {}".format(self.account.first_name, self.account.last_name)
         else:
-            return '{} {} {}'.format(
+            return "{} {} {}".format(
                 self.account.first_name,
                 self.account.middle_name,
                 self.account.last_name,
@@ -970,9 +975,9 @@ class PreprintAuthor(models.Model):
 
     def dc_name(self):
         if not self.account.middle_name:
-            return '{}, {}'.format(self.account.last_name, self.account.first_name)
+            return "{}, {}".format(self.account.last_name, self.account.first_name)
         else:
-            return '{}. {} {}'.format(
+            return "{}. {} {}".format(
                 self.account.last_name,
                 self.account.first_name,
                 self.account.middle_name,
@@ -994,28 +999,26 @@ class Author(models.Model):
     """
     Deprecated. Please use PreprintAuthor instead.
     """
+
     email_address = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255)
     affiliation = models.TextField(blank=True, null=True)
     orcid = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name=_('ORCID')
+        max_length=255, blank=True, null=True, verbose_name=_("ORCID")
     )
 
     def __init__(self, *args, **kwargs):
-        raise DeprecationWarning('Use PreprintAuthor instead.')
+        raise DeprecationWarning("Use PreprintAuthor instead.")
         super().__init__(*args, **kwargs)
 
     @property
     def full_name(self):
         if not self.middle_name:
-            return '{} {}'.format(self.first_name, self.last_name)
+            return "{} {}".format(self.first_name, self.last_name)
         else:
-            return '{} {} {}'.format(
+            return "{} {} {}".format(
                 self.first_name,
                 self.middle_name,
                 self.last_name,
@@ -1034,20 +1037,19 @@ class PreprintVersion(models.Model):
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
     moderated_version = models.ForeignKey(
-        'VersionQueue',
+        "VersionQueue",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     title = models.CharField(
         max_length=300,
-        help_text=_('Your article title'),
+        help_text=_("Your article title"),
         blank=True,
     )
     abstract = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-
     )
     published_doi = models.URLField(
         max_length=255,
@@ -1058,13 +1060,13 @@ class PreprintVersion(models.Model):
     )
 
     class Meta:
-        ordering = ('-version', '-date_time', '-id')
+        ordering = ("-version", "-date_time", "-id")
 
     def html(self):
         if self.file.mime_type in files.HTML_MIMETYPES:
             return self.file.contents()
         else:
-            return ''
+            return ""
 
     @property
     def safe_title(self):
@@ -1074,12 +1076,12 @@ class PreprintVersion(models.Model):
             return "[Untitled]"
 
     def __str__(self):
-        return f'{self.preprint} (version {self.version})'
+        return f"{self.preprint} (version {self.version})"
 
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -1089,21 +1091,21 @@ class Comment(models.Model):
         on_delete=models.SET_NULL,
     )
     reply_to = models.ForeignKey(
-        'self',
+        "self",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     date_time = models.DateTimeField(default=timezone.now)
-    body = model_utils.JanewayBleachField(verbose_name='Write your comment:')
+    body = model_utils.JanewayBleachField(verbose_name="Write your comment:")
     is_reviewed = models.BooleanField(default=False)
     is_public = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ('-date_time', '-pk')
+        ordering = ("-date_time", "-pk")
 
     def __str__(self):
-        return 'Comment by {author} on {article}'.format(
+        return "Comment by {author} on {article}".format(
             author=self.author.full_name(),
             article=self.preprint.title,
         )
@@ -1129,21 +1131,21 @@ class Subject(models.Model):
     )
     name = models.CharField(max_length=255)
     slug = models.SlugField(blank=True, max_length=255)
-    editors = models.ManyToManyField('core.Account', blank=True)
+    editors = models.ManyToManyField("core.Account", blank=True)
     enabled = models.BooleanField(
         default=True,
-        help_text='If disabled, this subject will not appear publicly.',
+        help_text="If disabled, this subject will not appear publicly.",
     )
     parent = models.ForeignKey(
-        'self',
+        "self",
         blank=True,
         null=True,
-        related_name='children',
+        related_name="children",
         on_delete=models.SET_NULL,
     )
 
     class Meta:
-        ordering = ('slug', 'pk')
+        ordering = ("slug", "pk")
 
     def __str__(self):
         return self.name
@@ -1160,9 +1162,9 @@ class Subject(models.Model):
 
 def version_choices():
     return (
-        ('correction', 'Text Correction'),
-        ('metadata_correction', 'Metadata Correction'),
-        ('version', 'New Version'),
+        ("correction", "Text Correction"),
+        ("metadata_correction", "Metadata Correction"),
+        ("version", "New Version"),
     )
 
 
@@ -1192,7 +1194,7 @@ class VersionQueue(models.Model):
 
     title = models.CharField(
         max_length=300,
-        help_text=_('Your article title'),
+        help_text=_("Your article title"),
     )
     abstract = model_utils.JanewayBleachField(
         blank=True,
@@ -1254,11 +1256,11 @@ class VersionQueue(models.Model):
 
     def status(self):
         if self.date_decision and self.approved:
-            return _('Approved')
+            return _("Approved")
         elif not self.date_decision:
-            return _('Under Review')
+            return _("Under Review")
         else:
-            return _('Declined')
+            return _("Declined")
 
     @property
     def safe_title(self):
@@ -1270,17 +1272,17 @@ class VersionQueue(models.Model):
 
 def review_status_choices():
     return (
-        ('new', 'New'),
-        ('accepted', 'Accepted'),
-        ('declined', 'Declined'),
-        ('complete', 'Complete'),
-        ('withdrawn', 'Withdrawn'),
+        ("new", "New"),
+        ("accepted", "Accepted"),
+        ("declined", "Declined"),
+        ("complete", "Complete"),
+        ("withdrawn", "Withdrawn"),
     )
 
 
 class ReviewRecommendation(models.Model):
     repository = models.ForeignKey(
-        'Repository',
+        "Repository",
         on_delete=models.CASCADE,
     )
     name = models.CharField(
@@ -1296,21 +1298,21 @@ class ReviewRecommendation(models.Model):
 
 class Review(models.Model):
     preprint = models.ForeignKey(
-        'Preprint',
+        "Preprint",
         on_delete=models.CASCADE,
     )
     manager = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-        related_name='review_manager',
-        help_text='The manager making the review request.',
+        related_name="review_manager",
+        help_text="The manager making the review request.",
     )
     reviewer = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-        related_name='review_reviewer',
+        related_name="review_reviewer",
     )
     date_assigned = models.DateTimeField(
         blank=True,
@@ -1338,7 +1340,7 @@ class Review(models.Model):
         default=uuid.uuid4,
     )
     comment = models.OneToOneField(
-        'Comment',
+        "Comment",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -1349,66 +1351,66 @@ class Review(models.Model):
     status_reason = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        help_text='Information supplied by a reviewer when declining or completing '
-                  'a review or by staff withdrawing a review',
+        help_text="Information supplied by a reviewer when declining or completing "
+        "a review or by staff withdrawing a review",
     )
     notification_sent = models.BooleanField(
         default=False,
     )
     recommendation = models.ForeignKey(
-        'ReviewRecommendation',
+        "ReviewRecommendation",
         null=True,
         on_delete=models.SET_NULL,
     )
 
     def accept(self, request):
         self.date_accepted = timezone.now()
-        self.status = 'accepted'
+        self.status = "accepted"
         self.save()
 
         # Raise event
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
             **{
-                'request': request,
-                'review': self,
-                'status_change': 'accept',
-            }
+                "request": request,
+                "review": self,
+                "status_change": "accept",
+            },
         )
 
     def decline(self, request):
         self.date_completed = timezone.now()
-        self.status = 'declined'
+        self.status = "declined"
         self.save()
 
         # Raise event
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
             **{
-                'request': request,
-                'review': self,
-                'status_change': 'decline',
-            }
+                "request": request,
+                "review": self,
+                "status_change": "decline",
+            },
         )
 
     def complete(self, request):
         self.date_completed = timezone.now()
-        self.status = 'complete'
+        self.status = "complete"
         self.save()
 
         # Raise event
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
             **{
-                'request': request,
-                'review': self,
-                'status_change': 'complete',
-            }
+                "request": request,
+                "review": self,
+                "status_change": "complete",
+            },
         )
 
     def withdraw(self, reason, request):
         self.date_completed = timezone.now()
-        self.status = 'withdrawn'
+        self.status = "withdrawn"
         self.status_reason = reason
         self.save()
 
@@ -1416,23 +1418,23 @@ class Review(models.Model):
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_REVIEW_STATUS_CHANGE,
             **{
-                'request': request,
-                'review': self,
-                'status_change': 'withdraw',
-            }
+                "request": request,
+                "review": self,
+                "status_change": "withdraw",
+            },
         )
 
     def reset(self, user):
         self.date_accepted = None
         self.date_completed = None
-        self.status = 'new'
-        self.status_reason = 'Invited Review reset by staff.'
+        self.status = "new"
+        self.status_reason = "Invited Review reset by staff."
         self.save()
 
         utils_models.LogEntry.add_entry(
-            types='Preprint Review',
-            description='Preprint Review by {} reset'.format(self.reviewer.full_name()),
-            level='Info',
+            types="Preprint Review",
+            description="Preprint Review by {} reset".format(self.reviewer.full_name()),
+            level="Info",
             actor=user,
             target=self.preprint,
         )
@@ -1444,9 +1446,11 @@ class Review(models.Model):
             self.comment.save()
 
             utils_models.LogEntry.add_entry(
-                types='Preprint Review',
-                description='Preprint Review by {} published'.format(self.reviewer.full_name()),
-                level='Info',
+                types="Preprint Review",
+                description="Preprint Review by {} published".format(
+                    self.reviewer.full_name()
+                ),
+                level="Info",
                 actor=user,
                 target=self.preprint,
             )
@@ -1457,9 +1461,11 @@ class Review(models.Model):
             self.comment.save()
 
             utils_models.LogEntry.add_entry(
-                types='Preprint Review',
-                description='Preprint Review by {} unpublished'.format(self.reviewer.full_name()),
-                level='Info',
+                types="Preprint Review",
+                description="Preprint Review by {} unpublished".format(
+                    self.reviewer.full_name()
+                ),
+                level="Info",
                 actor=user,
                 target=self.preprint,
             )
@@ -1512,9 +1518,9 @@ def add_email_setting_defaults(sender, instance, **kwargs):
         with open(
             os.path.join(
                 settings.BASE_DIR,
-                'utils',
-                'install',
-                'default_repository_review_recommendations.json',
+                "utils",
+                "install",
+                "default_repository_review_recommendations.json",
             )
         ) as defaults_file:
             defaults = json.load(defaults_file)

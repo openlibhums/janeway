@@ -3,8 +3,8 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core import models, validators
 
-class TestValidators(TestCase):
 
+class TestValidators(TestCase):
     def test_valid_file(self):
         valid_extensions = {".gz"}
         valid_mimetypes = {"application/x-tar"}
@@ -31,13 +31,11 @@ class TestValidators(TestCase):
         with self.assertRaises(ValidationError):
             validator(file_)
 
-
     def test_invalid_mime_type(self):
         valid_extensions = {".gz"}
         valid_mimetypes = {"application/x-tar"}
         validator = validators.FileTypeValidator(mimetypes=valid_mimetypes)
         file_ = SimpleUploadedFile("test.gz", bytes())
-
 
         with self.assertRaises(ValidationError):
             validator(file_)
@@ -56,4 +54,3 @@ class TestValidators(TestCase):
         else:
             error = None
         self.assertIsNone(error)
-

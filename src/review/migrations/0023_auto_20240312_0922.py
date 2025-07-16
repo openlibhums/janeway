@@ -5,105 +5,169 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0022_remove_reviewform_slug'),
+        ("review", "0022_remove_reviewform_slug"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='decision',
-            field=models.CharField(choices=[('accept', 'Accept Without Revisions'), ('minor_revisions', 'Minor Revisions Required'), ('major_revisions', 'Major Revisions Required'), ('conditional_accept', 'Conditional Accept'), ('decline', 'Reject')], max_length=100, verbose_name='Draft Decision'),
+            model_name="decisiondraft",
+            name="decision",
+            field=models.CharField(
+                choices=[
+                    ("accept", "Accept Without Revisions"),
+                    ("minor_revisions", "Minor Revisions Required"),
+                    ("major_revisions", "Major Revisions Required"),
+                    ("conditional_accept", "Conditional Accept"),
+                    ("decline", "Reject"),
+                ],
+                max_length=100,
+                verbose_name="Draft Decision",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='editor_decision',
-            field=models.CharField(blank=True, choices=[('accept', 'Accept'), ('decline', 'Decline')], max_length=20, null=True),
+            model_name="decisiondraft",
+            name="editor_decision",
+            field=models.CharField(
+                blank=True,
+                choices=[("accept", "Accept"), ("decline", "Decline")],
+                max_length=20,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='editor_decline_rationale',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='Provide the section editor with a rationale for declining their drafted decision.', null=True, verbose_name='Rationale for Declining Draft Decision'),
+            model_name="decisiondraft",
+            name="editor_decline_rationale",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="Provide the section editor with a rationale for declining their drafted decision.",
+                null=True,
+                verbose_name="Rationale for Declining Draft Decision",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='email_message',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='This is a draft of the email that will be sent to the author. Your editor will check this.', null=True, verbose_name='Draft Email to Author'),
+            model_name="decisiondraft",
+            name="email_message",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="This is a draft of the email that will be sent to the author. Your editor will check this.",
+                null=True,
+                verbose_name="Draft Email to Author",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='message_to_editor',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='This is the email that will be sent to the editor notifying them that you are logging your draft decision.', null=True, verbose_name='Email to Editor'),
+            model_name="decisiondraft",
+            name="message_to_editor",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="This is the email that will be sent to the editor notifying them that you are logging your draft decision.",
+                null=True,
+                verbose_name="Email to Editor",
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenreviewformelement',
-            name='help_text',
+            model_name="frozenreviewformelement",
+            name="help_text",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='comments_for_editor',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='If you have any comments for the Editor you can add them here;                                            these will not be shared with the Author.', null=True, verbose_name='Comments for the Editor'),
+            model_name="reviewassignment",
+            name="comments_for_editor",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="If you have any comments for the Editor you can add them here;                                            these will not be shared with the Author.",
+                null=True,
+                verbose_name="Comments for the Editor",
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='competing_interests',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text="If any of the authors or editors have any competing interests please add them here. EG. 'This study was paid for by corp xyz.'.", null=True),
+            model_name="reviewassignment",
+            name="competing_interests",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="If any of the authors or editors have any competing interests please add them here. EG. 'This study was paid for by corp xyz.'.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewassignmentanswer',
-            name='answer',
+            model_name="reviewassignmentanswer",
+            name="answer",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='reviewassignmentanswer',
-            name='edited_answer',
+            model_name="reviewassignmentanswer",
+            name="edited_answer",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='reviewform',
-            name='intro',
-            field=core.model_utils.JanewayBleachField(help_text='Message displayed at the start of the review form.'),
+            model_name="reviewform",
+            name="intro",
+            field=core.model_utils.JanewayBleachField(
+                help_text="Message displayed at the start of the review form."
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewform',
-            name='thanks',
-            field=core.model_utils.JanewayBleachField(help_text='Message displayed after the reviewer is finished.'),
+            model_name="reviewform",
+            name="thanks",
+            field=core.model_utils.JanewayBleachField(
+                help_text="Message displayed after the reviewer is finished."
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewformanswer',
-            name='answer',
+            model_name="reviewformanswer",
+            name="answer",
             field=core.model_utils.JanewayBleachField(),
         ),
         migrations.AlterField(
-            model_name='reviewformelement',
-            name='help_text',
+            model_name="reviewformelement",
+            name="help_text",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='revisionaction',
-            name='text',
+            model_name="revisionaction",
+            name="text",
             field=core.model_utils.JanewayBleachField(),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='author_note',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text="If you would like to include a cover letter for the editor providing changes you made to your revised manuscript, please add this above'", null=True, verbose_name='Covering Letter to Editor'),
+            model_name="revisionrequest",
+            name="author_note",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="If you would like to include a cover letter for the editor providing changes you made to your revised manuscript, please add this above'",
+                null=True,
+                verbose_name="Covering Letter to Editor",
+            ),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='editor_note',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='You can use this optional field to provide the author with any information that may help them when evaluating the article reviews and integrating changes into their manuscript. This text will be displayed to the author on  the revision page, above the reviews.', null=True),
+            model_name="revisionrequest",
+            name="editor_note",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="You can use this optional field to provide the author with any information that may help them when evaluating the article reviews and integrating changes into their manuscript. This text will be displayed to the author on  the revision page, above the reviews.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='response_letter',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text='You have the option to include a response letter for the reviewers, providing details about the changes you made to your manuscript or counter arguments.', null=True, verbose_name='Response Letter to Reviewers'),
+            model_name="revisionrequest",
+            name="response_letter",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="You have the option to include a response letter for the reviewers, providing details about the changes you made to your manuscript or counter arguments.",
+                null=True,
+                verbose_name="Response Letter to Reviewers",
+            ),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='type',
-            field=models.CharField(choices=[('minor_revisions', 'Minor Revisions'), ('major_revisions', 'Major Revisions'), ('conditional_accept', 'Conditional Accept')], default='minor_revisions', max_length=20),
+            model_name="revisionrequest",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("minor_revisions", "Minor Revisions"),
+                    ("major_revisions", "Major Revisions"),
+                    ("conditional_accept", "Conditional Accept"),
+                ],
+                default="minor_revisions",
+                max_length=20,
+            ),
         ),
     ]

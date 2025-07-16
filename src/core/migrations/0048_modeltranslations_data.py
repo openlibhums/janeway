@@ -6,21 +6,24 @@ from django.db import migrations
 
 
 def migrate_settings(apps, schema_editor):
-    SettingValue = apps.get_model('core', 'SettingValue')
-    SettingValueTranslation = apps.get_model('core', 'SettingValueTranslation')
+    SettingValue = apps.get_model("core", "SettingValue")
+    SettingValueTranslation = apps.get_model("core", "SettingValueTranslation")
 
     translations = SettingValueTranslation.objects.all()
 
     for translation in translations:
         setting_value = SettingValue.objects.get(pk=translation.master_id)
-        setattr(setting_value, 'value_{}'.format(translation.language_code), translation.hvad_value)
+        setattr(
+            setting_value,
+            "value_{}".format(translation.language_code),
+            translation.hvad_value,
+        )
         setting_value.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0047_hvad_to_modeltranslations'),
+        ("core", "0047_hvad_to_modeltranslations"),
     ]
 
     operations = [

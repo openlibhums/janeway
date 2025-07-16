@@ -6,20 +6,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0002_reviewformelement_default_visibility'),
+        ("review", "0002_reviewformelement_default_visibility"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='review_type',
-            field=models.CharField(choices=[('traditional', 'Traditional')], default='traditional', help_text='Currently only traditional, form based, review is available.', max_length=20),
+            model_name="reviewassignment",
+            name="review_type",
+            field=models.CharField(
+                choices=[("traditional", "Traditional")],
+                default="traditional",
+                help_text="Currently only traditional, form based, review is available.",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewformelement',
-            name='default_visibility',
-            field=models.BooleanField(default=True, help_text='If true, this setting will be available to the author automatically, if false it willbe hidden to the author by default.'),
+            model_name="reviewformelement",
+            name="default_visibility",
+            field=models.BooleanField(
+                default=True,
+                help_text="If true, this setting will be available to the author automatically, if false it willbe hidden to the author by default.",
+            ),
         ),
     ]

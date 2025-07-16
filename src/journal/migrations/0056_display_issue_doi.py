@@ -9,15 +9,14 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0055_issue_isbn'),
+        ("journal", "0055_issue_isbn"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='display_issue_doi',
+            model_name="journal",
+            name="display_issue_doi",
             field=models.BooleanField(default=True),
         ),
     ]

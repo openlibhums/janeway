@@ -6,12 +6,12 @@ from django.db import migrations
 
 
 def create_version(apps, schema_editor):
-    Version = apps.get_model('utils', 'Version')
+    Version = apps.get_model("utils", "Version")
 
     versions = Version.objects.all()
 
     if not versions:
-        Version.objects.create(number='1.2')
+        Version.objects.create(number="1.2")
 
 
 def delete_version(apps, schema_editor):
@@ -19,11 +19,8 @@ def delete_version(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0008_version'),
+        ("utils", "0008_version"),
     ]
 
-    operations = [
-        migrations.RunPython(create_version, reverse_code=delete_version)
-    ]
+    operations = [migrations.RunPython(create_version, reverse_code=delete_version)]

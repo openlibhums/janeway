@@ -27,9 +27,9 @@ class Command(BaseCommand):
             type=int,
         )
         parser.add_argument(
-            '--ignore_missing_import',
-            help='Run the match even if no ROR import is found',
-            action='store_true',
+            "--ignore_missing_import",
+            help="Run the match even if no ROR import is found",
+            action="store_true",
         )
         return super().add_arguments(parser)
 

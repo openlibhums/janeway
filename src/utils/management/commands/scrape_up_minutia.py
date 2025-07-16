@@ -15,6 +15,7 @@ class Command(BaseCommand):
     """
     Fetches a backend article from a UP journal
     """
+
     help = "Fetches front end minutia from a UP site."
 
     def add_arguments(self, parser):
@@ -23,36 +24,28 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('base_url', default=None)
-        parser.add_argument('journal_code', default=None)
+        parser.add_argument("base_url", default=None)
+        parser.add_argument("journal_code", default=None)
 
     def handle(self, *args, **options):
-        translation.activate('en')
+        translation.activate("en")
         try:
-            journal = models.Journal.objects.get(
-                code=options.get('journal_code')
-            )
-            print('Scraping into {}'.format(journal.name))
-            scrape_editorial_team(
-                journal,
-                options.get('base_url')
-            )
+            journal = models.Journal.objects.get(code=options.get("journal_code"))
+            print("Scraping into {}".format(journal.name))
+            scrape_editorial_team(journal, options.get("base_url"))
             scrape_policies_page(
                 journal,
-                options.get('base_url'),
+                options.get("base_url"),
             )
-            scrape_submissions_page(
-                journal,
-                options.get('base_url')
-            )
+            scrape_submissions_page(journal, options.get("base_url"))
             scrape_research_integrity_page(
                 journal,
-                options.get('base_url'),
+                options.get("base_url"),
             )
             scrape_about_page(
                 journal,
-                options.get('base_url'),
+                options.get("base_url"),
             )
 
         except models.Journal.DoesNotExist:
-            exit('[Error] No journal found with that code.')
+            exit("[Error] No journal found with that code.")

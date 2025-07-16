@@ -6,32 +6,43 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0017_auto_20200930_1629'),
+        ("repository", "0017_auto_20200930_1629"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprintversion',
-            name='abstract',
-            field=models.TextField(blank=True, help_text='Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.', null=True),
+            model_name="preprintversion",
+            name="abstract",
+            field=models.TextField(
+                blank=True,
+                help_text="Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='preprintversion',
-            name='title',
-            field=models.CharField(default='', help_text='Your article title', max_length=300),
+            model_name="preprintversion",
+            name="title",
+            field=models.CharField(
+                default="", help_text="Your article title", max_length=300
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='versionqueue',
-            name='abstract',
-            field=models.TextField(blank=True, help_text='Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.', null=True),
+            model_name="versionqueue",
+            name="abstract",
+            field=models.TextField(
+                blank=True,
+                help_text="Please avoid pasting content from word processors as they can add unwanted styling to the abstract. You can retype the abstract here or copy and paste it into notepad/a plain text editor before pasting here.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='versionqueue',
-            name='title',
-            field=models.CharField(default='', help_text='Your article title', max_length=300),
+            model_name="versionqueue",
+            name="title",
+            field=models.CharField(
+                default="", help_text="Your article title", max_length=300
+            ),
             preserve_default=False,
         ),
     ]

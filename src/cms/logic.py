@@ -28,7 +28,7 @@ logger = get_logger(__name__)
 
 SITE_SEARCH_PATH = os.path.join(
     settings.MEDIA_ROOT,
-    'press',
+    "press",
     settings.SITE_SEARCH_DIR,
 )
 
@@ -45,10 +45,10 @@ def add_search_index_document(docs, url, name, text):
     """
 
     data = {}
-    data['id'] = len(docs)
-    data['url'] = url
-    data['name'] = name
-    data['text'] = text
+    data["id"] = len(docs)
+    data["url"] = url
+    data["name"] = name
+    data["text"] = text
     docs.append(data)
     return docs
 
@@ -65,31 +65,28 @@ def gobble_sibling_text(sibling, original_part):
 
     # Handle no sibling
     if not sibling:
-        return ''
+        return ""
 
     # Handle another heading
     if sibling.name == original_part.name:
-        return ''
+        return ""
     if isinstance(sibling, Tag) and sibling.find(original_part.name):
-        return ''
+        return ""
 
     # Recursively get sibling text
     if isinstance(sibling, NavigableString):
         sibling_text = sibling.strip()
     else:
         sibling_text = sibling.get_text().strip()
-    next_sibling_text = gobble_sibling_text(
-        sibling.next_sibling,
-        original_part
-    )
+    next_sibling_text = gobble_sibling_text(sibling.next_sibling, original_part)
 
     # Decompose
     if isinstance(sibling, NavigableString):
-        sibling.replace_with('')
+        sibling.replace_with("")
     else:
         sibling.decompose()
 
-    gobbled_text = sibling_text + ' ' + next_sibling_text
+    gobbled_text = sibling_text + " " + next_sibling_text
     return gobbled_text.strip()
 
 
@@ -101,7 +98,7 @@ def get_text_for_parent(parent, original_part):
     :rtype: str
     """
     if not parent:
-        return ''
+        return ""
 
     text = gobble_sibling_text(parent.next_sibling, original_part)
     if len(text.strip()) > len(original_part.get_text().strip()):
@@ -159,15 +156,15 @@ def add_searchable_page_parts(docs, url, body, headings=None):
     :rtype: list[dict]
     """
     if not headings:
-        headings = ['h4', 'h3', 'h2']
+        headings = ["h4", "h3", "h2"]
 
     for h in headings:
         for part in body.find_all(h, id=True):
             if not part:
                 continue
-            part_id = part.get('id', '')
+            part_id = part.get("id", "")
             if part_id:
-                part_url = urljoin(url, '#' + part_id)
+                part_url = urljoin(url, "#" + part_id)
             else:
                 part_url = remove_fragment(url)
             part_name = part.get_text().strip()
@@ -185,7 +182,7 @@ def remove_fragment(url):
     :rtype: str
     """
     fragment = urlparse(url).fragment
-    return url.replace('#' + fragment, '')
+    return url.replace("#" + fragment, "")
 
 
 def normalize_url(url):
@@ -195,7 +192,7 @@ def normalize_url(url):
     :type url: str
     :rtype: str
     """
-    return remove_fragment(url).rstrip('/')
+    return remove_fragment(url).rstrip("/")
 
 
 def get_page(url, fetched_urls):
@@ -206,26 +203,24 @@ def get_page(url, fetched_urls):
     :type fetched_urls: set[str]
     :rtype: tuple[BeautifulSoup | None, set[str]]
     """
-    time.sleep(.1)
+    time.sleep(0.1)
     try:
         fetched_urls.add(normalize_url(url))
-        headers = {
-            'Accept': 'text/html; charset=utf-8'
-        }
+        headers = {"Accept": "text/html; charset=utf-8"}
         response = requests.get(url, headers=headers)
     except requests.exceptions.ConnectionError:
-        logger.warn(f'Could not access {url}')
-        logger.warn('Please run server to index site search')
+        logger.warn(f"Could not access {url}")
+        logger.warn("Please run server to index site search")
         return None, fetched_urls
 
     if response.status_code != 200:
-        logger.warn(f'Could not access {url}')
+        logger.warn(f"Could not access {url}")
         return None, fetched_urls
 
-    if 'text/html' not in response.headers['Content-Type']:
+    if "text/html" not in response.headers["Content-Type"]:
         return None, fetched_urls
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(response.text, "html.parser")
     return soup, fetched_urls
 
 
@@ -237,7 +232,7 @@ def get_name(html):
     :rtype: str
     """
     try:
-        return html.find('h1').get_text().strip()
+        return html.find("h1").get_text().strip()
     except AttributeError:
         return html.title.get_text().strip()
 
@@ -250,10 +245,10 @@ def get_body(html):
     :type html: BeautifulSoup
     :rtype: Tag | None
     """
-    body = html.find('body')
+    body = html.find("body")
     if not isinstance(body, Tag):
         return
-    for non_content_selector in ['script', '.djdt-hidden']:
+    for non_content_selector in ["script", ".djdt-hidden"]:
         for element in body.select(non_content_selector):
             element.decompose()
     for element in body.find_all(text=lambda text: isinstance(text, Comment)):
@@ -280,9 +275,7 @@ def excluded_urls():
 
     :rtype: list[str]
     """
-    return [
-        journal.site_url() for journal in journal_models.Journal.objects.all()
-    ] + [
+    return [journal.site_url() for journal in journal_models.Journal.objects.all()] + [
         repo.site_url() for repo in repository_models.Repository.objects.all()
     ]
 
@@ -326,7 +319,7 @@ def decompose_non_content_page_regions(body):
     :type body: Tag
     :rtype: None
     """
-    for non_content_selector in ['header', 'footer', 'h1']:
+    for non_content_selector in ["header", "footer", "h1"]:
         for element in body.select(non_content_selector):
             element.decompose()
 
@@ -350,15 +343,12 @@ def add_searchable_page(press, docs, fetched_urls, url):
     if not body:
         return docs, fetched_urls
 
-    for anchor in body.find_all('a'):
-        href = anchor.get('href', '').strip()
+    for anchor in body.find_all("a"):
+        href = anchor.get("href", "").strip()
         deeper_url = urljoin(url, href)
         if url_in_scope(press, deeper_url) and url_is_new(fetched_urls, deeper_url):
             docs, fetched_urls = add_searchable_page(
-                press,
-                docs,
-                fetched_urls,
-                deeper_url
+                press, docs, fetched_urls, deeper_url
             )
 
     name = get_name(html)
@@ -385,37 +375,29 @@ def get_press_site_search_data(press):
     docs, fetched_urls = add_searchable_page(press, docs, fetched_urls, base)
 
     if not len(docs) > 0:
-        logger.error('Search data store is empty')
+        logger.error("Search data store is empty")
 
     return docs
 
 
 def get_search_docs_filename(press):
-    return os.path.join(
-        settings.SITE_SEARCH_DIR,
-        f'_press_{ press.pk }_documents.json'
-    )
+    return os.path.join(settings.SITE_SEARCH_DIR, f"_press_{press.pk}_documents.json")
 
 
 def get_search_docs_filepath(press):
-    return os.path.join(
-        SITE_SEARCH_PATH,
-        f'_press_{ press.pk }_documents.json'
-    )
+    return os.path.join(SITE_SEARCH_PATH, f"_press_{press.pk}_documents.json")
 
 
 def update_search_data(press):
     docs_filename = get_search_docs_filename(press)
-    docs_file, created = models.MediaFile.objects.get_or_create(
-        label=docs_filename
-    )
+    docs_file, created = models.MediaFile.objects.get_or_create(label=docs_filename)
     if not created:
         docs_file.unlink()
 
     documents = get_press_site_search_data(press)
-    docs_json = json.dumps(documents, separators=(',', ':'))
+    docs_json = json.dumps(documents, separators=(",", ":"))
 
-    content_file = ContentFile(docs_json.encode('utf-8'))
+    content_file = ContentFile(docs_json.encode("utf-8"))
     docs_file.file.save(docs_filename, content_file, save=True)
     return docs_file
 
@@ -428,9 +410,7 @@ def delete_search_data(press):
         files_deleted.append(path)
     if settings.IN_TEST_RUNNER:
         if os.listdir(SITE_SEARCH_PATH):
-            logger.warning(
-                f'Left-over test files: {os.listdir(SITE_SEARCH_PATH)}'
-            )
+            logger.warning(f"Left-over test files: {os.listdir(SITE_SEARCH_PATH)}")
         else:
             os.rmdir(SITE_SEARCH_PATH)
 
@@ -444,50 +424,49 @@ def get_search_data_url(press):
         return models.MediaFile.objects.get(label=docs_filename).file.url
     except models.MediaFile.DoesNotExist:
         raise ImproperlyConfigured(
-            'Site search indexing is turned on, but there is no data file. '
-            'Set settings.SITE_SEARCH_INDEXING_FREQUENCY to None to turn off, '
-            'or run manage.py generate_site_search_data.'
+            "Site search indexing is turned on, but there is no data file. "
+            "Set settings.SITE_SEARCH_INDEXING_FREQUENCY to None to turn off, "
+            "or run manage.py generate_site_search_data."
         )
 
 
 def get_custom_templates_folder(journal):
     setting = setting_handler.get_setting(
-        'general',
-        'custom_cms_templates',
+        "general",
+        "custom_cms_templates",
         journal,
         default=False,
     )
-    return setting.processed_value if setting else ''
+    return setting.processed_value if setting else ""
 
 
 def get_custom_templates_path(journal, press):
     if journal:
         theme = setting_handler.get_setting(
-            'general',
-            'journal_theme',
+            "general",
+            "journal_theme",
             journal,
         ).processed_value
     elif press and press.theme:
         theme = press.theme
     else:
-        return ''
+        return ""
 
     folder = get_custom_templates_folder(journal)
     if not folder:
-        return ''
+        return ""
 
-    return os.path.join(settings.BASE_DIR, 'themes', theme, 'templates', folder)
+    return os.path.join(settings.BASE_DIR, "themes", theme, "templates", folder)
 
 
 def get_custom_templates(journal, press):
-
     templates_folder = get_custom_templates_folder(journal)
     templates_path = get_custom_templates_path(journal, press)
     if not templates_folder or not templates_path:
         return []
 
-    custom_templates = [('','-----')]
-    for filepath in sorted(glob.glob(os.path.join(templates_path, '*.html'))):
+    custom_templates = [("", "-----")]
+    for filepath in sorted(glob.glob(os.path.join(templates_path, "*.html"))):
         choice = (
             os.path.join(templates_folder, os.path.basename(filepath)),
             os.path.basename(filepath),

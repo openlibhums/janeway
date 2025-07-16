@@ -11,38 +11,44 @@ from submission import models as submission_models
 
 def review_choices():
     return (
-        ('accept', 'Accept'),
-        ('corrections', 'Corrections Required'),
-        ('proofing', 'Proofing Required'),
+        ("accept", "Accept"),
+        ("corrections", "Corrections Required"),
+        ("proofing", "Proofing Required"),
     )
 
 
 class TypesettingClaim(models.Model):
     editor = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         on_delete=models.CASCADE,
     )
     article = models.OneToOneField(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     claimed = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = ('editor', 'article',)
+        unique_together = (
+            "editor",
+            "article",
+        )
 
 
 class TypesettingRound(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     round_number = models.PositiveIntegerField(default=1)
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-round_number', 'date_created')
-        unique_together = ('round_number', 'article',)
+        ordering = ("-round_number", "date_created")
+        unique_together = (
+            "round_number",
+            "article",
+        )
 
     def __str__(self):
         return str(self.round_number)
@@ -57,7 +63,7 @@ class TypesettingRound(models.Model):
 
     @property
     def has_open_tasks(self):
-        if hasattr(self, 'typesettingassignment'):
+        if hasattr(self, "typesettingassignment"):
             if not self.typesettingassignment.done:
                 return True
 
@@ -67,8 +73,8 @@ class TypesettingRound(models.Model):
         return False
 
     def close(self, user=None):
-        """ Method that closes a round by cancelling any open tasks """
-        if hasattr(self, 'typesettingassignment'):
+        """Method that closes a round by cancelling any open tasks"""
+        if hasattr(self, "typesettingassignment"):
             if self.typesettingassignment.is_active:
                 self.typesettingassignment.cancel(user=user)
 
@@ -80,8 +86,12 @@ class TypesettingRound(models.Model):
 
 class ActiveTypesettingAssignmentManager(models.Manager):
     def get_queryset(self):
-        return super(ActiveTypesettingAssignmentManager, self).get_queryset().exclude(
-            round__article__stage=submission_models.STAGE_ARCHIVED,
+        return (
+            super(ActiveTypesettingAssignmentManager, self)
+            .get_queryset()
+            .exclude(
+                round__article__stage=submission_models.STAGE_ARCHIVED,
+            )
         )
 
 
@@ -91,17 +101,17 @@ class TypesettingAssignment(models.Model):
         on_delete=models.CASCADE,
     )
     manager = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='manager',
+        related_name="manager",
     )
     typesetter = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-        related_name='typesetter',
+        related_name="typesetter",
     )
 
     assigned = models.DateTimeField(default=timezone.now)
@@ -123,21 +133,21 @@ class TypesettingAssignment(models.Model):
 
     task = JanewayBleachField(
         blank=True,
-        verbose_name='Typesetting Task',
-        help_text='The task description if not explained in the typesetting guidelines.',
+        verbose_name="Typesetting Task",
+        help_text="The task description if not explained in the typesetting guidelines.",
     )
     files_to_typeset = models.ManyToManyField(
-        'core.File',
-        related_name='files_to_typeset',
+        "core.File",
+        related_name="files_to_typeset",
         blank=True,
     )
     galleys_created = models.ManyToManyField(
-        'core.Galley',
+        "core.Galley",
         blank=True,
     )
     typesetter_note = JanewayBleachField(
         blank=True,
-        verbose_name='Note to Editor',
+        verbose_name="Note to Editor",
     )
 
     objects = models.Manager()
@@ -146,14 +156,14 @@ class TypesettingAssignment(models.Model):
     @property
     def time_to_due(self):
         if not self.due:
-            return ''
+            return ""
         due = self.due - timezone.now().date()
         if due == timedelta(0):
-            return 'Due Today'
+            return "Due Today"
         elif due < timedelta(0):
-            return 'Overdue'
+            return "Overdue"
 
-        return '{} days'.format(due.days)
+        return "{} days".format(due.days)
 
     @property
     def is_active(self):
@@ -224,11 +234,11 @@ class TypesettingAssignment(models.Model):
         self.cancelled = timezone.now()
         self.save()
 
-    def complete(self, note='', user=None):
+    def complete(self, note="", user=None):
         utils_models.LogEntry.add_entry(
             types="Typesetting Task Completed",
             description="The typesetting assignment {self.pk} has been "
-                        "completed by user {user}".format(self=self, user=user),
+            "completed by user {user}".format(self=self, user=user),
             level="INFO",
             actor=user,
             target=self.round.article,
@@ -247,15 +257,15 @@ class TypesettingAssignment(models.Model):
         "accepted": "Typesetter has accepted task, awaiting completion.",
         "declined": "Typesetter has declined this task.",
         "completed": "The typesetter has completed their task. "
-                     "You should review the uploaded galley files.",
+        "You should review the uploaded galley files.",
         "cancelled": "The manager has cancelled this typesetting task",
         "closed": "Task closed",
         "unknown": "Task status unknown",
         "Corrections Required": "This article requires corrections.",
         "Proofing Required": "This article requires proofing.",
         "Accept": "Typesetting for this article has been completed. However,"
-            " if you want to make further changes, you can still assign"
-            " proofreaders or start a new typesetting round.",
+        " if you want to make further changes, you can still assign"
+        " proofreaders or start a new typesetting round.",
     }
 
     @property
@@ -263,7 +273,7 @@ class TypesettingAssignment(models.Model):
         return self.FRIENDLY_STATUSES.get(self.status)
 
     def proofing_assignments_for_corrections(self):
-        """ Returns the proofreading assignemnts for corrections
+        """Returns the proofreading assignemnts for corrections
         The proofreadings relevant for round n of proofing would have been
         stored against round n-1 of this article
         """
@@ -279,13 +289,15 @@ class TypesettingAssignment(models.Model):
             return GalleyProofing.objects.none()
 
     def __str__(self):
-        return f'Typesetter {self.typesetter} assigned to article {self.round.article}'
+        return f"Typesetter {self.typesetter} assigned to article {self.round.article}"
 
 
 class ActiveGalleyProofingManager(models.Manager):
     def get_queryset(self):
-        return super(ActiveGalleyProofingManager, self).get_queryset().exclude(
-            round__article__stage=submission_models.STAGE_ARCHIVED
+        return (
+            super(ActiveGalleyProofingManager, self)
+            .get_queryset()
+            .exclude(round__article__stage=submission_models.STAGE_ARCHIVED)
         )
 
 
@@ -295,16 +307,15 @@ class GalleyProofing(models.Model):
         on_delete=models.CASCADE,
     )
     manager = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
-        related_name='galley_manager',
+        related_name="galley_manager",
         on_delete=models.SET_NULL,
     )
     proofreader = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
-
     )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
@@ -315,23 +326,23 @@ class GalleyProofing(models.Model):
 
     task = JanewayBleachField(
         verbose_name="Proofing Task",
-        help_text='Add any additional information or instructions '
-                  'for the proofreader here.',
+        help_text="Add any additional information or instructions "
+        "for the proofreader here.",
     )
-    proofed_files = models.ManyToManyField('core.Galley', blank=True)
+    proofed_files = models.ManyToManyField("core.Galley", blank=True)
     notes = JanewayBleachField(blank=True)
-    annotated_files = models.ManyToManyField('core.File', blank=True)
+    annotated_files = models.ManyToManyField("core.File", blank=True)
 
     objects = models.Manager()
     active_objects = ActiveGalleyProofingManager()
 
     class Meta:
-        ordering = ('assigned', 'accepted', 'pk')
+        ordering = ("assigned", "accepted", "pk")
 
     def __str__(self):
-        return 'Proofing for Article {0} by {1}'.format(
+        return "Proofing for Article {0} by {1}".format(
             self.round.article.title,
-            self.proofreader.full_name() if self.proofreader else '',
+            self.proofreader.full_name() if self.proofreader else "",
         )
 
     def assign(self, user=None, skip=False):
@@ -340,12 +351,12 @@ class GalleyProofing(models.Model):
             self.save()
 
         utils_models.LogEntry.add_entry(
-            types='Proofreader Assigned',
-            description='{} assigned as a proofreader by {}'.format(
+            types="Proofreader Assigned",
+            description="{} assigned as a proofreader by {}".format(
                 self.proofreader.full_name(),
                 user,
             ),
-            level='Info',
+            level="Info",
             actor=user,
             target=self.round.article,
         )
@@ -356,12 +367,12 @@ class GalleyProofing(models.Model):
         self.save()
 
         utils_models.LogEntry.add_entry(
-            types='Proofreading Assignment Cancelled',
-            description='Proofing by {} cancelled by {}'.format(
+            types="Proofreading Assignment Cancelled",
+            description="Proofing by {} cancelled by {}".format(
                 self.proofreader.full_name(),
                 user,
             ),
-            level='Info',
+            level="Info",
             actor=user,
             target=self.round.article,
         )
@@ -373,12 +384,12 @@ class GalleyProofing(models.Model):
         self.save()
 
         utils_models.LogEntry.add_entry(
-            types='Proofreading Assignment Reset',
-            description='Proofing by {} reset by {}'.format(
+            types="Proofreading Assignment Reset",
+            description="Proofing by {} reset by {}".format(
                 self.proofreader.full_name(),
                 user,
             ),
-            level='Info',
+            level="Info",
             actor=user,
             target=self.round.article,
         )
@@ -390,11 +401,11 @@ class GalleyProofing(models.Model):
         self.save()
 
         utils_models.LogEntry.add_entry(
-            types='Proofreading Assignment Complete',
-            description='Proofing by {} completed'.format(
+            types="Proofreading Assignment Complete",
+            description="Proofing by {} completed".format(
                 user,
             ),
-            level='Info',
+            level="Info",
             actor=user,
             target=self.round.article,
         )
@@ -414,57 +425,57 @@ class GalleyProofing(models.Model):
         due = self.due.date() - timezone.now().date()
 
         if due == timedelta(0):
-            return 'Due Today'
+            return "Due Today"
         elif due < timedelta(0):
-            return 'Overdue'
+            return "Overdue"
 
-        return '{} days'.format(due.days)
+        return "{} days".format(due.days)
 
     FRIENDLY_STATUSES = {
         "assigned": "Awaiting response from the proofreader.",
         "accepted": "Proofreader has accepted task, awaiting completion.",
         "declined": "Proofreader has declined this task.",
         "completed": "The proofreader has completed their task. "
-                     "You should review their response.",
+        "You should review their response.",
         "unknown": "Task status unknown.",
-        "cancelled": "Task was cancelled by manager/editor."
+        "cancelled": "Task was cancelled by manager/editor.",
     }
 
     @property
     def status(self):
         if self.cancelled:
-            return 'cancelled'
+            return "cancelled"
         elif self.assigned and self.accepted and not self.completed:
-            return 'accepted'
+            return "accepted"
         elif self.assigned and self.completed and not self.accepted:
-            return 'declined'
+            return "declined"
         elif self.assigned and self.completed and self.accepted:
-            return 'completed'
+            return "completed"
         elif self.assigned and not self.accepted and not self.completed:
-            return 'assigned'
+            return "assigned"
         else:
-            return 'unknown'
+            return "unknown"
 
     @property
     def friendly_status(self):
         return self.FRIENDLY_STATUSES.get(self.status)
 
     def send_assignment_notification(self, request, message, skip=False):
-        description = '{0} has been assigned as a proofreader for {1}'.format(
+        description = "{0} has been assigned as a proofreader for {1}".format(
             self.proofreader.full_name(),
             self.round.article.title,
         )
 
         if not skip:
             log_dict = {
-                'level': 'Info',
-                'action_text': description,
-                'types': 'Proofing Assignment',
-                'target': self.round.article,
+                "level": "Info",
+                "action_text": description,
+                "types": "Proofing Assignment",
+                "target": self.round.article,
             }
             notify_helpers.send_email_with_body_from_user(
                 request,
-                'Proofing Request',
+                "Proofing Request",
                 self.proofreader.email,
                 message,
                 log_dict=log_dict,
@@ -472,7 +483,7 @@ class GalleyProofing(models.Model):
             notify_helpers.send_slack(
                 request,
                 description,
-                ['slack_editors'],
+                ["slack_editors"],
             )
 
             self.notified = True

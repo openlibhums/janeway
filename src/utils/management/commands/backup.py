@@ -27,8 +27,10 @@ def copy_file(source, destination):
         os.mkdir(destination_folder)
 
     print("Copying {0}".format(source))
-    shutil.copy(os.path.join(settings.BASE_DIR, source),
-                os.path.join(settings.BASE_DIR, destination))
+    shutil.copy(
+        os.path.join(settings.BASE_DIR, source),
+        os.path.join(settings.BASE_DIR, destination),
+    )
 
 
 def copy_files(src_path, dest_path):
@@ -43,7 +45,7 @@ def copy_files(src_path, dest_path):
     files = os.listdir(src_path)
 
     for file_name in files:
-        if not file_name == 'temp':
+        if not file_name == "temp":
             full_file_name = os.path.join(src_path, file_name)
             print("Copying {0}".format(full_file_name))
             if os.path.isfile(full_file_name):
@@ -56,24 +58,26 @@ def copy_files(src_path, dest_path):
 
 
 def mycb(so_far, total):
-    print('{0} kb transferred out of {1}'.format(so_far / 1024, total / 1024))
+    print("{0} kb transferred out of {1}".format(so_far / 1024, total / 1024))
 
 
 def handle_s3(tmp_path, start_time):
     print("Sending to S3.")
-    file_name = '{0}.zip'.format(start_time)
-    file_path = os.path.join(settings.BASE_DIR, 'files', 'temp', file_name)
-    f = open(file_path, 'rb')
+    file_name = "{0}.zip".format(start_time)
+    file_path = os.path.join(settings.BASE_DIR, "files", "temp", file_name)
+    f = open(file_path, "rb")
 
     END_POINT = settings.END_POINT
     S3_HOST = settings.S3_HOST
-    UPLOADED_FILENAME = 'backups/{0}.zip'.format(start_time)
+    UPLOADED_FILENAME = "backups/{0}.zip".format(start_time)
     # include folders in file path. If it doesn't exist, it will be created
 
-    s3 = boto.s3.connect_to_region(END_POINT,
-                                   aws_access_key_id=settings.S3_ACCESS_KEY,
-                                   aws_secret_access_key=settings.S3_SECRET_KEY,
-                                   host=S3_HOST)
+    s3 = boto.s3.connect_to_region(
+        END_POINT,
+        aws_access_key_id=settings.S3_ACCESS_KEY,
+        aws_secret_access_key=settings.S3_SECRET_KEY,
+        host=S3_HOST,
+    )
 
     bucket = s3.get_bucket(settings.S3_BUCKET_NAME)
     k = Key(bucket)
@@ -83,28 +87,30 @@ def handle_s3(tmp_path, start_time):
 
 def handle_directory(tmp_path, start_time):
     print("Copying to backup dir")
-    file_name = '{0}.zip'.format(start_time)
-    copy_file('files/temp/{0}'.format(file_name), settings.BACKUP_DIR)
+    file_name = "{0}.zip".format(start_time)
+    copy_file("files/temp/{0}".format(file_name), settings.BACKUP_DIR)
 
 
 def delete_used_tmp(tmp_path, start_time):
     print("Deleting temp directory.")
     shutil.rmtree(tmp_path)
-    file_path = "{0}/{1}.zip".format(os.path.join(settings.BASE_DIR, 'files', 'temp'), start_time)
+    file_path = "{0}/{1}.zip".format(
+        os.path.join(settings.BASE_DIR, "files", "temp"), start_time
+    )
     os.unlink(file_path)
 
 
 def send_email(start_time, e, success=False):
     admins = models.Account.objects.filter(is_superuser=True)
-    message = ''
+    message = ""
 
     if not success:
-        message = 'There was an error during the backup process.\n\n '
+        message = "There was an error during the backup process.\n\n "
 
     send_mail(
-        'Backup',
-        '{0}{1}.'.format(message, e),
-        'backup@janeway',
+        "Backup",
+        "{0}{1}.".format(message, e),
+        "backup@janeway",
         [user.email for user in admins],
         fail_silently=False,
     )
@@ -126,38 +132,58 @@ class Command(BaseCommand):
         """
 
         # Ensure temp dir exists:
-        if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'temp')):
-            os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'temp'))
+        if not os.path.exists(os.path.join(settings.BASE_DIR, "files", "temp")):
+            os.makedirs(os.path.join(settings.BASE_DIR, "files", "temp"))
 
         start_time = str(timezone.now())
         try:
-            tmp_path = os.path.join(settings.BASE_DIR, 'files', 'temp', start_time)
+            tmp_path = os.path.join(settings.BASE_DIR, "files", "temp", start_time)
 
             # dump database out to JSON and store in StringIO for saving
-            print('Dumping json db file')
+            print("Dumping json db file")
             json_out = StringIO()
-            call_command('dumpdata', '--indent=4', '--natural-foreign', '--exclude=contenttypes', stdout=json_out)
+            call_command(
+                "dumpdata",
+                "--indent=4",
+                "--natural-foreign",
+                "--exclude=contenttypes",
+                stdout=json_out,
+            )
 
-            write_path = os.path.join(settings.BASE_DIR, 'files', 'temp', 'janeway.json')
-            with open(write_path, 'w', encoding="utf-8") as write:
+            write_path = os.path.join(
+                settings.BASE_DIR, "files", "temp", "janeway.json"
+            )
+            with open(write_path, "w", encoding="utf-8") as write:
                 json_out.seek(0)
                 shutil.copyfileobj(json_out, write)
 
             os.mkdir(tmp_path)
-            copy_file('files/temp/janeway.json', 'files/temp/{0}/janeway.json'.format(start_time))
-            copy_files(os.path.join(settings.BASE_DIR, 'media'), os.path.join(tmp_path, 'media'))
-            copy_files(os.path.join(settings.BASE_DIR, 'files'), os.path.join(tmp_path, 'files'))
+            copy_file(
+                "files/temp/janeway.json",
+                "files/temp/{0}/janeway.json".format(start_time),
+            )
+            copy_files(
+                os.path.join(settings.BASE_DIR, "media"),
+                os.path.join(tmp_path, "media"),
+            )
+            copy_files(
+                os.path.join(settings.BASE_DIR, "files"),
+                os.path.join(tmp_path, "files"),
+            )
             print("Creating archive.")
-            shutil.make_archive(os.path.join(settings.BASE_DIR, 'files', 'temp', start_time), 'zip', tmp_path)
+            shutil.make_archive(
+                os.path.join(settings.BASE_DIR, "files", "temp", start_time),
+                "zip",
+                tmp_path,
+            )
 
-            if settings.BACKUP_TYPE == 's3':
+            if settings.BACKUP_TYPE == "s3":
                 handle_s3(tmp_path, start_time)
             else:
                 handle_directory(tmp_path, start_time)
             delete_used_tmp(tmp_path, start_time)
 
             if settings.BACKUP_EMAIL:
-                send_email(start_time, 'Backup was successfully completed.')
+                send_email(start_time, "Backup was successfully completed.")
         except Exception as e:
-
             send_email(start_time, e)

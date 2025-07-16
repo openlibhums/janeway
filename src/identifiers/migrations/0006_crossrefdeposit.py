@@ -8,25 +8,38 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('identifiers', '0005_changes_identifier_choices'),
+        ("identifiers", "0005_changes_identifier_choices"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CrossrefDeposit',
+            name="CrossrefDeposit",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('has_result', models.BooleanField(default=False)),
-                ('success', models.BooleanField(default=False)),
-                ('queued', models.BooleanField(default=False)),
-                ('citation_success', models.BooleanField(default=False)),
-                ('result_text', models.TextField(blank=True, null=True)),
-                ('file_name', models.CharField(max_length=255)),
-                ('date_time', models.DateTimeField(default=django.utils.timezone.now)),
-                ('polling_attempts', models.PositiveIntegerField(default=0)),
-                ('identifier', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='identifiers.Identifier')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("has_result", models.BooleanField(default=False)),
+                ("success", models.BooleanField(default=False)),
+                ("queued", models.BooleanField(default=False)),
+                ("citation_success", models.BooleanField(default=False)),
+                ("result_text", models.TextField(blank=True, null=True)),
+                ("file_name", models.CharField(max_length=255)),
+                ("date_time", models.DateTimeField(default=django.utils.timezone.now)),
+                ("polling_attempts", models.PositiveIntegerField(default=0)),
+                (
+                    "identifier",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="identifiers.Identifier",
+                    ),
+                ),
             ],
         ),
     ]

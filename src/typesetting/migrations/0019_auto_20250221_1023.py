@@ -4,27 +4,26 @@ from django.db import migrations
 
 
 def update_typesetting_workflow_name(apps, schema_editor):
-    WorkflowElement = apps.get_model('core', 'WorkflowElement')
+    WorkflowElement = apps.get_model("core", "WorkflowElement")
     WorkflowElement.objects.filter(
-        element_name='Typesetting Plugin',
+        element_name="Typesetting Plugin",
     ).update(
-        element_name='typesetting',
+        element_name="typesetting",
     )
 
 
 def reset_typesetting_workflow_name(apps, schema_editor):
-    WorkflowElement = apps.get_model('core', 'WorkflowElement')
+    WorkflowElement = apps.get_model("core", "WorkflowElement")
     WorkflowElement.objects.filter(
-        element_name='typesetting',
+        element_name="typesetting",
     ).update(
-        element_name='Typesetting Plugin',
+        element_name="Typesetting Plugin",
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0018_selected_files'),
+        ("typesetting", "0018_selected_files"),
     ]
 
     operations = [

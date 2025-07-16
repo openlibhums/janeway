@@ -6,18 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0074_fix_editorial_images_group'),
+        ("core", "0074_fix_editorial_images_group"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='suffix',
+            model_name="account",
+            name="suffix",
             field=models.CharField(
                 blank=True,
-                verbose_name='Name suffix',
+                verbose_name="Name suffix",
                 max_length=300,
                 null=True,
             ),

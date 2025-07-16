@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0004_fieldanswer'),
+        ("submission", "0004_fieldanswer"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='field',
-            name='width',
-            field=models.CharField(choices=[('third', 'Third'), ('half', 'Half'), ('full,', 'Full')], default='full', max_length=50),
+            model_name="field",
+            name="width",
+            field=models.CharField(
+                choices=[("third", "Third"), ("half", "Half"), ("full,", "Full")],
+                default="full",
+                max_length=50,
+            ),
         ),
     ]

@@ -7,7 +7,7 @@ However, the journal_defaults.json was never changed, which has lead to 2
 possible wrong states.
 
 Case A: pre-existing installation ran migration core.0061:
-    - In this state the settings where swapped correctly to styling. however, 
+    - In this state the settings where swapped correctly to styling. however,
       due to the setting group not being updated, a duplicate setting with the
       group general was re-introduced. This setting will not have any relevant
       values attached, since the codebase has been using the correct setting
@@ -23,6 +23,7 @@ Case B: New installations since core.0061 was introduced:
       (essentially run 0061 again)
 
 """
+
 from __future__ import unicode_literals
 
 from django.db import migrations, models
@@ -60,12 +61,12 @@ def general_to_styling(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0073_auto_20220630_1608'),
+        ("core", "0073_auto_20220630_1608"),
     ]
 
     operations = [
         migrations.RunPython(
-            general_to_styling, reverse_code=migrations.RunPython.noop),
+            general_to_styling, reverse_code=migrations.RunPython.noop
+        ),
     ]

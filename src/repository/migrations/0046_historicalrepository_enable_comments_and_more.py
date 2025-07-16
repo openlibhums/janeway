@@ -4,30 +4,41 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
+        ("repository", "0045_historicalrepository_display_public_metrics_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrepository',
-            name='enable_comments',
-            field=models.BooleanField(default=True, help_text='Enabling this will turn on the comment feature.'),
+            model_name="historicalrepository",
+            name="enable_comments",
+            field=models.BooleanField(
+                default=True,
+                help_text="Enabling this will turn on the comment feature.",
+            ),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='enable_invited_comments',
-            field=models.BooleanField(default=True, help_text='Enable to display the invited comments interface.'),
+            model_name="historicalrepository",
+            name="enable_invited_comments",
+            field=models.BooleanField(
+                default=True,
+                help_text="Enable to display the invited comments interface.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='enable_comments',
-            field=models.BooleanField(default=True, help_text='Enabling this will turn on the comment feature.'),
+            model_name="repository",
+            name="enable_comments",
+            field=models.BooleanField(
+                default=True,
+                help_text="Enabling this will turn on the comment feature.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='enable_invited_comments',
-            field=models.BooleanField(default=True, help_text='Enable to display the invited comments interface.'),
+            model_name="repository",
+            name="enable_invited_comments",
+            field=models.BooleanField(
+                default=True,
+                help_text="Enable to display the invited comments interface.",
+            ),
         ),
     ]
