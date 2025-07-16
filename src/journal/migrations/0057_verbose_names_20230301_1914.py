@@ -6,18 +6,17 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0056_auto_20230126_1317'),
+        ("journal", "0056_auto_20230126_1317"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='fixedpubcheckitems',
-            options={'verbose_name_plural': 'Fixed pub check items'},
+            name="fixedpubcheckitems",
+            options={"verbose_name_plural": "Fixed pub check items"},
         ),
         migrations.AlterModelOptions(
-            name='notifications',
-            options={'verbose_name_plural': 'notifications'},
+            name="notifications",
+            options={"verbose_name_plural": "notifications"},
         ),
     ]

@@ -6,19 +6,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0012_auto_20210330_1138'),
+        ("review", "0012_auto_20210330_1138"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='decisiondraft',
-            name='closed',
+            model_name="decisiondraft",
+            name="closed",
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='decision',
-            field=models.CharField(choices=[('accept', 'Accept Without Revisions'), ('minor_revisions', 'Minor Revisions Required'), ('major_revisions', 'Major Revisions Required'), ('reject', 'Reject')], max_length=100),
+            model_name="decisiondraft",
+            name="decision",
+            field=models.CharField(
+                choices=[
+                    ("accept", "Accept Without Revisions"),
+                    ("minor_revisions", "Minor Revisions Required"),
+                    ("major_revisions", "Major Revisions Required"),
+                    ("reject", "Reject"),
+                ],
+                max_length=100,
+            ),
         ),
     ]

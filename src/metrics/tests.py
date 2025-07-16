@@ -11,12 +11,12 @@ from utils import install
 from utils.testing import helpers
 from utils.shared import clear_cache
 
-class ArticleAccessTests(TestCase):
 
+class ArticleAccessTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        helpers.create_roles(['author'])
+        helpers.create_roles(["author"])
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         install.update_settings(management_command=False)
@@ -36,7 +36,7 @@ class ArticleAccessTests(TestCase):
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
             follow=True,
         )
         self.assertTrue(
@@ -45,21 +45,19 @@ class ArticleAccessTests(TestCase):
                 type="view",
                 galley_type=None,
             ).exists(),
-            "A 'view' has not been recorded for abstract when no render galley"
+            "A 'view' has not been recorded for abstract when no render galley",
         )
 
     def test_article_access_when_view_render_galley(self):
         galley_type = "html"
-        galley = helpers.create_galley(
-            self.article, type=galley_type, public=True
-        )
+        galley = helpers.create_galley(self.article, type=galley_type, public=True)
         self.article.render_galley = galley
         self.article.save()
 
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
             follow=True,
         )
         self.assertTrue(
@@ -68,20 +66,18 @@ class ArticleAccessTests(TestCase):
                 type="view",
                 galley_type=galley_type,
             ).exists(),
-            "A 'view' has not been recorded for rendered galley"
+            "A 'view' has not been recorded for rendered galley",
         )
 
     def test_NO_article_access_when_view_non_render_galley(self):
         galley_type = "pdf"
-        galley = helpers.create_galley(
-            self.article, type=galley_type, public=True
-        )
+        galley = helpers.create_galley(self.article, type=galley_type, public=True)
         self.article.save()
 
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
             follow=True,
         )
         self.assertFalse(
@@ -90,7 +86,7 @@ class ArticleAccessTests(TestCase):
                 type="view",
                 galley_type=galley_type,
             ).exists(),
-            "A 'view' has mistakenly been recorded against a non-render galley"
+            "A 'view' has mistakenly been recorded against a non-render galley",
         )
         self.assertTrue(
             ArticleAccess.objects.filter(
@@ -98,20 +94,18 @@ class ArticleAccessTests(TestCase):
                 type="view",
                 galley_type=None,
             ).exists(),
-            "A 'view' has not been recorded for abstract when no render galley"
+            "A 'view' has not been recorded for abstract when no render galley",
         )
 
     def test_article_access_when_download_galley(self):
         galley_type = "pdf"
-        galley = helpers.create_galley(
-            self.article, type=galley_type, public=True
-        )
+        galley = helpers.create_galley(self.article, type=galley_type, public=True)
 
-        galley_url = f'/article/{self.article.pk}/galley/{galley.pk}/download/'
+        galley_url = f"/article/{self.article.pk}/galley/{galley.pk}/download/"
         self.client.get(
             galley_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT='Chrome/39.0.2171.95 Safari/537.36',
+            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
             follow=True,
         )
         self.assertTrue(
@@ -120,5 +114,5 @@ class ArticleAccessTests(TestCase):
                 type="download",
                 galley_type=galley_type,
             ).exists(),
-            "No 'download' recorded when downloading PDF galley"
+            "No 'download' recorded when downloading PDF galley",
         )

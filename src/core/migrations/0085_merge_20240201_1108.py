@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0083_press_editorial_team_20240116'),
-        ('core', '0084_xslt_1-5-1'),
+        ("core", "0083_press_editorial_team_20240116"),
+        ("core", "0084_xslt_1-5-1"),
     ]
 
-    operations = [
-    ]
+    operations = []

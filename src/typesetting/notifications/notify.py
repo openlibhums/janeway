@@ -3,10 +3,10 @@ from events import logic as events_logic
 
 def event_typesetting_assignment(request, assignment, message, skip):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'message': message,
-        'skip': skip,
+        "assignment": assignment,
+        "request": request,
+        "message": message,
+        "skip": skip,
     }
 
     events_logic.Events.raise_event(
@@ -22,10 +22,10 @@ def event_typesetting_assignment(request, assignment, message, skip):
 
 def event_decision_notification(assignment, request, note, decision):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'note': note,
-        'decision': decision,
+        "assignment": assignment,
+        "request": request,
+        "note": note,
+        "decision": decision,
     }
 
     events_logic.Events.raise_event(
@@ -37,8 +37,8 @@ def event_decision_notification(assignment, request, note, decision):
 
 def event_typesetting_cancelled(assignment, request):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
+        "assignment": assignment,
+        "request": request,
     }
 
     events_logic.Events.raise_event(
@@ -50,8 +50,8 @@ def event_typesetting_cancelled(assignment, request):
 
 def event_typesetting_deleted(assignment, request):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
+        "assignment": assignment,
+        "request": request,
     }
 
     events_logic.Events.raise_event(
@@ -63,8 +63,8 @@ def event_typesetting_deleted(assignment, request):
 
 def event_complete_notification(assignment, request):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
+        "assignment": assignment,
+        "request": request,
     }
 
     events_logic.Events.raise_event(
@@ -76,10 +76,10 @@ def event_complete_notification(assignment, request):
 
 def galley_proofing_assignment(request, assignment, message, skip):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'message': message,
-        'skip': skip,
+        "assignment": assignment,
+        "request": request,
+        "message": message,
+        "skip": skip,
     }
 
     events_logic.Events.raise_event(
@@ -91,9 +91,9 @@ def galley_proofing_assignment(request, assignment, message, skip):
 
 def galley_proofing_cancel(request, assignment):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'event_type': 'cancelled',
+        "assignment": assignment,
+        "request": request,
+        "event_type": "cancelled",
     }
 
     events_logic.Events.raise_event(
@@ -105,9 +105,9 @@ def galley_proofing_cancel(request, assignment):
 
 def galley_proofing_reset(request, assignment):
     kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'event_type': 'reset',
+        "assignment": assignment,
+        "request": request,
+        "event_type": "reset",
     }
 
     events_logic.Events.raise_event(
@@ -118,11 +118,7 @@ def galley_proofing_reset(request, assignment):
 
 
 def galley_proofing_complete(request, assignment):
-    kwargs = {
-        'assignment': assignment,
-        'request': request,
-        'event_type': 'completed'
-    }
+    kwargs = {"assignment": assignment, "request": request, "event_type": "completed"}
 
     events_logic.Events.raise_event(
         events_logic.Events.ON_PROOFREADER_ASSIGN_COMPLETE,

@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0022_press_disable_journals'),
+        ("press", "0022_press_disable_journals"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='press',
-            name='theme',
-            field=models.CharField(default='OLH', max_length=255),
+            model_name="press",
+            name="theme",
+            field=models.CharField(default="OLH", max_length=255),
         ),
     ]

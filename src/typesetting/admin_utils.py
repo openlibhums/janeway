@@ -10,24 +10,24 @@ from typesetting import models as typesetting_models
 class TypesettingClaimInline(admin.TabularInline):
     model = typesetting_models.TypesettingClaim
     extra = 0
-    raw_id_fields = ('article', 'editor')
+    raw_id_fields = ("article", "editor")
 
 
 class TypesettingAssignmentInline(admin.TabularInline):
     model = typesetting_models.TypesettingAssignment
     extra = 0
-    fields = ('round', 'manager', 'typesetter', 'assigned', 'due', 'task')
-    raw_id_fields = ('round', 'manager', 'typesetter')
+    fields = ("round", "manager", "typesetter", "assigned", "due", "task")
+    raw_id_fields = ("round", "manager", "typesetter")
 
 
 class TypesettingCorrectionInline(admin.TabularInline):
     model = typesetting_models.TypesettingCorrection
     extra = 0
-    raw_id_fields = ('task', 'galley')
+    raw_id_fields = ("task", "galley")
 
 
 class GalleyProofingInline(admin.TabularInline):
     model = typesetting_models.GalleyProofing
     extra = 0
-    fields = ('round', 'manager', 'proofreader', 'assigned', 'due', 'task')
-    raw_id_fields = ('round', 'manager', 'proofreader')
+    fields = ("round", "manager", "proofreader", "assigned", "due", "task")
+    raw_id_fields = ("round", "manager", "proofreader")

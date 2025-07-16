@@ -14,10 +14,8 @@ def delete_blank_keywords(apps, schema_editor):
 class Migration(migrations.Migration):
     atomic = False
     dependencies = [
-        ('submission', '0068_merge_20220427_1042'),
+        ("submission", "0068_merge_20220427_1042"),
     ]
     operations = [
-        migrations.RunPython(
-            delete_blank_keywords, migrations.RunPython.noop
-        ),
+        migrations.RunPython(delete_blank_keywords, migrations.RunPython.noop),
     ]

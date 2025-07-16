@@ -9,30 +9,49 @@ import repository.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0016_auto_20200930_1617'),
+        ("repository", "0016_auto_20200930_1617"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.preprint_file_upload),
+            model_name="preprint",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=repository.models.preprint_file_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='favicon',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
+            model_name="repository",
+            name="favicon",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=repository.models.repo_media_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='hero_background',
-            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
+            model_name="repository",
+            name="hero_background",
+            field=core.model_utils.SVGImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=repository.models.repo_media_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='logo',
-            field=core.model_utils.SVGImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=repository.models.repo_media_upload),
+            model_name="repository",
+            name="logo",
+            field=core.model_utils.SVGImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=repository.models.repo_media_upload,
+            ),
         ),
     ]

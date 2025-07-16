@@ -8,8 +8,8 @@ from freezegun import freeze_time
 from utils.testing import helpers
 from core.templatetags import fqdn, dates
 
-class TestFqdn(TestCase):
 
+class TestFqdn(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
@@ -18,21 +18,24 @@ class TestFqdn(TestCase):
         cls.journal_two.save()
 
     def test_stateless_site_url_for_press(self):
-        url_name = 'press_all_users' 
+        url_name = "press_all_users"
         url = fqdn.stateless_site_url(self.press, url_name)
-        self.assertEqual(url, 'http://localhost/press/user/all/')
+        self.assertEqual(url, "http://localhost/press/user/all/")
 
     @override_settings(URL_CONFIG="domain")
     def test_stateless_site_url_for_journal_domain(self):
-        url_name = 'journal_users' 
+        url_name = "journal_users"
         url = fqdn.stateless_site_url(self.journal_one, url_name)
-        self.assertEqual(url, f'http://{self.journal_one.domain}/user/all/')
+        self.assertEqual(url, f"http://{self.journal_one.domain}/user/all/")
 
     @override_settings(URL_CONFIG="path")
     def test_stateless_site_url_for_journal_path(self):
-        url_name = 'journal_users' 
+        url_name = "journal_users"
         url = fqdn.stateless_site_url(self.journal_two, url_name)
-        self.assertEqual(url, f'http://{self.journal_two.press.domain}/{self.journal_two.code}/user/all/')
+        self.assertEqual(
+            url,
+            f"http://{self.journal_two.press.domain}/{self.journal_two.code}/user/all/",
+        )
 
 
 ny_tz = pytz.timezone("America/New_York")

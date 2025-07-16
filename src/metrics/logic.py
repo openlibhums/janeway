@@ -38,43 +38,42 @@ def get_press_totals(start_date, end_date, report_months, compat=False, do_yop=F
     year_of_publication = {}
 
     for date in report_months:
-        press_months['{0}-{1}'.format(date.strftime('%b'), date.year)] = ''
+        press_months["{0}-{1}".format(date.strftime("%b"), date.year)] = ""
 
     for journal_object in journal_models.Journal.objects.all():
-
         journal = {}
-        journal['journal'] = journal_object
+        journal["journal"] = journal_object
 
-        journal['total'] = 0
-        journal['total_views'] = 0
-        journal['total_downloads'] = 0
+        journal["total"] = 0
+        journal["total_views"] = 0
+        journal["total_downloads"] = 0
 
-        journal['reporting_periods'] = []
+        journal["reporting_periods"] = []
 
         # year of publication is for COUNTER journal report 5
         # it needs to have "each YOP in the current decade and in the immediately previous decade as separate columns"
         # easiest way to do this is simply to count backwards 19 years as the theoretical maximum
-        journal['year_of_publication'] = {}
+        journal["year_of_publication"] = {}
 
         year = timezone.now().year
 
         for year_counter in range(year, year - 19, -1):
-            year_of_publication[year] = ''
+            year_of_publication[year] = ""
 
         for date in report_months:
-            month = '{0}-{1}'.format(date.strftime('%b'), date.year)
+            month = "{0}-{1}".format(date.strftime("%b"), date.year)
 
             # setting these to zero for now for compat with pycounter
             # the spec says they should be set to "" so we may need to change that back
             # logic to handle this is included below
             if compat:
                 journal[month] = 0
-                journal['{0}-views'.format(month)] = 0
-                journal['{0}-downloads'.format(month)] = 0
+                journal["{0}-views".format(month)] = 0
+                journal["{0}-downloads".format(month)] = 0
             else:
-                journal[month] = ''
-                journal['{0}-views'.format(month)] = ''
-                journal['{0}-downloads'.format(month)] = ''
+                journal[month] = ""
+                journal["{0}-views".format(month)] = ""
+                journal["{0}-downloads".format(month)] = ""
 
         articles = submission_models.Article.objects.filter(journal=journal_object)
 
@@ -85,33 +84,40 @@ def get_press_totals(start_date, end_date, report_months, compat=False, do_yop=F
                 downloads = get_article_downloads(article)
 
                 if article.date_published.year in year_of_publication:
-                    if year_of_publication[article.date_published.year] == '':
+                    if year_of_publication[article.date_published.year] == "":
                         year_of_publication[article.date_published.year] = 0
 
-                    if journal['year_of_publication'][article.date_published.year] == '':
-                        journal['year_of_publication'][article.date_published.year] = 0
+                    if (
+                        journal["year_of_publication"][article.date_published.year]
+                        == ""
+                    ):
+                        journal["year_of_publication"][article.date_published.year] = 0
 
                 year_of_publication[article.date_published.year] += views + downloads
-                journal['year_of_publication'][article.date_published.year] += views + downloads
+                journal["year_of_publication"][article.date_published.year] += (
+                    views + downloads
+                )
 
         for article in articles:
-            views = models.ArticleAccess.objects.filter(type='view', article=article,
-                                                        accessed__range=[start_date, end_date])
+            views = models.ArticleAccess.objects.filter(
+                type="view", article=article, accessed__range=[start_date, end_date]
+            )
 
-            downloads = models.ArticleAccess.objects.filter(type='download', article=article,
-                                                            accessed__range=[start_date, end_date])
+            downloads = models.ArticleAccess.objects.filter(
+                type="download", article=article, accessed__range=[start_date, end_date]
+            )
 
             view_count = views.count()
             download_count = downloads.count()
 
             # total views and downloads
-            journal['total'] += view_count + download_count
+            journal["total"] += view_count + download_count
 
             # total views
-            journal['total_views'] += view_count
+            journal["total_views"] += view_count
 
             # total downloads
-            journal['total_downloads'] += download_count
+            journal["total_downloads"] += download_count
 
             # add the totals to the press totals
             view_access_count += view_count
@@ -119,38 +125,43 @@ def get_press_totals(start_date, end_date, report_months, compat=False, do_yop=F
 
             for view_object in views:
                 # get the date for this access
-                access_date = '{0}-{1}'.format(view_object.accessed.strftime('%b'), view_object.accessed.year)
+                access_date = "{0}-{1}".format(
+                    view_object.accessed.strftime("%b"), view_object.accessed.year
+                )
 
                 # we have to handle this like this since data for months already collected must be blank, not zero
-                if journal[access_date] == '':
+                if journal[access_date] == "":
                     journal[access_date] = 0
 
-                if press_months[access_date] == '':
+                if press_months[access_date] == "":
                     press_months[access_date] = 0
 
-                if journal['{0}-views'.format(access_date)] == '':
-                    journal['{0}-views'.format(access_date)] = 0
+                if journal["{0}-views".format(access_date)] == "":
+                    journal["{0}-views".format(access_date)] = 0
 
                 journal[access_date] += 1
-                journal['{0}-views'.format(access_date)] += 1
+                journal["{0}-views".format(access_date)] += 1
                 press_months[access_date] += 1
 
             for download_object in downloads:
                 # get the date for this access
-                access_date = '{0}-{1}'.format(download_object.accessed.strftime('%b'), download_object.accessed.year)
+                access_date = "{0}-{1}".format(
+                    download_object.accessed.strftime("%b"),
+                    download_object.accessed.year,
+                )
 
                 # we have to handle this like this since data for months already collected must be blank, not zero
-                if journal[access_date] == '':
+                if journal[access_date] == "":
                     journal[access_date] = 0
 
-                if press_months[access_date] == '':
+                if press_months[access_date] == "":
                     press_months[access_date] = 0
 
-                if journal['{0}-downloads'.format(access_date)] == '':
-                    journal['{0}-downloads'.format(access_date)] = 0
+                if journal["{0}-downloads".format(access_date)] == "":
+                    journal["{0}-downloads".format(access_date)] = 0
 
                 journal[access_date] += 1
-                journal['{0}-downloads'.format(access_date)] += 1
+                journal["{0}-downloads".format(access_date)] += 1
                 press_months[access_date] += 1
 
         for date in report_months:
@@ -158,29 +169,49 @@ def get_press_totals(start_date, end_date, report_months, compat=False, do_yop=F
             # a start date
             # an end date
             # a total number of views
-            month = '{0}-{1}'.format(date.strftime('%b'), date.year)
-            journal['reporting_periods'].append(('{0}-01'.format(date.strftime('%Y-%m')),
-                                                 '{0}-{1}'.format(date.strftime('%Y-%m'),
-                                                                  calendar.monthrange(date.year, date.month)[1]),
-                                                 journal[month],
-                                                 journal['{0}-views'.format(month)],
-                                                 journal['{0}-downloads'.format(month)]))
+            month = "{0}-{1}".format(date.strftime("%b"), date.year)
+            journal["reporting_periods"].append(
+                (
+                    "{0}-01".format(date.strftime("%Y-%m")),
+                    "{0}-{1}".format(
+                        date.strftime("%Y-%m"),
+                        calendar.monthrange(date.year, date.month)[1],
+                    ),
+                    journal[month],
+                    journal["{0}-views".format(month)],
+                    journal["{0}-downloads".format(month)],
+                )
+            )
 
         journals.append(journal)
 
-    return view_access_count + download_access_count, view_access_count, download_access_count, press_months, journals
+    return (
+        view_access_count + download_access_count,
+        view_access_count,
+        download_access_count,
+        press_months,
+        journals,
+    )
 
 
 def get_article_views(article):
-    historic_record, created = models.HistoricArticleAccess.objects.get_or_create(article=article)
-    view_access_count = models.ArticleAccess.objects.filter(type='view', article=article).count()
+    historic_record, created = models.HistoricArticleAccess.objects.get_or_create(
+        article=article
+    )
+    view_access_count = models.ArticleAccess.objects.filter(
+        type="view", article=article
+    ).count()
 
     return historic_record.views + view_access_count
 
 
 def get_article_downloads(article):
-    historic_record, created = models.HistoricArticleAccess.objects.get_or_create(article=article)
-    download_access_count = models.ArticleAccess.objects.filter(type='download', article=article).count()
+    historic_record, created = models.HistoricArticleAccess.objects.get_or_create(
+        article=article
+    )
+    download_access_count = models.ArticleAccess.objects.filter(
+        type="download", article=article
+    ).count()
 
     return historic_record.downloads + download_access_count
 
@@ -197,7 +228,7 @@ def get_altmetrics(article):
             alm_dict[metric.source] = 1
         total += 1
 
-    alm_dict['total'] = total
+    alm_dict["total"] = total
 
     return alm_dict
 
@@ -218,17 +249,16 @@ def store_article_access(request, article, access_type, galley_type=None):
     current_time = timezone.now()
 
     try:
-        user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
+        user_agent = parse_ua_string(request.META.get("HTTP_USER_AGENT", None))
     except TypeError:
         user_agent = None
 
     ip = shared.get_ip_address(request)
     iso_country_code = get_iso_country_code(ip)
     country = iso_to_country_object(iso_country_code)
-    counter_tracking_id = request.session.get('counter_tracking')
+    counter_tracking_id = request.session.get("counter_tracking")
 
     if user_agent and not user_agent.is_bot:
-
         if counter_tracking_id:
             identifier = counter_tracking_id
         else:
@@ -236,7 +266,7 @@ def store_article_access(request, article, access_type, galley_type=None):
                 ip=ip,
                 agent=user_agent,
                 secret_key=settings.SECRET_KEY,
-            ).encode('utf-8')
+            ).encode("utf-8")
             identifier = hashlib.sha512(string).hexdigest()
 
         # check if the current IP has accessed this article recently.
@@ -261,9 +291,9 @@ def store_article_access(request, article, access_type, galley_type=None):
                 )
                 # Raise the Article Access event.
                 event_kwargs = {
-                    'article_access': access,
-                    'article': article,
-                    'request': request,
+                    "article_access": access,
+                    "article": article,
+                    "request": request,
                 }
                 event_logic.Events.raise_event(
                     event_logic.Events.ON_ARTICLE_ACCESS,
@@ -288,7 +318,7 @@ def get_view_and_download_totals(articles):
 
 def iso_to_country_object(code):
     if settings.DEBUG:
-        code = 'GB'
+        code = "GB"
     try:
         return core_models.Country.objects.get(code=code)
     except core_models.Country.DoesNotExist:
@@ -298,18 +328,18 @@ def iso_to_country_object(code):
 def get_iso_country_code(ip):
     db_path = os.path.join(
         settings.BASE_DIR,
-        'metrics',
-        'geolocation',
-        'GeoLite2-Country.mmdb',
+        "metrics",
+        "geolocation",
+        "GeoLite2-Country.mmdb",
     )
     reader = geoip2.database.Reader(db_path)
 
     try:
         response = reader.country(ip)
-        return response.country.iso_code if response.country.iso_code else 'OTHER'
+        return response.country.iso_code if response.country.iso_code else "OTHER"
     except AddressNotFoundError:
-        if ip == '127.0.0.1':
+        if ip == "127.0.0.1":
             return "GB"
-        return 'OTHER'
+        return "OTHER"
     except TypeError:
         return None

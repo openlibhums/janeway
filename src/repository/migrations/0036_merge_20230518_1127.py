@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0033_file_upload_texts'),
-        ('repository', '0035_alter_preprintaccess_options'),
+        ("repository", "0033_file_upload_texts"),
+        ("repository", "0035_alter_preprintaccess_options"),
     ]
 
-    operations = [
-    ]
+    operations = []

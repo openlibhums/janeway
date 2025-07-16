@@ -6,9 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-PLUGIN_NAME = 'Preprints'
-DESCRIPTION = 'This is a homepage element that renders a Preprint section.'
-AUTHOR = 'Martin Paul Eve & Andy Byers'
+PLUGIN_NAME = "Preprints"
+DESCRIPTION = "This is a homepage element that renders a Preprint section."
+AUTHOR = "Martin Paul Eve & Andy Byers"
 
 
 def install():
@@ -21,11 +21,12 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='preprints',
-            template_path='journal/homepage_elements/preprints.html',
+            configure_url="preprints",
+            template_path="journal/homepage_elements/preprints.html",
             content_type=content_type,
             object_id=press.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
 
@@ -33,10 +34,10 @@ def install():
 def hook_registry():
     try:
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.preprints.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.preprints.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
         }
     except OperationalError:

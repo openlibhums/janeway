@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0030_press_secondary_image_url'),
+        ("press", "0030_press_secondary_image_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='journal_footer_text',
-            field=models.TextField(blank=True, help_text='Text that will appear in the footer of every journal, to display publisher address or other essential info. ', null=True, verbose_name='Journal footer text'),
+            model_name="press",
+            name="journal_footer_text",
+            field=models.TextField(
+                blank=True,
+                help_text="Text that will appear in the footer of every journal, to display publisher address or other essential info. ",
+                null=True,
+                verbose_name="Journal footer text",
+            ),
         ),
     ]

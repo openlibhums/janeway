@@ -8,12 +8,12 @@ import submission.models
 
 
 def migrate_keywords(apps, schema_editor):
-    Article = apps.get_model('submission', 'Article')
-    KeywordArticle = apps.get_model('submission', 'KeywordArticle')
+    Article = apps.get_model("submission", "Article")
+    KeywordArticle = apps.get_model("submission", "KeywordArticle")
     articles = Article.objects.filter(keywords__isnull=False)
 
     for article in Article.objects.all():
-        for i,kw in enumerate(article.keywords.all()):
+        for i, kw in enumerate(article.keywords.all()):
             kw_article, _ = KeywordArticle.objects.get_or_create(
                 keyword=kw,
                 article=article,
@@ -23,62 +23,78 @@ def migrate_keywords(apps, schema_editor):
 
 
 def demigrate_keywords(apps, schema_editor):
-    KeywordArticle = apps.get_model('submission', 'KeywordArticle')
+    KeywordArticle = apps.get_model("submission", "KeywordArticle")
 
     for kw_article in KeywordArticle.objects.all():
         kw_article.article.keywords.add(kw_article.keyword)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0049_auto_20201117_1904'),
+        ("submission", "0049_auto_20201117_1904"),
     ]
 
     operations = [
         # Allow usage of Article.objects
         migrations.AlterModelManagers(
-            name='article',
+            name="article",
             managers=[
-                ('allarticles', django.db.models.manager.Manager()),
-                ('objects', submission.models.ArticleManager()),
+                ("allarticles", django.db.models.manager.Manager()),
+                ("objects", submission.models.ArticleManager()),
             ],
         ),
         # Create new through model
         migrations.CreateModel(
-            name='KeywordArticle',
+            name="KeywordArticle",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveIntegerField(default=1)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.PositiveIntegerField(default=1)),
             ],
             options={
-                'ordering': ['order'],
+                "ordering": ["order"],
             },
         ),
         migrations.AddField(
-            model_name='keywordarticle',
-            name='article',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="keywordarticle",
+            name="article",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Article"
+            ),
         ),
         migrations.AddField(
-            model_name='keywordarticle',
-            name='keyword',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Keyword'),
+            model_name="keywordarticle",
+            name="keyword",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="submission.Keyword"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='keywordarticle',
-            unique_together=set([('keyword', 'article')]),
+            name="keywordarticle",
+            unique_together=set([("keyword", "article")]),
         ),
         # Add temporary relation to new through model
         migrations.RunPython(migrate_keywords, reverse_code=demigrate_keywords),
         # Replace old relation with the new one
         migrations.RemoveField(
-            model_name='article',
-            name='keywords',
+            model_name="article",
+            name="keywords",
         ),
         migrations.AddField(
-            model_name='article',
-            name='keywords',
-            field=models.ManyToManyField(blank=True, null=True, through='submission.KeywordArticle', to='submission.Keyword'),
+            model_name="article",
+            name="keywords",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                through="submission.KeywordArticle",
+                to="submission.Keyword",
+            ),
         ),
     ]

@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0003_auto_20180208_1225'),
+        ("review", "0003_auto_20180208_1225"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reviewassignment',
-            name='display_review_file',
+            model_name="reviewassignment",
+            name="display_review_file",
             field=models.BooleanField(default=False),
         ),
     ]

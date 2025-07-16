@@ -8,8 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils import models
 
-PLUGIN_NAME = 'Journals and HTML'
-DESCRIPTION = 'This plugin displays featured journals.'
+PLUGIN_NAME = "Journals and HTML"
+DESCRIPTION = "This plugin displays featured journals."
 VERSION = 1.0
 
 
@@ -23,12 +23,13 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='journals_and_html',
-            template_path='press/homepage_elements/journals_and_html.html',
+            configure_url="journals_and_html",
+            template_path="press/homepage_elements/journals_and_html.html",
             content_type=content_type,
             object_id=press.pk,
             has_config=True,
-            available_to_press=True)
+            available_to_press=True,
+        )
 
         element.save()
 
@@ -37,10 +38,10 @@ def hook_registry():
     try:
         install()
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.journals_and_html.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.journals_and_html.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
         }
     except OperationalError:

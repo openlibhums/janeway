@@ -6,10 +6,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0052_add_fields_to_fixedpubcheckitems_and_issue'),
+        ("journal", "0052_add_fields_to_fixedpubcheckitems_and_issue"),
     ]
 
-    operations = [
-    ]
+    operations = []

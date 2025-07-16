@@ -5,125 +5,135 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0085_auto_20240207_1654'),
+        ("core", "0085_auto_20240207_1654"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='accessrequest',
-            name='evaluation_note',
-            field=core.model_utils.JanewayBleachField(help_text='This note will be sent to the requester when you approve or decline their request.', null=True),
+            model_name="accessrequest",
+            name="evaluation_note",
+            field=core.model_utils.JanewayBleachField(
+                help_text="This note will be sent to the requester when you approve or decline their request.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='accessrequest',
-            name='text',
+            model_name="accessrequest",
+            name="text",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='biography',
-            field=core.model_utils.JanewayBleachField(blank=True, null=True, verbose_name='Biography'),
+            model_name="account",
+            name="biography",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, null=True, verbose_name="Biography"
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='signature',
-            field=core.model_utils.JanewayBleachField(blank=True, null=True, verbose_name='Signature'),
+            model_name="account",
+            name="signature",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, null=True, verbose_name="Signature"
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='body',
-            field=core.model_utils.JanewayBleachField(verbose_name='Your message'),
+            model_name="contact",
+            name="body",
+            field=core.model_utils.JanewayBleachField(verbose_name="Your message"),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description',
+            model_name="editorialgroup",
+            name="description",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_cy',
+            model_name="editorialgroup",
+            name="description_cy",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_de',
+            model_name="editorialgroup",
+            name="description_de",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_en',
+            model_name="editorialgroup",
+            name="description_en",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_en_us',
+            model_name="editorialgroup",
+            name="description_en_us",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_fr',
+            model_name="editorialgroup",
+            name="description_fr",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='editorialgroup',
-            name='description_nl',
+            model_name="editorialgroup",
+            name="description_nl",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='file',
-            name='description',
-            field=core.model_utils.JanewayBleachField(blank=True, null=True, verbose_name='Description'),
+            model_name="file",
+            name="description",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, null=True, verbose_name="Description"
+            ),
         ),
         migrations.AlterField(
-            model_name='filehistory',
-            name='description',
-            field=core.model_utils.JanewayBleachField(blank=True, null=True, verbose_name='Description'),
+            model_name="filehistory",
+            name="description",
+            field=core.model_utils.JanewayBleachField(
+                blank=True, null=True, verbose_name="Description"
+            ),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value',
+            model_name="settingvalue",
+            name="value",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_cy',
+            model_name="settingvalue",
+            name="value_cy",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_de',
+            model_name="settingvalue",
+            name="value_de",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_en',
+            model_name="settingvalue",
+            name="value_en",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_en_us',
+            model_name="settingvalue",
+            name="value_en_us",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_fr',
+            model_name="settingvalue",
+            name="value_fr",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='settingvalue',
-            name='value_nl',
+            model_name="settingvalue",
+            name="value_nl",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='description',
+            model_name="task",
+            name="description",
             field=core.model_utils.JanewayBleachField(),
         ),
         migrations.AlterField(
-            model_name='xslfile',
-            name='comments',
+            model_name="xslfile",
+            name="comments",
             field=core.model_utils.JanewayBleachField(blank=True, null=True),
         ),
     ]

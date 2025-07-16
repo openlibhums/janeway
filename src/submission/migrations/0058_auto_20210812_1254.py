@@ -6,15 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0057_merge_20210811_1506'),
+        ("submission", "0057_merge_20210811_1506"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='article',
-            managers=[
-            ],
+            name="article",
+            managers=[],
         ),
     ]

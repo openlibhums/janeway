@@ -11,16 +11,18 @@ def update_inprogress_article_authors(apps, schema_editor):
     For articles that have not yet been submitted, update their author records to be
     FrozenAuthor records.
     """
-    Article = apps.get_model('submission', 'Article')
-    ArticleAuthorOrder = apps.get_model('submission', 'ArticleAuthorOrder')
-    FrozenAuthor = apps.get_model('submission', 'FrozenAuthor')
+    Article = apps.get_model("submission", "Article")
+    ArticleAuthorOrder = apps.get_model("submission", "ArticleAuthorOrder")
+    FrozenAuthor = apps.get_model("submission", "FrozenAuthor")
     articles = Article.objects.filter(
-        stage='Unsubmitted',
+        stage="Unsubmitted",
     )
     for article in articles:
-        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
-            article=article, author__id=models.OuterRef("id")
-        ).values_list("order"))
+        subq = models.Subquery(
+            ArticleAuthorOrder.objects.filter(
+                article=article, author__id=models.OuterRef("id")
+            ).values_list("order")
+        )
         accounts = article.authors.annotate(order=subq).order_by("order")
         for order, account in enumerate(accounts):
             if not article.correspondence_author:
@@ -28,13 +30,15 @@ def update_inprogress_article_authors(apps, schema_editor):
                     article.correspondence_author = account
                     article.save()
             frozen_dict = {
-                'name_prefix': account.name_prefix,
-                'first_name': account.first_name,
-                'middle_name': account.middle_name,
-                'last_name': account.last_name,
-                'name_suffix': account.suffix,
-                'display_email': True if account == article.correspondence_author else False,
-                'order': order,
+                "name_prefix": account.name_prefix,
+                "first_name": account.first_name,
+                "middle_name": account.middle_name,
+                "last_name": account.last_name,
+                "name_suffix": account.suffix,
+                "display_email": True
+                if account == article.correspondence_author
+                else False,
+                "order": order,
             }
             FrozenAuthor.objects.get_or_create(
                 author=account,
@@ -44,9 +48,8 @@ def update_inprogress_article_authors(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0087_alter_frozenauthor_options_and_more'),
+        ("submission", "0087_alter_frozenauthor_options_and_more"),
     ]
 
     operations = [

@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0011_remove_press_preprint_editors'),
+        ("press", "0011_remove_press_preprint_editors"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='presssetting',
-            name='is_boolean',
+            model_name="presssetting",
+            name="is_boolean",
             field=models.BooleanField(default=False),
         ),
     ]

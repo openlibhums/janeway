@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0098_add_pii_filter'),
+        ("core", "0098_add_pii_filter"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='accountrole',
-            options={'ordering': ('journal', 'role')},
+            name="accountrole",
+            options={"ordering": ("journal", "role")},
         ),
     ]

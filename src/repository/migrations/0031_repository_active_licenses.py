@@ -6,16 +6,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0069_delete_blank_keywords'),
-        ('repository', '0030_merge_20220613_1628'),
+        ("submission", "0069_delete_blank_keywords"),
+        ("repository", "0030_merge_20220613_1628"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='active_licenses',
-            field=models.ManyToManyField(blank=True, to='submission.Licence'),
+            model_name="repository",
+            name="active_licenses",
+            field=models.ManyToManyField(blank=True, to="submission.Licence"),
         ),
     ]

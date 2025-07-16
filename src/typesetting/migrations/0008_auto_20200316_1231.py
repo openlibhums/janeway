@@ -6,29 +6,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0007_typesettingassignment_cancelled'),
+        ("typesetting", "0007_typesettingassignment_cancelled"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='galleyproofing',
-            options={'ordering': ('assigned', 'accepted', 'pk')},
+            name="galleyproofing",
+            options={"ordering": ("assigned", "accepted", "pk")},
         ),
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='annotated_files',
-            field=models.ManyToManyField(blank=True, to='core.File'),
+            model_name="galleyproofing",
+            name="annotated_files",
+            field=models.ManyToManyField(blank=True, to="core.File"),
         ),
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='notes',
+            model_name="galleyproofing",
+            name="notes",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='proofed_files',
-            field=models.ManyToManyField(blank=True, to='core.Galley'),
+            model_name="galleyproofing",
+            name="proofed_files",
+            field=models.ManyToManyField(blank=True, to="core.Galley"),
         ),
     ]

@@ -8,20 +8,26 @@ import submission.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0011_auto_20170921_0937'),
+        ("submission", "0011_auto_20170921_0937"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='is_preprint',
+            model_name="article",
+            name="is_preprint",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/home/ajrbyers/Code/janeway/src/media'), upload_to=submission.models.article_media_upload),
+            model_name="article",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/home/ajrbyers/Code/janeway/src/media"
+                ),
+                upload_to=submission.models.article_media_upload,
+            ),
         ),
     ]

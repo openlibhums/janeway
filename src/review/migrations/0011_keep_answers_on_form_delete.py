@@ -39,58 +39,125 @@ def frozen_element_to_element(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0010_answer_not_required'),
+        ("review", "0010_answer_not_required"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reviewassignmentanswer',
-            name='element',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='review.ReviewFormElement'),
+            model_name="reviewassignmentanswer",
+            name="element",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="review.ReviewFormElement",
+            ),
         ),
         migrations.CreateModel(
-            name='FrozenReviewFormElement',
+            name="FrozenReviewFormElement",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('kind', models.CharField(choices=[('text', 'Text Field'), ('textarea', 'Text Area'), ('check', 'Check Box'), ('select', 'Select'), ('email', 'Email'), ('upload', 'Upload'), ('date', 'Date')], max_length=50)),
-                ('choices', models.CharField(blank=True, help_text='Seperate choices with the bar | character.', max_length=1000, null=True)),
-                ('required', models.BooleanField(default=True)),
-                ('order', models.IntegerField()),
-                ('width', models.CharField(choices=[('large-4 columns', 'third'), ('large-6 columns', 'half'), ('large-12 columns', 'full')], max_length=20)),
-                ('help_text', models.TextField(blank=True, null=True)),
-                ('default_visibility', models.BooleanField(default=True, help_text='If true, this setting will be available to the author automatically, if false it willbe hidden to the author by default.')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[
+                            ("text", "Text Field"),
+                            ("textarea", "Text Area"),
+                            ("check", "Check Box"),
+                            ("select", "Select"),
+                            ("email", "Email"),
+                            ("upload", "Upload"),
+                            ("date", "Date"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "choices",
+                    models.CharField(
+                        blank=True,
+                        help_text="Seperate choices with the bar | character.",
+                        max_length=1000,
+                        null=True,
+                    ),
+                ),
+                ("required", models.BooleanField(default=True)),
+                ("order", models.IntegerField()),
+                (
+                    "width",
+                    models.CharField(
+                        choices=[
+                            ("large-4 columns", "third"),
+                            ("large-6 columns", "half"),
+                            ("large-12 columns", "full"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("help_text", models.TextField(blank=True, null=True)),
+                (
+                    "default_visibility",
+                    models.BooleanField(
+                        default=True,
+                        help_text="If true, this setting will be available to the author automatically, if false it willbe hidden to the author by default.",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('order', 'name'),
-                'abstract': False,
+                "ordering": ("order", "name"),
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='frozenreviewformelement',
-            name='answer',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='frozen_element', to='review.ReviewAssignmentAnswer'),
+            model_name="frozenreviewformelement",
+            name="answer",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="frozen_element",
+                to="review.ReviewAssignmentAnswer",
+            ),
         ),
         migrations.AddField(
-            model_name='reviewassignmentanswer',
-            name='original_element',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='review.ReviewFormElement'),
+            model_name="reviewassignmentanswer",
+            name="original_element",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="review.ReviewFormElement",
+            ),
         ),
         migrations.AddField(
-            model_name='frozenreviewformelement',
-            name='form_element',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='review.ReviewFormElement'),
+            model_name="frozenreviewformelement",
+            name="form_element",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="review.ReviewFormElement",
+            ),
         ),
-        migrations.RunPython(element_to_frozen_element, reverse_code=frozen_element_to_element),
+        migrations.RunPython(
+            element_to_frozen_element, reverse_code=frozen_element_to_element
+        ),
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='form',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='review.ReviewForm'),
+            model_name="reviewassignment",
+            name="form",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="review.ReviewForm",
+            ),
         ),
         migrations.RemoveField(
-            model_name='reviewassignmentanswer',
-            name='element',
+            model_name="reviewassignmentanswer",
+            name="element",
         ),
     ]

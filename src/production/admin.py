@@ -8,16 +8,33 @@ from production import models
 
 
 class ProductionAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'production_manager', 'editor', 'assigned', 'closed', 'accepted_by_manager')
-    list_filter = ('article', 'production_manager', 'editor')
-    raw_id_fields = ('article', 'production_manager', 'editor', 'accepted_by_manager')
+    list_display = (
+        "pk",
+        "article",
+        "production_manager",
+        "editor",
+        "assigned",
+        "closed",
+        "accepted_by_manager",
+    )
+    list_filter = ("article", "production_manager", "editor")
+    raw_id_fields = ("article", "production_manager", "editor", "accepted_by_manager")
 
 
 class TypesetTaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'assignment', 'typesetter', 'assigned', 'notified', 'accepted', 'completed', 'editor_reviewed')
-    list_filter = ('assignment', 'typesetter', 'notified', 'editor_reviewed')
-    raw_id_fields = ('assignment', 'typesetter')
-    filter_horizontal = ('files_for_typesetting', 'galleys_loaded')
+    list_display = (
+        "pk",
+        "assignment",
+        "typesetter",
+        "assigned",
+        "notified",
+        "accepted",
+        "completed",
+        "editor_reviewed",
+    )
+    list_filter = ("assignment", "typesetter", "notified", "editor_reviewed")
+    raw_id_fields = ("assignment", "typesetter")
+    filter_horizontal = ("files_for_typesetting", "galleys_loaded")
 
 
 admin_list = [

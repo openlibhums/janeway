@@ -9,20 +9,27 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0056_display_issue_doi'),
+        ("journal", "0056_display_issue_doi"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='contact_info_en_us',
-            field=models.TextField(blank=True, null=True, verbose_name='Contact Information'),
+            model_name="journal",
+            name="contact_info_en_us",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Contact Information"
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='cover_image',
-            field=core.model_utils.SVGImageField(blank=True, help_text='Image representing the cover of a printed issue or volume', null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=journal.models.cover_images_upload_path),
+            model_name="issue",
+            name="cover_image",
+            field=core.model_utils.SVGImageField(
+                blank=True,
+                help_text="Image representing the cover of a printed issue or volume",
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
     ]

@@ -11,7 +11,6 @@ from utils.testing import helpers
 
 
 class TestJournalSite(TestCase):
-
     def setUp(self):
         self.request_factory = RequestFactory()
         self.press = Press(domain="sitetestpress.org")
@@ -29,7 +28,8 @@ class TestJournalSite(TestCase):
     @override_settings(URL_CONFIG="path")
     def test_path_mode_site_url_for_journal_in_context(self):
         request = self.request_factory.get(
-                "/test/banana/", SERVER_NAME="sitetestpress.org")
+            "/test/banana/", SERVER_NAME="sitetestpress.org"
+        )
         request.journal = self.journal
         request.press = self.press
 
@@ -43,7 +43,8 @@ class TestJournalSite(TestCase):
     @override_settings(URL_CONFIG="path")
     def test_path_mode_site_url_for_journal_in_context_with_path(self):
         response = self.client.get(
-                "/modeltests/banana", SERVER_NAME="sitetestpress.org")
+            "/modeltests/banana", SERVER_NAME="sitetestpress.org"
+        )
         path = reverse("website_index")
         result = self.journal.site_url(path)
 
@@ -57,21 +58,19 @@ class TestJournalSite(TestCase):
             code="ojwithpath",
             domain="ojwithpath.org",
         )
-        response = self.client.get(
-            "/ojwithpath/banana", SERVER_NAME="sitetest.org")
+        response = self.client.get("/ojwithpath/banana", SERVER_NAME="sitetest.org")
         result = self.journal.site_url()
 
         expected = "http://{}/{}".format(
-                self.press.domain,
-                self.journal.code,
+            self.press.domain,
+            self.journal.code,
         )
 
         self.assertEqual(expected, result)
 
     @override_settings(URL_CONFIG="domain")
     def test_domain_mode_site_url_for_journal_in_context(self):
-        response = self.client.get(
-                "/modeltests/banana", SERVER_NAME="sitetest.org")
+        response = self.client.get("/modeltests/banana", SERVER_NAME="sitetest.org")
         result = self.journal.site_url()
 
         expected = "http://" + self.journal.domain
@@ -81,7 +80,8 @@ class TestJournalSite(TestCase):
     @override_settings(URL_CONFIG="domain")
     def test_domain_mode_site_url_for_journal_in_context_with_path(self):
         response = self.client.get(
-                "/modeltests/banana", SERVER_NAME="sitetestpress.org")
+            "/modeltests/banana", SERVER_NAME="sitetestpress.org"
+        )
         path = reverse("website_index")
         result = self.journal.site_url(path)
 
@@ -95,8 +95,7 @@ class TestJournalSite(TestCase):
             code="ojwithdomain",
             domain="ojwithdomain.org",
         )
-        response = self.client.get(
-            "/banana", SERVER_NAME="ojwithdomain.org")
+        response = self.client.get("/banana", SERVER_NAME="ojwithdomain.org")
         result = self.journal.site_url()
 
         expected = "http://" + self.journal.domain
@@ -110,7 +109,7 @@ class TestJournalSite(TestCase):
             code=journal_code,
             domain="ojwithdomain.org",
         )
-        path = f'/{journal_code}/issues/'
+        path = f"/{journal_code}/issues/"
         result = journal.site_url(path=path)
 
         expected = f"http://{journal.domain}/issues/"
@@ -140,7 +139,7 @@ class TestIssueModel(TestCase):
         issue.save()
         # Reload issue
         issue = models.Issue.objects.get(id=issue.id)
-        expected = ("Test Issue from Utils Testing Helpers")
+        expected = "Test Issue from Utils Testing Helpers"
         self.assertEqual(issue.display_title, expected)
 
     def test_issue_display_title_changed(self):
@@ -159,8 +158,5 @@ class TestIssueModel(TestCase):
         self.journal.save()
         # Reload issue
         issue = models.Issue.objects.get(id=issue.id)
-        expected = (
-            "Volume 1 &bull; 2022 &bull;"
-            " Test Issue from Utils Testing Helpers"
-        )
+        expected = "Volume 1 &bull; 2022 &bull; Test Issue from Utils Testing Helpers"
         self.assertEqual(issue.display_title, expected)

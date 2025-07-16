@@ -9,7 +9,6 @@ from django.conf import settings
 
 
 def notification(**kwargs):
-
     # kwargs should include:
     # action: a list of frameworks to use or "all". NB Email cannot be sent by using "all".
     # permissions: a list of roles for channel-based notification services.
@@ -25,11 +24,16 @@ def load_modules():
     res = {}
     # check subfolders
     from utils import notify
-    plugin_dir = os.listdir(os.path.join(os.path.dirname(os.path.abspath(notify.__file__)), "notify_plugins"))
+
+    plugin_dir = os.listdir(
+        os.path.join(
+            os.path.dirname(os.path.abspath(notify.__file__)), "notify_plugins"
+        )
+    )
 
     # load the modules
     for f in plugin_dir:
-        if f.startswith('.'):
+        if f.startswith("."):
             # Ignore development files
             continue
 

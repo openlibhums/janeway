@@ -6,40 +6,56 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0043_article_custom_how_to_cite'),
+        ("submission", "0043_article_custom_how_to_cite"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Funder',
+            name="Funder",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(
-                    max_length=500,
-                    help_text='Funder name',
-                )),
-                ('fundref_id', models.CharField(
-                    blank=True,
-                    help_text='Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as http://dx.doi.org/10.13039/501100021082',
-                    max_length=500,
-                    null=True,
-                )),
-                ('funding_id', models.CharField(
-                    blank=True,
-                    help_text='The grant ID (optional). Enter the ID by itself',
-                    max_length=500,
-                    null=True,
-                )),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=500,
+                        help_text="Funder name",
+                    ),
+                ),
+                (
+                    "fundref_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as http://dx.doi.org/10.13039/501100021082",
+                        max_length=500,
+                        null=True,
+                    ),
+                ),
+                (
+                    "funding_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="The grant ID (optional). Enter the ID by itself",
+                        max_length=500,
+                        null=True,
+                    ),
+                ),
             ],
             options={
-                'ordering': ('name',),
+                "ordering": ("name",),
             },
         ),
         migrations.AddField(
-            model_name='article',
-            name='funders',
-            field=models.ManyToManyField(blank=True, to='submission.Funder'),
+            model_name="article",
+            name="funders",
+            field=models.ManyToManyField(blank=True, to="submission.Funder"),
         ),
     ]

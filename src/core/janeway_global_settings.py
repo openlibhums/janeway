@@ -38,13 +38,13 @@ sys.path.append(os.path.join(BASE_DIR, "plugins"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # You should change this key before you go live!
-SECRET_KEY = 'uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv'
+SECRET_KEY = "uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 COMMAND = sys.argv[1:]
-IN_TEST_RUNNER = COMMAND[:1] == ['test']
-ALLOWED_HOSTS = ['*']
+IN_TEST_RUNNER = COMMAND[:1] == ["test"]
+ALLOWED_HOSTS = ["*"]
 
 ENABLE_TEXTURE = False
 
@@ -53,197 +53,194 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Application definition
 
 INSTALLED_APPS = [
-    'modeltranslation',
-    'apps.JanewayAdminConfig',
-    'django.contrib.auth',
-
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'django.contrib.postgres',
-    'django.contrib.contenttypes',
-
+    "modeltranslation",
+    "apps.JanewayAdminConfig",
+    "django.contrib.auth",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "django.contrib.postgres",
+    "django.contrib.contenttypes",
     # Installed Apps
     # Install APP is loaded first to ensure all existing models and migrations
     # relying on installation procedures won't fail
-    'install',
-    'cms',
-    'core',
-    'copyediting',
-    'cron',
-    'discussion',
-    'events',
-    'identifiers',
-    'journal',
-    'metrics',
-    'comms',
-    'press',
-    'production',
-    'proofing',
-    'review',
-    'repository',
-    'reports',
-    'security',
-    'submission',
-    'transform',
-    'typesetting',
-    'utils',
-    'workflow',
-
+    "install",
+    "cms",
+    "core",
+    "copyediting",
+    "cron",
+    "discussion",
+    "events",
+    "identifiers",
+    "journal",
+    "metrics",
+    "comms",
+    "press",
+    "production",
+    "proofing",
+    "review",
+    "repository",
+    "reports",
+    "security",
+    "submission",
+    "transform",
+    "typesetting",
+    "utils",
+    "workflow",
     # 3rd Party
-    'mozilla_django_oidc',
-    'django_summernote',
-    'tinymce',
-    'bootstrap4',
-    'rest_framework',
-    'foundationform',
-    'materializecssform',
-    'captcha',
-    'simplemathcaptcha',
-    'simple_history',
-    'hijack',
-    'hcaptcha',
-    'django_bleach',
-
+    "mozilla_django_oidc",
+    "django_summernote",
+    "tinymce",
+    "bootstrap4",
+    "rest_framework",
+    "foundationform",
+    "materializecssform",
+    "captcha",
+    "simplemathcaptcha",
+    "simple_history",
+    "hijack",
+    "hcaptcha",
+    "django_bleach",
     # Forms
-    'django.forms',
+    "django.forms",
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps(BASE_DIR)
 
 MIDDLEWARE = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'core.middleware.TimezoneMiddleware',
-    'core.middleware.SiteSettingsMiddleware',
-    'core.middleware.MaintenanceModeMiddleware',
-    'cron.middleware.CronMiddleware',
-    'core.middleware.CounterCookieMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'core.middleware.PressMiddleware',
-    'core.middleware.GlobalRequestMiddleware',
-    'django.middleware.gzip.GZipMiddleware',
-    'journal.middleware.LanguageMiddleware',
-    'hijack.middleware.HijackUserMiddleware',
-    'simple_history.middleware.HistoryRequestMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "core.middleware.TimezoneMiddleware",
+    "core.middleware.SiteSettingsMiddleware",
+    "core.middleware.MaintenanceModeMiddleware",
+    "cron.middleware.CronMiddleware",
+    "core.middleware.CounterCookieMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "core.middleware.PressMiddleware",
+    "core.middleware.GlobalRequestMiddleware",
+    "django.middleware.gzip.GZipMiddleware",
+    "journal.middleware.LanguageMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 )
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ([
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'templates', 'common'),
-            os.path.join(BASE_DIR, 'templates', 'admin'),
-        ]
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": (
+            [
+                os.path.join(BASE_DIR, "templates"),
+                os.path.join(BASE_DIR, "templates", "common"),
+                os.path.join(BASE_DIR, "templates", "admin"),
+            ]
             + plugin_installed_apps.load_plugin_templates(BASE_DIR)
             + plugin_installed_apps.load_homepage_element_templates(BASE_DIR)
         ),
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'core.context_processors.journal',
-                'core.context_processors.journal_settings',
-                'core.context_processors.press',
-                'core.context_processors.active',
-                'core.context_processors.navigation',
-                'core.context_processors.version',
-                'django_settings_export.settings_export',
-                'django.template.context_processors.i18n'
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "core.context_processors.journal",
+                "core.context_processors.journal_settings",
+                "core.context_processors.press",
+                "core.context_processors.active",
+                "core.context_processors.navigation",
+                "core.context_processors.version",
+                "django_settings_export.settings_export",
+                "django.template.context_processors.i18n",
             ],
-            'loaders': [
-                'utils.template_override_middleware.Loader',
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
+            "loaders": [
+                "utils.template_override_middleware.Loader",
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
             ],
-            'builtins': [
-                'core.templatetags.fqdn',
-                'security.templatetags.securitytags',
-                'django.templatetags.i18n',
-            ]
+            "builtins": [
+                "core.templatetags.fqdn",
+                "security.templatetags.securitytags",
+                "django.templatetags.i18n",
+            ],
         },
     },
 ]
 
-FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 SETTINGS_EXPORT = [
-    'ORCID_API_URL',
-    'ORCID_TOKEN_URL',
-    'ORCID_CLIENT_SECRET',
-    'ORCID_CLIENT_ID',
-    'ORCID_URL',
-    'ENABLE_ENHANCED_MAILGUN_FEATURES',
-    'ENABLE_ORCID',
-    'DEBUG',
-    'LANGUAGE_CODE',
-    'URL_CONFIG',
-    'HIJACK_USERS_ENABLED',
-    'ENABLE_OIDC',
-    'OIDC_SERVICE_NAME',
+    "ORCID_API_URL",
+    "ORCID_TOKEN_URL",
+    "ORCID_CLIENT_SECRET",
+    "ORCID_CLIENT_ID",
+    "ORCID_URL",
+    "ENABLE_ENHANCED_MAILGUN_FEATURES",
+    "ENABLE_ORCID",
+    "DEBUG",
+    "LANGUAGE_CODE",
+    "URL_CONFIG",
+    "HIJACK_USERS_ENABLED",
+    "ENABLE_OIDC",
+    "OIDC_SERVICE_NAME",
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
-DEFAULT_HOST = 'https://www.example.org'  # This is the default redirect if no other sites are found.
+WSGI_APPLICATION = "core.wsgi.application"
+DEFAULT_HOST = "https://www.example.org"  # This is the default redirect if no other sites are found.
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 # We recommend mysql but Django supports PGSQL and SQLite amongst others
 if os.environ.get("DB_VENDOR") == "postgres":
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ["DB_NAME"],
-            'USER': os.environ["DB_USER"],
-            'PASSWORD': os.environ["DB_PASSWORD"],
-            'HOST': os.environ["DB_HOST"],
-            'PORT': os.environ["DB_PORT"],
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["DB_NAME"],
+            "USER": os.environ["DB_USER"],
+            "PASSWORD": os.environ["DB_PASSWORD"],
+            "HOST": os.environ["DB_HOST"],
+            "PORT": os.environ["DB_PORT"],
         }
     }
 elif os.environ.get("DB_VENDOR") in {"mysql", "mariadb"}:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ["DB_NAME"],
-            'USER': os.environ["DB_USER"],
-            'PASSWORD': os.environ["DB_PASSWORD"],
-            'HOST': os.environ["DB_HOST"],
-            'PORT': os.environ["DB_PORT"],
-            'OPTIONS': {
-                'init_command': 'SET default_storage_engine=INNODB; '
-                'ALTER DATABASE {0} CHARACTER SET utf8mb4 COLLATE '
-                'utf8mb4_general_ci'.format(os.environ["DB_NAME"]),
-                'charset': 'utf8mb4',
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ["DB_NAME"],
+            "USER": os.environ["DB_USER"],
+            "PASSWORD": os.environ["DB_PASSWORD"],
+            "HOST": os.environ["DB_HOST"],
+            "PORT": os.environ["DB_PORT"],
+            "OPTIONS": {
+                "init_command": "SET default_storage_engine=INNODB; "
+                "ALTER DATABASE {0} CHARACTER SET utf8mb4 COLLATE "
+                "utf8mb4_general_ci".format(os.environ["DB_NAME"]),
+                "charset": "utf8mb4",
             },
         }
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': '/db/janeway.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "/db/janeway.sqlite3",
         }
     }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en"
+TIME_ZONE = "UTC"
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'core', 'locales')
+    os.path.join(BASE_DIR, "core", "locales")
 ] + plugin_installed_apps.load_plugin_locales(BASE_DIR)
 
 
@@ -252,20 +249,20 @@ def gettext(s):
 
 
 LANGUAGES = (
-    ('en', gettext('English')),
-    ('en-us', gettext('English (US)')),
-    ('fr', gettext('French')),
-    ('de', gettext('German')),
-    ('nl', gettext('Dutch')),
-    ('cy', gettext('Welsh')),
-    ('es', gettext('Spanish')),
+    ("en", gettext("English")),
+    ("en-us", gettext("English (US)")),
+    ("fr", gettext("French")),
+    ("de", gettext("German")),
+    ("nl", gettext("Dutch")),
+    ("cy", gettext("Welsh")),
+    ("es", gettext("Spanish")),
 )
 
-MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
-MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'en'
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
+MODELTRANSLATION_PREPOPULATE_LANGUAGE = "en"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 USE_I18N = True
 USE_L10N = False
@@ -274,26 +271,40 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
+STATIC_ROOT = os.path.join(BASE_DIR, "collected-static")
 STATICFILES_DIRS = (
     # The /src/static/ folder is used by Janeway and should not be removed.
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 )
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 if ENABLE_TEXTURE:
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'texture'))
+    STATICFILES_DIRS.append(os.path.join(BASE_DIR, "texture"))
 
 # Django bleach settings
 BLEACH_ALLOWED_TAGS = get_allowed_html_tags()
 
 # Which HTML attributes are allowed
 BLEACH_ALLOWED_ATTRIBUTES = [
-    "id", "class", "style",
-    "src", "href", # These are sanitized by scheme to avoid XSS
-    "alt", "title", "width", "height", "type",
-    "name", "value", "placeholder", "disabled", "readonly",
-    "required", "target", "checked", "selected"
+    "id",
+    "class",
+    "style",
+    "src",
+    "href",  # These are sanitized by scheme to avoid XSS
+    "alt",
+    "title",
+    "width",
+    "height",
+    "type",
+    "name",
+    "value",
+    "placeholder",
+    "disabled",
+    "readonly",
+    "required",
+    "target",
+    "checked",
+    "selected",
 ]
 
 BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
@@ -312,125 +323,110 @@ BLEACH_STRIP_TAGS = True
 BLEACH_STRIP_COMMENTS = True
 
 # Which widget to use for bleached HTML fields
-BLEACH_DEFAULT_WIDGET = 'tinymce.widgets.TinyMCE'
+BLEACH_DEFAULT_WIDGET = "tinymce.widgets.TinyMCE"
 
 # Summernote settings
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode
-    'iframe': True,  # or set False to use SummernoteInplaceWidget - no iframe mode
-
+    "iframe": True,  # or set False to use SummernoteInplaceWidget - no iframe mode
     # Use native HTML tags (`<b>`, `<i>`, ...) instead of style attributes
     # (Firefox, Chrome only)
-    'styleWithTags': True,
-
+    "styleWithTags": True,
     # Set text direction : 'left to right' is default.
-    'direction': 'ltr',
-
+    "direction": "ltr",
     # Need authentication while uploading attachments.
-    'attachment_require_authentication': True,
-    'attachment_filesize_limit': 2056 * 2056,
-
-    'css': (
-        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/theme/monokai.min.css',
+    "attachment_require_authentication": True,
+    "attachment_filesize_limit": 2056 * 2056,
+    "css": (
+        "//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0/theme/monokai.min.css",
     ),
-
     # You can put custom Summernote settings
-    'summernote': {
+    "summernote": {
         # Using Summernote Air-mode
-        'airMode': False,
-
+        "airMode": False,
         # Change editor size
-        'width': '100%',
+        "width": "100%",
         # 'height': '480',
-
         # Toolbar customization
         # https://summernote.org/deep-dive/#custom-toolbar-popover
-        'toolbar': [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
+        "toolbar": [
+            ["style", ["style"]],
+            ["font", ["bold", "italic", "underline", "clear"]],
             # ['fontname', ['fontname']],
             # ['color', ['color']],
-            ['para', ['ul', 'ol']],  # , 'paragraph'
-            ['table', ['table']],
-            ['insert', ['link', 'picture']],   # , 'video'
-            ['misc', ['undo', 'redo', 'help']],
-            ['view', ['fullscreen', 'codeview']],
+            ["para", ["ul", "ol"]],  # , 'paragraph'
+            ["table", ["table"]],
+            ["insert", ["link", "picture"]],  # , 'video'
+            ["misc", ["undo", "redo", "help"]],
+            ["view", ["fullscreen", "codeview"]],
         ],
-
-        'popover': {
-          'image': [
-            ['remove', ['removeMedia']]
-          ],
-          'link': [
-            ['link', ['linkDialogShow', 'unlink']]
-          ],
-          'table': [
-            ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
-            ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
-          ],
+        "popover": {
+            "image": [["remove", ["removeMedia"]]],
+            "link": [["link", ["linkDialogShow", "unlink"]]],
+            "table": [
+                ["add", ["addRowDown", "addRowUp", "addColLeft", "addColRight"]],
+                ["delete", ["deleteRow", "deleteCol", "deleteTable"]],
+            ],
         },
-
-        'codemirror': {
-            'mode': 'htmlmixed',
-            'lineNumbers': 'true',
-            'lineWrapping': 'true',
+        "codemirror": {
+            "mode": "htmlmixed",
+            "lineNumbers": "true",
+            "lineWrapping": "true",
             # You have to include theme file in 'css' or 'css_for_inplace' before using it.
-            'theme': 'monokai',
+            "theme": "monokai",
         },
     },
 }
 
 # 1.9 appears confused about where null and blank are required for many to
 # many fields, so we're hiding these warning from the console
-SILENCED_SYSTEM_CHECKS = (
-    'fields.W340',
-)
+SILENCED_SYSTEM_CHECKS = ("fields.W340",)
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'root': {
-        'level': 'DEBUG' if DEBUG else 'INFO',
-        'handlers': ['console', 'log_file'],
+    "version": 1,
+    "disable_existing_loggers": False,
+    "root": {
+        "level": "DEBUG" if DEBUG else "INFO",
+        "handlers": ["console", "log_file"],
     },
-    'formatters': {
-        'default': {
-            'format': '%(levelname)s %(asctime)s %(module)s '
-            'P:%(process)d T:%(thread)d %(message)s',
+    "formatters": {
+        "default": {
+            "format": "%(levelname)s %(asctime)s %(module)s "
+            "P:%(process)d T:%(thread)d %(message)s",
         },
-        'coloured': {
-            '()': 'colorlog.ColoredFormatter',
-            'format': '%(log_color)s%(levelname)s %(asctime)s %(module)s '
-            'P:%(process)d T:%(thread)d %(message)s',
-            'log_colors' : {
-                'DEBUG':    'green',
-                'WARNING':  'yellow',
-                'ERROR':    'red',
-                'CRITICAL': 'red',
-            }
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'coloured',
-            'stream': 'ext://sys.stdout',
-        },
-        'log_file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'maxBytes': 1024*1024*50,  # 50 MB
-            'backupCount': 1,
-            'filename': os.path.join(PROJECT_DIR , 'logs/janeway.log'),
-            'formatter': 'default'
+        "coloured": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s%(levelname)s %(asctime)s %(module)s "
+            "P:%(process)d T:%(thread)d %(message)s",
+            "log_colors": {
+                "DEBUG": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "red",
+            },
         },
     },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'WARNING',
-            'handlers': ['console', 'log_file'],
-            'propagate': False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "coloured",
+            "stream": "ext://sys.stdout",
+        },
+        "log_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "maxBytes": 1024 * 1024 * 50,  # 50 MB
+            "backupCount": 1,
+            "filename": os.path.join(PROJECT_DIR, "logs/janeway.log"),
+            "formatter": "default",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "level": "WARNING",
+            "handlers": ["console", "log_file"],
+            "propagate": False,
         },
     },
 }
@@ -439,34 +435,35 @@ LOGGING = {
 class SuppressDeprecated(logging.Filter):
     def filter(self, record):
         WARNINGS_TO_SUPPRESS = [
-            'RemovedInDjango110Warning',
+            "RemovedInDjango110Warning",
         ]
         # Return false to suppress message.
-        return not any(
-            [warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS]
-        )
+        return not any([warn in record.getMessage() for warn in WARNINGS_TO_SUPPRESS])
 
 
 MESSAGE_TAGS = {
-    messages.ERROR: 'danger',
+    messages.ERROR: "danger",
 }
 
-LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
 
-EMAIL_BACKEND = os.environ.get(
-    'JANEWAY_EMAIL_BACKEND',
-) or 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", '')
-EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", '')
-EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", '')
-EMAIL_HOST_PASSWORD = os.environ.get("JANEWAY_EMAIL_HOST_PASSWORD", '')
+EMAIL_BACKEND = (
+    os.environ.get(
+        "JANEWAY_EMAIL_BACKEND",
+    )
+    or "django.core.mail.backends.smtp.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("JANEWAY_EMAIL_HOST", "")
+EMAIL_PORT = os.environ.get("JANEWAY_EMAIL_PORT", "")
+EMAIL_HOST_USER = os.environ.get("JANEWAY_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("JANEWAY_EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("JANEWAY_EMAIL_USE_TLS", True)
 DUMMY_EMAIL_DOMAIN = "@journal.com"
 
 # Settings for use with Mailgun
-MAILGUN_ACCESS_KEY = ''
-MAILGUN_SERVER_NAME = ''
+MAILGUN_ACCESS_KEY = ""
+MAILGUN_SERVER_NAME = ""
 MAILGUN_REQUIRE_TLS = False
 ENABLE_ENHANCED_MAILGUN_FEATURES = False  # Enables email tracking
 
@@ -474,44 +471,44 @@ ENABLE_ENHANCED_MAILGUN_FEATURES = False  # Enables email tracking
 DATE_FORMT = "Y-m-d"
 DATETIME_FORMAT = "Y-m-d H:i"
 
-AUTH_USER_MODEL = 'core.Account'
+AUTH_USER_MODEL = "core.Account"
 
 PLUGIN_HOOKS = {}
 
 NOTIFY_FUNCS = []
 
 ENABLE_ORCID = True
-ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
-ORCID_URL = 'https://orcid.org/oauth/authorize'
-ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
-ORCID_CLIENT_SECRET = ''
-ORCID_CLIENT_ID = ''
+ORCID_API_URL = "http://pub.orcid.org/v1.2_rc7/"
+ORCID_URL = "https://orcid.org/oauth/authorize"
+ORCID_TOKEN_URL = "https://pub.orcid.org/oauth/token"
+ORCID_CLIENT_SECRET = ""
+ORCID_CLIENT_ID = ""
 
-SESSION_ENGINE = 'utils.sessions.janeway_db'
-SESSION_COOKIE_NAME = 'JANEWAYSESSID'
+SESSION_ENGINE = "utils.sessions.janeway_db"
+SESSION_COOKIE_NAME = "JANEWAYSESSID"
 
-S3_ACCESS_KEY = ''
-S3_SECRET_KEY = ''
-S3_BUCKET_NAME = ''
-END_POINT = 'eu-west-2'  # eg. eu-west-1
-S3_HOST = 's3.eu-west-2.amazonaws.com'  # eg. s3.eu-west-1.amazonaws.com
+S3_ACCESS_KEY = ""
+S3_SECRET_KEY = ""
+S3_BUCKET_NAME = ""
+END_POINT = "eu-west-2"  # eg. eu-west-1
+S3_HOST = "s3.eu-west-2.amazonaws.com"  # eg. s3.eu-west-1.amazonaws.com
 
-BACKUP_TYPE = 'directory'  # s3 or directory
-BACKUP_DIR = '/path/to/backup/dir/'
+BACKUP_TYPE = "directory"  # s3 or directory
+BACKUP_DIR = "/path/to/backup/dir/"
 BACKUP_EMAIL = False  # If set to True, will send an email each time backup is run
 
-URL_CONFIG = 'path'  # path or domain
+URL_CONFIG = "path"  # path or domain
 
 # Captcha
 # You can get reCaptcha keys for your domain here: https://developers.google.com/recaptcha/intro
 # You can set either to use Google's reCaptcha or a basic math field with no external requirements
 
-CAPTCHA_TYPE = 'simple_math'  # should be either 'simple_math' or 'recaptcha' to enable captcha fields otherwise disabled
-RECAPTCHA_PRIVATE_KEY = '' # Public and private keys are required when using recaptcha
-RECAPTCHA_PUBLIC_KEY = ''
+CAPTCHA_TYPE = "simple_math"  # should be either 'simple_math' or 'recaptcha' to enable captcha fields otherwise disabled
+RECAPTCHA_PRIVATE_KEY = ""  # Public and private keys are required when using recaptcha
+RECAPTCHA_PUBLIC_KEY = ""
 
 BOOTSTRAP4 = {
-    'required_css_class': 'required',
+    "required_css_class": "required",
 }
 
 SILENT_IMPORT_CACHE = True
@@ -525,19 +522,15 @@ HTTP_TIMEOUT_SECONDS = 5
 
 # New XML galleys will be associated with this stylesheet by default when they
 # are first uploaded
-DEFAULT_XSL_FILE_LABEL = 'Janeway default (1.6.0)'
+DEFAULT_XSL_FILE_LABEL = "Janeway default (1.6.0)"
 
 # Skip migrations by default on sqlite for faster execution
-if (
-    IN_TEST_RUNNER
-    and "--keepdb" not in COMMAND
-):
+if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
     from collections.abc import Mapping
-
 
     class SkipMigrations(Mapping):
         def __getitem__(self, key):
-            """ Ensures the install migrations run before syncing db
+            """Ensures the install migrations run before syncing db
 
             Django's migration executor will always pre_render database state from
             the models of unmigrated apps before running those declared in
@@ -545,8 +538,9 @@ if (
             first, while skipping the remaining migrations. Instead, we run
             the required SQL here.
             """
-            if key == 'install':
+            if key == "install":
                 from django.db import connection
+
                 if connection.vendor == "postgresql":
                     cursor = connection.cursor()
                     cursor.execute("CREATE EXTENSION IF NOT EXISTS citext;")
@@ -569,29 +563,29 @@ if (
 
 # A potentially dangerous feature, this allows superusers to hijack and control a user's account.
 HIJACK_USERS_ENABLED = False
-HIJACK_LOGIN_REDIRECT_URL = '/manager/'
+HIJACK_LOGIN_REDIRECT_URL = "/manager/"
 
 
 # OIDC
-ENABLE_OIDC = bool(os.environ.get('ENABLE_OIDC', False))
-OIDC_SERVICE_NAME = 'OIDC Service Name'
-OIDC_CALLBACK_CLASS = 'utils.oidc.JanewayOIDCAuthenticationCallbackView'
-OIDC_OP_LOGOUT_URL_METHOD = 'utils.oidc.logout_url'
-OIDC_USERNAME_ALGO = 'utils.oidc.generate_oidc_username'
-OIDC_LOGOUT_URL = os.environ.get('OIDC_LOGOUT_URL')
-OIDC_RP_CLIENT_ID = os.environ.get('OIDC_RP_CLIENT_ID')
-OIDC_RP_CLIENT_SECRET = os.environ.get('OIDC_RP_CLIENT_SECRET')
-OIDC_RP_SIGN_ALGO = os.environ.get('OIDC_RP_SIGN_ALGO')
-OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get('OIDC_OP_AUTHORIZATION_ENDPOINT')
-OIDC_OP_TOKEN_ENDPOINT = os.environ.get('OIDC_OP_TOKEN_ENDPOINT')
-OIDC_OP_USER_ENDPOINT = os.environ.get('OIDC_OP_USER_ENDPOINT')
-OIDC_OP_JWKS_ENDPOINT = os.environ.get('OIDC_OP_JWKS_ENDPOINT')
+ENABLE_OIDC = bool(os.environ.get("ENABLE_OIDC", False))
+OIDC_SERVICE_NAME = "OIDC Service Name"
+OIDC_CALLBACK_CLASS = "utils.oidc.JanewayOIDCAuthenticationCallbackView"
+OIDC_OP_LOGOUT_URL_METHOD = "utils.oidc.logout_url"
+OIDC_USERNAME_ALGO = "utils.oidc.generate_oidc_username"
+OIDC_LOGOUT_URL = os.environ.get("OIDC_LOGOUT_URL")
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO")
+OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get("OIDC_OP_AUTHORIZATION_ENDPOINT")
+OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT")
+OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
+OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 
 if ENABLE_OIDC:
     AUTHENTICATION_BACKENDS = (
-        'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
-        'django.contrib.auth.backends.ModelBackend',
+        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
+        "django.contrib.auth.backends.ModelBackend",
     )
 
 CORE_FILETEXT_MODEL = "core.FileText"
@@ -605,30 +599,30 @@ ENABLE_FULL_TEXT_SEARCH = False
 # Expects a tuple or None. Tuple examples: (23, 'daily')
 # (12, 'hourly')  (30, 'mins')
 SITE_SEARCH_INDEXING_FREQUENCY = None
-SITE_SEARCH_DIR = 'site_search_test' if IN_TEST_RUNNER else 'site_search'
+SITE_SEARCH_DIR = "site_search_test" if IN_TEST_RUNNER else "site_search"
 
 # A core theme must include ALL templates.
 CORE_THEMES = [
-    'OLH',
-    'material',
-    'clean',
+    "OLH",
+    "material",
+    "clean",
 ]
 
 # Repository theme setting determines which themes currently
 # support repositories.
 REPOSITORY_THEMES = [
-    'OLH',
-    'material',
+    "OLH",
+    "material",
 ]
 
-INSTALLATION_BASE_THEME = 'OLH'
+INSTALLATION_BASE_THEME = "OLH"
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Use pagination for all of our APIs based on Django REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 100,
 }
 TINYMCE_CLIPBOARD_CLEANER = {
     # Settings required to optionally clean formatting from a paste event
@@ -672,14 +666,14 @@ TINYMCE_DEFAULT_CONFIG = {
     "menubar": "edit view insert format tools table help",
     "content_css": STATIC_URL + "/admin/css/admin.css",
     "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"
-        " fullscreen insertdatetime media table code help wordcount spellchecker help",
+    " fullscreen insertdatetime media table code help wordcount spellchecker help",
     "toolbar": "help removeformat | undo redo | bold italic underline strikethrough "
-        "| fontsizeselect formatselect "
-        "| outdent indent | formatselect | numlist bullist checklist "
-        "| forecolor backcolor permanentpen formatpainter | pagebreak "
-        "| charmap emoticons "
-        "| fullscreen | image media template link anchor codesample "
-        "| a11ycheck ltr rtl | code",
+    "| fontsizeselect formatselect "
+    "| outdent indent | formatselect | numlist bullist checklist "
+    "| forecolor backcolor permanentpen formatpainter | pagebreak "
+    "| charmap emoticons "
+    "| fullscreen | image media template link anchor codesample "
+    "| a11ycheck ltr rtl | code",
     **TINYMCE_CLIPBOARD_CLEANER,
 }
 
@@ -714,7 +708,7 @@ JATS_ARTICLE_TYPES = (
     ("retraction", ("Retraction")),
     ("review-article", ("Review Article")),
     ("translation", ("Translation")),
-    ("other", "Other")
+    ("other", "Other"),
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"

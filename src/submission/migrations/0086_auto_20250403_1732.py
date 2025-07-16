@@ -11,9 +11,8 @@ def handle_update(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0085_creditrecord_and_more'),
+        ("submission", "0085_creditrecord_and_more"),
     ]
 
     operations = [

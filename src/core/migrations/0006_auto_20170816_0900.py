@@ -6,54 +6,53 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0005_auto_20170816_0851'),
+        ("core", "0005_auto_20170816_0851"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='newsitem',
+            name="newsitem",
             options={},
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='body',
+            model_name="newsitem",
+            name="body",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='content_type',
+            model_name="newsitem",
+            name="content_type",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='end_display',
+            model_name="newsitem",
+            name="end_display",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='large_image_file',
+            model_name="newsitem",
+            name="large_image_file",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='object_id',
+            model_name="newsitem",
+            name="object_id",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='posted',
+            model_name="newsitem",
+            name="posted",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='posted_by',
+            model_name="newsitem",
+            name="posted_by",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='sequence',
+            model_name="newsitem",
+            name="sequence",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='start_display',
+            model_name="newsitem",
+            name="start_display",
         ),
         migrations.RemoveField(
-            model_name='newsitem',
-            name='title',
+            model_name="newsitem",
+            name="title",
         ),
     ]

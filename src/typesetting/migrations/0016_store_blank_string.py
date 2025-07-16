@@ -5,19 +5,17 @@ from django.db import migrations, models
 
 
 def store_empty_string(apps, schema_editor):
-    TypesettingAssignment = apps.get_model('typesetting', 'TypesettingAssignment')
-    TypesettingAssignment.objects.filter(task__isnull=True).update(task='')
+    TypesettingAssignment = apps.get_model("typesetting", "TypesettingAssignment")
+    TypesettingAssignment.objects.filter(task__isnull=True).update(task="")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0015_article_title_safe'),
+        ("typesetting", "0015_article_title_safe"),
     ]
 
     operations = [
         migrations.RunPython(
-            store_empty_string,
-            reverse_code=migrations.RunPython.noop
+            store_empty_string, reverse_code=migrations.RunPython.noop
         ),
     ]

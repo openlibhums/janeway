@@ -23,39 +23,41 @@ logger = get_logger(__name__)
 
 
 def parse_mailgun_webhook(post):
-    message_id = post.get('Message-Id')
-    token = post.get('token')
-    timestamp = post.get('timestamp')
-    signature = post.get('signature')
-    mailgun_event = post.get('event')
+    message_id = post.get("Message-Id")
+    token = post.get("token")
+    timestamp = post.get("timestamp")
+    signature = post.get("signature")
+    mailgun_event = post.get("event")
 
     try:
         event = models.LogEntry.objects.get(message_id=message_id)
     except models.LogEntry.DoesNotExist:
-        return 'No log entry with that message ID found.'
+        return "No log entry with that message ID found."
 
-    if event and (mailgun_event == 'dropped' or mailgun_event == 'bounced'):
-        event.message_status = 'failed'
+    if event and (mailgun_event == "dropped" or mailgun_event == "bounced"):
+        event.message_status = "failed"
         event.save()
         send_bounce_notification_to_event_actor(event)
-        return 'Message dropped, actor notified.'
-    elif event and mailgun_event == 'delivered':
-        event.message_status = 'delivered'
+        return "Message dropped, actor notified."
+    elif event and mailgun_event == "delivered":
+        event.message_status = "delivered"
         event.save()
-        return 'Message marked as delivered.'
+        return "Message marked as delivered."
 
 
 def verify_webhook(token, timestamp, signature):
-    api_key = settings.MAILGUN_ACCESS_KEY.encode('utf-8')
-    timestamp = timestamp.encode('utf-8')
-    token = token.encode('utf-8')
-    signature = signature.encode('utf-8')
+    api_key = settings.MAILGUN_ACCESS_KEY.encode("utf-8")
+    timestamp = timestamp.encode("utf-8")
+    token = token.encode("utf-8")
+    signature = signature.encode("utf-8")
 
-    hmac_digest = hmac.new(key=api_key,
-                           msg='{}{}'.format(timestamp, token).encode('utf-8'),
-                           digestmod=hashlib.sha256).hexdigest()
+    hmac_digest = hmac.new(
+        key=api_key,
+        msg="{}{}".format(timestamp, token).encode("utf-8"),
+        digestmod=hashlib.sha256,
+    ).hexdigest()
 
-    return hmac.compare_digest(signature, hmac_digest.encode('utf-8'))
+    return hmac.compare_digest(signature, hmac_digest.encode("utf-8"))
 
 
 def send_bounce_notification_to_event_actor(event):
@@ -100,27 +102,27 @@ def send_bounce_notification_to_event_actor(event):
     if request.site_type:
         # Setup log dict
         log_dict = {
-            'level': 'Info',
-            'action_text': 'Email Delivery Failed ',
-            'types': 'Email Delivery',
-            'target': target,
+            "level": "Info",
+            "action_text": "Email Delivery Failed ",
+            "types": "Email Delivery",
+            "target": target,
         }
 
         notify_helpers.send_email_with_body_from_setting_template(
             request=request,
-            template='bounced_email_notification',
-            subject='subject_bounced_email_notification',
+            template="bounced_email_notification",
+            subject="subject_bounced_email_notification",
             to=to,
             context={
-                'target': target,
-                'event': event,
+                "target": target,
+                "event": event,
             },
             log_dict=log_dict,
         )
 
 
 def build_url_for_request(request=None, path="", query=None, fragment=""):
-    """ Builds a url from the base url relevant for the current request context
+    """Builds a url from the base url relevant for the current request context
     :request: An instance of django.http.HTTPRequest
     :path: A str indicating the path
     :query: A dictionary with any GET parameters
@@ -144,7 +146,7 @@ def replace_netloc_port(netloc, new_port):
 
 
 def build_url(netloc, port=None, scheme=None, path="", query="", fragment=""):
-    """ Builds a url given all its parts
+    """Builds a url given all its parts
     :netloc: string
     :port: int
     :scheme: string
@@ -159,9 +161,9 @@ def build_url(netloc, port=None, scheme=None, path="", query="", fragment=""):
     # Allow '/' to match Django template filter |urlencode default behavior.
     if query and isinstance(query, QueryDict):
         # Support multiple values for the same key
-        query = query.urlencode(safe='/')
+        query = query.urlencode(safe="/")
     elif query and isinstance(query, dict):
-        query = urlencode(query, safe='/')
+        query = urlencode(query, safe="/")
 
     if scheme is None:
         scheme = GlobalRequestMiddleware.get_current_request().scheme
@@ -186,7 +188,7 @@ def get_current_request():
 
 
 def get_janeway_version():
-    """ Returns the installed version of janeway
+    """Returns the installed version of janeway
     :return: `string` version
     """
     return str(janeway_version)
@@ -200,7 +202,9 @@ def get_log_entries(object):
     )
 
 
-def generate_sitemap(file, press=None, journal=None, repository=None, issue=None, subject=None):
+def generate_sitemap(
+    file, press=None, journal=None, repository=None, issue=None, subject=None
+):
     """
     Returns a rendered sitemap
     """
@@ -211,30 +215,30 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
             is_remote=False,
         )
         repos = repo_models.Repository.objects.all()
-        template = 'common/site_map_index.xml'
+        template = "common/site_map_index.xml"
         context = {
-            'journals': journals,
-            'repos': repos,
+            "journals": journals,
+            "repos": repos,
         }
     elif journal:
-        template = 'common/journal_sitemap.xml'
+        template = "common/journal_sitemap.xml"
         context = {
-            'journal': journal,
+            "journal": journal,
         }
     elif repository:
-        template = 'common/repo_sitemap.xml',
+        template = ("common/repo_sitemap.xml",)
         context = {
-            'repo': repository,
+            "repo": repository,
         }
     elif issue:
-        template = 'common/issue_sitemap.xml'
+        template = "common/issue_sitemap.xml"
         context = {
-            'issue': issue,
+            "issue": issue,
         }
     elif subject:
-        template = 'common/subject_sitemap.xml'
+        template = "common/subject_sitemap.xml"
         context = {
-            'subject': subject,
+            "subject": subject,
         }
 
     if template and context:
@@ -244,14 +248,14 @@ def generate_sitemap(file, press=None, journal=None, repository=None, issue=None
         )
         file.write(content)
     else:
-        return 'Must pass a press, journal, issue, repository or subject object.'
+        return "Must pass a press, journal, issue, repository or subject object."
 
 
 def get_sitemap_path(path_parts, file_name):
     path = os.path.join(
         settings.BASE_DIR,
-        'files',
-        'sitemaps',
+        "files",
+        "sitemaps",
         *path_parts,
     )
     if not os.path.exists(path):
@@ -267,9 +271,9 @@ def get_sitemap_path(path_parts, file_name):
 def write_journal_sitemap(journal):
     journal_file_path = get_sitemap_path(
         path_parts=[journal.code],
-        file_name='sitemap.xml',
+        file_name="sitemap.xml",
     )
-    with open(journal_file_path, 'w') as file:
+    with open(journal_file_path, "w") as file:
         generate_sitemap(file, journal=journal)
         file.close()
 
@@ -277,9 +281,9 @@ def write_journal_sitemap(journal):
 def write_issue_sitemap(issue):
     issue_file_path = get_sitemap_path(
         path_parts=[issue.journal.code],
-        file_name='{}_sitemap.xml'.format(issue.pk),
+        file_name="{}_sitemap.xml".format(issue.pk),
     )
-    with open(issue_file_path, 'w') as file:
+    with open(issue_file_path, "w") as file:
         generate_sitemap(file, issue=issue)
         file.close()
 
@@ -287,9 +291,9 @@ def write_issue_sitemap(issue):
 def write_repository_sitemap(repository):
     repo_file_path = get_sitemap_path(
         path_parts=[repository.code],
-        file_name='sitemap.xml',
+        file_name="sitemap.xml",
     )
-    with open(repo_file_path, 'w') as file:
+    with open(repo_file_path, "w") as file:
         generate_sitemap(file, repository=repository)
         file.close()
 
@@ -297,9 +301,9 @@ def write_repository_sitemap(repository):
 def write_subject_sitemap(subject):
     subject_file_path = get_sitemap_path(
         path_parts=[subject.repository.code],
-        file_name='{}_sitemap.xml'.format(subject.pk)
+        file_name="{}_sitemap.xml".format(subject.pk),
     )
-    with open(subject_file_path, 'w') as file:
+    with open(subject_file_path, "w") as file:
         generate_sitemap(file, subject=subject)
         file.close()
 
@@ -308,9 +312,9 @@ def write_press_sitemap():
     press = press_models.Press.objects.all().first()
     press_sitemap_path = get_sitemap_path(
         path_parts=[],
-        file_name='sitemap.xml',
+        file_name="sitemap.xml",
     )
-    with open(press_sitemap_path, 'w') as file:
+    with open(press_sitemap_path, "w") as file:
         generate_sitemap(file, press=press)
         file.close()
 
@@ -328,10 +332,9 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
     from django.utils.timezone import is_aware, make_aware
 
     if use_noon_if_no_time and re.fullmatch(
-        '[0-9]{4}-[0-9]{2}-[0-9]{2}',
-        unparsed_string
+        "[0-9]{4}-[0-9]{2}-[0-9]{2}", unparsed_string
     ):
-        unparsed_string += ' 12:00'
+        unparsed_string += " 12:00"
 
     parsed_datetime = dateparser.parse(unparsed_string)
 
@@ -340,8 +343,10 @@ def get_aware_datetime(unparsed_string, use_noon_if_no_time=True):
     else:
         return make_aware(parsed_datetime)
 
+
 def get_janeway_patch_version():
     from janeway import __version__
+
     return f"{__version__.major}.{__version__.minor}.{__version__.patch}"
 
 

@@ -5,46 +5,59 @@ import django_bleach.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0072_auto_20230322_1540'),
-        ('submission', '0072_auto_20230607_1512'),
+        ("submission", "0072_auto_20230322_1540"),
+        ("submission", "0072_auto_20230607_1512"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='title',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999),
+            model_name="article",
+            name="title",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_cy',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_cy",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_de',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_de",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_en',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_en",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_en_us',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_en_us",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_fr',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_fr",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='title_nl',
-            field=django_bleach.models.BleachField(help_text='Your article title', max_length=999, null=True),
+            model_name="article",
+            name="title_nl",
+            field=django_bleach.models.BleachField(
+                help_text="Your article title", max_length=999, null=True
+            ),
         ),
     ]

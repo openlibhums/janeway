@@ -17,7 +17,6 @@ from core import files
 
 
 class TestFilesHandler(TestCase):
-
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
@@ -28,7 +27,8 @@ class TestFilesHandler(TestCase):
         self.regular_user.save()
 
         self.article_in_production = submission_models.Article.objects.create(
-            owner=self.regular_user, title="A Test Article",
+            owner=self.regular_user,
+            title="A Test Article",
             abstract="An abstract",
             stage=submission_models.STAGE_TYPESETTING,
             journal=self.journal_one,
@@ -63,8 +63,8 @@ class TestFilesHandler(TestCase):
             os.unlink(
                 os.path.join(
                     settings.BASE_DIR,
-                    'files',
-                    'articles',
+                    "files",
+                    "articles",
                     self.pk_string,
                     file.uuid_filename,
                 )
@@ -75,7 +75,10 @@ class TestFilesHandler(TestCase):
 
         expected_file_path = os.path.join(
             os.path.join(
-                settings.BASE_DIR, 'files', 'articles', self.pk_string,
+                settings.BASE_DIR,
+                "files",
+                "articles",
+                self.pk_string,
             )
         )
 
@@ -99,19 +102,18 @@ class TestFilesHandler(TestCase):
 
         file_path = os.path.join(
             settings.BASE_DIR,
-            'files',
-            'articles',
+            "files",
+            "articles",
             self.pk_string,
             file_to_replace.uuid_filename,
         )
 
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             content = file.read()
-            self.assertEqual(content, b'content')
+            self.assertEqual(content, b"content")
 
-    @override_settings(URL_CONFIG='domain')
+    @override_settings(URL_CONFIG="domain")
     def test_serve_any_file(self):
-
         file, path_parts = helpers.create_test_file(
             self,
             self.test_file_two,
@@ -121,12 +123,12 @@ class TestFilesHandler(TestCase):
         clear_script_prefix()
 
         url = reverse(
-            'article_file_download',
+            "article_file_download",
             kwargs={
-                'identifier_type': 'id',
-                'identifier': self.article_in_production.pk,
-                'file_id': file.pk,
-            }
+                "identifier_type": "id",
+                "identifier": self.article_in_production.pk,
+                "file_id": file.pk,
+            },
         )
 
         self.client.force_login(self.regular_user)
@@ -148,15 +150,15 @@ class TestFilesHandler(TestCase):
         with NamedTemporaryFile("r+b") as f:
             # Write a PDF File
             text = "Hello World"
-            config = pdfkit.configuration(wkhtmltopdf=os.path.join(
-                settings.BASE_DIR,
-                'transform/cassius/bin/wkhtmltopdf'
-            ))
+            config = pdfkit.configuration(
+                wkhtmltopdf=os.path.join(
+                    settings.BASE_DIR, "transform/cassius/bin/wkhtmltopdf"
+                )
+            )
             pdfkit.from_string(text, output_path=f.name, configuration=config)
 
             # Parse the PDF File
             parsed_text = files.pdf_to_text(f.name).strip()
-
 
         self.assertEqual(parsed_text, text)
 
@@ -170,4 +172,3 @@ class TestFilesHandler(TestCase):
         indexed = file_.index_full_text()
 
         self.assertTrue(indexed)
-

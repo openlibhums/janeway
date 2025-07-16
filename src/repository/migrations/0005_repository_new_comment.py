@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0004_auto_20200718_0933'),
+        ("repository", "0004_auto_20200718_0933"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='new_comment',
+            model_name="repository",
+            name="new_comment",
             field=models.TextField(blank=True, null=True),
         ),
     ]

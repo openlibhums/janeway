@@ -23,12 +23,9 @@ def file_size(file, article):
 def has_missing_supplements(galley):
     xml_file_contents = galley.file.get_file(galley.article)
 
-    souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
+    souped_xml = BeautifulSoup(xml_file_contents, "lxml")
 
-    elements = {
-        'img': 'src',
-        'graphic': 'xlink:href'
-    }
+    elements = {"img": "src", "graphic": "xlink:href"}
 
     missing_elements = []
 
@@ -54,17 +51,13 @@ def has_missing_supplements(galley):
 
 @register.simple_tag()
 def file_type(article, file):
-
     from production.logic import get_copyedit_files
+
     copyedited_files = get_copyedit_files(article)
     galley_files = {galley.file for galley in article.galley_set.all()}
-    supplementary_files = {
-        supp.file for supp in article.supplementary_files.all()
-    }
+    supplementary_files = {supp.file for supp in article.supplementary_files.all()}
     galley_sub_files = list()
-    review_files = {
-        review.review_file for review in article.reviewassignment_set.all()
-    }
+    review_files = {review.review_file for review in article.reviewassignment_set.all()}
     try:
         # GalleyProofing belongs to the typesetting plugin
         annotated_files = models.File.objects.filter(
@@ -82,29 +75,27 @@ def file_type(article, file):
             galley_sub_files.append(galley.css_file)
 
     if file in galley_files:
-        return 'Galley'
+        return "Galley"
     if file in supplementary_files:
-        return 'Supplementary'
+        return "Supplementary"
     if file in article.manuscript_files.all():
-        return 'Manuscript'
+        return "Manuscript"
     if file in article.data_figure_files.all():
-        return 'Data/Figure'
+        return "Data/Figure"
     if file in annotated_files:
-        return 'Proofing'
+        return "Proofing"
     if file in copyedited_files:
-        return 'Copyedit'
+        return "Copyedit"
     if file in galley_sub_files:
-        return 'Galley Sub File'
+        return "Galley Sub File"
     if file in review_files:
-        return 'Review Comment'
-    return 'Other'
+        return "Review Comment"
+    return "Other"
+
 
 @register.filter()
 def filter_html_downloads(galleys):
     if galleys and galleys[0].article.journal.disable_html_downloads is True:
-        galleys = [
-            galley for galley in galleys
-            if galley.file.label != 'HTML'
-        ]
+        galleys = [galley for galley in galleys if galley.file.label != "HTML"]
 
     return galleys

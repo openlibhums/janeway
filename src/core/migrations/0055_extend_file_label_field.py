@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0054_auto_20210729_0919'),
+        ("core", "0054_auto_20210729_0919"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='label',
-            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='Label'),
+            model_name="file",
+            name="label",
+            field=models.CharField(
+                blank=True, max_length=1000, null=True, verbose_name="Label"
+            ),
         ),
     ]

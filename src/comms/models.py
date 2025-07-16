@@ -19,60 +19,77 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 class ActiveNewsItemManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(
-            (models.Q(start_display__lte=timezone.now()) | models.Q(start_display=None))
-            & (models.Q(end_display__gte=timezone.now()) | models.Q(end_display=None))
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                (
+                    models.Q(start_display__lte=timezone.now())
+                    | models.Q(start_display=None)
+                )
+                & (
+                    models.Q(end_display__gte=timezone.now())
+                    | models.Q(end_display=None)
+                )
+            )
         )
 
 
 class NewsItem(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='news_content_type', null=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="news_content_type",
+        null=True,
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     title = JanewayBleachCharField()
     body = JanewayBleachField()
     posted = models.DateTimeField(default=timezone.now)
-    posted_by = models.ForeignKey('core.Account', blank=True, null=True, on_delete=models.SET_NULL)
+    posted_by = models.ForeignKey(
+        "core.Account", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     start_display = models.DateField(default=timezone.now)
     end_display = models.DateField(blank=True, null=True)
     sequence = models.PositiveIntegerField(default=0)
 
     large_image_file = models.ForeignKey(
-        'core.File',
+        "core.File",
         null=True,
         blank=True,
-        related_name='large_news_file',
+        related_name="large_news_file",
         on_delete=models.SET_NULL,
-        help_text='An image for the top of the news item page and the '
-                  'news list page. Note that it will be automatically '
-                  'cropped to 750px x 324px, so wide images work best.',
+        help_text="An image for the top of the news item page and the "
+        "news list page. Note that it will be automatically "
+        "cropped to 750px x 324px, so wide images work best.",
     )
-    tags = models.ManyToManyField('Tag', related_name='tags')
+    tags = models.ManyToManyField("Tag", related_name="tags")
     custom_byline = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
-                  "the news item with whatever text is added here.",
+        "the news item with whatever text is added here.",
     )
     history = HistoricalRecords()
 
     pinned = models.BooleanField(
         default=False,
-        help_text="Pinned news items will appear at the top of the news list"
+        help_text="Pinned news items will appear at the top of the news list",
     )
 
     objects = models.Manager()
     active_objects = ActiveNewsItemManager()
 
     class Meta:
-        ordering = ('pinned', '-posted', 'title')
+        ordering = ("pinned", "-posted", "title")
 
     @property
     def url(self):
-        path = reverse('core_news_item', kwargs={'news_pk': self.pk})
+        path = reverse("core_news_item", kwargs={"news_pk": self.pk})
         return self.object.site_url(path)
 
     @property
@@ -89,15 +106,19 @@ class NewsItem(models.Model):
 
     @property
     def carousel_image_resolver(self):
-        return 'news_file_download'
+        return "news_file_download"
 
     def serve_news_file(self):
         if self.large_image_file:
-            if self.content_type.name == 'press':
-                return files.serve_file_to_browser(self.large_image_file.press_path(), self.large_image_file)
+            if self.content_type.name == "press":
+                return files.serve_file_to_browser(
+                    self.large_image_file.press_path(), self.large_image_file
+                )
             else:
-                return files.serve_file_to_browser(self.large_image_file.journal_path(self.object),
-                                                   self.large_image_file)
+                return files.serve_file_to_browser(
+                    self.large_image_file.journal_path(self.object),
+                    self.large_image_file,
+                )
         else:
             return Http404
 
@@ -105,7 +126,7 @@ class NewsItem(models.Model):
         str_tags = [tag.text for tag in self.tags.all()]
 
         for tag in posted_tags:
-            if tag not in str_tags and tag != '':
+            if tag not in str_tags and tag != "":
                 new_tag, c = Tag.objects.get_or_create(text=tag)
                 self.tags.add(new_tag)
 
@@ -116,8 +137,8 @@ class NewsItem(models.Model):
 
     def byline(self):
         if self.custom_byline:
-            return _('Posted by {byline}').format(byline=self.custom_byline)
-        return _('Posted by  {byline}').format(byline=self.posted_by.full_name())
+            return _("Posted by {byline}").format(byline=self.custom_byline)
+        return _("Posted by  {byline}").format(byline=self.posted_by.full_name())
 
     def best_image_url(self):
         """
@@ -130,16 +151,16 @@ class NewsItem(models.Model):
         path = None
         if self.large_image_file:
             path = reverse(
-                'news_file_download',
+                "news_file_download",
                 kwargs={
-                    'identifier_type': 'id',
-                    'identifier': self.pk,
-                    'file_id': self.large_image_file.pk,
-                }
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
             )
-        elif self.content_type.name == 'press' and self.object.default_carousel_image:
+        elif self.content_type.name == "press" and self.object.default_carousel_image:
             path = self.object.default_carousel_image.url
-        elif self.content_type.name == 'journal':
+        elif self.content_type.name == "journal":
             if self.object.default_large_image:
                 path = self.object.default_large_image.url
             elif self.object.press.default_carousel_image:
@@ -148,17 +169,17 @@ class NewsItem(models.Model):
         if path:
             return self.object.site_url(path=path)
         else:
-            return ''
+            return ""
 
     def __str__(self):
         if self.posted_by:
-            return '{0} posted by {1} on {2}'.format(
+            return "{0} posted by {1} on {2}".format(
                 self.title,
                 self.posted_by.full_name(),
                 self.posted,
             )
         else:
-            return '{0} posted on {1}'.format(
+            return "{0} posted on {1}".format(
                 mark_safe(self.title),
                 self.posted,
             )

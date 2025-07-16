@@ -11,12 +11,13 @@ class TagitWidget(TextInput):
         super().__init__(attrs, *args, **kwargs)
 
     class Media:
-        css = {"all": (
-            "https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css",
-        )}
+        css = {
+            "all": (
+                "https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css",
+            )
+        }
         js = (
             "common/js/jq-ui.min.js",
             "common/js/tagit.js",
             "common/js/tagit-widget.js",
         )
-

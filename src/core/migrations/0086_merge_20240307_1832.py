@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0085_auto_20240207_1654'),
-        ('core', '0085_merge_20240201_1108'),
+        ("core", "0085_auto_20240207_1654"),
+        ("core", "0085_merge_20240201_1108"),
     ]
 
-    operations = [
-    ]
+    operations = []

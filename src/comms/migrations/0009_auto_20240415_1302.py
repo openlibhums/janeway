@@ -5,20 +5,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('comms', '0008_merge_20240315_1650'),
+        ("comms", "0008_merge_20240315_1650"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalnewsitem',
-            name='title',
+            model_name="historicalnewsitem",
+            name="title",
             field=core.model_utils.JanewayBleachCharField(),
         ),
         migrations.AlterField(
-            model_name='newsitem',
-            name='title',
+            model_name="newsitem",
+            name="title",
             field=core.model_utils.JanewayBleachCharField(),
         ),
     ]

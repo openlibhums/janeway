@@ -9,41 +9,80 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0033_set_default_xml_galley_xsl'),
-        ('typesetting', '0004_auto_20200210_1412'),
+        ("core", "0033_set_default_xml_galley_xsl"),
+        ("typesetting", "0004_auto_20200210_1412"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GalleyProofing',
+            name="GalleyProofing",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('assigned', models.DateTimeField(default=django.utils.timezone.now)),
-                ('notified', models.BooleanField(default=False)),
-                ('due', models.DateTimeField(default=None, verbose_name='Date Due')),
-                ('accepted', models.DateTimeField(blank=True, null=True)),
-                ('completed', models.DateTimeField(blank=True, null=True)),
-                ('cancelled', models.BooleanField(default=False)),
-                ('task', models.TextField(verbose_name='Proofing Task')),
-                ('notes', models.TextField()),
-                ('annotated_files', models.ManyToManyField(to='core.File')),
-                ('manager', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='galley_manager', to=settings.AUTH_USER_MODEL)),
-                ('proofed_files', models.ManyToManyField(to='core.Galley')),
-                ('proofreader', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('round', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='typesetting.TypesettingRound')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("assigned", models.DateTimeField(default=django.utils.timezone.now)),
+                ("notified", models.BooleanField(default=False)),
+                ("due", models.DateTimeField(default=None, verbose_name="Date Due")),
+                ("accepted", models.DateTimeField(blank=True, null=True)),
+                ("completed", models.DateTimeField(blank=True, null=True)),
+                ("cancelled", models.BooleanField(default=False)),
+                ("task", models.TextField(verbose_name="Proofing Task")),
+                ("notes", models.TextField()),
+                ("annotated_files", models.ManyToManyField(to="core.File")),
+                (
+                    "manager",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="galley_manager",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                ("proofed_files", models.ManyToManyField(to="core.Galley")),
+                (
+                    "proofreader",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "round",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="typesetting.TypesettingRound",
+                    ),
+                ),
             ],
         ),
         migrations.AlterField(
-            model_name='typesettingassignment',
-            name='review_decision',
-            field=models.CharField(blank=True, choices=[('accept', 'Accept'), ('corrections', 'Corrections Required'), ('proofing', 'Proofing Required')], max_length=21),
+            model_name="typesettingassignment",
+            name="review_decision",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("accept", "Accept"),
+                    ("corrections", "Corrections Required"),
+                    ("proofing", "Proofing Required"),
+                ],
+                max_length=21,
+            ),
         ),
         migrations.AlterField(
-            model_name='typesettingassignment',
-            name='task',
-            field=models.TextField(help_text='Please let the typesetter know what you want them to create and if there are any special circumstances. They will have access to the articles metadata.', null=True, verbose_name='Typesetting Task'),
+            model_name="typesettingassignment",
+            name="task",
+            field=models.TextField(
+                help_text="Please let the typesetter know what you want them to create and if there are any special circumstances. They will have access to the articles metadata.",
+                null=True,
+                verbose_name="Typesetting Task",
+            ),
         ),
     ]

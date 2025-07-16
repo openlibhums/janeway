@@ -11,8 +11,8 @@ NAMES_TO_FIX = {
 
 
 def replace_settings(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
-    SettingValue = apps.get_model('core', 'SettingValue')
+    Setting = apps.get_model("core", "Setting")
+    SettingValue = apps.get_model("core", "SettingValue")
 
     for setting_name, description in DESCRIPTIONS_TO_FIX.items():
         settings = Setting.objects.filter(
@@ -26,12 +26,11 @@ def replace_settings(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0082_galley_file_not_nullable'),
-        ('core', '0082_mark_safe_article_title'),
-        ('core', '0082_galley_file_not_nullable'),
-        ('core', '0082_auto_20230515_1706'),
+        ("core", "0082_galley_file_not_nullable"),
+        ("core", "0082_mark_safe_article_title"),
+        ("core", "0082_galley_file_not_nullable"),
+        ("core", "0082_auto_20230515_1706"),
     ]
 
     operations = [

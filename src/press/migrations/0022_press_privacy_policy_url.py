@@ -6,15 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0021_auto_20190329_1202'),
+        ("press", "0021_auto_20190329_1202"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='privacy_policy_url',
-            field=models.URLField(blank=True, help_text='URL to an external privacy-policy, linked from the page footer. If blank, it links to the Janeway CMS page: /site/privacy.', max_length=999, null=True),
+            model_name="press",
+            name="privacy_policy_url",
+            field=models.URLField(
+                blank=True,
+                help_text="URL to an external privacy-policy, linked from the page footer. If blank, it links to the Janeway CMS page: /site/privacy.",
+                max_length=999,
+                null=True,
+            ),
         ),
     ]

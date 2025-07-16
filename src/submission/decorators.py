@@ -8,7 +8,7 @@ from submission import models
 
 
 def submission_is_enabled(func):
-    """ This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
+    """This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
     interest problems. Use the user_can_edit_article decorator (not yet written) to do a check against an
     article.
 
@@ -19,15 +19,18 @@ def submission_is_enabled(func):
     def submission_is_enabled_wrapper(request, *args, **kwargs):
         if not request.journal:
             raise PermissionDenied(
-                _('This page can only be accessed on Journals.'),
+                _("This page can only be accessed on Journals."),
             )
 
-        if request.journal.get_setting(
-                'general',
-                'disable_journal_submission',
-        ) and not request.user.is_staff:
+        if (
+            request.journal.get_setting(
+                "general",
+                "disable_journal_submission",
+            )
+            and not request.user.is_staff
+        ):
             raise PermissionDenied(
-                _('Submission is disabled for this journal.'),
+                _("Submission is disabled for this journal."),
             )
 
         return func(request, *args, **kwargs)
@@ -36,17 +39,17 @@ def submission_is_enabled(func):
 
 
 def funding_is_enabled(func):
-    """ Test if funding is enabled before returning the wrapped view
+    """Test if funding is enabled before returning the wrapped view
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
+
     @wraps(func)
     def funding_is_enabled(request, *args, **kwargs):
         if "article_id" in kwargs:
-            article_id = kwargs['article_id']
-            article = models.Article.get_article(
-                request.journal, 'id', article_id)
+            article_id = kwargs["article_id"]
+            article = models.Article.get_article(request.journal, "id", article_id)
 
             # Staff and editors can bypass this requirement.
             if (

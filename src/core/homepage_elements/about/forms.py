@@ -11,24 +11,24 @@ class AboutForm(forms.Form):
     )
     description = forms.CharField(
         widget=TinyMCE,
-        help_text='A general description of the journal.',
+        help_text="A general description of the journal.",
     )
 
     def save(self, journal, commit=True):
-        title = self.cleaned_data.get('title')
-        description = self.cleaned_data.get('description')
+        title = self.cleaned_data.get("title")
+        description = self.cleaned_data.get("description")
 
         if commit:
             setting_handler.save_plugin_setting(
                 plugin_settings.get_self(),
-                'about_title',
+                "about_title",
                 title,
                 journal,
             )
 
             setting_handler.save_setting(
-                'general',
-                'journal_description',
+                "general",
+                "journal_description",
                 journal,
                 description,
             )

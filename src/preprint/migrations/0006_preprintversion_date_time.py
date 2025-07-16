@@ -7,15 +7,14 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preprint', '0005_auto_20171010_1132'),
+        ("preprint", "0005_auto_20171010_1132"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprintversion',
-            name='date_time',
+            model_name="preprintversion",
+            name="date_time",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

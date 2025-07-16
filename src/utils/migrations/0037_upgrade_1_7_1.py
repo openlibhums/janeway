@@ -20,9 +20,8 @@ def upgrade(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0036_typesetting_guide'),
+        ("utils", "0036_typesetting_guide"),
     ]
 
     operations = [

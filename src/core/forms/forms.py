@@ -39,46 +39,46 @@ logger = get_logger(__name__)
 
 class EditKey(forms.Form):
     def __init__(self, *args, **kwargs):
-        self.key_type = kwargs.pop('key_type', None)
-        value = kwargs.pop('value', None)
+        self.key_type = kwargs.pop("key_type", None)
+        value = kwargs.pop("value", None)
         super(EditKey, self).__init__(*args, **kwargs)
 
-        if self.key_type == 'rich-text':
-            self.fields['value'] = JanewayBleachFormField()
-        elif self.key_type == 'mini-html':
-            self.fields['value'] = MiniHTMLFormField()
-        elif self.key_type == 'text':
-            self.fields['value'].widget = forms.Textarea()
-        elif self.key_type == 'char':
-            self.fields['value'].widget = forms.TextInput()
-        elif self.key_type in {'number', 'integer'}:
+        if self.key_type == "rich-text":
+            self.fields["value"] = JanewayBleachFormField()
+        elif self.key_type == "mini-html":
+            self.fields["value"] = MiniHTMLFormField()
+        elif self.key_type == "text":
+            self.fields["value"].widget = forms.Textarea()
+        elif self.key_type == "char":
+            self.fields["value"].widget = forms.TextInput()
+        elif self.key_type in {"number", "integer"}:
             # 'integer' is either a bug or used by a plugin
-            self.fields['value'].widget = forms.TextInput(attrs={'type': 'number'})
-        elif self.key_type == 'boolean':
-            self.fields['value'] = forms.BooleanField(widget=forms.CheckboxInput)
-        elif self.key_type == 'file' or self.key_type == 'journalthumb':
-            self.fields['value'].widget = forms.FileInput()
-        elif self.key_type == 'json':
-            self.fields['value'].widget = forms.Textarea()
+            self.fields["value"].widget = forms.TextInput(attrs={"type": "number"})
+        elif self.key_type == "boolean":
+            self.fields["value"] = forms.BooleanField(widget=forms.CheckboxInput)
+        elif self.key_type == "file" or self.key_type == "journalthumb":
+            self.fields["value"].widget = forms.FileInput()
+        elif self.key_type == "json":
+            self.fields["value"].widget = forms.Textarea()
         else:
-            self.fields['value'].widget.attrs['size'] = '100%'
+            self.fields["value"].widget.attrs["size"] = "100%"
 
-        self.fields['value'].initial = value
-        self.fields['value'].required = False
-        self.fields['value'].label = ''
+        self.fields["value"].initial = value
+        self.fields["value"].required = False
+        self.fields["value"].label = ""
 
-    value = forms.CharField(label='')
+    value = forms.CharField(label="")
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        if self.key_type == 'json':
+        if self.key_type == "json":
             try:
-                json.loads(cleaned_data.get('value'))
+                json.loads(cleaned_data.get("value"))
             except json.JSONDecodeError as e:
                 self.add_error(
-                    'value',
-                    f'JSON not valid: {e}',
+                    "value",
+                    f"JSON not valid: {e}",
                 )
 
         return cleaned_data
@@ -86,47 +86,53 @@ class EditKey(forms.Form):
 
 class JournalContactForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
-        next_sequence = kwargs.pop('next_sequence', None)
+        next_sequence = kwargs.pop("next_sequence", None)
         super(JournalContactForm, self).__init__(*args, **kwargs)
         if next_sequence:
-            self.fields['sequence'].initial = next_sequence
+            self.fields["sequence"].initial = next_sequence
 
     class Meta:
         model = models.Contacts
-        fields = ('name', 'email', 'role', 'sequence',)
-        exclude = ('content_type', 'object_id',)
+        fields = (
+            "name",
+            "email",
+            "role",
+            "sequence",
+        )
+        exclude = (
+            "content_type",
+            "object_id",
+        )
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):
-
     def __init__(self, *args, **kwargs):
-        next_sequence = kwargs.pop('next_sequence', None)
+        next_sequence = kwargs.pop("next_sequence", None)
         super(EditorialGroupForm, self).__init__(*args, **kwargs)
         if next_sequence:
-            self.fields['sequence'].initial = next_sequence
+            self.fields["sequence"].initial = next_sequence
 
     class Meta:
         model = models.EditorialGroup
-        fields = ('name', 'description', 'sequence', 'display_profile_images')
-        exclude = ('journal', 'press')
+        fields = ("name", "description", "sequence", "display_profile_images")
+        exclude = ("journal", "press")
 
 
 class PasswordResetForm(forms.Form):
-
     password_1 = forms.CharField(
-        label=_('Password'),
+        label=_("Password"),
         widget=forms.PasswordInput(
             attrs={
-                'autofocus': True,
-                'autocomplete': 'new-password',
+                "autofocus": True,
+                "autocomplete": "new-password",
             }
         ),
     )
     password_2 = forms.CharField(
-        label=_('Repeat Password'),
+        label=_("Repeat Password"),
         widget=forms.PasswordInput(
             attrs={
-                'autocomplete': 'new-password',
+                "autocomplete": "new-password",
             }
         ),
     )
@@ -136,81 +142,87 @@ class PasswordResetForm(forms.Form):
         password_2 = self.cleaned_data.get("password_2")
         if password_1 and password_2 and password_1 != password_2:
             raise forms.ValidationError(
-                'Your passwords do not match.',
-                code='password_mismatch',
+                "Your passwords do not match.",
+                code="password_mismatch",
             )
 
         return password_2
 
 
 class GetResetTokenForm(forms.Form):
-    """ A form that validates password reset email addresses"""
+    """A form that validates password reset email addresses"""
 
     email_address = forms.EmailField(
         required=True,
         label=_("Email"),
         widget=forms.EmailInput(
             attrs={
-                'autofocus': True,
+                "autofocus": True,
             }
         ),
     )
 
 
 class RegistrationForm(forms.ModelForm, CaptchaForm):
-    """ A form that creates a user, with no privileges,
+    """A form that creates a user, with no privileges,
     from the given username and password."""
 
     password_1 = forms.CharField(
-        label=_('Password'),
+        label=_("Password"),
         widget=forms.PasswordInput(
             attrs={
-                'autocomplete': 'new-password',
+                "autocomplete": "new-password",
             }
-        )
+        ),
     )
     password_2 = forms.CharField(
-        label=_('Repeat Password'),
+        label=_("Repeat Password"),
         widget=forms.PasswordInput(
             attrs={
-                'autocomplete': 'new-password',
+                "autocomplete": "new-password",
             }
-        )
+        ),
     )
     register_as_reader = forms.BooleanField(
-        label='Register for Article Notifications',
-        help_text=_('Check this box if you would like to receive notifications of new articles published in this journal'),
+        label="Register for Article Notifications",
+        help_text=_(
+            "Check this box if you would like to receive notifications of new articles published in this journal"
+        ),
         required=False,
     )
 
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'middle_name',
-                  'last_name', 'orcid',)
-        widgets = {'orcid': forms.HiddenInput() }
+        fields = (
+            "email",
+            "salutation",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "orcid",
+        )
+        widgets = {"orcid": forms.HiddenInput()}
 
     def __init__(self, *args, **kwargs):
-        self.journal = kwargs.pop('journal', None)
+        self.journal = kwargs.pop("journal", None)
         super(RegistrationForm, self).__init__(*args, **kwargs)
 
         if not self.journal:
-            self.fields.pop('register_as_reader')
+            self.fields.pop("register_as_reader")
         elif self.journal:
             send_reader_notifications = setting_handler.get_setting(
-                'notifications',
-                'send_reader_notifications',
-                self.journal
+                "notifications", "send_reader_notifications", self.journal
             ).value
             if not send_reader_notifications:
-                self.fields.pop('register_as_reader')
+                self.fields.pop("register_as_reader")
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
         password_2 = self.cleaned_data.get("password_2")
         if password_1 and password_2 and password_1 != password_2:
             raise forms.ValidationError(
-                'Your passwords do not match.',
-                code='password_mismatch',
+                "Your passwords do not match.",
+                code="password_mismatch",
             )
 
         return password_2
@@ -224,7 +236,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
 
         if commit:
             user.save()
-            if self.cleaned_data.get('register_as_reader') and self.journal:
+            if self.cleaned_data.get("register_as_reader") and self.journal:
                 user.add_account_role(
                     role_slug="reader",
                     journal=self.journal,
@@ -243,21 +255,32 @@ class EditAccountForm(forms.ModelForm):
 
     class Meta:
         model = models.Account
-        exclude = ('email', 'username', 'activation_code', 'email_sent',
-                   'date_confirmed', 'confirmation_code', 'is_active',
-                   'is_staff', 'is_admin', 'date_joined', 'password',
-                   'is_superuser', 'enable_digest')
+        exclude = (
+            "email",
+            "username",
+            "activation_code",
+            "email_sent",
+            "date_confirmed",
+            "confirmation_code",
+            "is_active",
+            "is_staff",
+            "is_admin",
+            "date_joined",
+            "password",
+            "is_superuser",
+            "enable_digest",
+        )
         widgets = {
-            'biography': TinyMCE,
-            'signature': TinyMCE,
-            'enable_public_profile': YesNoRadio,
+            "biography": TinyMCE,
+            "signature": TinyMCE,
+            "enable_public_profile": YesNoRadio,
         }
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
         user.clean()
 
-        posted_interests = self.cleaned_data['interests'].split(',')
+        posted_interests = self.cleaned_data["interests"].split(",")
         user.interest.clear()
         for interest in posted_interests:
             if interest:
@@ -281,31 +304,35 @@ class AdminUserForm(forms.ModelForm):
 
     class Meta:
         model = models.Account
-        fields = ('email', 'is_active', 'is_staff', 'is_superuser')
+        fields = ("email", "is_active", "is_staff", "is_superuser")
         widgets = {
-            'is_active': YesNoRadio,
-            'is_staff': YesNoRadio,
-            'is_superuser': YesNoRadio,
+            "is_active": YesNoRadio,
+            "is_staff": YesNoRadio,
+            "is_superuser": YesNoRadio,
         }
 
     def __init__(self, *args, **kwargs):
-        active = kwargs.pop('active', None)
-        request = kwargs.pop('request', None)
+        active = kwargs.pop("active", None)
+        request = kwargs.pop("request", None)
         super(AdminUserForm, self).__init__(*args, **kwargs)
 
-        if not kwargs.get('instance', None):
-            self.fields['is_active'].initial = True
+        if not kwargs.get("instance", None):
+            self.fields["is_active"].initial = True
 
-        if active == 'add':
-            self.fields['password_1'] = forms.CharField(widget=forms.PasswordInput, label="Password")
-            self.fields['password_2'] = forms.CharField(widget=forms.PasswordInput, label="Repeat Password")
+        if active == "add":
+            self.fields["password_1"] = forms.CharField(
+                widget=forms.PasswordInput, label="Password"
+            )
+            self.fields["password_2"] = forms.CharField(
+                widget=forms.PasswordInput, label="Repeat Password"
+            )
 
         if request and not request.user.is_admin:
-            self.fields.pop('is_staff', None)
-            self.fields.pop('is_admin', None)
+            self.fields.pop("is_staff", None)
+            self.fields.pop("is_admin", None)
 
         if request and not request.user.is_superuser:
-            self.fields.pop('is_superuser')
+            self.fields.pop("is_superuser")
 
     def clean_password_2(self):
         password_1 = self.cleaned_data.get("password_1")
@@ -313,14 +340,14 @@ class AdminUserForm(forms.ModelForm):
 
         if password_1 and password_2 and password_1 != password_2:
             raise forms.ValidationError(
-                'Your passwords do not match.',
-                code='password_mismatch',
+                "Your passwords do not match.",
+                code="password_mismatch",
             )
 
         if password_2 and not len(password_2) >= 12:
             raise forms.ValidationError(
-                'Your password is too short, it should be 12 characters or greater in length.',
-                code='password_to_short',
+                "Your password is too short, it should be 12 characters or greater in length.",
+                code="password_to_short",
             )
 
         return password_2
@@ -328,7 +355,7 @@ class AdminUserForm(forms.ModelForm):
     def save(self, commit=True):
         user = super(AdminUserForm, self).save(commit=False)
 
-        if self.cleaned_data.get('password_1'):
+        if self.cleaned_data.get("password_1"):
             user.set_password(self.cleaned_data["password_1"])
         user.save()
 
@@ -339,100 +366,119 @@ class AdminUserForm(forms.ModelForm):
 
 
 class GeneratedPluginSettingForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
-        settings = kwargs.pop('settings', None)
+        settings = kwargs.pop("settings", None)
         super(GeneratedPluginSettingForm, self).__init__(*args, **kwargs)
 
         for field in settings:
-
-            object = field['object']
-            if field['types'] == 'char':
-                self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
-            elif field['types'] == 'rich-text':
-                self.fields[field['name']] = JanewayBleachFormField(
-                    required=False,
-               )
-            elif field['types'] == 'mini-html':
-                self.fields[field['name']] = MiniHTMLFormField(
+            object = field["object"]
+            if field["types"] == "char":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.TextInput(), required=False
+                )
+            elif field["types"] == "rich-text":
+                self.fields[field["name"]] = JanewayBleachFormField(
                     required=False,
                 )
-            elif field['types'] in {'text', 'Text'}:
+            elif field["types"] == "mini-html":
+                self.fields[field["name"]] = MiniHTMLFormField(
+                    required=False,
+                )
+            elif field["types"] in {"text", "Text"}:
                 # Keeping Text because a plugin may use it
-                self.fields[field['name']] = forms.CharField(
+                self.fields[field["name"]] = forms.CharField(
                     widget=forms.Textarea,
                     required=False,
                 )
-            elif field['types'] == 'json':
-                self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                                       choices=field['choices'],
-                                                                       required=False)
-            elif field['types'] == 'number':
-                self.fields[field['name']] = forms.CharField(widget=forms.TextInput(attrs={'type': 'number'}))
-            elif field['types'] == 'select':
-                self.fields[field['name']] = forms.CharField(widget=forms.Select(choices=field['choices']))
-            elif field['types'] == 'date':
-                self.fields[field['name']] = forms.CharField(
-                    widget=forms.DateInput(attrs={'class': 'datepicker'}))
-            elif field['types'] == 'boolean':
-                self.fields[field['name']] = forms.BooleanField(
-                    widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
-                    required=False)
+            elif field["types"] == "json":
+                self.fields[field["name"]] = forms.MultipleChoiceField(
+                    widget=forms.CheckboxSelectMultiple,
+                    choices=field["choices"],
+                    required=False,
+                )
+            elif field["types"] == "number":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.TextInput(attrs={"type": "number"})
+                )
+            elif field["types"] == "select":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.Select(choices=field["choices"])
+                )
+            elif field["types"] == "date":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.DateInput(attrs={"class": "datepicker"})
+                )
+            elif field["types"] == "boolean":
+                self.fields[field["name"]] = forms.BooleanField(
+                    widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
+                    required=False,
+                )
 
-            self.fields[field['name']].initial = object.processed_value
-            self.fields[field['name']].help_text = object.setting.description
+            self.fields[field["name"]].initial = object.processed_value
+            self.fields[field["name"]].help_text = object.setting.description
 
     def save(self, journal, plugin, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            setting_handler.save_plugin_setting(plugin, setting_name, setting_value, journal)
+            setting_handler.save_plugin_setting(
+                plugin, setting_name, setting_value, journal
+            )
 
 
 class GeneratedSettingForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
-        settings = kwargs.pop('settings', None)
+        settings = kwargs.pop("settings", None)
         super(GeneratedSettingForm, self).__init__(*args, **kwargs)
         self.translatable_field_names = []
         for field in settings:
-            object = field['object']
+            object = field["object"]
 
-            if object.setting.types == 'char':
-                self.fields[field['name']] = forms.CharField(widget=forms.TextInput(), required=False)
-            elif object.setting.types == 'rich-text':
-                self.fields[field['name']] = JanewayBleachFormField(
+            if object.setting.types == "char":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.TextInput(), required=False
+                )
+            elif object.setting.types == "rich-text":
+                self.fields[field["name"]] = JanewayBleachFormField(
                     required=False,
                 )
-            elif object.setting.types == 'mini-html':
-                self.fields[field['name']] = MiniHTMLFormField(
+            elif object.setting.types == "mini-html":
+                self.fields[field["name"]] = MiniHTMLFormField(
                     required=False,
                 )
-            elif object.setting.types == 'text':
-                self.fields[field['name']] = forms.CharField(
+            elif object.setting.types == "text":
+                self.fields[field["name"]] = forms.CharField(
                     widget=forms.Textarea,
                     required=False,
                 )
-            elif object.setting.types == 'json':
-                self.fields[field['name']] = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                                       choices=field['choices'],
-                                                                       required=False)
-            elif object.setting.types == 'number':
-                self.fields[field['name']] = forms.CharField(widget=forms.TextInput(attrs={'type': 'number'}))
-            elif object.setting.types == 'select':
-                self.fields[field['name']] = forms.CharField(widget=forms.Select(choices=field['choices']))
-            elif object.setting.types == 'date':
-                self.fields[field['name']] = forms.CharField(
-                    widget=forms.DateInput(attrs={'class': 'datepicker'}))
-            elif object.setting.types == 'boolean':
-                self.fields[field['name']] = forms.BooleanField(
-                    widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
-                    required=False)
+            elif object.setting.types == "json":
+                self.fields[field["name"]] = forms.MultipleChoiceField(
+                    widget=forms.CheckboxSelectMultiple,
+                    choices=field["choices"],
+                    required=False,
+                )
+            elif object.setting.types == "number":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.TextInput(attrs={"type": "number"})
+                )
+            elif object.setting.types == "select":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.Select(choices=field["choices"])
+                )
+            elif object.setting.types == "date":
+                self.fields[field["name"]] = forms.CharField(
+                    widget=forms.DateInput(attrs={"class": "datepicker"})
+                )
+            elif object.setting.types == "boolean":
+                self.fields[field["name"]] = forms.BooleanField(
+                    widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
+                    required=False,
+                )
 
             if object.setting.is_translatable:
                 self.translatable_field_names.append(object.setting.name)
 
-            self.fields[field['name']].label = object.setting.pretty_name
-            self.fields[field['name']].initial = object.processed_value
-            self.fields[field['name']].help_text = object.setting.description
+            self.fields[field["name"]].label = object.setting.pretty_name
+            self.fields[field["name"]].initial = object.processed_value
+            self.fields[field["name"]].help_text = object.setting.description
 
     def save(self, journal, group, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
@@ -443,11 +489,11 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-           'contact_info',
-           'is_remote',
-           'remote_view_url',
-           'remote_submit_url',
-           'hide_from_press',
+            "contact_info",
+            "is_remote",
+            "remote_view_url",
+            "remote_submit_url",
+            "hide_from_press",
         )
 
 
@@ -457,35 +503,34 @@ class JournalImageForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-            'header_image', 'default_cover_image',
-            'default_large_image', 'favicon', 'press_image_override',
-            'default_profile_image',
+            "header_image",
+            "default_cover_image",
+            "default_large_image",
+            "favicon",
+            "press_image_override",
+            "default_profile_image",
         )
 
 
 class JournalStylingForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
-        fields = (
-            'full_width_navbar',
-        )
+        fields = ("full_width_navbar",)
 
 
 class JournalSubmissionForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
-        fields = (
-            'enable_correspondence_authors',
-        )
+        fields = ("enable_correspondence_authors",)
 
 
 class JournalArticleForm(forms.ModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-            'view_pdf_button',
-            'disable_metrics_display',
-            'disable_html_downloads',
+            "view_pdf_button",
+            "disable_metrics_display",
+            "disable_html_downloads",
         )
 
 
@@ -496,21 +541,28 @@ class PressJournalAttrForm(KeywordModelForm, JanewayTranslationModelForm):
     class Meta:
         model = journal_models.Journal
         fields = (
-            'contact_info', 'header_image', 'default_cover_image',
-            'default_large_image', 'favicon', 'is_remote', 'is_conference',
-            'remote_view_url', 'remote_submit_url', 'hide_from_press',
-            'disable_metrics_display',
+            "contact_info",
+            "header_image",
+            "default_cover_image",
+            "default_large_image",
+            "favicon",
+            "is_remote",
+            "is_conference",
+            "remote_view_url",
+            "remote_submit_url",
+            "hide_from_press",
+            "disable_metrics_display",
         )
 
 
 class NotificationForm(forms.ModelForm):
     class Meta:
         model = journal_models.Notifications
-        exclude = ('journal',)
+        exclude = ("journal",)
         widgets = {
-            'active': forms.CheckboxInput(
+            "active": forms.CheckboxInput(
                 attrs={
-                    'is_checkbox': True,
+                    "is_checkbox": True,
                 }
             ),
         }
@@ -519,35 +571,47 @@ class NotificationForm(forms.ModelForm):
 class ArticleMetaImageForm(forms.ModelForm):
     class Meta:
         model = submission_models.Article
-        fields = ('meta_image',)
+        fields = ("meta_image",)
 
 
 class SectionForm(JanewayTranslationModelForm):
     class Meta:
         model = submission_models.Section
         fields = [
-            'name', 'plural', 'number_of_reviewers',
-            'is_filterable', 'sequence', 'section_editors',
-            'editors', 'jats_article_type', 'public_submissions', 'indexing',
-            'auto_assign_editors',
+            "name",
+            "plural",
+            "number_of_reviewers",
+            "is_filterable",
+            "sequence",
+            "section_editors",
+            "editors",
+            "jats_article_type",
+            "public_submissions",
+            "indexing",
+            "auto_assign_editors",
         ]
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request', None)
+        request = kwargs.pop("request", None)
         super(SectionForm, self).__init__(*args, **kwargs)
         if request:
-            self.fields['section_editors'].queryset = request.journal.users_with_role(
-                'section-editor',
+            self.fields["section_editors"].queryset = request.journal.users_with_role(
+                "section-editor",
             )
-            self.fields['section_editors'].required = False
-            self.fields['editors'].queryset = request.journal.users_with_role('editor')
-            self.fields['editors'].required = False
+            self.fields["section_editors"].required = False
+            self.fields["editors"].queryset = request.journal.users_with_role("editor")
+            self.fields["editors"].required = False
 
 
 class QuickUserForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ('email', 'salutation', 'first_name', 'last_name',)
+        fields = (
+            "email",
+            "salutation",
+            "first_name",
+            "last_name",
+        )
 
 
 class LoginForm(CaptchaForm):
@@ -557,13 +621,13 @@ class LoginForm(CaptchaForm):
         label="Password",
         widget=forms.PasswordInput(
             attrs={
-                'autocomplete': 'current-password',
+                "autocomplete": "current-password",
             }
-        )
+        ),
     )
 
     def __init__(self, *args, **kwargs):
-        bad_logins = kwargs.pop('bad_logins', 0)
+        bad_logins = kwargs.pop("bad_logins", 0)
         super(LoginForm, self).__init__(*args, **kwargs)
         if bad_logins:
             logger.warning(
@@ -571,7 +635,9 @@ class LoginForm(CaptchaForm):
                 "" % (self.fields["user_name"], bad_logins),
             )
         if bad_logins <= 3:
-            self.fields['captcha'] = forms.CharField(widget=forms.HiddenInput(), required=False)
+            self.fields["captcha"] = forms.CharField(
+                widget=forms.HiddenInput(), required=False
+            )
 
 
 class FileUploadForm(forms.Form):
@@ -580,8 +646,8 @@ class FileUploadForm(forms.Form):
     def __init__(self, *args, extensions=None, mimetypes=None, **kwargs):
         super().__init__(*args, **kwargs)
         validator = validators.FileTypeValidator(
-                extensions=extensions,
-                mimetypes=mimetypes,
+            extensions=extensions,
+            mimetypes=mimetypes,
         )
         self.fields["file"].validators.append(validator)
 
@@ -589,14 +655,13 @@ class FileUploadForm(forms.Form):
 class UserCreationFormExtended(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(UserCreationFormExtended, self).__init__(*args, **kwargs)
-        self.fields['email'] = forms.EmailField(
+        self.fields["email"] = forms.EmailField(
             label=_("E-mail"),
             max_length=75,
         )
 
 
 class XSLFileForm(forms.ModelForm):
-
     class Meta:
         model = models.XSLFile
         exclude = ["date_uploaded", "journal", "original_filename"]
@@ -615,19 +680,18 @@ class XSLFileForm(forms.ModelForm):
 
 
 class AccessRequestForm(forms.ModelForm):
-
     class Meta:
         model = models.AccessRequest
-        fields = ('text',)
+        fields = ("text",)
         labels = {
-            'text': 'Supporting Information',
+            "text": "Supporting Information",
         }
 
     def __init__(self, *args, **kwargs):
-        self.journal = kwargs.pop('journal', None)
-        self.repository = kwargs.pop('repository', None)
-        self.user = kwargs.pop('user')
-        self.role = kwargs.pop('role')
+        self.journal = kwargs.pop("journal", None)
+        self.repository = kwargs.pop("repository", None)
+        self.user = kwargs.pop("user")
+        self.role = kwargs.pop("role")
         super(AccessRequestForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -644,29 +708,26 @@ class AccessRequestForm(forms.ModelForm):
 
 
 class CBVFacetForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
         # This form populates the facets that users can filter results on.
         # The facets dynamically change based on the queryset of results,
         # so users only see filter options that will have an effect on the
         # current results.
 
-        self.id = 'facet_form'
-        self.queryset = kwargs.pop('queryset')
-        self.facets = kwargs.pop('facets')
-        self.journal_filter_query = kwargs.pop('journal_filter_query', Q())
+        self.id = "facet_form"
+        self.queryset = kwargs.pop("queryset")
+        self.facets = kwargs.pop("facets")
+        self.journal_filter_query = kwargs.pop("journal_filter_query", Q())
 
         super().__init__(*args, **kwargs)
 
         for facet_key, facet in self.facets.items():
-
-            if facet['type'] == 'foreign_key':
-
+            if facet["type"] == "foreign_key":
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
                 column = self.queryset.values_list(facet_key, flat=True)
                 values_list = list(filter(bool, column))
-                choice_queryset = facet['model'].objects.filter(pk__in=values_list)
+                choice_queryset = facet["model"].objects.filter(pk__in=values_list)
                 choices = []
                 for each in choice_queryset:
                     label = getattr(each, facet["choice_label_field"])
@@ -674,7 +735,7 @@ class CBVFacetForm(forms.Form):
                         Q((facet_key, each.pk)),
                         self.journal_filter_query,
                     ).count()
-                    label_with_count = f'{label} ({count})'
+                    label_with_count = f"{label} ({count})"
                     choices.append((each.pk, label_with_count))
 
                 choices = sorted(choices, key=lambda x: x[1])
@@ -684,13 +745,13 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
-            elif facet['type'] == 'charfield_with_choices':
+            elif facet["type"] == "charfield_with_choices":
                 # Note: This retrieval is written to work even for sqlite3.
                 # It might be rewritten differently if sqlite3 support isn't needed.
 
                 column = []
                 values_list = []
-                lookup_parts = facet_key.split('.')
+                lookup_parts = facet_key.split(".")
                 for obj in self.queryset:
                     for part in lookup_parts:
                         if obj:
@@ -702,16 +763,16 @@ class CBVFacetForm(forms.Form):
 
                     if result != None:
                         values_list.append(result)
-                    elif result == None and 'default' in facet:
-                        values_list.append(facet['default'])
+                    elif result == None and "default" in facet:
+                        values_list.append(facet["default"])
 
                 unique_values = set(values_list)
                 choices = []
-                model_choice_dict = dict(facet['model_choices'])
+                model_choice_dict = dict(facet["model_choices"])
                 for value in unique_values:
                     label = model_choice_dict.get(value, value)
                     count = values_list.count(value)
-                    label_with_count = f'{label} ({count})'
+                    label_with_count = f"{label} ({count})"
                     choices.append((value, label_with_count))
 
                 choices = sorted(choices, key=lambda x: x[1])
@@ -721,64 +782,55 @@ class CBVFacetForm(forms.Form):
                     required=False,
                 )
 
-            elif facet['type'] == 'date_time':
+            elif facet["type"] == "date_time":
                 self.fields[facet_key] = forms.DateTimeField(
                     required=False,
-                    widget=forms.DateTimeInput(
-                        attrs={'type': 'datetime-local'}
-                    ),
+                    widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
                 )
 
-            elif facet['type'] == 'date':
+            elif facet["type"] == "date":
                 self.fields[facet_key] = forms.DateField(
                     required=False,
-                    widget=forms.DateInput(
-                        attrs={'type': 'date'}
-                    ),
+                    widget=forms.DateInput(attrs={"type": "date"}),
                 )
 
-            elif facet['type'] == 'integer':
+            elif facet["type"] == "integer":
                 self.fields[facet_key] = forms.IntegerField(
                     required=False,
                 )
 
-            elif facet['type'] == 'search':
+            elif facet["type"] == "search":
                 self.fields[facet_key] = forms.CharField(
                     required=False,
-                    widget=forms.TextInput(
-                        attrs={'type': 'search'}
-                    ),
+                    widget=forms.TextInput(attrs={"type": "search"}),
                 )
 
-            elif facet['type'] == 'boolean':
+            elif facet["type"] == "boolean":
                 self.fields[facet_key] = forms.TypedChoiceField(
                     widget=forms.widgets.RadioSelect,
                     choices=[
-                        ('', facet.get('all_label', 'All')),
-                        (1, facet.get('true_label', 'Yes')),
-                        (0, facet.get('false_label', 'No')),
+                        ("", facet.get("all_label", "All")),
+                        (1, facet.get("true_label", "Yes")),
+                        (0, facet.get("false_label", "No")),
                     ],
                     required=False,
                     coerce=int,
                 )
 
-            self.fields[facet_key].label = facet['field_label']
+            self.fields[facet_key].label = facet["field_label"]
 
     def order_by(self, queryset, facet, fks):
-        order_by = facet.get('order_by')
-        if order_by != 'facet_count' and order_by in facet['model']._meta.get_fields():
+        order_by = facet.get("order_by")
+        if order_by != "facet_count" and order_by in facet["model"]._meta.get_fields():
             queryset = queryset.order_by(order_by)
-        elif order_by == 'facet_count':
+        elif order_by == "facet_count":
             sorted_fk_tuples = sorted(
                 [(fk, fks.count(fk)) for fk in fks],
-                key=lambda x:x[1],
+                key=lambda x: x[1],
                 reverse=True,
             )
             sorted_fks = [tup[0] for tup in sorted_fk_tuples]
-            queryset = sorted(
-                queryset,
-                key=lambda x: sorted_fks.index(x.pk)
-            )
+            queryset = sorted(queryset, key=lambda x: sorted_fks.index(x.pk))
 
         return queryset
 
@@ -798,9 +850,9 @@ class ConfirmableForm(forms.Form):
     if there are errrors, see ConfirmableIfErrorsForm.
     """
 
-    CONFIRMABLE_BUTTON_NAME = 'confirmable'
-    CONFIRMED_BUTTON_NAME = 'confirmed'
-    QUESTION = _('Are you sure?')
+    CONFIRMABLE_BUTTON_NAME = "confirmable"
+    CONFIRMED_BUTTON_NAME = "confirmed"
+    QUESTION = _("Are you sure?")
 
     def __init__(self, *args, **kwargs):
         self.modal = None
@@ -813,12 +865,11 @@ class ConfirmableForm(forms.Form):
         return parent_return
 
     def create_modal(self):
-
         self.modal = {
-            'id': 'confirm_modal',
-            'confirmed_button_name': self.CONFIRMED_BUTTON_NAME,
-            'question': self.QUESTION,
-            'potential_errors': self.check_for_potential_errors(),
+            "id": "confirm_modal",
+            "confirmed_button_name": self.CONFIRMED_BUTTON_NAME,
+            "question": self.QUESTION,
+            "potential_errors": self.check_for_potential_errors(),
         }
 
     def check_for_potential_errors(self):
@@ -829,11 +880,13 @@ class ConfirmableForm(forms.Form):
             try:
                 account = models.Account.objects.get(id=account)
             except models.Account.DoesNotExist:
-                return 'Could not check account status'
+                return "Could not check account status"
         if not account.is_active:
-            return _('The account belonging to %(email)s has not yet been activated, ' \
-                     'so the recipient of this assignment may not be able ' \
-                     'to log in and view it.') % {'email': account.email}
+            return _(
+                "The account belonging to %(email)s has not yet been activated, "
+                "so the recipient of this assignment may not be able "
+                "to log in and view it."
+            ) % {"email": account.email}
 
     def is_confirmed(self):
         return self.CONFIRMED_BUTTON_NAME in self.data
@@ -872,22 +925,22 @@ class EmailForm(forms.Form):
     attachments = MultipleFileField(required=False)
 
     def clean_cc(self):
-        cc = self.cleaned_data['cc']
+        cc = self.cleaned_data["cc"]
         return self.email_sequence_cleaner("cc", cc)
 
     def clean_bcc(self):
-        cc = self.cleaned_data['bcc']
+        cc = self.cleaned_data["bcc"]
         return self.email_sequence_cleaner("bcc", cc)
 
     def email_sequence_cleaner(self, field, email_seq):
-        if not email_seq or email_seq  == '':
+        if not email_seq or email_seq == "":
             return tuple()
 
         for address in email_seq:
             try:
                 validate_email(address)
             except ValidationError:
-                self.add_error(field, 'Invalid email address ({}).'.format(address))
+                self.add_error(field, "Invalid email address ({}).".format(address))
 
         return email_seq
 
@@ -896,22 +949,22 @@ class EmailForm(forms.Form):
 
 
 class FullEmailForm(EmailForm):
-    """ An email form that includes the To field
-    """
+    """An email form that includes the To field"""
+
     to = TagitField(
         required=True,
         max_length=10000,
     )
 
-    field_order = ['to', 'cc', 'bcc', 'subject', 'body', 'attachments']
+    field_order = ["to", "cc", "bcc", "subject", "body", "attachments"]
 
     def clean_to(self):
-        to = self.cleaned_data['to']
+        to = self.cleaned_data["to"]
         return self.email_sequence_cleaner("to", to)
 
 
 class SettingEmailForm(EmailForm):
-    """ An Email form that populates initial data using Janeway email settings
+    """An Email form that populates initial data using Janeway email settings
 
     During initialization, the email and subject settings are retrieved,
     matching the given setting_name
@@ -920,6 +973,7 @@ class SettingEmailForm(EmailForm):
     :param request: The instance of this HttpRequest
     :param journal: (Optional) an instance of journal.models.Journal
     """
+
     def __init__(self, *args, **kwargs):
         setting_name = kwargs.pop("setting_name")
         email_context = kwargs.pop("email_context", {})
@@ -941,14 +995,13 @@ class SettingEmailForm(EmailForm):
 
 
 class FullSettingEmailForm(SettingEmailForm, FullEmailForm):
-    """ A setting-based email form that includes the To field
-    """
+    """A setting-based email form that includes the To field"""
+
     pass
 
 
 class SimpleTinyMCEForm(forms.Form):
-    """ A one-field form for populating a TinyMCE textarea
-    """
+    """A one-field form for populating a TinyMCE textarea"""
 
     def __init__(self, field_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -956,17 +1009,15 @@ class SimpleTinyMCEForm(forms.Form):
 
 
 class AccountRoleForm(forms.ModelForm):
-
     class Meta:
         model = models.AccountRole
-        fields = '__all__'
+        fields = "__all__"
 
 
 class OrganizationNameForm(forms.ModelForm):
-
     class Meta:
         model = models.OrganizationName
-        fields = ('value',)
+        fields = ("value",)
 
 
 class AccountAffiliationForm(forms.ModelForm):
@@ -977,16 +1028,16 @@ class AccountAffiliationForm(forms.ModelForm):
 
     class Meta:
         model = models.ControlledAffiliation
-        fields = ('title', 'department', 'is_primary', 'start', 'end')
+        fields = ("title", "department", "is_primary", "start", "end")
         widgets = {
-            'start': HTMLDateInput,
-            'end': HTMLDateInput,
-            'is_primary': YesNoRadio,
+            "start": HTMLDateInput,
+            "end": HTMLDateInput,
+            "is_primary": YesNoRadio,
         }
 
     def __init__(self, *args, **kwargs):
-        self.account = kwargs.pop('account', None)
-        self.organization = kwargs.pop('organization', None)
+        self.account = kwargs.pop("account", None)
+        self.organization = kwargs.pop("organization", None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -997,8 +1048,7 @@ class AccountAffiliationForm(forms.ModelForm):
                 query &= Q((key, value))
             if self._meta.model.objects.filter(query).exists():
                 self.add_error(
-                    None,
-                    "An affiliation with matching details already exists."
+                    None, "An affiliation with matching details already exists."
                 )
         return cleaned_data
 
@@ -1019,7 +1069,7 @@ class OrcidAffiliationForm(forms.ModelForm):
 
     class Meta:
         model = models.ControlledAffiliation
-        fields = '__all__'
+        fields = "__all__"
 
     def __init__(
         self,
@@ -1037,44 +1087,44 @@ class OrcidAffiliationForm(forms.ModelForm):
         # It can have keys pointing to None values like:
         # {"year": {"value": 2019}, "month": None}
 
-        data['title'] = orcid_affiliation.get('role-title', '') or ''
-        data['department'] = orcid_affiliation.get('department-name', '') or ''
+        data["title"] = orcid_affiliation.get("role-title", "") or ""
+        data["department"] = orcid_affiliation.get("department-name", "") or ""
 
         org = None
-        orcid_org = orcid_affiliation.get('organization', {}) or {}
-        disamb_org = orcid_org.get('disambiguated-organization', {}) or {}
-        disamb_id = disamb_org.get('disambiguated-organization-identifier', '') or ''
-        if disamb_id.startswith('https://ror.org/'):
+        orcid_org = orcid_affiliation.get("organization", {}) or {}
+        disamb_org = orcid_org.get("disambiguated-organization", {}) or {}
+        disamb_id = disamb_org.get("disambiguated-organization-identifier", "") or ""
+        if disamb_id.startswith("https://ror.org/"):
             ror_id = os.path.split(disamb_id)[-1]
             try:
                 org = models.Organization.objects.get(ror_id=ror_id)
             except models.Organization.DoesNotExist:
                 pass
         if not org:
-            address = orcid_org.get('address', {}) or {}
+            address = orcid_org.get("address", {}) or {}
             org, _created = models.Organization.get_or_create_without_ror(
-                institution=orcid_org.get('name', '') or '',
-                country=address.get('country', '') or '',
-                account=data.get('account'),
-                frozen_author=data.get('frozen_author'),
-                preprint_author=data.get('preprint_author'),
+                institution=orcid_org.get("name", "") or "",
+                country=address.get("country", "") or "",
+                account=data.get("account"),
+                frozen_author=data.get("frozen_author"),
+                preprint_author=data.get("preprint_author"),
             )
-        data['organization'] = org
+        data["organization"] = org
 
-        orcid_start = orcid_affiliation.get('start-date', {}) or {}
+        orcid_start = orcid_affiliation.get("start-date", {}) or {}
         if orcid_start:
-            data['start'] = timezone.datetime(
-                int((orcid_start.get('year', {}) or {}).get('value', 1)),
-                int((orcid_start.get('month', {}) or {}).get('value', 1)),
-                int((orcid_start.get('day', {}) or {}).get('value', 1)),
+            data["start"] = timezone.datetime(
+                int((orcid_start.get("year", {}) or {}).get("value", 1)),
+                int((orcid_start.get("month", {}) or {}).get("value", 1)),
+                int((orcid_start.get("day", {}) or {}).get("value", 1)),
                 tzinfo=tzinfo,
             )
-        orcid_end = orcid_affiliation.get('end-date', {}) or {}
+        orcid_end = orcid_affiliation.get("end-date", {}) or {}
         if orcid_end:
-            data['end'] = timezone.datetime(
-                int((orcid_end.get('year', {}) or {}).get('value', 1)),
-                int((orcid_end.get('month', {}) or {}).get('value', 1)),
-                int((orcid_end.get('day', {}) or {}).get('value', 1)),
+            data["end"] = timezone.datetime(
+                int((orcid_end.get("year", {}) or {}).get("value", 1)),
+                int((orcid_end.get("month", {}) or {}).get("value", 1)),
+                int((orcid_end.get("day", {}) or {}).get("value", 1)),
                 tzinfo=tzinfo,
             )
 
@@ -1086,4 +1136,5 @@ class ConfirmDeleteForm(forms.Form):
     A generic form for use on confirm-delete pages
     where a valid form with POST data means yes, delete.
     """
+
     pass

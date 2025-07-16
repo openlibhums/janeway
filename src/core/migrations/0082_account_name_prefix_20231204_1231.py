@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0081_alter_account_preferred_timezone'),
+        ("core", "0081_alter_account_preferred_timezone"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='name_prefix',
+            model_name="account",
+            name="name_prefix",
             field=models.CharField(blank=True, max_length=10),
         ),
     ]

@@ -22,5 +22,11 @@ class Command(BaseCommand):
 
         print("Journals:")
         for journal in journals:
-            install.update_settings(journal, management_command=True, overwrite_with_defaults=True)
-            print('Journal with ID {0} [{1}]: {2}. SETTINGS SYNCED.'.format(journal.id, journal.name, journal.domain))
+            install.update_settings(
+                journal, management_command=True, overwrite_with_defaults=True
+            )
+            print(
+                "Journal with ID {0} [{1}]: {2}. SETTINGS SYNCED.".format(
+                    journal.id, journal.name, journal.domain
+                )
+            )

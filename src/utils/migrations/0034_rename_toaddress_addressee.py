@@ -4,23 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0033_upgrade_1_6_0'),
+        ("utils", "0033_upgrade_1_6_0"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='ToAddress',
-            new_name='Addressee',
+            old_name="ToAddress",
+            new_name="Addressee",
         ),
         migrations.AlterModelOptions(
-            name='addressee',
+            name="addressee",
             options={},
         ),
         migrations.AddField(
-            model_name='addressee',
-            name='field',
-            field=models.CharField(blank=True, choices=[('to', 'To'), ('cc', 'CC'), ('bcc', 'BCC')], max_length=3),
+            model_name="addressee",
+            name="field",
+            field=models.CharField(
+                blank=True,
+                choices=[("to", "To"), ("cc", "CC"), ("bcc", "BCC")],
+                max_length=3,
+            ),
         ),
     ]

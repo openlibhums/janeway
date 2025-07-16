@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0020_auto_20190319_1555'),
+        ("press", "0020_auto_20190319_1555"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='press',
-            options={'verbose_name_plural': 'presses'},
+            name="press",
+            options={"verbose_name_plural": "presses"},
         ),
     ]

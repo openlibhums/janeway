@@ -6,24 +6,27 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def forwards_func(apps, schema_editor):
         from core.models import COUNTRY_CHOICES
+
         Country = apps.get_model("core", "Country")
         db_alias = schema_editor.connection.alias
 
         for choice in COUNTRY_CHOICES:
-            Country.objects.using(db_alias).get_or_create(code=choice[0], name=choice[1])
+            Country.objects.using(db_alias).get_or_create(
+                code=choice[0], name=choice[1]
+            )
 
     def reverse_func(apps, schema_editor):
         from core.models import COUNTRY_CHOICES
+
         Country = apps.get_model("core", "Country")
         db_alias = schema_editor.connection.alias
 
         Country.objects.using(db_alias).all().delete()
 
     dependencies = [
-        ('core', '0002_auto_20170711_1203'),
+        ("core", "0002_auto_20170711_1203"),
     ]
 
     operations = [

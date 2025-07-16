@@ -4,19 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0016_merge_0013_page_template_0015_historicalpage'),
+        ("cms", "0016_merge_0013_page_template_0015_historicalpage"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalpage',
-            name='template',
+            model_name="historicalpage",
+            name="template",
             field=models.CharField(
                 blank=True,
-                help_text='The custom template to use instead of the content '
-                          'field.',
+                help_text="The custom template to use instead of the content field.",
                 max_length=100,
             ),
         ),

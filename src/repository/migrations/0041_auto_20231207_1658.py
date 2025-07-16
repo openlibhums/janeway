@@ -5,6 +5,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 from django.conf import settings
 
+
 def add_default_recommendations(apps, schema_editor):
     ReviewRecommendation = apps.get_model("repository", "ReviewRecommendation")
     Repository = apps.get_model("repository", "Repository")
@@ -12,9 +13,9 @@ def add_default_recommendations(apps, schema_editor):
     defaults_file = open(
         os.path.join(
             settings.BASE_DIR,
-            'utils',
-            'install',
-            'default_repository_review_recommendations.json',
+            "utils",
+            "install",
+            "default_repository_review_recommendations.json",
         )
     )
     defaults = json.load(defaults_file)
@@ -28,25 +29,44 @@ def add_default_recommendations(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0040_auto_20231207_1002'),
+        ("repository", "0040_auto_20231207_1002"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ReviewRecommendation',
+            name="ReviewRecommendation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='repository.repository')),
-                ('active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "repository",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="repository.repository",
+                    ),
+                ),
+                ("active", models.BooleanField(default=True)),
             ],
         ),
         migrations.AddField(
-            model_name='review',
-            name='recommendation',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='repository.reviewrecommendation'),
+            model_name="review",
+            name="recommendation",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="repository.reviewrecommendation",
+            ),
         ),
-        migrations.RunPython(add_default_recommendations, reverse_code=migrations.RunPython.noop)
+        migrations.RunPython(
+            add_default_recommendations, reverse_code=migrations.RunPython.noop
+        ),
     ]

@@ -8,7 +8,7 @@ from core.model_utils import merge_models
 
 
 def lower_all_usernames(apps, schema_editor):
-    Account = apps.get_model('core', 'Account')
+    Account = apps.get_model("core", "Account")
     accounts = Account.objects.all()
     handled = set()
 
@@ -23,9 +23,10 @@ def lower_all_usernames(apps, schema_editor):
             same_accounts = Account.objects.filter(username__iexact=account.username)
             handled |= handle_unique_username_violation(same_accounts, apps)
 
+
 def handle_unique_username_violation(same_accounts, apps):
-    AccountRole = apps.get_model('core', 'Accountrole')
-    Account = apps.get_model('core', 'Account')
+    AccountRole = apps.get_model("core", "Accountrole")
+    Account = apps.get_model("core", "Account")
     real_account = None
 
     # Try checking if one has logged in
@@ -35,11 +36,13 @@ def handle_unique_username_violation(same_accounts, apps):
 
     if real_account is None:
         # Try checking if one account has a non-author role:
-        account_roles_ids = AccountRole.objects.filter(
-            user__in=same_accounts,
-        ).exclude(
-            role__slug="author"
-        ).values_list("user", flat=True)
+        account_roles_ids = (
+            AccountRole.objects.filter(
+                user__in=same_accounts,
+            )
+            .exclude(role__slug="author")
+            .values_list("user", flat=True)
+        )
         if len(set(account_roles_ids)) == 1:
             real_account = Account.objects.get(id=account_roles_ids[0])
 
@@ -49,9 +52,10 @@ def handle_unique_username_violation(same_accounts, apps):
         for acc in same_accounts:
             if acc.article_set.exists():
                 authors.append(acc)
-        if len(authors) >2:
+        if len(authors) > 2:
             raise Exception(
-                "Can't workout the real user for username %s" % acc.username)
+                "Can't workout the real user for username %s" % acc.username
+            )
         elif len(authors) == 1:
             real_account = authors[0]
 
@@ -70,14 +74,9 @@ def handle_unique_username_violation(same_accounts, apps):
     return merged
 
 
-
-
-
-
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0041_fix_reminder_name_description'),
+        ("core", "0041_fix_reminder_name_description"),
     ]
 
     operations = [

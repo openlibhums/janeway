@@ -15,19 +15,24 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('url')
-        parser.add_argument('journal_id')
-        parser.add_argument('user_id')
-        parser.add_argument('-u', '--update',
-                            action='store_true',
-                            dest='update',
-                            default=False,
-                            help='Updates metadata if the item already exists')
-        parser.add_argument('--delete',
-                            action='store_true',
-                            dest='delete',
-                            default=False,
-                            help='Delete all articles and non-superusers in the database before import')
+        parser.add_argument("url")
+        parser.add_argument("journal_id")
+        parser.add_argument("user_id")
+        parser.add_argument(
+            "-u",
+            "--update",
+            action="store_true",
+            dest="update",
+            default=False,
+            help="Updates metadata if the item already exists",
+        )
+        parser.add_argument(
+            "--delete",
+            action="store_true",
+            dest="delete",
+            default=False,
+            help="Delete all articles and non-superusers in the database before import",
+        )
 
     def handle(self, *args, **options):
         """Imports an OAI feed into Janeway.
@@ -36,5 +41,5 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'url', 'journal_id', 'user_id', and a boolean '--delete' flag
         :return: None
         """
-        translation.activate('en')
+        translation.activate("en")
         importer.import_oai(**options)

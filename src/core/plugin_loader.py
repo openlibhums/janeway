@@ -18,7 +18,6 @@ from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
 
 
-
 def get_dirs(directory):
     path = os.path.join(settings.BASE_DIR, directory)
     root, dirs, files = next(os.walk(path))
@@ -74,11 +73,9 @@ def load(directory="plugins", prefix="plugins", permissive=False):
                 PLUGIN_WORKFLOW_STAGES.append(
                     (plugin_settings.STAGE, plugin_settings.PLUGIN_NAME)
                 )
-                ELEMENT_STAGES[
-                    plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
+                ELEMENT_STAGES[plugin_settings.PLUGIN_NAME] = [plugin_settings.STAGE]
 
-                STAGES_ELEMENTS[
-                    plugin_settings.STAGE] = plugin_settings.PLUGIN_NAME
+                STAGES_ELEMENTS[plugin_settings.STAGE] = plugin_settings.PLUGIN_NAME
 
             # Call event registry
             register_for_events(plugin_settings)
@@ -118,13 +115,13 @@ def get_plugin(module_name, permissive):
         plugin = models.Plugin.objects.get(name=module_name, enabled=True)
         return plugin
     except (
-            models.Plugin.DoesNotExist,
-            models.Plugin.MultipleObjectsReturned,
-            ProgrammingError,
-            OperationalError,
-        ) as e:
+        models.Plugin.DoesNotExist,
+        models.Plugin.MultipleObjectsReturned,
+        ProgrammingError,
+        OperationalError,
+    ) as e:
         if settings.DEBUG:
-            print('Error loading plugin {0} {1}'.format(module_name, e))
+            print("Error loading plugin {0} {1}".format(module_name, e))
         return False
 
 

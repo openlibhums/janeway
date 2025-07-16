@@ -5,14 +5,15 @@ import re
 
 from django.db import migrations, transaction
 
+
 def parse_email_addresses(entry):
-    match = re.findall(r'[\w\.\+-]+@[\w\.-]+\.\w+', entry.to)
+    match = re.findall(r"[\w\.\+-]+@[\w\.-]+\.\w+", entry.to)
     return match
 
 
 def move_to_m2m(apps, schema_editor):
-    LogEntry = apps.get_model('utils', 'LogEntry')
-    ToAddress = apps.get_model('utils', 'ToAddress')
+    LogEntry = apps.get_model("utils", "LogEntry")
+    ToAddress = apps.get_model("utils", "ToAddress")
 
     email_log_entries = LogEntry.objects.filter(to__isnull=False)
 
@@ -26,7 +27,7 @@ def move_to_m2m(apps, schema_editor):
 
 
 def move_to_string(apps, schema_editor):
-    LogEntry = apps.get_model('utils', 'LogEntry')
+    LogEntry = apps.get_model("utils", "LogEntry")
 
     all_log_entries = LogEntry.objects.all()
 
@@ -38,9 +39,8 @@ def move_to_string(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0016_auto_20200721_1419'),
+        ("utils", "0016_auto_20200721_1419"),
     ]
 
     operations = [

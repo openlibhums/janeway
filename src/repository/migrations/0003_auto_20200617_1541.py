@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0002_preprintversion_moderated_version'),
+        ("repository", "0002_preprintversion_moderated_version"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='accept_version',
+            model_name="repository",
+            name="accept_version",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='decline_version',
+            model_name="repository",
+            name="decline_version",
             field=models.TextField(blank=True, null=True),
         ),
     ]

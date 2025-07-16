@@ -1,8 +1,9 @@
 class OAIException(Exception):
-    """ A Python exception that handles errors defined in the OAI spec
+    """A Python exception that handles errors defined in the OAI spec
     :attr msg: The message that will be returned from the user
     :attr code: A machine readable code, defined by the OAI spec
     """
+
     msg = None
     code = None
 
@@ -18,15 +19,18 @@ class OAINoRecordsMatch(OAIException):
 
 
 class OAIDoesNotExist(OAIException):
-    msg = ("The value of the identifier argument is unknown or illegal"
-           " in this repository.")
+    msg = (
+        "The value of the identifier argument is unknown or illegal in this repository."
+    )
     code = "idDoesNotExist"
 
 
 class OAIUnsupportedMetadataFormat(OAIException):
-    msg = ("The metadata format identified by the value given for the"
-           " metadataPrefix argument is not supported by the item or by"
-           "the repository.")
+    msg = (
+        "The metadata format identified by the value given for the"
+        " metadataPrefix argument is not supported by the item or by"
+        "the repository."
+    )
     code = "cannotDisseminateFormat"
 
 
@@ -36,7 +40,9 @@ class OAIBadToken(OAIException):
 
 
 class OAIBadArgument(OAIException):
-    msg = ("The request includes illegal arguments, is missing required"
-           " arguments, includes a repeated argument, or values for arguments"
-           "have an illegal syntax.")
+    msg = (
+        "The request includes illegal arguments, is missing required"
+        " arguments, includes a repeated argument, or values for arguments"
+        "have an illegal syntax."
+    )
     code = "badArgument"

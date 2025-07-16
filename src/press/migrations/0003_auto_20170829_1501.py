@@ -6,16 +6,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0002_auto_20170813_1302'),
-        ('comms', '0001_initial'),
+        ("press", "0002_auto_20170813_1302"),
+        ("comms", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='press',
-            name='carousel_news_items',
-            field=models.ManyToManyField(blank=True, null=True, to='comms.NewsItem'),
+            model_name="press",
+            name="carousel_news_items",
+            field=models.ManyToManyField(blank=True, null=True, to="comms.NewsItem"),
         ),
     ]

@@ -7,18 +7,30 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0013_auto_20180207_1525'),
+        ("core", "0013_auto_20180207_1525"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SupplementaryFile',
+            name="SupplementaryFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('doi', models.CharField(max_length=255)),
-                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.File')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("doi", models.CharField(max_length=255)),
+                (
+                    "file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="core.File"
+                    ),
+                ),
             ],
         ),
     ]

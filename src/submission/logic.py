@@ -28,7 +28,7 @@ def add_self_as_author(user, article):
 
 
 def add_user_as_author(user, article, give_role=True):
-    """ Assigns the given user as an author of the paper
+    """Assigns the given user as an author of the paper
     :param user: An instance of core.models.Account
     :param article: An instance of submission.models.Article
     :param give_role: If true, the user is given the author role in the journal
@@ -36,18 +36,20 @@ def add_user_as_author(user, article, give_role=True):
     raise DeprecationWarning("Use FrozenAuthor instead.")
     if give_role:
         submission_requires_authorisation = article.journal.get_setting(
-            group_name='general',
-            setting_name='limit_access_to_submission',
+            group_name="general",
+            setting_name="limit_access_to_submission",
         )
-        if submission_requires_authorisation and not user.check_role(article.journal, 'author'):
+        if submission_requires_authorisation and not user.check_role(
+            article.journal, "author"
+        ):
             role = core_models.Role.objects.get(
-                slug='author',
+                slug="author",
             )
             core_models.AccessRequest.objects.get_or_create(
                 journal=article.journal,
                 user=user,
                 role=role,
-                text='Automatic request as author added to an article.',
+                text="Automatic request as author added to an article.",
             )
         else:
             user.add_account_role("author", article.journal)
@@ -56,7 +58,7 @@ def add_user_as_author(user, article, give_role=True):
     models.ArticleAuthorOrder.objects.get_or_create(
         article=article,
         author=user,
-        defaults={'order': article.next_author_sort()},
+        defaults={"order": article.next_author_sort()},
     )
     if not article.correspondence_author:
         article.correspondence_author = user
@@ -73,30 +75,35 @@ def check_author_exists(email):
 
 
 def get_author(request, article):
-    author_id = request.GET.get('author')
+    author_id = request.GET.get("author")
     frozen_authors = article.frozen_authors()
     try:
         author = frozen_authors.get(pk=author_id)
-        return [author, 'author']
+        return [author, "author"]
     except models.FrozenAuthor.DoesNotExist:
         return [None, None]
 
 
 def get_agreement_text(journal):
-    pub_fees = setting_handler.get_setting('general', 'publication_fees', journal).value
-    sub_check = setting_handler.get_setting('general', 'submission_checklist', journal).value
-    copy_notice = setting_handler.get_setting('general', 'copyright_notice', journal).value
+    pub_fees = setting_handler.get_setting("general", "publication_fees", journal).value
+    sub_check = setting_handler.get_setting(
+        "general", "submission_checklist", journal
+    ).value
+    copy_notice = setting_handler.get_setting(
+        "general", "copyright_notice", journal
+    ).value
 
     return "{0}\n\n{1}\n\n{2}".format(pub_fees, sub_check, copy_notice)
 
 
 def check_file(uploaded_file, request, form):
-
     if not uploaded_file:
-        form.add_error(None, 'You must select a file.')
+        form.add_error(None, "You must select a file.")
         return False
 
-    submission_formats = setting_handler.get_setting('general', 'limit_manuscript_types', request.journal).value
+    submission_formats = setting_handler.get_setting(
+        "general", "limit_manuscript_types", request.journal
+    ).value
 
     if submission_formats:
         mime = files.guess_mime(str(uploaded_file.name))
@@ -104,7 +111,10 @@ def check_file(uploaded_file, request, form):
         if mime in files.EDITABLE_FORMAT:
             return True
         else:
-            form.add_error(None, _('You must upload a file that is either a Doc, Docx, RTF or ODT.'))
+            form.add_error(
+                None,
+                _("You must upload a file that is either a Doc, Docx, RTF or ODT."),
+            )
             return False
     else:
         return True
@@ -114,33 +124,40 @@ def get_text(soup, to_find):
     try:
         return soup.find(to_find).text
     except AttributeError:
-        return ''
+        return ""
 
 
 def parse_authors(soup):
-    authors = soup.find_all('contrib')
+    authors = soup.find_all("contrib")
     author_list = []
     for author in authors:
-        first_name = get_text(author, 'given-names')
-        last_name = get_text(author, 'surname')
-        email = get_text(author, 'email')
+        first_name = get_text(author, "given-names")
+        last_name = get_text(author, "surname")
+        email = get_text(author, "email")
 
         try:
-            aff_id = author.find('xref').get('rid', None)
-            aff = author.find('aff', attrs={'id': aff_id}).text
+            aff_id = author.find("xref").get("rid", None)
+            aff = author.find("aff", attrs={"id": aff_id}).text
         except AttributeError:
-            aff = get_text(author, 'aff')
+            aff = get_text(author, "aff")
 
-        author_list.append({'first_name': first_name, 'last_name': last_name, 'email': email, 'institution': aff})
+        author_list.append(
+            {
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
+                "institution": aff,
+            }
+        )
 
     return author_list
 
 
 def add_keywords(soup, article):
-    keywords = soup.find_all('kwd')
+    keywords = soup.find_all("kwd")
 
     for keyword in keywords:
-        if keyword.text not in [None, '', ' ']:
+        if keyword.text not in [None, "", " "]:
             obj, c = models.Keyword.objects.get_or_create(
                 word=str(keyword.text).strip(),
             )
@@ -148,22 +165,22 @@ def add_keywords(soup, article):
 
 
 def import_from_jats_xml(path, journal, first_author_is_primary=False):
-    raise DeprecationWarning(
-        "Use the JATS importer in the imports plugin instead."
-    )
+    raise DeprecationWarning("Use the JATS importer in the imports plugin instead.")
     with open(path) as file:
-        soup = BeautifulSoup(file, 'lxml-xml')
-        title = get_text(soup, 'article-title')
-        abstract = get_text(soup, 'abstract')
+        soup = BeautifulSoup(file, "lxml-xml")
+        title = get_text(soup, "article-title")
+        abstract = get_text(soup, "abstract")
         authors = parse_authors(soup)
-        section = get_text(soup, 'subj-group')
+        section = get_text(soup, "subj-group")
 
         try:
-            pub_date = soup.find('pub-date').get('iso-8601-date')
+            pub_date = soup.find("pub-date").get("iso-8601-date")
         except AttributeError:
             pub_date = None
 
-        section_obj, created = models.Section.objects.get_or_create(name=section, journal=journal)
+        section_obj, created = models.Section.objects.get_or_create(
+            name=section, journal=journal
+        )
 
         article = models.Article.objects.create(
             title=title,
@@ -174,24 +191,25 @@ def import_from_jats_xml(path, journal, first_author_is_primary=False):
         )
 
         for author in authors:
-            if not author.get('email') or author.get('email') == '':
-                author['email'] = '{first}.{last}@journal.com'.format(first=author.get('first_name'),
-                                                                      last=author.get('last_name'))
+            if not author.get("email") or author.get("email") == "":
+                author["email"] = "{first}.{last}@journal.com".format(
+                    first=author.get("first_name"), last=author.get("last_name")
+                )
             try:
-                author = core_models.Account.objects.get(Q(email=author['email']) | Q(username=author['email']))
+                author = core_models.Account.objects.get(
+                    Q(email=author["email"]) | Q(username=author["email"])
+                )
             except core_models.Account.DoesNotExist:
                 author = core_models.Account.objects.create(
-                    email=author['email'],
-                    username=author['email'],
-                    first_name=author['first_name'],
-                    last_name=author['last_name'],
-                    institution=author['institution']
+                    email=author["email"],
+                    username=author["email"],
+                    first_name=author["first_name"],
+                    last_name=author["last_name"],
+                    institution=author["institution"],
                 )
             article.authors.add(author)
             models.ArticleAuthorOrder.objects.create(
-                article=article,
-                author=author,
-                order=article.next_author_sort()
+                article=article, author=author, order=article.next_author_sort()
             )
 
         if first_author_is_primary and article.authors.all():
@@ -212,7 +230,9 @@ def get_current_field(request, field_id):
     """
     if field_id:
         if request.journal:
-            field = get_object_or_404(models.Field, pk=field_id, journal=request.journal)
+            field = get_object_or_404(
+                models.Field, pk=field_id, journal=request.journal
+            )
         else:
             field = get_object_or_404(models.Field, pk=field_id, press=request.press)
     else:
@@ -252,7 +272,7 @@ def save_field(request, form):
         new_field.press = request.press
 
     new_field.save()
-    messages.add_message(request, messages.SUCCESS, 'Field saved.')
+    messages.add_message(request, messages.SUCCESS, "Field saved.")
     return new_field
 
 
@@ -263,10 +283,12 @@ def delete_field(request):
     :return: None, adds a Message obejct to request
     """
 
-    delete_id = request.POST.get('delete')
+    delete_id = request.POST.get("delete")
     field_to_delete = get_current_field(request, delete_id)
     field_to_delete.delete()
-    messages.add_message(request, messages.SUCCESS, 'Field deleted. Existing answers will remain intact.')
+    messages.add_message(
+        request, messages.SUCCESS, "Field deleted. Existing answers will remain intact."
+    )
 
 
 def order_fields(request, fields):
@@ -277,7 +299,7 @@ def order_fields(request, fields):
     :return: None
     """
 
-    ids = [int(_id) for _id in request.POST.getlist('order[]')]
+    ids = [int(_id) for _id in request.POST.getlist("order[]")]
 
     for field in fields:
         order = ids.index(field.pk)
@@ -287,13 +309,11 @@ def order_fields(request, fields):
 
 def save_author_order(request, article):
     raise DeprecationWarning("Use save_frozen_author_order instead.")
-    author_pks = [int(pk) for pk in request.POST.getlist('authors[]')]
+    author_pks = [int(pk) for pk in request.POST.getlist("authors[]")]
     for author in article.authors.all():
         order = author_pks.index(author.pk)
         author_order, c = models.ArticleAuthorOrder.objects.get_or_create(
-            article=article,
-            author=author,
-            defaults={'order': order}
+            article=article, author=author, defaults={"order": order}
         )
 
         if not c:
@@ -309,24 +329,24 @@ def save_frozen_author_order(request, article):
              and change_order (enum: "top", "up", "down", "bottom")
     """
     changed = False
-    author_id = request.POST.get('author_pk')
+    author_id = request.POST.get("author_pk")
     try:
         author_id = int(author_id)
     except TypeError:
-        raise ValidationError('Invalid author ID submitted')
+        raise ValidationError("Invalid author ID submitted")
     author = get_object_or_404(
         models.FrozenAuthor,
         pk=author_id,
         article=article,
     )
-    change_order = request.POST.get('change_order')
+    change_order = request.POST.get("change_order")
     all_authors = list(article.frozenauthor_set.all())
     old_order = all_authors.index(author)
     new_orders = {
-        'top': 0,
-        'up': max(old_order - 1, 0),
-        'down': min(old_order + 1, len(all_authors) - 1),
-        'bottom': len(all_authors) - 1,
+        "top": 0,
+        "up": max(old_order - 1, 0),
+        "down": min(old_order + 1, len(all_authors) - 1),
+        "bottom": len(all_authors) - 1,
     }
     new_order = new_orders[change_order]
     if old_order != new_order:
@@ -341,23 +361,21 @@ def save_frozen_author_order(request, article):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _('%(author_name)s is now in '
-                     'position %(position)s.')
-                % {
-                    'author_name': author.full_name(),
-                    'position': str(author.order + 1),
-                },
+            _("%(author_name)s is now in position %(position)s.")
+            % {
+                "author_name": author.full_name(),
+                "position": str(author.order + 1),
+            },
         )
     else:
         messages.add_message(
             request,
             messages.INFO,
-            _('%(author_name)s is already in '
-                     'position %(position)s.')
-                % {
-                    'author_name': author.full_name(),
-                    'position': str(author.order + 1),
-                },
+            _("%(author_name)s is already in position %(position)s.")
+            % {
+                "author_name": author.full_name(),
+                "position": str(author.order + 1),
+            },
         )
     return author
 
@@ -400,7 +418,7 @@ def add_author_using_orcid(search_term, article, request):
                 email=email,
                 orcid__isnull=True,
             )
-            account.orcid=cleaned_orcid
+            account.orcid = cleaned_orcid
             account.save()
             author = account.snapshot_as_author(article)
             created = True
@@ -411,9 +429,9 @@ def add_author_using_orcid(search_term, article, request):
     # Otherwise, make one.
     form = EditFrozenAuthor(
         {
-            'frozen_email': orcid_emails[0] if orcid_emails else '',
-            'first_name': orcid_details.get('first_name', ''),
-            'last_name': orcid_details.get('last_name', ''),
+            "frozen_email": orcid_emails[0] if orcid_emails else "",
+            "first_name": orcid_details.get("first_name", ""),
+            "last_name": orcid_details.get("last_name", ""),
         }
     )
     if form.is_valid():
@@ -437,7 +455,7 @@ def add_author_affiliation_from_orcid(author, orcid_details, request):
         orcid_affil_form = OrcidAffiliationForm(
             orcid_affiliation=orcid_affils[0],
             tzinfo=tzinfo,
-            data={'frozen_author': author}
+            data={"frozen_author": author},
         )
         if orcid_affil_form.is_valid():
             affiliation = orcid_affil_form.save()
@@ -456,25 +474,26 @@ def add_author_from_search(search_term, request, article):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _('%(author_name)s is now an author.')
-                    % {
-                        "author_name": author.full_name(),
-                    },
+                _("%(author_name)s is now an author.")
+                % {
+                    "author_name": author.full_name(),
+                },
             )
         else:
             messages.add_message(
                 request,
                 messages.INFO,
-                _('%(author_name)s is already an author.')
-                    % {
-                        "author_name": author.full_name(),
-                    },
+                _("%(author_name)s is already an author.")
+                % {
+                    "author_name": author.full_name(),
+                },
             )
     else:
         messages.add_message(
-            request, messages.WARNING,
+            request,
+            messages.WARNING,
             _('No author found with search term: "%(search_term)s".')
-            % {"search_term" : search_term},
+            % {"search_term": search_term},
         )
 
     return author
@@ -487,9 +506,8 @@ def add_new_author_from_form(request, article):
     frozen_email = request.POST.get("frozen_email")
     if frozen_email:
         authors = models.FrozenAuthor.objects.filter(
-            Q(article=article) &
-            (Q(frozen_email=frozen_email) |
-            Q(author__username__iexact=frozen_email))
+            Q(article=article)
+            & (Q(frozen_email=frozen_email) | Q(author__username__iexact=frozen_email))
         )
         if authors.exists():
             author = authors.first()
@@ -501,18 +519,17 @@ def add_new_author_from_form(request, article):
         author.save()
     else:
         messages.add_message(
-            request, messages.WARNING,
-            _('Could not add the author manually.'),
+            request,
+            messages.WARNING,
+            _("Could not add the author manually."),
         )
 
     if author:
         messages.add_message(
-            request, messages.SUCCESS,
-            _('%(author_name)s (%(email)s) added to the article.')
-                % {
-                    "author_name": author.full_name(),
-                    "email": author.email
-                },
+            request,
+            messages.SUCCESS,
+            _("%(author_name)s (%(email)s) added to the article.")
+            % {"author_name": author.full_name(), "email": author.email},
         )
     return author
 
@@ -520,7 +537,7 @@ def add_new_author_from_form(request, article):
 def save_correspondence_author(request, article):
     account = get_object_or_404(
         core_models.Account,
-        pk=request.POST.get('corr_author', None),
+        pk=request.POST.get("corr_author", None),
         frozenauthor__article=article,
     )
     article.correspondence_author = account
@@ -528,11 +545,8 @@ def save_correspondence_author(request, article):
     messages.add_message(
         request,
         messages.SUCCESS,
-        _('%(author_name)s (%(email)s) made correspondence author.')
-            % {
-                "author_name": account.full_name(),
-                "email": account.email
-            },
+        _("%(author_name)s (%(email)s) made correspondence author.")
+        % {"author_name": account.full_name(), "email": account.email},
     )
     author = account.frozen_author(article)
     return author
@@ -553,11 +567,11 @@ def get_credit_form(request, author):
 
 
 def add_credit_role(request, article):
-    author_id = request.POST.get('author_pk')
+    author_id = request.POST.get("author_pk")
     try:
         author_id = int(author_id)
     except TypeError:
-        raise ValidationError('Invalid author ID submitted')
+        raise ValidationError("Invalid author ID submitted")
     author = get_object_or_404(
         models.FrozenAuthor,
         pk=author_id,
@@ -574,21 +588,21 @@ def add_credit_role(request, article):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _('%(author_name)s now has role %(role)s.')
-                % {
-                    "author_name": author.full_name(),
-                    "role": record.get_role_display(),
-                },
+            _("%(author_name)s now has role %(role)s.")
+            % {
+                "author_name": author.full_name(),
+                "role": record.get_role_display(),
+            },
         )
     return author
 
 
 def remove_credit_role(request, article):
-    credit_id = request.POST.get('credit_pk')
+    credit_id = request.POST.get("credit_pk")
     try:
         credit_id = int(credit_id)
     except TypeError:
-        raise ValidationError('Invalid credit ID submitted')
+        raise ValidationError("Invalid credit ID submitted")
     record = get_object_or_404(
         models.CreditRecord,
         pk=credit_id,
@@ -600,10 +614,10 @@ def remove_credit_role(request, article):
     messages.add_message(
         request,
         messages.SUCCESS,
-        _('%(author_name)s no longer has the role %(role)s.')
-            % {
-                "author_name": author.full_name(),
-                "role": role_display,
-            },
+        _("%(author_name)s no longer has the role %(role)s.")
+        % {
+            "author_name": author.full_name(),
+            "role": role_display,
+        },
     )
     return author

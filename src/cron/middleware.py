@@ -11,10 +11,9 @@ from utils.middleware import BaseMiddleware
 
 
 class CronMiddleware(BaseMiddleware):
-
     @staticmethod
     def process_request(request):
-        """ This middleware class calls the Cron runner to process scheduled tasks (like emails)
+        """This middleware class calls the Cron runner to process scheduled tasks (like emails)
 
         :param request: the current request
         :return: None

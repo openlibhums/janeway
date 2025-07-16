@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0106_remove_account_country_affiliation_organization'),
+        ("core", "0106_remove_account_country_affiliation_organization"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='controlledaffiliation',
-            options={'ordering': ['-is_primary', '-end', '-start', '-pk']},
+            name="controlledaffiliation",
+            options={"ordering": ["-is_primary", "-end", "-start", "-pk"]},
         ),
         migrations.AlterModelOptions(
-            name='organization',
+            name="organization",
             options={},
         ),
     ]

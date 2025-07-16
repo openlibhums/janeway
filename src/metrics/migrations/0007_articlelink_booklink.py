@@ -7,46 +7,89 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0039_auto_20191115_1253'),
-        ('metrics', '0006_auto_20190627_1412'),
+        ("submission", "0039_auto_20191115_1253"),
+        ("metrics", "0006_auto_20190627_1412"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ArticleLink',
+            name="ArticleLink",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('doi', models.CharField(max_length=255)),
-                ('object_type', models.CharField(choices=[('book', 'Book'), ('article', 'Article')], max_length=10)),
-                ('year', models.CharField(max_length=5)),
-                ('journal_title', models.TextField()),
-                ('journal_issn', models.CharField(max_length=20)),
-                ('article_title', models.TextField()),
-                ('volume', models.CharField(blank=True, max_length=10, null=True)),
-                ('issue', models.CharField(blank=True, max_length=10, null=True)),
-                ('article', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("doi", models.CharField(max_length=255)),
+                (
+                    "object_type",
+                    models.CharField(
+                        choices=[("book", "Book"), ("article", "Article")],
+                        max_length=10,
+                    ),
+                ),
+                ("year", models.CharField(max_length=5)),
+                ("journal_title", models.TextField()),
+                ("journal_issn", models.CharField(max_length=20)),
+                ("article_title", models.TextField()),
+                ("volume", models.CharField(blank=True, max_length=10, null=True)),
+                ("issue", models.CharField(blank=True, max_length=10, null=True)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='BookLink',
+            name="BookLink",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('doi', models.CharField(max_length=255)),
-                ('object_type', models.CharField(choices=[('book', 'Book'), ('article', 'Article')], max_length=10)),
-                ('year', models.CharField(max_length=5)),
-                ('title', models.TextField()),
-                ('isbn_print', models.TextField()),
-                ('isbn_electronic', models.TextField()),
-                ('component_number', models.TextField()),
-                ('article', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("doi", models.CharField(max_length=255)),
+                (
+                    "object_type",
+                    models.CharField(
+                        choices=[("book", "Book"), ("article", "Article")],
+                        max_length=10,
+                    ),
+                ),
+                ("year", models.CharField(max_length=5)),
+                ("title", models.TextField()),
+                ("isbn_print", models.TextField()),
+                ("isbn_electronic", models.TextField()),
+                ("component_number", models.TextField()),
+                (
+                    "article",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

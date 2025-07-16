@@ -8,16 +8,16 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
-    dependencies = [
-        ('journal', '0036_set_default_xslt'),
-        ('core', '0038_xslt_1-3-8')
-    ]
+    dependencies = [("journal", "0036_set_default_xslt"), ("core", "0038_xslt_1-3-8")]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='xsl',
-            field=models.ForeignKey(default=journal.models.default_xsl, on_delete=django.db.models.deletion.SET_DEFAULT, to='core.XSLFile'),
+            model_name="journal",
+            name="xsl",
+            field=models.ForeignKey(
+                default=journal.models.default_xsl,
+                on_delete=django.db.models.deletion.SET_DEFAULT,
+                to="core.XSLFile",
+            ),
         ),
     ]

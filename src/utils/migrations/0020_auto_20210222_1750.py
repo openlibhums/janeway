@@ -8,11 +8,13 @@ from django.utils import translation as _translation
 
 
 def migrate_plugin_settings(apps, schema_editor):
-    PluginSettingValue = apps.get_model('utils', 'PluginSettingValue')
-    PluginSettingValueTranslation = apps.get_model('utils', 'PluginSettingValueTranslation')
-    SettingGroup = apps.get_model('core', 'SettingGroup')
-    Setting = apps.get_model('core', 'Setting')
-    SettingValue = apps.get_model('core', 'SettingValue')
+    PluginSettingValue = apps.get_model("utils", "PluginSettingValue")
+    PluginSettingValueTranslation = apps.get_model(
+        "utils", "PluginSettingValueTranslation"
+    )
+    SettingGroup = apps.get_model("core", "SettingGroup")
+    Setting = apps.get_model("core", "Setting")
+    SettingValue = apps.get_model("core", "SettingValue")
 
     translations = PluginSettingValueTranslation.objects.all()
 
@@ -22,14 +24,14 @@ def migrate_plugin_settings(apps, schema_editor):
         )
         plugin_setting = plugin_setting_value.setting
 
-        plugin_group_name = 'plugin:{plugin_name}'.format(
+        plugin_group_name = "plugin:{plugin_name}".format(
             plugin_name=plugin_setting.plugin.name,
         )
         setting_group, c = SettingGroup.objects.get_or_create(
             name=plugin_group_name,
             defaults={
-                'enabled': True,
-            }
+                "enabled": True,
+            },
         )
         setting, c = Setting.objects.get_or_create(
             name=plugin_setting.name,
@@ -40,7 +42,9 @@ def migrate_plugin_settings(apps, schema_editor):
         )
         with _translation.override(settings.LANGUAGE_CODE):
             setting_value, c = SettingValue.objects.get_or_create(
-                journal=plugin_setting_value.journal if plugin_setting_value.journal else None,
+                journal=plugin_setting_value.journal
+                if plugin_setting_value.journal
+                else None,
                 setting=setting,
                 value=translation.value,
             )
@@ -54,11 +58,12 @@ def migrate_plugin_settings(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0019_upgrade_1_3_9'),
+        ("utils", "0019_upgrade_1_3_9"),
     ]
 
     operations = [
-        migrations.RunPython(migrate_plugin_settings, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            migrate_plugin_settings, reverse_code=migrations.RunPython.noop
+        ),
     ]

@@ -7,48 +7,136 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='NavigationItem',
+            name="NavigationItem",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('link_name', models.CharField(help_text='The text that will appear in the nav bar (e.g. “About” or “Research Integrity”)', max_length=100, verbose_name='Display name')),
-                ('link', models.CharField(max_length=100)),
-                ('is_external', models.BooleanField(default=False, help_text='Whether the link is to an external website.')),
-                ('sequence', models.IntegerField(default=99, help_text='The order in which custom nav items appear relative to other custom nav items. Note that fixed (default) nav items do not have a sequence field, so you have to replace them with custom elements to change their order.')),
-                ('has_sub_nav', models.BooleanField(default=False, help_text='Whether this item has sub-nav items under it.', verbose_name='Has sub navigation')),
-                ('content_type', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='nav_content', to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "link_name",
+                    models.CharField(
+                        help_text="The text that will appear in the nav bar (e.g. “About” or “Research Integrity”)",
+                        max_length=100,
+                        verbose_name="Display name",
+                    ),
+                ),
+                ("link", models.CharField(max_length=100)),
+                (
+                    "is_external",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Whether the link is to an external website.",
+                    ),
+                ),
+                (
+                    "sequence",
+                    models.IntegerField(
+                        default=99,
+                        help_text="The order in which custom nav items appear relative to other custom nav items. Note that fixed (default) nav items do not have a sequence field, so you have to replace them with custom elements to change their order.",
+                    ),
+                ),
+                (
+                    "has_sub_nav",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Whether this item has sub-nav items under it.",
+                        verbose_name="Has sub navigation",
+                    ),
+                ),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="nav_content",
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Page',
+            name="Page",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('name', models.CharField(help_text='Page name displayed in the URL bar eg. about or contact', max_length=300)),
-                ('display_name', models.CharField(help_text='Name of the page, in 100 characters or fewer, displayed in the nav and in the top-level heading on the page (e.g. “Research Integrity”).', max_length=100)),
-                ('content', models.TextField(blank=True, help_text='The content of the page. For headings, we recommend using the Style dropdown (looks like a wand) and selecting a heading level from 2 to 6, as the display name field occupies the place of heading level 1. Note that copying and pasting from a word processor can produce unwanted results, but you can use Remove Font Style (looks like an eraser) to remove some unwanted formatting. To edit the page as HTML, turn on the Code View (<>).', null=True)),
-                ('is_markdown', models.BooleanField(default=True)),
-                ('edited', models.DateTimeField(auto_now=True)),
-                ('content_type', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='page_content', to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Page name displayed in the URL bar eg. about or contact",
+                        max_length=300,
+                    ),
+                ),
+                (
+                    "display_name",
+                    models.CharField(
+                        help_text="Name of the page, in 100 characters or fewer, displayed in the nav and in the top-level heading on the page (e.g. “Research Integrity”).",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "content",
+                    models.TextField(
+                        blank=True,
+                        help_text="The content of the page. For headings, we recommend using the Style dropdown (looks like a wand) and selecting a heading level from 2 to 6, as the display name field occupies the place of heading level 1. Note that copying and pasting from a word processor can produce unwanted results, but you can use Remove Font Style (looks like an eraser) to remove some unwanted formatting. To edit the page as HTML, turn on the Code View (<>).",
+                        null=True,
+                    ),
+                ),
+                ("is_markdown", models.BooleanField(default=True)),
+                ("edited", models.DateTimeField(auto_now=True)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="page_content",
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='navigationitem',
-            name='page',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='cms.Page'),
+            model_name="navigationitem",
+            name="page",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="cms.Page",
+            ),
         ),
         migrations.AddField(
-            model_name='navigationitem',
-            name='top_level_nav',
-            field=models.ForeignKey(blank=True, help_text='If this is a sub-nav item, which top-level item should it go under?', null=True, on_delete=django.db.models.deletion.CASCADE, to='cms.NavigationItem', verbose_name='Top-level nav item'),
+            model_name="navigationitem",
+            name="top_level_nav",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="If this is a sub-nav item, which top-level item should it go under?",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="cms.NavigationItem",
+                verbose_name="Top-level nav item",
+            ),
         ),
     ]

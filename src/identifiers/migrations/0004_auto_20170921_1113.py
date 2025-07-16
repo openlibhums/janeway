@@ -7,21 +7,24 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0011_auto_20170921_0937'),
-        ('identifiers', '0003_brokendoi_journal'),
+        ("submission", "0011_auto_20170921_0937"),
+        ("identifiers", "0003_brokendoi_journal"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='brokendoi',
-            name='journal',
+            model_name="brokendoi",
+            name="journal",
         ),
         migrations.AddField(
-            model_name='brokendoi',
-            name='article',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="brokendoi",
+            name="article",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="submission.Article",
+            ),
             preserve_default=False,
         ),
     ]

@@ -11,24 +11,23 @@ from utils.testing import helpers
 
 
 class CoreFormTests(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
-        helpers.create_roles(['author', 'editor', 'reviewer'])
-        cls.user_email = 'qoeyl8xibelnmpnbv9xv@example.org'
-        cls.user_password = 'uui6xss390977tedm7cd'
+        helpers.create_roles(["author", "editor", "reviewer"])
+        cls.user_email = "qoeyl8xibelnmpnbv9xv@example.org"
+        cls.user_password = "uui6xss390977tedm7cd"
         cls.user = core_models.Account.objects.create_user(
             cls.user_email,
             password=cls.user_password,
         )
         cls.organization_bbk = core_models.Organization.objects.create(
-            ror_id='02mb95055',
+            ror_id="02mb95055",
         )
         cls.name_bbk_uol = core_models.OrganizationName.objects.create(
-            value='Birkbeck, University of London',
-            language='en',
+            value="Birkbeck, University of London",
+            language="en",
             ror_display_for=cls.organization_bbk,
             label_for=cls.organization_bbk,
         )
@@ -39,9 +38,9 @@ class CoreFormTests(TestCase):
 
     def test_account_affiliation_form_clean_checks_duplicates(self):
         post_kwargs = {
-            'title': 'Professor',
-            'department': 'English',
-            'is_primary': True,
+            "title": "Professor",
+            "department": "English",
+            "is_primary": True,
         }
         form = core_forms.AccountAffiliationForm(
             post_kwargs,

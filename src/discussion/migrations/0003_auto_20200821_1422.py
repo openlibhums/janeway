@@ -7,23 +7,22 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('discussion', '0002_auto_20200820_1400'),
+        ("discussion", "0002_auto_20200820_1400"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='post',
-            options={'ordering': ('-posted', 'pk')},
+            name="post",
+            options={"ordering": ("-posted", "pk")},
         ),
         migrations.AlterModelOptions(
-            name='thread',
-            options={'ordering': ('-started', 'pk')},
+            name="thread",
+            options={"ordering": ("-started", "pk")},
         ),
         migrations.AddField(
-            model_name='thread',
-            name='last_updated',
+            model_name="thread",
+            name="last_updated",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

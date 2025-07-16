@@ -7,16 +7,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0004_auto_20170813_1302'),
-        ('submission', '0005_field_width'),
+        ("journal", "0004_auto_20170813_1302"),
+        ("submission", "0005_field_width"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='field',
-            name='journal',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="field",
+            name="journal",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journal.Journal",
+            ),
         ),
     ]

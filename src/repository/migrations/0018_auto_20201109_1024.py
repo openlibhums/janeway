@@ -6,15 +6,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0017_auto_20200930_1629'),
+        ("repository", "0017_auto_20200930_1629"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='repositoryfield',
-            name='input_type',
-            field=models.CharField(choices=[('text', 'Text'), ('select', 'Dropdown'), ('checkbox', 'Checkbox'), ('number', 'Number'), ('date', 'Date'), ('textarea', 'Text Area')], max_length=255),
+            model_name="repositoryfield",
+            name="input_type",
+            field=models.CharField(
+                choices=[
+                    ("text", "Text"),
+                    ("select", "Dropdown"),
+                    ("checkbox", "Checkbox"),
+                    ("number", "Number"),
+                    ("date", "Date"),
+                    ("textarea", "Text Area"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

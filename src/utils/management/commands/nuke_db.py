@@ -6,12 +6,12 @@ from core import models as core_models
 
 
 class Command(BaseCommand):
-    """ A management command to nuke the current DB."""
+    """A management command to nuke the current DB."""
 
     help = "Nukes the current DB. Deletes all journals and settings. Dangerous."
 
     def handle(self, *args, **options):
-        """ Deletes all current journals and reinstalls the press.
+        """Deletes all current journals and reinstalls the press.
 
         :param args: None
         :param options: None.
@@ -23,4 +23,4 @@ class Command(BaseCommand):
         core_models.SettingValue.objects.all().delete()
         core_models.Setting.objects.all().delete()
 
-        call_command('show_configured_journals')
+        call_command("show_configured_journals")

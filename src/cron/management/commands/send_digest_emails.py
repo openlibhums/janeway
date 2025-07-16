@@ -13,7 +13,6 @@ class Command(BaseCommand):
     help = "Sends digest emails"
 
     def handle(self, *args, **options):
-
         journals = journal_models.Journal.objects.all()
 
         for journal in journals:
@@ -23,15 +22,17 @@ class Command(BaseCommand):
 
             for user in users:
                 print("Processing user {0}".format(user.full_name()))
-                user_roles = models.AccountRole.objects.filter(user=user, journal=journal)
+                user_roles = models.AccountRole.objects.filter(
+                    user=user, journal=journal
+                )
 
-                text = ''
+                text = ""
                 for user_role in user_roles:
                     print("Processing role {0}".format(user_role.role.name))
 
                     items = logic.process_digest_items(journal, user_role)
                     if items:
-                        text = text + '\n\n' + items
+                        text = text + "\n\n" + items
 
                 print(text)
                 print("-------------------------------------------")

@@ -7,25 +7,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0001_initial'),
+        ("press", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='password_length',
-            field=models.PositiveIntegerField(default=12, validators=[django.core.validators.MinValueValidator(9)]),
+            model_name="press",
+            name="password_length",
+            field=models.PositiveIntegerField(
+                default=12, validators=[django.core.validators.MinValueValidator(9)]
+            ),
         ),
         migrations.AddField(
-            model_name='press',
-            name='password_number',
-            field=models.BooleanField(default=False, help_text='If set, passwords must include one number.'),
+            model_name="press",
+            name="password_number",
+            field=models.BooleanField(
+                default=False, help_text="If set, passwords must include one number."
+            ),
         ),
         migrations.AddField(
-            model_name='press',
-            name='password_upper',
-            field=models.BooleanField(default=False, help_text='If set, passwords must include one upper case.'),
+            model_name="press",
+            name="password_upper",
+            field=models.BooleanField(
+                default=False,
+                help_text="If set, passwords must include one upper case.",
+            ),
         ),
     ]

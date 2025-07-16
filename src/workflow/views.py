@@ -21,32 +21,30 @@ def manage_article_workflow(request, article_id):
     """
 
     article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal
+        submission_models.Article, pk=article_id, journal=request.journal
     )
 
     if request.POST:
-        if 'stage_to' in request.POST:
-            stage_to = request.POST.get('stage_to')
+        if "stage_to" in request.POST:
+            stage_to = request.POST.get("stage_to")
             stages_to_process = logic.move_to_stage(
                 article.stage,
                 stage_to,
                 article,
             )
 
-            stages_string = ', '.join(stages_to_process)
+            stages_string = ", ".join(stages_to_process)
 
             messages.add_message(
                 request,
                 messages.INFO,
-                'Processing: {}'.format(stages_string),
+                "Processing: {}".format(stages_string),
             )
-        elif 'archive' in request.POST:
+        elif "archive" in request.POST:
             utils_models.LogEntry.add_entry(
-                types='Workflow',
-                description='Article has been archived.',
-                level='Info',
+                types="Workflow",
+                description="Article has been archived.",
+                level="Info",
                 actor=request.user,
                 target=article,
             )
@@ -55,19 +53,16 @@ def manage_article_workflow(request, article_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Article has been archived.',
+                "Article has been archived.",
             )
 
         return redirect(
-            reverse(
-                'manage_article_workflow',
-                kwargs={'article_id': article.pk}
-            )
+            reverse("manage_article_workflow", kwargs={"article_id": article.pk})
         )
 
-    template = 'workflow/manage_article_workflow.html'
+    template = "workflow/manage_article_workflow.html"
     context = {
-        'article': article,
+        "article": article,
     }
 
     return render(request, template, context)
@@ -78,25 +73,23 @@ def manage_article_workflow(request, article_id):
 @editor_user_required
 def move_to_next_workflow_element(request, article_id):
     article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        journal=request.journal
+        submission_models.Article, pk=article_id, journal=request.journal
     )
 
-    current_stage = request.POST.get('current_stage', None)
+    current_stage = request.POST.get("current_stage", None)
     if current_stage != article.stage:
         messages.add_message(
             request,
             messages.ERROR,
-            'Could not change stage or duplicate request.',
+            "Could not change stage or duplicate request.",
         )
         return redirect(article.current_workflow_element_url)
 
     workflow_kwargs = {
-        'handshake_url': article.current_workflow_element.handshake_url,
-        'request': request,
-        'article': article,
-        'switch_stage': True
+        "handshake_url": article.current_workflow_element.handshake_url,
+        "request": request,
+        "article": article,
+        "switch_stage": True,
     }
 
     return event_logic.Events.raise_event(

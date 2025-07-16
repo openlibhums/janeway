@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0012_navigationitem_for_footer'),
+        ("cms", "0012_navigationitem_for_footer"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='page',
-            name='template',
-            field=models.CharField(blank=True, help_text='The custom template to use instead of the content field.', max_length=100),
+            model_name="page",
+            name="template",
+            field=models.CharField(
+                blank=True,
+                help_text="The custom template to use instead of the content field.",
+                max_length=100,
+            ),
         ),
     ]

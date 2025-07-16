@@ -33,15 +33,17 @@ def reminders_index(request):
     """
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
-    if 'delete' in request.POST:
-        reminder_id = request.POST.get('delete')
-        reminder = get_object_or_404(models.Reminder, pk=reminder_id, journal=request.journal)
+    if "delete" in request.POST:
+        reminder_id = request.POST.get("delete")
+        reminder = get_object_or_404(
+            models.Reminder, pk=reminder_id, journal=request.journal
+        )
         reminder.delete()
-        return redirect(reverse('cron_reminders'))
+        return redirect(reverse("cron_reminders"))
 
-    template = 'cron/reminders.html'
+    template = "cron/reminders.html"
     context = {
-        'reminders': reminders,
+        "reminders": reminders,
     }
 
     return render(request, template, context)
@@ -57,7 +59,9 @@ def manage_reminder(request, reminder_id=None):
     """
     reminder = None
     if reminder_id:
-        reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
+        reminder = get_object_or_404(
+            models.Reminder, journal=request.journal, pk=reminder_id
+        )
     reminders = models.Reminder.objects.filter(journal=request.journal)
 
     form = forms.ReminderForm(
@@ -77,22 +81,23 @@ def manage_reminder(request, reminder_id=None):
             # Check if the template exists and redirect accordingly.
             check_template = logic.check_template_exists(request, reminder)
             if check_template:
-                return redirect(reverse('cron_reminders'))
+                return redirect(reverse("cron_reminders"))
             else:
                 return redirect(
                     reverse(
-                        'cron_create_template',
+                        "cron_create_template",
                         kwargs={
-                            'reminder_id': reminder.pk, 'template_name': reminder.template_name
-                        }
+                            "reminder_id": reminder.pk,
+                            "template_name": reminder.template_name,
+                        },
                     )
                 )
 
-    template = 'cron/manage_reminder.html'
+    template = "cron/manage_reminder.html"
     context = {
-        'reminder': reminder,
-        'reminders': reminders,
-        'form': form,
+        "reminder": reminder,
+        "reminders": reminders,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -107,25 +112,36 @@ def create_template(request, reminder_id, template_name):
     :param template_name: string, Reminder.template string
     :return: if POST HttpRedirect otherwise HttpResponse
     """
-    reminder = get_object_or_404(models.Reminder, journal=request.journal, pk=reminder_id)
+    reminder = get_object_or_404(
+        models.Reminder, journal=request.journal, pk=reminder_id
+    )
 
     try:
-        text = setting_handler.get_setting('email', template_name, request.journal).value
+        text = setting_handler.get_setting(
+            "email", template_name, request.journal
+        ).value
     except core_models.Setting.DoesNotExist:
-        text = ''
+        text = ""
 
     if request.POST:
-        template = request.POST.get('template')
-        setting_handler.create_setting('email', template_name, 'rich-text', reminder.subject, '', is_translatable=True)
-        setting_handler.save_setting('email', template_name, request.journal, template)
+        template = request.POST.get("template")
+        setting_handler.create_setting(
+            "email",
+            template_name,
+            "rich-text",
+            reminder.subject,
+            "",
+            is_translatable=True,
+        )
+        setting_handler.save_setting("email", template_name, request.journal, template)
 
-        return redirect(reverse('cron_reminders'))
+        return redirect(reverse("cron_reminders"))
 
-    template = 'cron/create_template.html'
+    template = "cron/create_template.html"
     context = {
-        'reminder': reminder,
-        'template_name': template_name,
-        'text': text,
+        "reminder": reminder,
+        "template_name": template_name,
+        "text": text,
     }
 
     return render(request, template, context)
@@ -134,25 +150,22 @@ def create_template(request, reminder_id, template_name):
 @has_journal
 @editor_user_required
 def readers_index(request):
-
     switch_value = setting_handler.get_setting(
-        'notifications',
-        'send_reader_notifications',
-        request.journal
+        "notifications", "send_reader_notifications", request.journal
     ).value
 
-    readers = request.journal.users_with_role('reader')
+    readers = request.journal.users_with_role("reader")
     content_type = ContentType.objects.get_for_model(request.journal)
     reader_notifications = utils_models.LogEntry.objects.filter(
-        types='Publication Notification',
+        types="Publication Notification",
         content_type=content_type,
         object_id=request.journal.pk,
     )
-    template = 'admin/cron/readers.html'
+    template = "admin/cron/readers.html"
     context = {
-        'send_reader_notifications': switch_value,
-        'readers': readers,
-        'reader_notifications': reader_notifications,
+        "send_reader_notifications": switch_value,
+        "readers": readers,
+        "reader_notifications": reader_notifications,
     }
     return render(
         request,

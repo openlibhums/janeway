@@ -15,7 +15,8 @@ def update_settings_group(apps, setting_names, from_group, to_group):
     SettingGroup = apps.get_model("core", "SettingGroup")
     setting_group, _ = SettingGroup.objects.get_or_create(name=to_group)
     Setting.objects.filter(
-        name__in=STYLING_SETTINGS, group__name=from_group,
+        name__in=STYLING_SETTINGS,
+        group__name=from_group,
     ).update(group=setting_group)
 
 
@@ -28,9 +29,8 @@ def styling_to_general(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0060_remove_display_about_on_submissions'),
+        ("core", "0060_remove_display_about_on_submissions"),
     ]
 
     operations = [

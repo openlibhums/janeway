@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0032_auto_20190304_0916'),
+        ("submission", "0032_auto_20190304_0916"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='frozenauthor',
-            name='is_corporate',
-            field=models.BooleanField(default=False, help_text='If enabled, the institution and department fields will be used as the author full name'),
+            model_name="frozenauthor",
+            name="is_corporate",
+            field=models.BooleanField(
+                default=False,
+                help_text="If enabled, the institution and department fields will be used as the author full name",
+            ),
         ),
     ]

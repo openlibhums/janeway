@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0063_fix_review_accept_ack'),
+        ("core", "0063_fix_review_accept_ack"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='institution',
-            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='Institution'),
+            model_name="account",
+            name="institution",
+            field=models.CharField(
+                blank=True, max_length=1000, null=True, verbose_name="Institution"
+            ),
         ),
     ]

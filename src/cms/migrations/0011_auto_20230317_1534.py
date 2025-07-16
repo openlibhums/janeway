@@ -5,21 +5,30 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0081_alter_account_preferred_timezone'),
-        ('cms', '0010_auto_20230208_1233'),
+        ("core", "0081_alter_account_preferred_timezone"),
+        ("cms", "0010_auto_20230208_1233"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='navigationitem',
-            name='page',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='cms.page'),
+            model_name="navigationitem",
+            name="page",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="cms.page",
+            ),
         ),
         migrations.AlterField(
-            model_name='submissionitem',
-            name='existing_setting',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.setting'),
+            model_name="submissionitem",
+            name="existing_setting",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.setting",
+            ),
         ),
     ]

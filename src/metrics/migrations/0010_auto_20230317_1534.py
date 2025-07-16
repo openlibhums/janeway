@@ -5,24 +5,28 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0081_alter_account_preferred_timezone'),
-        ('metrics', '0009_fix_metrics_galley_type'),
+        ("core", "0081_alter_account_preferred_timezone"),
+        ("metrics", "0009_fix_metrics_galley_type"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='articleaccess',
-            options={'verbose_name_plural': 'article access events'},
+            name="articleaccess",
+            options={"verbose_name_plural": "article access events"},
         ),
         migrations.AlterModelOptions(
-            name='historicarticleaccess',
-            options={'verbose_name_plural': 'historic article access events'},
+            name="historicarticleaccess",
+            options={"verbose_name_plural": "historic article access events"},
         ),
         migrations.AlterField(
-            model_name='articleaccess',
-            name='country',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.country'),
+            model_name="articleaccess",
+            name="country",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.country",
+            ),
         ),
     ]

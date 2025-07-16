@@ -6,19 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0006_auto_20200810_1426'),
+        ("repository", "0006_auto_20200810_1426"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprint',
-            name='subject',
+            model_name="preprint",
+            name="subject",
         ),
         migrations.AddField(
-            model_name='preprint',
-            name='subject',
-            field=models.ManyToManyField(to='repository.Subject'),
+            model_name="preprint",
+            name="subject",
+            field=models.ManyToManyField(to="repository.Subject"),
         ),
     ]

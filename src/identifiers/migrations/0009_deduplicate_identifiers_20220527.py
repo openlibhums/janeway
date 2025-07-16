@@ -12,11 +12,19 @@ def deduplicate_identifiers(apps, schema_editor):
     articles = Article.objects.all()
     for article in articles:
         identifiers_for_article = Identifier.objects.filter(article=article)
-        for id_type in ['doi', 'uri', 'pubid']:
+        for id_type in ["doi", "uri", "pubid"]:
             identifiers_of_type = identifiers_for_article.filter(id_type=id_type)
-            for doi_string in set(identifiers_of_type.values_list('identifier', flat=True)):
-                to_keep = identifiers_of_type.filter(identifier=doi_string).order_by('-pk').first()
-                duplicates = identifiers_of_type.filter(identifier=doi_string).exclude(pk=to_keep.pk)
+            for doi_string in set(
+                identifiers_of_type.values_list("identifier", flat=True)
+            ):
+                to_keep = (
+                    identifiers_of_type.filter(identifier=doi_string)
+                    .order_by("-pk")
+                    .first()
+                )
+                duplicates = identifiers_of_type.filter(identifier=doi_string).exclude(
+                    pk=to_keep.pk
+                )
                 if duplicates:
                     # print('\n\n\n')
                     # print('To keep:')
@@ -31,9 +39,11 @@ def deduplicate_identifiers(apps, schema_editor):
 class Migration(migrations.Migration):
     atomic = False
     dependencies = [
-        ('identifiers', '0008_batch_doi_registration_continued_20220524'),
+        ("identifiers", "0008_batch_doi_registration_continued_20220524"),
     ]
 
     operations = [
-        migrations.RunPython(deduplicate_identifiers, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            deduplicate_identifiers, reverse_code=migrations.RunPython.noop
+        ),
     ]

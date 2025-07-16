@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0010_auto_20200428_1701'),
+        ("typesetting", "0010_auto_20200428_1701"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='galleyproofing',
-            name='task',
-            field=models.TextField(help_text='Add any additional information or instructions for the proofreader here.', verbose_name='Proofing Task'),
+            model_name="galleyproofing",
+            name="task",
+            field=models.TextField(
+                help_text="Add any additional information or instructions for the proofreader here.",
+                verbose_name="Proofing Task",
+            ),
         ),
     ]

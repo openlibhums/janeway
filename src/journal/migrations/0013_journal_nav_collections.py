@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0012_auto_20180824_1025'),
+        ("journal", "0012_auto_20180824_1025"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='nav_collections',
+            model_name="journal",
+            name="nav_collections",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -12,20 +12,26 @@ from submission import models as submission_models
 
 
 class ProductionAssignment(models.Model):
-    article = models.OneToOneField('submission.Article', on_delete=models.CASCADE)
-    production_manager = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL)
-    editor = models.ForeignKey('core.Account', null=True, on_delete=models.SET_NULL, related_name='prod_editor')
+    article = models.OneToOneField("submission.Article", on_delete=models.CASCADE)
+    production_manager = models.ForeignKey(
+        "core.Account", null=True, on_delete=models.SET_NULL
+    )
+    editor = models.ForeignKey(
+        "core.Account", null=True, on_delete=models.SET_NULL, related_name="prod_editor"
+    )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
     closed = models.DateField(blank=True, null=True)
 
-    accepted_by_manager = models.ForeignKey('TypesetTask', null=True, blank=True, on_delete=models.SET_NULL)
+    accepted_by_manager = models.ForeignKey(
+        "TypesetTask", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     class Meta:
-        unique_together = ('article', 'production_manager')
+        unique_together = ("article", "production_manager")
 
     def __str__(self):
-        return 'PM Assignment {pk}'.format(pk=self.pk)
+        return "PM Assignment {pk}".format(pk=self.pk)
 
     def typeset_tasks(self):
         return self.typesettask_set.all()
@@ -39,8 +45,10 @@ class ProductionAssignment(models.Model):
 
 class ActiveTypesetTaskManager(models.Manager):
     def get_queryset(self):
-        return super(ActiveTypesetTaskManager, self).get_queryset().exclude(
-            assignment__article__stage=submission_models.STAGE_ARCHIVED
+        return (
+            super(ActiveTypesetTaskManager, self)
+            .get_queryset()
+            .exclude(assignment__article__stage=submission_models.STAGE_ARCHIVED)
         )
 
 
@@ -50,7 +58,7 @@ class TypesetTask(models.Model):
         on_delete=models.CASCADE,
     )
     typesetter = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -65,18 +73,18 @@ class TypesetTask(models.Model):
         verbose_name="Typesetting Task",
     )
     files_for_typesetting = models.ManyToManyField(
-        'core.File',
-        related_name='files_for_typesetting',
+        "core.File",
+        related_name="files_for_typesetting",
     )
     galleys_loaded = models.ManyToManyField(
-        'core.File',
+        "core.File",
         blank=True,
-        related_name='galleys_loaded',
+        related_name="galleys_loaded",
     )
     note_from_typesetter = models.TextField(
         blank=True,
         null=True,
-        verbose_name='Note to Editor',
+        verbose_name="Note to Editor",
     )
     completed = models.DateTimeField(blank=True, null=True)
 
@@ -115,13 +123,13 @@ class TypesetTask(models.Model):
         return False
 
     FRIENDLY_STATUSES = {
-            "assigned": "Awaiting response",
-            "accepted": "Task accepted",
-            "declined": "Task declined",
-            "completed": "Task completed",
-            "closed": "Task closed",
-            "unknown": "Task status unknown",
-        }
+        "assigned": "Awaiting response",
+        "accepted": "Task accepted",
+        "declined": "Task declined",
+        "completed": "Task completed",
+        "closed": "Task closed",
+        "unknown": "Task status unknown",
+    }
 
     @property
     def friendly_status(self):

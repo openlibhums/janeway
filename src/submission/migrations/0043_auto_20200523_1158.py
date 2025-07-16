@@ -6,23 +6,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0042_auto_20200423_1534'),
+        ("submission", "0042_auto_20200423_1534"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='article',
-            managers=[
-            ],
+            name="article",
+            managers=[],
         ),
         migrations.RemoveField(
-            model_name='article',
-            name='is_preprint',
+            model_name="article",
+            name="is_preprint",
         ),
         migrations.RemoveField(
-            model_name='article',
-            name='preprint_decision_notification',
+            model_name="article",
+            name="preprint_decision_notification",
         ),
     ]

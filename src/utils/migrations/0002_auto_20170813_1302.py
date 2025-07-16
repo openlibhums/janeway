@@ -7,21 +7,20 @@ import django.db.models.manager
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0001_initial'),
+        ("utils", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='pluginsettingvalue',
-            options={'base_manager_name': '_plain_manager'},
+            name="pluginsettingvalue",
+            options={"base_manager_name": "_plain_manager"},
         ),
         migrations.AlterModelManagers(
-            name='pluginsettingvalue',
+            name="pluginsettingvalue",
             managers=[
-                ('objects', django.db.models.manager.Manager()),
-                ('_plain_manager', django.db.models.manager.Manager()),
+                ("objects", django.db.models.manager.Manager()),
+                ("_plain_manager", django.db.models.manager.Manager()),
             ],
         ),
     ]

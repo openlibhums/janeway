@@ -11,12 +11,12 @@ def load_settings(instance, force=True):
     """
     path = os.path.join(
         settings.BASE_DIR,
-        'utils/install/repository_settings.json',
+        "utils/install/repository_settings.json",
     )
     with codecs.open(
-            os.path.join(path),
-            'r+',
-            encoding='utf-8',
+        os.path.join(path),
+        "r+",
+        encoding="utf-8",
     ) as json_data:
         repo_settings = json.load(json_data)
 

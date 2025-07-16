@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0016_auto_20240312_0922'),
-        ('cms', '0017_historicalpage_template'),
+        ("cms", "0016_auto_20240312_0922"),
+        ("cms", "0017_historicalpage_template"),
     ]
 
-    operations = [
-    ]
+    operations = []
