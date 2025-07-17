@@ -363,8 +363,8 @@ class Request(object):
     client-server request loop.
     """
 
-    def __init__(self):
-        self.journal = None
+    def __init__(self, journal=None):
+        self.journal = journal
         self.site_type = None
         self.port = 8000
         self.secure = False

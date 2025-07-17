@@ -455,21 +455,21 @@ msgstr ""
 #, fuzzy
 #| msgid "Title"
 msgid "Titles A-Z"
-msgstr "Titre"
+msgstr "Titres A-Z"
 
 #: src/journal/forms.py:22 src/journal/views.py:2630
 #, fuzzy
 #| msgid "Title"
 msgid "Titles Z-A"
-msgstr "Titre"
+msgstr "Titres Z-A"
 
 #: src/journal/forms.py:23 src/journal/views.py:2627
 msgid "Newest"
-msgstr ""
+msgstr "Plus récent"
 
 #: src/journal/forms.py:24 src/journal/views.py:2628
 msgid "Oldest"
-msgstr ""
+msgstr "Plus ancien"
 
 #: src/journal/forms.py:97
 #: src/themes/clean/templates/core/homepage_elements/search_bar.html:20
@@ -488,7 +488,7 @@ msgstr "Article vedette"
 #, fuzzy
 #| msgid "Abstract"
 msgid "Search Abstract"
-msgstr "Abstrait"
+msgstr "Résumé"
 
 #: src/journal/forms.py:100
 #, fuzzy
@@ -515,10 +515,8 @@ msgstr "Chercher"
 #: src/journal/forms.py:104 src/templates/common/elements/sorting.html:16
 #: src/themes/clean/templates/elements/sorting.html:17
 #: src/themes/material/templates/elements/sorting.html:31
-#, fuzzy
-#| msgid "Article Files"
 msgid "Sort results by"
-msgstr "Fichiers d'article"
+msgstr "Trier les résultats par"
 
 #: src/journal/logic.py:212
 msgid "Articles without a section cannot be added to an issue."
@@ -730,16 +728,11 @@ msgid "Proofing file uploaded."
 msgstr "Aucun fichier envoyé"
 
 #: src/journal/views.py:2603
-#, fuzzy
-#| msgid "Published on"
 msgid "Published after"
-msgstr "Publié le"
+msgstr "Publié après"
 
-#: src/journal/views.py:2607
-#, fuzzy
-#| msgid "Published on"
 msgid "Published before"
-msgstr "Publié le"
+msgstr "Publié avant"
 
 #: src/journal/views.py:2612
 #: src/templates/admin/submission/submit_review.html:70
@@ -749,14 +742,12 @@ msgstr "Section"
 #: src/journal/views.py:2631 src/themes/OLH/templates/repository/list.html:77
 #: src/themes/material/templates/preprints/list.html:80
 #: src/themes/material/templates/repository/list.html:61
-#, fuzzy
-#| msgid "Author"
 msgid "Author Name"
-msgstr "Auteur"
+msgstr "Nom de l’auteur"
 
 #: src/journal/views.py:2632
 msgid "Volume"
-msgstr "Tome"
+msgstr "Volume"
 
 #: src/plugins_bak/typesetting/forms.py:16
 #, fuzzy
@@ -1247,7 +1238,7 @@ msgstr ""
 #: src/themes/material/templates/journal/new_search.html:17
 #: src/themes/material/templates/journal/search.html:19
 msgid "Articles"
-msgstr "Des articles"
+msgstr "Les articles"
 
 #: src/templates/admin/core/manager/sections/section_articles.html:21
 msgid "Back"
@@ -1630,8 +1621,6 @@ msgstr "Représentants des revues"
 #: src/themes/OLH/templates/journal/contact.html:21
 #: src/themes/clean/templates/journal/contact.html:16
 #: src/themes/material/templates/journal/contact.html:25
-#, fuzzy
-#| msgid "Article Information"
 msgid "Contact Information"
 msgstr "Renseignements sur l'article"
 
@@ -2737,7 +2726,7 @@ msgstr ""
 #: src/themes/material/templates/preprints/article.html:43
 #: src/themes/material/templates/repository/preprint.html:157
 msgid "Abstract"
-msgstr "Abstrait"
+msgstr "Résumé"
 
 #: src/templates/admin/submission/submit_review.html:68
 msgid "Language"
@@ -2847,7 +2836,7 @@ msgstr "Renseignements sur l'article"
 #, fuzzy
 #| msgid "Issue"
 msgid "Issues"
-msgstr "Publication"
+msgstr "numéros"
 
 #: src/templates/common/elements/journal/article_issue_list.html:4
 #: src/themes/OLH/templates/403.html:4
@@ -2856,7 +2845,7 @@ msgstr "Publication"
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:8
 #: src/themes/material/templates/journal/issue.html:8
 msgid "Issue"
-msgstr "Publication"
+msgstr "numéro"
 
 #: src/templates/common/elements/journal/article_issue_list.html:10
 msgid "Primary: "
@@ -2881,7 +2870,14 @@ msgid_plural ""
 "                    %(result_count)s results\n"
 "                "
 msgstr[0] ""
+"\n"
+"                    1 résultat\n"
+"                "
 msgstr[1] ""
+"\n"
+"                    %(result_count)s résultats\n"
+"                "
+
 
 #: src/themes/OLH/templates/403.html:13 src/themes/clean/templates/403.html:11
 msgid "Maintenance Mode"
@@ -3636,7 +3632,7 @@ msgstr "Filtre"
 #: src/themes/OLH/templates/elements/journal/article_list_filters.html:9
 #: src/themes/clean/templates/elements/journal/article_list_filters.html:10
 msgid "Apply"
-msgstr ""
+msgstr "Appliquer"
 
 #: src/themes/OLH/templates/elements/journal/authors_block.html:4
 #: src/themes/clean/templates/elements/journal/authors_block.html:4
@@ -4085,14 +4081,14 @@ msgstr ""
 #: src/themes/OLH/templates/journal/article.html:383
 #: src/themes/material/templates/journal/article.html:434
 msgid "Identifiers"
-msgstr ""
+msgstr "Identifiants"
 
-#: src/themes/OLH/templates/journal/article.html:393
+
+#: src/themes/OLH/templates/journal/article.html:378
+#: src/themes/OLH/templates/journal/article.html:315
 #: src/themes/material/templates/journal/article.html:326
-#, fuzzy
-#| msgid "Publication Fees"
 msgid "Publication details"
-msgstr "Frais de publication"
+msgstr "Détails de publication"
 
 #: src/themes/OLH/templates/journal/article.html:396
 #: src/themes/clean/templates/journal/article.html:227
@@ -4179,7 +4175,7 @@ msgstr "Fichiers d'article"
 #, fuzzy
 #| msgid "Articles"
 msgid "Pinned Articles"
-msgstr "Des articles"
+msgstr "Les articles"
 
 #: src/themes/OLH/templates/journal/articles.html:39
 msgid "There are no articles published in this journal yet"
@@ -5336,9 +5332,16 @@ msgstr ""
 #, fuzzy
 #~| msgid "Volume"
 #~ msgid "Vol"
-#~ msgstr "Tome"
+#~ msgstr "Volume"
 
 #, fuzzy
 #~| msgid "Country"
 #~ msgid "Countries..."
 #~ msgstr "Des pays"
+
+
+#: src/themes/OLH/templates/elements/journal/article_list_filters.html:10
+msgid "Clear all"
+msgstr "Effacer tout"
+
+
