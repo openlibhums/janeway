@@ -2695,7 +2695,7 @@ msgstr ""
 
 #: src/journal/views.py:2632
 msgid "Volume"
-msgstr ""
+msgstr "Volumen"
 
 #: src/journal/models.py:532
 msgid "Please add as much detail as you can."
@@ -3005,12 +3005,12 @@ msgstr ""
 #: src/themes/OLH/templates/journal/article.html:383
 #: src/themes/material/templates/journal/article.html:434
 msgid "Identifiers"
-msgstr ""
+msgstr "Identificadores"
 
 #: src/themes/OLH/templates/journal/article.html:393
 #: src/themes/material/templates/journal/article.html:326
 msgid "Publication details"
-msgstr ""
+msgstr "Detalles de publicación"
 
 #: src/themes/OLH/templates/journal/article.html:396
 #: src/themes/clean/templates/journal/article.html:227
@@ -3433,19 +3433,19 @@ msgstr ""
 
 #: src/journal/forms.py:21 src/journal/views.py:2629
 msgid "Titles A-Z"
-msgstr ""
+msgstr "Títulos A-Z"
 
 #: src/journal/forms.py:22 src/journal/views.py:2630
 msgid "Titles Z-A"
-msgstr ""
+msgstr "Títulos Z-A"
 
 #: src/journal/forms.py:23 src/journal/views.py:2627
 msgid "Newest"
-msgstr ""
+msgstr "Más reciente"
 
 #: src/journal/forms.py:24 src/journal/views.py:2628
 msgid "Oldest"
-msgstr ""
+msgstr "Más antiguo,"
 
 #: src/journal/forms.py:97
 #: src/themes/clean/templates/core/homepage_elements/search_bar.html:20
@@ -3480,7 +3480,7 @@ msgstr ""
 #: src/themes/clean/templates/elements/sorting.html:17
 #: src/themes/material/templates/elements/sorting.html:31
 msgid "Sort results by"
-msgstr ""
+msgstr "Ordernar los resultados por"
 
 #: src/journal/models.py:98
 msgid "The default thumbnail for articles, not to be confused with 'Default cover image'."
@@ -4125,11 +4125,11 @@ msgid "If your account was found, an email has been sent to you."
 msgstr ""
 
 #: src/journal/views.py:2603
-msgid "Published after"
+msgid "Publicado después de"
 msgstr ""
 
 #: src/journal/views.py:2607
-msgid "Published before"
+msgid "Publicado antes de"
 msgstr ""
 
 #: src/repository/models.py:403 src/submission/models.py:645
@@ -4275,14 +4275,23 @@ msgstr ""
 #: src/templates/common/elements/sorting.html:7
 #: src/themes/clean/templates/elements/sorting.html:7
 #: src/themes/material/templates/elements/sorting.html:7
-msgid "\n"
+#, python-format
+msgid ""
+"\n"
 "                    1 result\n"
 "                "
-msgid_plural "\n"
+msgid_plural ""
+"\n"
 "                    %(result_count)s results\n"
 "                "
 msgstr[0] ""
+"\n"
+"                    1 resultado\n"
+"                "
 msgstr[1] ""
+"\n"
+"                    %(result_count)s resultados\n"
+"                "
 
 #: src/themes/OLH/templates/403.html:13 src/themes/clean/templates/403.html:11
 msgid "Maintenance Mode"
@@ -4307,7 +4316,7 @@ msgstr ""
 #: src/themes/OLH/templates/elements/journal/article_list_filters.html:9
 #: src/themes/clean/templates/elements/journal/article_list_filters.html:10
 msgid "Apply"
-msgstr ""
+msgstr "Aplicar"
 
 #: src/themes/OLH/templates/elements/journal/search_form.html:6
 #: src/themes/clean/templates/journal/search.html:38
@@ -4529,3 +4538,13 @@ msgstr ""
 msgid "Review your submission"
 msgstr ""
 
+#: src/themes/OLH/templates/elements/journal/article_list_filters.html:10
+msgid "Clear all"
+msgstr "Borrar todo"
+
+#: src/journal/views.py:2603
+msgid "Published after"
+msgstr "Publicado después de"
+
+msgid "Published before"
+msgstr "Publicado antes de"
