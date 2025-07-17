@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journal", "0067_issue_cached_display_title_es_and_more"),
     ]
