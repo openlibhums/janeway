@@ -825,3 +825,14 @@ a {
 .list-inline-bar li:not(:last-child)::after {
   content: " | ";   
 }
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+   padding-left: 0.1rem;
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
