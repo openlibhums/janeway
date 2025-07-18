@@ -15,16 +15,25 @@ urlpatterns = [
         views.news_list,
         name="core_news_list_tag_presswide",
     ),
-    re_path(r"^manager/$", views.news, name="core_manager_news"),
-    re_path(
-        r"^manager/edit/(?P<news_pk>\d+)/$",
-        views.edit_news,
-        name="core_manager_edit_news",
-    ),
     re_path(r"^(?P<news_pk>\d+)/$", views.news_item, name="core_news_item"),
     re_path(
         r"^(?P<identifier_type>.+?)/(?P<identifier>.+)/image/(?P<file_id>\d+|None)/$",
         views.serve_news_file,
         name="news_file_download",
+    ),
+    re_path(
+        r"^manager/$",
+        views.news,
+        name="core_manager_news",
+    ),
+    re_path(
+        r"^manager/new/$",
+        views.manage_news,
+        name="core_manager_create_news",
+    ),
+    re_path(
+        r"^manager/edit/(?P<news_pk>\d+)/$",
+        views.manage_news,
+        name="core_manager_edit_news",
     ),
 ]

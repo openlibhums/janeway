@@ -1,0 +1,116 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}
+    {% if news_item %}
+        Edit News Item
+    {% else %}
+        Create News Item
+    {% endif %}
+{% endblock title %}
+{% block title-section %}
+    {% if news_item %}
+        Edit News Item
+    {% else %}
+        Create News Item
+    {% endif %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'core_manager_news' %}">News Manager</a></li>
+    <li>
+        {% if news_item %}
+            Edit Item
+        {% else %}
+            Create Item
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-6 medium-12 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>
+                    {% if news_item %}
+                        Editing news item #{{ news_item.pk }}
+                    {% else %}
+                        Creating a new news item
+                    {% endif %}
+                </h2>
+                <a href="{% url 'core_manager_news' %}" class="button">Go back</a>
+            </div>
+            <div class="content">
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        {% include "admin/elements/translations/form_tabs.html" with object=news_item %}
+                    </div>
+                </div>
+                {% include "elements/forms/errors.html" with form=form %}
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.title|foundation }}
+                    {{ form.body|foundation }}
+                    {{ form.start_display|foundation }}
+                    {{ form.end_display|foundation }}
+                    {{ form.sequence|foundation }}
+                    {{ form.image_file|foundation }}
+
+                    {% if not action == 'new' and news_item.large_image_file %}
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <p>Existing image: {{ news_item.large_image_file }} -
+                                    <button type="submit" name="delete_image"
+                                            value="{{ news_item.large_image_file.id }}"
+                                            class="tiny alert button">Delete
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {{ form.custom_byline|foundation }}
+                    {{ form.pinned|foundation }}
+
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <label for="id_tags">Tags</label>
+                            <input type="text" id="id_tags" name="tags" value="{% if form.cleaned_data.tags %}{{ form.cleaned_data.tags }}{% else %}{% for tag in news_item.tags.all %}{{ tag.text }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
+                            <p>Hit Enter to add a new keyword.</p>
+                            <button class="success button" type="submit">
+                                {% if action == 'new' %}Add Item{% else %}
+                                    Update
+                                    Item{% endif %}</button>
+                            {% if news_item.history %}
+                                <a class="button" data-open="history_modal">
+                                    <i class="fa fa-history" aria-hidden="True"></i>
+                                    View History
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% include 'admin/elements/history_modal.html' with obj=news_item view_url="admin:comms_newsitem_history" %}
+        </div>
+    </div>
+{% endblock body %}
+{% block js %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script src="{% static "common/js/tagit.js" %}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_tags").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+{% endblock js %}
