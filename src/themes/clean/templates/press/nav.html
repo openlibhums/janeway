@@ -19,7 +19,7 @@
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
+                        {# ButtonA11y #} <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{ item.link_name }}
                         </a>
@@ -39,7 +39,7 @@
         {% endif %}
             {% if request.press.enable_preprints %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="preprints"
+                    {# ButtonA11y #} <a class="nav-link dropdown-toggle" href="" id="preprints"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Repositories' %}
                     </a>
@@ -57,7 +57,7 @@
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="user"
+                    {# ButtonA11y #} <a class="nav-link dropdown-toggle" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account' %}
                     </a>

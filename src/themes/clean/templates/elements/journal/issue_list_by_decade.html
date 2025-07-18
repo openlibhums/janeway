@@ -6,7 +6,10 @@
 <ul class="list-inline">
     {% for decade, issues in issues_by_decade.items %}
         <li class="list-inline-item">
-            <a href="#decade-{{ decade }}">{{ decade }}</a>
+            <a href="#decade-{{ decade }}">
+                {{ decade }}
+                {% include "elements/icons/link_same_page.html" %}  
+            </a>
         </li>
     {% endfor %}
 </ul>

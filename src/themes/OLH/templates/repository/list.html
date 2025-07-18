@@ -28,7 +28,7 @@
                 </div>
                 {% for preprint in preprints %}
                     <div class="box article">
-                        <a href="{% url 'repository_preprint' preprint.pk %}"
+                        {# LinkA11y #} <a href="{% url 'repository_preprint' preprint.pk %}"
                            class="box-link"></a>
                         <div class="clearfix">
                             <div class="large-12s columns end">
@@ -49,7 +49,7 @@
                 <div class="pagination-block">
                     <ul class="pagination">
                         {% if preprints.has_previous %}
-                            <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
+                            <li class="arrow">{# LinkA11y #} <a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
                             </li>{% endif %}
                         {{ preprints.page.page_range }}
                         {% for page in preprints.paginator.page_range %}
@@ -57,7 +57,7 @@
                                     href="?page={{ page }}">{{ page }}</a></li>
                         {% endfor %}
                         {% if preprints.has_next %}
-                            <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
+                            <li class="arrow">{# LinkA11y #} <a href="?page={{ preprints.next_page_number }}">&raquo;</a>
                             </li>{% endif %}
                     </ul>
                 </div>
@@ -102,7 +102,7 @@
                         <h5>{% trans "Filter by Subject" %}</h5>
                         <ul>
                             {% for list_subject in subjects %}
-                                {% if not list_subject == subject %}<li><a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
+                                {% if not list_subject == subject %}<li>{# LinkA11y #} <a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
                             {% endfor %}
                         </ul>
                         </div>

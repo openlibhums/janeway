@@ -28,7 +28,7 @@
             {% if journal_settings.general.enable_editorial_display %}
                 {% if journal_settings.general.multi_page_editorial %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="editorial_team"
+                    {# ButtonA11y #} <a class="nav-link dropdown-toggle" href="" id="editorial_team"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{ journal_settings.styling.editorial_group_page_name }}
                     </a>
@@ -51,7 +51,7 @@
               {% if not item.for_footer %}
                 {% if item.has_sub_nav %}
                   <li class="nav-item dropdown">
-                    <a
+                    {# ButtonA11y #} <a
                       class="nav-link dropdown-toggle"
                       href=""
                       id="{{ item.link_name|slugify }}"
@@ -90,7 +90,7 @@
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="user"
+                    {# ButtonA11y #} <a class="nav-link dropdown-toggle" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account '%}
                     </a>

@@ -552,3 +552,13 @@ a {
 .back-links-list li:not(:last-child)::after {
   content: " ";
 }
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}

@@ -57,7 +57,10 @@ def offset_date(context, days=0, input_type="date"):
 @register.filter(name="date_human", is_safe=True)
 def date_human(value):
     """Convert a date to a human readable Day Month(text) Year format e.g. 3 January 2025"""
-    if isinstance(value, datetime):
+    if value == "":
+        logger.warning("date_human filter received no value - expected a datetime object")
+        return ""
+    elif isinstance(value, datetime):
         return formats.date_format(
             value,
             format="j F Y",

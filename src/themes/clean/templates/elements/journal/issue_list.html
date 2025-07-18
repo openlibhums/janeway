@@ -1,8 +1,8 @@
 <ul>
     {% for issue in issues %}
         <li>
-            <a href="{% url 'journal_issue' issue.id %}" 
-                aria-label='{{ issue.display_title_a11y }} ({{ issue.articles.all.count }} {% trans "items" %})' 
+            <a href="{% url 'journal_issue' issue.id %}"
+                aria-label='{{ issue.display_title_a11y }} ({{ issue.articles.all.count }} {% trans "items" %})'
                 >
                 {{ issue.display_title }}
                 - {{ issue.articles.all.count }} {% trans "items" %}</a>

@@ -26,10 +26,16 @@
                         {% if current_journal.is_remote %}
                             {% if not submission_disabled %}
                                 <a href="{{ current_journal.remote_submit_url }}"
-                                   class="btn btn-primary"><span>{% trans 'Submit' %}</span></a>
+                                   class="btn btn-primary" target="_blank">
+                                   <span>{% trans 'Submit' %}</span>
+                                    {% include "elements/icons/link_external.html" %} </a>
+                                </a>
                             {% endif %}
                             <a href="{{ current_journal.remote_view_url }}"
-                               class="btn btn-primary"><span>{% trans 'View' %}</span></a>
+                               class="btn btn-primary" target="_blank">
+                               <span>{% trans 'View' %}</span>
+                               {% include "elements/icons/link_external.html" %} 
+                            </a>
                         {% else %}
                             {% if not submission_disabled %}
                                 <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"

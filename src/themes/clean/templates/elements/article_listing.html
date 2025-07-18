@@ -20,17 +20,18 @@
                 </div>
             {% endif %}
             <div class="col article-block">
-                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
-                    {% if article.is_remote %}
-                    <h2 class="card-title article-title">
-                        <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                        {{ article.title|safe }}&nbsp;
-                        <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                    </h2>
-                    {% else %}
-                    <h2 class="card-title article-title">{{ article.title|safe }}</h2>
-                    {% endif %}
-                </a>
+                {% if article.is_remote %}
+                    <a href="{{ article.remote_url }}" target="_blank">
+                        <h2 class="card-title article-title">
+                            {{ article.title|safe }}&nbsp;
+                            {% include "elements/icons/link_external.html" %}
+                        </h2>
+                    </a>
+                {% else %}
+                    <a href="{{ article.url }}" >
+                        <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                    </a>
+                {% endif %}
                 <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}
                 {% if article.frozen_authors.all|length > 1 %} {% trans 'and' %}
                     {% endif %}{% endif %}{{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}{% endfor %}

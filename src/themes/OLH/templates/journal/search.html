@@ -40,7 +40,7 @@
                         <label>{% trans "Keywords" %}</label>
 
                         {% for keyword in all_keywords %}
-                            <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>
+                            {# LinkA11y #} <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>
                             {% if not forloop.last %}, {% endif %}
                         {% endfor %}
 
