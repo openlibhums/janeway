@@ -23,7 +23,7 @@ $( document ).ready(function() {
 
         js = "$('html, body').animate({scrollTop: $( $.attr(this, 'href') ).offset().top - 35}, 500);return false;";
 
-        newLine = "<li>{# LinkA11y #} <a href='" + linkid + "' onclick=\"" + js + "\">" + title + "</a></li>";
+        newLine = "<li><a href='" + linkid + "' onclick=\"" + js + "\">" + title + "<i aria-hidden='true' class='fa fa-link superscript-icon' title='link to content on same page.'></i><span class='sr-only'>(link to content on same page).</span></a></li>";
 
         toc += newLine;
         iter++;
