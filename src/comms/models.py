@@ -74,7 +74,6 @@ class NewsItem(models.Model):
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
         "the news item with whatever text is added here.",
     )
-    history = HistoricalRecords()
 
     pinned = models.BooleanField(
         default=False,
