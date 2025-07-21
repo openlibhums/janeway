@@ -133,6 +133,7 @@
 .max-w-80 { max-width: 80rem; }
 .width-min-content { width: min-content; }
 .width-max-content { width: max-content; }
+.width-full { width: 100%; }
 
 /* Padding */
 .padding-inline-0 { padding-inline: 0rem; }
@@ -155,6 +156,16 @@
 .padding-block-2-5 { padding-block: 2.5rem; }
 .padding-block-3 { padding-block: 3rem; }
 .padding-block-4 { padding-block: 4rem; }
+.padding-block-start-0 { padding-block-start: 0rem; }
+.padding-block-start-0-25 { padding-block-start: 0.25rem; }
+.padding-block-start-0-5 { padding-block-start: 0.5rem; }
+.padding-block-start-0-75 { padding-block-start: 0.75rem; }
+.padding-block-start-1 { padding-block-start: 1rem; }
+.padding-block-start-1-5 { padding-block-start: 1.5rem; }
+.padding-block-start-2 { padding-block-start: 2rem; }
+.padding-block-start-2-5 { padding-block-start: 2.5rem; }
+.padding-block-start-3 { padding-block-start: 3rem; }
+.padding-block-start-4 { padding-block-start: 4rem; }
 .padding-block-end-0 { padding-block-end: 0rem; }
 .padding-block-end-0-25 { padding-block-end: 0.25rem; }
 .padding-block-end-0-5 { padding-block-end: 0.5rem; }
