@@ -131,6 +131,7 @@ class AccountAdmin(UserAdmin):
         admin_utils.RepositoryRoleInline,
         admin_utils.EditorialGroupMemberInline,
         admin_utils.StaffGroupMemberInline,
+        admin_utils.ContactPersonInline,
         admin_utils.PasswordResetInline,
     ]
 
@@ -558,21 +559,33 @@ class EditorialMemberAdmin(admin.ModelAdmin):
         return obj.group.journal if obj else ""
 
 
-class ContactsAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "role", "object", "sequence")
+class ContactPersonAdmin(admin.ModelAdmin):
+    list_display = ("_name", "_email", "role", "object", "sequence")
     list_filter = (
         admin_utils.GenericRelationJournalFilter,
         admin_utils.GenericRelationPressFilter,
     )
-    search_fields = ("name", "email", "role")
+    search_fields = (
+        "account__first_name",
+        "account__middle_name",
+        "account__last_name",
+        "account__email",
+        "role",
+    )
+    raw_id_fields = ("account",)
+
+    def _name(self, obj):
+        return obj.account.full_name() if obj and obj.account else ""
+
+    def _email(self, obj):
+        return obj.account.email if obj and obj.account else ""
 
 
-class ContactAdmin(admin.ModelAdmin):
+class ContactMessageAdmin(admin.ModelAdmin):
     list_display = (
         "subject",
         "sender",
-        "recipient",
-        "client_ip",
+        "account",
         "date_sent",
         "object",
     )
@@ -580,13 +593,17 @@ class ContactAdmin(admin.ModelAdmin):
         admin_utils.GenericRelationJournalFilter,
         admin_utils.GenericRelationPressFilter,
         "date_sent",
-        "recipient",
+        "account",
     )
     search_fields = (
         "subject",
         "sender",
-        "recipient",
+        "account__first_name",
+        "account__middle_name",
+        "account__last_name",
+        "account__email",
     )
+    raw_id_fields = ("account",)
     date_hierarchy = "date_sent"
 
 
@@ -766,8 +783,8 @@ admin_list = [
     (models.Workflow, WorkflowAdmin),
     (models.WorkflowLog, WorkflowLogAdmin),
     (models.LoginAttempt, LoginAttemptAdmin),
-    (models.Contacts, ContactsAdmin),
-    (models.Contact, ContactAdmin),
+    (models.ContactPerson, ContactPersonAdmin),
+    (models.ContactMessage, ContactMessageAdmin),
     (models.AccessRequest, AccessRequestAdmin),
     (models.Organization, OrganizationAdmin),
     (models.OrganizationName, OrganizationNameAdmin),

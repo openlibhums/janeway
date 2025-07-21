@@ -2085,40 +2085,23 @@ def contact(request):
     :param request: HttpRequest object
     :return: HttpResponse or HttpRedirect if POST
     """
-    subject = request.GET.get("subject", "")
-    contacts = core_models.Contacts.objects.filter(
-        content_type=request.model_content_type, object_id=request.site_type.pk
-    )
 
-    contact_form = forms.ContactForm(subject=subject, contacts=contacts)
+    # Backwards compatibility
+    if not request.journal:
+        return redirect(reverse("press_contact"))
 
-    if request.POST:
-        contact_form = forms.ContactForm(request.POST, contacts=contacts)
+    contact_form, contact_people = core_logic.get_contact_form(request)
+    if request.POST and contact_form.is_valid():
+        core_logic.send_contact_message(contact_form, request)
+        return redirect(reverse("contact"))
 
-        if contact_form.is_valid():
-            new_contact = contact_form.save(commit=False)
-            new_contact.client_ip = shared.get_ip_address(request)
-            new_contact.content_type = request.model_content_type
-            new_contact.object_ic = request.site_type.pk
-            new_contact.save()
-
-            logic.send_contact_message(new_contact, request)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _("Your message has been sent."),
-            )
-            return redirect(reverse("contact"))
-
-    if request.journal and request.journal.disable_front_end:
+    if request.journal.disable_front_end:
         template = "admin/journal/contact.html"
-    elif request.journal:
-        template = "journal/contact.html"
     else:
-        template = "press/journal/contact.html"
+        template = "journal/contact.html"
     context = {
         "contact_form": contact_form,
-        "contacts": contacts,
+        "contacts": contact_people,
     }
 
     return render(request, template, context)

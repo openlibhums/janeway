@@ -5615,5 +5615,44 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Contact message template for recieving external messages on press and journal sites.",
+            "is_translatable": true,
+            "name": "contact_message",
+            "pretty_name": "Contact Message",
+            "type": "char"
+        },
+        "value": {
+            "default": "<p>This message is from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a>.</p><br /><p>From: {{ from }}</p><p>To: {{ to }}</p><p>Subject: {{ subject }}</p><p>Body:</p><p>{{ body }}</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Fallback contact message subject that will typically be overwritten by the user's subject",
+            "is_translatable": true,
+            "name": "subject_contact_message",
+            "pretty_name": "Subject Contact Message",
+            "type": "char"
+        },
+        "value": {
+            "default": "Contact message received"
+>>>>>>> cd29e3a87 (feat #4138 Upgrade and refactor contact system)
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

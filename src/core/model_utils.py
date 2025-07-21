@@ -17,6 +17,7 @@ from bleach import clean
 from django import forms
 from django.apps import apps
 from django.contrib import admin
+from django.contrib.auth.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
@@ -135,6 +136,24 @@ class AbstractSiteModel(models.Model):
         Gets the standard redirect url for a successful authentication.
         """
         return next_url or reverse(self.AUTH_SUCCESS_URL)
+
+    @property
+    def contact_people(self):
+        """
+        For use with journal and press sites.
+        """
+        ContactPerson = apps.get_model("core", "ContactPerson")
+        return ContactPerson.objects.filter(
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.pk,
+        )
+
+    def next_contact_order(self):
+        """
+        For use with journal and press sites.
+        """
+        orderings = [cp.sequence for cp in self.contact_people]
+        return max(orderings) + 1 if orderings else 0
 
 
 class PGCaseInsensitivedMixin:

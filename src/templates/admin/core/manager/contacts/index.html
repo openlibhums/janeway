@@ -6,9 +6,7 @@
 {% block title-section %}Contact Manager{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li>Contact Manager</li>
+  {% include "elements/breadcrumbs/contacts_base.html" %}
 {% endblock %}
 
 {% block body %}
@@ -16,13 +14,13 @@
         <div class="box">
             <div class="title-area">
                 <h2>Current Contacts</h2>
-                <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
+                <a class="float-right small button success" href="{% url 'core_contact_person_search' %}"><i
                         class="fa fa-plus">&nbsp;</i>Add New Contact</a>
                 <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts Page</a>
             </div>
             <div class="content">
                 <p>
-                    Journal Contacts are listed below. You can alter their order by dragging and dropping them into the
+                    Contact people are listed below. You can alter their order by dragging and dropping them into the
                     order you require.
                 </p>
                 <form method="POST">
@@ -31,8 +29,8 @@
                         <thead>
                         <tr>
                             <th></th>
-                            <th>Contact Name</th>
-                            <th>Email Address</th>
+                            <th>Name</th>
+                            <th>Email</th>
                             <th>Role</th>
                             <th>Edit</th>
                             <th>Delete</th>
@@ -42,11 +40,16 @@
                         {% for contact in contacts %}
                             <tr id="contact-{{ contact.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
-                                <td>{{ contact.name }}</td>
-                                <td>{{ contact.email }}</td>
+                                {% if contact.account %}
+                                  <td>{{ contact.account.full_name }}</td>
+                                  <td>{{ contact.account.email }}</td>
+                                {% else %}
+                                  <td>{{ contact.name }}</td>
+                                  <td>{{ contact.email }}</td>
+                                {% endif %}
                                 <td>{{ contact.role }}</td>
                                 <td>
-                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
+                                    <a href="{% url 'core_contact_person_update' contact.pk %}" class="tiny warming button"><i
                                             class="fa fa-edit">&nbsp;</i>Edit Contact</a>
                                 </td>
                                 <td>
@@ -57,7 +60,7 @@
                             {% empty %}
                             <tr>
                                 <td colspan="5">
-                                    This journal has no contacts. <a href="{% url 'core_new_journal_contact' %}">Add a new contact.</a>
+                                    This journal has no contacts.
                                 </td>
                             </tr>
                         {% endfor %}
@@ -82,7 +85,7 @@
                 $.ajax({
                     data: data,
                     type: 'POST',
-                    url: '{% url 'core_journal_contacts_order' %}'
+                    url: '{% url 'core_contact_people_reorder' %}'
                 });
             }
         });

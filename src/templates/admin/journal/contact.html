@@ -33,16 +33,8 @@
                     <form method="POST" novalidate>
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}
-                        <div class="row expanded">
-                            <div class="large-12 columns">
-                                <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
-                                <select id="id_recipient" name="recipient">
-                                    {% for contact in contacts %}
-                                        <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
-                                </select>
-                            </div>
-                        </div>
                         {% include "admin/elements/forms/required_field_info.html" %}
+                        {{ contact_form.sender|account }}
                         {{ contact_form.sender|foundation }}
                         {{ contact_form.subject|foundation }}
                         {{ contact_form.body|foundation }}

@@ -1,0 +1,14 @@
+<li>
+  <a href="{% url 'core_manager_index' %}">
+    {% trans "Manager" %}
+  </a>
+</li>
+<li>
+  {% if subpage %}
+    <a href="{% url 'core_contact_people' %}">
+      {% trans "Contact Manager" %}
+    </a>
+  {% else %}
+    {% trans "Contact Manager" %}
+  {% endif %}
+</li>

@@ -85,18 +85,16 @@ class EditKey(forms.Form):
         return cleaned_data
 
 
-class JournalContactForm(JanewayTranslationModelForm):
+class ContactPersonForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop("next_sequence", None)
-        super(JournalContactForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if next_sequence:
             self.fields["sequence"].initial = next_sequence
 
     class Meta:
-        model = models.Contacts
+        model = models.ContactPerson
         fields = (
-            "name",
-            "email",
             "role",
             "sequence",
         )
@@ -104,6 +102,34 @@ class JournalContactForm(JanewayTranslationModelForm):
             "content_type",
             "object_id",
         )
+
+
+class ContactMessageForm(forms.ModelForm, CaptchaForm):
+    def __init__(self, *args, **kwargs):
+        subject = kwargs.pop("subject", None)
+        account = kwargs.pop("account", None)
+        contact_people = kwargs.pop("contact_people", None)
+        super().__init__(*args, **kwargs)
+        self.fields["account"].required = True
+        self.fields["account"].choices = [
+            (person.account.pk, person.account.full_name()) for person in contact_people
+        ]
+
+        if subject:
+            self.fields["subject"].initial = subject
+
+        if account:
+            self.fields["account"].initial = account.pk
+
+    class Meta:
+        model = models.ContactMessage
+        fields = ("account", "sender", "subject", "body")
+
+
+class JournalContactForm(ContactPersonForm):
+    def __init__(self, *args, **kwargs):
+        return DeprecationWarning("Use ContactPersonForm instead.")
+        super().__init__(*args, **kwargs)
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):

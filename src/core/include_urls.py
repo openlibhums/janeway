@@ -120,6 +120,11 @@ urlpatterns = [
         press_views.IdentifierManager.as_view(),
         name="press_identifier_manager",
     ),
+    re_path(
+        r"^press/contact/$",
+        press_views.contact,
+        name="press_contact",
+    ),
     # Notes
     re_path(
         r"^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$",
@@ -256,22 +261,31 @@ urlpatterns = [
         core_views.article_image_edit,
         name="core_article_image_edit",
     ),
-    # Journal Contacts
-    re_path(r"^manager/contacts/$", core_views.contacts, name="core_journal_contacts"),
+    # Contact People
     re_path(
-        r"^manager/contacts/add/$",
-        core_views.edit_contacts,
-        name="core_new_journal_contact",
-    ),
-    re_path(
-        r"^manager/contacts/(?P<contact_id>\d+)/$",
-        core_views.edit_contacts,
-        name="core_journal_contact",
+        r"^manager/contacts/$",
+        core_views.contact_people,
+        name="core_contact_people",
     ),
     re_path(
         r"^manager/contacts/order/$",
-        core_views.contacts_order,
-        name="core_journal_contacts_order",
+        core_views.contact_people_reorder,
+        name="core_contact_people_reorder",
+    ),
+    re_path(
+        r"^manager/contacts/search/$",
+        core_views.PotentialContactListView.as_view(),
+        name="core_contact_person_search",
+    ),
+    re_path(
+        r"^manager/contacts/add/(?P<account_id>\d+)/$",
+        core_views.contact_person_create,
+        name="core_contact_person_create",
+    ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/$",
+        core_views.contact_person_update,
+        name="core_contact_person_update",
     ),
     # Editorial Team
     re_path(
