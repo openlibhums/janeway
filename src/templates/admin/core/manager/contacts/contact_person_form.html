@@ -1,0 +1,59 @@
+{% extends "admin/elements/nitty_gritty.html" %}
+
+{% load i18n static next_url %}
+
+{% block contextual_title %}
+  {% include "core/manager/contacts/contact_person_form_page_name.html" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% include "core/manager/contacts/contact_person_form_page_name.html" %}
+{% endblock title-section %}
+
+{% block title-sub %}
+  <div class="button-group no-bottom-margin padding-block-start-0-5">
+    {% trans "Back to contact manager" as back_label %}
+    {% url "core_contact_people" as back_url %}
+    {% include "elements/a_back.html" with label=back_label href=back_url %}
+  </div>
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/contacts_base.html" with subpage=True %}
+  <li>
+    {% include "core/manager/contacts/contact_person_form_page_name.html" %}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "admin/core/manager/contacts/related_info.html" %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Contact details" %}
+{% endblock gritty_h2 %}
+
+{% block gritty_form %}
+  {% include "admin/elements/translations/form_tabs.html" with object=contact_person %}
+  {% if contact_person %}
+    <p>Make your changes to the contact, and then select <strong>Save</strong>.</p>
+  {% else %}
+    <p>Enter contact details, and select <strong>Save</strong> to create the contact.</p>
+  {% endif %}
+  <div class="flex gap-1 items-center">
+    {% include "admin/elements/layout/key_value_above.html" with key="Name" value=account.full_name %}
+    {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
+  </div>
+  {% if contact_person %}
+    <p>To change the name or email, please edit the <a href="{% url_with_return "core_user_edit" contact_person.account.pk %}">corresponding user account</a>.</p>
+  {% endif %}
+  <div class="grid auto row-gap-0">
+    {% include "admin/elements/forms/field.html" with field=form.role %}
+    {% include "admin/elements/forms/field.html" with field=form.sequence %}
+  </div>
+  <div class="button-group no-bottom-margin">
+    {% include "elements/button_save.html" %}
+    {% url "core_contact_people" as cancel_url %}
+    {% include "elements/a_cancel.html" with href=cancel_url %}
+  </div>
+{% endblock gritty_form %}
