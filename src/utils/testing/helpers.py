@@ -167,6 +167,9 @@ def create_editor(journal, **kwargs):
     editor = create_user(email, ["editor"], journal=journal)
     editor.is_active = True
     editor.save()
+    for k, v in kwargs.items():
+        setattr(editor, k, v)
+        editor.save()
     return editor
 
 
@@ -714,17 +717,22 @@ def create_cms_page(content_type, object_id, **kwargs):
     )
 
 
-def create_contact(content_type, object_id, **kwargs):
-    name = kwargs.get("name", "Test Contact")
-    email = kwargs.get("email", "contact@example.org")
+def create_contact_person(account, site, **kwargs):
+    """
+    :account: a core.Account
+    :site: a journal.Journal or a press.Press
+    :return: a ContactPerson
+    """
     role = kwargs.get("role", "Test contact role")
-    return core_models.Contacts.objects.create(
-        content_type=content_type,
-        object_id=object_id,
-        name=name,
-        email=email,
-        role=role,
+    contact_person, _created = core_models.ContactPerson.objects.get_or_create(
+        account=account,
+        content_type=ContentType.objects.get_for_model(site),
+        object_id=site.pk,
+        defaults={
+            "role": role,
+        },
     )
+    return contact_person
 
 
 def create_setting(
