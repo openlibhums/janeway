@@ -130,7 +130,7 @@ class JournalContactTests(JournalViewTestsWithData):
     @override_settings(CAPTCHA_TYPE="")
     def test_contact_POST(self):
         post_data = {
-            "account": self.journal_one.pk,
+            "account": self.editor_one.pk,
             "sender": "notloggedin@example.org",
             "subject": "Question about submission guidelines",
             "body": "Dear editor, I have a question...",
@@ -146,5 +146,5 @@ class JournalContactTests(JournalViewTestsWithData):
                 subject="Question about submission guidelines",
                 content_type=self.journal_content_type,
                 object_id=self.journal_one.pk,
-            ).exists(),
+            ).exists()
         )
