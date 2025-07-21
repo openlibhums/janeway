@@ -1045,14 +1045,11 @@ class ContactManagerTests(CoreViewTestsWithData):
         )
 
     @override_settings(URL_CONFIG="domain")
-    def test_potential_contact_list_view_GET_excludes_current_contacts(self):
+    def test_potential_contact_list_view_GET_marks_existing_contacts(self):
         self.client.force_login(self.editor_one)
         url = reverse("core_contact_person_search")
         get_data = {
             "q": self.editor_one.first_name,
         }
         response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
-        self.assertNotIn(
-            self.editor_one,
-            response.context["account_list"],
-        )
+        self.assertTrue(response.context["account_list"][0].is_contact_person)
