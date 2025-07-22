@@ -519,7 +519,7 @@ LANGUAGE_CHOICES = (
     ("sai", "South American Indian languages"),
     ("alt", "Southern Altai"),
     ("sma", "Southern Sami"),
-    ("spa", "Spanish; Castilian"),
+    ("spa", "Spanish"),
     ("srn", "Sranan Tongo"),
     ("zgh", "Standard Moroccan Tamazight"),
     ("suk", "Sukuma"),
