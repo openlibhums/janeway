@@ -37,19 +37,19 @@ class Command(BaseCommand):
         ignore_settings = options["ignore_settings"]
 
         try:
-            from_journal = Journal.objects.get(
-                id=from_journal_code_or_id
-            ) if from_journal_code_or_id.isdigit() else Journal.objects.get(
-                code=from_journal_code_or_id
+            from_journal = (
+                Journal.objects.get(id=from_journal_code_or_id)
+                if from_journal_code_or_id.isdigit()
+                else Journal.objects.get(code=from_journal_code_or_id)
             )
         except Journal.DoesNotExist:
             raise CommandError(f"Journal '{from_journal_code_or_id}' not found.")
 
         try:
-            to_journal = Journal.objects.get(
-                id=to_journal_code_or_id
-            ) if to_journal_code_or_id.isdigit() else Journal.objects.get(
-                code=to_journal_code_or_id
+            to_journal = (
+                Journal.objects.get(id=to_journal_code_or_id)
+                if to_journal_code_or_id.isdigit()
+                else Journal.objects.get(code=to_journal_code_or_id)
             )
         except Journal.DoesNotExist:
             raise CommandError(f"Journal '{to_journal_code_or_id}' not found.")
@@ -79,9 +79,10 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Copying CMS pages from {from_journal} to {to_journal}...")
 
-        existing_pages = Page.objects.filter(object_id=from_journal.id,
-                                             content_type=ContentType.objects.get_for_model(
-                                                 Journal))
+        existing_pages = Page.objects.filter(
+            object_id=from_journal.id,
+            content_type=ContentType.objects.get_for_model(Journal),
+        )
 
         for page in existing_pages:
             new_page = Page.objects.create(
@@ -107,7 +108,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("CMS pages copied successfully."))
 
         self.stdout.write(
-            f"Copying Submission Items from {from_journal} to {to_journal}...")
+            f"Copying Submission Items from {from_journal} to {to_journal}..."
+        )
 
         existing_submission_items = SubmissionItem.objects.filter(journal=from_journal)
 
