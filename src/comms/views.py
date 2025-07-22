@@ -16,7 +16,7 @@ from utils.shared import language_override_redirect
 
 @editor_user_required
 @GET_language_override
-def news(request):
+def manage_news_list(request):
     """
     Displays a list of news items for an editor user.
 
