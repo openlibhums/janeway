@@ -23,7 +23,7 @@ urlpatterns = [
     ),
     re_path(
         r"^manager/$",
-        views.news,
+        views.manage_news_list,
         name="core_manager_news",
     ),
     re_path(
