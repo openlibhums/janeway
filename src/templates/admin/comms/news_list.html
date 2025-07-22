@@ -50,7 +50,7 @@
                                 <td>{{ item.pk }}</td>
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.posted_by.full_name }}</td>
-                                <td>{{ item.custom_byline }}</td>
+                                <td>{{ item.custom_byline|default_if_none:"--" }}</td>
                                 <td>{{ item.posted }}</td>
                                 <td>{{ item.start_display|date:"Y-m-d" }}</td>
                                 <td>{{ item.end_display|date:"Y-m-d" }}</td>
