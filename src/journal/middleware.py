@@ -34,8 +34,8 @@ class LanguageMiddleware(BaseMiddleware):
             if current_language not in available_languages:
                 translation.activate(default_language)
                 logger.debug(
-                    'Current language not in the available languages.'
-                    ' Activating default: {}'.format( default_language)
+                    "Current language not in the available languages."
+                    " Activating default: {}".format(default_language)
                 )
             if not available_languages:
                 # If we have no languages use the defaults from settings.
