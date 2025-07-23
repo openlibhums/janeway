@@ -63,7 +63,7 @@ On Debian systems:
 4. From the project root directory run the following to install python
    dependencies:
 
-   ``pip3 install -r requirements.txt``
+   ``pip3 install -r requirements.txt -c constraints.txt``
 
 You should now proceed to “Database Setup and Final Installation”,
 below.
