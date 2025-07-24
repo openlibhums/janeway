@@ -37,7 +37,7 @@
           account in {{ request.press.name }}.
           You can also manage users at the journal level:
           <ul>
-            {% for journal in request.press.journals_az %}
+            {% for journal in request.press.journals %}
               <li>
                 <a href="{% stateless_site_url journal 'journal_users' %}">
                   {{ journal.name }}
