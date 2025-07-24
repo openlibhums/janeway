@@ -1624,7 +1624,8 @@ class Galley(AbstractLastModifiedModel):
         if self.file and self.file.article_id:
             self.file.unlink_file()
         for image_file in self.images.all():
-            if not image_file.images.exclude(galley=self).exists():
+            galleys_related_to_image = image_file.images
+            if not galleys_related_to_image.exclude(images=image_file).exists():
                 image_file.unlink_file()
 
     def __str__(self):
