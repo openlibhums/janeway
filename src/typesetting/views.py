@@ -729,15 +729,18 @@ def typesetting_assignments(request):
 
 
 @decorators.has_journal
-@decorators.typesetter_user_required
+@security.can_preview_typesetting_article
 def typesetting_typesetter_download_file(request, assignment_id, file_id):
-    assignment = get_object_or_404(
-        models.TypesettingAssignment,
-        pk=assignment_id,
-        typesetter=request.user,
-        completed__isnull=True,
-        round__article__journal=request.journal,
-    )
+    query = Q(pk=assignment_id)
+    query &= Q(round__article__journal=request.journal)
+
+    if request.user.is_editor(request) or request.user.is_section_editor(request):
+        assignment = get_object_or_404(models.TypesettingAssignment, query)
+    else:
+        # If the user is a typesetter, an open task must be assigned to them
+        query &= Q(completed__isnull=True)
+        query &= Q(typesetter=request.user)
+        assignment = get_object_or_404(models.TypesettingAssignment, query)
 
     file = get_object_or_404(
         core_models.File,
@@ -1369,7 +1372,18 @@ def preview_figure(
     assignment_id=None,
     article_id=None,
 ):
-    if assignment_id:
+    if article_id and request.user.has_an_editor_role(request):
+        article = get_object_or_404(
+            submission_models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
+        galley = get_object_or_404(
+            core_models.Galley,
+            pk=galley_id,
+            article_id=article.pk,
+        )
+    elif assignment_id:
         try:
             assignment = models.TypesettingAssignment.objects.get(
                 pk=assignment_id,
@@ -1391,17 +1405,6 @@ def preview_figure(
                 pk=galley_id,
                 article_id=assignment.round.article.pk,
             )
-    elif article_id and request.user.has_an_editor_role(request):
-        article = get_object_or_404(
-            submission_models.Article,
-            pk=article_id,
-            journal=request.journal,
-        )
-        galley = get_object_or_404(
-            core_models.Galley,
-            pk=galley_id,
-            article_id=article.pk,
-        )
     else:
         raise PermissionDenied
 
