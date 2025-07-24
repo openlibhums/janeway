@@ -404,6 +404,7 @@
                                 </ul>
                             </div>
                         {% endif %}
+                        {% hook 'article_sidebar' article %}
 
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">

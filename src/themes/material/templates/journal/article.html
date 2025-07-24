@@ -447,6 +447,7 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
+                    {% hook 'article_sidebar' %}
 
                     {% if article.preprint and article.preprint.is_published %}
                       <h4>{{ article.preprint.repository.object_name }}</h4>
