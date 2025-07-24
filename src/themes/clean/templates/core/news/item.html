@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load dates %}
+{% load escaping %}
 
 {% block title %}{{ news_item.title }}{% endblock title %}
 
@@ -11,8 +12,17 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>{{ news_item.title|safe }}</h1>
-            <hr/>
+          <div class="card">
+            {% if news_item.best_image_url %}
+              <div class="common-banner">
+                <img
+                  class="common-banner-image"
+                  src="{{ news_item.best_image_url }}"
+                  alt="{{ news_item.title|striptags|unescape }}">
+              </div>
+            {% endif %}
+            <h1 class="padding-inline-1">{{ news_item.title|safe }}</h1>
+          </div>
         </div>
         <div class="col-md-12">
             <h6>{{ news_item.byline }} on {{ news_item.posted|date_human}}</h6>

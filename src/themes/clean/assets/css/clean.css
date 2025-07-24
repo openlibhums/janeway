@@ -222,7 +222,7 @@ main a:hover {
     min-width: 100%;
 }
 
-.card img {
+.card img:not(.common-banner-image) {
     max-height: 250px;
     object-fit: cover;
 }
@@ -277,6 +277,13 @@ main a:hover {
 	top: 40px;
 }
 
+.carousel-item .carousel-caption {
+  /* Bootstrap 4.4 hides the caption on small screens by default,
+   * even for active carousel items.
+   * This unhides them for accessibility. */
+  display: block !important;
+}
+
 footer svg {
     height: 100px;
     width: 100%;
@@ -302,7 +309,7 @@ footer svg {
         padding: 10px;
     }
 
-    .card img {
+    .card img:not(.common-banner-image) {
         min-height: 220px;
         object-fit: cover;
     }
@@ -551,4 +558,17 @@ a {
 
 .back-links-list li:not(:last-child)::after {
   content: " ";
+}
+
+/* Common banner image settings */
+.col-md-4 .common-banner {
+  --max-common-banner-height: 144px;
+}
+
+.col-md-6 .common-banner {
+  --max-common-banner-height: 216px;
+}
+
+.col-md-8 .common-banner {
+  --max-common-banner-height: 288px;
 }

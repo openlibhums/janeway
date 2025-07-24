@@ -50,16 +50,12 @@ def news(request):
                     new_file = files.save_file_to_journal(
                         request, uploaded_file, "News Item", "News Item", public=True
                     )
-                    core_logic.resize_and_crop(
-                        new_file.journal_path(request.journal), [750, 324], "middle"
-                    )
+                    core_logic.resize_and_crop(new_file.journal_path(request.journal))
                 elif request.model_content_type.name == "press":
                     new_file = files.save_file_to_press(
                         request, uploaded_file, "News Item", "News Item", public=True
                     )
-                    core_logic.resize_and_crop(
-                        new_file.press_path(), [750, 324], "middle"
-                    )
+                    core_logic.resize_and_crop(new_file.press_path())
 
         if form.is_valid():
             new_item = form.save(commit=False)
@@ -125,14 +121,12 @@ def edit_news(request, news_pk):
                 new_file = files.save_file_to_journal(
                     request, uploaded_file, "News Item", "News Item", public=True
                 )
-                core_logic.resize_and_crop(
-                    new_file.journal_path(request.journal), [750, 324], "middle"
-                )
+                core_logic.resize_and_crop(new_file.journal_path(request.journal))
             elif request.model_content_type.name == "press":
                 new_file = files.save_file_to_press(
                     request, uploaded_file, "News Item", "News Item", public=True
                 )
-                core_logic.resize_and_crop(new_file.press_path(), [750, 324], "middle")
+                core_logic.resize_and_crop(new_file.press_path())
 
         if form.is_valid():
             item = form.save(commit=False)

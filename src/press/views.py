@@ -230,9 +230,7 @@ def edit_press(request):
             if press.default_carousel_image:
                 from core import logic as core_logic
 
-                core_logic.resize_and_crop(
-                    press.default_carousel_image.path, [750, 324], "middle"
-                )
+                core_logic.resize_and_crop(press.default_carousel_image.path)
 
             messages.add_message(request, messages.INFO, "Press updated.")
 

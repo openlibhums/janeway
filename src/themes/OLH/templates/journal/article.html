@@ -38,8 +38,9 @@
         <section class="no-padding meta hide-for-small-only">
             <div class="orbit article-orbit row" role="region" aria-label="Favorite Space Pictures" data-orbit>
                 <ul class="orbit-container article-orbit">
-                    <li class="is-active orbit-slide overlay">
-                            <img class="orbit-image"
+                    <li class="is-active orbit-slide">
+                      <div class="common-banner">
+                            <img class="common-banner-image"
                                 {% if article.large_image_file.id %}
                                  src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
                                 {% elif article.issue.large_image %}
@@ -50,6 +51,8 @@
                                  src=""
                                 {% endif %}
                                  alt="{{ article.title | striptags }}">
+                          <div class="common-banner-filter"></div>
+                        </div>
                         <div class="row column">
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>

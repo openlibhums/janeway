@@ -148,10 +148,12 @@ def send_confirmation_link(request, new_user):
     )
 
 
-def resize_and_crop(img_path, size, crop_type="middle"):
+def resize_and_crop(img_path, size=None, crop_type="top"):
     """
     Resize and crop an image to fit the specified size.
     """
+    if not size:
+        size = [1500, 648]
 
     # If height is higher we resize vertically, if not we resize horizontally
     try:
@@ -166,6 +168,24 @@ def resize_and_crop(img_path, size, crop_type="middle"):
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
+
+    # Warn if the image is not large enough
+    request = utils_logic.get_current_request()
+    if img.size[0] < size[0]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"The image is {img.size[0]} pixels wide, but it should be "
+            f"at least {size[0]} pixels for clearest display.",
+        )
+    if img.size[1] < size[1]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"The image is {img.size[1]} pixels tall, but it should be "
+            f"at least {size[1]} pixels for clearest display.",
+        )
+
     # The image is scaled/cropped vertically or horizontally depending on the ratio
     if ratio > img_ratio:
         img = img.resize(
@@ -785,7 +805,7 @@ def handle_article_large_image_file(uploaded_file, article, request):
         article.large_image_file = new_file
         article.save()
 
-    resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+    resize_and_crop(new_file.self_article_path())
 
 
 def handle_article_thumb_image_file(uploaded_file, article, request):

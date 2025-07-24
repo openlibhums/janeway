@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.homepage_elements.carousel.models import Carousel
+from core.homepage_elements.carousel.models import Carousel, CarouselObject
 
 
 class CarouselAdmin(admin.ModelAdmin):
@@ -20,8 +20,18 @@ class CarouselAdmin(admin.ModelAdmin):
     )
 
 
+class CarouselObjectAdmin(admin.ModelAdmin):
+    list_display = (
+        "index",
+        "title",
+        "url",
+    )
+    filter_horizontal = ("articleID",)
+
+
 admin_list = [
     (Carousel, CarouselAdmin),
+    (CarouselObject, CarouselObjectAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

@@ -6,8 +6,9 @@
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
-                        <img class="d-block img-fluid article-img carousel-min"
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
+                      <div class="common-banner">
+                        <img class="d-block common-banner-image"
                                 {% if carousel_item.large_image_file.id %}
                                 {# Article or News Item #}
                              src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
@@ -20,6 +21,7 @@
                              src=""
                                 {% endif %}
                              alt="{{ carousel_item.carousel_title|striptags }}">
+                      </div>
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                           <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                           <h2><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h2>

@@ -327,3 +327,25 @@ a.twitter-x{
   font-weight: bold;
   line-height: 1.25;
 }
+
+/* Common banner
+ * For use with all large images in Clean, Material, and OLH. */
+
+.common-banner {
+  margin-block-end: 1rem;
+  max-height: min(var(--max-common-banner-height, 432px), 50vw);
+  overflow-y: clip;
+  position: relative;
+}
+
+.common-banner .common-banner-image {
+  width: 100%;
+}
+.common-banner .common-banner-filter {
+  background: linear-gradient(185deg, transparent 20%, black 85%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

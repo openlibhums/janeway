@@ -1174,7 +1174,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -2564,6 +2564,28 @@ class Article(AbstractLastModifiedModel):
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        - article large image
+        - issue large image
+        - journal large image
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                "id",
+                self.pk,
+                self.large_image_file.pk,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.press.default_carousel_image:
+            return self.press.default_carousel_image.url
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):

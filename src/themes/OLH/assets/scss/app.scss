@@ -1378,3 +1378,16 @@ button.list-group-item-danger.active:focus {
   color: red;
   font-size: 150%;
 }
+
+/* Common banner image settings */
+.large-4 .common-banner {
+  --max-common-banner-height: 144px;
+}
+
+.large-6 .common-banner {
+  --max-common-banner-height: 216px;
+}
+
+.large-8 .common-banner {
+  --max-common-banner-height: 288px;
+}

@@ -64,7 +64,7 @@ class NewsItem(models.Model):
         on_delete=models.SET_NULL,
         help_text="An image for the top of the news item page and the "
         "news list page. Note that it will be automatically "
-        "cropped to 750px x 324px, so wide images work best.",
+        "cropped to 1500px x 648px, so wide images work best.",
     )
     tags = models.ManyToManyField("Tag", related_name="tags")
     custom_byline = models.CharField(

@@ -506,7 +506,7 @@ nav a.sidenav-trigger i {
     color: #616161;
 }
 
-.card .card-image img {
+.card .card-image img:not(.common-article-image) {
     height: 260px;
     object-fit: cover;
 }
