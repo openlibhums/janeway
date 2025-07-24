@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytz
 from django.utils import timezone
 from django.test import TestCase, override_settings
+from django.urls import set_script_prefix
 from freezegun import freeze_time
 
 from utils.testing import helpers
@@ -13,9 +14,9 @@ class TestFqdn(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
-        cls.journal_two.domain = None
-        cls.journal_two.save()
+        cls.domain_journal, cls.path_journal = helpers.create_journals()
+        cls.path_journal.domain = None
+        cls.path_journal.save()
 
     def test_stateless_site_url_for_press(self):
         url_name = "press_all_users"
@@ -25,16 +26,28 @@ class TestFqdn(TestCase):
     @override_settings(URL_CONFIG="domain")
     def test_stateless_site_url_for_journal_domain(self):
         url_name = "journal_users"
-        url = fqdn.stateless_site_url(self.journal_one, url_name)
-        self.assertEqual(url, f"http://{self.journal_one.domain}/user/all/")
+        url = fqdn.stateless_site_url(self.domain_journal, url_name)
+        self.assertEqual(url, f"http://{self.domain_journal.domain}/user/all/")
 
     @override_settings(URL_CONFIG="path")
     def test_stateless_site_url_for_journal_path(self):
         url_name = "journal_users"
-        url = fqdn.stateless_site_url(self.journal_two, url_name)
+        url = fqdn.stateless_site_url(self.path_journal, url_name)
         self.assertEqual(
             url,
-            f"http://{self.journal_two.press.domain}/{self.journal_two.code}/user/all/",
+            f"http://{self.path_journal.press.domain}/{self.path_journal.code}/user/all/",
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_stateless_site_url_across_journals(self):
+        url_name = "journal_users"
+        fake_code = "fake_code"
+        set_script_prefix(f"/{fake_code}")
+        url = fqdn.stateless_site_url(self.path_journal, url_name)
+        self.assertFalse(fake_code in url)
+        self.assertEqual(
+            url,
+            f"http://{self.path_journal.press.domain}/{self.path_journal.code}/user/all/",
         )
 
 
