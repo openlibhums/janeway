@@ -31,9 +31,9 @@
                         onerror="this.onerror=null; this.parentElement.classList.add('no-image');"
                         alt="{{ article.title | striptags }}">
             {% else %}
-                <div class="card no-image">  
+                <div class="card no-image">
                     <img class="card-img img-fluid article-img" aria-hidden="true" src="">
-            {% endif %}                   
+            {% endif %}
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
@@ -88,17 +88,22 @@
                 {% endif %}
                 {% if article.is_published or proofing %}
                     <div class="d-lg-none d-xl-none d-md-none">
-                            <h2>{% trans 'Downloads' %}</h2>
+                            <h2>{% trans 'Files' %}</h2>
                             <p>
                             {% if galleys %}
                                 {% for galley in galleys %}
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                    <br/>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                        <a target="_blank"
-                                        href="{% url 'article_view_galley' article.id galley.id %}">View
-                                            PDF</a><br/>
+                                        <a href="{% url 'article_view_galley' article.id galley.id %}">
+                                            {% trans 'View'%} PDF
+                                            {% include "elements/icons/link_new_tab.html" %}
+                                        </a>
+                                        <br/>
                                     {% endif %}
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">
+                                        {{ galley.label }}
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a>
+                                    <br/>
                                 {% endfor %}
                                 {% if proofing %}
                                     <p id="note_to_proofreader_1">
@@ -153,39 +158,51 @@
                   {% include "common/elements/journal/article_authors_ul.html" %}
                 {% endif %}
 
-                    {% if article.is_published or proofing %}
-                        {% include "elements/journal/share.html" %}
-                        <h2>{% trans "Downloads" %}</h2>
-                        {% if galleys %}
-                            <ul>
-                                {% for galley in galleys %}
-                                    {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
-                                    <li>
-                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            </li>
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
-                                        {% endif %}
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                            {% if proofing %}
-                                <p id="note_to_proofreader_2">
-                                    <i aria-hidden="true" class="fa fa-info"></i>
-                                    Note to proofreader: Download links on this page begin to work when the article is published.
-                                </p>
-                            {% endif %}
-                        {% else %}
-                            <p> {% trans 'Downloads are not available for this article.' %}</p>
-                        {% endif %}
-                    {% endif %}
-                    {% if article.supplementary_files.all %}
-                        <h2>{% trans "Supplementary Files" %}</h2>
+                {% if article.is_published or proofing %}
+                    {% include "elements/journal/share.html" %}
+                    <h2>{% trans "Files" %}</h2>
+                    {% if galleys %}
                         <ul>
-                            {% for file in article.supplementary_files.all %}
-                                <li><a href="{% url 'article_download_supp_file' article.pk file.pk %}">{{ file.label }}</a>
+                            {% for galley in galleys %}
+                                {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
+                                    
+                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                            &nbsp;
+                                            <li>
+                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
+                                                    {% trans "View" %} {{ galley.label }}
+                                                    {% include "elements/icons/link_new_tab.html" %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
+                                                {{ galley.label }}
+                                                {% include "elements/icons/link_download.html" %}
+                                            </a>
+                                        </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% if proofing %}
+                            <p id="note_to_proofreader_2">
+                                <i aria-hidden="true" class="fa fa-info"></i>
+                                Note to proofreader: Download links on this page begin to work when the article is published.
+                            </p>
+                        {% endif %}
+                    {% else %}
+                        <p> {% trans 'Downloads are not available for this article.' %}</p>
+                    {% endif %}
+                {% endif %}
+                {% if article.supplementary_files.all %}
+                    <h3>{% trans "Supplementary Files" %}</h3>
+                    <ul>
+                        {% for file in article.supplementary_files.all %}
+                            <li>
+                                <a href="{% url 'article_download_supp_file' article.pk file.pk %}">
+                                    {{ file.label }}
+                                    {% include "elements/icons/link_download.html" %}
+                                </a>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -228,12 +245,21 @@
                             </li>
                         {% endif %}
                         {% if article.license %}
-                            <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
-                                                    title="{{ article.license.text|safe }}">{{ article.license.name }}</a></li>{% endif %}
+                                <li>{% trans "Licence" %}
+                            <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
+                                       title="{{ article.license.text|safe }}" target="_blank">
+                                {{ article.license.name }}
+                                {% include "elements/icons/link_external.html" %}
+                            </a>
+                        </li>
+                    {% endif %}
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <li>
                                 <a href="#" data-toggle="modal"
-                                data-target="#summary">{% trans 'Non Specialist Summary' %}</a>
+                                data-target="#summary">
+                               {% trans 'Non Specialist Summary' %}
+                               {% include "elements/icons/link_modal.html" %}
+                            </a>
                             </li>
                         {% endif %}
                     </ul>
@@ -254,7 +280,12 @@
                                 <h2>{% trans "Open Peer Reviews" %}</h2>
                                 <ul>
                                     {% for review in article.public_reviews %}
-                                        <li><a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
+                                        <li>
+                                        <a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">
+                                            {% trans 'Review by' %} {{ review.reviewer.full_name }}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a>
+                                    </li>
                                     {% endfor %}<br/>
                                 </ul>
                             {% endif %}
@@ -279,14 +310,25 @@
                     {% endif %}
                     <h2>{% trans "Citation" %}</h2>
                     <div class="btn-group-vertical">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">{% trans 'Harvard-style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">{% trans 'Vancouver-style Citation' %}</button>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">{% trans 'APA-style Citation' %}</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
+                            {% trans 'Harvard-style Citation' %}
+                            {% include "elements/icons/link_modal.html" %}
+                        </button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
+                            {% trans 'Vancouver-style Citation' %}
+                            {% include "elements/icons/link_modal.html" %}
+                        </button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
+                            {% trans 'APA-style Citation' %}
+                            {% include "elements/icons/link_modal.html" %}
+                        </button>
                         <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
-                            {% trans 'Download' %} RIS
+                            RIS
+                            {% include "elements/icons/link_download.html" %}
                         </a>
                         <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
-                            {% trans 'Download' %} BibTeX
+                            BibTeX
+                            {% include "elements/icons/link_download.html" %}
                         </a>
                         <br/>
                     </div>
@@ -296,7 +338,7 @@
                         a {{ article.preprint.repository.object_name }}
                         in {{ article.preprint.repository.name }}.</p>
                       <p>
-                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                      <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
                       </p>
                     {% endif %}
                     <h2>{% trans 'File Checksums' %}</h2> (MD5)
@@ -313,7 +355,7 @@
                     {% endif %}
 
                     {% if journal_settings.general.use_credit and author.credits.exists %}
-                      <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
+                      <h2>{% trans 'CRediT Roles' %}</h2>
                       <ul>
                         {% for author, credit_records in article.authors_and_credits.items %}
                           <li>
@@ -325,7 +367,13 @@
                             </span>
                           </li>
                         {% endfor %}
-                      </ul>
+                        </ul>
+                        <p>
+                            <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">
+                                More information about CRediT.
+                                {% include "elements/icons/link_external.html" %}
+                            </a>
+                        </p>
                     {% endif %}
                 {% endif %}
             </div>

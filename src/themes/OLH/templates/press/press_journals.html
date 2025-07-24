@@ -24,7 +24,7 @@
                                         <div class="row" data-equalizer>
                                         <div class="large-4 columns" data-equalizer-watch>
                                             {% if current_journal.is_remote %}
-                                            <a href="{{ current_journal.remote_view_url }}">
+                                            <a href="{{ current_journal.remote_view_url }}" target="_blank">
                                             {% else %}
                                             <a href="{{ current_journal.site_url }}">
                                             {% endif %}
@@ -36,30 +36,53 @@
                                             <div class="journal-description-box">
                                             <h2>
                                                  {% if current_journal.is_remote %}
-                                                <a href="{{ current_journal.remote_view_url }}">
+                                                    <a href="{{ current_journal.remote_view_url }}" target="_blank">
+                                                        {{ current_journal.name }}
+                                                        {% include "elements/icons/link_external.html" %} 
+                                                    </a>
                                                 {% else %}
-                                                <a href="{% journal_base_url current_journal %}"
-                                                   class="journal-name">
+                                                    <a href="{% journal_base_url current_journal %}"
+                                                        class="journal-name"
+                                                        >
+                                                        {{ current_journal.name }}
+                                                    </a>
                                                 {% endif %}
-                                                {{ current_journal.name }}</a>
                                             </h2>
                                             <span class="hide">{{ current_journal.name|lower }}</span>
                                             {{ current_journal.description_for_press|safe }}
-                                            {% with keywords=current_journal.keywords.all %}{% if keywords %}
-                                            <h3>{% trans 'Disciplines' %}</h3>
-                                            {% for keyword in keywords %}
-                                                <a class="kbd" href="?filter={{ keyword.word }}"><span>{{ keyword.word }}</span></a>
-                                            {% endfor %}
-                                            {% endif %}{% endwith %}
+                                            {% with keywords=current_journal.keywords.all %}
+                                                {% if keywords %}
+                                                <h3>{% trans 'Disciplines' %}</h3>
+                                                    <ul class="keyword-list">
+                                                        {% for keyword in keywords %}
+                                                            <li>
+                                                                <a class="kbd" href="?filter={{ keyword.word }}">
+                                                                    <span>{{ keyword.word }}</span>
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endwith %}
                                             </div>
                                             <div class="expanded button-group">
                                                 {% if current_journal.is_remote %}
                                                     {% if not submission_disabled %}
-                                                    <a href="{{ current_journal.remote_submit_url }}"
-                                                       class="button"><span>{% trans 'Submit' %}</span></a>
+                                                        <a href="{{ current_journal.remote_submit_url }}"
+                                                            class="button" 
+                                                            target="_blank"
+                                                            >
+                                                            <span>{% trans 'Submit' %}</span>
+                                                            {% include "elements/icons/link_external.html" %} 
+                                                        </a>
                                                     {% endif %}
                                                     <a href="{{ current_journal.remote_view_url }}"
-                                                       class="button"><span>{% trans 'View' %}</span></a>
+                                                            class="button"
+                                                            target="_blank"
+                                                            >
+                                                            <span>{% trans 'View' %}</span>
+                                                            {% include "elements/icons/link_external.html" %} 
+                                                        </a>
                                                 {% else %}
                                                     {% if not submission_disabled %}
                                                     <a href="{% journal_base_url current_journal %}{% url 'submission_start' %}"
