@@ -46,8 +46,6 @@ COMMAND = sys.argv[1:]
 IN_TEST_RUNNER = COMMAND[:1] == ["test"]
 ALLOWED_HOSTS = ["*"]
 
-ENABLE_TEXTURE = False
-
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Application definition
@@ -277,9 +275,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 STATIC_URL = "/static/"
-
-if ENABLE_TEXTURE:
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, "texture"))
 
 # Django bleach settings
 BLEACH_ALLOWED_TAGS = get_allowed_html_tags()

@@ -2560,19 +2560,6 @@ def download_supp_file(request, article_id, supp_file_id):
     return files.serve_file(request, supp_file.file, article, public=True)
 
 
-@staff_member_required
-def texture_edit(request, file_id):
-    file = get_object_or_404(core_models.File, pk=file_id)
-
-    template = "admin/journal/texture.html"
-    context = {
-        "file": file,
-        "content": files.get_file(file, file.article).replace("\n", ""),
-    }
-
-    return render(request, template, context)
-
-
 @editor_user_required_and_can_see_pii
 def document_management(request, article_id):
     document_article = get_object_or_404(
