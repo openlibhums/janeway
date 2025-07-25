@@ -4,3 +4,8 @@ function resizeText(multiplier) {
   }
   document.body.style.fontSize = parseFloat(document.body.style.fontSize) + (multiplier * 0.2) + "em";
 }
+
+$("#dyslexia-mode").click(function(e) {
+    e.preventDefault();
+    return $('#article').toggleClass('dyslexia-friendly');
+});
