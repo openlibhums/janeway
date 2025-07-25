@@ -10,14 +10,7 @@
             readonly
     >
     <div class="input-group-append">
-      <button
-              class="btn btn-primary"
-              type="button"
-              onclick="copyToClipboard('share-link', event, '{% trans 'Copied' %}' )"
-              aria-label="{% trans 'Copy Share Link' %}"
-      >
-        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
-      </button>
+      {% include "elements/button_copy_element.html" with element_id="share-link" %}
     </div>
   </div>
 {% endwith %}
