@@ -3,14 +3,10 @@
 <div id="article_how_to_cite" class="section">
     <h2>{% trans "How to Cite" %}:</h2>
     <div >
-        <span id="cite-content"> {{ cite }}</span>
-        <button class="button" 
-            type="button"
-            onclick="copyToClipboard('cite-content', event, '{% trans 'Copied' %}' )"
-            aria-label="{% trans 'Copy formatted citation' %}"
-            >
-            <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
-        </button>
+        <p>
+            <span id="cite-content"> {{ cite }}</span>
+            {% include "admin/elements/button_copy_element.html" with element_id="cite-content" %}
+        </p> 
     </div>
   </div>
 
