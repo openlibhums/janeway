@@ -41,7 +41,7 @@
                     <p>{% trans "There are no preprints to display" %}</p>
                 {% endfor %}
 
-                <div class="pagination-block">{{ page }}
+                <div class="pagination-block">
                     <ul class="d-flex justify-content-center">
                         {% if articles.has_previous %}
                             <a href="?page={{ articles.previous_page_number }}"

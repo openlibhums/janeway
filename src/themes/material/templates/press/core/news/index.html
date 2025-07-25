@@ -31,7 +31,7 @@
             <h2>{% trans "This journal currently has no news items to display." %}</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
+    <div class="pagination-block">
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
                 <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
