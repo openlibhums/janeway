@@ -19,13 +19,7 @@
                             {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                         {% endif %}
                     </p>
-                    <button class="button" 
-                        type="button"
-                        onclick="copyToClipboard('harvard-cite', event, '{% trans 'Copied' %}' )"
-                        aria-describedby="{% trans 'harvard-cite' %}"
-                        >
-                        {% include "elements/icons/copy.html" %}
-                    </button>
+                    {% include "admin/elements/button_copy_element.html" with element_id="harvard-cite" %}
                 </div>
             </div>
         </div>
@@ -45,19 +39,14 @@
                 </div>
                 <div class="modal-body">
                     <p id="vancouver-cite">{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
-                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
-                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}
-                            {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
-                        {% endif %}</p>
-                    <button class="button" 
-                        type="button"
-                        onclick="copyToClipboard('vancouver-cite', event, '{% trans 'Copied' %}' )"
-                        aria-describedby="vancouver-cite"
-                        >
-                        {% include "elements/icons/copy.html" %}
-                    </button>
+                        {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                            {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} {{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                            {% if article.identifier.id_type == 'doi' %}
+                                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                        {% endif %}
+                    </p>
+                    {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
                 </div>
             </div>
         </div>
@@ -83,14 +72,9 @@
                         <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
                         {% if article.identifier.id_type == 'doi' %}
                             {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
-                        {% endif %}</p>
-                        <button class="button" 
-                            type="button"
-                            onclick="copyToClipboard('apa-cite', event, '{% trans 'Copied' %}' )"
-                            aria-describedby="apa-cite"
-                            >
-                            {% include "elements/icons/copy.html" %}
-                        </button>
+                        {% endif %}
+                    </p>
+                    {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
                 </div>
 
             </div>

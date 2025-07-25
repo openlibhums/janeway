@@ -564,3 +564,21 @@ a {
 .card-title{
     font-size: 1.5rem;
 }
+
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    border-color: #1C304A;
+    color: inherit;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
