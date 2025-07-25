@@ -28,8 +28,7 @@
                 {% if news_items.has_previous %}
                     <li class="list-inline-item">
                         <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
-                            &laquo;
-                            <span class="sr-only">{% trans 'previous page' %}</span>
+                            {% include "elements/icons/page_previous.html" %}
                         </a>
                     </li>
                 {% endif %}
@@ -51,8 +50,7 @@
                 {% if news_items.has_next %}
                     <li class="list-inline-item">
                         <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
-                            &raquo;
-                            <span class="sr-only">{% trans 'next page' %}</span>
+                            {% include "elements/icons/page_next.html" %}
                         </a>
                     </li>
                 {% endif %}

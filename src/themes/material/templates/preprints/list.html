@@ -46,8 +46,7 @@
                         {% if articles.has_previous %}
                             <a href="?page={{ articles.previous_page_number }}"
                                class="btn btn-outline-primary">
-                               &laquo;
-                                <span class="sr-only">{% trans 'previous page' %}</span>
+                               {% include "elements/icons/page_previous.html" %}
                             </a>
                             &nbsp;{% endif %}
                         {{ articles.page.page_range }}
@@ -59,8 +58,7 @@
                         {% if articles.has_next %}
                             <a href="?page={{ articles.next_page_number }}"
                                class="btn btn-outline-primary">
-                               &raquo;
-                               <span class="sr-only">{% trans 'next page' %}</span>
+                               {% include "elements/icons/page_next.html" %}
                             </a>
                         {% endif %}
                     </ul>

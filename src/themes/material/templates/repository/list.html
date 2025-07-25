@@ -23,8 +23,7 @@
                     <ul class="pagination">
                         {% if preprints.has_previous %}
                             <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">
-                            &laquo;
-                            <span class="sr-only">{% trans 'previous page' %}</span>
+                            {% include "elements/icons/page_previous.html" %}
                         </a></li>
                             &nbsp;{% endif %}
                         {{ preprints.page.page_range }}
@@ -35,8 +34,7 @@
                         {% endfor %}
                         {% if preprints.has_next %}
                             <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">
-                            &raquo;
-                            <span class="sr-only">{% trans 'next page' %}</span>
+                            {% include "elements/icons/page_next.html" %}
                         </a>
                             </li>
                         {% endif %}
