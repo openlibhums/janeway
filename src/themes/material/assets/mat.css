@@ -885,8 +885,11 @@ a {
     color: inherit;
     margin-left: 0.5rem;
     border: 1px, solid, #00897b;
+    align-items: center;
+    justify-content: center;
     padding: 0 10px;
     min-width: 7rem;
+    min-height: 2rem;
     white-space: nowrap;
     vertical-align: middle;
     line-height: 1;
