@@ -41,11 +41,13 @@
                     <p>{% trans "There are no preprints to display" %}</p>
                 {% endfor %}
 
-                <div class="pagination-block">{{ page }}
+                <div class="pagination-block">
                     <ul class="d-flex justify-content-center">
                         {% if articles.has_previous %}
                             <a href="?page={{ articles.previous_page_number }}"
-                               class="btn btn-outline-primary">&laquo;</a>
+                               class="btn btn-outline-primary">
+                               {% include "elements/icons/page_previous.html" %}
+                            </a>
                             &nbsp;{% endif %}
                         {{ articles.page.page_range }}
                         {% for page in articles.paginator.page_range %}
@@ -55,7 +57,9 @@
                         {% endfor %}
                         {% if articles.has_next %}
                             <a href="?page={{ articles.next_page_number }}"
-                               class="btn btn-outline-primary">&raquo;</a>
+                               class="btn btn-outline-primary">
+                               {% include "elements/icons/page_next.html" %}
+                            </a>
                         {% endif %}
                     </ul>
                 </div>
