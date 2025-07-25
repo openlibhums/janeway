@@ -4,9 +4,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="HarvardModalLabel">{% trans 'Harvard-style Citation' %}</h2>
-                    <button id="harvard-close" type="button" class="close" data-dismiss="modal" aria-labelledby="harvard-close HarvardModalLabel">
-                        <span class="sr-only">{% trans 'close' %}</span>
-                        <span aria-hidden="true">&times;</span>
+                    <button id="harvard-close" type="button" class="close" data-dismiss="modal" aria-describedby="HarvardModalLabel">
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
@@ -23,9 +22,9 @@
                     <button class="button" 
                         type="button"
                         onclick="copyToClipboard('harvard-cite', event, '{% trans 'Copied' %}' )"
-                        aria-label="{% trans 'Copy citation formatted in Harvard-style' %}"
+                        aria-describedby="{% trans 'harvard-cite' %}"
                         >
-                        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                        {% include "elements/icons/copy.html" %}
                     </button>
                 </div>
             </div>
@@ -38,9 +37,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="VancouverModalLabel">{% trans 'Vancouver-style Citation' %}</h2>
-                    <button id="vancouver-close" type="button" class="close" data-dismiss="modal" aria-labelledby="vancouver-close VancouverModalLabel">
-                        <span class="sr-only">{% trans 'close' %}</span>
-                        <span aria-hidden="true">&times;</span>
+                    <button id="vancouver-close" type="button" class="close" data-dismiss="modal" 
+                        aria-describedby="VancouverModalLabel"
+                        >
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
@@ -54,9 +54,9 @@
                     <button class="button" 
                         type="button"
                         onclick="copyToClipboard('vancouver-cite', event, '{% trans 'Copied' %}' )"
-                        aria-label="{% trans 'Copy citation formatted in Vancouver-style' %}"
+                        aria-describedby="vancouver-cite"
                         >
-                        <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                        {% include "elements/icons/copy.html" %}
                     </button>
                 </div>
             </div>
@@ -69,9 +69,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="APAModalLabel">{% trans 'APA-style Citation' %}</h2>
-                    <button id="APA-close" type="button" class="close" data-dismiss="modal" aria-labelledby="APA-close APAModalLabel">
-                        <span class="sr-only">{% trans 'close' %}</span>
-                        <span aria-hidden="true">&times;</span>
+                    <button id="APA-close" type="button" class="close" data-dismiss="modal" 
+                        aria-describedby="APAModalLabel"
+                        >
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
@@ -79,16 +80,16 @@
                         &amp; {% endif %}{% endif %}{{ author.last_name }},
                         {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                         ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
-                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
                         {% if article.identifier.id_type == 'doi' %}
                             {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                         {% endif %}</p>
                         <button class="button" 
                             type="button"
                             onclick="copyToClipboard('apa-cite', event, '{% trans 'Copied' %}' )"
-                            aria-label="{% trans 'Copy citation formatted in APA-style' %}"
+                            aria-describedby="apa-cite"
                             >
-                            <i aria-hidden="true" class="fa fa-copy"></i>&nbsp;<span>{% trans "Copy" %}</span>
+                            {% include "elements/icons/copy.html" %}
                         </button>
                 </div>
 
