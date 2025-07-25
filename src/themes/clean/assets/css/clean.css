@@ -568,8 +568,9 @@ a {
 
 .btn-background, .btn-background:active, .btn-background:visited {
     background-color: inherit;
-    border-color: #1C304A;
     color: inherit;
+    margin-left: 0.5rem;
+    border: 1px, solid, #1C304A;
 }
 
 .btn-background:hover {

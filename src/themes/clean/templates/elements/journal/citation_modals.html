@@ -18,8 +18,8 @@
                         {% if article.identifier.id_type == 'doi' %}
                             {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                         {% endif %}
+                        {% include "admin/elements/button_copy_element.html" with element_id="harvard-cite" %}
                     </p>
-                    {% include "admin/elements/button_copy_element.html" with element_id="harvard-cite" %}
                 </div>
             </div>
         </div>
@@ -45,8 +45,8 @@
                             {% if article.identifier.id_type == 'doi' %}
                                 {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                         {% endif %}
+                        {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
                     </p>
-                    {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
                 </div>
             </div>
         </div>
@@ -73,8 +73,8 @@
                         {% if article.identifier.id_type == 'doi' %}
                             {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                         {% endif %}
+                        {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
                     </p>
-                    {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
                 </div>
 
             </div>
