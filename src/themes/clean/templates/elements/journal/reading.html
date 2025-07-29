@@ -1,5 +1,5 @@
 <div id="reading-options" class="col-md-12">
-    <h2 class="sr-only">Text display options</h2>
+    <h2 class="sr-only">{% trans 'Text display options' %}</h2>
     <div class="btn-group-horizontal">
         <button
             class="btn btn-opt"
@@ -23,6 +23,7 @@
             class="btn btn-opt"
             id="dyslexia-mode"
             type="button"
+            onclick="toggleDyslexia()"
             aria-label="{% trans 'Dyslexia mode' %}"
             style="font-size: medium"
         >
