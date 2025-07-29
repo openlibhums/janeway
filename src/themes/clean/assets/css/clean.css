@@ -480,9 +480,12 @@ header svg {
     padding-bottom: 8px;
 }
 
-.sticky-top {
+.sticky-toc {
+    position: sticky;
     max-height: 100vh;
-    overflow-y: auto
+    overflow-y: auto;
+    top: 60px;
+    z-index: 999;
 }
 
 .card.no-image {
@@ -655,9 +658,13 @@ span + .btn-background {
   margin: 0;
   padding: 0;
   justify-content: flex-end;
-  background-color: #f5f5f5;
   min-height: fit-content;
-  box-sizing: border-box;
+  box-sizing: border-box;  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: fit-content;
+  margin-left: auto;
 }
 
 .btn-opt {
@@ -669,30 +676,18 @@ span + .btn-background {
     font-family: Verdana !important;
     color: #4c4c4c;
     background-color: #F5F5DC;
+}
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-family: Verdana !important;
-      color: #4c4c4c;
-    }
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
 
-    i, em {
-        font-style: normal;
-        background-color: #FAFAC8;
-    }
-
-    .summary {
-        .top {
-            background-color: #F5F5DC;
-        }
-        .bottom {
-            background-color: #F5F5DC;
-        }
-    }
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
 }
 
 .no-bullet-list{

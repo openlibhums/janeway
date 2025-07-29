@@ -296,6 +296,7 @@ a:hover .article-title {
 .toc-sticky{
     position: sticky;
     top: 0;
+    z-index: 999;
 }
 
 .wide-button {
@@ -924,50 +925,39 @@ p + .btn-background {
 #reading-options{
   display: flex;
   gap: 1rem;
-  margin: 0;
-  padding: 0;
+  padding: 0 .75rem;
   justify-content: flex-end;
-  background-color: #f5f5f5;
   min-height: fit-content;
   box-sizing: border-box;
 }
 
+#reading-sticky{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
 .btn-opt {
     border: 1px solid #00897b;
-    background: #f1f1f1;
+    background-color: inherit;
     text-transform: none;
-    color: black;
+    color: inherit;
 }
 
 .dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-family: Verdana !important;
-      color: #4c4c4c;
-    }
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
 
-    p, li {
-      font-family: Verdana !important;
-      color: #4c4c4c;
-      background-color: #F5F5DC;
-    }
-
-    i, em {
-        font-style: normal;
-        background-color: #FAFAC8;
-    }
-
-    .summary {
-        .top {
-            background-color: #F5F5DC;
-        }
-        .bottom {
-            background-color: #F5F5DC;
-        }
-    }
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
 }

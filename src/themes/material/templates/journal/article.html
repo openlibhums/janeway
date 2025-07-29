@@ -55,11 +55,15 @@
                         </span>
                     </div>
                 {% endif %}
-                {% include "elements/journal/reading.html" %}
+                
                 <div>
 
                 </div>
-            </div>
+            </div>   
+        </div>
+
+        <div id="reading-sticky" class=" col s12 show-on-small hide-on-med-and-up">
+            {% include "elements/journal/reading.html" %}
         </div>
 
         <div id="article" class="col m8 s12">
@@ -233,7 +237,9 @@
                 </article>
             {% endif %}
         </div>
-
+        <div id="reading-sticky" class="col m4 hide-on-small-only">
+            {% include "elements/journal/reading.html" %}
+        </div>
         <div class="col m4">
             <div class="card">
                 <section aria-label="{% trans 'Article Information' %}">
