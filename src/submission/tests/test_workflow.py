@@ -159,11 +159,11 @@ class SubmissionTests(TestCase):
         id_logic.generate_crossref_doi_with_pattern(article)
 
         expected = """
-        <p>
+        <span>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
         <i>Journal One</i> 1, 2-4.
-        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
+        <a aria-label="D.O.I. for Test article: a test article" href="https://doi.org/{0}" target="_blank">https://doi.org/{0}</a></span>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
 
