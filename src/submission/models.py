@@ -37,6 +37,7 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django.core.exceptions import ValidationError
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -3190,8 +3191,15 @@ class Field(models.Model):
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=field_kind_choices())
-    width = models.CharField(max_length=50, choices=width_choices(), default="full")
+    kind = models.CharField(
+        max_length=50,
+        choices=field_kind_choices(),
+    )
+    width = models.CharField(
+        max_length=50,
+        choices=width_choices(),
+        default="full",
+    )
     choices = models.CharField(
         max_length=1000,
         null=True,
@@ -3201,9 +3209,17 @@ class Field(models.Model):
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     display = models.BooleanField(
-        default=False, help_text="Whether or not display this field in the article page"
+        default=False,
+        help_text="Whether or not display this field in the article page",
     )
     help_text = models.TextField()
+
+    sections = M2MOrderedThroughField(
+        "submission.Section",
+        through="FieldSection",
+        blank=True,
+        related_name="fields",
+    )
 
     class Meta:
         ordering = ("order", "name")
@@ -3215,8 +3231,42 @@ class Field(models.Model):
     def object(self):
         if not self.journal:
             return self.press
-
         return self.journal
+
+    def is_global(self):
+        return not self.sections.exists()
+
+
+class FieldSection(models.Model):
+    field = models.ForeignKey(
+        "Field",
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        "submission.Section",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order",)
+        unique_together = ("field", "section")
+
+    def clean(self):
+        """Ensure section and field belong to the same journal."""
+        if (
+            self.field.journal
+            and self.section.journal
+            and self.field.journal != self.section.journal
+        ):
+            raise ValidationError(
+                "Section journal does not match field journal."
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
 
 
 class FieldAnswer(models.Model):

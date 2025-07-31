@@ -107,4 +107,8 @@ urlpatterns = [
         views.licenses,
         name="submission_licenses_id",
     ),
+
+
+    # Fields
+    re_path(r"^manager/fields/$", views.fields_list, name="submission_fields_list"),
 ]

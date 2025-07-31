@@ -245,10 +245,18 @@ class SectionAdmin(admin.ModelAdmin):
         return qs.prefetch_related("journal")
 
 
+class FieldSectionInline(admin.TabularInline):
+    model = models.FieldSection
+    extra = 1
+    raw_id_fields = ("section",)  # Enables popup selector with filtering
+    ordering = ("order",)
+
+
 class FieldAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "press", "kind", "width", "required", "display")
     list_filter = ("journal", "press", "kind", "width", "required", "display")
     search_fields = ("name", "help_text", "choices")
+    inlines = [FieldSectionInline]
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):

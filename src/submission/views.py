@@ -3,13 +3,12 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import json
+from collections import defaultdict
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, translation
@@ -23,7 +22,6 @@ from core import files, models as core_models
 from core.logic import create_organization_name, reverse_with_next
 from core.views import GenericFacetedListView
 from core.forms import (
-    AccountAffiliationForm,
     ConfirmDeleteForm,
     OrcidAffiliationForm,
     OrganizationNameForm,
@@ -42,7 +40,7 @@ from security.decorators import (
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from utils import setting_handler
-from utils import shared as utils_shared, orcid
+from utils import orcid
 from utils.forms import clean_orcid_id
 from utils.decorators import GET_language_override
 from utils.shared import create_language_override_redirect
@@ -1019,7 +1017,11 @@ def edit_author(request, article_id, author_id):
 @production_user_or_editor_required
 def order_authors(request, article_id):
     raise DeprecationWarning("Use edit_author_metadata instead.")
-    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
+    article = get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
 
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist("authors[]")]
@@ -1030,6 +1032,43 @@ def order_authors(request, article_id):
             author.save()
 
     return HttpResponse("Thanks")
+
+
+@editor_user_required
+def fields_list(request):
+    """
+    List view for additional fields grouped by Section or shown as Global.
+    Ordered by FieldSection.order where applicable.
+    """
+    journal = request.journal
+
+    field_sections = (
+        models.FieldSection.objects.filter(
+            field__journal=journal,
+        )
+        .select_related(
+            "field",
+            "section",
+        )
+        .order_by(
+            "order",
+            "section__name",
+        )
+    )
+    grouped = defaultdict(list)
+    global_fields = models.Field.objects.filter(
+        journal=journal,
+        sections=None,
+    ).order_by("order", "name")
+    grouped["Global"] = list(global_fields)
+    for fs in field_sections:
+        grouped[fs.section.name].append(fs.field)
+
+    template = "admin/submission/manager/fields_list.html"
+    context = {
+        "grouped_fields": grouped.items(),
+    }
+    return render(request, template, context)
 
 
 @editor_user_required
