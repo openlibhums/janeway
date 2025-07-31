@@ -16,7 +16,7 @@
             {% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
-        <p>{% trans 'Show: ' %} 
+        <p>{% trans 'Show:' %} 
             <a data-open="VancouverModal">
                 {% trans 'Vancouver Citation Style' %}
                 {% include "elements/icons/link_modal.html" %} 
@@ -47,7 +47,7 @@
             {% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
-        <p>{% trans 'Show: ' %}' 
+        <p>{% trans 'Show:' %}
             <a data-open="HarvardModal">
                 {% trans 'Harvard Citation Style' %}
                 {% include "elements/icons/link_modal.html" %} 
@@ -79,7 +79,7 @@
                 {{ article.issue.volume }}{% endif %}
             {% if article.page_range %}:{{ article.page_range }}.{% endif %}
             {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
-        <p>{% trans 'Show: ' %}' 
+        <p>{% trans 'Show:' %} 
             <a data-open="HarvardModal">
                 {% trans 'Harvard Citation Style' %}
                 {% include "elements/icons/link_modal.html" %} 
