@@ -138,9 +138,9 @@
                             </a>
                         {% endif %}
                         </li>
-                        <li>{% trans "Subjects: " %} {% include "common/repository/subject_display.html" %}</li>
+                        <li>{% trans "Subjects:" %} {% include "common/repository/subject_display.html" %}</li>
                         {% if preprint.keywords.all %}
-                            <li>{% trans "Keywords: " %} 
+                            <li>{% trans "Keywords:" %} 
                                 <ul class="keywords-list">
                                 {% for keyword in preprint.keywords.all %}
                                     <li>
