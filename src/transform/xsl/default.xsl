@@ -429,7 +429,7 @@
   <xsl:template name="body-footnotes">
     <!-- Handle footnotes scattered around the body inside p tags, rather than fn-group -->
     <xsl:if test="//article/body/p/fn">
-      <h2>Footnotes</h2>
+      <h2 id="footnotes-header">Footnotes</h2>
         <ol class="footnotes">
           <xsl:for-each select="//article/body/p/fn">
 	    <xsl:call-template name="referenced-footnote" />
@@ -443,7 +443,7 @@
          <!-- Adds a header for footnotes when there the first child is not a title tag
            *( See 'back/fn-group/title[1]' for heading implementation)
          -->
-        <h2>Notes</h2>
+        <h2 id="footnotes-header">Notes</h2>
       </xsl:if>
       <xsl:apply-templates select="title" />
         <ol class="footnotes">
@@ -1092,6 +1092,7 @@
                   <xsl:text>nm</xsl:text>
                   <xsl:number level="any" count="xref[@rid=$rid]"/>
               </xsl:attribute>
+              <xsl:attribute name="aria-describedby">footnotes-header</xsl:attribute>
               <sup><xsl:apply-templates/></sup>
             </xsl:when>
             <xsl:otherwise>
