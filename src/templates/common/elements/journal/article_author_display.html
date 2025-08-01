@@ -55,9 +55,7 @@
         itemprop="email"
         href="mailto:{{ author.email }}">
         <span>{{ author.email }}</span>
-        <span class="sr-only show-for-sr">
-          {% trans "(opens in new tab)" %}
-        </span>
+        {% include "elements/icons/link_email.html" %}
       </a>
     {% endif %}
     {% if author.affiliations.exists %}
