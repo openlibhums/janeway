@@ -611,3 +611,9 @@ a {
     min-width: 24px;
     min-height: 24px;
 }
+
+.no-bullet-list{
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 0;
+}
