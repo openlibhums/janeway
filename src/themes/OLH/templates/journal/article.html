@@ -99,8 +99,8 @@
                                             <span class="sr-only">{% trans 'Printer friendly version.' %}</span>
                                         </a>
                                     </li>
-                                    <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
-                                    <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
+                                    <li><a onclick="resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
+                                    <li><a onclick="resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
@@ -109,7 +109,7 @@
                                             </a>
                                         </li>
                                     {% endif %}
-                                    <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
+                                    <li><a onclick="toggleDyslexia()" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
                                         <a href="#">
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
@@ -560,4 +560,5 @@
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
+    <script src="{% static "common/js/text_readability.js" %}"></script>
 {% endblock js %}

@@ -1,0 +1,33 @@
+<div id="reading-options" class="card">
+    <h2 class="sr-only">{% trans 'Text display options' %}</h2>
+    <div class="btn-group-horizontal">
+        <button
+            class="btn btn-opt"
+            type="button"
+            onclick="resizeText(-1)"
+            aria-label="{% trans 'decrease text size' %}"
+            style="font-size: medium"
+        >
+            <span style="font-size: xx-small">Aa -</span>
+        </button>
+        <button
+            class="btn btn-opt"
+            type="button"
+            onclick="resizeText(1)"
+            aria-label="{% trans 'increase text size' %}"
+            style="font-size: medium"
+        >
+            Aa +
+        </button>
+        <button
+            class="btn btn-opt"
+            id="dyslexia-mode"
+            type="button"
+            onclick="toggleDyslexia()"
+            aria-label="{% trans 'Dyslexia mode' %}"
+            style="font-size: medium"
+        >
+            <span style="font-size: small">{% trans "Dyslexia" %}</span>
+        </button>
+    </div>
+</div>

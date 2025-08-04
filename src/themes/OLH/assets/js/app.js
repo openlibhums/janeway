@@ -20,10 +20,6 @@ $(".search-toggle").click(function() {
   $(".global-search input").focus();
 });
 
-$("#dyslexia-mode").click(function(e) {
-    e.preventDefault();
-    return $('#article').toggleClass('dyslexia-friendly');
-});
 
 
 function kanbanInit() {

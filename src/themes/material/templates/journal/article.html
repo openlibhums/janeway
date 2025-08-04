@@ -55,10 +55,15 @@
                         </span>
                     </div>
                 {% endif %}
+                
                 <div>
 
                 </div>
-            </div>
+            </div>   
+        </div>
+
+        <div id="reading-sticky" class=" col s12 show-on-small hide-on-med-and-up">
+            {% include "elements/journal/reading.html" %}
         </div>
 
         <div id="article" class="col m8 s12">
@@ -243,7 +248,9 @@
                 </article>
             {% endif %}
         </div>
-
+        <div id="reading-sticky" class="col m4 hide-on-small-only">
+            {% include "elements/journal/reading.html" %}
+        </div>
         <div class="col m4">
             <div class="card">
                 <section aria-label="{% trans 'Article Information' %}">
@@ -558,4 +565,5 @@
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
+    <script src="{% static "common/js/text_readability.js" %}"></script>
 {% endblock %}

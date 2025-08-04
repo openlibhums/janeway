@@ -296,6 +296,7 @@ a:hover .article-title {
 .toc-sticky{
     position: sticky;
     top: 0;
+    z-index: 999;
 }
 
 .wide-button {
@@ -837,6 +838,46 @@ a {
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 110%;
+}
+
+#reading-options{
+  display: flex;
+  gap: 1rem;
+  padding: 0 .75rem;
+  justify-content: flex-end;
+  min-height: fit-content;
+  box-sizing: border-box;
+}
+
+#reading-sticky{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.btn-opt {
+    border: 1px solid #00897b;
+    background-color: inherit;
+    text-transform: none;
+    color: inherit;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
+
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
 }
 
 .btn-background, .btn-background:active, .btn-background:visited {
