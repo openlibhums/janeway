@@ -30,8 +30,19 @@
                 <div class="card-body">
                     <h3 id="{{fa.article.pk}}-title" class="sr-only">{{ fa.article.title }}</h3>
                     <p class="card-text">{{ fa.article.author_list }}</p>
-                    <p class="card-text"><strong></strong><a aria-labelledby="{{ fa.article.pk }}-title" href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}">{{ fa.article.title|safe|truncatechars:200 }}</a></strong></p>
-                </div>
+                    <p class="card-text"><strong>
+                        {% if fa.article.is_remote %}
+                            <a href="{{ fa.article.remote_url }}" target="_blank">
+                                {{ fa.article.title|safe|truncatechars:200 }}
+                                {% include "elements/icons/link_external.html" %} 
+                            </a>
+                        {% else %}
+                            <a href="{{ fa.article.url }}">
+                                {{ fa.article.title|safe|truncatechars:200 }}
+                            </a>
+                        {% endif %}
+                    </strong></p>
+                  </div>
                 </div>
             </div>
         {% endfor %}

@@ -19,10 +19,10 @@
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="" id="{{ item.link_name|slugify }}"
+                        <button class="nav-link dropdown-toggle dropdown-button" id="{{ item.link_name|slugify }}"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{ item.link_name }}
-                        </a>
+                        </button>
                         <div class="dropdown-menu" aria-labelledby="{{ item.link_name|slugify }}">
                             {% if item.link %}
                                 <a href="/{{ item.link }}" class="dropdown-item">{{ item.link_name }}</a>{% endif %}
@@ -39,10 +39,10 @@
         {% endif %}
             {% if request.press.enable_preprints %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="preprints"
+                    <button class="nav-link dropdown-toggle dropdown-button" id="preprints"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Repositories' %}
-                    </a>
+                    </button>
                     <div class="dropdown-menu" aria-labelledby="preprints">
                         {% for repo in request.press.live_repositories %}
                             <a href="{{ repo.site_url }}" class="dropdown-item">{{ repo.name }}</a>
@@ -57,10 +57,10 @@
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" id="user"
+                    <button class="nav-link dropdown-toggle dropdown-button" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account' %}
-                    </a>
+                    </button>
                     <div class="dropdown-menu" aria-labelledby="user">
                         {% user_has_role request 'editor' as user_is_editor %}
                         {% if user_is_editor or request.user.is_staff %}

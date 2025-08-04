@@ -41,7 +41,15 @@
                 {% if news_item.tags.all %}
                     <div class="large-3 columns">
                         <h2>{% trans "Tags" %} <i aria-hidden="true"  class="fa fa-tags">&nbsp;</i></h2>
-                        <p>{% for tag in news_item.tags.all %}<a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">{{ tag.text }}</a>{% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
+                        <ul class="tags-list">
+                            {% for tag in news_item.tags.all %}
+                                <li>
+                                    <a href="{% url 'core_news_list_tag' tag.text %}" class="button success tiny">
+                                        {{ tag.text }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 {% endif%}
             </div>

@@ -28,7 +28,7 @@
 
                         {% endif %}
 
-                        <h2>{{ author.full_name }}</h2>
+                        <h2 id="author-{{ author.uuid }}">{{ author.full_name }}</h2>
                         <i>
                             <small>{{ author.affiliation }}</small>
                         </i>
@@ -37,9 +37,13 @@
                         {% if author.enable_public_profile %}
 
                             <p>
-                                <small><a
-                                        href="{% url 'core_public_profile' author.uuid %}">View
-                                    Profile</a></small>
+                                <small>
+                                    <a href="{% url 'core_public_profile' author.uuid %}"
+                                        aria-describedby="author-{{ author.uuid }}"
+                                        >
+                                        {% trans 'View Profile' %}
+                                    </a>
+                                </small>
                             </p>
 
                         {% endif %}

@@ -1400,3 +1400,41 @@ button.list-group-item-danger.active:focus {
 .no-pad{
   padding: 0;
 }
+
+.tags-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.tags-list li{
+  display: inline-block;
+}
+.tags-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.icon-recede{
+    opacity: 70%;
+}

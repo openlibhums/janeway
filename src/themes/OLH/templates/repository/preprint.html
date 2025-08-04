@@ -118,8 +118,8 @@
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
-                                <i aria-hidden="true"  class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                                {{ request.repository.object_name }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a>
                         </p>
                     {% endif %}
@@ -128,13 +128,28 @@
                         <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
                         <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
-                          {% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
-                                                     title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
+                          {% trans "License" %}: 
+                          <a href="{{ preprint.license.url }}" data-toggle="tooltip"
+                                title="{{ preprint.license.text }}"
+                                target="_blank"
+                                >
+                                {{ preprint.license.name }}
+                                {% include "elements/icons/link_external.html" %} 
+                            </a>
                         {% endif %}
                         </li>
-                        <li>Subjects: {% include "common/repository/subject_display.html" %}</li>
+                        <li>{% trans "Subjects:" %} {% include "common/repository/subject_display.html" %}</li>
                         {% if preprint.keywords.all %}
-                          <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                            <li>{% trans "Keywords:" %} 
+                                <ul class="keywords-list">
+                                {% for keyword in preprint.keywords.all %}
+                                    <li>
+                                        {{ keyword.word }}
+                                        {% if not forloop.last %},{% endif %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </li>
                         {% endif %}
                         {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
                     </ul>
@@ -143,9 +158,8 @@
                     <ul>
                         {% for version in preprint.preprintversion_set.all %}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
-                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
-                                <span class="sr-only">{% trans 'Download' %}</span>
                                 {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a></li>
                             {% empty %}
                             <li>{% trans "This is the only version of the preprint." %}</li>
