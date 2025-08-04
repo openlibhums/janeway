@@ -28,8 +28,10 @@
                         <input type="submit" style="visibility: hidden;"/>
                     </form>
                 </div>
-                <p class="text-center">{% trans "Read about" %} <a href="{% url 'repository_about' %}">{{ request.repository.name }}</a>
-                    {% trans "or view list of" %} <a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a>.
+                <p class="text-center">
+                    <a href="{% url 'repository_about' %}">{% trans "Read about" %} {{ request.repository.name }}</a>
+                    {% trans "or" %}
+                    <a href="{% url 'repository_list' %}">{% trans "view list of" %}{{ request.repository.object_name_plural }}</a>.
                 </p>
             </div>
 
@@ -46,10 +48,17 @@
                     {% if subjects|length <= 5 %}
                         <div class="large-12 columns">
                             <div class="stacked button-group">
-                                {% for subject in subjects %}
-                                    <a href="{% url 'repository_list_subject' subject.pk %}"
-                                       class="button">{{ subject.name }}</a>
-                                {% endfor %}
+                                <ul class="keyword-list">
+                                    {% for subject in subjects %}
+                                        <li>
+                                            <a href="{% url 'repository_list_subject' subject.pk %}"
+                                                class="button"
+                                                >
+                                                {{ subject.name }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                     {% else %}

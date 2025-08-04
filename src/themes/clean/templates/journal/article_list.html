@@ -33,7 +33,7 @@
                                 {% if not keyword %}
                                     {% bootstrap_field search_form.article_search %}
                                 {% else %}
-                                    You are currently browsing by keyword.
+                                    {% trans 'You are currently browsing by keyword.' %}'
                                     <p>
                                         <a href="{% url 'search' %}">
                                             {% trans "Search for an article" %}

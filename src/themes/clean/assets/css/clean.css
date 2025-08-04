@@ -479,9 +479,12 @@ header svg {
     padding-bottom: 8px;
 }
 
-.sticky-top {
+.sticky-toc {
+    position: sticky;
     max-height: 100vh;
-    overflow-y: auto
+    overflow-y: auto;
+    top: 60px;
+    z-index: 999;
 }
 
 .card.no-image {
@@ -563,4 +566,89 @@ a {
 
 .card-title{
     font-size: 1.5rem;
+}
+
+#reading-options{
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+  min-height: fit-content;
+  box-sizing: border-box;  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: fit-content;
+  margin-left: auto;
+}
+
+.btn-opt {
+    border: 1px solid #1C304A;
+    background: #f1f1f1;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
+
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
+}
+
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    margin-left: 0.5rem;
+    border: 1px, solid, #1C304A;
+    min-width: 7rem;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.dropdown-button{
+    background: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    border: 0;
+}
+        
+.background-button{
+    border: 0;
+    background: transparent;
+}
+
+.icon-recede{
+    opacity: 70%;
 }

@@ -32,15 +32,21 @@
                             <div class="{% if journal_settings.styling.enable_editorial_images %}editorial-team{% endif %} callout"
                                  data-equalizer-watch>
                                 {% include "common/elements/journal/editorial_team_image.html" with group=group classes="thumbnail editorial-image" %}
-                                <h3 class="profile-name">{{ member.user.full_name }}</h3>
+                                <h3 class="profile-name" id="member-{{ member.user.uuid }}">{{ member.user.full_name }}</h3>
                                 <i>
                                     <small>{{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}</small>
                                 </i><br/>
                                 {% if member.user.enable_public_profile %}
                                     <p>
-                                        <small><a href="{% url 'core_public_profile' member.user.uuid %}">View
-                                            Profile</a></small>
-                                    </p>{% endif %}
+                                        <small>
+                                            <a href="{% url 'core_public_profile' member.user.uuid %}"
+                                                aria-describedby="member-{{ member.user.uuid }}"
+                                                >
+                                                {% trans 'View Profile' %}
+                                            </a>
+                                        </small>
+                                    </p>
+                                {% endif %}
                                 {% include "elements/journal/editorial_social_content.html" with user=member.user %}
                             </div>
                         </div>

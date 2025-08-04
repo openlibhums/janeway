@@ -28,7 +28,7 @@
                     <div class="card full-width-card">
                         {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" %}
                         <div class="card-body">
-                            <h3 class="card-title editor-name">{{ member.user.full_name }}</h3>
+                            <h3 id="card-{{ member.id }}" class="card-title editor-name">{{ member.user.full_name }}</h3>
                             <p class="card-text">
                                 <small>
                                     {{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}
@@ -36,9 +36,12 @@
                             </p>
                             {% if user.enable_public_profile %}
                                 <p class="card-text">
-                                    <small class="text-muted"><a
-                                            href="{% url 'core_public_profile' member.user.uuid %}">View
-                                        Profile</a>
+                                    <small class="text-muted">
+                                        <a href="{% url 'core_public_profile' member.user.uuid %}"
+                                            aria-describedby="card-{{ member.id }}"
+                                            >
+                                           {% trans 'View Profile' %}
+                                        </a>
                                     </small>
                                 </p>
                             {% endif %}
