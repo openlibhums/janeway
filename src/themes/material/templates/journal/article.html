@@ -101,10 +101,7 @@
                     {% endif %}
                     {% if article.is_published or proofing %}
                     {% if not journal_settings.article.suppress_how_to_cite %}
-                        <h2>{% trans "How to Cite" %}</h2>
-                        <div id="article_how_to_cite">
-                            {{ article.how_to_cite | safe }}
-                        </div>
+                        {% include "elements/journal/cite.html" %}
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
@@ -445,7 +442,7 @@
                         {% if doi_url %}
                         <h2>{% trans "Identifiers" %}</h2>
                         <ul>
-                            <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
+                            <li>{% include "elements/doi_display.html" with doi=doi_url title=article.title %}</li>
                         </ul>
                         <div class="spacer">
                             <div class="divider"></div>

@@ -1401,6 +1401,28 @@ button.list-group-item-danger.active:focus {
   padding: 0;
 }
 
+.btn-background, .btn-background:active, .btn-background:visited {
+    color: inherit;
+    margin-left: 0.5rem;
+    background-color: var(--menu-alternative-background-color);
+    color: var(--menu-foreground-color);
+    border: 1px solid var(--menu-foreground-color);
+    padding: 0.5rem;
+    min-width: 7rem;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
 .tags-list {
   list-style: none;
   padding-left: 0;

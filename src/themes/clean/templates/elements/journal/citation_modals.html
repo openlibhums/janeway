@@ -4,17 +4,24 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="HarvardModalLabel">{% trans 'Harvard-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button id="harvard-close" type="button" class="close" data-dismiss="modal" aria-describedby="HarvardModalLabel">
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
-                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
-                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        ({{ article.date_published.year }}) '{{ article.title|safe }}',
-                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                    <p>
+                        <span id="harvard-cite">{% for author in article.frozenauthor_set.all %}
+                            {% if not forloop.first and not forloop.last %},
+                            {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                                {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                                ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                                <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                            {% if article.identifier.id_type == 'doi' %}
+                                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                            {% endif %}
+                        </span>
+                        {% include "admin/elements/button_copy_element.html" with element_id="harvard-cite" %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -26,16 +33,24 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="VancouverModalLabel">{% trans 'Vancouver-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button id="vancouver-close" type="button" class="close" data-dismiss="modal" 
+                        aria-describedby="VancouverModalLabel"
+                        >
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
-                    {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
-                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                    <p>
+                        <span id="vancouver-cite">{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
+                            {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                                {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                                {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} {{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                                {% if article.identifier.id_type == 'doi' %}
+                                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                            {% endif %}
+                        </span>
+                        {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -47,17 +62,25 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="APAModalLabel">{% trans 'APA-style Citation' %}</h2>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button id="APA-close" type="button" class="close" data-dismiss="modal" 
+                        aria-describedby="APAModalLabel"
+                        >
+                        {% include "elements/icons/close_modal.html" %}
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
-                        &amp; {% endif %}{% endif %}{{ author.last_name }},
-                        {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-                        ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
-                        <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                        {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
+                    <p>
+                        <span id="apa-cite">{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
+                            &amp; {% endif %}{% endif %}{{ author.last_name }},
+                            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+                            <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                            {% if article.identifier.id_type == 'doi' %}
+                                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                            {% endif %}
+                        </span>
+                        {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
+                    </p>
                 </div>
 
             </div>
