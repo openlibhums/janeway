@@ -1,0 +1,20 @@
+{% comment %}
+  A button sytled to recede that lets users copy
+  the text content of a DOM element (by ID) to their clipboard.
+
+  element_id - the ID of the element to copy from
+  Button text is always 'Copy' and changes to 'Copied' on success.
+
+  Requires src/static/common/js/clipboard.js to be included in the JS block of any page using this button.
+  For example, the article.html template uses this several times, and includes that script.
+
+{% endcomment %}
+
+<button
+    type="button"
+    class="btn-background"
+    onclick="copyToClipboard('{{ element_id }}', event, '{% trans 'Copied' %}')"
+    aria-describedby="{{ element_id }}"
+    >
+    {% include "elements/icons/copy.html" %}
+</button>
