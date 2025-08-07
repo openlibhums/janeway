@@ -1652,10 +1652,13 @@ class Galley(AbstractLastModifiedModel):
         )
 
     def render(self, recover=False):
+        xsl_path = self.xsl_file.file.path
+        if settings.FORCE_BUILTIN_XSL:
+            xsl_path = settings.BUILTIN_XSL_PATH
         return files.render_xml(
             self.file,
             self.article,
-            xsl_path=self.xsl_file.file.path,
+            xsl_path=xsl_path,
             recover=recover,
         )
 
