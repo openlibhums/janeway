@@ -519,6 +519,12 @@ HTTP_TIMEOUT_SECONDS = 5
 # are first uploaded
 DEFAULT_XSL_FILE_LABEL = "Janeway default (1.6.0)"
 
+# When this setting is enabled, Janeway will ignore the preserved XSLT
+# associated with a galley and will instead rely on src/xsl/default.xsl
+# useful for XSLT development
+FORCE_BUILTIN_XSL = False
+BUILTIN_XSL_PATH = os.path.join(BASE_DIR, "transform/xsl/default.xsl")
+
 # Skip migrations by default on sqlite for faster execution
 if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
     from collections.abc import Mapping
