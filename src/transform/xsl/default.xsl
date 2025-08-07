@@ -1764,7 +1764,7 @@
     <xsl:template match="ref-list">
         <!-- We inject the references heading only when there is no title block -->
         <xsl:if test="name(*[1]) != 'title'">
-          <h2>References</h2>
+          <h2 id="reference-header">References</h2>
         </xsl:if>
         <div id="reflist">
           <ul>
@@ -1775,6 +1775,7 @@
     <xsl:template match="ref-list/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h2">
+                <xsl:attribute name="id">reference-header</xsl:attribute>
                 <xsl:apply-templates/>
             </xsl:element>
         </xsl:if>

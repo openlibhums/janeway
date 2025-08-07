@@ -103,6 +103,11 @@ function initialiseCrossRefs(){
     document.querySelectorAll('#reflist li').forEach(entry => {
         const links = Array.from(document.querySelectorAll(`.xref-bibr[href="#${entry.id}"]`));
 
+        // Add aria-describedby attribute to all bibliography links
+        links.forEach(link => {
+            link.setAttribute('aria-describedby', 'reference-header');
+        });
+
         // Always create an ordered list, even for single items
         const ol = document.createElement('ol');
         ol.className = 'back-links-list';
