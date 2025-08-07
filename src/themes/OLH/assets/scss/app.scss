@@ -1453,14 +1453,24 @@ button.list-group-item-danger.active:focus {
 }
 
 .btn-background, .btn-background:active, .btn-background:visited {
-    color: inherit;
     margin-left: 0.5rem;
     background-color: var(--menu-alternative-background-color);
     color: var(--menu-foreground-color);
     border: 1px solid var(--menu-foreground-color);
-    padding: 0.5rem;
+    padding: 0 10px;
     min-width: 7rem;
-    min-height: 2rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + div .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
 }
 
 .btn-background:hover {

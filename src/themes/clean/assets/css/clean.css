@@ -601,14 +601,25 @@ a {
   display: inline-block;
 }
 
-
 .btn-background, .btn-background:active, .btn-background:visited {
     background-color: inherit;
     color: inherit;
     margin-left: 0.5rem;
     border: 1px, solid, #1C304A;
+    padding: 0 10px;
     min-width: 7rem;
-    min-height: 2rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
 }
 
 .btn-background:hover {
