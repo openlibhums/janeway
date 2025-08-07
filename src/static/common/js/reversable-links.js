@@ -124,8 +124,9 @@ function initialiseCrossRefs(){
 
             const sectionLink = document.createElement('a');
             sectionLink.href = `#${containerId}`;
-            sectionLink.textContent = '---^';
+            sectionLink.innerHTML = '<span aria-hidden="true">---^<span>';
             sectionLink.setAttribute('aria-label', `${heading.title}, ${link.textContent}`);
+            sectionLink.setAttribute('role', "doc-backlink");
             sectionLink.className = 'section-link';
             sectionLink.title = `${heading.title}`;
             sectionLink.dataset.citationId = link.id;
@@ -158,7 +159,8 @@ function initialiseCrossRefs(){
 
                 const sectionLink = document.createElement('a');
                 sectionLink.href = `#${containerId}`;
-                sectionLink.textContent = `---^(${i + 1})`;
+                sectionLink.innerHTML = `<span aria-hidden="true">---^(${i + 1})</span>`;
+                sectionLink.setAttribute('role', "doc-backlink");
                 sectionLink.className = 'section-link';
                 sectionLink.title = `${heading.title}`;
                 sectionLink.dataset.citationId = link.id;
