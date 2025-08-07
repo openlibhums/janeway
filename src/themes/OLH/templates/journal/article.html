@@ -170,23 +170,10 @@
                                 <h2>{% trans "Abstract" %}</h2>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
-                            {% if article.keywords.count > 0 %}
-                                <h2>{% trans "Keywords" %}:</h2> 
-                                <ul class="keywords-list">
-                                    {% for keyword in article.keywords.all %}
-                                        <li>
-                                            {% if journal_settings.general.keyword_list_page %}
-                                                <a href="{% url 'keyword' keyword.pk %}">
-                                                    {{ keyword.word }}<span aria-hidden=true>{% if not forloop.last %}, {% endif %}</span>
-                                                </a>
-                                            {% else %}
-                                                {{ keyword.word }}
-                                                <span aria-hidden=true>{% if not forloop.last %}, {% endif %}</span>
-                                            {% endif %}
-                                            
-                                        </li>
-                                    {% endfor %}
-                                </ul>
+                            {% if journal_settings.general.keyword_list_page %}
+                                {% include "elements/journal/article_keywords.html" with keywords=article.keywords linked="True" %}
+                            {% else %}
+                                {% include "elements/journal/article_keywords.html" with keywords=article.keywords  %}
                             {% endif %}
                             {% if article.is_published or proofing %}
                             {% if not journal_settings.article.suppress_how_to_cite %}
