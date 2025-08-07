@@ -78,23 +78,12 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
-
+                    {% if journal_settings.general.keyword_list_page %}
+                        {% include "elements/journal/article_keywords.html" with keywords=article.keywords linked="True" %}
+                    {% else %}
+                        {% include "elements/journal/article_keywords.html" with keywords=article.keywords  %}
+                    {% endif %}
                     {% if article.keywords.count > 0 %}
-                        <h2>{% trans "Keywords" %}</h2>
-                        <ul class="list-inline">
-                            {% for keyword in article.keywords.all %}
-                                <li class="list-inline-item">
-                                    {% if journal_settings.general.keyword_list_page %}
-                                        <a href="{% url 'keyword' keyword.pk %}">
-                                            {{ keyword.word }}
-                                        </a>
-                                    {% else %}
-                                        {{ keyword.word }}
-                                    {% endif %}
-                                    {% if not forloop.last %}<span aria-hidden="true">, </span> {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>

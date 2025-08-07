@@ -852,3 +852,13 @@ a {
 .icon-recede{
     opacity: 70%;
 }
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
