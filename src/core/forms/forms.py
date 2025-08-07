@@ -10,7 +10,6 @@ import os
 from django import forms
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDict
-from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
@@ -1139,3 +1138,93 @@ class ConfirmDeleteForm(forms.Form):
     """
 
     pass
+
+
+class AltTextForm(forms.ModelForm):
+    class Meta:
+        model = models.AltText
+        fields = [
+            'context_phrase',
+            'alt_text',
+        ]
+        widgets = {
+            'context_phrase': forms.TextInput(
+                attrs={
+                    'class': 'sr-only',
+                    'aria-hidden': 'true',
+                },
+            ),
+            'alt_text': forms.Textarea(
+                attrs={'rows': 5},
+            ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        content_type=None,
+        object_id=None,
+        file_path=None,
+        **kwargs,
+    ):
+        if "initial" not in kwargs:
+            kwargs["initial"] = {}
+
+        # Populate initial to help form rendering
+        if content_type and object_id:
+            kwargs["initial"].update({
+                "content_type": content_type,
+                "object_id": object_id,
+            })
+        elif file_path:
+            kwargs["initial"].update({
+                "file_path": file_path,
+            })
+
+        super().__init__(*args, **kwargs)
+
+        # Set these on the form so we can assign them to the instance in save()
+        self.content_type = content_type
+        self.object_id = object_id
+        self.file_path = file_path
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self.instance.content_type = self.content_type
+        self.instance.object_id = self.object_id
+        self.instance.file_path = self.file_path
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Attempt to find an existing instance to update
+        existing = None
+
+        if self.content_type and self.object_id:
+            existing = models.AltText.objects.filter(
+                content_type=self.content_type,
+                object_id=self.object_id,
+                context_phrase=self.cleaned_data["context_phrase"],
+            ).first()
+
+        elif self.file_path:
+            existing = models.AltText.objects.filter(
+                file_path=self.file_path,
+                context_phrase=self.cleaned_data["context_phrase"],
+            ).first()
+
+        # If existing, update its fields
+        if existing:
+            existing.alt_text = self.cleaned_data["alt_text"]
+            instance = existing
+        else:
+            instance = super().save(commit=False)
+            instance.content_type = self.content_type
+            instance.object_id = self.object_id
+            instance.file_path = self.file_path
+
+        if commit:
+            instance.full_clean()
+            instance.save()
+
+        return instance
+

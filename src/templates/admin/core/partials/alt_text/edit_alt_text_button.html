@@ -1,0 +1,33 @@
+{% comment %}
+  Usage:
+    {% include "core/partials/alt_text/edit_button.html" with object=obj context_phrase="figure-1" %}
+    or
+    {% include "core/partials/alt_text/edit_button.html" with file_path=image.url context_phrase="header-logo" %}
+{% endcomment %}
+
+{% load alt_text %}
+
+{% get_id_token object file_path token as id_token %}
+
+<div id="alt-text-wrapper-{{ id_token }}-{{ context_phrase }}">
+  {# Empty dialog is initially present, gets replaced by HTMX #}
+  <dialog id="alt-text-modal-{{ id_token }}" class="alt-text-modal" hidden></dialog>
+
+  {# Flex container for layout #}
+  <div class="alt-text-container">
+    {% get_alt_text obj=object file_path=file_path token=token context_phrase=context_phrase as alt_text %}
+    <dl class="no-bottom-margin">
+      {% include "admin/elements/layout/key_value_above.html" with key="Alt Text" value=alt_text no_bottom_margin="True" %}
+    </dl>
+
+    <button
+        type="button"
+        class="small success button"
+        hx-get="{% url 'alt_text_form' %}?{% if object %}model={{ object|model_string }}&pk={{ object.pk }}{% elif file_path %}file_path={{ file_path|encode_file_path }}{% elif token %}file_path={{ token }}{% endif %}&context_phrase={{ context_phrase }}"
+        hx-target="#alt-text-modal-{{ id_token }}"
+        hx-swap="outerHTML"
+    >
+      Edit alt text
+    </button>
+  </div>
+</div>

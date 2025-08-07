@@ -1,0 +1,52 @@
+{% extends "core/partials/modal.html" %}
+{% load alt_text %}
+
+{% block modal_id %}{% get_id_token object file_path token as id_token %}alt-text-modal-{{ id_token }}{% endblock modal_id %}
+
+{% block modal_class %}modal{% endblock modal_class %}
+
+{% block modal_title %}
+  Edit alternative text
+{% endblock %}
+
+{% block modal_description %}
+  Use this form to provide or update alternative text for the image. Alt text helps screen reader users understand the content and function of the image.
+{% endblock %}
+
+{% block modal_content %}
+  {% get_id_token object file_path token as id_token %}
+
+  <form
+      method="post"
+      hx-post="{% url 'alt_text_submit' %}"
+      hx-target="#alt-text-wrapper-{{ id_token }}-{{ context_phrase }}"
+      hx-swap="outerHTML"
+      class="alt-text-form"
+  >
+      {% csrf_token %}
+
+      {{ form.non_field_errors }}
+
+      <div class="form-group">
+          <label for="{{ form.alt_text.id_for_label }}">Alt text</label>
+          {{ form.alt_text }}
+          {{ form.alt_text.errors }}
+      </div>
+
+      {% if object %}
+          <input type="hidden" name="model" value="{{ object|model_string }}">
+          <input type="hidden" name="app_label" value="{{ object|app_label }}">
+          <input type="hidden" name="pk" value="{{ object.pk }}">
+      {% endif %}
+
+      {% if file_path %}
+          <input type="hidden" name="file_path" value="{{ file_path }}">
+      {% endif %}
+
+      <input type="hidden" name="context_phrase" value="{{ context_phrase }}">
+
+      <div class="form-actions">
+          <button type="submit" class="success button">Save alt text</button>
+      </div>
+  </form>
+{% endblock %}

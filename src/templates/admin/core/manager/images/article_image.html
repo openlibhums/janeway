@@ -29,6 +29,8 @@
                             <button type="submit" name="delete" value="{{ article.large_image_file.id }}" class="tiny alert button">
                                 Delete File
                             </button>
+
+                            {% include "core/partials/alt_text/edit_alt_text_button.html" with object=article.large_image_file context_phrase="hero" %}
                         </form>
                     {% endif %}
                 </div>
@@ -104,3 +106,7 @@
     </div>
 
 {% endblock body %}
+
+{% block js %}
+{% include "admin/core/partials/htmx.html" %}
+{% endblock js %}
