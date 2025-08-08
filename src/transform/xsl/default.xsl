@@ -2623,7 +2623,7 @@
       <xsl:when test="$pub-id-type='doi'">
         <xsl:text>&#160;</xsl:text>
         <a href="https://doi.org/{current()}" target="_blank">
-          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:text>https://doi.org/</xsl:text>
           <xsl:apply-templates/>
         </a>
       </xsl:when>
