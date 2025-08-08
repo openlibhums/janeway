@@ -1119,7 +1119,7 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/label" mode="captionLabel">
-        <span class="table-label">
+        <span class="table-label" id="tab{count(preceding::table-wrap)+1}-label">
             <xsl:apply-templates/>
         </span>
         <xsl:text> </xsl:text>

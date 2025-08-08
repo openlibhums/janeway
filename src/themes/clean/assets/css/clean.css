@@ -600,3 +600,12 @@ a {
 .keywords-list li{
   display: inline-block;
 }
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+}

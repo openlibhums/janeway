@@ -1,10 +1,11 @@
 {% load i18n %}
 
 <div id="table-{{ tableid }}" class="reveal large" data-reveal aria-hidden="true">
-    <div class="card">
-    {{ content|safe }}
-    </div>
-    <button class="close-button" data-close aria-label="Close modal" type="button">
+    <button class="close-button modal-sticky-close" data-close aria-describedby="copy-of-{{ tableid }}-label">
         <span aria-hidden="true">&times;</span>
+        <span class="sr-only">{% trans 'Close' %}</span>
     </button>
+    <div class="card">
+        {{ content|safe }}
+    </div>
 </div>

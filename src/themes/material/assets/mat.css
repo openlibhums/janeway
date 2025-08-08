@@ -664,6 +664,21 @@ nav a.sidenav-trigger i {
     max-height: 75%;
 }
 
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+}
+
 .card-full-height {
     height: 100%;
 }
