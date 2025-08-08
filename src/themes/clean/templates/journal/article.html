@@ -394,11 +394,17 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     <script src="{% static 'material/toc.js' %}"></script>
     {% hook 'article_js_block' %}
-     <script>
-    $('.table-expansion').each(function(){
-        var child = $(this).children(":first")
-        child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">{% trans 'View Larger Table' %}</button>')
-    });
+    <script>
+        $('.table-expansion').each(function(){
+            // Only add the link if this table is not inside a modal
+            if (!$(this).closest('.modal').length) {
+                var child = $(this).children(":first")
+                // Check if the link already exists to prevent duplicates
+                if (!child.find('button[data-target^="#table-"]').length) {
+                    child.append('<br /><button type="button" class="btn btn-link" data-toggle="modal" data-target="#table-'+ $(this).attr('id') +'">{% trans "View Larger Table" %}</button>')
+                }
+            }
+        });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>

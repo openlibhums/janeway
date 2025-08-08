@@ -541,10 +541,12 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     {% hook 'article_js_block' %}
     <script>
-    $('.table-expansion').each(function(){
-        var child = $(this).children(":first")
-        child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table<i aria-hidden="true" class="fa fa-external-link-square superscript-icon" title="opens in popup"></i><span class="sr-only">(opens in popup)." %}</span></a></small>');
-    });
+        $('.table-expansion').each(function(){
+            if (!$(this).closest('.reveal').length) {
+                var child = $(this).children(":first")
+                child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
+            }
+        });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
