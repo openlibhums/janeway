@@ -419,16 +419,16 @@ header svg {
 .article-table td {
   padding: 0.75rem;
   vertical-align: top;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid #6c757d;
 }
 
 .article-table thead th {
   vertical-align: bottom;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid #6c757d;
 }
 
 .article-table tbody + tbody {
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid #6c757d;
 }
 
 .article-table-sm th,
@@ -563,4 +563,15 @@ a {
 
 .card-title{
     font-size: 1.5rem;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
 }

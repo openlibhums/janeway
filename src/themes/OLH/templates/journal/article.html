@@ -500,11 +500,12 @@
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     {% hook 'article_js_block' %}
+    <script src="{% static 'common/js/table-expansion.js' %}"></script>
     <script>
-    $('.table-expansion').each(function(){
-        var child = $(this).children(":first")
-        child.append('<br /><small><a data-open="table-' + $(this).attr('id') + '">View Larger Table</a></small>');
-    });
+        initTableExpansion({
+            modalSelector: '.reveal',
+            linkTemplate: '<button type="button" data-open="table-{id}" aria-describedby="{id}-label">{% trans "View Larger Table" %}</button>',
+        });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
