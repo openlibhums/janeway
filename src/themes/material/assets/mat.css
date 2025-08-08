@@ -677,6 +677,8 @@ nav a.sidenav-trigger i {
     z-index: 1050;
     float: right;
     margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 .card-full-height {
