@@ -542,16 +542,11 @@
             }
         });
     </script>
+    <script src="{% static 'common/js/table-expansion.js' %}"></script>
     <script>
-        $('.table-expansion').each(function(){
-            // Only add the link if this table is not inside a modal
-            if (!$(this).closest('.modal').length) {
-                var child = $(this).children(":first")
-                // Check if the link already exists to prevent duplicates
-                if (!child.find('a[href^="#table-"]').length) {
-                    child.append('<br /><small><a href="#table-' + $(this).attr('id') + '" class="modal-trigger">View Larger Table</a></small>');
-                }
-            }
+        initTableExpansion({
+            modalSelector: '.modal',
+            linkTemplate: '<br /><small><a href="#table-{id}" class="modal-trigger">{% trans "View Larger Table" %}</a></small>',
         });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
