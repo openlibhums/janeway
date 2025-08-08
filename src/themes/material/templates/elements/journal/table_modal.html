@@ -1,5 +1,11 @@
 <div id="table-{{ tableid }}" class="modal modal-large">
-    <div class="modal-content">
+  <div class="modal-content">
+    <div class="modal-body">
+      <button class="modal-sticky-close modal-close" data-dismiss="modal" aria-describedby="copy-of-{{ tableid }}-label">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">{% trans 'Close' %}</span>
+      </button>
       {{ content|safe }}
     </div>
   </div>
+</div>
