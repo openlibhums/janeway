@@ -44,6 +44,33 @@ function initTableExpansion(config) {
         });
     }
 
+    function pageLinksCloseModal(){
+        $(document).on('click', config.modalSelector + ' a[href^="#"]', function(e) {
+            var $link = $(this);
+            var href = $link.attr('href');
+            var $modal = $link.closest(config.modalSelector);
+            
+            if ($modal.length) {
+                // Check if the target element is within the same modal
+                var targetId = href.substring(1);
+                var $target = $('#' + targetId);
+                
+                // Only close the modal if the target is outside of it
+                if (!$target.length || !$modal.find('#' + targetId).length) {
+                    // Close the modal using the appropriate method based on the framework
+                    if ($modal.hasClass('modal') || $modal.hasClass('fade')) {//olh
+                        $modal.modal('hide');
+                    } else if ($modal.hasClass('reveal')) {//clean and material
+                        $modal.foundation('close');
+                    }
+                }
+                
+                // Let the default navigation happen naturally
+            }
+        });
+    }
+
     addExpansionLinks();
     createModalHeading();
+    pageLinksCloseModal()
 } 
