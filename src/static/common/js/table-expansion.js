@@ -20,9 +20,9 @@ function initTableExpansion(config) {
                 var $child = $table.children(":first");
                 
                 // Don't duplicate
-                var existingLink = $child.find('a[href^="#table-"], button[data-target^="#table-"], a[data-open^="table-"]');
+                var existingLink = $child.find('a[href^="#table-"], button[data-target^="#table-"], button[data-open^="table-"]');
                 if (!existingLink.length) {
-                    $child.append(config.linkTemplate.replace('{id}', tableId));
+                    $child.append(config.linkTemplate.replace(/{id}/g, tableId));
                 }
             }
         });
