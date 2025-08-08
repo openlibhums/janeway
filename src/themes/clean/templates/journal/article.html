@@ -31,9 +31,9 @@
                         onerror="this.onerror=null; this.parentElement.classList.add('no-image');"
                         alt="{{ article.title | striptags }}">
             {% else %}
-                <div class="card no-image">  
+                <div class="card no-image">
                     <img class="card-img img-fluid article-img" aria-hidden="true" src="">
-            {% endif %}                   
+            {% endif %}
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
@@ -329,6 +329,7 @@
                     {% endif %}
                 {% endif %}
             </div>
+             {% hook 'article_sidebar' %}
             </section>
              {% if article_content %}
                 <div class="sticky-top article-menu" id="toc-section">

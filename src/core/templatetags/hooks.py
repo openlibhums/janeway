@@ -22,3 +22,4 @@ def hook(context, hook_name, *args, **kwargs):
         return mark_safe(html)
     except Exception as e:
         logger.error("Error rendering hook {0}: {1}".format(hook_name, e))
+        return ""

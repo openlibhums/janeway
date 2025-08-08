@@ -450,6 +450,8 @@
                             </div>
                         {% endif %}
 
+                        {% hook 'article_sidebar' %}
+
                         {% if article.preprint and article.preprint.is_published %}
                         <h2>{{ article.preprint.repository.object_name }}</h2>
                         <p>This article is linked to

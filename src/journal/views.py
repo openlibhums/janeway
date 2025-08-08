@@ -2908,7 +2908,9 @@ def manage_languages(request):
                 messages.ERROR,
                 "{} disabled.".format(lang_to_delete),
             )
-        active_languages.append(settings.LANGUAGE_CODE)
+        if not active_languages:
+            # When no languages are configured, make install default available
+            active_languages.append(settings.LANGUAGE_CODE)
         setting_handler.save_setting(
             setting_group_name="general",
             setting_name="journal_languages",
