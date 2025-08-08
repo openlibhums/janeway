@@ -544,7 +544,7 @@
     <script>
         initTableExpansion({
             modalSelector: '.reveal',
-            linkTemplate: '<br /><small><a data-open="table-{id}">{% trans "View Larger Table" %}</a></small>',
+            linkTemplate: '<button type="button" data-open="table-{id}">{% trans "View Larger Table" %}</button>',
         });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
