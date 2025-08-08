@@ -547,7 +547,7 @@
         initTableExpansion({
             modalSelector: '.modal',
             linkTemplate: '<button type="button" href="#table-{id}" class="btn-background modal-trigger"  aria-describedby="{id}-label">{% trans "View Larger Table" %}</button>',
-            customCloseFocus: true,
+            materializeWorkarounds: true,
         });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>

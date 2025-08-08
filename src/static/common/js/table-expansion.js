@@ -3,7 +3,7 @@
  * Theme configurations passed from article template.
  * modalSelector - varies by theme, e.g. modal, reveal
  * linkTemplate - varies by theme - different classes etc.
- * customCloseFocus - work around for material (set as true to use it).
+ * materializeWorkarounds - work arounds for material (set as true to use it) - fixes a11y issues on open and close.
  * 
  * note: table-label is a class name set by xsl used here to create a unique heading for each modal.
  */
@@ -116,12 +116,33 @@ function initTableExpansion(config) {
         });
     }
 
+    // accessibility workaround for material
+    function handleModalScrollToTop() {
+        $(document).on('DOMNodeInserted', function(e) {
+            if ($(e.target).hasClass('modal') && $(e.target).hasClass('open')) {
+                setTimeout(function() {
+                    $(e.target).scrollTop(0);
+                    var $h2 = $(e.target).find('h2').first();
+                    if ($h2.length) {
+                        $h2.attr('tabindex', '-1');
+                        // Let Materialize focus the close button first, then move to h2
+                        setTimeout(function() {
+                            $h2.focus();
+                        }, 50);
+                    }
+                }, 200);
+            }
+            console.log("focus");
+        });
+    }
+
     addExpansionLinks();
     createModalHeading();
     pageLinksCloseModal();
     
-    // Only handle custom focus management if customClose is provided
-    if (config.customCloseFocus) {
+    // Only handle custom focus management if on materialize
+    if (config.materializeWorkarounds) {
+        handleModalScrollToTop();
         handleModalFocusManagement();
     }
 } 
