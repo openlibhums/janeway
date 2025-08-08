@@ -879,3 +879,40 @@ a {
 .keywords-list li{
   display: inline-block;
 }
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    margin-left: 0.5rem;
+    border: 1px, solid, #00897b;
+    padding: 0 10px;
+    min-width: 7rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+p + .btn-background {
+    height: auto;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #00897b;
+    border-color: #00897b;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
