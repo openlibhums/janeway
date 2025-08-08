@@ -3,6 +3,7 @@
 {% load hooks %}
 {% load i18n %}
 {% load bootstrap4 %}
+{% load dates %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
@@ -12,9 +13,9 @@
         <div class="col m12">
             <div class="card">
                 <div class="card-content">
-                    <h4>{{ article.title|safe }}</h4>
-                    <h6>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %},
-                    {% endif %}{% endfor %}</h6>
+                    <h1>{{ article.title|safe }}</h1>
+                    <p>{% for subject in article.subject_set.all %}{{ subject.name }}{% if not forloop.last %},
+                    {% endif %}{% endfor %}</p>
                     <p>
                         <small>{% trans "This article is a preprint, it has not been peer reviewed or had any extensive editorial over-sight." %}
                         </small>
@@ -25,7 +26,7 @@
         <div class="col m8">
             <div class="card">
                 <div class="card-content">
-                    <h5>{% trans "Authors" %}</h5>
+                    <h2>{% trans "Authors" %}</h2>
                     <p>
                         <small>
                             {% for author in article.authors.all %}
@@ -40,7 +41,7 @@
                             {% endfor %}
                         </small>
                     </p>
-                    <h5>{% trans "Abstract" %}</h5>
+                    <h2>{% trans "Abstract" %}</h2>
                     <small>{{ article.abstract|safe }}</small>
                 </div>
             </div>
@@ -110,7 +111,7 @@
             <div class="card">
                 <div class="card-content">
                     <small>
-                        <h5>{% trans "Download" %}</h5>
+                        <h2>{% trans "Download" %}</h2>
                         <ul>
                             {% for galley in galleys %}
                                 <li>
@@ -118,21 +119,21 @@
                                 </li>
                             {% endfor %}
                         </ul>
-                        <h5>{% trans "Metadata" %}</h5>
+                        <h2>{% trans "Metadata" %}</h2>
                         <ul>
-                            <li>{% trans "Published on" %} {{ article.date_published|date:"d M Y" }}</li>
+                            <li>{% trans "Published on" %} {{ article.date_published|date_human }}</li>
                             <li>{% trans "License" %} <a href="{{ article.license.url }}" data-toggle="tooltip"
                                                          title="{{ article.license.text }}">{{ article.license.name }}</a>
                             </li>
                             {% if article.identifier.id_type == 'doi' %}
                                 <li>{{ article.identifier }}</li>{% endif %}
                         </ul>
-                        <h5>{% trans "Metrics" %}</h5>
+                        <h2>{% trans "Metrics" %}</h2>
                         <ul>
                             <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
                             <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
                         </ul>
-                        <h5>{% trans "Versions" %}</h5>
+                        <h2>{% trans "Versions" %}</h2>
                         <ul>
                             {% for version in article.preprintversion_set.all %}
                                 <li>{{ version.date_time }}<br/> <a
@@ -142,7 +143,7 @@
                                 <li>This is the only version of the preprint.</li>
                             {% endfor %}
                         </ul>
-                        <h5>{% trans "Citation" %}</h5>
+                        <h2>{% trans "Citation" %}</h2>
                         <div class="btn-group-vertical">
                             <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Harvard Citation" %}</a>
                             <a class="waves-effect waves-light btn modal-trigger wide-button" href="#modal1">{% trans "Vancouver Citation" %}</a>

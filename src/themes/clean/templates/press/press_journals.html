@@ -53,9 +53,11 @@
         {% endfor %}
     </div>
     <div class="col-lg-4 col-md-2">
-        <label>{% trans "Filter" %}
-            <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
-        </label>
+        <section aria-labelledby="filter-title">
+            <label><span id="filter-title">{% trans "Filter" %}</span>
+                <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
+            </label>
+        </section>
     </div>
 </div>
 {% endblock body %}

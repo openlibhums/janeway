@@ -6,6 +6,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import io
 import os
 
+from bs4 import BeautifulSoup
+
 from django.apps import apps
 from django.http import QueryDict
 from django.test import TestCase, override_settings
@@ -195,80 +197,86 @@ class UtilsTests(TestCase):
 
 
 class SitemapTests(UtilsTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.news_item = helpers.create_news_item(
+            ContentType.objects.get_for_model(cls.press),
+            cls.press.pk,
+        )
+        cls.news_item.start_display = timezone.now() - timezone.timedelta(days=1)
+        cls.news_item.posted = timezone.now() - timezone.timedelta(days=1)
+        cls.news_item.save()
+
     @override_settings(URL_CONFIG="path")
     def test_press_sitemap_generation(self):
-        expected_press_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <sitemap>
-        <loc>http://localhost/TST/sitemap.xml</loc>
-    </sitemap>
-    
-    <sitemap>
-        <loc>http://localhost/TSA/sitemap.xml</loc>
-    </sitemap>
-    
-
-    
-</sitemapindex>"""
-
         file = io.StringIO()
         generate_sitemap(
             file=file,
             press=self.press,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            expected_press_sitemap,
-            file.getvalue(),
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Press",
+        )
+        self.assertEqual(
+            soup.select("loc_label")[0].get_text(strip=True),
+            "Home",
+        )
+        self.assertEqual(
+            soup.select("lastmod")[0].get_text(strip=True),
+            self.news_item.posted.isoformat(),
         )
 
     @override_settings(URL_CONFIG="path")
     def test_journal_sitemap_generation(self):
-        expected_journal_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <sitemap>
-        <loc>http://localhost/TST/issue/{}_sitemap.xml</loc>
-    </sitemap>
-    
-</sitemapindex>""".format(self.issue_one.pk)
         file = io.StringIO()
         generate_sitemap(
             file=file,
             journal=self.journal_one,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            expected_journal_sitemap,
-            file.getvalue(),
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Journal One",
+        )
+        self.assertEqual(
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Press",
+        )
+        self.assertEqual(
+            soup.select("sitemap urlset url loc")[0].get_text(strip=True),
+            self.journal_one.site_url(path="/"),
+        )
+        self.assertEqual(
+            soup.select("sitemap > loc_label")[0].get_text(strip=True),
+            self.issue_one.non_pretty_issue_identifier,
         )
 
     @override_settings(URL_CONFIG="path")
     def test_issue_sitemap_generation(self):
-        expected_issue_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <url>
-        <loc>{article_url}</loc>
-        <lastmod>{date_published}</lastmod>
-        <changefreq>monthly</changefreq>
-    </url>
-    
-</urlset>""".format(
-            article_url=self.article_one.url,
-            article_id=self.article_one.pk,
-            date_published=self.article_one.date_published.strftime("%Y-%m-%d"),
-        )
         file = io.StringIO()
         generate_sitemap(
             file=file,
             issue=self.issue_one,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        self.assertIn(
+            self.issue_one.non_pretty_issue_identifier,
+            soup.select("sitemap_name")[0].get_text(strip=True),
+        )
         self.assertEqual(
-            expected_issue_sitemap,
-            file.getvalue(),
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Journal One",
+        )
+        self.assertEqual(
+            soup.select("urlset url loc")[0].get_text(strip=True),
+            self.article_one.url,
+        )
+        self.assertEqual(
+            soup.select("urlset url loc_label")[0].get_text(strip=True),
+            self.article_one.title,
         )
 
 

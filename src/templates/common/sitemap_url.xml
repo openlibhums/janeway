@@ -1,0 +1,6 @@
+<url>
+  <loc>{% stateless_site_url obj url_name=url_name %}</loc>
+  {% if label %}
+    <janeway:loc_label>{{ label }}</janeway:loc_label>
+  {% endif %}
+</url>

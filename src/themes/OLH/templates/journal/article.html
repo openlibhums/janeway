@@ -2,6 +2,7 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load dates %}
 
 {% block page_title %}{% if article.preprint %}{% trans "Preprint" %} {% endif %}{% trans "Article" %}{% endblock %}
 
@@ -16,13 +17,13 @@
 
 {% block body %}
 
-    <article>
+    <section>
     {% if not journal_settings.article.disable_article_large_image %}
         <section class="no-padding meta show-for-small-only">
             <div class="row">
                 <div class="large-8 columns">
                     <small class="uppercase">{{ article.section.name }}</small>
-                    <h2>{{ article.title|safe }}</h2>
+                    <h1>{{ article.title|safe }}</h1>
                     <small class="uppercase">
                       {% blocktrans count counter=article.frozen_authors.count %}
                         Author
@@ -35,7 +36,7 @@
             </div>
         </section>
         <section class="no-padding meta hide-for-small-only">
-            <div class="orbit article-orbit row" role="region" aria-label="Favorite Space Pictures" data-orbit>
+            <div class="orbit article-orbit row" data-orbit>
                 <ul class="orbit-container article-orbit">
                     <li class="is-active orbit-slide overlay">
                             <img class="orbit-image"
@@ -52,7 +53,7 @@
                         <div class="row column">
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
-                                <h3>{{ article.title|safe }}</h3>
+                                <h1>{{ article.title|safe }}</h1>
                                 <p class="uppercase">
                                   {% blocktrans count counter=article.frozen_authors.count %}
                                     Author
@@ -148,19 +149,17 @@
                       </small>
                       {% include "common/elements/journal/article_authors_br.html" %}
                     </div>
-                <hr/>
+                <hr aria-hidden="true" />
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
-                                <h3>{% trans "Abstract" %}</h3>
+                                <h2>{% trans "Abstract" %}</h2>
                                 <p>{{ article.abstract|safe }}</p>
                             {% endif %}
-                            {% if article.keywords.count > 0 %}<p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+                            {% if article.keywords.count > 0 %}<h2>{% trans "Keywords" %}:</h2> {% for keyword in article.keywords.all %}{% if journal_settings.general.keyword_list_page %}<a href="{% url 'keyword' keyword.pk %}">{% endif %}{{ keyword.word }}{% if journal_settings.general.keyword_list_page %}</a>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
                             {% if article.is_published or proofing %}
                             {% if not journal_settings.article.suppress_how_to_cite %}
+                            <h2>{% trans "How to Cite" %}:</h2>
                             <p id="article_how_to_cite">
-                                <strong>
-                                    {% trans "How to Cite" %}:
-                                </strong>
                                 {{ article.how_to_cite|safe }}
                             </p>
                             {% endif %}
@@ -244,7 +243,7 @@
                                             {% if article.is_published or proofing %}
                                                 <p id="article_date_published">
                                                     {% trans "Published on" %} <br>
-                                                    {{ article.date_published|date:"Y-m-d" }}
+                                                    {{ article.date_published|date_human }}
                                                 </p>
                                             {% endif %}
                                         </div>
@@ -282,20 +281,20 @@
                         </div>
                     </div>
                 </div>
-                <aside class="large-4 columns " data-sticky-container>
+                <section aria-label="{% trans 'Article Information' %}" class="large-4 columns side-info" data-sticky-container>
                     <div class="sticky" data-sticky data-margin-top="0"
                           data-anchor="content" data-sticky-on="large">
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% if journal_settings.article.disable_article_large_image %}
                                 <div class="section">
-                                    <h3>
+                                    <h2>
                                       {% blocktrans count counter=article.frozen_authors.count %}
                                         Author
                                       {% plural %}
                                         Authors
                                       {% endblocktrans %}
-                                    </h3>
+                                    </h2>
                                     {% include "common/elements/journal/article_authors_ul.html" %}
                                 </div>
                             {% endif %}
@@ -303,7 +302,7 @@
                             {% include "elements/journal/share.html" %}
                             <div class="section">
                                 {% if article.is_published or proofing %}
-                                    <h3>{% trans "Downloads" %}</h3>
+                                    <h2>{% trans "Downloads" %}</h2>
                                     {% if galleys %}
                                         <ul>
                                             {% for galley in galleys %}
@@ -337,7 +336,7 @@
                         {% with article.get_doi_url as doi_url %}
                         {% if doi_url %}
                          <div class="section">
-                             <h3>{% trans "Identifiers" %}</h3>
+                             <h2>{% trans "Identifiers" %}</h2>
                              <ul>
                                  <li>DOI: <a href="{{ doi_url }}">{{ doi_url }}</a></li>
                              </ul>
@@ -347,7 +346,7 @@
 
                         {% if article.has_publication_details %}
                          <div class="section">
-                             <h3>{% trans "Publication details" %}</h3>
+                             <h2>{% trans "Publication details" %}</h2>
                              <ul>
                                  {% if article.page_range %}
                                  <li>{% trans "Pages" %}: {{ article.page_range }}</li>
@@ -365,10 +364,10 @@
                                  <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
                                  {% endif %}
                                  {% if journal_settings.article.display_date_submitted and article.date_submitted %}
-                                 <li>{% trans "Submitted on" %}: {{ article.date_submitted|date:"Y-m-d" }}</li>
+                                 <li>{% trans "Submitted on" %}: {{ article.date_submitted|date_human }}</li>
                                 {% endif %}
                                 {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
-                                <li>{% trans "Accepted on" %}: {{ article.date_accepted|date:"Y-m-d" }}</li>
+                                <li>{% trans "Accepted on" %}: {{ article.date_accepted|date_human }}</li>
                                 {% endif %}
                              </ul>
                          </div>
@@ -376,7 +375,7 @@
 
                         {% if article.supplementary_files.all %}
                             <div class="section">
-                                <h3>{% trans "Supplementary Files" %}</h3>
+                                <h2>{% trans "Supplementary Files" %}</h2>
                                 <ul>
                                     {% for file in article.supplementary_files.all %}
                                         <li>
@@ -388,7 +387,7 @@
                         {% endif %}
                         {% if article.competing_interests %}
                          <div class="section">
-                             <h3>{% trans "Competing Interests" %}</h3>
+                             <h2>{% trans "Competing Interests" %}</h2>
                              <ul>
                                  <li>{{ article.competing_interests|safe }}</li>
                              </ul>
@@ -397,7 +396,7 @@
 
                         {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
                             <div class="section hide-for-small-only">
-                                <h3>{% trans "Non Specialist Summary" %}</h3>
+                                <h2>{% trans "Non Specialist Summary" %}</h2>
                                 <ul>
                                     <li><a href="#" data-open="summarymodal">{% trans 'View Summary' %}</a></li>
                                 </ul>
@@ -407,17 +406,19 @@
 
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">
-                            <h3>{% trans "Jump to" %}</h3>
-                            <ul id="toc">
+                            <section aria-labelledby="toc-title">
+                                <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                                <ul id="toc">
 
-                            </ul>
+                                </ul>
+                            </section>
                         </div>
                         {% endif %}
 
 
                         {% for field in article.custom_fields %}
                         <div class="section hide-for-small-only">
-                            <h3>{% trans field.field.name %}</h3>
+                            <h2>{% trans field.field.name %}</h2>
                             <ul>
                                 <li>{{ field.answer|safe }}</li>
                             </ul>
@@ -426,14 +427,14 @@
 
                         {% if article.preprint and article.preprint.is_published %}
                         <div class="section hide-for-small-only">
-                            <h3>{{ article.preprint.repository.object_name }}</h3>
+                            <h2>{{ article.preprint.repository.object_name }}</h2>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
                             <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
                         </div>
                         {% endif %}
 
                         <div class="section hide-for-small-only">
-                            <h3>{% trans "File Checksums" %} (MD5)</h3>
+                            <h2>{% trans "File Checksums" %} (MD5)</h2>
                             {% if galleys %}
                                 <ul>
                                     {% for galley in galleys %}
@@ -449,7 +450,7 @@
 
                         {% if journal_settings.general.use_credit and author.credits.exists %}
                           <div class="section hide-for-small-only">
-                            <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
+                            <h2>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
                             <ul>
                               {% for author, credit_records in article.authors_and_credits.items %}
                                 <li>
@@ -468,7 +469,7 @@
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
-                                    <h3>{% trans "Peer Review" %}</h3>
+                                    <h2>{% trans "Peer Review" %}</h2>
                                     <p>
                                         {% for review in article.public_reviews %}
                                             <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
@@ -478,10 +479,10 @@
                             {% endif %}
                         </div>
                     </div>
-                </aside>
+                </section>
             </div>
         </section>
-    </article>
+    </section>
 
     <!-- article citation modals -->
     {% include "elements/journal/citation_modals.html" with article=article %}
@@ -507,4 +508,5 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "common/js/reversable-links.js" %}"></script>
 {% endblock js %}

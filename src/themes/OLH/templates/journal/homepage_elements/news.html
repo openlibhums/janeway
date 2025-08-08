@@ -2,12 +2,13 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
-<section>
+<section aria-labelledby="latest-news-title">
     <div class="row">
         <div class="large-12 columns">
             <div class="row column text-center">
-                <h2 class="title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
+                <h2 class="title" id="latest-news-title">{% trans 'Latest' %} {{ journal_settings.news.news_title }} {% trans "Posts" %}</h2>
             </div>
             <div class="row">
             {% for item in news_items %}
@@ -24,16 +25,16 @@
                 {% if display_images %}
                     <div class="large-7 columns">
                 {% endif %}
-                <h5>{{ item.title|safe }}</h5>
-                <h6>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</h6>
+                <h3>{{ item.title|safe }}</h3>
+                <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                 <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                 <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
                 {% if display_images %}
                     </div>
                 {% endif %}
-                <hr />
+                <hr aria-hidden="true" />
             {% empty %}
-                <h4>{% trans "This journal currently has no news items to display" %}.</h4>
+                <h3>{% trans "This journal currently has no news items to display" %}.</h3>
             {% endfor %}
             </div>
         </div>

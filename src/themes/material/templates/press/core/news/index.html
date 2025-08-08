@@ -1,24 +1,25 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{% trans "News" %}{% endblock title %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>{% trans "News" %}</h3>
-            {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
+            <h1>{% trans "News" %}</h1>
+            {% if tag %}<h2>{% trans "Filtering tag" %}: {{ tag }}</h2>{% endif %}
         </div>
         {% for item in news_items %}
             <div class="col m12">
                 <div class="card">
                     <div class="card-image">
                         <img src="{{ item.best_image_url }}" alt="{{ item.title }}"/>
-                        <span class="card-title news-card-title">{{ item.title }}</span>
+                        <h2 class="card-title news-card-title">{{ item.title }}</h2>
                     </div>
                     <div class="card-content">
-                        <h6><em>{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <p class="byline">{% trans "Posted by" %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human }}</p>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
                     </div>
                     <div class="card-action">
@@ -27,13 +28,15 @@
                 </div>
             </div>
             {% empty %}
-            <h4>{% trans "This journal currently has no news items to display." %}</h4>
+            <h2>{% trans "This journal currently has no news items to display." %}</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
+    <div class="pagination-block">
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_previous.html" %}
+                </a>
                 &nbsp;{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
@@ -42,7 +45,9 @@
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_next.html" %}
+                </a>
             {% endif %}
         </ul>
     </div>

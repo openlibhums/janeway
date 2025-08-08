@@ -199,6 +199,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
             "first_name",
             "middle_name",
             "last_name",
+            "suffix",
             "orcid",
         )
         widgets = {"orcid": forms.HiddenInput()}

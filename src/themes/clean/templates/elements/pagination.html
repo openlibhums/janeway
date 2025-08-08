@@ -11,7 +11,7 @@
                             class="page-link"
                             value="{{ page_obj.previous_page_number }}"
                             form={{ form_id }}>
-                            &laquo;
+                            {% include "elements/icons/page_previous.html" %}
                         </button>
                     </li>
                 {% endif %}
@@ -19,18 +19,32 @@
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
                         <li class="page-item">
-                            <button disabled class="page-link" name="ellipsis">...</button>
+                            <button disabled class="page-link" name="ellipsis" aria-label="ellipsis">...</button>
                         </li>
                     {% else %}
-                        <li class="page-item {% if page_obj.number == page.number %}active{% endif %}">
-                            <button
-                                name="page"
-                                class="page-link"
-                                value="{{ page.number }}"
-                                form={{ form_id }}>
-                                {{ page.number }}
-                            </button>
-                        </li>
+                        {% if page_obj.number == page.number %}
+                            <li class="page-item active">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'current page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
@@ -41,7 +55,7 @@
                             class="page-link"
                             value="{{ page_obj.next_page_number }}"
                             form={{ form_id }}>
-                            &raquo;
+                            {% include "elements/icons/page_next.html" %}
                         </button>
                     </li>
                 {% endif %}

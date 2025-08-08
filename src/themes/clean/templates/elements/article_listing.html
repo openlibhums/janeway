@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load dates %}
 
 <div class="card">
     <div class="card-block">
@@ -21,13 +22,33 @@
             <div class="col article-block">
                 <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                     {% if article.is_remote %}
-                    <h2 class="card-title article-title">
-                        <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                        {{ article.title|safe }}&nbsp;
-                        <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                    </h2>
+                        {% if level == "deep" %}
+                            <h4 class="card-title article-title">
+                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
+                                {{ article.title|safe }}&nbsp;
+                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                            </h4>
+                        {% elif level == "shallow" %}
+                            <h3 class="card-title article-title">
+                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
+                                {{ article.title|safe }}&nbsp;
+                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                            </h3>
+                        {% else %}
+                            <h2 class="card-title article-title">
+                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
+                                {{ article.title|safe }}&nbsp;
+                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                            </h2>
+                        {% endif %}
                     {% else %}
-                    <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                        {% if level == "deep" %}
+                            <h4 class="card-title article-title">{{ article.title|safe }}</h4>
+                        {% elif level == "shallow" %}
+                            <h3 class="card-title article-title">{{ article.title|safe }}</h3>
+                        {% else %}
+                            <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                        {% endif %}
                     {% endif %}
                 </a>
                 <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}
@@ -38,13 +59,13 @@
                     <span class="date">
                         <i aria-hidden="true" class="fa fa-calendar"></i>
                         <time datetime="{{ article.date_published|date:"Y-m-d" }}">
-                            <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                            <span role="time">{{ article.date_published|date_human}}</span>
                         </time>
                     </span>
                     {% if article.issue %}
                     <i aria-hidden="true" class="fa fa-book"></i>
-                    <a href="{{ article.issue.url }}">
-                        {{ article.issue_title }}
+                    <a href="{{ article.issue.url }}" >
+                        <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
                     {% endif %}
                 </p>

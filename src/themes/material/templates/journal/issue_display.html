@@ -2,9 +2,9 @@
 
 <div class="row">
     <div class="col {% if not show_sidebar %}m12{% else %}m8{% endif %} s12">
-        {% include "elements/journal/issue_top.html" %}
+        {% include "elements/journal/issue_top.html" with level=level %}
 
-        {% include "elements/journal/issue_block.html" %}
+        {% include "elements/journal/issue_block.html" with level=level %}
 
         {% include "elements/journal/issue_paginator.html" %}
     </div>

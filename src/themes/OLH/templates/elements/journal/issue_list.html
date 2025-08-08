@@ -13,7 +13,10 @@
             {% endif %}
 
             <div class="info-bar">
-                <p>{{ issue.display_title }}<br/>{{ issue.get_sorted_articles.count }} {% trans "items" %}
+                <h3>
+                    <span aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</span>
+                </h3>
+                <p>{{ issue.get_sorted_articles.count }} {% trans "items" %}
                 </p>
             </div>
         </div>

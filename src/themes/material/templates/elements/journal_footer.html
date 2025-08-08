@@ -1,33 +1,39 @@
 <div class="row expanded">
     <div class="col m10">
-        <p>
-            | {% if request.journal.issn %}ISSN: {{ request.journal.issn }} | {% endif %}
-            {% if request.journal.print_issn %} Print ISSN: {{ request.journal.print_issn }} | {% endif %}
-            {% if journal_settings.general.publisher_name %} {% trans 'Published by' %}
-            {% if journal_settings.general.publisher_url %}
-                <a href="{{ journal_settings.general.publisher_url }}">{% endif %}{{ journal_settings.general.publisher_name }}
-        {% if journal_settings.general.publisher_url %}</a>{% endif %}
-            | {% endif %}
+        <ul class="list-inline-bar">
+            {% if request.journal.issn %}<li>ISSN: {{ request.journal.issn }}</li>{% endif %}
+            {% if request.journal.print_issn %} <li>Print ISSN: {{ request.journal.print_issn }}</li>{% endif %}
+            {% if journal_settings.general.publisher_name %} 
+                <li>{% trans 'Published by' %}
+                {% if journal_settings.general.publisher_url %}
+                    <a href="{{ journal_settings.general.publisher_url }}">
+                {% endif %}
+                    {{ journal_settings.general.publisher_name }}
+                {% if journal_settings.general.publisher_url %}
+                    </a>
+                {% endif %}
+                </li>
+            {% endif %}
             {% for item in request.journal.press.navigation_items %}
                 {% if item.for_footer and item.extend_to_journals %}
-                    <a
+                   <li> <a
                         href="{{ item.link }}"
                         {% if item.is_external %}
                             target="_blank"
                         {% endif %}>
                         {{ item.link_name }}
-                    </a> |
+                    </a> </li>
                 {% endif %}
             {% endfor %}
-            <a
+            <li> <a
                 {% if journal_settings.general.privacy_policy_url %}
                     href="{{ journal_settings.general.privacy_policy_url }}"
                 {% else %}
                     href="{% url 'cms_page' "privacy" %}"
                 {% endif %}>
                 {% trans "Privacy Policy" %}
-            </a> |
-        </p>
+            </a> </li>
+        </ul>
     </div>
     <div class="col m2">
         <form action="{% url 'set_language' %}" method="post">{% csrf_token %}

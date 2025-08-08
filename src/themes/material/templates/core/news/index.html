@@ -2,14 +2,15 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
 {% block body %}
     <div class="row">
         <div class="col m12">
-            <h3>{{ journal_settings.news.news_title }}</h3>
-            {% if tag %}<h3>{% trans "Filtering tag" %}: {{ tag }}</h3>{% endif %}
+            <h1>{{ journal_settings.news.news_title }}</h1>
+            {% if tag %} <h2>{% trans "Filtering tag" %}: {{ tag }}</h2>{% endif %}
         </div>
         {% for item in news_items %}
             <div class="col m12">
@@ -28,7 +29,7 @@
                         {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
                             <h2 class="no-top-margin">{{ item.title|safe }}</h2>
                         {% endif %}
-                        <h6><em>{{ item.byline }} {% trans "on" %} {{ item.posted|date:"Y-m-d" }}</em></h6>
+                        <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                         <p>{{ item.body|truncatewords_html:50|safe }}</p>
                     </div>
                     <div class="card-action">
@@ -37,13 +38,15 @@
                 </div>
             </div>
             {% empty %}
-            <h4>{% trans "This journal currently has no items to display." %}</h4>
+            <h2>{% trans "This journal currently has no items to display." %}</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
+    <div class="pagination-block">
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_previous.html" %}
+                </a>
                 &nbsp;{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
@@ -52,7 +55,9 @@
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_next.html" %}
+                </a>
             {% endif %}
         </ul>
     </div>

@@ -2,8 +2,8 @@
 {% load foundation %}
 
 {% if facet_form.fields %}
-    <section class="section">
-        <h3>{% trans 'Filter' %}</h3>
+    <section aria-labelledby="filter-title" class="section">
+        <h2 id="filter-title">{% trans 'Filter' %}</h2>
         <form method="GET" id={{ facet_form.id }}>
             {{ facet_form|foundation }}
             <button action="" class="button" type="submit">{% trans 'Apply' %}</button>

@@ -303,10 +303,6 @@ urlpatterns = [
     re_path(r"^keywords/(?P<keyword_id>\d+)/$", views.keyword, name="keyword"),
     # Submissions
     re_path(r"^submissions/$", views.submissions, name="journal_submissions"),
-    # Edit file with Texture
-    re_path(
-        r"^texture/(?P<file_id>\d+)/edit/$", views.texture_edit, name="texture_edit"
-    ),
     # Download supplementary file
     re_path(
         r"^download/article/(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/",

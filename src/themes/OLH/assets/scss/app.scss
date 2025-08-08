@@ -398,6 +398,11 @@ pre {@extend blockquote; @extend p;}
   }
 }
 
+.inline-list-bar li:not(:last-child)::after {
+  content: " | ";  
+  margin-left: rem-calc(10px);
+}
+
 body, main, #orbiter, #orbitsection {
   position: relative;
   z-index: 0;
@@ -625,8 +630,12 @@ div.caption span.label {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
   }
-  aside {
-
+  .side-info {
+    h2 {
+      text-transform: uppercase;
+      font-size: rem-calc(18px);
+      color: var(--primary-dark-color);
+    }
     .sticky {
       width: 100%;
     }
@@ -638,11 +647,6 @@ div.caption span.label {
     .section {
       border-bottom: 1px solid $light-gray;
       padding: rem-calc(40px) rem-calc(40px);
-    }
-    h3 {
-      text-transform: uppercase;
-      font-size: rem-calc(18px);
-      color: var(--primary-dark-color);
     }
     ul {
       list-style-type: none;
@@ -712,7 +716,7 @@ footer {
     padding-bottom: rem-calc(20px);
     height: $footer-height;
   }
-  p {
+  p, li {
     font-family: $header-font-family;
     font-size: rem-calc(12px);
     color: #333;
@@ -1266,9 +1270,10 @@ button.list-group-item-danger.active:focus {
 #journal-title {
     padding: 0px;
     height:100%;
+    font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
     @include breakpoint(large down){
       max-width: 550px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.5vw;
       }
@@ -1276,7 +1281,7 @@ button.list-group-item-danger.active:focus {
     @include breakpoint(medium down){
       max-width:80%; // Avoid running over the search and burger menus
       padding-top: 0.7rem;
-      h1 {
+      p {
         font-size: 100%;
       }
     }
@@ -1285,14 +1290,14 @@ button.list-group-item-danger.active:focus {
     }
     @include breakpoint(xlarge){
       max-width: 800px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.6vw;
       }
     }
     @include breakpoint(xxlarge){
       max-width: 1000px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.70rem;
       }
@@ -1334,3 +1339,64 @@ button.list-group-item-danger.active:focus {
   text-decoration: underline;
 }
 
+.byline{
+  font-size: 1.11111rem;
+  font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: inherit;
+  text-rendering: optimizeLegibility;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.profile-name{
+  font-family: "Merriweather", serif;
+  font-size: 98%;
+  font-weight: bold;
+}
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}.red.req {
+  border: none;
+  color: red;
+  font-size: 150%;
+}
+
+.no-pad{
+  padding: 0;
+}

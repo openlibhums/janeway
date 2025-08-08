@@ -293,9 +293,9 @@ a:hover .article-title {
     list-style-type: disc;
 }
 
-.toc-card {
-    position: fixed !important;
-    top: 1%;
+.toc-sticky{
+    position: sticky;
+    top: 0;
 }
 
 .wide-button {
@@ -458,7 +458,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p {
+.footer-copyright p, li {
     color: #616161;
 }
 
@@ -759,4 +759,82 @@ main {
     height: 40px;
     padding: 0 10px;
     min-width: 40px;
+}
+
+#toc-card {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+#article iframe {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin: 1rem 0;
+}
+
+a {
+    overflow-wrap: break-word;
+}
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.list-inline-bar {
+    padding-left: 0;
+    list-style: none;
+}
+
+.list-inline-bar li {
+    display: inline-block;
+}
+
+.list-inline-bar li:not(:last-child)::after {
+  content: " | ";   
+}
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
+
+.metrics {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 110%;
 }

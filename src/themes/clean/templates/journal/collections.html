@@ -2,12 +2,13 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load dates %}
 
 {% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
 {% block title %}{% trans issue_type.plural_name  %}{% endblock %}
 
 {% block body %}
-
+<h1> {% trans issue_type.plural_name %} </h1>
     <div class="row">
         {% for collection in collections %}
             <div class="col-md-4 row-eq-height">
@@ -20,9 +21,9 @@
                     >
                     <div class="card-block">
                         <a href="{% url 'journal_collection' collection.pk %}">
-                            <h4 class="card-title">{{ collection.issue_title }}</h4>
+                            <h2 class="card-title">{{ collection.issue_title }}</h2>
                         </a>
-                        <p class="card-text"><small>Published: {{ collection.date|date:"d/m/y" }}</small></p>
+                        <p class="card-text"><small>Published: {{ collection.date|date_human }}</small></p>
                         {% if collection.short_description %}
                         <p class="card-text">{{ collection.short_description|safe }}</p>
                         {% else %}
@@ -32,7 +33,7 @@
                 </div>
             </div>
         {% empty %}
-            <h4>{% trans 'There are no collections to display' %}</h4>
+            <h2>{% trans 'There are no collections to display' %}</h2>
         {% endfor %}
     </div>
 

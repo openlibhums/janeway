@@ -42,6 +42,7 @@
                                 </select>
                             </div>
                         </div>
+                        {% include "admin/elements/forms/required_field_info.html" %}
                         {{ contact_form.sender|foundation }}
                         {{ contact_form.subject|foundation }}
                         {{ contact_form.body|foundation }}

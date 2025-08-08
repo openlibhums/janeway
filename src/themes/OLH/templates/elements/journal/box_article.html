@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load dates %}
 
 <div class="box article">
     <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}"
@@ -22,21 +23,45 @@
             <i aria-hidden="true" class="float-right fa fa-thumb-tack"></i>
             <span class="sr-only">{% trans 'Pinned' %}</span>
         {% endif %}
-            <h2>{{ article.title|safe }}
-                {% if article.is_remote %}
-                    &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                    <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
-                {% endif %}
-            </h2>
+
+            {% if level == "deep" %}
+                <h4>{{ article.title|safe }}
+                    {% if article.is_remote %}
+                        &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                        <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
+                    {% endif %}
+                </h4>
+            {% elif level == "shallow" %}
+                <h3>{{ article.title|safe }}
+                    {% if article.is_remote %}
+                        &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                        <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
+                    {% endif %}
+                </h3>
+            {% else %}
+                <h2>{{ article.title|safe }}
+                    {% if article.is_remote %}
+                        &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
+                        <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
+                    {% endif %}
+                </h2>
+            {% endif %}
+
            {% include "elements/journal/authors_block.html" %}
             <p>
                 <span class="date">
                     <i aria-hidden="true" class="fa fa-calendar"></i>
                     <time datetime='{{ article.date_published|date:"Y-m-d" }}'>
-                        <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                        <span role="time">{{ article.date_published|date_human}}</span>
                     </time>
                 </span> 
-                <i aria-hidden="true" class="fa fa-book"></i> {% if article.issue.issue_type.code == 'issue' %}{{ article.issue_title }}{% else %}{{ article.issue.issue_title }}{% endif %}</p>
+                <i aria-hidden="true" class="fa fa-book"></i> 
+                {% if article.issue.issue_type.code == 'issue' %}
+                    <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
+                {% else %}  
+                    {{ article.issue.issue_title }}
+                {% endif %}
+            </p>
             {% if article.issues.count > 1 %}
               <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
               {% for other in article.issues.all %}

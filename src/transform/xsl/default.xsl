@@ -495,7 +495,7 @@
               <xsl:apply-templates/>
             <xsl:for-each select="//xref[@rid=$fn-id]">
               <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
-              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}"> ⮭</a>
+              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}" aria-label="location of {$fn-id} in text" role="doc-backlink"> ---^ </a>
             </xsl:for-each>
           </li>
     </xsl:template>
@@ -1542,7 +1542,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                        <a href="{$graphics}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
                             <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="img-fluid"/>
                         </a>
                     </div>
@@ -1585,7 +1585,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                        <a href="{@xlink:href}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
                             <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
@@ -5067,7 +5067,7 @@
             <!-- Output -->
             <li id="fn{$fnnumfull}">
                 <xsl:apply-templates/>
-              <a href="#fnLink{$fnnumfull}" > ⮭</a>
+              <a href="#fnLink{$fnnumfull}" aria-label="location of {$fnnumfull} in text" role="doc-backlink"> ---^ </a>
             </li>
           </xsl:for-each>
           <!-- END model for each footnote -->

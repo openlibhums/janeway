@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load truncate %}
+{% load dates %}
 
 
 {% block title %}{% if subject %}{{ subject.name }} {{ request.repository.object_name_plural }}{% else %}{% trans "All" %} {{ request.repository.object_name_plural }}
@@ -25,88 +26,99 @@
                         {% endif %}
                     </p>
                 </div>
-                {% for preprint in preprints %}
-                    <div class="box article">
-                        <a href="{% url 'repository_preprint' preprint.pk %}"
-                           class="box-link"></a>
-                        <div class="clearfix">
-                            <div class="large-12s columns end">
-                                <h2>{{ preprint.title|safe }}</h2>
-                                <p>{{ preprint.display_authors_compact }}</p>
-                                <p><span class="date">
-                                    <i aria-hidden="true" class="fa fa-calendar"></i>
-                                    <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
-                                        <span role="time">{{ preprint.date_published|date:"Y-m-d" }}</span>
-                                    </time>&nbsp;&nbsp;
-                                    <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
-                                <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
+                <section aria-label="{% trans 'Results' %}">
+                    {% for preprint in preprints %}
+                        <div class="box article">
+                            <a href="{% url 'repository_preprint' preprint.pk %}"
+                            class="box-link"></a>
+                            <div class="clearfix">
+                                <div class="large-12s columns end">
+                                    <h2>{{ preprint.title|safe }}</h2>
+                                    <p>{{ preprint.display_authors_compact }}</p>
+                                    <p><span class="date">
+                                        <i aria-hidden="true" class="fa fa-calendar"></i>
+                                        <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
+                                            <span role="time">{{ preprint.date_published|date_human }}</span>
+                                        </time>&nbsp;&nbsp;
+                                        <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
+                                    <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
+                                </div>
                             </div>
+                        <hr aria-hidden="true" />
                         </div>
-                    <hr />
+                    {% endfor %}
+                </section>
+                <section aria-label="{% trans 'Results Pagination' %}">
+                    <div class="pagination-block">
+                        <ul class="pagination">
+                            {% if preprints.has_previous %}
+                                <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">
+                                {% include "elements/icons/page_previous.html" %}
+                            </a>
+                                </li>{% endif %}
+                            {{ preprints.page.page_range }}
+                            {% for page in preprints.paginator.page_range %}
+                                <li class="{% if preprints.number == page %}current{% endif %}"><a
+                                        href="?page={{ page }}">{{ page }}</a></li>
+                            {% endfor %}
+                            {% if preprints.has_next %}
+                                <li class="arrow"><a href="?page={{ preprints.next_page_number }}">
+                                {% include "elements/icons/page_next.html" %}
+                            </a>
+                                </li>{% endif %}
+                        </ul>
                     </div>
-                {% endfor %}
-                <div class="pagination-block">
-                    <ul class="pagination">
-                        {% if preprints.has_previous %}
-                            <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a>
-                            </li>{% endif %}
-                        {{ preprints.page.page_range }}
-                        {% for page in preprints.paginator.page_range %}
-                            <li class="{% if preprints.number == page %}current{% endif %}"><a
-                                    href="?page={{ page }}">{{ page }}</a></li>
-                        {% endfor %}
-                        {% if preprints.has_next %}
-                            <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a>
-                            </li>{% endif %}
-                    </ul>
-                </div>
+                </section>
             </div>
             <aside class="large-4 columns" data-sticky-container>
-                <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                    <div class="section">
-                        <form method="POST" action="{% url 'repository_search' %}">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <span class="input-group-label">
-                                    <i aria-hidden="true" class="fa fa-search"></i>
-                                    <span class="sr-only">{% trans 'Search' %}</span>
-                                </span>
-                                <input class="input-group-field" type="search" name="search_term"
-                                       placeholder="{% trans "Search preprints" %}"
-                                       {% if search_term %}value="{{ search_term }}"{% endif %}>
-                            </div>
-                            <input type="submit" style="visibility: hidden;"/>
-                            <h5>{% trans "Searching by" %}:</h5>
-                            <ul>
-                                <li>{% trans "Title" %}</li>
-                                <li>{% trans "Keywords" %}</li>
-                                <li>{% trans "Author Name" %}</li>
-                                <li>{% trans "Author Affiliation" %}</li>
-                            </ul>
-                        </form>
-                    </div>
-                    {% if subject %}
+                <section aria-labelledby="search-title">
+                    <h2 id="search-title" class="sr-only">{% trans 'Search and Filter' %}</h2>
+                    <div class="sticky" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                         <div class="section">
-                            <h5>{{ subject.name }} {% trans "Editors" %}</h5>
+                            <form method="POST" action="{% url 'repository_search' %}">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <span class="input-group-label">
+                                        <i aria-hidden="true" class="fa fa-search"></i>
+                                        <span class="sr-only">{% trans 'Search' %}</span>
+                                    </span>
+                                    <input class="input-group-field" type="search" name="search_term"
+                                        placeholder="{% trans "Search preprints" %}"
+                                        {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                </div>
+                                <input type="submit" style="visibility: hidden;"/>
+                                <h3>{% trans "Searching by" %}:</h3>
+                                <ul>
+                                    <li>{% trans "Title" %}</li>
+                                    <li>{% trans "Keywords" %}</li>
+                                    <li>{% trans "Author Name" %}</li>
+                                    <li>{% trans "Author Affiliation" %}</li>
+                                </ul>
+                            </form>
+                        </div>
+                        {% if subject %}
+                            <div class="section">
+                                <h3>{{ subject.name }} {% trans "Editors" %}</h3>
+                                <ul>
+                                    {% for editor in subject.editors.all %}
+                                        <li>{{ editor.full_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {% if subjects %}
+                            <div class="section">
+                            <h3>{% trans "Filter by Subject" %}</h3>
                             <ul>
-                                {% for editor in subject.editors.all %}
-                                    <li>{{ editor.full_name }}</li>
+                                {% for list_subject in subjects %}
+                                    {% if not list_subject == subject %}<li><a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
                                 {% endfor %}
                             </ul>
-                        </div>
-                    {% endif %}
-
-                    {% if subjects %}
-                        <div class="section">
-                        <h5>{% trans "Filter by Subject" %}</h5>
-                        <ul>
-                            {% for list_subject in subjects %}
-                                {% if not list_subject == subject %}<li><a href="{% url 'repository_list_subject' list_subject.pk %}">{{ list_subject }}</a></li>{% endif %}
-                            {% endfor %}
-                        </ul>
-                        </div>
-                    {% endif %}
-                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
             </aside>
         </div>
 

@@ -9,6 +9,7 @@ import os
 import uuid
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from modeltranslation.utils import build_localized_fieldname
@@ -229,6 +230,19 @@ class Press(AbstractSiteModel):
         ordered = journals.order_by("journal_name")
         return ordered
 
+    @property
+    def active_news_items(self):
+        """
+        Get the active news items belonging to the press,
+        excluding any journal news.
+        """
+        NewsItem = apps.get_model("comms.NewsItem")
+        press_type = ContentType.objects.get_for_model(self)
+        return NewsItem.active_objects.filter(
+            content_type=press_type,
+            object_id=self.id,
+        )
+
     @staticmethod
     def users():
         return core_models.Account.objects.all()
@@ -411,6 +425,17 @@ class Press(AbstractSiteModel):
     @cache(600)
     def navigation_items(self):
         return utils.get_navigation_items(self)
+
+    @property
+    def navigation_items_for_sitemap(self):
+        NavigationItem = apps.get_model("cms.NavigationItem")
+        press_type = ContentType.objects.get_for_model(self)
+        return NavigationItem.objects.filter(
+            content_type=press_type,
+            object_id=self.pk,
+            link__isnull=False,
+            is_external=False,
+        ).order_by("sequence")
 
     @property
     def code(self):

@@ -95,42 +95,86 @@ class TestIssueModel(TestCase):
     def setUp(self):
         self.press = helpers.create_press()
         self.journal, _ = helpers.create_journals()
+        self.issue = helpers.create_issue(self.journal, 1, 1)
+        self.expected_results = {
+            "issue_1": {
+                "display_title": (
+                    "Volume 1 &bull; Issue 1 &bull; 2022 &bull;"
+                    " Test Issue from Utils Testing Helpers"
+                ),
+                "display_title_a11y": (
+                    "Volume 1, Issue 1, 2022, Test Issue from Utils Testing Helpers"
+                ),
+            },
+            "issue_2": {
+                "display_title": (
+                    "Volume 1 &bull; Issue 2 &bull; 2022 &bull;"
+                    " Test Issue from Utils Testing Helpers"
+                ),
+                "display_title_a11y": (
+                    "Volume 1, Issue 2, 2022, Test Issue from Utils Testing Helpers"
+                ),
+            },
+            "issue_1_no_number": {
+                "display_title": (
+                    "Volume 1 &bull; 2022 &bull; Test Issue from Utils Testing Helpers"
+                ),
+                "display_title_a11y": (
+                    "Volume 1, 2022, Test Issue from Utils Testing Helpers"
+                ),
+            },
+            "collection": {
+                "display_title": "Test Issue from Utils Testing Helpers",
+                "display_title_a11y": "Test Issue from Utils Testing Helpers",
+            },
+        }
 
     def test_issue_display_title(self):
-        issue = helpers.create_issue(self.journal, 1, 1)
-        expected = (
-            "Volume 1 &bull; Issue 1 &bull; 2022 &bull;"
-            " Test Issue from Utils Testing Helpers"
+        self.assertEqual(
+            self.issue.display_title, self.expected_results["issue_1"]["display_title"]
         )
-        self.assertEqual(issue.display_title, expected)
+        self.assertEqual(
+            self.issue.display_title_a11y,
+            self.expected_results["issue_1"]["display_title_a11y"],
+        )
 
     def test_collection_display_title(self):
-        issue = helpers.create_issue(self.journal, 1, 1)
-        issue.issue_type = models.IssueType.objects.get(
+        self.issue.issue_type = models.IssueType.objects.get(
             code="collection",
             journal=self.journal,
         )
-        issue.save()
+        self.issue.save()
         # Reload issue
-        issue = models.Issue.objects.get(id=issue.id)
-        expected = "Test Issue from Utils Testing Helpers"
-        self.assertEqual(issue.display_title, expected)
+        issue = models.Issue.objects.get(id=self.issue.id)
+        self.assertEqual(
+            issue.display_title, self.expected_results["collection"]["display_title"]
+        )
+        self.assertEqual(
+            issue.display_title_a11y,
+            self.expected_results["collection"]["display_title_a11y"],
+        )
 
     def test_issue_display_title_changed(self):
-        issue = helpers.create_issue(self.journal, 1, 1)
-        issue.issue = 2
-        issue.save()
-        expected = (
-            "Volume 1 &bull; Issue 2 &bull; 2022 &bull;"
-            " Test Issue from Utils Testing Helpers"
+        self.issue.issue = 2
+        self.issue.save()
+        self.assertEqual(
+            self.issue.display_title, self.expected_results["issue_2"]["display_title"]
         )
-        self.assertEqual(issue.display_title, expected)
+        self.assertEqual(
+            self.issue.display_title_a11y,
+            self.expected_results["issue_2"]["display_title_a11y"],
+        )
 
     def test_journal_settings_for_display_title_changed(self):
-        issue = helpers.create_issue(self.journal, 1, 1)
         self.journal.display_issue_number = False
         self.journal.save()
         # Reload issue
-        issue = models.Issue.objects.get(id=issue.id)
-        expected = "Volume 1 &bull; 2022 &bull; Test Issue from Utils Testing Helpers"
-        self.assertEqual(issue.display_title, expected)
+        issue = models.Issue.objects.get(id=self.issue.id)
+        self.assertEqual(
+            issue.display_title,
+            self.expected_results["issue_1_no_number"]["display_title"],
+        )
+        self.assertEqual(
+            issue.display_title_a11y,
+            self.expected_results["issue_1_no_number"]["display_title_a11y"],
+        )

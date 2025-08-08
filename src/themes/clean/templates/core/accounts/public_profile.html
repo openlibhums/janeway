@@ -9,23 +9,23 @@
             <div class="col-md-3">
                 {% include "common/elements/profile_image.html" with classes="thumbnail img-fluid editorial-image" user=user %}
                 <br />
-                <h3>{{ user.full_name }}</h3>
+                <h1>{{ user.full_name }}</h1>
                 <p><strong>{% trans 'Roles' %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
                 {% include "common/elements/profile_affiliations.html" %}
             </div>
             <div class="col-md-9">
                 {% if user.biography %}
-                    <h3>{% trans "Biography" %}</h3>
-                    <hr />
+                    <h2>{% trans "Biography" %}</h2>
+                    <hr aria-hidden="true" />
                     {{ user.biography|safe }}
                     <br/><br/>
                 {% endif %}
                 {% if user.published_articles %}
-                    <h3>{% trans "Publications" %}</h3>
-                    <hr />
+                    <h2>{% trans "Publications" %}</h2>
+                    <hr aria-hidden="true" />
                     {% for article in user.published_articles %}
-                        {% include "elements/article_listing.html" with article=article %}
-                        <hr />
+                        {% include "elements/article_listing.html" with article=article level="shallow" %}
+                        <hr aria-hidden="true" />
                     {% endfor %}
                 {% endif %}
             </div>

@@ -1,15 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemapindex
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:janeway="https://janeway.systems">
+  <janeway:sitemap_name>
+    {{ press.name }}
+  </janeway:sitemap_name>
+  <sitemap>
+    <urlset>
+      {% include "common/sitemap_url.xml" with obj=press url_name='website_index' label="Home" %}
+      {% for nav_item in press.navigation_items_for_sitemap %}
+        <url>
+          <loc>{% stateless_site_url press url_name='website_index' %}{{ nav_item.link }}</loc>
+          {% if nav_item.link_name %}
+            <janeway:loc_label>
+              {{ nav_item.link_name }}
+            </janeway:loc_label>
+          {% endif %}
+        </url>
+      {% endfor %}
+      {% if press.publishes_journals and not press.disable_journals %}
+        {% include "common/sitemap_url.xml" with obj=press url_name='press_journals' label="Journals" %}
+      {% endif %}
+      {% if press.publishes_conferences %}
+        {% include "common/sitemap_url.xml" with obj=press url_name='press_conferences' label="Conferences" %}
+      {% endif %}
+      {% if journal_settings.general.enable_editorial_display %}
+        {% include "common/sitemap_url.xml" with obj=press url_name='editorial_team' label="Editorial team" %}
+      {% endif %}
+      {% include "common/sitemap_url.xml" with obj=press url_name='contact' label="Contact" %}
+      {% include "common/sitemap_url.xml" with obj=press url_name='core_login' label="Log in" %}
+      {% include "common/sitemap_url.xml" with obj=press url_name='core_register' label="Register" %}
+      {% for news_item in press.active_news_items %}
+        <url>
+          <loc>{{ news_item.url }}</loc>
+          <lastmod>{{ news_item.posted.isoformat }}</lastmod>
+          <janeway:loc_label>{{ news_item.title }}</janeway:loc_label>
+        </url>
+      {% endfor %}
+    </urlset>
+  </sitemap>
+  {% if journals.exists or repos.exists %}
     {% for journal in journals %}
-    <sitemap>
+      <sitemap>
         <loc>{{ journal.site_url }}/sitemap.xml</loc>
-    </sitemap>
+        <janeway:loc_label>{{ journal.name }}</janeway:loc_label>
+      </sitemap>
     {% endfor %}
-
     {% for repo in repos %}
-    <sitemap>
+      <sitemap>
+        <janeway:loc_label>{{ repo.name }}</janeway:loc_label>
         <loc>{{ repo.site_url }}/sitemap.xml</loc>
-    </sitemap>
+      </sitemap>
     {% endfor %}
+  {% endif %}
 </sitemapindex>

@@ -3,6 +3,7 @@
 import os
 
 DEBUG = True
+FORCE_BUILTIN_XSL = False
 SECRET_KEY = "uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv"
 
 # This is the default redirect if no other sites are found.
