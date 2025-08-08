@@ -1,0 +1,22 @@
+{% comment %}
+  a comma separated list of keywords, optionally linked to the journal keyword page.
+  keywords - the keywords
+  linked - boolean of whether to link the keywords
+{% endcomment %}
+
+{% if keywords.count > 0 %}
+    <h2>{% trans "Keywords" %}:</h2> 
+    <ul class="keywords-list">
+        {% for keyword in keywords.all %}
+            <li>
+                {% if linked %}
+                    <a href="{% url 'keyword' keyword.pk %}">
+                        {{ keyword.word }}<span aria-hidden=true>{% if not forloop.last %}, {% endif %}</span>
+                    </a>
+                {% else %}
+                    {{ keyword.word }}<span aria-hidden=true>{% if not forloop.last %}, {% endif %}</span>
+                {% endif %} 
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

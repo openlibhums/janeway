@@ -12,16 +12,19 @@
                             <div class="card-image">
                                 <img class="" src="
 
-                                        {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+                                    {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
                             </div>
                             <div class="card-content">
                                 {% if current_journal.is_remote %}
-                                    <a href="{{ current_journal.remote_view_url }}">
+                                    <a href="{{ current_journal.remote_view_url }}" target="_blank">
+                                        {{ current_journal.name }}
+                                        {% include "elements/icons/link_external.html" %} 
+                                    </a>
                                 {% else %}
                                     <a href="{{ current_journal.site_url }}">
+                                        {{ current_journal.name }}
+                                    </a>
                                 {% endif %}
-                                {{ current_journal.name }}
-                                </a>
                             </div>
                         </div>
                     </div>

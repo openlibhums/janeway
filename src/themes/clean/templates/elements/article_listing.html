@@ -20,35 +20,35 @@
                 </div>
             {% endif %}
             <div class="col article-block">
-                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
                     {% if article.is_remote %}
-                        {% if level == "deep" %}
-                            <h4 class="card-title article-title">
-                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                                {{ article.title|safe }}&nbsp;
-                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                            </h4>
-                        {% elif level == "shallow" %}
-                            <h3 class="card-title article-title">
-                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                                {{ article.title|safe }}&nbsp;
-                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                            </h3>
-                        {% else %}
-                            <h2 class="card-title article-title">
-                                <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                                {{ article.title|safe }}&nbsp;
-                                <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                            </h2>
-                        {% endif %}
+                        <a href="{{ article.remote_url }}" target="_blank">
+                            {% if level == "deep" %}
+                                <h4 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h4>
+                            {% elif level == "shallow" %}
+                                <h3 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h3>
+                            {% else %}
+                                <h2 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h2>
+                            {% endif %}
+                        </a>
                     {% else %}
-                        {% if level == "deep" %}
-                            <h4 class="card-title article-title">{{ article.title|safe }}</h4>
-                        {% elif level == "shallow" %}
-                            <h3 class="card-title article-title">{{ article.title|safe }}</h3>
-                        {% else %}
-                            <h2 class="card-title article-title">{{ article.title|safe }}</h2>
-                        {% endif %}
+                        <a href="{{ article.url }}" >
+                            {% if level == "deep" %}
+                                <h4 class="card-title article-title">{{ article.title|safe }}</h4>
+                            {% elif level == "shallow" %}
+                                <h3 class="card-title article-title">{{ article.title|safe }}</h3>
+                            {% else %}
+                                <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                            {% endif %}
+                        </a>
                     {% endif %}
                 </a>
                 <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}

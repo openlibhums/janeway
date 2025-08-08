@@ -25,13 +25,18 @@
                     <div class="card editorial-card eq-height-col">
                         {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" card_wrapper="True" %}
                         <div class="card-content" style="min-height: 190px;">
-                            <h3 class="card-title small-card-title">{{ member.user.full_name }}</h3>
+                            <h3 id="member-{{ member.user.uuid }}" class="card-title small-card-title">{{ member.user.full_name }}</h3>
                             <p>
                                 <small>{{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}</small>
                             </p>
                             {% if member.user.enable_public_profile %}
                                 <p>
-                                    <small><a href="{% url 'core_public_profile' member.user.uuid %}">{% trans "View Profile" %}</a>
+                                    <small>
+                                            <a href="{% url 'core_public_profile' member.user.uuid %}"
+                                                aria-describedby="member-{{ member.user.uuid }}"
+                                                >
+                                                {% trans "View Profile" %}
+                                            </a>
                                     </small>
                                 </p>
                             {% endif %}
