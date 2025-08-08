@@ -564,3 +564,12 @@ a {
 .card-title{
     font-size: 1.5rem;
 }
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+}

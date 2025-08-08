@@ -1247,8 +1247,19 @@ button.list-group-item-danger.active:focus {
 
 .reveal {
   user-select: text;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+}
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
