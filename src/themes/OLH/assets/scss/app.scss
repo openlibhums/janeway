@@ -1259,6 +1259,8 @@ button.list-group-item-danger.active:focus {
     z-index: 1050;
     float: right;
     margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 .table-foot .table-footnotes li.fn {
