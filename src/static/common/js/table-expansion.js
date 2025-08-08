@@ -3,6 +3,7 @@
  * Theme configurations passed from article template.
  * modalSelector - varies by theme, e.g. modal, reveal
  * linkTemplate - varies by theme - different classes etc.
+ * customCloseFocus - work around for material (set as true to use it).
  * 
  * note: table-label is a class name set by xsl used here to create a unique heading for each modal.
  */
@@ -70,7 +71,57 @@ function initTableExpansion(config) {
         });
     }
 
+    function handleModalFocusManagement() {
+        var triggerElement = null;
+        $(document).on('click', '.modal-trigger', function(e) {
+            triggerElement = this;
+        });
+
+        function closeHandler(){
+            if (triggerElement) {
+                setTimeout(function() {
+                    triggerElement.focus();
+                    triggerElement = null;
+                }, 100);
+            }
+        }
+        
+        // close buttons
+        $(document).on('click', '[data-dismiss="modal"]', function(e) {
+            closeHandler();
+        });
+        $(document).on('click', '.modal-close', function(e) {
+            closeHandler();
+        });
+        $(document).on('modal:close', function(e) {
+            closeHandler();
+        });
+
+        // Click outside the modal
+        $(document).on('click', '.modal-overlay', function(e) {
+            closeHandler();
+        });
+        $(document).on('click', '.modal-backdrop', function(e) {
+            closeHandler();
+        });
+        
+        //ESC key
+        $(document).on('keydown', function(e) {
+            if (e.keyCode === 27) { // ESC key
+                var $openModal = $('.modal.open');
+                if ($openModal.length) {
+                    closeHandler();
+                }
+            }
+        });
+    }
+
     addExpansionLinks();
     createModalHeading();
-    pageLinksCloseModal()
+    pageLinksCloseModal();
+    
+    // Only handle custom focus management if customClose is provided
+    if (config.customCloseFocus) {
+        handleModalFocusManagement();
+    }
 } 
