@@ -6,7 +6,11 @@
         {% else %}
             <h3>Editors: </h3>
         {% endif %}
-        {% for editor in issue.issueeditor_set.all %}{{ editor.account.full_name }} ({{ editor.role }}){% if not forloop.last %}, {% endif %}{% endfor %}
+        <ul class="list-inline comma-sep">
+            {% for editor in issue.issueeditor_set.all %}
+                <li>{{ editor.account.full_name }} ({{ editor.role }})</li>
+            {% endfor %}
+        </ul>
     {% if small %}</small>{% endif %}
     </p>
 {% endif %}
