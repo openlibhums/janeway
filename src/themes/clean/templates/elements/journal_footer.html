@@ -29,7 +29,7 @@
             <ul class="list-inline">
                 {% for item in journal.press.navigation_items %}
                     {% if item.for_footer and item.extend_to_journals %}
-                        <li class="list-inline-item">
+                        <li>
                             {% if item.is_external %}
                                 <a href="{{ item.link }}" target="_blank">
                                     {{ item.link_name }}
@@ -44,23 +44,23 @@
                     {% endif %}
                 {% endfor %}
                 {% if journal_settings.general.privacy_policy_url %}
-                    <li class="list-inline-item"><a
+                    <li><a
                             href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
                     </li>
                 {% else %}
-                    <li class="list-inline-item"><a
+                    <li><a
                             href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
                 {% endif %}
-                <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+                <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 {% if not request.user.is_authenticated %}
-                  <li class="list-inline-item">
+                  <li>
                     <a href="{% url 'core_login' %}">
                       {% trans 'Log in' %}
                     </a>
                   </li>
                 {% endif %}
                 {% if journal_settings.general.switch_language %}
-                    <li class="list-inline-item">
+                    <li>
                         <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                             <input name="next" type="hidden" value="{{ request.PATH }}"/>
                             <select name="language" onchange="this.form.submit()" autocomplete="off">
