@@ -611,3 +611,39 @@ a {
     min-width: 24px;
     min-height: 24px;
 }
+
+.list-inline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.list-inline li {
+    display: inline;
+}
+
+.list-inline li:not(:first-child) {
+    margin-left: 0.3rem;
+}
+
+.comma-sep li:not(:last-child)::after {
+    content: ",";
+}
+
+.comma-ampersand-sep li:not(:last-child):not(:nth-last-child(2))::after {
+    content: ",";
+}
+
+.comma-ampersand-sep li:nth-last-child(2)::after {
+    content: "&";
+}
+
+.bar-sep li:not(:last-child)::after {
+    content: " | ";
+}
+
+.list-no-bullet{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
