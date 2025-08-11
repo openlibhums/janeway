@@ -10,7 +10,13 @@
                 {% include "common/elements/profile_image.html" with classes="thumbnail img-fluid editorial-image" user=user %}
                 <br />
                 <h1>{{ user.full_name }}</h1>
-                <p><strong>{% trans 'Roles' %}: </strong><br>{% for role in roles %}{{ role.role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                <p><strong>{% trans 'Roles' %}: </strong><br>
+                    <ul class="list-inline comma-sep">
+                        {% for role in roles %}
+                            <li>{{ role.role.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </p>
                 {% include "common/elements/profile_affiliations.html" %}
             </div>
             <div class="col-md-9">

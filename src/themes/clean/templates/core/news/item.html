@@ -20,14 +20,9 @@
             <br />
             {% if news_item.tags.all %}
                 <h2>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
-                <ul class="list-inline">
+                <ul class="list-inline comma-sep">
                     {% for tag in news_item.tags.all %}
-                        <li class="list-inline-item">
-                            <a href="{% url 'core_news_list_tag' tag.text %}">
-                                {{ tag.text }}
-                            </a>
-                            {% if not forloop.last %}<span aria-hidden="true">, </span>{% endif %}
-                        </li>
+                        <li><a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a></li>
                     {% endfor %}
                 </ul>
             {% endif %}

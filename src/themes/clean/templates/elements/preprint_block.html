@@ -10,8 +10,12 @@
                     </p>
                     <p>
                         <small><i>
-                            {% for author in preprint.authors.all %}{{ author.full_name }}{% if not forloop.last %},
-                            {% endif %}{% endfor %}</i></small>
+                            <ul class="list-inline comma-sep">
+                                {% for author in preprint.authors.all %}
+                                    <li>{{ author.full_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </i></small>
                     </p>
                     <p>
                         <small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>

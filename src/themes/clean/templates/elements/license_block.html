@@ -1,14 +1,15 @@
-<ul>
+<dl>
     {% for license in request.journal.licence_set.all %}
         {% if license.available_for_submission %}
-            <li>
+            <dt>
                 <strong>
                     <a href="{{ license.url }}" target="_blank">
                         {{ license }}
                         {% include "elements/icons/link_external.html" %}  
                     </a>
                 </strong>
-                <br/><span class="help-text">{{ license.text|safe }}</span></li>
+            </dt>
+            <dd><span class="help-text">{{ license.text|safe }}</span></dd>
         {% endif %}
     {% endfor %}
-</ul>
+</dl>
