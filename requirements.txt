@@ -37,7 +37,7 @@ more-itertools==10.1.0
 jsmin==3.0.1
 kitchen==1.2.4
 libsass==0.23.0
-lxml==4.9.4
+lxml==6.0.0
 markdown
 maxminddb==2.5.1
 mock
@@ -46,7 +46,7 @@ orcid==1.0.3
 packaging==23.2
 pdfkit==1.0.0
 pdfminer.six
-psycopg2-binary~=2.9.8
+psycopg2-binary==2.9.10
 pyasn1==0.1.9
 pycparser==2.14
 PyJWT==2.4.0
