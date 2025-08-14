@@ -1165,6 +1165,7 @@ def edit_setting(request, setting_group, setting_name):
                     messages.add_message(request, messages.ERROR, error)
                 else:
                     cache.clear()
+                    messages.success(request, _('Setting updated successfully.'))  
 
                 return language_override_redirect(
                     request,
