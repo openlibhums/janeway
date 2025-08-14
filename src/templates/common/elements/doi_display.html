@@ -6,6 +6,7 @@
             aria-label="{% trans 'D.O.I. for' %} {{ title | striptags }}"
             >
             {{ doi }}
+            {% include "elements/icons/link_external.html" %} 
         </a>
     {% else %}
         <a
@@ -14,6 +15,7 @@
             aria-label="{% trans 'D.O.I. for' %} {{ title | striptags }}"
             >
             https://doi.org/{{ doi }}
+            {% include "elements/icons/link_external.html" %} 
         </a>
     {% endif %}
 {% endif %}
