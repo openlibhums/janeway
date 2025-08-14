@@ -5,14 +5,31 @@ function copyToClipboard(elementId, event, activatedText) {
         return;
     }
 
+    // the copied text needs to exclude screenreader-only content and icons.
+    const ignoreClasses = ['.sr-only', '.fa'];
+    
+    function removeElementsByClass(element, classesToRemove){
+        const tempElement = element.cloneNode(true);
+        classesToRemove.forEach(function(item){
+            tempElement.querySelectorAll(item).forEach(el => el.remove());
+        });
+        return tempElement;
+    }
+
     const button = event.currentTarget;
     const originalContent = button.innerHTML;
+    let content, plainText;
 
     // nb. share links are from inputs which are value, but how-to-cite is html that needs to be rich text
-    const content = element.tagName === 'INPUT' ? element.value : element.innerHTML;
-    
-    // Get plain text and clean up whitespace
-    let plainText = element.tagName === 'INPUT' ? element.value : element.textContent;
+    if (element.tagName === 'INPUT') {
+        content = element.value;
+        plainText = element.value;
+    }
+    else {
+        content = removeElementsByClass(element, ignoreClasses).innerHTML;
+        plainText = removeElementsByClass(element, ignoreClasses).textContent;
+    }
+
     plainText = plainText
         .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
         .replace(/\n\s*\n/g, '\n')  // Replace multiple newlines with single newline
