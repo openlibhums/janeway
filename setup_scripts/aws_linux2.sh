@@ -7,5 +7,5 @@ virtualenv -p python3 .janewayenv
 source ~/.janewayenv/bin/activate
 git clone https://github.com/BirkbeckCTP/janeway.git
 cd janeway
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt -c constraints.txt
 # pip3 install mod_wsgi

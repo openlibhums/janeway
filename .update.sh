@@ -3,7 +3,7 @@ set -euo pipefail
 
 # This command will run an update on Janeway.
 
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt -c constraints.txt
 python3 src/manage.py migrate
 python3 src/manage.py build_assets
 python3 src/manage.py collectstatic --no-input
