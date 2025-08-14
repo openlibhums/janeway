@@ -163,7 +163,18 @@ class SubmissionTests(TestCase):
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
         <i>Journal One</i> 1, 2-4.
-        <a aria-label="D.O.I. for Test article: a test article" href="https://doi.org/{0}" target="_blank">https://doi.org/{0}</a></span>
+         <a
+        target="_blank"
+        href="https://doi.org/{0}" 
+        aria-label="D.O.I. for Test article: a test article"
+        >
+        https://doi.org/{0}
+        <i aria-hidden="true" class="fa fa-external-link superscript-icon  icon-recede" 
+    title="External link, opens in new tab.">
+</i>
+<span class="sr-only">(external link, opens in new tab).</span> 
+    </a>
+</span>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
 
