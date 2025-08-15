@@ -15,7 +15,7 @@
 
   {# Flex container for layout #}
   <div class="alt-text-container">
-    {% get_alt_text obj=object file_path=file_path token=token context_phrase=context_phrase as alt_text %}
+    {% get_admin_alt_text_snippet obj=object file_path=file_path token=token context_phrase=context_phrase as alt_text %}
     <dl class="no-bottom-margin">
       {% include "admin/elements/layout/key_value_above.html" with key="Alt Text" value=alt_text no_bottom_margin="True" %}
     </dl>

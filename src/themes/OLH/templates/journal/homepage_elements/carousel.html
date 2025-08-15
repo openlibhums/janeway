@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n alt_text %}
 {% if carousel.enabled %}
         <section aria-labelledby="carousel-title" class="no-padding" id="orbitsection">
             <h2 id="carousel-title" class="sr-only">{% trans 'Carousel' %}</h2>
@@ -11,16 +11,19 @@
                                 <img class="orbit-image"
                                      {% if carousel_item.large_image_file.id %}
                                      src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
+                                     alt="{% get_alt_text obj=carousel_item.large_image_file %}"
                                      {% elif carousel_item.hero_image_url %}
                                         src="{{ carousel_item.hero_image_url }}"
+                                        alt="{% get_alt_text file_path=carousel_item.hero_image_url %}"
                                      {% elif journal.default_large_image %}
                                         src="{{ journal.default_large_image.url }}"
+                                        alt="{% get_alt_text file_path=journal.default_large_image.url %}"
                                      {% elif request.press.default_carousel_image %}
                                          src="{{ request.press.default_carousel_image.url }}"
+                                         alt="{% get_alt_text file_path=request.press.default_carousel_image.url %}"
                                      {% else %}
                                         src=""
-                                     {% endif %}
-                                     alt="{{ carousel_item.carousel_title|striptags }}">
+                                     {% endif %}>
                                 <figcaption class="orbit-caption">
                                     <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                                     <h3>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>

@@ -21,15 +21,32 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None):
     else:
         path = None
 
-    print(path)
+    alt_text = models.AltText.get_text(
+        obj=obj,
+        path=path,
+        context_phrase=context_phrase,
+    )
+    print(alt_text)
+    return str(alt_text)
+
+
+@register.simple_tag
+def get_admin_alt_text_snippet(obj=None, file_path=None, token=None, context_phrase=None):
+    """
+    Render a block of alt text wrapped in a span with a unique ID for HTMX targeting.
+    """
+    if file_path:
+        path = hashlib.sha256(file_path.strip().encode()).hexdigest()
+    elif token:
+        path = token
+    else:
+        path = None
 
     alt_text = models.AltText.get_text(
         obj=obj,
         path=path,
         context_phrase=context_phrase,
     )
-
-    print(alt_text)
 
     return render_to_string(
         "core/partials/alt_text/alt_text_snippet.html",

@@ -2257,7 +2257,6 @@ def old_search(request):
 
     if redir:
         return redir
-    from itertools import chain
 
     if search_term:
         escaped = re.escape(search_term)
