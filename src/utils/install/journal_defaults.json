@@ -515,7 +515,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Unassign Editor Email",
+            "description": "Subject for email sent to editors when they are unassigned from an article.",
             "is_translatable": true,
             "name": "subject_unassign_editor",
             "pretty_name": "Subject Unassign Editor",
@@ -572,7 +572,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tacked onto the end of automated system emails (where there is no person specifically sendinf it).",
+            "description": "Tacked onto the end of automated system emails (where there is no person specifically sending it).",
             "is_translatable": true,
             "name": "auto_signature",
             "pretty_name": "Auto Signature",
@@ -933,7 +933,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When using a custom theme you can set the base theme, when a template from a custom theme is missing templates from the base theme will be used as a backup.",
+            "description": "When using a custom theme, you can set the base theme. When a template from a custom theme is missing, templates from the base theme will be used as a backup.",
             "is_translatable": false,
             "name": "journal_base_theme",
             "pretty_name": "Journal Base Theme",
@@ -952,7 +952,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guide shown to Copyeditors.",
+            "description": "Guide shown to copyeditors.",
             "is_translatable": true,
             "name": "copyediting_guidelines",
             "pretty_name": "Copyediting Guidelines",
@@ -971,7 +971,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guide shown to Author during Copyediting.",
+            "description": "Guide shown to authors during copyediting.",
             "is_translatable": true,
             "name": "author_copyediting_guidelines",
             "pretty_name": "Author Copyediting Guidelines",
@@ -990,14 +990,14 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to copyeditors.",
+            "description": "Email sent to copyeditors notifying them of a new copyediting assignment.",
             "is_translatable": true,
             "name": "copyeditor_assignment_notification",
             "pretty_name": "Copyedit Notify Copyeditor",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.salutation_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.safe_title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.salutation_name }},<br/><br/>We are requesting that you undertake a copyedit for the article \"{{ assignment.article.safe_title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1009,7 +1009,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editor when copyedits are complete.",
+            "description": "Email sent to editors when copyedits are complete.",
             "is_translatable": true,
             "name": "copyeditor_notify_editor",
             "pretty_name": "Copyedit Notify Editor",
@@ -1028,7 +1028,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Author asking them to review copyedits.",
+            "description": "Email sent to authors asking them to review copyedits.",
             "is_translatable": true,
             "name": "copyeditor_notify_author",
             "pretty_name": "Copyedit Notify Author",
@@ -1047,7 +1047,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Copyeditor asking them to undertake further copyedits.",
+            "description": "Email sent to copyeditors asking them to undertake further copyedits.",
             "is_translatable": true,
             "name": "copyeditor_reopen_task",
             "pretty_name": "Copyedit Reopen Task",
@@ -1066,7 +1066,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Copyeditor to thank them.",
+            "description": "Email sent to copyeditors to thank them.",
             "is_translatable": true,
             "name": "copyeditor_ack",
             "pretty_name": "Copyedit Acknowledge",
@@ -1085,7 +1085,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Editor when an author copyedit review is complete.",
+            "description": "Email sent to editors when an author copyedit review is complete.",
             "is_translatable": true,
             "name": "author_copyedit_complete",
             "pretty_name": "Author Copyediting Complete",
@@ -1104,7 +1104,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guidelines displayed to the typesetter.",
+            "description": "Guidelines displayed to typesetters.",
             "is_translatable": true,
             "name": "typesetting_guide",
             "pretty_name": "Typesetting Guidelines",
@@ -1123,7 +1123,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Production Manager on assignment.",
+            "description": "Email sent to production managers notifying them of a new assignment.",
             "is_translatable": true,
             "name": "production_manager_notification",
             "pretty_name": "Production Manager Assignment Notification",
@@ -1142,7 +1142,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter on task assignment.",
+            "description": "Email sent to typesetters notifying them of a new assignment.",
             "is_translatable": true,
             "name": "typesetter_notification",
             "pretty_name": "Typesetter Assignment Notification",
@@ -1161,7 +1161,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Production Manager on typeset task complete.",
+            "description": "Email sent to production managers upon typesetting task completion.",
             "is_translatable": true,
             "name": "typesetter_complete_notification",
             "pretty_name": "Typesetter Complete Notification",
@@ -1180,7 +1180,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter to acknowledge a completed task.",
+            "description": "Email sent to typesetters to acknowledge a completed task.",
             "is_translatable": true,
             "name": "typeset_ack",
             "pretty_name": "Typesetter Acknowledgement",
@@ -1199,7 +1199,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Editors when Production is Complete.",
+            "description": "Email sent to editors when production is complete.",
             "is_translatable": true,
             "name": "production_complete",
             "pretty_name": "Production Complete",
@@ -1218,7 +1218,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter to inform them that a task has been re-opened.",
+            "description": "Email sent to sypesetters to inform them that a task has been reopened.",
             "is_translatable": true,
             "name": "typeset_reopened",
             "pretty_name": "Typeset Task Reopened",
@@ -1237,7 +1237,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Auto email sent to Proofing Manager when they are assigned.",
+            "description": "Automated email sent to proofing manager when they are assigned.",
             "is_translatable": true,
             "name": "notify_proofing_manager",
             "pretty_name": "Notify Proofing Manager",
@@ -1256,7 +1256,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the proofing manager on completion.",
+            "description": "Email sent to proofing managers on completion of a proofing task.",
             "is_translatable": true,
             "name": "notify_proofreader_complete",
             "pretty_name": "Notify Proofreader Complete",
@@ -1294,7 +1294,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "description": "Email sent to typesetters requesting changes based on proofing feedback.",
             "is_translatable": true,
             "name": "notify_typesetter_proofing_changes",
             "pretty_name": "Notify Typesetter of Proofreading Feedback",
@@ -1313,7 +1313,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the typesetter and proofreaders thanking them.",
+            "description": "Email sent to typesetters and proofreaders thanking them.",
             "is_translatable": true,
             "name": "thank_proofreaders_and_typesetters",
             "pretty_name": "Thank Proofreaders and Typesetters",
@@ -1332,7 +1332,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when Proofing is complete.",
+            "description": "Email sent to editors when proofing is complete.",
             "is_translatable": true,
             "name": "notify_editor_proofing_complete",
             "pretty_name": "Notify Editor that Proofreading is Complete",
