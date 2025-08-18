@@ -3191,7 +3191,7 @@ class Field(models.Model):
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=field_kind_choices())
+    kind = models.CharField(max_length=50, choices=field_kind_choices(), help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.")
     width = models.CharField(max_length=50, choices=width_choices(), default="full")
     choices = models.CharField(
         max_length=1000,
