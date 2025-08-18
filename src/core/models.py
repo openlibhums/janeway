@@ -498,7 +498,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=300, null=True, blank=True, verbose_name=_("Website")
     )
     github = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Github Username")
+        max_length=300, null=True, blank=True, verbose_name=_("GitHub Username")
     )
     profile_image = models.ImageField(
         upload_to=profile_images_upload_path,
@@ -514,7 +514,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
         verbose_name=_("Confirmation Code"),
-        help_text="A UUID created upon registration and retrieved "
+        help_text="A Universally Unique Identifier (UUID) created upon registration and retrieved "
         "for authentication during account activation",
     )
     signature = JanewayBleachField(
@@ -997,7 +997,7 @@ class PasswordResetToken(models.Model):
 class Role(models.Model):
     name = models.CharField(
         max_length=100,
-        help_text="Display name for this role (can include spaces and capital letters)",
+        help_text="Display name for this role (can include spaces and capital letters).",
     )
     slug = models.CharField(
         max_length=100,
@@ -1063,7 +1063,7 @@ privacy_types = (
     ("public", "Public"),
     ("typesetters", "Typesetters"),
     ("proofreaders", "Proofreaders"),
-    ("copyeditors", "Copyedtiors"),
+    ("copyeditors", "Copyeditors"),
     ("editors", "Editors"),
     ("owner", "Owner"),
 )
@@ -1625,8 +1625,8 @@ class Galley(AbstractLastModifiedModel):
     # All Galleys
     label = models.CharField(
         max_length=400,
-        help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
-        "you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for "
+        help_text="Typeset file labels are displayed in download links and have the format 'Download Label', e.g. if "
+        "you set the label to be \"PDF\", the link will be \"Download PDF\". If you want Janeway to set a label for "
         "you, leave it blank.",
     )
     type = models.CharField(max_length=100, choices=galley_type_choices())
@@ -1768,7 +1768,7 @@ class XSLFile(models.Model):
     date_uploaded = models.DateTimeField(default=timezone.now)
     label = models.CharField(
         max_length=255,
-        help_text="A label to help recognise this stylesheet",
+        help_text="A label to help recognise this stylesheet.",
         unique=True,
     )
     comments = JanewayBleachField(blank=True, null=True)
@@ -1833,7 +1833,7 @@ class Task(models.Model):
     link = models.TextField(
         null=True,
         blank=True,
-        help_text="A url name, where the action of this task can undertaken",
+        help_text="A URL name, where the action of this task can be undertaken.",
     )
     assignees = models.ManyToManyField(Account)
     completed_by = models.ForeignKey(
@@ -1950,7 +1950,7 @@ class EditorialGroupMember(models.Model):
     sequence = models.PositiveIntegerField()
     statement = models.TextField(
         blank=True,
-        help_text="A statement of interest or purpose",
+        help_text="A statement of interest or purpose.",
     )
 
     class Meta:
@@ -2793,7 +2793,7 @@ class Organization(models.Model):
         max_length=10,
         validators=[validate_ror_id],
         verbose_name="ROR ID",
-        help_text="Non-URI form of Research Organization Registry identifier",
+        help_text="Non-URI form of Research Organization Registry identifier.",
     )
     ror_status = models.CharField(
         blank=True,
@@ -2804,7 +2804,7 @@ class Organization(models.Model):
     ror_record_timestamp = models.CharField(
         max_length=10,
         blank=True,
-        help_text="The admin.last_modified.date string from ROR data",
+        help_text="The admin.last_modified.date string from ROR data.",
     )
     website = models.CharField(
         blank=True,
@@ -3022,7 +3022,7 @@ class ControlledAffiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Each author or user can have one primary affiliation",
+        help_text="Each author or user can have one primary affiliation.",
     )
     start = models.DateField(
         blank=True,
@@ -3033,7 +3033,7 @@ class ControlledAffiliation(models.Model):
         blank=True,
         null=True,
         verbose_name="End date",
-        help_text="Leave empty for a current affiliation",
+        help_text="Leave empty for a current affiliation.",
     )
 
     class Meta:
@@ -3274,7 +3274,7 @@ class LocationManager(models.Manager):
 class Location(models.Model):
     name = models.CharField(
         max_length=200,
-        help_text="City or place name",
+        help_text="City or place name.",
         blank=True,
     )
     country = models.ForeignKey(
