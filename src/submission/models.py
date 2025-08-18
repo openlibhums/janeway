@@ -1029,10 +1029,10 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         null=True,
         choices=LANGUAGE_CHOICES,
-        help_text=_("The primary language of the article"),
+        help_text=_("The primary language of the article."),
     )
     section = models.ForeignKey(
-        "Section", blank=True, null=True, on_delete=models.SET_NULL
+        "Section", blank=True, null=True, on_delete=models.SET_NULL, help_text="The section the article is part of (article type).",
     )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
@@ -1061,7 +1061,7 @@ class Article(AbstractLastModifiedModel):
     is_remote = models.BooleanField(
         default=False,
         verbose_name="Remote article",
-        help_text="Check if this article is remote",
+        help_text="Check if this article is remote.",
     )
     remote_url = models.URLField(
         blank=True,
@@ -1088,13 +1088,13 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text="If you have any conflict "
         "of interests in the publication of this "
-        "article please state them here.",
+        "article, please state them here.",
     )
     rights = JanewayBleachField(
         blank=True,
         null=True,
         help_text="A custom statement on the usage rights for this article"
-        " and associated materials, to be rendered in the article page",
+        " and associated materials, to be rendered in the article page.",
     )
 
     article_number = models.PositiveIntegerField(
@@ -1217,8 +1217,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         blank=True,
         help_text=_(
-            "Name of the publisher who published this article"
-            " Only relevant to migrated articles from a different publisher"
+            "Name of the publisher who published this article."
+            " Only relevant to migrated articles from a different publisher."
         ),
     )
 
@@ -1236,8 +1236,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         blank=True,
         help_text=_(
-            "Original ISSN of this article's journal when published"
-            " Only relevant for back content published under a different title"
+            "Original ISSN of this article's journal when published."
+            " Only relevant for back content published under a different title."
         ),
     )
 
