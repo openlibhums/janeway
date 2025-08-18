@@ -572,7 +572,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tacked onto the end of automated system emails (where there is no person specifically sending it).",
+            "description": "Tacked onto the end of automated system emails (where there is no specific person sending it).",
             "is_translatable": true,
             "name": "auto_signature",
             "pretty_name": "Auto Signature",
@@ -2912,7 +2912,7 @@
             "type": "char",
             "pretty_name": "Password Reset",
             "is_translatable": true,
-            "description": "Subject for Email sent when user requests a password reset.",
+            "description": "Subject for the email sent when users request a password reset.",
             "name": "subject_password_reset"
         },
         "group": {
@@ -2931,7 +2931,7 @@
             "type": "char",
             "pretty_name": "Peer Reviewer Publication Notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Peer Reviewer when article is published.",
+            "description": "Subject for email sent to the Peer Reviewer when article is published.",
             "name": "subject_peer_reviewer_pub_notification"
         },
         "group": {
