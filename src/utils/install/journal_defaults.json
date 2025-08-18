@@ -80,7 +80,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "<p>Displayed on the About and Submission pages. You should update this to display the Journal's copyright requirements.",
+            "description": "Displayed on the About and Submission pages. You should update this to display the Journal's copyright requirements.",
             "is_translatable": true,
             "name": "copyright_notice",
             "pretty_name": "Copyright Notice",
@@ -98,7 +98,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "<p>Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
+            "description": "Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
             "is_translatable": true,
             "name": "acceptance_criteria",
             "pretty_name": "Acceptance Criteria",
@@ -1769,7 +1769,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, only Doc, Docx, RTF and ODT files will be accepted during submission.",
+            "description": "If enabled, only DOC, DOCX, RTF and ODT files will be accepted during submission.",
             "is_translatable": false,
             "name": "limit_manuscript_types",
             "pretty_name": "Limit Manuscript Types",
@@ -1826,7 +1826,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, one click access links are emailed to reviewers.",
+            "description": "If enabled, one-click access links are emailed to reviewers.",
             "is_translatable": false,
             "name": "enable_one_click_access",
             "pretty_name": "Enable One Click Review Access",
