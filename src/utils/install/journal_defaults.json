@@ -4,7 +4,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Display of feeds for this journal. Displayed on the About and the Submission pages.",
+            "description": "Information about fees for this journal. Displayed on the About and the Submission pages.",
             "is_translatable": true,
             "name": "publication_fees",
             "pretty_name": "Publication Fees",
@@ -23,7 +23,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL of the Journal's Publisher.",
+            "description": "URL of the journal's publisher.",
             "is_translatable": false,
             "name": "publisher_url",
             "pretty_name": "Publisher URL",
@@ -42,7 +42,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL to an external privacy-policy, linked from the footer. If blank, it links to the Janeway CMS page: /site/privacy.",
+            "description": "URL to an external privacy policy, linked from the footer. If left blank, it links to the Janeway CMS page: /site/privacy.",
             "is_translatable": false,
             "name": "privacy_policy_url",
             "pretty_name": "External Privacy Policy URL",
@@ -61,7 +61,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
+            "description": "Name of the journal's publisher. Displayed throughout the site and metadata.",
             "is_translatable": true,
             "name": "publisher_name",
             "pretty_name": "Publisher Name",
@@ -80,7 +80,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Displayed on the About and Submission pages. You should update this to display the Journal's copyright requirements.",
+            "description": "Displayed on the About and Submission pages. You should update this to display the journal's copyright requirements.",
             "is_translatable": true,
             "name": "copyright_notice",
             "pretty_name": "Copyright Notice",
@@ -98,7 +98,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
+            "description": "Displayed on the Submission pages. You should update this to display the journal's acceptance criteria.",
             "is_translatable": true,
             "name": "acceptance_criteria",
             "pretty_name": "Acceptance Criteria",
@@ -344,7 +344,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when a reviewer complete a review.",
+            "description": "Email sent to editors when a reviewer completes a review.",
             "is_translatable": true,
             "name": "review_complete_acknowledgement",
             "pretty_name": "Review Complete Update",
@@ -420,7 +420,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Notify reviewer of accepted request and remind them to review submission.",
+            "description": "Email sent to notify reviewer of accepted request and remind them to review submission.",
             "is_translatable": true,
             "name": "accepted_review_reminder",
             "pretty_name": "Accepted Review Reminder",
@@ -496,7 +496,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when they are unassigned from an article",
+            "description": "Email sent to editors when they are unassigned from an article.",
             "is_translatable": true,
             "name": "unassign_editor",
             "pretty_name": "Unassign Editor",
@@ -572,7 +572,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tacked onto the end of system automated emails where there is no actor.",
+            "description": "Tacked onto the end of automated system emails (where there is no person specifically sendinf it).",
             "is_translatable": true,
             "name": "auto_signature",
             "pretty_name": "Auto Signature",
@@ -629,7 +629,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When enabled, we will send all log entries to slack.",
+            "description": "When enabled, we will send all log entries to Slack.",
             "is_translatable": false,
             "name": "slack_logging",
             "pretty_name": "Slack Logging",
@@ -667,7 +667,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if `use_crossref` if off.",
+            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should be manually registered. Has no effect if `use_crossref` is off.",
             "is_translatable": false,
             "name": "register_doi_at_acceptance",
             "pretty_name": "Register DOI at acceptance",
