@@ -514,7 +514,7 @@ class Migration(migrations.Migration):
                     ("zul", "Zulu"),
                     ("zun", "Zuni"),
                 ],
-                help_text="The default language of articles when lang is hidden",
+                help_text="The default language of articles when no option is chosen or this submission field is disabled.",
                 max_length=200,
                 null=True,
             ),
@@ -523,7 +523,7 @@ class Migration(migrations.Migration):
             model_name="submissionconfiguration",
             name="default_license",
             field=models.ForeignKey(
-                help_text="The default license applied when no option is presented",
+                help_text="The default license applied when no option is chosen or this submission field is disabled.",
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 to="submission.Licence",
@@ -533,7 +533,7 @@ class Migration(migrations.Migration):
             model_name="submissionconfiguration",
             name="default_section",
             field=models.ForeignKey(
-                help_text="The default section of articles when no option is presented",
+                help_text="The default section of articles when no option is chosen or this submission field is disabled.",
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 to="submission.Section",
@@ -554,7 +554,7 @@ class Migration(migrations.Migration):
             name="competing_interests",
             field=models.TextField(
                 blank=True,
-                help_text="If you have any competing or conflict of interests in the publication of this article please state them here.",
+                help_text="If you have any competing or conflict of interests in the publication of this article, please state them here.",
                 null=True,
             ),
         ),
