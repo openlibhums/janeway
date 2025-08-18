@@ -4844,7 +4844,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled and you make either a share reviews decision or are sharing reviews via the review interface then Janeway will include any reviewer response letters.",
+            "description": "If this setting is enabled and you make either a share reviews decision or are sharing reviews via the review interface, then Janeway will include any reviewer response letters.",
             "is_translatable": false,
             "name": "share_author_response_letters",
             "pretty_name": "Automatically Share Author Response Letters",
@@ -4863,7 +4863,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent editors when an author completes a revision request.",
+            "description": "Email sent to editors when an author completes a revision request.",
             "is_translatable": true,
             "name": "revisions_complete_editor_notification",
             "pretty_name": "Revisions Complete Editor Notification",
@@ -4882,7 +4882,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Revisions Complete Editor Notification.",
+            "description": "Subject for the email sent to editors when an author completes a revision request.",
             "is_translatable": true,
             "name": "subject_revisions_complete_editor_notification",
             "pretty_name": "Subject for Revisions Complete Editor Notification",
@@ -4901,7 +4901,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when an outgoing email bounces.",
+            "description": "Email sent when an outgoing email bounces (fails to deliver).",
             "is_translatable": true,
             "name": "bounced_email_notification",
             "pretty_name": "Bounced Email Notification",
@@ -4920,7 +4920,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Bounced Email Notification.",
+            "description": "Subject for bounced email notification.",
             "is_translatable": true,
             "name": "subject_bounced_email_notification",
             "pretty_name": "Subject Bounced Email Notification",
@@ -4939,7 +4939,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Action URL for an external newsletter signup form",
+            "description": "Action URL for an external newsletter signup form.",
             "is_translatable": false,
             "name": "external_newsletter_signup_url",
             "pretty_name": "External Newsletter Signup URL",
@@ -4994,7 +4994,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date an article was submitted will be displayed on the article page.",
+            "description": "If enabled, the date an article was submitted will be displayed on the article page.",
             "is_translatable": false,
             "name": "display_date_submitted",
             "pretty_name": "Display Date Submitted",
@@ -5013,7 +5013,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date an article was accepted will be displayed on the article page.",
+            "description": "If enabled, the date an article was accepted will be displayed on the article page.",
             "is_translatable": false,
             "name": "display_date_accepted",
             "pretty_name": "Display Date Accepted",
@@ -5051,7 +5051,7 @@
             "name": "styling"
         },
         "setting": {
-            "description": "When enabled no group names are displayed on the editorial group page.",
+            "description": "If enabled, no group names are displayed on the editorial group page.",
             "is_translatable": false,
             "name": "hide_editorial_group_names",
             "pretty_name": "Hide Editorial Group Names",
@@ -5073,7 +5073,7 @@
             "name": "notify_section_editors_of_publication",
             "pretty_name": "Notify Section Editors of Publication",
             "type": "boolean",
-            "description": "When this setting is enabled, section editors will be copied on publication notification emails sent to authors.",
+            "description": "If enabled, section editors will be copied on publication notification emails sent to authors.",
             "is_translatable": false
         },
         "value": {
@@ -5092,7 +5092,7 @@
             "name": "notify_peer_reviewers_of_publication",
             "pretty_name": "Notify Peer Reviewers of Publication",
             "type": "boolean",
-            "description": "When enabled this will populate an email from the Peer Reviewer Publication Notification setting to be edited and sent out during the prepublication process.",
+            "description": "If enabled, this will populate an email from the Peer Reviewer Publication Notification setting to be edited and sent out during the prepublication process.",
             "is_translatable": false
         },
         "value": {
@@ -5123,7 +5123,7 @@
             "name": "permission"
         },
         "setting": {
-            "description": "When this setting is enabled assigned section editors will not be able to see personally identifiable information about authors until a decision for an article has been made. The general setting Reply-To Address should be set in order for this setting to work correctly.",
+            "description": "When this setting is enabled, assigned section editors will not be able to see personally identifiable information about authors until a decision for an article has been made. The general setting Reply-To Address should be set in order for this setting to work correctly.",
             "is_translatable": false,
             "name": "se_pii_filter",
             "pretty_name": "Section Editor Personally Identifiable Information Filter",
@@ -5138,7 +5138,7 @@
       "name": "email"
     },
     "setting": {
-      "description": "Email sent to Typesetter on task assignment.",
+      "description": "Email sent to typesetter on task assignment.",
       "is_translatable": true,
       "name": "typesetting_notify_typesetter",
       "pretty_name": "Typesetter Assignment Notification (PLUGIN)",
@@ -5153,7 +5153,7 @@
       "name": "email_subject"
     },
     "setting": {
-      "description": "Subject for Typesetter Assignment Notification.",
+      "description": "Subject for typesetter assignment notification.",
       "is_translatable": true,
       "name": "subject_typesetting_notify_typesetter",
       "pretty_name": "Subject for Typesetter Assignment Notification (PLUGIN)",
@@ -5168,7 +5168,7 @@
       "name": "email"
     },
     "setting": {
-      "description": "Email sent to typesetting manager when a typesetter accepts a task.",
+      "description": "Email sent to a typesetting manager when a typesetter accepts a task.",
       "is_translatable": true,
       "name": "typsetting_typesetter_decision_accept",
       "pretty_name": "Typesetter Accept (PLUGIN)",
@@ -5183,7 +5183,7 @@
       "name": "email_subject"
     },
     "setting": {
-      "description": "Subject for Typesetter Accept",
+      "description": "Subject for an email sent to a typesetting manager when a typesetter accepts a task.",
       "is_translatable": true,
       "name": "subject_typsetting_typesetter_decision_accept",
       "pretty_name": "Subject for Typesetter Accept (PLUGIN)",
@@ -5507,7 +5507,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Whether or not to use CRediT for this journal",
+            "description": "Whether or not to use CRediT for this journal.",
             "is_translatable": false,
             "name": "use_credit",
             "pretty_name": "Enable CRediT",
@@ -5564,7 +5564,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Conditional Accept Email",
+            "description": "Subject for conditional acceptance email sent to authors.",
             "is_translatable": true,
             "name": "subject_conditional_accept",
             "pretty_name": "Subject Conditional Accept",
@@ -5583,7 +5583,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Desk Reject Email",
+            "description": "Subject for a desk rejection email sent to authors.",
             "is_translatable": true,
             "name": "subject_review_decision_desk_reject",
             "pretty_name": "Subject Desk Reject",
