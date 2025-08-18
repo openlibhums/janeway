@@ -24,7 +24,7 @@ class FeaturedForm(forms.Form):
     )
     num_most_popular = forms.IntegerField(
         label="Number of Most Popular Articles to Display",
-        help_text="Determines how many popular articles we should display.",
+        help_text="Determines how many popular articles should be displayed.",
     )
     most_popular_time = forms.ChoiceField(
         choices=(
@@ -33,7 +33,7 @@ class FeaturedForm(forms.Form):
             ("yearly", "Yearly"),
         ),
         label="Number of Most Popular Articles to Display",
-        help_text="Determines how many popular articles we should display.",
+        help_text="Determines how many popular articles should be displayed.",
     )
 
     def save(self, commit=True):
