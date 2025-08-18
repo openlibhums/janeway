@@ -3577,7 +3577,7 @@
             "type": "boolean",
             "pretty_name": "Abstracts Are Required",
             "is_translatable": false,
-            "description": "If enabled all submissions will require an abstract.",
+            "description": "If enabled, all submissions will require an abstract.",
             "name": "abstract_required"
         },
         "group": {
@@ -3707,7 +3707,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled this will suppress the how to cite block on the article page.",
+            "description": "If enabled, this will suppress the how to cite block on the article page.",
             "is_translatable": false,
             "name": "suppress_how_to_cite",
             "pretty_name": "Suppress How to Cite",
@@ -3764,7 +3764,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled guest editors will display on the article page for primary issues.",
+            "description": "If enabled, guest editors will display on the article page for primary issues.",
             "is_translatable": false,
             "name": "display_guest_editors",
             "pretty_name": "Display Guest Editors",
@@ -3821,7 +3821,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled this will suppress the citations counter on the article page. The citation block will only appear for articles that have a citation. This setting is overruled by the Disable Metrics setting.",
+            "description": "If enabled, this will suppress the citations counter on the article page. The citation block will only appear for articles that have a citation. This setting is overruled by the Disable Metrics setting.",
             "is_translatable": false,
             "name": "suppress_citations_metric",
             "pretty_name": "Suppress Citation Metrics",
@@ -3840,7 +3840,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled altmetric badges will be displayed in the sidebar.",
+            "description": "If enabled, altmetric badges will be displayed in the sidebar.",
             "is_translatable": false,
             "name": "display_altmetric_badge",
             "pretty_name": "Display Altmetric Badges",
@@ -3935,7 +3935,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled the language buttons will use text rather than flags.",
+            "description": "If enabled, the language buttons will use text rather than flags.",
             "is_translatable": false,
             "name": "enable_language_text",
             "pretty_name": "Language Button Text Override",
@@ -4030,7 +4030,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled the article page will not display links to email correspondence authors.",
+            "description": "If enabled, the article page will not display links to email correspondence authors.",
             "is_translatable": false,
             "name": "hide_author_email_links",
             "pretty_name": "Hide Author Email Links",
@@ -4239,7 +4239,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled users must request the author role before they are allowed to submit.",
+            "description": "If enabled, users must request the author role before they are allowed to submit.",
             "is_translatable": false,
             "name": "limit_access_to_submission",
             "pretty_name": "Limit Access to Submission",
@@ -4638,7 +4638,7 @@
             "name": "notifications"
         },
         "setting": {
-            "description": "If enabled Janeway will notify readers of new published articles.",
+            "description": "If enabled, Janeway will notify readers of new published articles.",
             "is_translatable": false,
             "name": "send_reader_notifications",
             "pretty_name": "Send Reader Notifications",
