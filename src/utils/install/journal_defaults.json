@@ -1693,7 +1693,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it (Only recommended journals using custom review forms that are particularly long)",
+            "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it. This setting is only recommended for journals using custom review forms that are particularly long.",
             "is_translatable": false,
             "name": "enable_save_review_progress",
             "pretty_name": "Enable save review progress",
@@ -1845,7 +1845,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews",
+            "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews.",
             "is_translatable": false,
             "name": "enable_expanded_review_details",
             "pretty_name": "Enable expanded review details",
@@ -3954,7 +3954,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled the review assignment page will attempt to match keywords with interests. Warning: This is an expensive process.",
+            "description": "When this setting is enabled the review assignment page will attempt to match keywords with interests. Warning: This takes a lot of resource and may slow the page.",
             "is_translatable": false,
             "name": "enable_suggested_reviewers",
             "pretty_name": "Enable Suggested Reviewers",
@@ -4730,7 +4730,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Reviewers will not be asked to make any recommendation e.g. Accept or Reject. Review recommendation will be set to No Recommendation",
+            "description": "Reviewers will not be asked to make any recommendation, e.g. 'Accept' or 'Reject'. Review recommendation will be set to 'No Recommendation'.",
             "is_translatable": false,
             "name": "disable_reviewer_recommendation",
             "pretty_name": "Disable Reviewer Recommendation",
