@@ -1503,7 +1503,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When enabled, non staff will not be able to access the site.",
+            "description": "If enabled, non-staff will not be able to access the site.",
             "is_translatable": false,
             "name": "maintenance_mode",
             "pretty_name": "Enable Maintenance Mode",
@@ -1541,7 +1541,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If checked, editorial team link will display in Navigation.",
+            "description": "If checked, the editorial team link will display in Navigation.",
             "is_translatable": false,
             "name": "enable_editorial_display",
             "pretty_name": "Enable Editorial Team Display",
@@ -1579,7 +1579,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If checked, the article large image will not be displayed on the article page",
+            "description": "If checked, the article's large image will not be displayed on the article page.",
             "is_translatable": false,
             "name": "disable_article_large_image",
             "pretty_name": "Disable article large image",
@@ -1598,7 +1598,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If checked, no article thumbnails will be rendered on public article lists",
+            "description": "If checked, no article thumbnails will be rendered on public article lists.",
             "is_translatable": false,
             "name": "disable_article_thumbnails",
             "pretty_name": "Disable article thumbnails",
@@ -1674,7 +1674,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, Sections Editors can only make a draft of a decision for a Senior Editor to review.",
+            "description": "If enabled, section editors can only make a draft of a decision for a senior editor to review.",
             "is_translatable": false,
             "name": "draft_decisions",
             "pretty_name": "Draft Decisions",
@@ -1693,7 +1693,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it. This setting is only recommended for journals using custom review forms that are particularly long.",
+            "description": "If enabled, reviewers will be able to save the progress in a peer review and come back later to complete it. This setting is only recommended for journals using custom review forms that are particularly long.",
             "is_translatable": false,
             "name": "enable_save_review_progress",
             "pretty_name": "Enable save review progress",
@@ -1731,7 +1731,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when a section editor makes a draft decision.",
+            "description": "Email sent to editors when a section editor makes a draft decision.",
             "is_translatable": true,
             "name": "draft_editor_message",
             "pretty_name": "Draft Decisions Editor Message",
@@ -1750,7 +1750,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when there is a new submission.",
+            "description": "Email sent to editors when there is a new submission.",
             "is_translatable": true,
             "name": "editor_new_submission",
             "pretty_name": "New Submission for Editor",
@@ -1788,7 +1788,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "NOTE: This setting is deprecated--please use Notify Section Editors of Publication instead. Email sent to the Section Editor when article is published.",
+            "description": "NOTE: This setting is deprecated--please use Notify Section Editors of Publication instead. Email sent to the Section Editor when the article is published.",
             "is_translatable": true,
             "name": "section_editor_pub_notification",
             "pretty_name": "Section Editor Publication Notification",
@@ -1807,7 +1807,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Peer Reviewer when article is published.",
+            "description": "Email sent to reviewers when the article they reviewed is published.",
             "is_translatable": true,
             "name": "peer_reviewer_pub_notification",
             "pretty_name": "Peer Reviewer Publication Notification",
@@ -1845,7 +1845,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews.",
+            "description": "If enabled, the review dashboard will show all active reviews; otherwise just a count of completed reviews.",
             "is_translatable": false,
             "name": "enable_expanded_review_details",
             "pretty_name": "Enable expanded review details",
@@ -1883,7 +1883,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Reviewers.",
+            "description": "Email sent with a digest of outstanding review requests and overdue requests.",
             "is_translatable": true,
             "name": "reviewer_digest",
             "pretty_name": "Review Digest",
@@ -1921,7 +1921,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
+            "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``.",
             "is_translatable": false,
             "name": "doi_pattern",
             "pretty_name": "Article DOI Pattern",
@@ -1959,7 +1959,7 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Used to submit files for review.",
             "is_translatable": false,
             "name": "username",
             "pretty_name": "Username for crosscheck/ithenticate",
@@ -1978,7 +1978,7 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "If enabled, links to crosscheck reports will be displayed",
+            "description": "If enabled, links to Crosscheck reports will be displayed.",
             "is_translatable": false,
             "name": "enable",
             "pretty_name": "Enable Crosscheck",
@@ -1997,10 +1997,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Used to submit files for review.",
             "is_translatable": false,
             "name": "password",
-            "pretty_name": "Password for crosscheck/ithenticate",
+            "pretty_name": "Password for Crosscheck/iThenticate",
             "type": "char"
         },
         "value": {
@@ -2016,7 +2016,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Selected Editors will receive a submission notification. If None, all Editors are emailed.",
+            "description": "Selected editors will receive notifications of new submissions. If none are selected, all editors are emailed.",
             "is_translatable": false,
             "name": "editors_for_notification",
             "pretty_name": "Editors Notified on Submission",
@@ -2054,7 +2054,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
+            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop-down when creating a review assignment.",
             "is_translatable": false,
             "name": "default_review_visibility",
             "pretty_name": "Default Review Anonymity",
@@ -2111,7 +2111,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Webhook for sending slack messages.",
+            "description": "Webhook for sending Slack messages.",
             "is_translatable": false,
             "name": "slack_webhook",
             "pretty_name": "Slack Webhook",
@@ -2130,7 +2130,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Send to a user specified in notification manager.",
+            "description": "Send to a user specified in the notification manager.",
             "is_translatable": true,
             "name": "notification_submission",
             "pretty_name": "Submission Notification",
@@ -2187,7 +2187,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enables the Non Specialist Summary submission field.",
+            "description": "Enables the 'Non-specialist summary' submission field.",
             "is_translatable": false,
             "name": "submission_summary",
             "pretty_name": "Non Specialist Summary",
@@ -2206,7 +2206,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Journal's twitter handle.",
+            "description": "Journal's Twitter handle.",
             "is_translatable": false,
             "name": "twitter_handle",
             "pretty_name": "Twitter Handle",
@@ -2225,7 +2225,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Default Review Form.",
+            "description": "Default review form.",
             "is_translatable": false,
             "name": "default_review_form",
             "pretty_name": "Default Review Form",
@@ -2251,7 +2251,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "This should be updated to reflect your journals focus."
+            "default": "This should be updated to reflect your journal's focus."
         },
         "editable_by": [
             "editor",
@@ -2270,7 +2270,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "This journal published continuously all year round/publishes in issues every x months."
+            "default": "This journal is published continuously all year round/publishes in issues every x months."
         },
         "editable_by": [
             "editor",
@@ -2282,14 +2282,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Peer Review Information, displayed on the Submissions page.",
+            "description": "Peer review information, displayed on the Submissions page.",
             "is_translatable": true,
             "name": "peer_review_info",
             "pretty_name": "Peer Review Information",
             "type": "rich-text"
         },
         "value": {
-            "default": "This journal operates a open/single anonymous/double anonymous, peer review policy."
+            "default": "This journal operates an open/single anonymous/double anonymous, peer review policy."
         },
         "editable_by": [
             "editor",
@@ -2339,7 +2339,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Use cookieless GA 4 instead of traditional analytics.",
+            "description": "Use cookieless Google Analytics 4 instead of traditional analytics.",
             "is_translatable": false,
             "name": "use_ga_four",
             "pretty_name": "Use Google Analytics 4",
