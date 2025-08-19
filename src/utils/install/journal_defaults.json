@@ -174,7 +174,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "System emails are sent From this address.",
+            "description": "System emails are sent from this address.",
             "is_translatable": false,
             "name": "from_address",
             "pretty_name": "From Address",
@@ -192,7 +192,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Address set as the 'Reply-to' for system emails.",
+            "description": "When recipients reply to emails sent through Janeway, their replies will be sent to this email address.",
             "is_translatable": false,
             "name": "replyto_address",
             "pretty_name": "Reply-To Address",
@@ -629,10 +629,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "When enabled, we will send all log entries to Slack.",
+            "description": "Tick this box to allow automatic notifications to be sent in a Slack or Discord channel.",
             "is_translatable": false,
             "name": "slack_logging",
-            "pretty_name": "Slack Logging",
+            "pretty_name": "Slack or Discord Logging",
             "type": "boolean"
         },
         "value": {
@@ -2111,7 +2111,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Webhook for sending Slack messages.",
+            "description": "You can paste the webhook for <a target=\"_blank\" href=\"https://api.slack.com/messaging/webhooks\">Slack</a> or <a target=\"_blank\" href=\"https://discord.com/developers/docs/resources/webhook#create-webhook\">Discord</a> here.",
             "is_translatable": false,
             "name": "slack_webhook",
             "pretty_name": "Slack Webhook",
