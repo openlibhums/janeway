@@ -1560,7 +1560,7 @@
             "name": "styling"
         },
         "setting": {
-            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme).",
+            "description": "Tick this box to display the journal title in the top bar of your site (please note this option is not supported on the Material theme).",
             "is_translatable": false,
             "name": "display_journal_title",
             "pretty_name": "Enable Journal title in Navbar",
@@ -4068,7 +4068,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Message to display if you enable Display Login Notice.",
+            "description": "This message will be displayed on your login page if the <b>Display login page notice</b> box is ticked.",
             "is_translatable": true,
             "name": "login_page_notice",
             "pretty_name": "Login Page Notice",
@@ -4087,7 +4087,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If set to true the Registration Page Notice will display.",
+            "description": "Tick this box to display a custom message on your registration page.",
             "is_translatable": true,
             "name": "display_register_page_notice",
             "pretty_name": "Display Registration Page Notice",
@@ -4106,7 +4106,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Message to display if you enable Display Registration Page Notice.",
+            "description": "This message will be displayed on your registration page if the <b>Display registration page notice</b> box is ticked.",
             "is_translatable": true,
             "name": "register_page_notice",
             "pretty_name": "Registration Page Notice",
@@ -4125,7 +4125,7 @@
             "name": "crossref"
         },
         "setting": {
-            "description": "For migrated content where we need to tweak the crossref date.",
+            "description": "For migrated content where we need to tweak the Crossref date.",
             "is_translatable": true,
             "name": "crossref_date_suffix",
             "pretty_name": "Crossref Date Suffix",
@@ -4163,7 +4163,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The suffix pattern from which Issue DOIs are auto-generated (e.g. 10.0001/myjournal.issue.1)",
+            "description": "The suffix pattern from which Issue DOIs are auto-generated, e.g. 10.0001/myjournal.issue.1.",
             "is_translatable": false,
             "name": "issue_doi_pattern",
             "pretty_name": "Issue DOI Pattern",
@@ -4182,7 +4182,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern",
+            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern.",
             "is_translatable": false,
             "name": "register_issue_dois",
             "pretty_name": "Auto-register issue-level DOIs",
@@ -4258,7 +4258,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Support email address for editors and staff users.",
+            "description": "This is the email address support requests should be sent to.",
             "is_translatable": false,
             "name": "support_email",
             "pretty_name": "Support Email",
@@ -4277,7 +4277,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Text to accompany access requests. Linked to Limit Access to Submission",
+            "description": "Text to accompany access requests. Linked to the <b>Limit access to submission</b> setting.",
             "is_translatable": true,
             "name": "submission_access_request_text",
             "pretty_name": "Submission Access Request Text",
@@ -4334,14 +4334,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Support message to display to editors and staff on Manager page.",
+            "description": "This message will be displayed to editors and staff on the <b>Manager</b> page of your journal. \"{{ support_email }}\" will be automatically replaced with the email you provide under <b>Support email</b>.",
             "is_translatable": true,
             "name": "support_contact_message_for_staff",
             "pretty_name": "Janeway Support Contact for Staff",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+            "default": "<p>For support, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
         },
         "editable_by": [
             "editor",
@@ -4391,7 +4391,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when a Access Request is evaluated by a staff member.",
+            "description": "Email sent when an Access Request is evaluated by a staff member.",
             "is_translatable": true,
             "name": "submission_access_request_complete",
             "pretty_name": "Submission Access Request Complete",
@@ -4505,7 +4505,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "A warning displayed warning Editors what will happen when they accept an article.",
+            "description": "This text will be displayed to editors before they accept an article, warning them of what will happen when they do so.",
             "is_translatable": true,
             "name": "accept_article_warning",
             "pretty_name": "Accept Article Warning",
@@ -5507,7 +5507,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Whether or not to use CRediT for this journal.",
+            "description": "Tick this box to enable CRediT support for this journal.",
             "is_translatable": false,
             "name": "use_credit",
             "pretty_name": "Enable CRediT",
