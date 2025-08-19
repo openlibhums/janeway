@@ -4049,7 +4049,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If set to true the Login Page Notice will display.",
+            "description": "Tick this box to display a custom message on your login page.",
             "is_translatable": true,
             "name": "display_login_page_notice",
             "pretty_name": "Display Login Page Notice",
