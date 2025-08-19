@@ -42,7 +42,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Link to your privacy policy, which will appear in the footer. If this section is left blank, a link to the blank /site/privacy default page will be displayed. This page can be accessed through the Content Manager.",
+            "description": "Link to your privacy policy, which will appear in the footer. If this section is left blank, a link to the blank \"/site/privacy\" default page will be displayed. This page can be accessed through the Content Manager.",
             "is_translatable": false,
             "name": "privacy_policy_url",
             "pretty_name": "External Privacy Policy URL",
@@ -572,7 +572,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tacked onto the end of automated system emails (where there is no specific person sending it).",
+            "description": "Added onto the end of automated system emails (where there is no specific person sending it).",
             "is_translatable": true,
             "name": "auto_signature",
             "pretty_name": "Auto Signature",
@@ -610,7 +610,7 @@
             "name": "Preprints"
         },
         "setting": {
-            "description": "Allow authors to select to make their works publicly available during ongoing review.",
+            "description": "Tick this box to allow authors to select to make their works publicly available during ongoing review.",
             "is_translatable": false,
             "name": "enable_preprints",
             "pretty_name": "Enable Preprints",
@@ -648,7 +648,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to use Crossref DOIs.",
+            "description": "Tick this box to use Crossref DOIs.",
             "is_translatable": false,
             "name": "use_crossref",
             "pretty_name": "Use Crossref DOIs",
@@ -667,7 +667,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should be manually registered. Has no effect if `use_crossref` is off.",
+            "description": "Tick this box to register DOIs with Crossref at acceptance automatically. If unticked, DOIs are generated at acceptance but should be manually registered. Has no effect if `use_crossref` is off.",
             "is_translatable": false,
             "name": "register_doi_at_acceptance",
             "pretty_name": "Register DOI at acceptance",
@@ -686,7 +686,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to use Crossref's test server.",
+            "description": "Tick this box to use Crossref's test server.",
             "is_translatable": false,
             "name": "crossref_test",
             "pretty_name": "Use Crossref test deposit server",
