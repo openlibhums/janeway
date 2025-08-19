@@ -13,15 +13,18 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout the codebase
         uses: actions/checkout@v4
 
-      - name: Set up python environments
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python-version }}
 
       - name: Set up environment variables
         run: |
@@ -51,3 +54,11 @@ jobs:
           echo "Running unit tests"
           python src/manage.py test
           echo "Test run completed."
+
+      - name: Run python compatibility tests (tox)
+        run: |
+          echo "Installing tox gh actions package"
+          pip install tox-gh-actions
+          echo "Running tox tests"
+          tox
+          echo "Tox run completed."
