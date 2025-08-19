@@ -23,7 +23,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL of the journal's publisher.",
+            "description": "Your publisher's URL.",
             "is_translatable": false,
             "name": "publisher_url",
             "pretty_name": "Publisher URL",
@@ -42,7 +42,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL to an external privacy policy, linked from the footer. If left blank, it links to the Janeway CMS page: /site/privacy.",
+            "description": "Link to your privacy policy, which will appear in the footer. If this section is left blank, a link to the blank /site/privacy default page will be displayed. This page can be accessed through the Content Manager.",
             "is_translatable": false,
             "name": "privacy_policy_url",
             "pretty_name": "External Privacy Policy URL",
