@@ -1826,7 +1826,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, one-click access links are emailed to reviewers.",
+            "description": "Tick this box to allow one-click access links to be sent to reviewers, allowing them to access their review assignment directly from their email.",
             "is_translatable": false,
             "name": "enable_one_click_access",
             "pretty_name": "Enable One Click Review Access",
@@ -2054,7 +2054,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop-down when creating a review assignment.",
+            "description": "Select the type of review to use as the default when creating a new review assignment for this journal.",
             "is_translatable": false,
             "name": "default_review_visibility",
             "pretty_name": "Default Review Anonymity",
@@ -2073,7 +2073,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "The default number of days before a review assignment is due.",
+            "description": "The default number of days reviewers have to complete their review assignment.",
             "is_translatable": false,
             "name": "default_review_days",
             "pretty_name": "Default Number of Days for Review",
