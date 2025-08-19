@@ -85,14 +85,14 @@ class Migration(migrations.Migration):
                 (
                     "name",
                     models.CharField(
-                        help_text="Page name displayed in the URL bar, e.g. "about" or "contact".",
+                        help_text="Page name displayed in the URL bar, e.g. \"about\" or \"contact\".",
                         max_length=300,
                     ),
                 ),
                 (
                     "display_name",
                     models.CharField(
-                        help_text="Name of the page, in 100 characters or fewer, displayed in the nav and the top-level heading on the page (e.g. “Research Integrity”).",
+                        help_text="Name of the page, in 100 characters or fewer, displayed in the nav and the top-level heading on the page (e.g. \"Research Integrity\").",
                         max_length=100,
                     ),
                 ),
