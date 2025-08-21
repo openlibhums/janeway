@@ -486,26 +486,26 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
     )
     twitter = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
+        max_length=300, null=True, blank=True, verbose_name=_("Twitter handle")
     )
     facebook = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Facebook Handle")
+        max_length=300, null=True, blank=True, verbose_name=_("Facebook handle")
     )
     linkedin = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Linkedin Profile")
+        max_length=300, null=True, blank=True, verbose_name=_("Linkedin profile")
     )
     website = models.URLField(
         max_length=300, null=True, blank=True, verbose_name=_("Website")
     )
     github = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("GitHub Username")
+        max_length=300, null=True, blank=True, verbose_name=_("GitHub username")
     )
     profile_image = models.ImageField(
         upload_to=profile_images_upload_path,
         null=True,
         blank=True,
         storage=fs,
-        verbose_name=("Profile Image"),
+        verbose_name=("Profile image"),
     )
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
@@ -513,7 +513,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=200,
         blank=True,
         null=True,
-        verbose_name=_("Confirmation Code"),
+        verbose_name=_("Confirmation code"),
         help_text="A Universally Unique Identifier (UUID) created upon registration and retrieved "
         "for authentication during account activation.",
     )
@@ -528,7 +528,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         choices=tuple(),
         dynamic_choices=TIMEZONE_CHOICES,
-        verbose_name=_("Preferred Timezone"),
+        verbose_name=_("Preferred timezone"),
     )
 
     is_active = models.BooleanField(default=False)
@@ -537,7 +537,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     enable_digest = models.BooleanField(
         default=False,
-        verbose_name=_("Enable Digest"),
+        verbose_name=_("Enable digest"),
     )
     enable_public_profile = models.BooleanField(
         default=False,
@@ -2211,7 +2211,7 @@ class HomepageElement(models.Model):
     has_config = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name_plural = "Homepage Elements"
+        verbose_name_plural = "Homepage elements"
         ordering = ("sequence", "name")
         unique_together = ("name", "content_type", "object_id")
 
