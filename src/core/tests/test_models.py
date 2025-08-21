@@ -60,7 +60,7 @@ class TestAccount(TestCase):
             "last_name": "Eve",
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.username, email.lower())
+        self.assertEqual(obj.username, email.lower())
 
     def test_username_normalised_quick_form(self):
         email = "QUICK@test.com"
@@ -74,7 +74,7 @@ class TestAccount(TestCase):
         }
         form = forms.QuickUserForm(data=data)
         acc = form.save()
-        self.assertEquals(acc.username, email.lower())
+        self.assertEqual(acc.username, email.lower())
 
     def test_email_normalised(self):
         email = "TEST@TEST.com"
@@ -83,7 +83,7 @@ class TestAccount(TestCase):
             "email": email,
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.email, expected)
+        self.assertEqual(obj.email, expected)
 
     def test_no_duplicates(self):
         email_a = "TEST@TEST.com"
