@@ -18,12 +18,12 @@ class FeaturedForm(forms.Form):
         self.fields["most_popular_time"].initial = most_popular_time
 
     most_popular = forms.BooleanField(
-        label="Display Most Popular Articles",
+        label="Display most popular articles",
         help_text="Displays the most popular articles.",
         required=False,
     )
     num_most_popular = forms.IntegerField(
-        label="Number of Most Popular Articles to Display",
+        label="Number of most popular articles to aisplay",
         help_text="Determines how many popular articles should be displayed.",
     )
     most_popular_time = forms.ChoiceField(
@@ -32,7 +32,7 @@ class FeaturedForm(forms.Form):
             ("monthly", "Monthly"),
             ("yearly", "Yearly"),
         ),
-        label="Number of Most Popular Articles to Display",
+        label="Number of most popular articles to display",
         help_text="Determines how many popular articles should be displayed.",
     )
 
