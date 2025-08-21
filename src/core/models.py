@@ -515,7 +515,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         null=True,
         verbose_name=_("Confirmation Code"),
         help_text="A Universally Unique Identifier (UUID) created upon registration and retrieved "
-        "for authentication during account activation",
+        "for authentication during account activation.",
     )
     signature = JanewayBleachField(
         blank=True,
@@ -541,7 +541,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
     enable_public_profile = models.BooleanField(
         default=False,
-        help_text=_("If enabled, your basic profile will be available to the public."),
+        help_text=_("Tick this box to make your basic profile available to the public."),
         verbose_name=_("Enable public profile"),
     )
 
@@ -1918,7 +1918,7 @@ class EditorialGroup(models.Model):
     sequence = models.PositiveIntegerField()
     display_profile_images = models.BooleanField(
         default=False,
-        help_text="Enable to display profile images for this group.",
+        help_text="Tick this box to display profile images for this group.",
     )
 
     class Meta:
