@@ -1,0 +1,14 @@
+{% with article.get_doi as doi %}
+  {% if doi %}
+    {% if journal_settings.article.display_altmetric_badge %}
+      <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    {% endif %}
+    {% if journal_settings.article.display_dimensions_badge %}
+      <script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script>
+    {% endif %}
+  {% endif %}
+{% endwith %}
+
+
+
+

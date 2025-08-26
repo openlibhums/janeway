@@ -39,3 +39,19 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.display_date_accepted %}
 </div>
 
+<div class="title-area">
+    <h2>Badges</h2>
+</div>
+<div class="content">
+    <p>{% trans "These settings allow you to display badges from the external Altmetric and Dimensions platforms. It is recommended that you only enable display of one of these badge types as they may not interact well together." %}.</p>
+
+    <div class="bs-callout bs-callout-danger">
+       <p><i class="fa fa-exclamation-triangle">&nbsp;</i>Note: these feature requires articles to have a DOI assigned.</p>
+    </div>
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_dimensions_badge %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.dimensions_badge_type %}
+
+    {% include "admin/elements/forms/field.html" with field=edit_form.display_altmetric_badge %}
+    {% include "admin/elements/forms/field.html" with field=edit_form.altmetric_badge_type %}
+</div>
+

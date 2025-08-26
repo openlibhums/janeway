@@ -5596,5 +5596,43 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "If enabled dimensions badges will be displayed in the sidebar.",
+            "is_translatable": false,
+            "name": "display_dimensions_badge",
+            "pretty_name": "Display Dimensions Badges",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "article"
+        },
+        "setting": {
+            "description": "Select a badge type. Options: large_rectangle, small_rectangle, large_circle, small_circle.",
+            "is_translatable": false,
+            "name": "dimensions_badge_type",
+            "pretty_name": "Dimensions Badge Type",
+            "type": "char"
+        },
+        "value": {
+            "default": "large_rectangle"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

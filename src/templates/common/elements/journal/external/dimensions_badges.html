@@ -1,0 +1,8 @@
+<div class="external-badge{% if class %} {{ class }}{% endif %}">
+  <span
+          class="__dimensions_badge_embed__"
+          data-doi="{{ doi }}"
+          data-style="{% if journal_settings.article.altmetric_badge_type %}{{ journal_settings.article.dimensions_badge_type }}{% else %}large_rectangle{% endif %}"
+          data-legend="hover-bottom"
+  ></span>
+</div>
