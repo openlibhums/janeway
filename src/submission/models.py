@@ -1032,7 +1032,11 @@ class Article(AbstractLastModifiedModel):
         help_text=_("The primary language of the article."),
     )
     section = models.ForeignKey(
-        "Section", blank=True, null=True, on_delete=models.SET_NULL, help_text="The section the article is part of (article type).",
+        "Section",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The section the article is part of (article type).",
     )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
@@ -3191,7 +3195,11 @@ class Field(models.Model):
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=field_kind_choices(), help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.")
+    kind = models.CharField(
+        max_length=50,
+        choices=field_kind_choices(),
+        help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.",
+    )
     width = models.CharField(max_length=50, choices=width_choices(), default="full")
     choices = models.CharField(
         max_length=1000,
@@ -3202,7 +3210,8 @@ class Field(models.Model):
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     display = models.BooleanField(
-        default=False, help_text="Whether or not to display this field on the article page."
+        default=False,
+        help_text="Whether or not to display this field on the article page.",
     )
     help_text = models.TextField()
 
@@ -3277,7 +3286,9 @@ class SubmissionConfiguration(models.Model):
         Licence,
         null=True,
         blank=True,
-        help_text=_("The default license applied when no option is chosen or this submission field is disabled."),
+        help_text=_(
+            "The default license applied when no option is chosen or this submission field is disabled."
+        ),
         on_delete=models.SET_NULL,
     )
     default_language = models.CharField(
@@ -3285,13 +3296,17 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         choices=LANGUAGE_CHOICES,
-        help_text=_("The default language of articles when no option is chosen or this submission field is disabled."),
+        help_text=_(
+            "The default language of articles when no option is chosen or this submission field is disabled."
+        ),
     )
     default_section = models.ForeignKey(
         Section,
         null=True,
         blank=True,
-        help_text=_("The default section of articles when no option is chosen or this submission field is disabled."),
+        help_text=_(
+            "The default section of articles when no option is chosen or this submission field is disabled."
+        ),
         on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(

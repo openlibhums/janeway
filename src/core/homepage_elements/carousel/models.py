@@ -27,14 +27,14 @@ class Carousel(models.Model):
 
     exclude = models.BooleanField(
         help_text=_(
-            "If enabled, the selectors below will behave as an exclusion list",
+            "Tick this box to use the selection tables below as exclusion, rather than inclusion criteria. If this box is ticked, content selected below will be excluded from the carousel.",
         ),
         default=False,
     )
 
     latest_articles = models.BooleanField(
         default=False,
-        help_text="The carousel will display the latest published articles",
+        help_text="The carousel will display the latest published articles.",
     )
 
     # these fields contains a custom list of articles and article-like carousel objects for Mixed and News modes
@@ -47,7 +47,7 @@ class Carousel(models.Model):
 
     latest_news = models.BooleanField(
         default=False,
-        help_text="The carousel will display the latest published news items",
+        help_text="The carousel will display the latest published news items.",
     )
 
     # a selected news field
@@ -73,7 +73,7 @@ class Carousel(models.Model):
 
     current_issue = models.BooleanField(
         default=False,
-        help_text="Always include the current issue",
+        help_text="Always include the current issue.",
     )
 
     def get_items(self):

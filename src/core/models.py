@@ -541,7 +541,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
     enable_public_profile = models.BooleanField(
         default=False,
-        help_text=_("Tick this box to make your basic profile available to the public."),
+        help_text=_(
+            "Tick this box to make your basic profile available to the public."
+        ),
         verbose_name=_("Enable public profile"),
     )
 
@@ -1626,7 +1628,7 @@ class Galley(AbstractLastModifiedModel):
     label = models.CharField(
         max_length=400,
         help_text="Typeset file labels are displayed in download links and have the format 'Download Label', e.g. if "
-        "you set the label to be \"PDF\", the link will be \"Download PDF\". If you want Janeway to set a label for "
+        'you set the label to be "PDF", the link will be "Download PDF". If you want Janeway to set a label for '
         "you, leave it blank.",
     )
     type = models.CharField(max_length=100, choices=galley_type_choices())
