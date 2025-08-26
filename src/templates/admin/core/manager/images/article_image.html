@@ -69,6 +69,8 @@
                             <button type="submit" name="delete" value="{{ article.thumbnail_image_file.id }}" class="tiny alert button">
                                 Delete File
                             </button>
+
+                            {% include "core/partials/alt_text/edit_alt_text_button.html" with object=article.thumbnail_image_file context_phrase="thumbnail" %}
                         </form>
                     {% endif %}
                 </div>

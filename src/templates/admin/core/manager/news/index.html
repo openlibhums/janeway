@@ -64,11 +64,14 @@
                     {{ form.image_file|foundation }}
 
                     {% if not action == 'new' and news_item.large_image_file %}
+                      <div class="large-12 columns">
                         <p>Existing image: {{ news_item.large_image_file }} -
                             <button type="submit" name="delete_image" value="{{ news_item.large_image_file.id }}"
                                     class="tiny alert button">Delete
                             </button>
                         </p>
+                      {% include "core/partials/alt_text/edit_alt_text_button.html" with object=news_item.large_image_file context_phrase="hero_image" %}
+                      </div>
                     {% endif %}
 
                     {{ form.custom_byline|foundation }}
@@ -111,4 +114,5 @@
                 {allowSpaces: true});
         });
     </script>
+    {% include "admin/core/partials/htmx.html" %}
 {% endblock js %}

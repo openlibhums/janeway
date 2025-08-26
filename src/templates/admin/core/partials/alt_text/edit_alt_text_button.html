@@ -9,11 +9,10 @@
 
 {% get_id_token object file_path token as id_token %}
 
+
 <div id="alt-text-wrapper-{{ id_token }}-{{ context_phrase }}">
-  {# Empty dialog is initially present, gets replaced by HTMX #}
   <dialog id="alt-text-modal-{{ id_token }}" class="alt-text-modal" hidden></dialog>
 
-  {# Flex container for layout #}
   <div class="alt-text-container">
     {% get_admin_alt_text_snippet obj=object file_path=file_path token=token context_phrase=context_phrase as alt_text %}
     <dl class="no-bottom-margin">

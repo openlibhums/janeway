@@ -1146,3 +1146,7 @@ dialog::backdrop {
     border: 0;
 }
 
+.alt-text-container {
+    clear: right;
+}
+

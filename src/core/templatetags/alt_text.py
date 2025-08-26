@@ -12,7 +12,7 @@ register = template.Library()
 @register.simple_tag
 def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None):
     """
-    Render a block of alt text wrapped in a span with a unique ID for HTMX targeting.
+    Render a return alt text for a file given a context phrase.
     """
     if file_path:
         path = hashlib.sha256(file_path.strip().encode()).hexdigest()
@@ -26,7 +26,6 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None):
         path=path,
         context_phrase=context_phrase,
     )
-    print(alt_text)
     return str(alt_text)
 
 
@@ -58,6 +57,8 @@ def get_admin_alt_text_snippet(obj=None, file_path=None, token=None, context_phr
             "context_phrase": context_phrase,
         },
     )
+
+
 @register.filter
 def model_string(obj):
     """
@@ -86,7 +87,7 @@ def get_id_token(obj=None, file_path=None, token=None):
     Priority: object > file_path
     """
     if obj:
-        return slugify(model_string(obj))
+        return slugify(f"{model_string(obj)}-{obj.pk}")
     elif token:
         return token
     elif file_path:
