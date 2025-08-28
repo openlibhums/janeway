@@ -10,8 +10,19 @@
 
 function initTableExpansion(config) {
 
-    // Counter for generic table headings when no span.table-label exists
-    var genericTableCounter = 1;
+
+    
+    // Array to store table modal elements
+    var tableModals = [];
+
+    function findTableModals(){
+        $(config.modalSelector).each(function() {
+            var $modal = $(this);
+            if ($modal.find('.table-expansion').length > 0) {
+                tableModals.push($modal);
+            }
+        });
+    }
 
     function addExpansionLinks(){
         $('.table-expansion').each(function() {
@@ -32,12 +43,10 @@ function initTableExpansion(config) {
     }
     
     function createTableModalHeading(){
-        $(config.modalSelector).each(function() {
-            var $modal = $(this);
+        tableModals.forEach(function($modal, index) {
             var $tableLabels = $modal.find('span.table-label');
             
             if ($tableLabels.length >= 1) {
-                console.log('opt1');
                 // First table-label is used as an h2 for the modal
                 var $span = $tableLabels.first();
                 var $h2 = $('<h2>').text($span.text());
@@ -50,12 +59,9 @@ function initTableExpansion(config) {
                 $span.replaceWith($h2);
                 
             } else {
-                console.log('opt2');
-                console.log($modal)
                 // Case 3: create generic h2 when no table-label exists
-                var $h2 = $('<h2>').text('Table ' + genericTableCounter);
+                var $h2 = $('<h2>').text('Table ' + (index + 1));
                 $modal.prepend($h2);
-                genericTableCounter++;
             }
         });
     }
@@ -147,10 +153,10 @@ function initTableExpansion(config) {
                     }
                 }, 200);
             }
-            console.log("focus");
         });
     }
-
+    
+    findTableModals()
     addExpansionLinks();
     createTableModalHeading();
     pageLinksCloseModal();
