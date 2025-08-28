@@ -16,7 +16,7 @@
             {% if accountrole.role.slug == 'author' and request.journal %}
               (base role)
               {% comment %}
-                This attempts to gaurd against removing the last role a person has,
+                This attempts to guard against removing the last role a person has,
                 when doing so would remove them from view, preventing the user
                 from undoing their action or adding another role.
               {% endcomment %}
