@@ -97,6 +97,11 @@ urlpatterns = [
         name="review_view_review",
     ),
     re_path(
+        r"^article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/upload-file/$",
+        views.editor_upload_review_file,
+        name="review_editor_upload_review_file",
+    ),
+    re_path(
         r"^article/(?P<article_id>\d+)/review/(?P<review_id>\d+)/answer/(?P<answer_id>\d+)/$",
         views.edit_review_answer,
         name="review_edit_review_answer",
