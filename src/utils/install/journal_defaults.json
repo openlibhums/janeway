@@ -2149,7 +2149,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Localised description of the journal.",
+            "description": "Description of the journal (translateable).",
             "is_translatable": true,
             "name": "journal_description",
             "pretty_name": "Journal Description",
@@ -2320,7 +2320,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Allows journals to track usage with Google Analytics.",
+            "description": "Insert your <a target=\"_blank\" href=\"https://support.google.com/analytics/answer/9539598?hl=en\">Google tag ID</a>.",
             "is_translatable": true,
             "name": "google_analytics_code",
             "pretty_name": "Google Analytics Code",
@@ -3935,7 +3935,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, the language buttons will use text rather than flags.",
+            "description": "Tick this box to use text, rather than flag icons, to represent languages.",
             "is_translatable": false,
             "name": "enable_language_text",
             "pretty_name": "Language Button Text Override",
@@ -4318,7 +4318,7 @@
             "description": "If <b>Limit access to submission</b> is selected, this text will appear when people with the author role go to submit to your journal.",
             "is_translatable": true,
             "name": "submission_access_request_contact",
-            "pretty_name": "Submission Access Request Contact",
+            "pretty_name": "Submission access request contact",
             "type": "char"
         },
         "value": {
@@ -4337,7 +4337,7 @@
             "description": "This message will be displayed to editors and staff on the <b>Manager</b> page of your journal. \"{{ support_email }}\" will be automatically replaced with the email you provide under <b>Support email</b>.",
             "is_translatable": true,
             "name": "support_contact_message_for_staff",
-            "pretty_name": "Janeway Support Contact for Staff",
+            "pretty_name": "Janeway support contact for staff",
             "type": "rich-text"
         },
         "value": {
