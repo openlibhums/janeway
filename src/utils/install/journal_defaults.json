@@ -2035,14 +2035,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "A set of generic guidelines that reviewers should follow whilst undertaking a review for this journal.",
+            "description": "These guidelines will be displayed to reviewers when accessing the review.",
             "is_translatable": true,
             "name": "reviewer_guidelines",
             "pretty_name": "Reviewer Guidelines",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p><strong>Review feedback</strong></p><p>1) Recommendation:</p><p>Please indicate which of the following options you recommend for this article: Accept; Minor Revisions; Major Revisions; Reject.</p><p>2) Content and argument:</p><p>Please comment on the originality, relevance and scholarly rigour of the article.</p><p>Please comment on whether existing literature in this area has been considered: is any relevant work missing? Are references to existing work accurate?</p><p>Do the introduction and conclusion reflect the argument in the main text?</p><p>Please comment on whether the abstract adequately summarises the article.</p><p>3) Writing style:</p><p>Is the manuscript logically structured and does the argument flow coherently?</p><p>Does the introduction detail the argument in a logical way and does the conclusion adequately summarise it?</p><p>Please comment on the quality of the writing style, commenting as appropriate on spelling, punctuation and grammar.</p><p><br /> </p><p>4) Figures:</p><p>Please comment on the article&rsquo;s use of tables, charts, figures, images or maps.</p><p>Please note if any of the above are missing captions or keys, or require any further editing.</p>\n<p>5) Formatting:</p><p>Does the manuscript adhere to the journal's guidelines?</p><p>Are citations and references formatted to house style?</p><p>6) General comments</p><p> If desired, please provide further comments and suggestions for improvement.</p>"
+            "default": "<p><strong>Review feedback</strong></p><ol><li>Recommendation:<br>Please indicate which of the following options you recommend for this article: Accept; Minor Revisions; Major Revisions; Reject.</li><li>Content and argument:<br>Please comment on the originality, relevance and scholarly rigour of the article.<br>Please comment on whether existing literature in this area has been considered.<br>– Is any relevant work missing? <br>– Are references to existing work accurate?<br>– Do the introduction and conclusion reflect the argument in the main text?<br>Please comment on whether the abstract adequately summarises the article.</li><li>Writing style:<br>Please comment on the quality of the writing style.<br>– Is the manuscript logically structured and does the argument flow coherently?<br>– Does the introduction detail the argument in a logical way and does the conclusion adequately summarise it?<br>– Are there any issues with spelling, punctuation and grammar?</li><li>Figures:<br>Please comment on the article’s use of tables, charts, figures, images or maps.<br>Please note if any of the above are missing captions or keys, or require any further editing.</li><li>Formatting:<br>Please comment on the formatting of the article.<br>– Does the manuscript adhere to the journal's guidelines?<br>– Are citations and references formatted to house style?</li><li>General comments<br>If desired, please provide further comments and suggestions for improvement.</li></ol>"
         },
         "editable_by": [
             "editor",
@@ -2228,7 +2228,7 @@
             "description": "Select the form that will be the default option when assigning a review.",
             "is_translatable": false,
             "name": "default_review_form",
-            "pretty_name": "Default Review Form",
+            "pretty_name": "Default review form",
             "type": "select"
         },
         "value": {
@@ -2247,7 +2247,7 @@
             "description": "This text will be displayed on the Submissions page. It should give an overview of the type of content your journal seeks to publish.",
             "is_translatable": true,
             "name": "focus_and_scope",
-            "pretty_name": "Focus and Scope",
+            "pretty_name": "Focus and scope",
             "type": "rich-text"
         },
         "value": {
@@ -2266,7 +2266,7 @@
             "description": "This text will be displayed on the Submissions page. It should indicate how frequently you publish or if you do so on a continuous or rolling basis.",
             "is_translatable": true,
             "name": "publication_cycle",
-            "pretty_name": "Publication Cycle",
+            "pretty_name": "Publication cycle",
             "type": "rich-text"
         },
         "value": {
@@ -2285,7 +2285,7 @@
             "description": "This text will be displayed on the Submissions page. It should provide information about your peer review policy, including whether you operate single anonymous, double anonymous or open peer review.",
             "is_translatable": true,
             "name": "peer_review_info",
-            "pretty_name": "Peer Review Information",
+            "pretty_name": "Peer review information",
             "type": "rich-text"
         },
         "value": {
@@ -3558,7 +3558,7 @@
             "type": "rich-text",
             "pretty_name": "Submission Page Text",
             "is_translatable": true,
-            "description": "Introductory text displayed at the head of the Submission page.",
+            "description": "Introductory text displayed at the top of the Submission page.",
             "name": "submission_intro_text"
         },
         "group": {
@@ -3634,7 +3634,7 @@
             "type": "rich-text",
             "pretty_name": "Review File Help",
             "is_translatable": true,
-            "description": "Text displayed when a journal defaults to single anonymous or double anonymous review ensuring that files remain anonymous.",
+            "description": "This text is displayed to editors when selecting a file for review if single anonymous or double anonymous is selected.",
             "name": "review_file_help"
         },
         "group": {
@@ -3783,7 +3783,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Changes the generic text above the File Upload box on the Peer Review form page.",
+            "description": "This text will display above the 'File upload' box on the peer review form.",
             "is_translatable": true,
             "name": "peer_review_upload_text",
             "pretty_name": "Peer Review Upload Text",
@@ -3916,7 +3916,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on the author page.",
+            "description": "Tick this box to enable authors to see when reviews of their article are requested, due or completed on the author page.",
             "is_translatable": false,
             "name": "enable_peer_review_data_block",
             "pretty_name": "Enable Peer Review Data on Author Page",
@@ -3954,7 +3954,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled the review assignment page will attempt to match keywords with interests. Warning: This takes a lot of resource and may slow the page.",
+            "description": "Tick this box if you would like Janeway to suggest potential reviewers by matching the article's keywords with reviewers' listed interests. Warning: this may slow the page.",
             "is_translatable": false,
             "name": "enable_suggested_reviewers",
             "pretty_name": "Enable Suggested Reviewers",
@@ -3973,7 +3973,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on review pages.",
+            "description": "Tick this box to enable authors to see when reviews of their article are requested, due or completed on the review page.",
             "is_translatable": false,
             "name": "enable_peer_review_data_on_review_page",
             "pretty_name": "Enable Peer Review Data on Review Pages",
@@ -4030,7 +4030,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled, the article page will not display links to email correspondence authors.",
+            "description": "Tick this box to not display links to email correspondence authors on the article page.",
             "is_translatable": false,
             "name": "hide_author_email_links",
             "pretty_name": "Hide Author Email Links",
@@ -4429,7 +4429,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Describe what files you expect at the time of submission.",
+            "description": "This text will be displayed at the step where authors upload files during the submission process. Describe what types of files (manuscripts, cover letters, figures, data, images, etc.) you require.",
             "is_translatable": true,
             "name": "file_submission_guidelines",
             "pretty_name": "File Submission Guidelines",
@@ -4638,7 +4638,7 @@
             "name": "notifications"
         },
         "setting": {
-            "description": "If enabled, Janeway will notify readers of newly published articles.",
+            "description": "Tick this box to notify users with the reader role of newly published articles.",
             "is_translatable": false,
             "name": "send_reader_notifications",
             "pretty_name": "Send Reader Notifications",
@@ -4718,7 +4718,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Reviewers opt in to open review by default, the field will be checked, forcing them to opt out if they want to.",
+            "description": "Tick this box to make peer review open by default. Reviewers will still have the opportunity to opt out of making their review open if they choose to.",
             "is_translatable": false,
             "name": "open_review_default_opt_in",
             "pretty_name": "Open Review Defaults to Opt In",
@@ -4736,7 +4736,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Reviewers will not be asked to make any recommendation, e.g. 'Accept' or 'Reject'. Review recommendation will be set to 'No recommendation'.",
+            "description": "If this box is ticked, reviewers will not be asked to make any recommendation (e.g. accept or reject) as part of their review. The review recommendation will show as 'No recommendation'.'.",
             "is_translatable": false,
             "name": "disable_reviewer_recommendation",
             "pretty_name": "Disable Reviewer Recommendation",
@@ -4755,7 +4755,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Adds a new decision to the decision helper that allows editors to share peer reviews amongst assigned reviewers.",
+            "description": "Tick this box to allow editors to share peer reviews amongst assigned reviewers. This option becomes available as part of the decision helper.",
             "is_translatable": false,
             "name": "enable_share_reviews_decision",
             "pretty_name": "Enable Share Reviews decision",
@@ -4774,7 +4774,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When in an additional review round (eg round 2 or 3) reviewers will see completed reviews from previous rounds in the review interface.",
+            "description": "Tick this box to enable reviewers to see completed reviews from previous review rounds.",
             "is_translatable": false,
             "name": "display_completed_reviews_in_additional_rounds",
             "pretty_name": "Display completed reviews in review interface",
@@ -4981,7 +4981,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Removes the editor section from the author's article status page. This does not stop editors from identifying themselves when, for example, rejecting an article if using an account with their name associated.",
+            "description": "Tick this box to hide which editor has been assigned from the author's article status page. Editors may still be identified if they reject an article using an account with their name attached.",
             "is_translatable": false,
             "name": "hide_editors_from_authors",
             "pretty_name": "Hide Assigned editor Details",
@@ -5057,7 +5057,7 @@
             "name": "styling"
         },
         "setting": {
-            "description": "If enabled, no group names are displayed on the editorial group page.",
+            "description": "Tick this box to not display group names on the editorial group page.",
             "is_translatable": false,
             "name": "hide_editorial_group_names",
             "pretty_name": "Hide editorial group names",
