@@ -10,6 +10,9 @@
 
 function initTableExpansion(config) {
 
+    // Counter for generic table headings when no span.table-label exists
+    var genericTableCounter = 1;
+
     function addExpansionLinks(){
         $('.table-expansion').each(function() {
             var $table = $(this);
@@ -28,11 +31,15 @@ function initTableExpansion(config) {
         });
     }
     
-    function createModalHeading(){
+    function createTableModalHeading(){
         $(config.modalSelector).each(function() {
             var $modal = $(this);
-            $modal.find('span.table-label').each(function() {
-                var $span = $(this);
+            var $tableLabels = $modal.find('span.table-label');
+            
+            if ($tableLabels.length >= 1) {
+                console.log('opt1');
+                // First table-label is used as an h2 for the modal
+                var $span = $tableLabels.first();
                 var $h2 = $('<h2>').text($span.text());
                 
                 // Copy all attributes from span to h2
@@ -41,7 +48,15 @@ function initTableExpansion(config) {
                 });
                 
                 $span.replaceWith($h2);
-            });
+                
+            } else {
+                console.log('opt2');
+                console.log($modal)
+                // Case 3: create generic h2 when no table-label exists
+                var $h2 = $('<h2>').text('Table ' + genericTableCounter);
+                $modal.prepend($h2);
+                genericTableCounter++;
+            }
         });
     }
 
@@ -137,7 +152,7 @@ function initTableExpansion(config) {
     }
 
     addExpansionLinks();
-    createModalHeading();
+    createTableModalHeading();
     pageLinksCloseModal();
     
     // Only handle custom focus management if on materialize
