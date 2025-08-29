@@ -19,7 +19,7 @@
                         <li class="is-active orbit-slide overlay">
                                 <img class="orbit-image"
                                     src="{{ news_item.best_image_url }}"
-                                    alt="{{ news_item.title|striptags|unescape }}">
+                                    alt="{% get_alt_text obj=news_item.large_image_file context_phrase="hero_image" default=news_item.title|striptags|unescape %}">
                             <div class="row column">
                                 <figcaption class="orbit-caption">
                                     <h1>{{ news_item.title|safe }}</h1>

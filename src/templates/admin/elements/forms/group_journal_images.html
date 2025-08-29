@@ -33,7 +33,7 @@
       {% if request.journal.default_large_image %}
         <img src="{{ request.journal.default_large_image.url }}"
              class="thumbnail">
-        {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=request.journal.default_large_image.url context_phrase="header" %}
+        {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=request.journal.default_large_image.url context_phrase="hero_image" %}
       {% endif %}
     </div>
     <hr/>

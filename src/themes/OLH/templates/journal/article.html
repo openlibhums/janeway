@@ -42,14 +42,17 @@
                             <img class="orbit-image"
                                 {% if article.large_image_file.id %}
                                  src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
+                                 alt="{% get_alt_text obj=article.large_image_file context_phrase="hero_image" default=article.title|striptags %}"
                                 {% elif article.issue.large_image %}
                                  src="{{ article.issue.large_image.url }}"
+                                 alt="{% get_alt_text file_path=article.issue.large_image.url context_phrase="hero_image" default=article.title|striptags %}"
                                 {% elif journal.default_large_image %}
                                  src="{{ journal.default_large_image.url }}"
+                                 alt="{% get_alt_text file_path=journal.default_large_image.url context_phrase="hero_image" default=article.title|striptags %}"
                                 {% else %}
                                  src=""
                                 {% endif %}
-                                 alt="{{ article.title | striptags }}">
+                                 alt="{{ article.title|striptags }}">
                         <div class="row column">
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>

@@ -14,13 +14,13 @@
                                      alt="{% get_alt_text obj=carousel_item.large_image_file %}"
                                      {% elif carousel_item.hero_image_url %}
                                         src="{{ carousel_item.hero_image_url }}"
-                                        alt="{% get_alt_text file_path=carousel_item.hero_image_url %}"
+                                        alt="{% get_alt_text file_path=carousel_item.hero_image_url context_phrase="hero_image" %}"
                                      {% elif journal.default_large_image %}
                                         src="{{ journal.default_large_image.url }}"
-                                        alt="{% get_alt_text file_path=journal.default_large_image.url %}"
+                                        alt="{% get_alt_text file_path=journal.default_large_image.url context_phrase="hero_image" %}"
                                      {% elif request.press.default_carousel_image %}
                                          src="{{ request.press.default_carousel_image.url }}"
-                                         alt="{% get_alt_text file_path=request.press.default_carousel_image.url %}"
+                                         alt="{% get_alt_text file_path=request.press.default_carousel_image.url context_phrase="hero_image" %}"
                                      {% else %}
                                         src=""
                                      {% endif %}>

@@ -18,8 +18,6 @@ def alt_text_form(request):#
 
     context_phrase = request.GET.get('context_phrase')
 
-    print("alt_text_form", file_path)
-
     instance = models.AltText.objects.filter(
         content_type=content_type,
         object_id=object_id,
@@ -55,8 +53,6 @@ def alt_text_submit(request):
     except ValidationError:
         return HttpResponseBadRequest("Invalid model or pk")
 
-    print("alt_text_submit", content_type, object_id, file_path, obj)
-
     context_phrase = request.POST.get("context_phrase")
 
     instance = models.AltText.objects.filter(
@@ -85,8 +81,6 @@ def alt_text_submit(request):
                 "context_phrase": context_phrase,
             },
         )
-
-    print('alt_text_submit', file_path)
 
     return render(
         request,

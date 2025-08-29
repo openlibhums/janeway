@@ -10,7 +10,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None):
+def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None, default=""):
     """
     Render a return alt text for a file given a context phrase.
     """
@@ -26,6 +26,14 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None):
         path=path,
         context_phrase=context_phrase,
     )
+
+    print("Obj", obj)
+    print("File path", file_path)
+    print("Default", default)
+
+    if alt_text == "" and default:
+        return default
+
     return str(alt_text)
 
 
