@@ -293,7 +293,9 @@ class ReviewAssignment(models.Model):
             "frozen_element__order"
         )
 
-    def save_review_form(self, review_form, assignment):
+    def save_review_form(self, review_form, assignment, req_files=None):
+        if not req_files:
+            req_files = {}
         for k, v in review_form.cleaned_data.items():
             form_element = ReviewFormElement.objects.get(
                 reviewform=assignment.form, pk=k
@@ -306,6 +308,13 @@ class ReviewAssignment(models.Model):
                     "answer": v,
                 },
             )
+            if k in req_files:
+                answer_file, _ = ReviewFormAssignmentAnswerFile.objects.get_or_create(
+                    answer=answer,
+                    edited=False,
+                )
+                answer_file.save_file(req_files[k])
+
             form_element.snapshot(answer)
 
     @property
