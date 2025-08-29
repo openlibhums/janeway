@@ -1023,6 +1023,7 @@ def do_review(request, assignment_id):
             decision_required = True
         form = forms.GeneratedForm(
             request.POST,
+            request.FILES,
             review_assignment=assignment,
             fields_required=fields_required,
         )
@@ -1479,7 +1480,7 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     form = forms.GeneratedForm(answer=answer)
 
     if request.POST:
-        form = forms.GeneratedForm(request.POST, answer=answer)
+        form = forms.GeneratedForm(request.POST, request.FILES, answer=answer)
         if form.is_valid():
             # Form element keys are posted as str
             element_key = str(answer.element.pk)
