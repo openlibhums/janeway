@@ -675,7 +675,17 @@ span + .btn-background {
   main a:focus,
   .site-footer a:focus,
   .navbar-custom .nav-link:focus,
-  .navbar-custom .navbar-brand:focus{
+  .navbar-custom .navbar-brand:focus,
+  .btn:focus,
+  .btn-primary:focus,
+  .btn-secondary:focus,
+  .btn-success:focus,
+  .btn-danger:focus,
+  .btn-warning:focus,
+  .btn-info:focus,
+  .btn-light:focus,
+  .btn-dark:focus,
+  .site-pagination > .btn:focus {
       outline: 2px var(--focus-light) solid;
       outline-offset: 0;
       box-shadow: 0 0 0 4px var(--focus-dark);
