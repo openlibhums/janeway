@@ -673,7 +673,9 @@ span + .btn-background {
   /* Specificity overrides */
   a:focus,
   main a:focus,
-  .site-footer a:focus{
+  .site-footer a:focus,
+  .navbar-custom .nav-link:focus,
+  .navbar-custom .navbar-brand:focus{
       outline: 2px var(--focus-light) solid;
       outline-offset: 0;
       box-shadow: 0 0 0 4px var(--focus-dark);
