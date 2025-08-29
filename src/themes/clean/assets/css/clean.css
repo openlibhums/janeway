@@ -663,27 +663,32 @@ span + .btn-background {
     --focus-ring-size: 4px;
 }
 
-/* Reserve space for focus ring to prevent layout shifts */
-a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
-.dropdown-menu, .dropdown-item, .nav-link, .btn {
-    margin: var(--focus-ring-size);
-}
+/* Prevent layout shifts */
+    a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
+    .dropdown-menu, .dropdown-item, .nav-link, .btn {
+        margin: var(--focus-ring-size);
+    }
 
-/* Remove margin from elements that shouldn't have it */
-.dropdown-menu a,
-.dropdown-menu button,
-.dropdown-menu .dropdown-item {
-    margin: 0;
-}
+    /* Remove margin from elements that shouldn't have it */
+    .dropdown-menu a,
+    .dropdown-menu button,
+    .dropdown-menu .dropdown-item {
+        margin: 0;
+    }
 
-.dropdown-item:focus{
-    white-space: nowrap;
-}
+    /*individual workarounds */
+    .article-block a{
+        display: inline-block;
+    }
 
-/* Ensure dropdown containers have enough space */
-.dropdown-menu {
-    padding: var(--focus-ring-size);
-}
+    .dropdown-item:focus{
+        white-space: nowrap;
+    }
+
+    /* Ensure dropdown containers have enough space */
+    .dropdown-menu {
+        padding: var(--focus-ring-size);
+    }
   
 /* General */
 *:focus,
