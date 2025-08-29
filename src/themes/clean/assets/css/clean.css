@@ -670,8 +670,18 @@ span + .btn-background {
       box-shadow: 0 0 0 4px var(--focus-dark);
   }
   
-  /* Specificity overrides */
+  /* focus bounding box for multi-line links */
   a:focus,
+  a:focus-visible {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 4px var(--focus-dark);
+      display: inline-block;
+      white-space: normal;
+      text-decoration: inherit;
+  }
+  
+  /* Specificity overrides for other elements */
   main a:focus,
   .site-footer a:focus,
   .navbar-custom .nav-link:focus,
@@ -690,5 +700,4 @@ span + .btn-background {
       outline-offset: 0;
       box-shadow: 0 0 0 4px var(--focus-dark);
   }
-  
   /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
