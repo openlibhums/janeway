@@ -234,6 +234,11 @@ urlpatterns = [
         name="review_file_download",
     ),
     re_path(
+        r"^review/(?P<assignment_id>\d+)/review_attachment/(?P<file_uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?:\.[a-zA-Z0-9]+)?)/$",
+        views.review_attachment_download,
+        name="review_attachment_download",
+    ),
+    re_path(
         r"^reviewer/(?P<assignment_id>\d+)/file_download/all/$",
         views.review_download_all_files,
         name="review_download_all_files",
