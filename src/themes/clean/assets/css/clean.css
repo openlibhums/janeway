@@ -636,7 +636,8 @@ a {
     }
 
     /*individual workarounds */
-    .article-block a{
+    .article-block a,
+    .site-header a {
         display: inline-block;
     }
 
