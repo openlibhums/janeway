@@ -670,9 +670,10 @@ span + .btn-background {
       box-shadow: 0 0 0 4px var(--focus-dark);
   }
   
-  /* focus bounding box for multi-line links */
+  /* focus bounding boxes */
   a:focus,
-  a:focus-visible {
+  a:focus-visible
+   {
       outline: 2px var(--focus-light) solid;
       outline-offset: 0;
       box-shadow: 0 0 0 4px var(--focus-dark);
@@ -680,24 +681,46 @@ span + .btn-background {
       white-space: normal;
       text-decoration: inherit;
   }
+
+.form-check:has(input:focus),
+.form-check:has(input:focus-visible),
+.form-check:has(select:focus),
+.form-check:has(select:focus-visible),
+.form-check:has(textarea:focus),
+.form-check:has(textarea:focus-visible) {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 4px var(--focus-dark);
+    display: block;
+    white-space: normal;
+}
+
+/* Alternative approach for browsers that don't support :has() */
+.form-check input:focus,
+.form-check input:focus-visible{
+    /* Remove individual focus styles when inside form-check */
+    outline: none;
+    box-shadow: none;
+}
   
-  /* Specificity overrides for other elements */
-  main a:focus,
-  .site-footer a:focus,
-  .navbar-custom .nav-link:focus,
-  .navbar-custom .navbar-brand:focus,
-  .btn:focus,
-  .btn-primary:focus,
-  .btn-secondary:focus,
-  .btn-success:focus,
-  .btn-danger:focus,
-  .btn-warning:focus,
-  .btn-info:focus,
-  .btn-light:focus,
-  .btn-dark:focus,
-  .site-pagination > .btn:focus {
-      outline: 2px var(--focus-light) solid;
-      outline-offset: 0;
-      box-shadow: 0 0 0 4px var(--focus-dark);
-  }
+/* Specificity overrides for other elements */
+main a:focus,
+.site-footer a:focus,
+.navbar-custom .nav-link:focus,
+.navbar-custom .navbar-brand:focus,
+.btn:focus,
+.btn-primary:focus,
+.btn-secondary:focus,
+.btn-success:focus,
+.btn-danger:focus,
+.btn-warning:focus,
+.btn-info:focus,
+.btn-light:focus,
+.btn-dark:focus,
+.site-pagination > .btn:focus {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 4px var(--focus-dark);
+}
+
   /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
