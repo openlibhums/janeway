@@ -670,4 +670,13 @@ span + .btn-background {
       box-shadow: 0 0 0 4px var(--focus-dark);
   }
   
+  /* Specificity overrides */
+  a:focus,
+  main a:focus,
+  .site-footer a:focus{
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 4px var(--focus-dark);
+  }
+  
   /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
