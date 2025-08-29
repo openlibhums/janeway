@@ -8,7 +8,11 @@
                     <p class="{{ answer.element.width }}">
                         <b>{{ answer.element.name }}</b>
                         <br/>
-                        {{ answer.answer|safe|linebreaksbr }}
+                        {% if answer.edited_answer %}
+                        {{ answer.render_edited_answer|linebreaksbr }}
+                        {% else %}
+                        {{ answer.render_answer|linebreaksbr }}
+                        {% endif %}
                         <br/><br/>
                     </p>
                 {% endif %}
