@@ -3349,8 +3349,9 @@ def reviewer_shared_review_download(request, article_id, review_id):
 
 def review_attachment_download(request, assignment_id, file_uuid):
     answer_file = get_object_or_404(
-        models.ReviewFormAssignmentAnswerFile,
+        models.ReviewAssignmentAnswerFile,
         answer__assignment__id=assignment_id,
-        file__uuid_filename=file_uuid)
+        file__uuid_filename=file_uuid,
+    )
 
     return files.serve_file_to_browser(answer_file.file_path, answer_file.file)

@@ -309,7 +309,7 @@ class ReviewAssignment(models.Model):
                 },
             )
             if k in req_files:
-                answer_file, _ = ReviewFormAssignmentAnswerFile.objects.get_or_create(
+                answer_file, _ = ReviewAssignmentAnswerFile.objects.get_or_create(
                     answer=answer,
                     edited=False,
                 )
@@ -555,7 +555,7 @@ class ReviewAssignmentAnswer(models.Model):
                     "file_uuid": answer_file.file.uuid_filename,
                 },
             )
-            to_render = f'<a href={uri}>{to_render}</a>'
+            to_render = f"<a href={uri}>{to_render}</a>"
 
         return mark_safe(to_render)
 
@@ -563,14 +563,25 @@ class ReviewAssignmentAnswer(models.Model):
         return self.render_answer(edited=True)
 
 
-class ReviewFormAssignmentAnswerFile(models.Model):
+class ReviewAssignmentAnswerFile(models.Model):
     LABEL = "Reviewer Attachment"
-    answer = models.ForeignKey("review.ReviewAssignmentAnswer", on_delete=models.CASCADE, related_name="files")
-    file = models.ForeignKey("core.File", blank=True, null=True, on_delete=models.SET_NULL, related_name="review_attchments")
-    edited = models.BooleanField(
-        default=False,
-        help_text="This file is an edit, rather than the original answer"
+    answer = models.ForeignKey(
+        "review.ReviewAssignmentAnswer", on_delete=models.CASCADE, related_name="files"
     )
+    file = models.ForeignKey(
+        "core.File",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="review_attchments",
+    )
+    edited = models.BooleanField(
+        default=False, help_text="This file is an edit, rather than the original answer"
+    )
+
+    class Meta:
+        # Ensure a single file per answer for reviewer and for editor
+        unique_together = ("answer", "edited")
 
     @property
     def reviews_path(self):
