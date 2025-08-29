@@ -1035,7 +1035,7 @@ def do_review(request, assignment_id):
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
-            assignment.save_review_form(form, assignment)
+            assignment.save_review_form(form, assignment, request.FILES)
             if "save_progress" in request.POST:
                 messages.add_message(
                     request,
@@ -1485,6 +1485,10 @@ def edit_review_answer(request, article_id, review_id, answer_id):
             element_key = str(answer.element.pk)
             answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
+            if request.FILES and element_key in request.FILES:
+                answer.save_file(
+                    request.FILES[element_key],
+                )
 
             return redirect(
                 reverse(
