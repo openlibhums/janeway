@@ -657,30 +657,53 @@ span + .btn-background {
  * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
  * Requires at least 1:9 contrast ratio between the two focus colours. 
  */
- :root {
+:root {
     --focus-light: #F9F9F9;
     --focus-dark: #193146;
-  }
+    --focus-ring-size: 4px;
+}
+
+/* Reserve space for focus ring to prevent layout shifts */
+a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
+.dropdown-menu, .dropdown-item, .nav-link, .btn {
+    margin: var(--focus-ring-size);
+}
+
+/* Remove margin from elements that shouldn't have it */
+.dropdown-menu a,
+.dropdown-menu button,
+.dropdown-menu .dropdown-item {
+    margin: 0;
+}
+
+.dropdown-item:focus{
+    white-space: nowrap;
+}
+
+/* Ensure dropdown containers have enough space */
+.dropdown-menu {
+    padding: var(--focus-ring-size);
+}
   
-  /* General */
-  *:focus,
-  *:focus-visible {
-      outline: 2px var(--focus-light) solid;
-      outline-offset: 0;
-      box-shadow: 0 0 0 4px var(--focus-dark);
-  }
-  
-  /* focus bounding boxes */
-  a:focus,
-  a:focus-visible
-   {
-      outline: 2px var(--focus-light) solid;
-      outline-offset: 0;
-      box-shadow: 0 0 0 4px var(--focus-dark);
-      display: inline-block;
-      white-space: normal;
-      text-decoration: inherit;
-  }
+/* General */
+*:focus,
+*:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* focus bounding boxes */
+a:focus,
+a:focus-visible
+{
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: inline-block;
+    white-space: normal;
+    text-decoration: inherit;
+}
 
 .form-check:has(input:focus),
 .form-check:has(input:focus-visible),
@@ -690,7 +713,7 @@ span + .btn-background {
 .form-check:has(textarea:focus-visible) {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
-    box-shadow: 0 0 0 4px var(--focus-dark);
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
     display: block;
     white-space: normal;
 }
@@ -720,7 +743,7 @@ main a:focus,
 .site-pagination > .btn:focus {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
-    box-shadow: 0 0 0 4px var(--focus-dark);
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
-  /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
+/* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
