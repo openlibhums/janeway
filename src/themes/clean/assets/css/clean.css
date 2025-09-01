@@ -680,7 +680,7 @@ span + .btn-background {
     .article-block a,
     .site-header a ,
     .site-footer a,
-    p > a ,
+    p a ,
     li > a {
         display: inline-block;
     }
