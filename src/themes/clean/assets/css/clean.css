@@ -637,7 +637,9 @@ a {
 
     /*individual workarounds */
     .article-block a,
-    .site-header a {
+    .site-header a ,
+    .site-footer a,
+    p > a {
         display: inline-block;
     }
 
