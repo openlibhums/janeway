@@ -697,17 +697,14 @@ span + .btn-background {
     }
   
 /* General */
-*:focus,
-*:focus-visible {
+*:focus {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
 /* focus bounding boxes */
-a:focus,
-a:focus-visible
-{
+a:focus {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
@@ -717,11 +714,8 @@ a:focus-visible
 }
 
 .form-check:has(input:focus),
-.form-check:has(input:focus-visible),
 .form-check:has(select:focus),
-.form-check:has(select:focus-visible),
-.form-check:has(textarea:focus),
-.form-check:has(textarea:focus-visible) {
+.form-check:has(textarea:focus) {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
@@ -730,8 +724,7 @@ a:focus-visible
 }
 
 /* Alternative approach for browsers that don't support :has() */
-.form-check input:focus,
-.form-check input:focus-visible{
+.form-check input:focus{
     /* Remove individual focus styles when inside form-check */
     outline: none;
     box-shadow: none;
