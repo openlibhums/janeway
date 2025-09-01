@@ -761,6 +761,7 @@ input[type="datetime-local"]:focus,
 input[type="file"]:focus,
 input[type="submit"]:focus,
 .form-control.is-valid:focus,
+.form-control.is-invalid:focus,
 textarea.tinymce:focus,
 .custom-select:focus {
     outline: 2px var(--focus-light) solid;
