@@ -6,4 +6,5 @@ marshmallow
 freezegun
 snakeviz
 django-browser-reload
+tox
 ruff
