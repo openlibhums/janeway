@@ -7,7 +7,7 @@
         <form method="GET" id={{ facet_form.id }}>
             {{ facet_form|foundation }}
             <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
-            <a href="{{ request.path }}" class="button warning">{% trans 'Clear all' %}</a>
+            <button type="button" class="button warning" onclick="window.location.href='{{ request.path }}'">{% trans 'Clear all' %}</button>
         </form>
     </section>
 {% endif %}
