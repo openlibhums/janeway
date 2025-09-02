@@ -495,7 +495,7 @@ class RORImport(models.Model):
             return None
 
     def fail(self, error):
-        self.stopped = timezone.datetime.now()
+        self.stopped = timezone.now()
         self.status = self.RORImportStatus.IS_FAILED
         self.save()
         logger.exception(error)
