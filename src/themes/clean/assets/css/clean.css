@@ -642,7 +642,7 @@ a {
     .site-header a ,
     .site-footer a,
     p a ,
-    li > a {
+    li a {
         display: inline-block;
     }
 
