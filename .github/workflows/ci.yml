@@ -51,3 +51,10 @@ jobs:
           echo "Running unit tests"
           python src/manage.py test
           echo "Test run completed."
+
+      - name: Test installing Janeway
+        run: |
+          echo "Test Installing Janeway"
+          python src/manage.py install_janeway --use-defaults
+          echo "Test run completed."
+
