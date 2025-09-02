@@ -666,9 +666,18 @@ span + .btn-background {
 }
 
 /* Prevent layout shifts */
-    a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
-    .dropdown-menu, .dropdown-item, .nav-link, .btn {
+    button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
+    .dropdown-menu, .dropdown-item, .nav-link, .nav-link a, .btn {
         margin: var(--focus-ring-size);
+    }
+
+    /* Inline links override to prevent layout shifts without affecting typography */
+    p a,
+    span a, 
+    li a {
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        box-sizing: border-box;
     }
 
     /* Remove margin from elements that shouldn't have it */
