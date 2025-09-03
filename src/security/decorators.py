@@ -10,6 +10,7 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
+import warnings
 
 from core import models as core_models, logic
 from review import models as review_models
@@ -796,7 +797,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
 
 def article_edit_user_required(func):
-    raise DeprecationWarning("Use user_can_edit_article instead.")
+    warnings.warn("Use user_can_edit_article instead.")
     return user_can_edit_article(func)
 
 

@@ -1,6 +1,7 @@
 import time
 import uuid
 import datetime
+import warnings
 
 from django.db import transaction
 from django.db.models import Q, ExpressionWrapper, BooleanField
@@ -29,7 +30,7 @@ def production_ready_files(article, file_objects=False):
     :param file_objects: Boolean
     :return: a list of File type objects
     """
-    raise DeprecationWarning("Use get_typesetting_files instead.")
+    warnings.warn("Use get_typesetting_files instead.")
     submitted_ms_files = article.manuscript_files.filter(is_galley=False)
     copyeditted_files = logic.get_copyedit_files(article)
 

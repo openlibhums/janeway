@@ -30,7 +30,7 @@ class Command(BaseCommand):
         :param options: None.
         :return: None
         """
-        raise DeprecationWarning(
+        warnings.warn(
             "This command can cause unintended behavior because "
             "accounts are not created for all authors during submission."
         )

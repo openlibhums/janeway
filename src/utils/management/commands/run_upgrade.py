@@ -1,5 +1,6 @@
 import os
 from importlib import import_module
+import warnings
 
 from django.core.management.base import BaseCommand
 from django.utils import translation
@@ -28,9 +29,7 @@ class Command(BaseCommand):
         parser.add_argument("--path", required=False)
 
     def handle(self, *args, **options):
-        raise DeprecationWarning(
-            "This command is deprecated. Use the update script .update.sh"
-        )
+        warnings.warn("This command is deprecated. Use the update script .update.sh")
         if not options.get("path"):
             print("No upgrade selected. Available upgrade paths: ")
             for file in get_modules():

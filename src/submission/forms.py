@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import re
+import warnings
 
 from django import forms
 from django.utils.translation import gettext, gettext_lazy as _
@@ -481,7 +482,7 @@ class ArticleFundingForm(forms.ModelForm):
 
 
 def utility_clean_orcid(orcid):
-    raise DeprecationWarning("Use utils.forms.clean_orcid_id")
+    warnings.warn("Use utils.forms.clean_orcid_id")
     return clean_orcid_id(orcid)
 
 

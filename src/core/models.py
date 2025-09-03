@@ -844,7 +844,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         """
         Old function name for snapshot_as_author.
         """
-        raise DeprecationWarning("Use snapshot_as_author instead.")
+        warnings.warn("Use snapshot_as_author instead.")
         return self.snapshot_as_author(article, force_update)
 
     def snapshot_as_author(self, article, force_update=True):

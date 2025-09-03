@@ -5,6 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
 import re
+import warnings
 
 from django.conf import settings
 from django.contrib import messages
@@ -138,7 +139,7 @@ def funder_articles(request, funder_id):
     :param request: the request associated with this call
     :return: a rendered template of all articles
     """
-    raise DeprecationWarning("This view is deprecated.")
+    warnings.warn("This view is deprecated.")
 
     if request.POST and "clear" in request.POST:
         return logic.unset_article_session_variables(request)

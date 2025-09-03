@@ -7,6 +7,7 @@ import os
 import uuid
 import json
 from dateutil import parser as dateparser
+import warnings
 
 from django.db import models
 from django.db.models import Q
@@ -1010,7 +1011,7 @@ class Author(models.Model):
     )
 
     def __init__(self, *args, **kwargs):
-        raise DeprecationWarning("Use PreprintAuthor instead.")
+        warnings.warn("Use PreprintAuthor instead.")
         super().__init__(*args, **kwargs)
 
     @property

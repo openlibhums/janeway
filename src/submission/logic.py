@@ -33,7 +33,7 @@ def add_user_as_author(user, article, give_role=True):
     :param article: An instance of submission.models.Article
     :param give_role: If true, the user is given the author role in the journal
     """
-    raise DeprecationWarning("Use FrozenAuthor instead.")
+    warnings.warn("Use FrozenAuthor instead.")
     if give_role:
         submission_requires_authorisation = article.journal.get_setting(
             group_name="general",
@@ -165,7 +165,7 @@ def add_keywords(soup, article):
 
 
 def import_from_jats_xml(path, journal, first_author_is_primary=False):
-    raise DeprecationWarning("Use the JATS importer in the imports plugin instead.")
+    warnings.warn("Use the JATS importer in the imports plugin instead.")
     with open(path) as file:
         soup = BeautifulSoup(file, "lxml-xml")
         title = get_text(soup, "article-title")
@@ -308,7 +308,7 @@ def order_fields(request, fields):
 
 
 def save_author_order(request, article):
-    raise DeprecationWarning("Use save_frozen_author_order instead.")
+    warnings.warn("Use save_frozen_author_order instead.")
     author_pks = [int(pk) for pk in request.POST.getlist("authors[]")]
     for author in article.authors.all():
         order = author_pks.index(author.pk)
