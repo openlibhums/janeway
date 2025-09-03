@@ -2160,7 +2160,7 @@ class Article(AbstractLastModifiedModel):
         :param article: (deprecated) should not pass this argument
         :param force_update: (bool) Whether or not to update existing records
         """
-        raise DeprecationWarning("Use FrozenAuthor directly instead.")
+        warnings.warn("Use FrozenAuthor directly instead.")
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=self, author__id=models.OuterRef("id")
@@ -2280,7 +2280,7 @@ class Article(AbstractLastModifiedModel):
             os.unlink(path)
 
     def next_author_sort(self):
-        raise DeprecationWarning("Use FrozenAuthor instead.")
+        warnings.warn("Use FrozenAuthor instead.")
         current_orders = [
             order.order for order in ArticleAuthorOrder.objects.filter(article=self)
         ]
@@ -3333,7 +3333,7 @@ def remove_author_from_article(sender, instance, **kwargs):
         # Return early so long as deprecated models and fields are not being used.
         # This avoids triggering the deprecation warning in development.
         return
-    raise DeprecationWarning("Authorship is now exclusively handled via FrozenAuthor.")
+    warnings.warn("Authorship is now exclusively handled via FrozenAuthor.")
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,

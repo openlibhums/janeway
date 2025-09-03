@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import re
 from urllib.parse import quote, unquote, urlencode, urlparse
+import warnings
 
 from collections import defaultdict
 from django.conf import settings
@@ -85,7 +86,7 @@ def get_orcid_record(orcid):
 
 
 def get_affiliation(summary):
-    raise DeprecationWarning("Use get_affiliations instead.")
+    warnings.warn("Use get_affiliations instead.")
     if len(summary["employments"]["employment-summary"]):
         return summary["employments"]["employment-summary"][0]["organization"]
     elif len(summary["educations"]["education-summary"]):

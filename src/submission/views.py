@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import warnings
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -496,7 +497,7 @@ def delete_funder(request, article_id, funder_id):
 @user_can_edit_article
 def delete_author(request, article_id, author_id):
     """Allows submitting author to remove an author from their article."""
-    raise DeprecationWarning("Use delete_frozen_author instead.")
+    warnings.warn("Use delete_frozen_author instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
     author = get_object_or_404(core_models.Account, pk=author_id)
     if author == article.correspondence_author:
@@ -1018,7 +1019,7 @@ def edit_author(request, article_id, author_id):
 
 @production_user_or_editor_required
 def order_authors(request, article_id):
-    raise DeprecationWarning("Use edit_author_metadata instead.")
+    warnings.warn("Use edit_author_metadata instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
 
     if request.POST:

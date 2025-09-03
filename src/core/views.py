@@ -3013,9 +3013,7 @@ class FilteredArticlesListView(GenericFacetedListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        raise DeprecationWarning(
-            "This view is deprecated. Use GenericFacetedListView instead."
-        )
+        warnings.warn("This view is deprecated. Use GenericFacetedListView instead.")
 
 
 @method_decorator(editor_user_required, name="dispatch")
