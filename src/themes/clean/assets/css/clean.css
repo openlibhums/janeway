@@ -604,13 +604,16 @@ a {
 .btn-background, .btn-background:active, .btn-background:visited {
     background-color: inherit;
     color: inherit;
-    margin-left: 0.5rem;
     border: 1px, solid, #1C304A;
     padding: 0 10px;
     min-width: 7rem;
     white-space: nowrap;
     vertical-align: middle;
     line-height: 1;
+}
+
+.btn-background:not(:first-child) {
+    margin-left: 0.5rem;
 }
 
 input + .btn-background {
