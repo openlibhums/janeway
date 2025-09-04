@@ -883,7 +883,6 @@ a {
 .btn-background, .btn-background:active, .btn-background:visited {
     background-color: inherit;
     color: inherit;
-    margin-left: 0.5rem;
     border: 1px, solid, #00897b;
     padding: 0 10px;
     min-width: 7rem;
@@ -891,6 +890,10 @@ a {
     white-space: nowrap;
     vertical-align: middle;
     line-height: 1;
+}
+
+.btn-background + .btn-background {
+    margin-left: 0.5rem;
 }
 
 input + .btn-background {
