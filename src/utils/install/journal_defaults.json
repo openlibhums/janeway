@@ -537,7 +537,7 @@
             "description": "Email sent to reviewers when a review request is withdrawn.",
             "is_translatable": true,
             "name": "review_withdrawl",
-            "pretty_name": "Review Withdrawl",
+            "pretty_name": "Review Withdrawal",
             "type": "rich-text"
         },
         "value": {
@@ -3233,7 +3233,7 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Withdrawl",
+            "pretty_name": "Review Withdrawal",
             "is_translatable": true,
             "description": "Subject for Email sent to reviewers when a review request is withdrawn.",
             "name": "subject_review_withdrawl"

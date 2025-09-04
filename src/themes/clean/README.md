@@ -1,6 +1,6 @@
 # clean
 
-The clean theme is based on bootstrap 4 and there are som similarities between it and the default theme.
+The clean theme is based on bootstrap 4 and there are some similarities between it and the default theme.
 
 ## install
 

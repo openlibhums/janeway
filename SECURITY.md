@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We currently only support one major version of Janeway. The master development branch becomes the next major release of Janeway and receieves security support. Security issues that only affect the master branch and not any stable released versions can be reported as Bugs and are fixed in public. Security vulnerabilities that effect a support branch, listed below, should be reported using the details provided under Reporting a Vulnerability.
+We currently only support one major version of Janeway. The master development branch becomes the next major release of Janeway and receives security support. Security issues that only affect the master branch and not any stable released versions can be reported as Bugs and are fixed in public. Security vulnerabilities that effect a support branch, listed below, should be reported using the details provided under Reporting a Vulnerability.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -33,7 +33,7 @@ We will follow this process:
 | Activity                              | Days From Initial Report |
 |---------------------------------------|--------------------------|
 | Acknowledge Initial Report            | 1 day                    |
-| Provide Initial Assesment to Reporter | 5 days                   |
+| Provide Initial Assessment to Reporter | 5 days                   |
 | Create and Test Fix                   | 14 days                  |
 | Publish Security Advisory on Github   | 21 days                  |
 

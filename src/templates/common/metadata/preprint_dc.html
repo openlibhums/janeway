@@ -8,7 +8,7 @@
     <meta name="DC.Identifier.URI" content="{% site_url 'repository_preprint' preprint.pk %}"/>
     <meta name="DC.Rights" content="{{ preprint.license.name | striptags }}"/>
     <meta name="DC.Publisher" content="{{ request.repository.name }}"/>
-    <meta name="DC.Title" content="{{ preperint.title|striptags }}"/>
+    <meta name="DC.Title" content="{{ preprint.title|striptags }}"/>
     {% for author in preprint.authors %}<meta name="DC.Creator" content="{{ author.full_name }}"/>
     {% endfor %}
 
