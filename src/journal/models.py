@@ -32,7 +32,7 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.functional import cached_property
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_lazy as _
 
 from core import (
     files,
@@ -267,6 +267,19 @@ class Journal(AbstractSiteModel):
     # Boolean to determine if this journal should be hidden from the press
     hide_from_press = models.BooleanField(default=False)
 
+    class PublishingStatus(models.TextChoices):
+        ACTIVE = "active", _("Active")
+        ARCHIVED = "archived", _("Archived")
+        COMING_SOON = "coming_soon", _("Coming soon")
+        TEST = "test", _("Test")
+
+    status = models.CharField(
+        max_length=20,
+        choices=PublishingStatus.choices,
+        default=PublishingStatus.ACTIVE,
+        verbose_name="Publishing status",
+    )
+
     # Display sequence on the Journals page
     sequence = models.PositiveIntegerField(default=0)
 
@@ -297,6 +310,12 @@ class Journal(AbstractSiteModel):
     )
 
     disable_front_end = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ("sequence",)
+        # Note that we also commonly want to order journals A-Z by name.
+        # We have built Press methods to handle this since it is not
+        # straightforward to do via 'Meta.ordering'.
 
     def __str__(self):
         if self.domain:
