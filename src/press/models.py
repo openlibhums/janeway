@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import os
 import uuid
+from django.utils import timezone
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
