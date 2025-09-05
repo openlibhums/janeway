@@ -615,9 +615,10 @@ def overwrite_file(uploaded_file, file_to_replace, path_parts=()):
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     if isinstance(path_parts, str):
         folder_structure = path_parts
-    folder_structure = os.path.join(
-        settings.BASE_DIR, "files", *(str(part) for part in path_parts)
-    )
+    else:
+        folder_structure = os.path.join(
+            settings.BASE_DIR, "files", *(str(part) for part in path_parts)
+        )
 
     save_file_to_disk(uploaded_file, filename, folder_structure)
 
