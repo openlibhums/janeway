@@ -327,3 +327,8 @@ a.twitter-x{
   font-weight: bold;
   line-height: 1.25;
 }
+
+.external-badge {
+    margin-block-start: 15px;
+    margin-block-end: 15px;
+}

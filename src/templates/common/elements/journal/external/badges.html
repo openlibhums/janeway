@@ -1,0 +1,10 @@
+{% with article.get_doi as doi %}
+  {% if doi %}
+    {% if journal_settings.article.display_altmetric_badge %}
+      {% include "common/elements/journal/external/altmetric_badges.html" with class=class %}
+    {% endif %}
+    {% if journal_settings.article.display_dimensions_badge %}
+      {% include "common/elements/journal/external/dimensions_badges.html" with class=class %}
+    {% endif %}
+  {% endif %}
+{% endwith %}
