@@ -14,9 +14,7 @@
                             <institution>
                                 <institution_name>{{ org.name.value }}</institution_name>
                                 {% if org.ror_id %}
-                                    <institution_id type="ror">
-                                        {{ org.uri }}
-                                    </institution_id>
+                                    <institution_id type="ror">{{ org.uri }}</institution_id>
                                 {% endif %}
                             </institution>
                         {% endwith %}
