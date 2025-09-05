@@ -1487,9 +1487,13 @@ def edit_review_answer(request, article_id, review_id, answer_id):
             answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
             if request.FILES and element_key in request.FILES:
-                answer.save_file(
-                    request.FILES[element_key],
+                answer_file, _ = (
+                    models.ReviewAssignmentAnswerFile.objects.get_or_create(
+                        answer=answer,
+                        edited=True,
+                    )
                 )
+                answer_file.save_file(request.FILES[element_key])
 
             return redirect(
                 reverse(
