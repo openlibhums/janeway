@@ -44,9 +44,10 @@ function initTableExpansion(config) {
     
     function createTableModalHeading(){
         tableModals.forEach(function($modal, index) {
+            //there will only be zero or one table-labels per table-wrap
             var $tableLabels = $modal.find('span.table-label');
             
-            if ($tableLabels.length >= 1) {
+            if ($tableLabels.length == 1) {
                 // First table-label is used as an h2 for the modal
                 var $span = $tableLabels.first();
                 var $h2 = $('<h2>').text($span.text());
@@ -59,8 +60,14 @@ function initTableExpansion(config) {
                 $span.replaceWith($h2);
                 
             } else {
-                // Case 3: create generic h2 when no table-label exists
+                //create generic h2 when no table-label exists
+                var modalId = $modal.attr('id');
                 var $h2 = $('<h2>').text('Table ' + (index + 1));
+                console.log(modalId);
+                if (modalId) {
+                    var tableId = modalId.replace('table-', '');
+                    $h2.attr('id', 'copy-of-' + tableId + '-label');
+                }
                 $modal.prepend($h2);
             }
         });
