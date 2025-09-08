@@ -198,6 +198,12 @@ class Journal(AbstractSiteModel):
     contact_info = JanewayBleachField(
         null=True, blank=True, verbose_name="Contact Information"
     )
+    journal_a11y_info = JanewayBleachField(
+        null=True,
+        blank=True,
+        verbose_name="Journal Accessibility Information",
+        help_text="This is information about the accessibility of user-content. It will appear on the accessibility page under the journal name.",
+    )
     keywords = models.ManyToManyField(
         "submission.Keyword",
         blank=True,

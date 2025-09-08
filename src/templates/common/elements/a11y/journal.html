@@ -1,2 +1,4 @@
-<h2> Journal A11y Placeholder </h2>
-<p>journal specific a11y text</p>
+{% if request.journal.journal_a11y_info %}
+    <h2>{% trans "Journal Accessibility Information" %}</h2>
+    {{ request.journal.journal_a11y_info|safe }}
+{% endif %}
