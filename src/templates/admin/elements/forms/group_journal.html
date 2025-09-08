@@ -93,12 +93,14 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.use_credit %}
 </div>
 
-<div class="title-area">
-    <h2>Accessibility</h2>
-</div>
-<div class="content">
-    <p>{% trans "Display journal specific accessibility information." %}.</p>
-    {% include "admin/elements/forms/field.html" with field=form.journal_a11y_info %}
-</div>
+{% if request.press.allow_journal_ally_info %}
+    <div class="title-area">
+        <h2>Accessibility</h2>
+    </div>
+    <div class="content">
+        <p>{% trans "Display journal specific accessibility information." %}.</p>
+        {% include "admin/elements/forms/field.html" with field=form.journal_a11y_info %}
+    </div>
+{% endif %}
 
 
