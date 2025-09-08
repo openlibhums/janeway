@@ -41,6 +41,7 @@
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
         {% if not request.user.is_authenticated %}
           <li>
             <a href="{% url 'core_login' %}">
