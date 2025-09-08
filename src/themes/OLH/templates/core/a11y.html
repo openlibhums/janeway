@@ -1,15 +1,20 @@
 {% extends "core/base.html" %}
 
-{% load static %}
-{% load i18n %}
-
 {% block title %}{% trans "Accessibility" %}{% endblock %}
 
 {% block body %}
-<h1> {% trans "Accessibility" %} </h1>
-
-{% include "common/elements/a11y/janeway.html" %}
-{% include "common/elements/a11y/press.html" %}
-{% include "common/elements/a11y/journal.html" %}
-
+    <section id="content" aria-labelledby="cms-title">
+        <div class="row">
+            <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
+                <div id="main_article">  
+                    <h1 id="cms-title">{% trans "Accessibility" %} </h1>
+                    <hr aria-hidden="true" /> 
+                    {% include "common/elements/a11y/janeway.html" %}
+                    {% include "common/elements/a11y/press.html" %}
+                    {% include "common/elements/a11y/journal.html" %}
+                </div>
+            </div>
+            
+        </div>
+    </section>
 {% endblock body %}
