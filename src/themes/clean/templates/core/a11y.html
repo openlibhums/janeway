@@ -1,2 +1,15 @@
-<h1> Accessibility </h1>
-<p> Clean Accessibility page placeholder </p>
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Accessibility" %}{% endblock %}
+
+{% block body %}
+<h1> {% trans "Accessibility" %} </h1>
+
+{% include "common/elements/a11y/janeway.html" %}
+{% include "common/elements/a11y/press.html" %}
+{% include "common/elements/a11y/journal.html" %}
+
+{% endblock body %}
