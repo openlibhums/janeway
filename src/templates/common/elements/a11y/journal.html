@@ -1,4 +1,4 @@
 {% if request.press.allow_journal_ally_info and request.journal.journal_a11y_info %}
-    <h2>{% trans "Journal Accessibility Information" %}</h2>
+    <h2>{{ request.journal.name }}</h2>
     {{ request.journal.journal_a11y_info|safe }}
 {% endif %}
