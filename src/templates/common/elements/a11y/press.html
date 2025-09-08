@@ -1,2 +1,4 @@
-<h2> Press A11y Placeholder </h2>
-<p>press a11y text as default for journals and repositories</p>
+{% if press.ally_info%}
+    <h2>{{ press.name }}</h2>
+    {{ press.ally_info|safe }}
+{% endif %}
