@@ -741,6 +741,7 @@ a:focus {
 /* Specificity overrides for other elements */
 main a:focus,
 .site-footer a:focus,
+#lightbox a:focus,
 .navbar-custom .nav-link:focus,
 .navbar-custom .navbar-brand:focus,
 .btn:focus,
