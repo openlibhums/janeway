@@ -327,3 +327,7 @@ a.twitter-x{
   font-weight: bold;
   line-height: 1.25;
 }
+
+.comma-separated > *:not(:last-child):after {
+  content: ", ";
+}

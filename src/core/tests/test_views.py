@@ -8,6 +8,8 @@ from uuid import uuid4
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
+from django.template.loader import get_template
+from django.utils import timezone
 
 from core import models as core_models
 from core import views as core_views
@@ -857,3 +859,219 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.assertEqual(
             self.user.primary_affiliation(as_object=False), "California Digital Library"
         )
+
+
+class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        ror_svg_template = get_template("common/svg/ror-mono.svg")
+        cls.ror_svg = ror_svg_template.render({})
+
+    def test_all_custom(self):
+        template = get_template("common/elements/affiliation_display.html")
+        org = core_models.Organization.objects.create()
+        core_models.OrganizationName(
+            value="Birkbeck",
+            custom_label_for=org,
+        )
+        country, _ = core_models.Country.objects.get_or_create(
+            code="GB",
+            defaults={"name": "United Kingdom"},
+        )
+        location, _ = core_models.Location.objects.get_or_create(
+            name="London",
+            country=country,
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+            title="Reader",
+            department="English",
+            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
+            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>Reader</span>
+                <span>English</span>
+                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                    <span itemprop="name">
+                        <span>Birkbeck</span>
+                    </span>
+                </span>
+                <span>London, United Kingdom</span>
+                <span>May 2010&ndash;Oct 2016</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_title(self):
+        template = get_template("common/elements/affiliation_display.html")
+        context = {
+            "affiliation": core_models.ControlledAffiliation.objects.create(
+                account=self.user,
+                title="Reader",
+            ),
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>Reader</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_department(self):
+        template = get_template("common/elements/affiliation_display.html")
+        context = {
+            "affiliation": core_models.ControlledAffiliation.objects.create(
+                account=self.user,
+                department="English",
+            ),
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>English</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_controlled_org(self):
+        template = get_template("common/elements/affiliation_display.html")
+        org, _ = core_models.Organization.objects.get_or_create(
+            ror_id="02mb95055",
+        )
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = f"""
+            <span class="comma-separated">
+                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                    <a href="https://ror.org/02mb95055" itemprop="url" target="_blank">
+                        <span itemprop="name">
+                            <span>Birkbeck, University of London</span>
+                        </span>
+                        <span class="show-for-sr sr-only">(opens in new tab)</span>
+                        {self.ror_svg}
+                    </a>
+                </span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_custom_org(self):
+        template = get_template("common/elements/affiliation_display.html")
+        org = core_models.Organization.objects.create()
+        core_models.OrganizationName(
+            value="Birkbeck",
+            custom_label_for=org,
+        )
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+                    <span itemprop="name">
+                        <span>Birkbeck</span>
+                    </span>
+                </span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_location_city(self):
+        template = get_template("common/elements/affiliation_display.html")
+        org = core_models.Organization.objects.create()
+        location, _ = core_models.Location.objects.get_or_create(
+            name="London",
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>London</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_location_country(self):
+        template = get_template("common/elements/affiliation_display.html")
+        org = core_models.Organization.objects.create()
+        country, _ = core_models.Country.objects.get_or_create(
+            code="GB",
+            defaults={"name": "United Kingdom"},
+        )
+        location, _ = core_models.Location.objects.get_or_create(
+            country=country,
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>United Kingdom</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_start(self):
+        template = get_template("common/elements/affiliation_display.html")
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            title="Independent scholar",
+            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>Independent scholar</span>
+                <span>May 2010&ndash;</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_end(self):
+        template = get_template("common/elements/affiliation_display.html")
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            title="Independent scholar",
+            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+            <span class="comma-separated">
+                <span>Independent scholar</span>
+                <span>&ndash;Oct 2016</span>
+            </span>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
