@@ -1,47 +1,48 @@
 {% load static %}
+{% load i18n %}
 
-{% spaceless %}
-  <span>
-    {% if affiliation.title_department %}
-      <span>{{ affiliation.title_department }}</span>
-      {% if affiliation.organization %}
-        <span>, </span>
-      {% endif %}
+<span class="comma-separated">
+  {% if affiliation.title %}
+    <span>{{ affiliation.title }}</span>
+  {% endif %}
+  {% if affiliation.department %}
+    <span>{{ affiliation.department }}</span>
+  {% endif %}
+  {% if affiliation.organization %}
+    {% if affiliation.organization.name %}
+      {% spaceless %}
+        <span
+          itemprop="worksFor"
+          itemscope
+          itemtype="http://schema.org/CollegeOrUniversity">
+          {% if affiliation.organization.ror_id %}
+            <a
+              itemprop="url"
+              href="{{ affiliation.organization.uri }}"
+              target="_blank">
+              <span itemprop="name">
+                <span>{{ affiliation.organization.name }}</span>
+              </span>
+              <span class="sr-only show-for-sr">
+                {% trans "(opens in new tab)" %}
+              </span>
+              {% include "common/svg/ror-mono.svg" %}
+            </a>
+          {% else %}
+              <span itemprop="name">
+                <span>{{ affiliation.organization.name }}</span>
+              </span>
+          {% endif %}
+        </span>
+      {% endspaceless %}
     {% endif %}
-    {% if affiliation.organization %}
-      <span
-        itemprop="worksFor"
-        itemscope
-        itemtype="http://schema.org/CollegeOrUniversity">
-        {% if affiliation.organization.ror_id %}
-          <span>&nbsp;</span>
-          <a
-            itemprop="url"
-            href="{{ affiliation.organization.uri }}"
-            target="_blank">
-            <span itemprop="name">
-              <span>{{ affiliation.organization.name }}</span>
-            </span>
-            <span class="sr-only show-for-sr">
-              {% trans "(opens in new tab)" %}
-            </span>
-            <span>&nbsp;</span>
-            {% include "common/svg/ror-mono.svg" %}
-          </a>
-        {% else %}
-          <span itemprop="name">
-            <span>{{ affiliation.organization.name }}</span>
-          </span>
-        {% endif %}
-      </span>
-      {% if not affiliation.organization.ror_id %}
-        <span>, </span>
+    {% if not affiliation.organization or not affiliation.organization.ror_id %}
+      {% if affiliation.organization.locations.exists %}
         <span>{{ affiliation.organization.locations.first }}</span>
       {% endif  %}
-    {% endif %}
-    {% if affiliation.start or affiliation.end %}
-      <span>&nbsp;</span>
-      <span>({{ affiliation.start|date:"M Y" }}&ndash;{{ affiliation.end|date:"M Y" }})</span>
     {% endif  %}
-  </span>
-{% endspaceless %}
+  {% endif %}
+  {% if affiliation.start or affiliation.end %}
+    <span>{{ affiliation.start|date:"M Y" }}&ndash;{{ affiliation.end|date:"M Y" }}</span>
+  {% endif  %}
+</span>

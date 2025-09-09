@@ -2928,7 +2928,7 @@ class Organization(models.Model):
                     )
                     # If there is an institution name, we should only match organizations
                     # with that as a custom label.
-                    if institution:
+                    if institution and institution != " ":
                         query &= models.Q(custom_label__value=institution)
                     organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2937,7 +2937,7 @@ class Organization(models.Model):
                     created = True
 
         # Set custom label if organization is not controlled by ROR
-        if institution and not organization.ror_id:
+        if institution and institution != " " and not organization.ror_id:
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={"value": institution},
                 custom_label_for=organization,
