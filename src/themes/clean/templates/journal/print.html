@@ -25,7 +25,12 @@
 <h2>{% trans "Abstract" %}</h2>
 <p>{{ article.abstract | safe }}</p>
 {% if article.keywords %}
-    <p><strong>{% trans "Keywords" %}:</strong> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    <p><strong>{% trans "Keywords" %}:</strong> 
+      <ul class="list-inline comma-sep">
+        {% for keyword in article.keywords.all %}
+          <li>{{ keyword.word }}</li>
+        {% endfor %}
+      </ul>
     </p>{% endif %}
 <p><strong>{% trans "How to Cite" %}:</strong>
     {% include "elements/journal/how_to_cite.html" with article=article %}
