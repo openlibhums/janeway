@@ -327,3 +327,11 @@ a.twitter-x{
   font-weight: bold;
   line-height: 1.25;
 }
+
+/* Hotfix for creating a scrollbar when
+ * there are numerous authors, due to limited
+ * display space on OLH and clean themes */
+:not(.show-for-small-only) .article-authors-br {
+  overflow-y: scroll;
+  max-height: 6rem;
+}
