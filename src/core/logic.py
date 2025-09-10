@@ -650,6 +650,8 @@ def get_settings_to_edit(display_group, journal, user):
             "suppress_citations_metric",
             "display_altmetric_badge",
             "altmetric_badge_type",
+            "display_dimensions_badge",
+            "dimensions_badge_type",
             "hide_author_email_links",
             "display_date_submitted",
             "display_date_accepted",

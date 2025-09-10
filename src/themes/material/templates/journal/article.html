@@ -240,7 +240,7 @@
             <div class="card">
                 <section aria-label="{% trans 'Article Information' %}">
                     <div class="card-content">
-                        {% include "common/elements/altmetric_badges.html" with article=article %}
+                        {% include "common/elements/journal/external/badges.html" with article=article %}
                         {% include "elements/journal/share.html" %}
                         {% if article.frozen_authors.exists %}
                             <div class="spacer">
@@ -551,7 +551,7 @@
         });
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
-    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
+    {% include "common/elements/journal/external/badges_js.html" %}
 {% endblock %}

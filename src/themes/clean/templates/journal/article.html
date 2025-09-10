@@ -134,7 +134,7 @@
         <div class="col-md-4 offset-md-1 left-bar">
             <section aria-label="{% trans 'Article Information' %}">
             <div class="article-menu">
-                {% include "common/elements/altmetric_badges.html" with article=article %}
+                {% include "common/elements/journal/external/badges.html" %}
                 {% if journal_settings.article.disable_article_large_image %}
                   <h2>
                     {% blocktrans count counter=article.frozen_authors.count %}
@@ -390,7 +390,6 @@
 {% endblock body %}
 
 {% block js %}
-    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     <script src="{% static 'material/toc.js' %}"></script>
     {% hook 'article_js_block' %}
@@ -405,4 +404,5 @@
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "clean/js/tooltip-init.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
+    {% include "common/elements/journal/external/badges_js.html" %}
 {% endblock js %}
