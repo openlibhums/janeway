@@ -142,10 +142,10 @@ class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):
 class BulkReviewAssignmentForm(forms.ModelForm):
     template = forms.CharField(
         widget=TinyMCE,
-        label="Email Template",
+        label="Email template",
     )
     reviewer_csv = forms.FileField(
-        label="Upload Reviewer CSV File",
+        label="Upload reviewer CSV file",
     )
 
     def __init__(self, *args, **kwargs):
