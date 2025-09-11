@@ -105,7 +105,7 @@ class Journal(AbstractSiteModel):
         unique=True,
         help_text=gettext(
             "Short acronym for the journal. Used as part of the journal URL"
-            "in path mode and to uniquely identify the journal"
+            "in path mode and to uniquely identify the journal."
         ),
     )
     current_issue = models.ForeignKey(
@@ -176,7 +176,7 @@ class Journal(AbstractSiteModel):
         storage=fs,
         help_text=gettext(
             "The tiny round or square image appearing in browser "
-            "tabs before the webpage title"
+            "tabs before the webpage title."
         ),
     )
     default_profile_image = SVGImageField(
@@ -186,8 +186,8 @@ class Journal(AbstractSiteModel):
         storage=fs,
         help_text=gettext(
             "A default image displayed on the profile and "
-            "editorial team pages when the user has no set "
-            "profile image."
+            "editorial team pages when the user has not set "
+            "a profile image."
         ),
     )
     # DEPRECATED "description" in favour of "journal_description" setting
@@ -882,7 +882,7 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         storage=fs,
         help_text=gettext(
-            "Image representing the cover of a printed issue or volume",
+            "Image representing the cover of a printed issue or volume.",
         ),
     )
     large_image = SVGImageField(
@@ -890,7 +890,7 @@ class Issue(AbstractLastModifiedModel):
         null=True,
         blank=True,
         storage=fs,
-        help_text=gettext("landscape hero image used in the carousel and issue page"),
+        help_text=gettext("Landscape hero image used in the carousel and issue page."),
     )
 
     # issue articles
@@ -924,7 +924,7 @@ class Issue(AbstractLastModifiedModel):
         verbose_name="DOI",
         help_text="The DOI (not URL) to be registered for the issue when registering "
         "articles that are part of this issue. If you have enabled issue "
-        "autoregistration in your settings, this field should not be "
+        "auto-registration in your settings, this field should not be "
         "entered manually.",
     )
 
@@ -935,7 +935,7 @@ class Issue(AbstractLastModifiedModel):
         verbose_name="ISBN",
         help_text=gettext(
             "An ISBN is relevant for non-serial collections such as"
-            " conference proceedings"
+            " conference proceedings."
         ),
     )
 

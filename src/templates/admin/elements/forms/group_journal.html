@@ -39,7 +39,7 @@
     <h2>Remote Journals</h2>
 </div>
 <div class="content">
-    <p>{% trans 'Where you have a journal in your press that is not hosted on Janeway you can link directly to the journal and submit pages.' %}</p>
+    <p>{% trans 'Where you have a journal in your press that is not hosted on Janeway, you can link directly to the journal and submit pages.' %}</p>
     {% include "admin/elements/forms/field.html" with field=attr_form.is_remote %}
     {% include "admin/elements/forms/field.html" with field=attr_form.remote_view_url %}
     {% include "admin/elements/forms/field.html" with field=attr_form.remote_submit_url %}
@@ -67,24 +67,24 @@
     <h2>Other</h2>
 </div>
 <div class="content">
-    <p>You can enable the Switch Language field from here which will enable internationalisation. By default all of the languages available at the press level will be present. You can enable a custom sub set of them on the <a target="_blank" href="{% url 'manage_languages' %}">language selection</a> interface.</p>
+    <p>You can enable the Switch Language field from here, which will enable internationalisation. By default, all of the languages available at the press level will be present. You can enable a custom subset of them on the <a target="_blank" href="{% url 'manage_languages' %}">language selection</a> interface.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.switch_language %}
 
-    <p>If you don't want to display language flags - you can </p>
+    <p>If you don't want to display flags to represent a language, you can display the language as text instead, e.g. 'English'. </p>
     {% include "admin/elements/forms/field.html" with field=edit_form.enable_language_text %}
 
-    <p>You can include a google analytics code here if you want to track user visits.</p>
+    <p>You can include a Google Analytics code here if you want to track user visits.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
     {% include "admin/elements/forms/field.html" with field=edit_form.use_ga_four %}
 
-    <p>You can use this setting to stop this journal being list on the Press' journals page.</p>
+    <p>You can use this setting to stop this journal from being listed on the Press' journals page.</p>
     {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
 
-    <p>If you want to display a special message on the login page you can add it here.</p>
+    <p>If you want to display a special message on the login page, you can add it here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_login_page_notice %}
     {% include "admin/elements/forms/field.html" with field=edit_form.login_page_notice %}
 
-    <p>If you want to display a special message on the registration page you can add it here.</p>
+    <p>If you want to display a special message on the registration pag,e you can add it here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_register_page_notice %}
     {% include "admin/elements/forms/field.html" with field=edit_form.register_page_notice %}
 
