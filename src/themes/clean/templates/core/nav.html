@@ -12,7 +12,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto font-weight-bold">
+        <ul class="navbar-nav font-weight-bold d-flex w-100">
             {% if request.journal.nav_home %}
             <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
@@ -87,10 +87,8 @@
                 <li class="nav-item"><a href="{% url 'become_reviewer' %}" class="nav-link">
                     {% trans 'Become a Reviewer' %}</a>
                 </li>{% endif %}
-        </ul>
-        <div class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
             {% if request.user.is_authenticated %}
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown ml-lg-auto">
                     <button class="nav-link dropdown-toggle dropdown-button" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account '%}
@@ -120,7 +118,7 @@
                     </ul>
                 </li>
             {% else %}
-                <li class="nav-item">
+                <li class="nav-item ml-lg-auto">
                   <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans 'Log in' %}
                   </a>
