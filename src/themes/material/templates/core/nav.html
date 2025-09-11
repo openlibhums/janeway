@@ -131,7 +131,7 @@
                     <a
                         class="dropdown-trigger"
                         href="#!"
-                        data-target="dropdown1">
+                        data-target="sidenav-account">
                         {% trans "Account" %}
                         <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
@@ -161,7 +161,7 @@
 
 {% if request.user.is_authenticated %}
     {% user_has_role request 'editor' as user_is_editor %}
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="sidenav-account" class="dropdown-content">
         <li><a class="dropdown-item" href="{% url 'core_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if not journal_settings.general.disable_journal_submission %}
             <li><a class="dropdown-item" href="{% url 'submission_start' %}">{% trans "Submit" %}</a></li>{% endif %}
