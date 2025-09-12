@@ -20,23 +20,25 @@
     {% endif %}
 
 	<div class="row">
-        <div class="col m8">
+        <section aria-label="Results">
+            <div class="col m8">
 		    <hr aria-hidden="true" />
-		    {% for article in articles %}
-		        {% include "elements/article_listing.html" with article=article %}
-		    {% empty %}
-                <p>{% trans "No articles to display." %}</p>
-		    {% endfor %}
-		    {% if articles %}
-		        {% include "elements/pagination.html" with form_id=facet_form.id %}
-		    {% endif %}
-
-	    </div>
+		        {% for article in articles %}
+		            {% include "elements/article_listing.html" with article=article %}
+		        {% empty %}
+                    <p>{% trans "No articles to display." %}</p>
+		        {% endfor %}
+		        {% if articles %}
+		            {% include "elements/pagination.html" with form_id=facet_form.id %}
+		        {% endif %}
+            </div>
+        </section>
 	    <div class="col m4">
-            <div class="card">
-                <div class="card-content">
-                    <div class="row">
-                        <form method="GET" id="search_form">
+            <section aria-label="{% trans 'Search' %}">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="row">
+                            <form method="GET" id="search_form">
                             <div class="form-group">
                                 {% if not keyword %}
                                     {{ form|materializecss }}
@@ -69,10 +71,11 @@
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 {% endblock %}
