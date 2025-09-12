@@ -40,6 +40,15 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="row">
+                            <div>
+                                <p>
+                                    {% blocktrans count result_count=page_obj.paginator.count %}
+                                        1 result
+                                    {% plural %}
+                                        {{ result_count }} results
+                                    {% endblocktrans %}
+                                </p>
+                            </div>
                             <form method="GET" id="search_form">
                             <div class="form-group">
                                 {% if not keyword %}
