@@ -11,18 +11,20 @@
 
 {% block body %}
 
-    <h1>{% trans 'Article Search Results' %}</h1>
-
-    {% if search_term %}
-        <p>{% trans 'Searching for' %}: <i>{{ search_term }}</i></p>
-    {% elif keyword %}
-        <p>{% trans 'Keyword' %}: <i>{{ keyword }}</i></p>
-    {% endif %}
+    <div class="row">
+        <div class="col s12">
+            <h1>{% trans 'Article Search Results' %}</h1>
+            {% if search_term %}
+                <p>{% trans 'Searching for' %}: <i>{{ search_term }}</i></p>
+            {% elif keyword %}
+                <p>{% trans 'Keyword' %}: <i>{{ keyword }}</i></p>
+            {% endif %}
+        </div>
+    </div>
 
 	<div class="row">
         <section aria-label="Results">
             <div class="col m8">
-		    <hr aria-hidden="true" />
 		        {% for article in articles %}
 		            {% include "elements/article_listing.html" with article=article %}
 		        {% empty %}
