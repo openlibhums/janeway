@@ -2223,6 +2223,9 @@ def full_text_search(request):
     search_term, keyword, sort, form, redir = logic.handle_search_controls(
         request,
     )
+
+    form.id = "search_form"
+
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
@@ -2232,12 +2235,30 @@ def full_text_search(request):
             site=request.site_object,
         )
 
+    paginate_by = request.GET.get("paginate_by", 25)
+    if paginate_by == "all":
+        paginate_by = len(articles) if articles else 25
+
+    paginator = Paginator(articles, paginate_by)
+    page_number = request.GET.get("page")
+
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
     template = "journal/full-text-search.html"
     context = {
-        "articles": articles,
+        "articles": page_obj,
+        "page_obj": page_obj,
+        "is_paginated": page_obj.has_other_pages(),
+        "paginate_by": paginate_by,
         "article_search": search_term,
         "keyword": keyword,
         "form": form,
+        "facet_form": form,
+        "order_by_choices": form.fields["sort"].choices,
+        "order_by": sort,
     }
 
     return render(request, template, context)

@@ -27,13 +27,16 @@
 		    {% empty %}
                 <p>{% trans "No articles to display." %}</p>
 		    {% endfor %}
+		    {% if articles %}
+		        {% include "elements/pagination.html" with form_id=facet_form.id %}
+		    {% endif %}
 
 	    </div>
 	    <div class="col m4">
             <div class="card">
                 <div class="card-content">
                     <div class="row">
-                        <form method="GET">
+                        <form method="GET" id="search_form">
                             <div class="form-group">
                                 {% if not keyword %}
                                     {{ form|materializecss }}
