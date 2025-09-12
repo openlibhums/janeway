@@ -10,19 +10,21 @@
 {% block title %}{% trans "Search" %}{% endblock %}
 
 {% block body %}
+
 <section id="content">
-    {% if search_term %}
-        <h1>Searching for: <i>{{ search_term }}</i></h1>
-    {% elif keyword %}
-        <h1>Keyword: <i>{{ keyword }}</i></h1>
-    {% else %}
-        <h1>{% trans 'All Articles' %}</h1>
-    {% endif %}
 
     <div class="row">
+        <div class="column large-12">
+            {% if search_term %}
+                <h1>Searching for: <i>{{ search_term }}</i></h1>
+            {% elif keyword %}
+                <h1>Keyword: <i>{{ keyword }}</i></h1>
+            {% else %}
+                <h1>{% trans 'All Articles' %}</h1>
+            {% endif %}
+        </div>
         <section class="invisible-landmark" aria-label="Results">
             <div class="columns large-8">
-                <hr aria-hidden="true" />
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}
