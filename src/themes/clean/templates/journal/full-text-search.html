@@ -21,20 +21,23 @@
 
 	<div class="row">
         <div class="col-md-8">
-		    <hr aria-hidden="true" />
-		    {% for article in articles %}
-		        {% include "elements/article_listing.html" with article=article %}
-		    {% empty %}
-		        <p>{% trans "No articles to display" %}.</p>
-		    {% endfor %}
-		    {% if articles %}
-		        {% include "elements/pagination.html" with form_id=facet_form.id %}
-		    {% endif %}
-	    </div>
+            <section aria-label="Results">
+                <hr aria-hidden="true" />
+                {% for article in articles %}
+                    {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                    <p>{% trans "No articles to display" %}.</p>
+                {% endfor %}
+                {% if articles %}
+                    {% include "elements/pagination.html" with form_id=facet_form.id %}
+                {% endif %}
+            </section>
+        </div>
 	    <div class="col-md-4">
-            <div class="card">
-                <div class="card-block">
-                    <form method="GET" id="search_form">
+            <section aria-label="{% trans 'Search' %}">
+                <div class="card">
+                    <div class="card-block">
+                        <form method="GET" id="search_form">
                         <div class="form-group">
                             {% if not keyword %}
                                 {% include 'elements/forms/errors.html'  with form=form%}
@@ -59,9 +62,10 @@
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
                         </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 {% endblock %}
