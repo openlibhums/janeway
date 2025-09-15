@@ -1,79 +1,85 @@
 {% load static %}
 
-<span
-  class="comma-separated"
+<ul
+  id="author-{{ author.pk }}"
+  class="list-no-bullet"
+  style="text-wrap: balance;"
   itemscope
   itemtype="http://schema.org/Person"
   itemprop="author">
-  {% if author.author and author.author.enable_public_profile %}
-    {% spaceless %}
-      <span itemprop="name">
-        <a
-          class="profilelink"
-          href="{% url 'core_public_profile' author.author.uuid %}">
-          <span>{{ author.full_name }}</span>
-        </a>
-      </span>
-    {% endspaceless %}
-    {% if author.orcid %}
-      {% spaceless %}
-        <span>
-          <a
-            href="https://orcid.org/{{ author.orcid }}"
-            target="_blank">
-            {% include "common/svg/orcid-mono.svg" %}
-            <span class="sr-only">
-              {{author.full_name}} {% trans 'ORCID profile.' %}
-            </span>
-            <span class="sr-only show-for-sr">
-              {% trans "(opens in new tab)" %}
-            </span>
-          </a>
-        </span>
-      {% endspaceless %}
-    {% endif %}
-  {% else %}
-    {% if author.orcid %}
-      {% spaceless %}
-        <span>
-          <a
-            href="https://orcid.org/{{ author.orcid }}"
-            target="_blank">
-            <span itemprop="name">
-              <span>{{ author.full_name }}</span>
-            </span>
-            {% include "common/svg/orcid-mono.svg" %}
-            <span class="sr-only">{{author.full_name}} {% trans 'ORCID profile.' %}</span>
-            <span class="sr-only show-for-sr">
-              {% trans "(opens in new tab)" %}
-            </span>
-          </a>
-        </span>
-      {% endspaceless %}
-    {% else %}
-      {% spaceless %}
-        <span itemprop="name">
-          <span>{{ author.full_name }}</span>
-        </span>
-      {% endspaceless %}
-    {% endif %}
-  {% endif %}
-  {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-    {% spaceless %}
-      <span>
-        <a
-          target="_blank"
-          itemprop="email"
-          href="mailto:{{ author.email }}">
-          <span>{{ author.email }}</span>
-          <span class="sr-only show-for-sr">
-            {% trans "(opens in new tab)" %}
+  <li>
+    <span itemprop="name"><strong>{{ author.full_name }}</strong></span>
+    {% if author.author and author.author.enable_public_profile %}
+      <a href="{% url 'core_public_profile' author.author.uuid %}">
+        <span
+          class="sr-only show-for-sr">
+          {% trans 'View profile of' %} {{ author.full_name }}.
           </span>
-        </a>
-      </span>
-    {% endspaceless %}
+        <span
+          aria-hidden="true"
+          class="fa fa-lg fa-user"
+          title="{% trans 'user profile' %}">
+        </span>
+      </a>
+    {% endif %}
+    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+      <a href="mailto:{{ author.email }}">
+        <span class="sr-only show-for-sr" itemprop="email">
+          {{ author.email }}
+        </span>
+        <span class="sr-only show-for-sr">
+          {% trans 'Email' %} {{ author.full_name }}.
+        </span>
+        <span
+          aria-hidden="true"
+          class="fa fa-lg fa-envelope"
+          title="{% trans 'compose email' %}">
+        </span>
+        <span class="sr-only show-for-sr">
+          {% trans "(compose email, opens in email app.)" %}
+        </span>
+      </a>
+    {% endif %}
+    {% if author.orcid %}
+      <a
+        href="https://orcid.org/{{ author.orcid }}"
+        target="_blank">
+        {% include "common/svg/orcid-mono.svg" %}
+        <span class="sr-only show-for-sr">
+          {{author.full_name}} {% trans 'ORCID profile.' %}
+        </span>
+        <span class="sr-only show-for-sr">
+          {% trans "(opens in new tab)" %}
+        </span>
+      </a>
+    {% endif %}
+  </li>
+  {% if journal_settings.general.use_credit and author.credits.exists %}
+    <li>
+      <ul class="list-inline comma-and-sep" style="display: inline;">
+        {% spaceless %}
+          {% for credit in author.credits %}
+            <li>{{ credit.get_role_display }}</li>
+          {% endfor %}
+        {% endspaceless %}
+      </ul>
+      <a
+        href="https://credit.niso.org/"
+        target="_blank">
+        <img
+          width="24"
+          height="24"
+          src="{% static "common/img/icons/credit.png" %}"
+          style="vertical-align: middle;"
+          alt="CRediT roles icon">
+        </img>
+        <span class="sr-only show-for-sr">
+          {% trans "(opens in new tab)" %}
+        </span>
+      </a>
+    </li>
   {% endif %}
   {% if author.affiliations.exists %}
-    {% include "common/elements/affiliation_display.html" with affiliation=author.primary_affiliation %}
+    {% include "common/elements/affiliation_inner_li_details.html" with affiliation=author.primary_affiliation %}
   {% endif %}
-</span>
+</ul>

@@ -1465,25 +1465,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def carousel_subtitle(self):
-        carousel_text = ""
-
-        idx = 0
-
-        for author in self.frozenauthor_set.all():
-            if idx > 0:
-                idx = 1
-                carousel_text += ", "
-
-            if author.institution:
-                carousel_text += author.full_name() + " ({0})".format(
-                    author.institution
-                )
-            else:
-                carousel_text += author.full_name()
-
-            idx = 1
-
-        return carousel_text
+        return self.author_list
 
     @property
     def carousel_title(self):
