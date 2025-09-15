@@ -16,9 +16,7 @@
     <div class="box">
         <div class="row expanded">
             <div class="large-6 columns">
-                <p>Here you can configure the submission system fields. Any unchecked field will not display during the
-                    submission process. You should set a default license, language and section so that these fields
-                    can be configured when the fields are not being used.</p>
+                <p>"This page allows you to control which options are included in the submissions process. Any unchecked option will not appear to users. Particularly if you do not include licence, language or section options, it is important to set default options which will be applied to all articles."</p>
                 <form method="POST">
                     {% include "elements/translations/form_tabs.html" with object=configuration %}
                     {% include "elements/forms/errors.html" %}

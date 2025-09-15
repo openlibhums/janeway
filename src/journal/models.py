@@ -192,10 +192,10 @@ class Journal(AbstractSiteModel):
     )
     # DEPRECATED "description" in favour of "journal_description" setting
     description = JanewayBleachField(
-        null=True, blank=True, verbose_name="Journal Description"
+        null=True, blank=True, verbose_name="Journal description"
     )
     contact_info = JanewayBleachField(
-        null=True, blank=True, verbose_name="Contact Information"
+        null=True, blank=True, verbose_name="Contact information"
     )
     keywords = models.ManyToManyField(
         "submission.Keyword",
@@ -212,7 +212,7 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(
         default=False,
-        help_text="Used to disable download links for HTML files on the Article page.",
+        help_text="Tick this box to disable download links for HTML files on the Article page.",
     )
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(
@@ -241,7 +241,7 @@ class Journal(AbstractSiteModel):
     )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text=gettext('Enables a "View PDF" link on article pages.'),
+        help_text=gettext('Tick this box to enable a "View PDF" link on article pages.'),
     )
 
     # Nav Items
@@ -284,8 +284,7 @@ class Journal(AbstractSiteModel):
     display_article_number = models.BooleanField(
         default=False,
         help_text=gettext(
-            "Whether to display article numbers. Article numbers are distinct "
-            "from article ID and can be set in Edit Metadata.",
+            "Tick this box to display article numbers. Note: article numbers are distinct from article IDs. The article number can be set using <b>Edit metadata</b>.",
         ),
     )
     display_article_page_numbers = models.BooleanField(default=True)

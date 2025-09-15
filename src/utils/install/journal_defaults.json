@@ -1579,7 +1579,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "Tick this box to prevent the article's large image from being displayed on the article page.",
+            "description": "Tick this box to prevent the article's large image (header image) from being displayed on the article page.",
             "is_translatable": false,
             "name": "disable_article_large_image",
             "pretty_name": "Disable article large image",
@@ -3707,7 +3707,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "Tick this box to suppress the how-to-cite block on the article page.",
+            "description": "Tick this box to disable the how-to-cite block on article pages.",
             "is_translatable": false,
             "name": "suppress_how_to_cite",
             "pretty_name": "Suppress how-to-cite",
@@ -4030,7 +4030,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "Tick this box to not display links to email correspondence authors on the article page.",
+            "description": "Tick this box to hide the email address of the article's correspondence author(s). ",
             "is_translatable": false,
             "name": "hide_author_email_links",
             "pretty_name": "Hide author email links",
