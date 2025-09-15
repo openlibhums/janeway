@@ -218,7 +218,7 @@ class Journal(AbstractSiteModel):
     is_remote = models.BooleanField(
         default=False,
         help_text=gettext(
-            "When enabled, the journal is marked as not hosted in Janeway."
+            "Tick this box if this journal is not hosted on Janeway."
         ),
     )
     is_conference = models.BooleanField(default=False)
@@ -231,13 +231,13 @@ class Journal(AbstractSiteModel):
         blank=True,
         null=True,
         help_text=gettext(
-            "If the journal is remote you can link to its submission page."
+            "Link to your remote journal's submissions page."
         ),
     )
     remote_view_url = models.URLField(
         blank=True,
         null=True,
-        help_text=gettext("If the journal is remote you can link to its home page."),
+        help_text=gettext("Link to your remote journal's home page."),
     )
     view_pdf_button = models.BooleanField(
         default=False,

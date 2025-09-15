@@ -4011,7 +4011,7 @@
             "name": "news"
         },
         "setting": {
-            "description": "Title for the News page and Homepage block",
+            "description": "The title which will appear on your news page and, if enabled, on the news section on your home page.",
             "is_translatable": true,
             "name": "news_title",
             "pretty_name": "News title",
