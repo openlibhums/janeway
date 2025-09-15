@@ -1,0 +1,45 @@
+{% load static %}
+{% load i18n %}
+
+{% if affiliation.title %}
+  <li>{{ affiliation.title }}</li>
+{% endif %}
+{% if affiliation.department %}
+  <li>{{ affiliation.department }}</li>
+{% endif %}
+{% if affiliation.organization %}
+  {% if affiliation.organization.name %}
+    <li
+      itemprop="worksFor"
+      itemscope
+      itemtype="http://schema.org/CollegeOrUniversity">
+      <span itemprop="name">
+       <span>{{ affiliation.organization.name }}</span>
+      </span>
+      {% if affiliation.organization.ror_id %}
+        <a
+          itemprop="url"
+          href="{{ affiliation.organization.uri }}"
+          target="_blank">
+          <span class="sr-only show-for-sr">
+            {% trans "View ROR record for" %} {{ affiliation.organization.name }}.
+          </span>
+          <span class="sr-only show-for-sr">
+            {% trans "(opens in new tab)" %}
+          </span>
+          {% include "common/svg/ror-mono.svg" %}
+        </a>
+      {% endif %}
+    </li>
+  {% endif %}
+  {% if not affiliation.organization or not affiliation.organization.ror_id %}
+    {% if affiliation.organization.locations.exists %}
+      <li>{{ affiliation.organization.locations.first }}</li>
+    {% endif  %}
+  {% endif  %}
+{% endif %}
+{% if include_dates %}
+  {% if affiliation.start or affiliation.end %}
+    <li>{{ affiliation.start|date:"M Y" }}&ndash;{{ affiliation.end|date:"M Y" }}</li>
+  {% endif  %}
+{% endif  %}

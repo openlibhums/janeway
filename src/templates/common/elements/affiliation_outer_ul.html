@@ -1,0 +1,9 @@
+<ul class="flex direction-column gap-0-75">
+  {% for affiliation in affiliations %}
+    <li>
+      <ul class="list-no-bullet">
+        {% include "common/elements/affiliation_inner_li_details.html" with include_dates=True %}
+      </ul>
+    </li>
+  {% endfor %}
+</ul>

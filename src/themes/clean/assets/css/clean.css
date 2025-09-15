@@ -48,6 +48,11 @@ main a {
     text-decoration: underline;
 }
 
+/* Do not automatically underline links that contain font-awesome icons */
+main a:has(.fa) {
+  text-decoration: none;
+}
+
 main a:focus {
     color: #4F637D;
 }
