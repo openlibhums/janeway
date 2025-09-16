@@ -54,7 +54,7 @@ Pillow==10.2.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
 python-docx==0.8.11
-python-magic==0.4.13
+python-magic==0.4.27
 pytz==2024.1
 requests==2.32.4
 six==1.16.0
