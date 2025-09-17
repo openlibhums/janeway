@@ -857,7 +857,8 @@ def dashboard(request):
         "is_reviewer": request.user.is_reviewer(request),
         "section_editor_articles": section_editor_articles,
         "active_submission_count": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(stage=submission_models.STAGE_UNSUBMITTED)
         .count(),
@@ -936,7 +937,8 @@ def dashboard(request):
             typesetter=request.user,
         ).count(),
         "active_submissions": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(
             stage__in=[
