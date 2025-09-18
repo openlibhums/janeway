@@ -3023,13 +3023,11 @@ class Section(AbstractLastModifiedModel):
 
     editors = models.ManyToManyField(
         "core.Account",
-        help_text="Editors selected will be notified of submissions to this section,"
-        " overruling the notification settings for the journal.",
+        help_text="Editors selected here will be notified when submissions are made to this section. Hold <kbd>Shift</kbd> while clicking if you want multiple editors to be notified, and hold <kbd>Control</kbd> while clicking to unselect a editor.",
     )
     section_editors = models.ManyToManyField(
         "core.Account",
-        help_text="Section editors selected will be notified of submissions to this section,"
-        " overruling the notification settings for the journal.",
+        help_text="Section editors selected here will be notified when submissions are made to this section. Hold <kbd>Shift</kbd> while clicking if you want multiple section editors to be notified, and hold <kbd>Control</kbd> while clicking to unselect a section editor.",
         related_name="section_editors",
     )
     jats_article_type = DynamicChoiceField(
@@ -3050,14 +3048,16 @@ class Section(AbstractLastModifiedModel):
         default=True,
         help_text="Allows filtering article search results by this section.",
     )
-    public_submissions = models.BooleanField(default=True)
+    public_submissions = models.BooleanField(
+        default=True,
+        help_text="Tick this box to allow authors to submit to this section.",
+    )
     indexing = models.BooleanField(
-        default=True, help_text="Tick this box to put this section forward for indexing."
+        default=True, help_text="Tick this box to put this section forward for indexing.",
     )
     sequence = models.PositiveIntegerField(
         default=0,
-        help_text="Determines the order in which sections are rendered."
-        " They can be reordered by drag-and-drop on the main section page.",
+        help_text="This controls the order of sections in relation to one another. The order can also be adjusted by dragging and dropping sections on the main sections page.",
     )
     name = models.CharField(
         max_length=200,
@@ -3067,7 +3067,7 @@ class Section(AbstractLastModifiedModel):
         max_length=200,
         null=True,
         blank=True,
-        help_text="Pluralised name for the section, e.g. Article -> Articles.",
+        help_text="The pluralised form of the section name. For example, if your section is named 'Article', the plural should be 'Articles'.",
     )
 
     objects = model_utils.JanewayMultilingualManager()

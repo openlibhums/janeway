@@ -29,7 +29,7 @@
     <h2>Email</h2>
 </div>
 <div class="content">
-    <p>{% trans 'You can set the from address your journal will use to send emails and the base signature that will be included.' %}</p>
+    <p>{% trans 'Set the email address that emails sent through Janeway will be delivered from, and the email signature which will be applied to them.' %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.from_address %}
     {% include "admin/elements/forms/field.html" with field=edit_form.auto_signature %}
     {% include "admin/elements/forms/field.html" with field=edit_form.replyto_address%}
@@ -49,7 +49,7 @@
     <h2>{% trans 'Slack/Discord Integration' %}</h2>
 </div>
 <div class="content">
-    <p>{% trans 'You can integrate Janeway into Slack (and Discord as they support the same endpoints) by setting it up below.' %}</p>
+    <p>{% trans 'You can integrate Janeway into Slack or Discord (as they support the same endpoints) by setting it up below.' %}</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.slack_logging %}
     {% include "admin/elements/forms/field.html" with field=edit_form.slack_webhook %}
 </div>

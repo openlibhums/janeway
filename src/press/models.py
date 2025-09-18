@@ -84,7 +84,7 @@ class Press(AbstractSiteModel):
     description = JanewayBleachField(
         blank=True,
         verbose_name="Publisher description",
-        help_text="This will appear in web search results and on social media when the press URL is shared",
+        help_text="This will appear in web search results and on social media when the press URL is shared.",
     )
     footer_description = JanewayBleachField(
         blank=True,
@@ -103,12 +103,12 @@ class Press(AbstractSiteModel):
         null=True,
         blank=True,
         storage=fs,
-        help_text="Optional secondary logo for footer. Not implemented in all themes.",
+        help_text="Optional secondary logo for footer for the OLH and Clean theme. This will not work on the Material theme.",
     )
     secondary_image_url = models.URLField(
         null=True,
         blank=True,
-        help_text="Turns secondary image into a link.",
+        help_text="Turns the secondary image into a link.",
     )
     main_contact = models.EmailField(
         default="janeway@voyager.com", blank=False, null=False
@@ -147,10 +147,10 @@ class Press(AbstractSiteModel):
     )
 
     password_number = models.BooleanField(
-        default=False, help_text="If set, passwords must include one number."
+        default=False, help_text="If this box is ticked, passwords must include one number."
     )
     password_upper = models.BooleanField(
-        default=False, help_text="If set, passwords must include one upper case."
+        default=False, help_text="If this box is ticked, passwords must include one upper case character."
     )
     password_length = models.PositiveIntegerField(
         default=12,
@@ -160,7 +160,7 @@ class Press(AbstractSiteModel):
 
     enable_preprints = models.BooleanField(
         default=False,
-        help_text="Enables the repository system for this press.",
+        help_text="Tick this box to enable the repository system for this press.",
         verbose_name="Enable repository system",
     )
     preprints_about = JanewayBleachField(blank=True, null=True)
@@ -182,7 +182,7 @@ class Press(AbstractSiteModel):
     homepage_preprints = models.ManyToManyField("submission.Article", blank=True)
 
     disable_journals = models.BooleanField(
-        default=False, help_text="If enabled, the journals page will no longer render."
+        default=False, help_text="Tick this box to disable the journals page."
     )
 
     def __str__(self):

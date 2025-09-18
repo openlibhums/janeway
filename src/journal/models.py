@@ -204,7 +204,10 @@ class Journal(AbstractSiteModel):
         verbose_name="Discipline",
     )
 
-    disable_metrics_display = models.BooleanField(default=False)
+    disable_metrics_display = models.BooleanField(
+        default=False,
+        help_text="Tick this box to hide all metrics from article pages.",
+    )
     disable_article_images = models.BooleanField(
         default=False,
         help_text=gettext("This field has been deprecated in v1.4.3"),
@@ -933,8 +936,7 @@ class Issue(AbstractLastModifiedModel):
         null=True,
         verbose_name="ISBN",
         help_text=gettext(
-            "An ISBN is relevant for non-serial collections such as"
-            " conference proceedings."
+            "This field only needs to be completed if this issue is a non-serial collection which requires an ISBN, such as conference proceedings."
         ),
     )
 
