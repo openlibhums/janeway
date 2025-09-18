@@ -1452,6 +1452,10 @@ def view_review(request, article_id, review_id):
         "review": review,
         "visibility_form": visibility_form,
         "answer_visibility_form": answer_visibility_form,
+        "editor_review_file_form": forms.EditorReviewFileUpload(
+            review=review,
+            article=article,
+        )
     }
 
     return render(request, template, context)
@@ -3341,3 +3345,55 @@ def reviewer_shared_review_download(request, article_id, review_id):
             )
 
     raise Http404("You do not have permission to download this file.")
+
+
+@require_POST
+@editor_user_required
+def editor_upload_review_file(request, article_id, review_id):
+    """
+    Handles upload of a brand new review file by an editor.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    review_assignment = get_object_or_404(
+        models.ReviewAssignment,
+        pk=review_id,
+        article=article,
+    )
+    form = forms.EditorReviewFileUpload(
+        request.POST,
+        request.FILES,
+        article=article,
+        review=review_assignment,
+    )
+    if form.is_valid():
+        form.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Review file uploaded successfully.",
+        )
+    else:
+        if form.errors:
+            for field, errors in form.errors.items():
+                field_label = (
+                    form.fields.get(field).label if field in form.fields else field
+                )
+                for error in errors:
+                    messages.error(
+                        request,
+                        f"{field_label}: {error}",
+                    )
+
+    return redirect(
+        reverse(
+            'review_view_review',
+            kwargs={
+                'article_id': article.pk,
+                'review_id': review_assignment.pk,
+            }
+        )
+    )
