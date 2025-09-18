@@ -2,7 +2,7 @@
     <h2>General Article Display</h2>
 </div>
 <div class="content">
-    <p>{% trans 'A set of controls for how things display on the article page' %}.</p>
+    <p>{% trans 'This section controls the general appearance of and information displayed on the article pages.' %}.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.disable_article_thumbnails %}
     {% include "admin/elements/forms/field.html" with field=edit_form.disable_article_large_image %}
     {% include "admin/elements/forms/field.html" with field=edit_form.display_guest_editors %}
@@ -16,7 +16,7 @@
     <h2>Download/View Links</h2>
 </div>
 <div class="content">
-    <p>{% trans "Settings to control the display of view and download links on article pages" %}.</p>
+    <p>{% trans "This section controls the options to view and download files on article pages" %}.</p>
     {% include "admin/elements/forms/field.html" with field=attr_form.view_pdf_button %}
     {% include "admin/elements/forms/field.html" with field=attr_form.disable_html_downloads %}
 </div>
@@ -34,7 +34,7 @@
     <h2>Article Dates</h2>
 </div>
 <div class="content">
-    <p>{% trans "Enable the display of the dates an article was submitted and accepted." %}.</p>
+    <p>{% trans "This section controls which dates are displayed on article pages" %}.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_date_submitted %}
     {% include "admin/elements/forms/field.html" with field=edit_form.display_date_accepted %}
 </div>
