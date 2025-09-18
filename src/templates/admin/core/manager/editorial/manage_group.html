@@ -10,7 +10,7 @@
     {{ block.super }}
     <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
     <li><a href="{% url 'core_editorial_team' %}">Editorial Group Manager</a></li>
-    <li>{% if group %}Edit Group{% else %}Add New Group{% endif %}</li>
+    <li>{% if group %}Edit group{% else %}Add new group{% endif %}</li>
 {% endblock %}
 
 {% block body %}
@@ -18,7 +18,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>
-                    {% if group %}Edit Group{% else %}Add New Group{% endif %}
+                    {% if group %}Edit group{% else %}Add new group{% endif %}
                 </h2>
             </div>
             <div class="content">
@@ -26,7 +26,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button class="success button" type="submit">{% if group %}Edit Group{% else %}Add New Group{% endif %}</button>
+                    <button class="success button" type="submit">{% if group %}Edit group{% else %}Add new group{% endif %}</button>
                 </form>
             </div>
         </div>

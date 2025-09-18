@@ -220,9 +220,7 @@ class Journal(AbstractSiteModel):
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(
         default=False,
-        help_text=gettext(
-            "Tick this box if this journal is not hosted on Janeway."
-        ),
+        help_text=gettext("Tick this box if this journal is not hosted on Janeway."),
     )
     is_conference = models.BooleanField(default=False)
     is_archived = models.BooleanField(
@@ -233,9 +231,7 @@ class Journal(AbstractSiteModel):
     remote_submit_url = models.URLField(
         blank=True,
         null=True,
-        help_text=gettext(
-            "Link to your remote journal's submissions page."
-        ),
+        help_text=gettext("Link to your remote journal's submissions page."),
     )
     remote_view_url = models.URLField(
         blank=True,
@@ -244,7 +240,9 @@ class Journal(AbstractSiteModel):
     )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text=gettext('Tick this box to enable a "View PDF" link on article pages.'),
+        help_text=gettext(
+            'Tick this box to enable a "View PDF" link on article pages.'
+        ),
     )
 
     # Nav Items
@@ -294,8 +292,7 @@ class Journal(AbstractSiteModel):
     display_issue_doi = models.BooleanField(default=True)
     display_issues_grouped_by_decade = models.BooleanField(
         default=False,
-        help_text="When enabled the issue page will group and display issues "
-        "by decade.",
+        help_text="Tick this box to group and display issues by decade on the issue page.",
     )
 
     disable_front_end = models.BooleanField(default=False)

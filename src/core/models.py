@@ -1920,7 +1920,7 @@ class EditorialGroup(models.Model):
     sequence = models.PositiveIntegerField()
     display_profile_images = models.BooleanField(
         default=False,
-        help_text="Tick this box to display profile images for this group.",
+        help_text="Tick this box to display the profile images for this group.",
     )
 
     class Meta:

@@ -275,7 +275,8 @@ class ReviewAssignment(models.Model):
         help_text="This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.",
     )
     display_public = models.BooleanField(
-        default=False, help_text="Tick this box if this review should be displayed publicly alongside the article."
+        default=False,
+        help_text="Tick this box if this review should be displayed publicly alongside the article.",
     )
 
     # set the default and completed reviews managers

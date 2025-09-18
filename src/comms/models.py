@@ -57,8 +57,9 @@ class NewsItem(models.Model):
         help_text="If you want to schedule this news item in advance, select a date for it to be published. Otherwise, select today's date for it to publish immediately.",
     )
 
-    end_display = models.DateField(blank=True, 
-        null=True, 
+    end_display = models.DateField(
+        blank=True,
+        null=True,
         help_text="If you want your news item to appear for a limited time only, select a date for it to stop displaying.",
     )
 

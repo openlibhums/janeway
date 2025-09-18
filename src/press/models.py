@@ -147,10 +147,12 @@ class Press(AbstractSiteModel):
     )
 
     password_number = models.BooleanField(
-        default=False, help_text="If this box is ticked, passwords must include one number."
+        default=False,
+        help_text="If this box is ticked, passwords must include one number.",
     )
     password_upper = models.BooleanField(
-        default=False, help_text="If this box is ticked, passwords must include one upper case character."
+        default=False,
+        help_text="If this box is ticked, passwords must include one upper case character.",
     )
     password_length = models.PositiveIntegerField(
         default=12,

@@ -3053,7 +3053,8 @@ class Section(AbstractLastModifiedModel):
         help_text="Tick this box to allow authors to submit to this section.",
     )
     indexing = models.BooleanField(
-        default=True, help_text="Tick this box to put this section forward for indexing.",
+        default=True,
+        help_text="Tick this box to put this section forward for indexing.",
     )
     sequence = models.PositiveIntegerField(
         default=0,

@@ -113,7 +113,9 @@ def check_file(uploaded_file, request, form):
         else:
             form.add_error(
                 None,
-                _("You must upload a file that is in either a DOC, DOCX, RTF or ODT format."),
+                _(
+                    "You must upload a file that is in either a DOC, DOCX, RTF or ODT format."
+                ),
             )
             return False
     else:
