@@ -190,7 +190,7 @@ class Press(AbstractSiteModel):
         verbose_name="Press Accessibility Information",
         help_text="This is information about the accessiblity of user-content.  It will appear on the accessibility page under the press name.",
     )
-    allow_journal_ally_info = models.BooleanField(
+    allow_journal_a11y_info = models.BooleanField(
         default=False,
         verbose_name="Allow Journal Accessibility Information",
         help_text="If enabled, journals can have their own accessibility information as well.",
