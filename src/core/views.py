@@ -2791,6 +2791,12 @@ class GenericFacetedListView(generic.ListView):
     # None or integer
     action_queryset_chunk_size = None
 
+    def get(self, request, *args, **kwargs):
+        if "clear_all" in request.GET:
+            return redirect(request.path)
+        else:
+            return super().get(request, *args, **kwargs)
+
     def get_paginate_by(self, queryset):
         paginate_by = self.request.GET.get("paginate_by", self.paginate_by)
         if paginate_by == "all":

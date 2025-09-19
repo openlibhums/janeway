@@ -13,7 +13,7 @@
                     {{ facet_form|materializecss }}
                     <div class="col s12">
                         <button action="" class="btn" type="submit">{% trans 'Apply' %}</button>
-                        <button type="button" class="btn" onclick="window.location.href='{{ request.path }}'">{% trans 'Clear all' %}</button>
+                        <button class="btn" name="clear_all">{% trans 'Clear all' %}</button>
                     </div>
                 </form>
             </div>
