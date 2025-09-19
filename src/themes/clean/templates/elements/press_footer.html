@@ -17,6 +17,7 @@
                 {% endif %}
                 <li class="list-inline-item"><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
                 <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+                <li class="list-inline-item"><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
                 {% if not request.user.is_authenticated %}
                   <li class="list-inline-item">
                     <a href="{% url 'core_login' %}">
