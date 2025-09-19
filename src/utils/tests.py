@@ -21,6 +21,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.engine import Engine
 
 import mock
+from unittest.mock import patch, MagicMock
+from django.test import RequestFactory
 from utils import (
     merge_settings,
     models,
@@ -47,6 +49,7 @@ from utils.logic import generate_sitemap
 from utils.testing import helpers
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
+from utils.language import get_constrained_language
 
 from journal import (
     models as journal_models,
@@ -1398,3 +1401,137 @@ class TestRORImport(TestCase):
             [os.path.split(record.get("id"))[-1] for record in updated_records],
             ["00j1xwp39", "013yz9b19"],
         )
+
+
+class LanguageUtilsTestCase(TestCase):
+    """Test cases for language utilities."""
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.mock_journal = MagicMock()
+        self.mock_journal.get_setting.side_effect = self._mock_get_setting
+        # Default language settings for most tests
+        self.test_languages = ["en", "es", "fr"]
+        self.test_default_language = "en"
+
+    def _mock_get_setting(self, group_name, setting_name):
+        """Mock journal.get_setting method"""
+        if setting_name == "journal_languages":
+            return self.test_languages
+        elif setting_name == "default_journal_language":
+            return self.test_default_language
+        elif setting_name == "switch_language":
+            return True  # Enable language switching for tests
+        return None
+
+    def test_get_constrained_language_no_journal_context(self):
+        """Test get_constrained_language when no journal context exists"""
+        from core.middleware import _threadlocal
+
+        if hasattr(_threadlocal, "request"):
+            delattr(_threadlocal, "request")
+
+        with patch("utils.language._original_get_language", return_value="en"):
+            result = get_constrained_language()
+            self.assertEqual(result, "en")
+
+    def test_get_constrained_language_valid_language(self):
+        """Test get_constrained_language with a valid language"""
+        from core.middleware import _threadlocal
+
+        request = self.factory.get("/")
+        request.journal = self.mock_journal
+        request.LANGUAGE_CODE = "es"
+        request.available_languages = {"en", "es", "fr"}
+        request.default_language = "en"
+        _threadlocal.request = request
+
+        result = get_constrained_language()
+        self.assertEqual(result, "es")
+
+    def test_get_constrained_language_invalid_language(self):
+        """Test get_constrained_language with an invalid language"""
+        from core.middleware import _threadlocal
+
+        request = self.factory.get("/")
+        request.journal = self.mock_journal
+        request.LANGUAGE_CODE = "de"
+        request.available_languages = {"en", "es", "fr"}
+        request.default_language = "en"
+        _threadlocal.request = request
+
+        result = get_constrained_language()
+        self.assertEqual(result, "en")  # Should return default
+
+    def test_language_variant_matching(self):
+        """Test language variant matching functionality"""
+        from utils.language import find_language_or_its_variant
+
+        # Test exact match
+        result = find_language_or_its_variant("en", ["en", "en-US", "es", "fr"])
+        self.assertEqual(result, "en")
+
+        # Test variant match (en-GB -> en-US)
+        result = find_language_or_its_variant("en-GB", ["en-US", "en-AU", "es", "fr"])
+        self.assertEqual(result, "en-US")
+
+        # Test base language match (en-GB -> en)
+        result = find_language_or_its_variant("en-GB", ["en-US", "en", "es", "fr"])
+        self.assertEqual(result, "en")
+
+        # Test no match
+        result = find_language_or_its_variant("de", ["en", "es", "fr"])
+        self.assertIsNone(result)
+
+    def test_get_constrained_language_with_variants(self):
+        """Test get_constrained_language with language variants"""
+        from core.middleware import _threadlocal
+
+        # Configure test-specific language settings
+        self.test_languages = ["en-US", "es", "es-AR", "fr"]
+        self.test_default_language = "fr"
+
+        request = self.factory.get("/")
+        request.journal = self.mock_journal
+        request.available_languages = {"en-US", "es", "es-AR", "fr"}
+        request.default_language = "fr"
+        _threadlocal.request = request
+
+        # Test en-GB -> en-US (variant match)
+        request.LANGUAGE_CODE = "en-GB"
+        result = get_constrained_language()
+        self.assertEqual(result, "en-US")
+
+        # Test es-EC -> es (base match)
+        request.LANGUAGE_CODE = "es-EC"
+        result = get_constrained_language()
+        self.assertEqual(result, "es")
+
+        # Test de -> es (no match, fallback to default)
+        request.LANGUAGE_CODE = "de"
+        result = get_constrained_language()
+        self.assertEqual(result, "fr")
+
+    def test_translation_override_integration(self):
+        """Test that Django's get_language is properly overridden with journal constraints"""
+        from django.utils import translation as django_translation
+        from core.middleware import _threadlocal
+
+        # Test that get_language respects journal constraints
+        request = self.factory.get("/")
+        request.journal = self.mock_journal
+        request.LANGUAGE_CODE = "es"
+        request.available_languages = {"en", "es", "fr"}
+        request.default_language = "en"
+        _threadlocal.request = request
+
+        # This should now use our overridden get_language function
+        result = django_translation.get_language()
+        self.assertEqual(result, "es")  # Should return the valid language
+
+    def tearDown(self):
+        # Clean up thread local storage
+        from core.middleware import _threadlocal
+
+        if hasattr(_threadlocal, "request"):
+            delattr(_threadlocal, "request")
