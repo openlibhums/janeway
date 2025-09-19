@@ -47,12 +47,20 @@ def get_constrained_language():
         return _original_get_language()
 
     # Handle Single Language only journals
+    # Use the stored value from middleware instead of calling get_setting()
+    switch_language_enabled = getattr(request, "allow_language_switching", True)
+    try:
+        switch_language_enabled = request.journal.get_setting(
+            group_name="general", setting_name="switch_language"
+        )
+    finally:
+        # Restore our overridden function
+        translation.get_language = original_get_language
+
     if (
         hasattr(request, "_single_language")
         or not settings.USE_I18N
-        or not request.journal.get_setting(
-            group_name="general", setting_name="switch_language"
-        )
+        or not switch_language_enabled
     ):
         default_language = getattr(request, "default_language", None)
         request._single_language = default_language or settings.LANGUAGE_CODE
