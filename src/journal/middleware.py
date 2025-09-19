@@ -16,10 +16,10 @@ class LanguageMiddleware(BaseMiddleware):
     @staticmethod
     def process_request(request):
         """
-        Checks that the currently set language is okay for the current journal.
+        Sets up language settings on the request for the translation override to use.
+        The actual language constraint logic is handled by the translation override.
         """
-        if request.journal and settings.USE_I18N:
-            current_language = translation.get_language()
+        if request.journal:
             available_languages = request.journal.get_setting(
                 group_name="general",
                 setting_name="journal_languages",
@@ -27,23 +27,13 @@ class LanguageMiddleware(BaseMiddleware):
             default_language = request.journal.get_setting(
                 group_name="general", setting_name="default_journal_language"
             )
-
-            if not default_language:
-                default_language = settings.LANGUAGE_CODE
-
-            if current_language not in available_languages:
-                translation.activate(default_language)
-                logger.debug(
-                    "Current language not in the available languages."
-                    " Activating default: {}".format(default_language)
-                )
-            if not available_languages:
-                # If we have no languages use the defaults from settings.
-                _available_languages = [lang[0] for lang in settings.LANGUAGES]
-            else:
-                # The default language must always be in available_languages.
-                available_languages.append(settings.LANGUAGE_CODE)
+            allow_language_switching = request.journal.get_setting(
+                group_name="general", setting_name="switch_language"
+            )
 
             request.available_languages = set(available_languages)
             request.default_language = default_language
-            request.current_language = translation.get_language()
+
+            current_language = translation.get_language()
+            translation.activate(current_language)
+            request.current_language = current_language
