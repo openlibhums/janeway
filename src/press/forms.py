@@ -42,7 +42,7 @@ class PressForm(forms.ModelForm):
             "disable_journals",
             "privacy_policy_url",
             "ally_info",
-            "allow_journal_ally_info",
+            "allow_journal_a11y_info",
         )
         widgets = {
             "theme": forms.Select(choices=logic.get_theme_list()),

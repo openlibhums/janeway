@@ -1,4 +1,4 @@
-{% if request.press.allow_journal_ally_info and request.journal.a11y_public_info %}
+{% if request.press.allow_journal_a11y_info and request.journal.a11y_public_info %}
     <h2>{{ request.journal.name }}</h2>
     {{ request.journal.a11y_public_info|safe }}
 {% endif %}
