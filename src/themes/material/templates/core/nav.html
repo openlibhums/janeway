@@ -20,6 +20,13 @@
             <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
             {% endif %}
         </a>
+        <a
+            href="#!"
+            data-target="nav-mobile"
+            class="sidenav-trigger">
+            <i aria-hidden="true" class="fa fa-bars" ></i>
+            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
+        </a>
         <ul class="right hide-on-med-and-down">
             {% if request.journal.nav_home %}
             <li><a href="{% url 'website_index' %}">{% trans "Home" %}</a></li>
@@ -149,13 +156,6 @@
                 </li>
             {% endif %}
         </ul>
-        <a
-            href="#!"
-            data-target="nav-mobile"
-            class="sidenav-trigger">
-            <i aria-hidden="true" class="fa fa-bars" ></i>
-            <span class="sr-only">{% trans 'Open navigation menu' %}</span>
-        </a>
     </div>
 </nav>
 
