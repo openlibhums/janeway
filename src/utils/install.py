@@ -50,6 +50,11 @@ def update_settings(
                 "is_translatable": item["setting"].get("is_translatable"),
             }
 
+            if "is_press_dependent" in item["setting"]:
+                setting_defaults["is_press_dependent"] = item["setting"][
+                    "is_press_dependent"
+                ]
+
             setting, created = core_models.Setting.objects.get_or_create(
                 name=item["setting"].get("name"),
                 group=setting_group,

@@ -1091,6 +1091,25 @@ def settings_index(request):
             editable_by__in=request.user.roles_for_journal(request.journal)
         )
 
+    if request.journal:
+        press = request.journal.press
+        filtered_settings = []
+        for setting in settings:
+            if (
+                hasattr(setting, "is_press_dependent")
+                and setting.is_press_dependent
+                and setting.is_press_dependent.strip()
+            ):
+                # This setting is press-dependent, check if the press setting allows it
+                press_setting_value = getattr(press, setting.is_press_dependent, False)
+                if press_setting_value:
+                    filtered_settings.append(setting)
+            else:
+                # Non-press-dependent settings are always included
+                filtered_settings.append(setting)
+
+        settings = filtered_settings
+
     template = "core/manager/settings/index.html"
     context = {
         "settings": settings,

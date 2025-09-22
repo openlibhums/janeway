@@ -5604,6 +5604,7 @@
         "setting": {
             "description": "This is information about the accessibility of user-content. It will appear on the accessibility page under the journal name.",
             "is_translatable": true,
+            "is_press_dependent": "allow_journal_a11y_info",
             "name": "a11y_public_info",
             "pretty_name": "Accessibility Information for the Public",
             "type": "rich-text"
