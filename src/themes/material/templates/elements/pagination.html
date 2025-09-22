@@ -25,13 +25,15 @@
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
                         <li>
-                            <a aria-label="ellipsis">...</a>
+                            <span class="sr-only">{% trans 'ellipsis' %}</span>
+                            <span>...</span>
                         </li>
                     {% else %}
                         <li class="waves-effect {% if page_obj.number == page.number %}active{% endif %}">
                             <a
                                 href="#"
                                 onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page.number }}'); return false;">
+                                <span class="sr-only">{% trans 'Page.' %}</span>
                                 {{ page.number }}
                             </a>
                         </li>
@@ -57,6 +59,7 @@
         <select
             onchange="this.form.submit()"
             name="paginate_by"
+            id="paginate_by"
             form={{ form_id }}>
             <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
             <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
@@ -66,8 +69,8 @@
                 <option value="all" {% if paginate_by == "all" %}selected{% endif %}>all</option>
             {% endif %}
         </select>
-        <label labelfor="paginate_by">
-            records per page
+        <label for="paginate_by">
+            {% trans 'articles per page' %}
         </label>
     </div>
 </div>

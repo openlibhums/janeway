@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="row">
-            <section aria-label="Results">
+            <section aria-label="{% trans 'Results' %}">
                 <div class="col s12 l8">
                     {% if article_list %}
                         {% include "elements/sorting.html" with form_id=facet_form.id %}
@@ -28,9 +28,11 @@
                             </div>
                         </div>
                     {% endfor %}
-                    {% if article_list %}
-                        {% include "elements/pagination.html" with form_id=facet_form.id %}
-                    {% endif %}
+                    <section aria-label="{% trans 'Results pagination' %}">
+                        {% if article_list %}
+                            {% include "elements/pagination.html" with form_id=facet_form.id %}
+                        {% endif %}
+                    </section>
                 </div>
             </section>
             <aside class="col s12 l4">
