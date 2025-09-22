@@ -95,8 +95,8 @@ main a:hover {
     margin-bottom: 4rem;
 }
 
-.site-pagination > .btn {
-    border-radius: 2rem;
+.site-pagination .btn {
+    text-decoration: none;
 }
 
 .news-post {
