@@ -98,8 +98,8 @@
         <h2>Accessibility</h2>
     </div>
     <div class="content">
-        <p>{% trans "Display journal specific accessibility information." %}.</p>
-        {% include "admin/elements/forms/field.html" with field=form.journal_a11y_info %}
+        <p>{% trans "Display journal specific accessibility information." %}</p>
+        {% include "admin/elements/forms/field.html" with field=edit_form.a11y_public_info %}
     </div>
 {% endif %}
 

@@ -5596,5 +5596,23 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "a11y"
+        },
+        "setting": {
+            "description": "This is information about the accessibility of user-content. It will appear on the accessibility page under the journal name.",
+            "is_translatable": true,
+            "name": "a11y_public_info",
+            "pretty_name": "Accessibility Information for the Public",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
     }
 ]
