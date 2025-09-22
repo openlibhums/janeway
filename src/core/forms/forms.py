@@ -492,7 +492,6 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
         model = journal_models.Journal
         fields = (
             "contact_info",
-            "journal_a11y_info",
             "is_remote",
             "remote_view_url",
             "remote_submit_url",
@@ -557,7 +556,6 @@ class PressJournalAttrForm(KeywordModelForm, JanewayTranslationModelForm):
         model = journal_models.Journal
         fields = (
             "contact_info",
-            "journal_a11y_info",
             "header_image",
             "default_cover_image",
             "default_large_image",

@@ -669,6 +669,14 @@ def get_settings_to_edit(display_group, journal, user):
                 },
             )
 
+        # Add a11y settings only if press allows it
+        if journal.press.allow_journal_a11y_info:
+            a11y_settings = ["a11y_public_info"]
+            a11y_group_of_settings = process_setting_list(
+                a11y_settings, "a11y", journal
+            )
+            group_of_settings.extend(a11y_group_of_settings)
+
     elif display_group == "proofing":
         proofing_settings = ["max_proofreaders"]
         group_of_settings = process_setting_list(proofing_settings, "general", journal)
