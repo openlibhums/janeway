@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load dates %}
+{% load pages %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
@@ -35,21 +36,25 @@
                     </li>
                 {% endif %}
 
-                {% for page in news_items.paginator.page_range %}
-                    {% if news_items.number == page %}
+                {% for page in news_items|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
                         <li class="list-inline-item">
-                            <a href="?page={{ page }}"
+                            <span class="btn btn-outline-secondary" disabled>...</span>
+                        </li>
+                    {% elif news_items.number == page.number %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
                                 class="btn btn-primary"
                                 >
-                                <span class="sr-only">{% trans 'current page' %}</span>{{ page }}
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page.number }}
                             </a>
                         </li>
                     {% else %}
                         <li class="list-inline-item">
-                            <a href="?page={{ page }}"
+                            <a href="?page={{ page.number }}"
                                 class="btn btn-outline-primary"
                                 >
-                                <span class="sr-only">{% trans 'page' %}</span>{{ page }}
+                                <span class="sr-only">{% trans 'page' %}</span>{{ page.number }}
                             </a>
                         </li>
                     {% endif %}
