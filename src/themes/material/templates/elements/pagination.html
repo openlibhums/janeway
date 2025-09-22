@@ -13,7 +13,8 @@
                     <li class="waves-effect">
                         {% with page_number=page_obj.previous_page_number %}
                             <a
-                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}')">
+                                href="#"
+                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}'); return false;">
                                 <i aria-hidden="true" class="fa fa-chevron-left" ></i>
                                 <span class="sr-only">{% trans 'Previous page.' %}</span>
                             </a>
@@ -29,7 +30,8 @@
                     {% else %}
                         <li class="waves-effect {% if page_obj.number == page.number %}active{% endif %}">
                             <a
-                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page.number }}')">
+                                href="#"
+                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page.number }}'); return false;">
                                 {{ page.number }}
                             </a>
                         </li>
@@ -40,7 +42,8 @@
                     <li class="waves-effect">
                         {% with page_number=page_obj.next_page_number %}
                             <a
-                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}')">
+                                href="#"
+                                onclick="changePage(form_id='{{ facet_form.id }}', page_number='{{ page_number }}'); return false;">
                                 <i aria-hidden="true" class="fa fa-chevron-right" ></i>
                                 <span class="sr-only">{% trans 'Next page.' %}</span>
                             </a>
