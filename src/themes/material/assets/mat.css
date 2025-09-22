@@ -1035,3 +1035,31 @@ p + .btn-background {
   max-height: 288px;
 }
 /* End banner image styles */
+
+/* Hide mobile navigation from keyboard navigation on wide screens */
+@media only screen and (min-width: 993px) {
+  .sidenav {
+    /* Remove from tab order on wide screens */
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
+  .sidenav * {
+    /* Ensure all child elements are also not focusable */
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Ensure mobile navigation is accessible on smaller screens */
+@media only screen and (max-width: 992px) {
+  .sidenav {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  
+  .sidenav * {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
