@@ -2034,6 +2034,16 @@ def request_revisions(request, article_id):
             article.stage = submission_models.STAGE_UNDER_REVISION
             article.save()
 
+            kwargs = {
+                "article": article,
+                "revision": revision_request,
+                "request": request,
+            }
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_REVISIONS_REQUESTED,
+                **kwargs,
+            )
+
             return redirect(
                 reverse(
                     "request_revisions_notification",

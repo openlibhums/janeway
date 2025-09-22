@@ -582,6 +582,15 @@ def handle_decision_action(article, draft, request):
         article.stage = submission_models.STAGE_UNDER_REVISION
         article.save()
 
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_REVISIONS_REQUESTED,
+            **{
+                "article": article,
+                "revision": revision,
+                "request": request,
+            },
+        )
+
         kwargs["user_message_content"] = revision_rendered_template
         kwargs["revision"] = revision
         event_logic.Events.raise_event(
