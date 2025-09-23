@@ -202,7 +202,7 @@ LANGUAGE_CHOICES = (
     ("cre", "Cree"),
     ("mus", "Creek"),
     ("crp", "Creoles and pidgins"),
-    ("cpe", "Creoles and pidgins, English based"),
+    ("cpe", "Creoles and pidgins, English-based"),
     ("cpf", "Creoles and pidgins, French-based"),
     ("cpp", "Creoles and pidgins, Portuguese-based"),
     ("crh", "Crimean Tatar; Crimean Turkish"),
@@ -1174,7 +1174,7 @@ class Article(AbstractLastModifiedModel):
     comments_editor = JanewayBleachField(
         blank=True,
         null=True,
-        verbose_name="Comments to the Editor",
+        verbose_name="Comments to the editor",
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
@@ -2632,7 +2632,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     is_corporate = models.BooleanField(
         default=False,
-        help_text="Whether the author is an organization. "
+        help_text="Is this author an organization?"
         "The display name will be formed from the affiliation.",
     )
     frozen_email = models.EmailField(
@@ -2651,7 +2651,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     display_email = models.BooleanField(
         default=False,
         help_text=_(
-            "Tick this box to display this author's email address on the published article page."
+            "Should the author's email address be displayed on the article page?"
         ),
     )
 
@@ -3206,15 +3206,17 @@ class Field(models.Model):
         max_length=1000,
         null=True,
         blank=True,
-        help_text="Separate choices with the bar | character.",
+        help_text="If you are creating a multiple choice option, separate these choices with the bar | character. Otherwise, leave this field blank.",
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     display = models.BooleanField(
         default=False,
-        help_text="Whether or not to display this field on the article page.",
+        help_text="Tick this box to display authors' responses to this field on the article page.",
     )
-    help_text = models.TextField()
+    help_text = models.TextField(
+        help_text="This is help text. Use this option to set any help text which you would like to accompany your additional submission field.",
+    )
 
     class Meta:
         ordering = ("order", "name")
@@ -3280,7 +3282,7 @@ class SubmissionConfiguration(models.Model):
 
     figures_data = models.BooleanField(
         default=True,
-        verbose_name=_("Figures and Data Files"),
+        verbose_name=_("Figures and data files"),
     )
 
     default_license = models.ForeignKey(
@@ -3288,7 +3290,7 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "The default license applied when no option is chosen or this submission field is disabled."
+            "The default licence applied to submissions to this journal. This will apply to all submissions unless users are given the option to select and choose a different licence."
         ),
         on_delete=models.SET_NULL,
     )
@@ -3298,7 +3300,7 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         choices=LANGUAGE_CHOICES,
         help_text=_(
-            "The default language of articles when no option is chosen or this submission field is disabled."
+            "The default language for articles in this journal. This will apply to all submissions unless users are given the option to select and choose a different language."
         ),
     )
     default_section = models.ForeignKey(
@@ -3306,16 +3308,15 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "The default section of articles when no option is chosen or this submission field is disabled."
+            "The default section of your journal which articles are submitted to. This will apply to all submissions unless users are given the option to select and choose a different section."
         ),
         on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(
         max_length=255,
-        default="Manuscript File",
+        default="Manuscript file",
         help_text="During submission, the author will be asked to upload a file"
-        "that is considered the main text of the article. You can use"
-        "this field to change the label for that file in submission.",
+        "that is considered the main text of the article. This option allows you to change the label given to this file.",
     )
 
     def __str__(self):

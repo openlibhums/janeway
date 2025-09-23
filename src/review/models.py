@@ -444,7 +444,7 @@ def element_kind_choices():
 
 class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=element_kind_choices())
+    kind = models.CharField(max_length=50, choices=element_kind_choices(),help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.")
     choices = models.CharField(
         max_length=1000,
         null=True,
