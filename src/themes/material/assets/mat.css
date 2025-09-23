@@ -1081,11 +1081,23 @@ p + .btn-background {
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
   }
 
-  /* Fix focus ring alignment for xref-fn links containing sup tags */
-    a:has(sup):focus {
+  /* Prevent layout shifts */
+  .card-panel a{
       display: inline-block;
-      vertical-align: baseline;
-      line-height: 1;
+  }
+
+  /* individual overrides */
+  button:focus{
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0px !important;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
+  /* Fix focus ring alignment for xref-fn links containing sup tags */
+  a:has(sup):focus {
+    display: inline-block;
+    vertical-align: baseline;
+    line-height: 1;
   }
 
   /* Show focus on pagination li when its child link is focused */
@@ -1093,4 +1105,13 @@ p + .btn-background {
       outline: 2px var(--focus-light) solid;
       outline-offset: 0px;
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+  /* focus bounding boxes */
+  a:focus {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: inline-block;
+      white-space: normal;
   }
