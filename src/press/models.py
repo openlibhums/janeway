@@ -78,7 +78,7 @@ class Press(AbstractSiteModel):
         null=True,
         blank=True,
         related_name="press_thumbnail_image",
-        verbose_name="Press Logo",
+        verbose_name="Press logo",
         on_delete=models.SET_NULL,
     )
     description = JanewayBleachField(
