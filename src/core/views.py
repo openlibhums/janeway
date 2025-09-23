@@ -816,7 +816,7 @@ def dashboard(request):
         editor_type="section-editor",
         article__journal=request.journal,
     ).order_by(
-        '-article__date_submitted',
+        "-article__date_submitted",
     )
 
     # TODO: Move most of this to model logic.
