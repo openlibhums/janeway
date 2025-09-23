@@ -1080,3 +1080,10 @@ p + .btn-background {
       outline-offset: 0;
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
   }
+
+  /* Fix focus ring alignment for xref-fn links containing sup tags */
+    a:has(sup):focus {
+      display: inline-block;
+      vertical-align: baseline;
+      line-height: 1;
+  }
