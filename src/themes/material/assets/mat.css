@@ -1087,3 +1087,10 @@ p + .btn-background {
       vertical-align: baseline;
       line-height: 1;
   }
+
+  /* Show focus on pagination li when its child link is focused */
+  .pagination li:has(a:focus) {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0px;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
