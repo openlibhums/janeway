@@ -98,6 +98,8 @@ class SearchForm(forms.Form):
                 self.data[search_filter] = "on"
         self.label_suffix = ""
 
+        self.id = "search_form"
+
     article_search = forms.CharField(
         label=_("Search term"), min_length=3, max_length=100, required=False
     )

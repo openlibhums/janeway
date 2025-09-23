@@ -2242,8 +2242,6 @@ def full_text_search(request):
         request,
     )
 
-    form.id = "search_form"
-
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
@@ -2271,12 +2269,9 @@ def full_text_search(request):
         "page_obj": page_obj,
         "is_paginated": page_obj.has_other_pages(),
         "paginate_by": paginate_by,
-        "article_search": search_term,
+        "search_term": search_term,
         "keyword": keyword,
         "form": form,
-        "facet_form": form,
-        "order_by_choices": form.fields["sort"].choices,
-        "order_by": sort,
     }
 
     return render(request, template, context)
