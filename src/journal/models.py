@@ -241,7 +241,7 @@ class Journal(AbstractSiteModel):
     view_pdf_button = models.BooleanField(
         default=False,
         help_text=gettext(
-            'Tick this box to enable a "View PDF" link on article pages.'
+            "Tick this box to enable a 'View PDF' link on article pages."
         ),
     )
 
