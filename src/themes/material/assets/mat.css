@@ -1082,8 +1082,10 @@ p + .btn-background {
   }
 
   /* Prevent layout shifts */
-  .card-panel a{
+  .card-panel a,
+  .dropdown-item {
       display: inline-block;
+      margin: var(--focus-ring-size);
   }
 
   /* individual overrides */
@@ -1101,10 +1103,35 @@ p + .btn-background {
   }
 
   /* Show focus on pagination li when its child link is focused */
-  .keyboard-focused .pagination li:has(a:focus) {
+  .keyboard-focused .pagination li:has(a:focus),
+  .keyboard-focused .dropdown-item li:has(a:focus) {
       outline: 2px var(--focus-light) solid;
       outline-offset: 0px;
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+   /* Dropdown focus improvements */
+  .keyboard-focused .dropdown-content {
+      padding: var(--focus-ring-size);
+      margin: calc(-1 * var(--focus-ring-size));
+  }
+
+  .keyboard-focused .dropdown-content li {
+      margin: 0;
+      padding: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item {
+      display: block;
+      margin: 0;
+      border-radius: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item:focus {
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: block;
   }
 
   /* focus bounding boxes */
