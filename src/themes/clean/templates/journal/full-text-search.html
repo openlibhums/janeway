@@ -28,7 +28,7 @@
                     <p>{% trans "No articles to display" %}.</p>
                 {% endfor %}
                 {% if articles %}
-                    {% include "elements/pagination.html" with form_id=facet_form.id %}
+                    {% include "elements/pagination.html" with form_id=form.id %}
                 {% endif %}
             </section>
         </div>
