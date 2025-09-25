@@ -690,12 +690,6 @@ span + .btn-background {
     text-decoration: underline;
 }
 
-.no-bullet-list{
-    list-style-type: none;
-    padding-left: 0;
-    margin-left: 0;
-}
-
 /*
  * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
  * Requires at least 1:9 contrast ratio between the two focus colours. 
