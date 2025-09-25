@@ -1092,12 +1092,30 @@ p + .btn-background {
       padding: var(--focus-ring-size);
       box-sizing: border-box;
   }
+  .table-of-contents li{
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        padding-left: calc(var(--focus-ring-size) + 3px) ;
+        box-sizing: border-box;
+  }
 
   /* individual overrides */
   .keyboard-focused button:focus{
       outline: 2px var(--focus-light) solid !important;
       outline-offset: 0px !important;
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
+  /* article page table of contents links */
+  .keyboard-focused .table-of-contents li:has(a:focus){
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: list-item;
+  }
+  .keyboard-focused .table-of-contents a:focus{
+    outline: none;
+    box-shadow: none;
   }
 
   /* Fix focus ring alignment for xref-fn links containing sup tags */
