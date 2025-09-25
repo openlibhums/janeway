@@ -1083,9 +1083,14 @@ p + .btn-background {
 
   /* Prevent layout shifts */
   .card-panel a,
+  p a,
+  span a, 
+  li a,
   .dropdown-item {
       display: inline-block;
-      margin: var(--focus-ring-size);
+      margin: calc(-1 * var(--focus-ring-size));
+      padding: var(--focus-ring-size);
+      box-sizing: border-box;
   }
 
   /* individual overrides */
