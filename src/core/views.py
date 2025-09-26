@@ -1093,22 +1093,21 @@ def settings_index(request):
 
     if request.journal:
         press = request.journal.press
-        filtered_settings = []
-        for setting in settings:
-            if (
-                hasattr(setting, "is_press_dependent")
-                and setting.is_press_dependent
-                and setting.is_press_dependent.strip()
-            ):
-                # This setting is press-dependent, check if the press setting allows it
-                press_setting_value = getattr(press, setting.is_press_dependent, False)
-                if press_setting_value:
-                    filtered_settings.append(setting)
-            else:
-                # Non-press-dependent settings are always included
-                filtered_settings.append(setting)
+        # Filter out press-dependent settings where the press setting is False
+        press_dependent_settings = settings.filter(
+            depends_on_press_field__isnull=False
+        ).exclude(depends_on_press_field="")
 
-        settings = filtered_settings
+        # Get the press setting values for these settings
+        excluded_settings = []
+        for setting in press_dependent_settings:
+            press_setting_value = getattr(press, setting.depends_on_press_field, False)
+            if not press_setting_value:
+                excluded_settings.append(setting.id)
+
+        # Exclude settings where press setting is False
+        if excluded_settings:
+            settings = settings.exclude(id__in=excluded_settings)
 
     template = "core/manager/settings/index.html"
     context = {
