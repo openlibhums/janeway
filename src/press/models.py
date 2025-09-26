@@ -186,7 +186,6 @@ class Press(AbstractSiteModel):
     )
     ally_info = JanewayBleachField(
         blank=True,
-        null=True,
         verbose_name="Press Accessibility Information",
         help_text="This is information about the accessiblity of user-content.  It will appear on the accessibility page under the press name.",
     )

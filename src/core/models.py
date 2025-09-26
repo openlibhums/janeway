@@ -1101,9 +1101,8 @@ class Setting(models.Model):
 
     is_translatable = models.BooleanField(default=False)
 
-    is_press_dependent = models.CharField(
+    depends_on_press_field = models.CharField(
         max_length=100,
-        null=True,
         blank=True,
         help_text="If set, this setting is only available when the specified press setting is enabled.",
     )
