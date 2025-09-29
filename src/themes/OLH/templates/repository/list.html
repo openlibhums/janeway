@@ -30,17 +30,22 @@
                     {% for preprint in preprints %}
                         <div class="box article">
                             <a href="{% url 'repository_preprint' preprint.pk %}"
-                            class="box-link"></a>
-                            <div class="clearfix">
+                                class="box-link"
+                                aria-labelledby="{{ preprint.id }}-preprint-title"
+                                aria-describedby="{{ preprint.id }}-preprint-authors {{ preprint.id }}-preprint-details"></a>
+                            </a>
+                            <div class="clearfix" aria-hidden="true">
                                 <div class="large-12s columns end">
-                                    <h2>{{ preprint.title|safe }}</h2>
-                                    <p>{{ preprint.display_authors_compact }}</p>
-                                    <p><span class="date">
+                                    <h2 id="{{ preprint.id }}-preprint-title">{{ preprint.title|safe }}</h2>
+                                    <p id="{{ preprint.id }}-preprint-authors">{{ preprint.display_authors_compact }}</p>
+                                    <p id="{{ preprint.id }}-preprint-details"><span class="date">
                                         <i aria-hidden="true" class="fa fa-calendar"></i>
                                         <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
                                             <span role="time">{{ preprint.date_published|date_human }}</span>
                                         </time>&nbsp;&nbsp;
-                                        <i aria-hidden="true" class="fa fa-paperclip"></i> {% include "common/repository/subject_display.html" %}</span></p>
+                                        <i aria-hidden="true" class="fa fa-paperclip"></i> 
+                                        <span class="sr-only">{% trans 'subject:' %}</span>
+                                        {% include "common/repository/subject_display.html" %}</span></p>
                                     <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
                                 </div>
                             </div>
