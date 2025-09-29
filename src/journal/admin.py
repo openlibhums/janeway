@@ -87,11 +87,12 @@ class JournalAdmin(admin.ModelAdmin):
         "code",
         "sequence",
         "domain",
+        "status",
+        "hide_from_press",
         "is_remote",
         "is_conference",
-        "hide_from_press",
     )
-    list_filter = ("is_remote", "is_conference", "hide_from_press")
+    list_filter = ("status", "hide_from_press", "is_remote", "is_conference")
     raw_id_fields = (
         "carousel",
         "current_issue",

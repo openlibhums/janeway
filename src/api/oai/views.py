@@ -2,6 +2,8 @@
 A django implementation of the OAI-PMH interface
 """
 
+import warnings
+
 from django.utils import timezone
 from django.views.generic.base import TemplateView
 
@@ -50,7 +52,6 @@ class OAIListRecords(OAIPagedModelView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
         if self.request.journal:
             queryset = queryset.filter(journal=self.request.journal)
         else:
@@ -217,6 +218,10 @@ class OAIIdentify(TemplateView):
                 journal=self.request.journal,
                 stage=submission_models.STAGE_PUBLISHED,
             )
+        else:
+            articles = articles.filter(
+                journal__hide_from_press=False,
+            )
 
         context["earliest_article"] = articles.earliest("date_published")
         context["verb"] = self.request.GET.get("verb")
@@ -246,6 +251,16 @@ class OAIListSets(TemplateView):
             )
             sections = sections.filter(
                 journal=self.request.journal,
+            )
+        else:
+            journals = journals.filter(
+                hide_from_press=False,
+            )
+            all_issues = all_issues.filter(
+                journal__hide_from_press=False,
+            )
+            sections = sections.filter(
+                journal__hide_from_press=False,
             )
 
         context["journals"] = journals
