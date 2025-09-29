@@ -951,8 +951,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         )
         request = utils_logic.get_current_request()
         if request and request.journal:
-            articles.filter(journal=request.journal)
-
+            articles = articles.filter(journal=request.journal)
+        else:
+            articles = articles.filter(journal__hide_from_press=False)
+        Journal = apps.get_model("journal.Journal")
+        articles = articles.exclude(
+            journal__status=Journal.PublishingStatus.TEST,
+        )
         return articles
 
     def preprint_subjects(self):

@@ -3,6 +3,7 @@ import hashlib
 import hmac
 from urllib.parse import SplitResult, urlencode, urlparse, unquote
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
@@ -14,7 +15,6 @@ from utils import models, notify_helpers
 from utils.logger import get_logger
 from utils.function_cache import cache
 from janeway import __version__ as janeway_version
-from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
 from submission import models as submission_models
@@ -213,7 +213,7 @@ def generate_sitemap(
     """
     template, context = None, None
     if press:
-        journals = press.journals_az.filter(
+        journals = press.journals(
             hide_from_press=False,
             is_remote=False,
         )

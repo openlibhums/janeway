@@ -145,6 +145,21 @@ def set_journal_languages(journal, available=None, default="en"):
     )
 
 
+def create_journal_with_test_status():
+    """
+    Creates a journal with a publishing status of TEST
+    """
+    journal = journal_models.Journal(
+        code="third",
+        domain="teststatus.example.org",
+    )
+    journal.name = "Test Journal"
+    journal.status = journal_models.Journal.PublishingStatus.TEST
+    journal.save()
+    update_issue_types(journal)
+    return journal
+
+
 def create_press():
     press, created = press_models.Press.objects.get_or_create(
         name="Press",
@@ -735,6 +750,7 @@ def create_access_request(journal, user, role, **kwargs):
 def create_news_item(content_type, object_id, **kwargs):
     title = kwargs.get("title", "Test title")
     body = kwargs.get("body", "Test body")
+    posted = kwargs.get("posted", timezone.now())
     posted_by = kwargs.get(
         "posted_by",
         create_user(
@@ -742,16 +758,20 @@ def create_news_item(content_type, object_id, **kwargs):
             attrs={"first_name": "News", "last_name": "Writer"},
         ),
     )
+    start_display = kwargs.get("start_display", timezone.now())
     tags = kwargs.get("tags", ["test tag 1", "test tag 2"])
-    item = comms_models.NewsItem.objects.create(
+    item, _created = comms_models.NewsItem.objects.get_or_create(
         content_type=content_type,
         object_id=object_id,
         title=title,
         body=body,
+        posted=posted,
         posted_by=posted_by,
+        start_display=start_display,
     )
     for tag in tags:
-        item.tags.add(comms_models.Tag.objects.create(text=tag))
+        tag_obj, _created = comms_models.Tag.objects.get_or_create(text=tag)
+        item.tags.add(tag_obj)
     item.save()
     return item
 
