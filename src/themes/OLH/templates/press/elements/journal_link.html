@@ -1,0 +1,12 @@
+{% if journal.is_remote %}
+  <a href="{{ journal.remote_view_url }}" target="_blank">
+    {{ journal.name }}
+    {% include "elements/icons/link_external.html" %} 
+  </a>
+{% else %}
+  <a href="{% journal_base_url journal %}"
+    class="journal-name"
+    >
+    {{ journal.name }}
+  </a>
+{% endif %}

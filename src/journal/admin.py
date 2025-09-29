@@ -85,6 +85,7 @@ class JournalAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "code",
+        "sequence",
         "domain",
         "is_remote",
         "is_conference",

@@ -1,3 +1,5 @@
+{% load fqdn %}
+
 <div class="title-area">
     <h2>General Journal Settings</h2>
 </div>
@@ -77,7 +79,8 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
     {% include "admin/elements/forms/field.html" with field=edit_form.use_ga_four %}
 
-    <p>You can use this setting to stop this journal being list on the Press' journals page.</p>
+    <p>You can control the visibility of the journal and its articles, issues, and news items here. Journals that are archived or coming soon will be listed separately on the press-level <a href="{% stateless_site_url request.press url_name='press_journals' %}" target="_blank">Journals</a> page. For journals that are used for testing and training, use the test status, and always select <strong>Hide from press</strong>.</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.status %}
     {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
 
     <p>If you want to display a special message on the login page you can add it here.</p>

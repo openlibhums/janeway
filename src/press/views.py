@@ -125,7 +125,10 @@ def journals(request):
     template = "press/press_journals.html"
 
     context = {
-        "journals": request.press.public_journals,
+        "active_journals": request.press.public_active_journals,
+        "archived_journals": request.press.public_archived_journals,
+        "coming_soon_journals": request.press.public_coming_soon_journals,
+        "journals": request.press.public_journals,  # Backwards compatibility
     }
 
     return render(request, template, context)
@@ -139,10 +142,12 @@ def conferences(request):
     """
     template = "press/press_journals.html"
 
-    journal_objects = journal_models.Journal.objects.filter(
-        hide_from_press=False,
-        is_conference=True,
-    ).order_by("sequence")
+    journal_objects = request.press.apply_journal_ordering(
+        journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=True,
+        )
+    )
 
     context = {"journals": journal_objects}
 

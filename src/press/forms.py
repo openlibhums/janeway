@@ -39,6 +39,7 @@ class PressForm(forms.ModelForm):
             "password_upper",
             "password_length",
             "tracking_code",
+            "order_journals_az",
             "disable_journals",
             "privacy_policy_url",
         )
