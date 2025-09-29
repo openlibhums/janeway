@@ -3,7 +3,9 @@ import csv
 import io
 import json
 import re
+import warnings
 
+from django.apps import apps
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -76,35 +78,39 @@ class JournalViewSet(viewsets.ModelViewSet):
     API Endpoint for journals.
     """
 
-    from journal import models as journal_models
-
-    queryset = journal_models.Journal.objects.filter(hide_from_press=False)
     serializer_class = serializers.JournalSerializer
     http_method_names = ["get"]
+
+    def get_queryset(self):
+        Journal = apps.get_model("journal.Journal")
+        if self.request.journal:
+            queryset = Journal.objects.filter(pk=self.request.journal.pk)
+        else:
+            queryset = Journal.objects.filter(hide_from_press=False)
+        return queryset
 
 
 class IssueViewSet(viewsets.ModelViewSet):
     """
-    API Endpoint for journals.
+    API endpoint for issues.
     """
 
     serializer_class = serializers.IssueSerializer
     http_method_names = ["get"]
 
     def get_queryset(self):
-        from journal import models as journal_models
-
+        Issue = apps.get_model("journal.Issue")
         if self.request.journal:
-            queryset = journal_models.Issue.objects.filter(journal=self.request.journal)
+            queryset = Issue.objects.filter(journal=self.request.journal)
         else:
-            queryset = journal_models.Issue.objects.all()
+            queryset = Issue.objects.filter(journal__hide_from_press=False)
 
         return queryset
 
 
 class LicenceViewSet(viewsets.ModelViewSet):
     """
-    API Endpoint for journals.
+    API Endpoint for licenses.
     """
 
     serializer_class = serializers.LicenceSerializer
@@ -117,7 +123,7 @@ class LicenceViewSet(viewsets.ModelViewSet):
             )
         else:
             queryset = submission_models.Licence.objects.filter(
-                journal=self.request.press
+                press=self.request.press
             )
 
         return queryset
@@ -131,7 +137,7 @@ class KeywordsViewSet(viewsets.ModelViewSet):
 
 class ArticleViewSet(viewsets.ModelViewSet):
     """
-    API Endpoint for journals.
+    API endpoint for articles.
     """
 
     serializer_class = serializers.ArticleSerializer
@@ -148,6 +154,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
             queryset = submission_models.Article.objects.filter(
                 stage=submission_models.STAGE_PUBLISHED,
                 date_published__lte=timezone.now(),
+                journal__hide_from_press=False,
             )
 
         return queryset
@@ -170,6 +177,7 @@ class PreprintViewSet(viewsets.ModelViewSet):
 
 
 def oai(request):
+    warnings.warn("This view is deprecated. OAI views are in api/oai/views.py")
     articles = submission_models.Article.objects.filter(
         stage=submission_models.STAGE_PUBLISHED
     )
@@ -216,9 +224,15 @@ def kbart(request, tsv=True):
     has_header = False
     writer = None
 
-    for journal in journal_models.Journal.objects.filter(
-        is_remote=False, hide_from_press=False
-    ):
+    journals = journal_models.Journal.objects.filter(
+        is_remote=False,
+    )
+
+    if request.journal:
+        journals = journals.filter(pk=request.journal.pk)
+    else:
+        journals = journals.filter(hide_from_press=False)
+    for journal in journals:
         kbart_embargo = journal.get_setting("kbart", "embargo_period")
         # Note that we here use an OrderedDict. This is important as the
         # field headers are generated below at the late init of the TSV or

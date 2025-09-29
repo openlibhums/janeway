@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import time
 import itertools
 
+from django.apps import apps
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
@@ -49,6 +50,10 @@ def register_batch_of_crossref_dois(articles, **kwargs):
         journal = journals.pop()
 
     use_crossref, test_mode, missing_settings = check_crossref_settings(journal)
+
+    Journal = apps.get_model("journal.Journal")
+    if journal.status == Journal.PublishingStatus.TEST:
+        test_mode = True
 
     if use_crossref and not missing_settings:
         mode = "test" if test_mode else "live"

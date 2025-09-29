@@ -1,5 +1,6 @@
 import urllib
 
+from django.apps import apps
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.urls import reverse
 from django.contrib import messages
@@ -208,8 +209,20 @@ def news_list(request, tag=None, presswide=False):
     """
 
     news_objects = models.NewsItem.active_objects.all()
+    all_tags = models.Tag.objects.all()
 
-    if not presswide or request.model_content_type.model != "press":
+    if presswide or request.model_content_type.model == "press":
+        Journal = apps.get_model("journal.Journal")
+        press_visible_journal_pks = [
+            journal.pk
+            for journal in Journal.objects.filter(
+                hide_from_press=False,
+            )
+        ]
+        news_objects = news_objects.filter(
+            object_id__in=press_visible_journal_pks,
+        )
+    else:
         news_objects = news_objects.filter(
             content_type=request.model_content_type,
             object_id=request.site_type.id,
@@ -222,6 +235,14 @@ def news_list(request, tag=None, presswide=False):
         )
         tag = get_object_or_404(models.Tag, text=unquoted_tag)
 
+    all_tags = (
+        models.Tag.objects.filter(
+            tags__in=news_objects,
+        )
+        .annotate(Count("tags"))
+        .order_by("-tags__count", "text")
+    )
+
     paginator = Paginator(news_objects, 12)
     page = request.GET.get("page", 1)
 
@@ -231,12 +252,6 @@ def news_list(request, tag=None, presswide=False):
         news_items = paginator.page(1)
     except EmptyPage:
         news_items = paginator.page(paginator.num_pages)
-
-    all_tags = (
-        models.Tag.objects.all()
-        .annotate(Count("tags"))
-        .order_by("-tags__count", "text")
-    )
 
     if not request.journal:
         template = "press/core/news/index.html"

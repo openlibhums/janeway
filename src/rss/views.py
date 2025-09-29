@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from comms import models as comms_models
 from core.templatetags.truncate import truncatesmart
+from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repo_models
 
@@ -72,15 +73,16 @@ class LatestArticlesFeed(Feed):
 
     def items(self, obj):
         try:
-            return submission_models.Article.objects.filter(
-                date_published__lte=timezone.now(), journal=obj
-            ).order_by("-date_published")[:10]
-        except ValueError:
-            return submission_models.Article.objects.filter(
+            articles = submission_models.Article.objects.filter(
                 date_published__lte=timezone.now(),
-                journal__press=obj,
+                journal=obj,
+            )
+        except ValueError:
+            articles = submission_models.Article.objects.filter(
+                date_published__lte=timezone.now(),
                 journal__hide_from_press=False,
-            ).order_by("-date_published")[:10]
+            )
+        return articles.order_by("-date_published")[:10]
 
     def item_title(self, item):
         return striptags(item.title)

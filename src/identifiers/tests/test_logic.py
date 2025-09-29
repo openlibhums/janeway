@@ -29,6 +29,7 @@ class TestLogic(TestCase):
         cls.press = helpers.create_press()
         cls.press.save()
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.test_journal = helpers.create_journal_with_test_status()
 
         # Configure settings
         for journal in [cls.journal_one, cls.journal_two]:
@@ -142,6 +143,9 @@ class TestLogic(TestCase):
             "test_data",
             "schemas",
         )
+
+        # Article in test journal
+        cls.test_article = helpers.create_article(cls.test_journal)
 
     def test_create_crossref_doi_batch_context(self):
         self.maxDiff = None
@@ -485,3 +489,17 @@ class TestLogic(TestCase):
             missing_settings,
             ["crossref_prefix", "crossref_username", "crossref_password"],
         )
+
+    @mock.patch("identifiers.logic.get_dois_for_articles")
+    @mock.patch("identifiers.logic.check_crossref_settings")
+    @mock.patch("identifiers.logic.send_crossref_deposit")
+    def test_journals_with_test_status_use_crossref_test_mode(
+        self,
+        send_deposit,
+        check_settings,
+        get_dois,
+    ):
+        check_settings.return_value = True, False, []
+        get_dois.return_value = []
+        logic.register_batch_of_crossref_dois([self.test_article])
+        send_deposit.assert_called_with(True, [], self.test_journal)

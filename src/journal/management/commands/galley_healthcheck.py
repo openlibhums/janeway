@@ -30,6 +30,9 @@ class Command(BaseCommand):
         journals = journal_models.Journal.objects.all()
         if journal_codes:
             journals = journals.filter(code__in=journal_codes)
+        journals = journals.exclude(
+            status=journal_models.Journal.PublishingStatus.TEST,
+        )
 
         for journal in journals:
             articles = models.Article.objects.filter(
