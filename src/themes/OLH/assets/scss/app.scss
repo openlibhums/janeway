@@ -1554,3 +1554,8 @@ span + .btn-background {
   min-width: 24px;
   min-height: 24px;
 }
+
+.orbit-caption{
+  color: var(--primary-light-color);
+  background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
+}
