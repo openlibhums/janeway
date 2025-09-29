@@ -7,10 +7,10 @@
                     <ul class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
                             <li class="orbit-slide overlay">
-                            <a href="{{ carousel_item.url }}" class="box-link"
-                                aria-labelledby="{{ carousel_item.id }}-title"
-                                aria-describedby="{{ carousel_item.id }}-subtitle {{ carousel_item.id }}-details">
-                            </a>
+                                <a href="{{ carousel_item.url }}" class="box-link"
+                                    aria-labelledby="{{ carousel_item.id }}-title"
+                                    aria-describedby="{{ carousel_item.id }}-subtitle {{ carousel_item.id }}-details">
+                                </a>
                                 <img class="orbit-image"
                                     aria-hidden="true"
                                      {% if carousel_item.large_image_file.id %}
@@ -35,6 +35,21 @@
                             </li>
                         {% endfor %}
                     </ul>
+                    <nav class="orbit-bullets">
+                        {% for carousel_item in carousel_items %}
+                            <button data-slide="{{ forloop.counter0 }}">
+                                <span class="sr-only">
+                                    {% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}
+                                        Slide {{ slide_number }} of {{ total_slides }}
+                                    {% endblocktrans %}
+                                </span>
+                            </button>
+                        {% endfor %}
+                    </nav>
+                </div>
+                <div class="orbit-controls">
+
+
                 </div>
             </div>
         </section>

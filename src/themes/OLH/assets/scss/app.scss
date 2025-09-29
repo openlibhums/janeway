@@ -1483,3 +1483,10 @@ span + .btn-background {
     -o-transition: all 1s ease;
     -ms-transition: all 1s ease;
 }
+
+
+// carousel style overrides
+.orbit-bullets button{
+  min-width: 24px;
+  min-height: 24px;
+}
