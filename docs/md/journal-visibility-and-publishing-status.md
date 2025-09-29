@@ -35,12 +35,12 @@ The "Test" publishing status prevents users from accidentally sending data to pl
 
 | Area                                      | Hide from press   | Test status |
 |-------------------------------------------|-------------------|-------------|
-| lists of journals on press website        | Does what it says | No effect   |
-| journal submission in repository system   | No effect         | Prevented   |
-| publications list on public user profiles | Does what it says | Not listed  |
-| back-office menus that list journals      | No effect         | No effect   |
+| Lists of journals on press website        | Does what it says | No effect   |
+| Journal submission in repository system   | No effect         | Prevented   |
+| Publications list on public user profiles | Does what it says | Not listed  |
+| Back-office menus that list journals      | No effect         | No effect   |
 | Django admin menus that list journals     | No effect         | No effect   |
-| reporting (plugin)                        | Does what it says | No effect   |
+| Reporting (plugin)                        | Does what it says | No effect   |
 
 ### Data feeds and alternate user interfaces
 
@@ -51,7 +51,7 @@ The "Test" publishing status prevents users from accidentally sending data to pl
 | RSS/Atom feed              | Does what it says | No effect                         |
 | reader notifications       | Not applicable    | No effect                         |
 | Crossref deposits          | Not applicable    | Deposits use Crossref test server |
-| Datacite deposits (plugin) | Not applicable    | Deposits prevented                |
+| Datacite deposits (plugin) | Not applicable    | Deposits use Datacite test server |
 | Galley healthcheck command | Not applicable    | Articles ignored                  |
 | DOI check command          | Not applicable    | Articles ignored                  |
 | Store ithenticate command  | Not applicable    | Articles ignored                  |
