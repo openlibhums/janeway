@@ -30,6 +30,21 @@
                             </li>
                         {% endfor %}
                     </ul>
+                    <nav class="orbit-bullets">
+                        {% for carousel_item in carousel_items %}
+                            <button data-slide="{{ forloop.counter0 }}">
+                                <span class="sr-only">
+                                    {% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}
+                                        Slide {{ slide_number }} of {{ total_slides }}
+                                    {% endblocktrans %}
+                                </span>
+                            </button>
+                        {% endfor %}
+                    </nav>
+                </div>
+                <div class="orbit-controls">
+
+
                 </div>
             </div>
         </section>
