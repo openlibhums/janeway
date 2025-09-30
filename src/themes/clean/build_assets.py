@@ -39,9 +39,7 @@ def process_journals():
         for file in journal.scss_files:
             if file.endswith("clean_override.css"):
                 print(
-                    "Copying clean override file for {name}".format(
-                        name=journal.name
-                    )
+                    "Copying clean override file for {name}".format(name=journal.name)
                 )
                 override_css_dir = os.path.join(
                     settings.BASE_DIR, "static", "clean", "css"
