@@ -20,7 +20,7 @@
             
             {% for item in navigation_items %}
                 {% if item.has_sub_nav %}
-                    <li class=".is-dropdown-submenu-parent">
+                    <li class="is-dropdown-submenu-parent">
                         <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ item.link_name }}</a>
                         <ul class="menu vertical medium-horizontal">
                             {% if item.link %}
@@ -56,7 +56,7 @@
             
             {% if journal_settings.general.enable_editorial_display %}
                 {% if journal_settings.general.multi_page_editorial %}
-                    <li class=".is-dropdown-submenu-parent">
+                    <li class="is-dropdown-submenu-parent">
                         <a href="#" data-options="is_hover:true; hover_timeout:5000">{{ journal_settings.styling.editorial_group_page_name }}</a>
                         <ul class="menu vertical medium-horizontal">
                             {% for group in request.journal.editorial_groups %}
@@ -104,7 +104,7 @@
                 </li>
             {% endif %}
 
-            <li class=".is-dropdown-submenu-parent show-for-small-only">
+            <li class="is-dropdown-submenu-parent show-for-small-only">
                 <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Account' %}</a>
                 <ul class="menu vertical medium-horizontal">
                     {% if request.user.is_authenticated %}
