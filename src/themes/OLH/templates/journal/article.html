@@ -90,8 +90,8 @@
                                             <span class="sr-only">{% trans 'Printer friendly version.' %}</span>
                                         </a>
                                     </li>
-                                    <li><a onclick="resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
-                                    <li><a onclick="resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
+                                    <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}">A-</button></li>
+                                    <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}">A+</button></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
@@ -100,12 +100,12 @@
                                             </a>
                                         </li>
                                     {% endif %}
-                                    <li><a onclick="toggleDyslexia()" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
+                                    <li><button onclick="toggleDyslexia();" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</button></li>
                                     <li>
-                                        <a href="#">
+                                        <button type="button" data-toggle aria-expanded="false" aria-haspopup="true">
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Cite article' %}</span>
-                                        </a>
+                                        </button>
                                         <ul class="menu vertical">
                                             <li><a href="#" data-open="HarvardModal">
                                                 {% trans "Harvard Citation Style" %}
