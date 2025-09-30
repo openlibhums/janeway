@@ -1,6 +1,8 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load static %}
+{% load fqdn %}
+{% load next_url %}
 
 {% block title %}Contact Manager{% endblock title %}
 {% block title-section %}Contact Manager{% endblock %}
@@ -23,6 +25,9 @@
                     Contact people are listed below. You can alter their order by dragging and dropping them into the
                     order you require.
                 </p>
+                <p>
+                    The contact link takes users to the contact page with the designated contact person preselected.
+                </p>
                 <form method="POST">
                     {% csrf_token %}
                     <table class="table scroll">
@@ -32,35 +37,47 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Link</th>
                             <th>Edit</th>
-                            <th>Delete</th>
+                            <th>Remove</th>
                         </tr>
                         </thead>
                         <tbody id="sortable">
                         {% for contact in contacts %}
                             <tr id="contact-{{ contact.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
-                                {% if contact.account %}
-                                  <td>{{ contact.account.full_name }}</td>
-                                  <td>{{ contact.account.email }}</td>
-                                {% else %}
-                                  <td>{{ contact.name }}</td>
-                                  <td>{{ contact.email }}</td>
-                                {% endif %}
+                                <td>{{ contact.display_name }}</td>
+                                <td>{{ contact.display_email }}</td>
                                 <td>{{ contact.role }}</td>
                                 <td>
-                                    <a href="{% url 'core_contact_person_update' contact.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit Contact</a>
+                                  {% if contact.account %}
+                                    {% if request.journal %}
+                                      {% site_url "journal_contact_with_recipient" contact.account.uuid as content %}
+                                    {% else %}
+                                      {% site_url "press_contact_with_recipient" contact.account.uuid as content %}
+                                    {% endif %}
+                                    {% trans "Copy link" as label_copy %}
+                                    {% trans "Link copied" as label_copied %}
+                                    {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied size="small" %}
+                                  {% endif %}
                                 </td>
                                 <td>
-                                    <button type="submit" name="delete" value="{{ contact.pk }}"
-                                            class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
+                                  <div class="button-group no-bottom-margin">
+                                    {% url 'core_contact_person_update' contact.pk as href %}
+                                    {% include "admin/elements/a_edit.html" with href=href %}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div class="button-group no-bottom-margin">
+                                    {% url_with_return "core_contact_person_delete" contact.pk as href %}
+                                    {% include "admin/elements/a_remove.html" with href=href size="small" %}
+                                  </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
                                 <td colspan="5">
-                                    This journal has no contacts.
+                                    This site has no contacts.
                                 </td>
                             </tr>
                         {% endfor %}
@@ -91,5 +108,5 @@
         });
         $("#sortable").disableSelection();
     </script>
-    {% include "admin/elements/post_check.html" %}
+    {% include "admin/elements/button_copy_js.html" %}
 {% endblock js %}

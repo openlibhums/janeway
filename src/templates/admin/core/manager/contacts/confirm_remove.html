@@ -1,0 +1,16 @@
+{% extends "admin/elements/confirm_remove.html" %}
+
+{% load i18n next_url %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/contacts_base.html" with subpage="yes" %}
+  <li>
+    {% blocktrans %}
+      Remove "{{ thing_to_delete }}"
+    {% endblocktrans %}
+  </li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "admin/core/manager/contacts/related_info.html" %}
+{% endblock nitty %}

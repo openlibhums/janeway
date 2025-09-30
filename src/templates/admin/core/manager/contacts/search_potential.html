@@ -26,6 +26,11 @@
 {% block gritty %}
   {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
   {% include "admin/elements/list_search.html" with placeholder='e.g. Kathryn Janeway' %}
+  {% if request.journal %}
+    <p>Only accounts with the role of editor, section editor, or press manager are searchable here. Press staff can also be journal contacts.</p>
+  {% else %}
+    <p>Only staff members are searchable here.</p>
+  {% endif %}
   {% if request.GET.q %}
     {% for account in account_list %}
       <div class="callout">

@@ -1914,6 +1914,7 @@ def contact_person_create(request, account_id):
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
+    next_url = request.GET.get("next", "")
     account = get_object_or_404(models.Account, pk=account_id)
     contact_people = request.site_type.contact_people
     with translation.override(request.override_language):
@@ -1929,12 +1930,17 @@ def contact_person_create(request, account_id):
                 contact_person.content_type = request.model_content_type
                 contact_person.object_id = request.site_type.pk
                 contact_person.save()
-
-                return language_override_redirect(
+                messages.add_message(
                     request,
-                    "core_contact_person_update",
-                    {"contact_person_id": contact_person.pk},
+                    messages.SUCCESS,
+                    _("Contact person added: %(contact_person)s")
+                    % {"contact_person": contact_person},
                 )
+
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_contact_people"))
 
     template = "core/manager/contacts/contact_person_form.html"
     context = {
@@ -1954,6 +1960,7 @@ def contact_person_update(request, contact_person_id):
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
+    next_url = request.GET.get("next", "")
     contact_person = get_object_or_404(
         models.ContactPerson,
         pk=contact_person_id,
@@ -1970,11 +1977,16 @@ def contact_person_update(request, contact_person_id):
             )
             if form.is_valid():
                 contact_person = form.save()
-                return language_override_redirect(
+                messages.add_message(
                     request,
-                    "core_contact_person_update",
-                    {"contact_person_id": contact_person.pk},
+                    messages.SUCCESS,
+                    _("Contact person updated: %(contact_person)s")
+                    % {"contact_person": contact_person},
                 )
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_contact_people"))
 
     template = "core/manager/contacts/contact_person_form.html"
     context = {
@@ -1984,6 +1996,48 @@ def contact_person_update(request, contact_person_id):
         "account": contact_person.account,
     }
 
+    return render(request, template, context)
+
+
+@login_required
+def contact_person_delete(request, contact_person_id):
+    """
+    Allows a staff member or editor to remove a contact person.
+    """
+
+    next_url = request.GET.get("next", "")
+    contact_person = get_object_or_404(
+        models.ContactPerson,
+        pk=contact_person_id,
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
+    contact_people = request.site_type.contact_people
+    form = forms.ConfirmDeleteForm()
+
+    if request.method == "POST":
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            contact_person.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Contact person removed: %(contact_person)s")
+                % {"contact_person": contact_person},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse("core_contact_people"))
+
+    template = "admin/core/manager/contacts/confirm_remove.html"
+    context = {
+        "account": contact_person.account,
+        "form": form,
+        "thing_to_delete": contact_person,
+        "contact_person": contact_person,
+        "contact_people": contact_people,
+    }
     return render(request, template, context)
 
 
@@ -3420,6 +3474,20 @@ class PotentialContactListView(GenericFacetedListView):
                 )
             )
         )
+
+    def get_journal_filter_query(self):
+        if self.request.journal:
+            journal_roles = ["editor", "section-editor", "press-manager"]
+            return (
+                Q(
+                    accountrole__journal=self.request.journal,
+                    accountrole__role__slug__in=journal_roles,
+                )
+                | Q(is_staff=True)
+                | Q(is_superuser=True)
+            )
+        else:
+            return Q(is_staff=True) | Q(is_superuser=True)
 
     def get_facets(self):
         return {
