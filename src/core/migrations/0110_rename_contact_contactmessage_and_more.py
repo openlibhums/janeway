@@ -9,22 +9,20 @@ import django.db.models.deletion
 def connect_contact_person_to_account(apps, schema_editor):
     ContactPerson = apps.get_model("core", "ContactPerson")
     Account = apps.get_model("core", "Account")
-    languages = ["cy", "de", "en", "en-us", "en_us", "es", "fr", "it", "nl"]
     for contact_person in ContactPerson.objects.all():
-        account, created = Account.objects.get_or_create(
+        matching_accounts = Account.objects.filter(
             username=contact_person.email.lower(),
-            defaults={
-                "first_name": " ".join(contact_person.name.split()[:-1]),
-                "last_name": contact_person.name.split()[-1],
-                "email": contact_person.email,
-            },
         )
+        if matching_accounts.exists():
+            account = matching_accounts.first()
+        else:
+            account = Account.objects.create(
+                email=contact_person.email,
+                username=contact_person.email.lower(),
+                first_name=" ".join(contact_person.name.split()[:-1]),
+                last_name=contact_person.name.split()[-1],
+            )
         contact_person.account = account
-        for language in languages:
-            with translation.override(language):
-                language_var = "name_{}".format(language)
-                setattr(contact_person, language_var, "")
-        contact_person.email = ""
         contact_person.save()
 
 
@@ -32,12 +30,16 @@ def connect_contact_message_to_account(apps, schema_editor):
     ContactMessage = apps.get_model("core", "ContactMessage")
     Account = apps.get_model("core", "Account")
     for contact_message in ContactMessage.objects.all():
-        account, created = Account.objects.get_or_create(
+        matching_accounts = Account.objects.filter(
             username=contact_message.recipient.lower(),
-            defaults={
-                "email": contact_message.recipient,
-            },
         )
+        if matching_accounts.exists():
+            account = matching_accounts.first()
+        else:
+            account = Account.objects.create(
+                email=contact_message.recipient,
+                username=contact_message.recipient.lower(),
+            )
         contact_message.account = account
         contact_message.recipient = ""
         contact_message.client_ip = ""
