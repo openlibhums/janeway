@@ -10,7 +10,7 @@
   <GetRecord>
     <record>
       <header>
-        <identifier>oai:TST:id:1</identifier>
+        <identifier>oai:TST:id:{article_id}</identifier>
         <datestamp>1986-07-12T15:00:00Z</datestamp>
       </header>
       <metadata>
@@ -30,8 +30,8 @@
           <dc:issue>1</dc:issue>
           <dc:publisher>Press</dc:publisher>
           <dc:journalTitle>Journal One</dc:journalTitle>
-          <dc:identifier>http://testserver/article/id/1/</dc:identifier>
-          <dc:fullTextUrl>http://testserver/article/id/1/</dc:fullTextUrl>
+          <dc:identifier>http://testserver/article/id/{article_id}/</dc:identifier>
+          <dc:fullTextUrl>http://testserver/article/id/{article_id}/</dc:fullTextUrl>
           <dc:source>0000-0000</dc:source>
           <dc:format.extent>1</dc:format.extent>
         </oai_dc:dc>
