@@ -125,6 +125,11 @@ urlpatterns = [
         press_views.contact,
         name="press_contact",
     ),
+    path(
+        "press/contact/recipient/<uuid:recipient>/",
+        press_views.contact,
+        name="press_contact_with_recipient",
+    ),
     # Notes
     re_path(
         r"^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$",
