@@ -1372,16 +1372,15 @@ def resolve_alt_text_target(request):
     return content_type, object_id, file_path, obj
 
 
-def get_contact_form(request):
+def get_contact_form(request, recipient_uuid):
     subject = request.GET.get("subject", "")
     contact_people = request.site_type.contact_people
-    recipient_email = request.GET.get("recipient", "")
     account = None
-    if recipient_email:
+    if recipient_uuid:
         try:
             account = models.Account.objects.get(
-                contactperson__pk__in=[cp.pk for cp in contact_people],
-                email__iexact=recipient_email,
+                contactperson__in=contact_people,
+                uuid=recipient_uuid,
             )
         except models.Account.DoesNotExist:
             pass
