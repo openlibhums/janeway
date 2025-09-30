@@ -5,14 +5,15 @@
 {% load hooks %}
 {% load next_url %}
 
-<nav class="navbar navbar-dark navbar-expand-lg navbar-custom">
+<nav class="navbar navbar-light navbar-expand-lg navbar-custom">
+  <div class="container">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
             data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav font-weight-bold d-flex w-100">
+        <ul class="navbar-nav d-flex w-100">
             {% if request.journal.nav_home %}
             <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
@@ -132,4 +133,5 @@
         </ul>
 
     </div>
+  </div>
 </nav>

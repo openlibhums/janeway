@@ -8,18 +8,31 @@
         {% else %}
           <form method="get" action="/search">
         {% endif %}
-            <div class="input-group mb-12" id="article_search">
-            <input id="sort" name="sort" type="hidden" value="relevance">
-            <input id="title" name="title" type="hidden" value="on">
-            <input id="abstract" name="abstract" type="hidden" value="on">
-            <div class="input-group-prepend">
+            <div class="input-group mb-3" id="article_search">
+              <input id="sort" name="sort" type="hidden" value="relevance">
+              <input id="title" name="title" type="hidden" value="on">
+              <input id="abstract" name="abstract" type="hidden" value="on">
+
+              <div class="input-group-prepend">
                 <div class="input-group-text">
                   <i aria-hidden="true" class="fa fa-search"></i>
                 </div>
+              </div>
+
+              <input
+                      name="article_search"
+                      class="form-control"
+                      type="text"
+                      placeholder="{% trans 'Search term' %}"
+              >
+
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">
+                  {% trans "Search" %}
+                </button>
+              </div>
             </div>
-              <input name="article_search" class="form-control" type="text" placeholder="{% trans 'Search term' %}">
-              <input type="submit" class="btn btn-primary" value="Search">
-            </div>
+
           </form>
       </div>
   </div>

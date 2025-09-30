@@ -3,12 +3,12 @@
 {% if issue.large_image %}
     <div class="card">
         <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} Cover Image">
-        <div class="card-img-overlay white-text">
+        <div class="card-img-overlay">
             <div class="card-text">
                 {% if level == "deep" %}
-                    <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h2>
+                    <h2 class="card-title white-text" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h2>
                 {% else %}
-                    <h1 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h1>
+                    <h1 class="card-title white-text" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h1>
                 {% endif %}
             </div>
         </div>

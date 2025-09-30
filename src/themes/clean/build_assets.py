@@ -39,7 +39,7 @@ def process_journals():
         for file in journal.scss_files:
             if file.endswith("clean_override.css"):
                 print(
-                    "Copying material override file for {name}".format(
+                    "Copying clean override file for {name}".format(
                         name=journal.name
                     )
                 )
@@ -64,6 +64,18 @@ def build():
     copy_file(
         "themes/clean/assets/css/clean.css",
         "static/clean/css/clean.css",
+    )
+    copy_file(
+        "themes/clean/assets/css/evergreen.css",
+        "static/clean/css/evergreen.css",
+    )
+    copy_file(
+        "themes/clean/assets/css/ocean.css",
+        "static/clean/css/ocean.css",
+    )
+    copy_file(
+        "themes/clean/assets/css/cardinal.css",
+        "static/clean/css/cardinal.css",
     )
     copy_file(
         "themes/clean/assets/js/tooltip-init.js",

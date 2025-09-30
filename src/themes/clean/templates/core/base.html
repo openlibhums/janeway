@@ -34,59 +34,58 @@
 </head>
 <body>
 {% include "common/elements/skip_to_main_content.html" %}
-<div class="container">
-    <header class="site-header">
-        <div id="journal-title">
-            <div class="row">
-                {% if request.journal and request.journal.header_image %}
-                    <div class="col-md-2">
-                        <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
-                            <img src="{{ request.journal.header_image.url }}"
-                                 class="img-fluid header-image top-bar-image"
-                                 alt="{{ request.journal.name }} logo">
-                        </a>
-                    </div>
 
-                    {% if journal_settings.styling.display_journal_title %}
-                    <div class="col-md-10">
-                        <p class="journal-name">{{ request.journal.name }}</p>
-                    </div>
+<header class="site-header">
+    <div id="journal-title" class="container">
+        <div class="row">
+            {% if request.journal and request.journal.header_image %}
+                <div class="col-md-3">
+                    <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
+                        <img src="{{ request.journal.header_image.url }}"
+                             class="img-fluid header-image top-bar-image"
+                             alt="{{ request.journal.name }} logo">
+                    </a>
+                </div>
+
+                {% if journal_settings.styling.display_journal_title %}
+                <div class="col-md-10">
+                    <p class="journal-name">{{ request.journal.name }}</p>
+                </div>
+                {% endif %}
+        {% elif request.press and not request.journal %}
+                <div class="col-md-2">
+                    {% if 'svg' in request.press_cover %}
+                        {% svg request.press_cover %}
+                    {% else %}
+                        <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
+                                         alt="{{ request.press.name }} logo">
                     {% endif %}
-            {% elif request.press and not request.journal %}
-                    <div class="col-md-2">
-                        {% if 'svg' in request.press_cover %}
-                            {% svg request.press_cover %}
-                        {% else %}
-                            <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
-                                             alt="{{ request.press.name }} logo">
-                        {% endif %}
-                    </div>
-            {% endif %}
-            </div>
-
-        </div>
-        {% if request.journal %}
-            {% include "core/nav.html" %}
-        {% elif request.press %}
-            {% include "press/nav.html" %}
+                </div>
         {% endif %}
-    </header>
-    <main id="main-content">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissable">
-                <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">{% trans 'Close message' %}</span>
-                </button>
-                <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>          
-            </div>
-        {% endfor %}
-        {% block body %}{% endblock body %}
-    </main>
-    <footer class="site-footer" id="footer">
-      {% include "core/footer.html" %}
-    </footer>
-</div>
+        </div>
+
+    </div>
+</header>
+{% if request.journal %}
+    {% include "core/nav.html" %}
+{% elif request.press %}
+    {% include "press/nav.html" %}
+{% endif %}
+<main id="main-content" class="container">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissable">
+            <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only">{% trans 'Close message' %}</span>
+            </button>
+            <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>
+        </div>
+    {% endfor %}
+    {% block body %}{% endblock body %}
+</main>
+<footer class="site-footer" id="footer">
+  {% include "core/footer.html" %}
+</footer>
 {% include "common/elements/analytics.html" %}
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="

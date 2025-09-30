@@ -2,95 +2,95 @@
 {% load static %}
 {% load dates %}
 
-<div class="card">
-    <div class="card-block">
-        <div class="row">
-            {% if not journal_settings.article.disable_article_thumbnails %}
-                <div class="col-md-2">
-                    {% if article.thumbnail_image_file %}
-                        <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                             alt="{{ article.title|striptags|escape }}" class="article-thumbnail img-fluid">
-                    {% elif request.journal.thumbnail_image %}
-                        <img src="{% url 'journal_cover_download' %}" class="article-thumbnail img-fluid" alt="{{ request.journal }} thumbnail icon">
+<article class="article-item">
+    <div class="row align-items-start">
+        {% if not journal_settings.article.disable_article_thumbnails %}
+          <div class="col-2 col-md-2">
+              <div class="thumbnail-container">
+                  {% if article.thumbnail_image_file %}
+                      <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
+                           alt="{{ article.title|striptags|escape }}"
+                           class="article-thumbnail"
+                           onerror="this.parentElement.classList.add('fallback-active');">
+                  {% elif request.journal.thumbnail_image %}
+                      <img src="{% url 'journal_cover_download' %}"
+                           class="article-thumbnail"
+                           alt="{{ request.journal }} thumbnail icon"
+                           onerror="this.parentElement.classList.add('fallback-active');">
+                  {% else %}
+                      <img src="{% static 'common/img/icons/article.png' %}"
+                           alt="{{ article.title|striptags|escape }}"
+                           class="article-thumbnail"
+                           onerror="this.parentElement.classList.add('fallback-active');">
+                  {% endif %}
+                  <div class="thumbnail-fallback">
+                      <span>{{ request.journal.code|upper }}</span>
+                  </div>
+              </div>
+          </div>
+        {% endif %}
+        <div class="col">
+            {% if article.is_remote %}
+                <a href="{{ article.remote_url }}" target="_blank" class="article-link">
+                    {% if level == "deep" %}
+                        <h4 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h4>
+                    {% elif level == "shallow" %}
+                        <h3 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h3>
                     {% else %}
-                        <img src="{% static 'common/img/icons/article.png' %}"
-                             alt="{{ article.title|striptags|escape }}"
-                             class="article-thumbnail img-fluid">
-                    {% endif %}
-                </div>
-            {% endif %}
-            <div class="col article-block">
-                    {% if article.is_remote %}
-                        <a href="{{ article.remote_url }}" target="_blank">
-                            {% if level == "deep" %}
-                                <h4 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
-                                    {% include "elements/icons/link_external.html" %} 
-                                </h4>
-                            {% elif level == "shallow" %}
-                                <h3 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
-                                    {% include "elements/icons/link_external.html" %} 
-                                </h3>
-                            {% else %}
-                                <h2 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
-                                    {% include "elements/icons/link_external.html" %} 
-                                </h2>
-                            {% endif %}
-                        </a>
-                    {% else %}
-                        <a href="{{ article.url }}" >
-                            {% if level == "deep" %}
-                                <h4 class="card-title article-title">{{ article.title|safe }}</h4>
-                            {% elif level == "shallow" %}
-                                <h3 class="card-title article-title">{{ article.title|safe }}</h3>
-                            {% else %}
-                                <h2 class="card-title article-title">{{ article.title|safe }}</h2>
-                            {% endif %}
-                        </a>
+                        <h2 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h2>
                     {% endif %}
                 </a>
-                <p class="card-subtitle mb-2 text-muted">
-                    <ul class="list-inline">
-                        {% for author in article.frozen_authors.all %}
-                            <li>
-                                {% if forloop.last %}{% if article.frozen_authors.all|length > 1 %} {% trans 'and' %}{% endif %}{% endif %}
-                                {{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </p>
-                <p class="card-text">
-                    <span class="date">
-                        <i aria-hidden="true" class="fa fa-calendar"></i>
-                        <time datetime="{{ article.date_published|date:"Y-m-d" }}">
-                            <span role="time">{{ article.date_published|date_human}}</span>
-                        </time>
-                    </span>
-                    {% if article.issue %}
-                    <a href="{{ article.issue.url }}" >
+            {% else %}
+                <a href="{{ article.url }}" class="article-link">
+                    {% if level == "deep" %}
+                        <h4 class="article-title">{{ article.title|safe }}</h4>
+                    {% elif level == "shallow" %}
+                        <h3 class="article-title">{{ article.title|safe }}</h3>
+                    {% else %}
+                        <h2 class="article-title">{{ article.title|safe }}</h2>
+                    {% endif %}
+                </a>
+            {% endif %}
+
+            <ul class="list-inline article-authors">
+                {% for author in article.frozen_authors.all %}
+                    <li class="list-inline-item">
+                        {% if forloop.last and article.frozen_authors.all|length > 1 %}{% trans 'and' %} {% endif %}
+                        {{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %},{% endif %}{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <ul class="list-inline article-meta">
+                <li class="list-inline-item meta-item">
+                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                    <time datetime="{{ article.date_published|date:"Y-m-d" }}">
+                        {{ article.date_published|date_human }}
+                    </time>
+                </li>
+                {% if article.issue %}
+                <li class="list-inline-item">
+                    <a href="{{ article.issue.url }}" class="meta-item issue-link">
                         <i aria-hidden="true" class="fa fa-book"></i>
                         <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
-                    {% endif %}
-                </p>
-                 {% if article.issues.count > 1 %}
-                  <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
-                  <ul class="list-no-bullet">
-                    {% for other in article.issues.all %}
-                        {% if other != article.issue %}
-                            <li>
-                                <a class="issue-link" href="{{ other.url }}">
-                                    <i aria-hidden="true" class="fa fa-book"></i>
-                                    {{other.issue_type.pretty_name}}: {{ other.display_title }}
-                                </a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                  </ul>
+                </li>
                 {% endif %}
-                </div>
+            </ul>
+
+            {% if article.issues.count > 1 %}
+            <div class="additional-issues">
+                <p class="also-part-of"><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</p>
+                {% for other in article.issues.all %}
+                {% if other != article.issue %}
+                <a class="additional-issue-link" href="{{ other.url }}">
+                    <i aria-hidden="true" class="fa fa-book"></i>
+                    {{other.issue_type.pretty_name}}: {{ other.display_title }}
+                </a>
+                {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
         </div>
     </div>
+</article>
