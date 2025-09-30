@@ -617,6 +617,10 @@ div.caption span.label {
         padding: 0.5rem 0;
         display: block;
         text-decoration: none;
+        
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
       }
       button {
         color: $dark-gray;
@@ -629,6 +633,10 @@ div.caption span.label {
         text-align: left;
         display: block;
         width: 100%;
+        
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
       }
       &:hover {
         background: $medium-gray;
