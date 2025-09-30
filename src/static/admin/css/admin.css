@@ -1086,6 +1086,6 @@ ul.menu {
     grid-template-columns: 100%;
   }
   @media (width > 50rem) {
-    grid-template-columns: 20rem minmax(auto, 60rem);
+    grid-template-columns: 24rem minmax(auto, 60rem);
   }
 }

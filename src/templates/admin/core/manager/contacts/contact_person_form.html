@@ -40,7 +40,7 @@
   {% else %}
     <p>Enter contact details, and select <strong>Save</strong> to create the contact.</p>
   {% endif %}
-  <div class="flex gap-1 items-center">
+  <div class="auto grid gap-1">
     {% include "admin/elements/layout/key_value_above.html" with key="Name" value=account.full_name %}
     {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
   </div>

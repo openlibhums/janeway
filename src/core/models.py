@@ -33,6 +33,7 @@ from django.db import (
     transaction,
 )
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
@@ -611,6 +612,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return self.email
         else:
             return ""
+
+    @property
+    def pretty_wrapping_email(self):
+        return mark_safe(self.email.replace("@", "<wbr>@").replace(".", "<wbr>."))
 
     def get_full_name(self):
         """Deprecated in 1.5.2"""
@@ -2014,6 +2019,10 @@ class ContactPerson(models.Model):
     @property
     def display_name(self):
         return self.account.full_name() if self.account else ""
+
+    @property
+    def display_email(self):
+        return self.account.pretty_wrapping_email if self.account else ""
 
 
 class ContactMessage(models.Model):
