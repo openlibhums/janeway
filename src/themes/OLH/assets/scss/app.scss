@@ -646,6 +646,11 @@ div.caption span.label {
         margin-right: 0.5rem;
         vertical-align: middle;
       }
+
+      // Dropdown menu items should stay on single line
+      .menu.vertical li {
+        white-space: nowrap;
+      }
     }
   }
 }
