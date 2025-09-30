@@ -614,12 +614,29 @@ div.caption span.label {
     li {
       a {
         color: $dark-gray;
+        padding: 0.5rem 0;
+        display: block;
+        text-decoration: none;
+      }
+      button {
+        color: $dark-gray;
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: left;
+        display: block;
+        width: 100%;
       }
       &:hover {
         background: $medium-gray;
       }
       i {
         margin-top: rem-calc(-5px);
+        margin-right: 0.5rem;
+        vertical-align: middle;
       }
     }
   }
