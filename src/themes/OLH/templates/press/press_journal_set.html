@@ -2,7 +2,6 @@
 {% load static %}
 
 {% for journal in journals %}
-    {% setting_var journal 'disable_journal_submission' as submission_disabled %}
     <div class="large-12 columns border-right border-bottom journal-div">
         <div class="box journal">
             <div class="row collapse">
@@ -45,7 +44,7 @@
                             </div>
                             <div class="expanded button-group">
                                 {% if journal.is_remote %}
-                                    {% if not submission_disabled %}
+                                    {% if not journal_settings.general.disable_journal_submission %}
                                         <a href="{{ journal.remote_submit_url }}"
                                             class="button" 
                                             target="_blank"
@@ -62,7 +61,7 @@
                                             {% include "elements/icons/link_external.html" %} 
                                         </a>
                                 {% else %}
-                                    {% if not submission_disabled %}
+                                    {% if not journal_settings.general.disable_journal_submission %}
                                     <a href="{% journal_base_url journal %}{% url 'submission_start' %}"
                                        class="button"><span>{% trans 'Submit' %}</span></a>
                                     {% endif %}

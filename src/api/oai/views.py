@@ -2,8 +2,6 @@
 A django implementation of the OAI-PMH interface
 """
 
-import warnings
-
 from django.utils import timezone
 from django.views.generic.base import TemplateView
 

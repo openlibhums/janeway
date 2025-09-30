@@ -3,7 +3,6 @@ import hashlib
 import hmac
 from urllib.parse import SplitResult, urlencode, urlparse, unquote
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict

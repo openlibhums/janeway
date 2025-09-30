@@ -5,7 +5,6 @@ import json
 import re
 import warnings
 
-from django.apps import apps
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -82,11 +81,14 @@ class JournalViewSet(viewsets.ModelViewSet):
     http_method_names = ["get"]
 
     def get_queryset(self):
-        Journal = apps.get_model("journal.Journal")
         if self.request.journal:
-            queryset = Journal.objects.filter(pk=self.request.journal.pk)
+            queryset = journal_models.Journal.objects.filter(
+                pk=self.request.journal.pk,
+            )
         else:
-            queryset = Journal.objects.filter(hide_from_press=False)
+            queryset = journal_models.Journal.objects.filter(
+                hide_from_press=False,
+            )
         return queryset
 
 
@@ -99,11 +101,14 @@ class IssueViewSet(viewsets.ModelViewSet):
     http_method_names = ["get"]
 
     def get_queryset(self):
-        Issue = apps.get_model("journal.Issue")
         if self.request.journal:
-            queryset = Issue.objects.filter(journal=self.request.journal)
+            queryset = journal_models.Issue.objects.filter(
+                journal=self.request.journal,
+            )
         else:
-            queryset = Issue.objects.filter(journal__hide_from_press=False)
+            queryset = journal_models.Issue.objects.filter(
+                journal__hide_from_press=False,
+            )
 
         return queryset
 

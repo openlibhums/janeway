@@ -1,6 +1,5 @@
 import urllib
 
-from django.apps import apps
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.urls import reverse
 from django.contrib import messages
@@ -10,6 +9,7 @@ from django.utils import translation
 
 from comms import models, forms, logic
 from core import models as core_models
+from journal import models as journal_models
 from security.decorators import editor_user_required, file_user_required, has_request
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect
@@ -212,10 +212,9 @@ def news_list(request, tag=None, presswide=False):
     all_tags = models.Tag.objects.all()
 
     if presswide or request.model_content_type.model == "press":
-        Journal = apps.get_model("journal.Journal")
         press_visible_journal_pks = [
             journal.pk
-            for journal in Journal.objects.filter(
+            for journal in journal_models.Journal.objects.filter(
                 hide_from_press=False,
             )
         ]
