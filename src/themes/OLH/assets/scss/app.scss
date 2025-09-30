@@ -1627,3 +1627,62 @@ section.invisible-landmark{
   color: var(--primary-light-color);
   background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
 }
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+:root {
+    --focus-light: #F9F9F9;
+    --focus-dark: #193146;
+    --focus-ring-size: 4px;
+}
+
+/* Prevent layout shifts */
+    /* Inline links override to prevent layout shifts without affecting typography */
+    p a,
+    span a, 
+    li a {
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        box-sizing: border-box;
+    }
+
+    p a,
+    span a {
+      display: inline-block;
+    }
+
+  
+/* General */
+*:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* focus bounding boxes */
+a:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: inline-block;
+    white-space: normal;
+}
+
+input[type="text"]:focus-visible ,
+input[type="textarea"].tinymce:focus-visible ,
+input[type="email"]:focus-visible ,
+input[type="password"]:focus-visible ,
+input[type="search"]:focus-visible ,
+input[type="number"]:focus-visible ,
+input[type="date"]:focus-visible ,
+input[type="datetime-local"]:focus-visible ,
+input[type="file"]:focus-visible ,
+input[type="submit"]:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
