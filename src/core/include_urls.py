@@ -292,6 +292,11 @@ urlpatterns = [
         core_views.contact_person_update,
         name="core_contact_person_update",
     ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/delete/$",
+        core_views.contact_person_delete,
+        name="core_contact_person_delete",
+    ),
     # Editorial Team
     re_path(
         r"^manager/editorial/$", core_views.editorial_team, name="core_editorial_team"
