@@ -49,7 +49,11 @@
                 </li>
             {% endif %}
 
-            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
+            <li>
+              <a href="{% url 'press_contact' %}" class="nav-link">
+                {% trans 'Contact' %}
+              </a>
+            </li>
 
             {% hook 'nav_block' %}
             {% if request.user.is_authenticated %}
@@ -107,7 +111,11 @@
                     </a>
                 </li>
             {% endif %}
-            <li><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
+            <li>
+              <a href="{% url 'press_contact' %}" class="nav-link">
+                {% trans 'Contact' %}
+              </a>
+            </li>
             {% if request.user.is_authenticated %}
                 <li>
                     <a
