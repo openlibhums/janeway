@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from uuid import uuid4
 from collections import Counter
 from datetime import timedelta
 
@@ -749,7 +748,7 @@ def remove_file(request, article_id, round_id, file_id):
         messages.add_message(
             request,
             messages.INFO,
-            "Cannot remove a file from a closed review round.".format(file.label),
+            "Cannot remove a file from a closed review round.",
         )
     return redirect(reverse("review_in_review", kwargs={"article_id": article_id}))
 
@@ -1775,7 +1774,7 @@ def review_decision(request, article_id, decision):
         request, article, decision, author_review_url
     )
     setting_name = "review_decision_{0}".format(decision)
-    if article.stage == submission_models.STAGE_UNASSIGNED:
+    if article.stage == submission_models.STAGE_UNASSIGNED and decision == 'decline':
         setting_name = "review_decision_desk_reject"
 
     form = core_forms.SettingEmailForm(
