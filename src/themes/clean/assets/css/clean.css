@@ -75,6 +75,7 @@
   --border-radius: 3px;
   --border-radius-lg: 2rem;
   --header-height: 120px;
+  --footer-height: 70px;
   --card-image-height: 250px;
   --carousel-min-height: 500px;
   --icon-size: 16px;
@@ -771,9 +772,11 @@ section[aria-label*="Results"] .article-item {
   margin-bottom: 0;
 }
 
-footer svg {
-  height: 100px;
-  width: 100%;
+footer svg,
+footer img,
+footer .img-fluid{
+  max-height: var(--footer-height);
+  max-width: 100%;
 }
 
 header svg {
