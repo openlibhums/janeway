@@ -1186,7 +1186,8 @@ input[type="submit"]:focus-visible,
 .form-control.is-valid:focus-visible,
 .form-control.is-invalid:focus-visible,
 textarea.tinymce:focus-visible,
-.custom-select:focus-visible {
+.custom-select:focus-visible,
+.modal-sticky-close:focus-visible {
   outline: 2px var(--focus-outline) solid;
   outline-offset: 0;
   box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-shadow);
