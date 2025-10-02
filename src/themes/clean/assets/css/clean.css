@@ -565,6 +565,44 @@ a.btn {
   padding-bottom: var(--spacing-sm);
 }
 
+#reading-options{
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+  min-height: fit-content;
+  box-sizing: border-box;  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: fit-content;
+  margin-left: auto;
+}
+
+.btn-opt {
+    border: 1px solid #1C304A;
+    background: #f1f1f1;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
+
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
+}
+
 /* ========================================================================
    Thumbnail Styles
    ======================================================================== */
@@ -707,6 +745,11 @@ section[aria-label*="Results"] .article-item {
   border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 2rem;
   margin-bottom: 1.5rem;
+}
+
+.sticky-top {
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 /* ========================================================================
@@ -856,9 +899,12 @@ span + .btn-background {
   transition: background-color 2s ease-out;
 }
 
-.sticky-top {
-  max-height: 100vh;
-  overflow-y: auto;
+.sticky-toc {
+    position: sticky;
+    max-height: 100vh;
+    overflow-y: auto;
+    top: 60px;
+    z-index: 999;
 }
 
 .table-caption {

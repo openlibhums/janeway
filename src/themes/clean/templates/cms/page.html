@@ -15,12 +15,16 @@
             </div>
             {% if page.display_toc %}
                 <div class="col-md-4 d-none d-sm-none d-md-block">
-                    <section aria-labelledby="toc-title">
-                        <div class="sticky-top">
-                            <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
-                            <ul id="toc" class="table-of-contents"></ul>
-                        </div>
-                    </section>
+                    <div class="sticky-top">
+                        <section aria-labelledby="toc-title">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                                    <ul id="toc" class="table-of-contents"></ul>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             {% endif %}
         </div>
