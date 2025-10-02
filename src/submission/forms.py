@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import re
 
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext, gettext_lazy as _
 
 from submission import models
