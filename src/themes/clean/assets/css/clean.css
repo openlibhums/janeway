@@ -328,7 +328,6 @@ main a {
   color: var(--btn-primary-text);
   background-color: var(--btn-primary-bg);
   border-color: var(--btn-primary-border);
-  transition: var(--transition-standard);
 }
 
 .btn-background,
