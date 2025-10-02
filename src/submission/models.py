@@ -3374,7 +3374,7 @@ def backwards_compat_authors(
         for account in accounts:
             account.snapshot_as_author(instance)
     if action in ["post_remove", "post_clear"]:
-        instance.frozen_authors.filter(author__in=pk_set).delete()
+        instance.frozen_authors().filter(author__in=pk_set).delete()
 
 
 m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)
