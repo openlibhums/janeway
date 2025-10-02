@@ -5,7 +5,7 @@
 
 {% block title %}Review Recommendations{% endblock %}
 {% block title-section %}Review Recommendations{% endblock %}
-{% block title-sub %}Manange review recommendations{% endblock %}
+{% block title-sub %}Manage review recommendations{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -23,7 +23,7 @@
             </div>
             <div class="content">
                 <p>You can create, edit and delete review recommendations for your repository using the interface here. </p>
-                <p>Recommendations that are linked to existing reviws cannot be deleted but you can mark them as inactive.</p>
+                <p>Recommendations that are linked to existing reviews cannot be deleted but you can mark them as inactive.</p>
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}

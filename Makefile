@@ -79,7 +79,7 @@ all: help
 run: janeway
 help:		## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
-janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependant services detached.
+janeway:	## Run Janeway web server in attached mode. If NO_DEPS is not set, runs all dependent services detached.
 	$(COMPOSE_CMD) run --rm start_dependencies
 	$(COMPOSE_CMD) $(_VERBOSE) run $(NO_DEPS) --rm --service-ports janeway-web $(entrypoint)
 command:	## Run Janeway in a container and pass through a django command passed as the CMD environment variable (e.g make command CMD="migrate -v core 0024")
@@ -102,7 +102,7 @@ db-save-backup: # Archives the current db as a tarball. Returns the output file 
 	@sudo tar -zcf $(DB_VENDOR)-$(DATE)-$(SUFFIX).tar.gz $(DB_VOLUME)
 	@echo "$(DB_VENDOR)-$(DATE)-$(SUFFIX).tar.gz"
 	@sudo chown -R `id -un`:`id -gn` $(DB_VENDOR)-$(DATE)-$(SUFFIX).tar.gz
-db-load-backup: #Loads a previosuly captured backup in the db directory (e.g.: make db-load_backup DB=postgres-21-02-03-3948681d1b6dc2.tar.gz)
+db-load-backup: #Loads a previously captured backup in the db directory (e.g.: make db-load_backup DB=postgres-21-02-03-3948681d1b6dc2.tar.gz)
 	@BACKUP=$(BACKUP);echo "Loading $${BACKUP:?Please set to the name of the backup file}"
 	@tar -zxf $(BACKUP) -C /tmp/
 	@docker kill `docker ps -q --filter 'name=janeway-*'` 2>&1 | true
