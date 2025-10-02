@@ -767,6 +767,22 @@ header svg {
   border-bottom-left-radius: .25rem;
 }
 
+.input-group{
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.input-group > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-group > input.group-append{
+  flex-shrink: 0;
+  align-items: center;
+  display: flex;
+}
+
 .input-group .btn {
   margin: 0;
   height: 100%;
