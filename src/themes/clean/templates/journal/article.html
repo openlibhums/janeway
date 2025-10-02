@@ -156,7 +156,6 @@
                           <ul>
                               {% for galley in galleys %}
                                   {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
-
                                           {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                               <li>
                                                   <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
