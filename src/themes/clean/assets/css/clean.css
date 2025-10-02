@@ -10,6 +10,7 @@
   --highlight-color: #FFEB3B;
 
   /* Text Colors */
+  /* Must pass WCAG color contrast at --recede-opacity */
   --text-primary: #212529;
   --text-muted: #4a4a4a;
   --text-on-dark: white;
@@ -17,9 +18,10 @@
   --text-black: #000;
   --text-white: #fff;
   --text-header: var(--text-black);
-  --body-text: oklch(0.556 0 0);
+  --body-text: #525252;
   --nav-text: #636363;
   --nav-text-active: var(--brand-primary);
+  --recede-opacity: 70%;
 
   /* Link Decoration */
   --link-decoration: underline;
@@ -869,6 +871,21 @@ span + .btn-background {
   width: var(--icon-size);
   display: inline-block;
 }
+
+.icon-recede{
+    opacity: var(--recede-opacity);
+}
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
 
 /* ========================================================================
    Lists
