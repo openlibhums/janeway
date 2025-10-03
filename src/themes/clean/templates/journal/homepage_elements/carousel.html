@@ -4,6 +4,11 @@
     <div class="col-md-12">
         <h2 class="sr-only">{% trans 'Latest Articles & News' %}</h2>
         <div id="carousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+              {% for carousel_item in carousel_items %}
+                <li data-target="#carousel" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+              {% endfor %}
+            </ol>
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
