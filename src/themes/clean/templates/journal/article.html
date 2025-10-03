@@ -197,6 +197,9 @@
                               {% endfor %}
                           </ul>
                       {% endif %}
+     
+                      {% include "elements/journal/article_issue_list.html" %}
+                      
                       <h2>{% trans "Information" %}</h2>
                       <ul>
                           {% if journal_settings.article.display_date_submitted and article.date_submitted %}
