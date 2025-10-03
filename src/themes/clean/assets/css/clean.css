@@ -571,7 +571,7 @@ a.btn {
   display: flex;
   gap: 1rem;
   margin: 0;
-  padding: 0;
+  padding: 9;
   justify-content: flex-end;
   min-height: fit-content;
   box-sizing: border-box;  
@@ -580,6 +580,7 @@ a.btn {
   z-index: 1000;
   width: fit-content;
   margin-left: auto;
+  background-color: var(--bg-body);
 }
 
 .btn-opt {
