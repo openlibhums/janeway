@@ -416,7 +416,7 @@ a.btn {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  background: linear-gradient(transparent, rgba(0, 0, 0, var(--recede-opacity)) 20%);
   padding: 2rem;
   text-align: center;
 }
@@ -440,6 +440,7 @@ a.btn {
 .carousel-control-next,
 .carousel-control-prev {
   top: 40px;
+  opacity: var(--recede-opacity);
 }
 
 #carousel-buttons {
