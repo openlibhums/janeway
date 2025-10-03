@@ -819,6 +819,17 @@ header svg {
   border-bottom-left-radius: .25rem;
 }
 
+.input-group {
+  align-items: stretch;
+}
+
+.input-group .custom-select,
+.input-group .input-group-text {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
 .input-group{
   display: flex;
   flex-wrap: nowrap;
