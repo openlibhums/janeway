@@ -12,7 +12,7 @@
   /* Text Colors */
   /* Must pass WCAG color contrast at --recede-opacity */
   --text-primary: #212529;
-  --text-muted: #4a4a4a;
+  --text-muted: #747474;
   --text-on-dark: white;
   --text-link: var(--body-text);
   --text-black: #000;
@@ -743,7 +743,6 @@ a.btn {
   margin-bottom: 0.25rem;
   font-size: 0.9rem;
   color: var(--text-muted);
-  opacity: var(--recede-opacity);
 }
 
 .search-results .article-item,
