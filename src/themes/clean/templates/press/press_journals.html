@@ -10,6 +10,9 @@
         <h1>{% trans 'Journals' %}</h1>
     </div>
     <div class="col-lg-8 col-md-10 journal-container">
+        <a class="skip-to-content" href="#filter">
+            {% trans "Skip to filter" %}
+        </a>
         {% for current_journal in journals %}
             {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
             <div class="row journal-div">
@@ -73,6 +76,7 @@
             <label><span id="filter-title">{% trans "Filter" %}</span>
                 <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
             </label>
+            {% include "common/elements/skip_to_main_content.html" %}
         </section>
     </div>
 </div>

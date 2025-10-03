@@ -1264,6 +1264,19 @@ textarea.tinymce:focus-visible,
   }
 }
 
+@media (min-width: 768px) {
+    .row {
+        display: flex;
+        flex-direction: row;
+    }
+    .journal-container {
+        order: 1;
+    }
+    .col-lg-4.col-md-2 {
+        order: 2;
+    }
+}
+
 /* ========================================================================
    Issue Cards - Horizontal Layout
    ======================================================================== */
