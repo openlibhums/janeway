@@ -1074,11 +1074,11 @@ span + .btn-background {
 /* ========================================================================
    Accessibility & Skip Navigation
    ======================================================================== */
-.skipnav {
+.skip-container {
   text-align: left;
 }
 
-.skipnav a {
+.skip-container a {
   position: absolute;
   left: -10000px;
   width: 1px;
@@ -1087,8 +1087,8 @@ span + .btn-background {
   color: var(--text-link);
 }
 
-.skipnav a:focus,
-.skipnav a:active {
+.skip-container a:focus,
+.skip-container a:active {
   position: static;
   left: 0;
   width: auto;
