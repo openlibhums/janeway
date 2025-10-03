@@ -1117,6 +1117,8 @@ p a, span a, li a {
 .article-block a,
 .site-header a,
 .site-footer a,
+.article-item a,
+.carousel-caption a,
 p a,
 li a {
   display: inline-block;
@@ -1193,6 +1195,14 @@ textarea.tinymce:focus-visible,
   outline: 2px var(--focus-outline) solid;
   outline-offset: 0;
   box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-shadow);
+}
+
+.carousel-control-next:focus-visible,
+.carousel-control-prev:focus-visible{
+  outline: 2px var(--focus-outline) solid;
+  outline-offset: 0;
+  box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-shadow);
+  opacity: 1;
 }
 
 /* ========================================================================
