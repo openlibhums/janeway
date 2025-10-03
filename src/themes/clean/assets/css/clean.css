@@ -742,7 +742,7 @@ a.btn {
   margin-bottom: 0.25rem;
   font-size: 0.9rem;
   color: var(--text-muted);
-  opacity: 0.8;
+  opacity: var(--recede-opacity);
 }
 
 .search-results .article-item,
