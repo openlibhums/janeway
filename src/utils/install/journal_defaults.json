@@ -3628,7 +3628,7 @@
     },
     {
         "value": {
-            "default": "<p>If you are undertaking a single anonymous or double anonymous review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"
+            "default": "<p>Files intended for single or double anonymous review must have all identifying text removed.</p><ol><li>If the paper has a title page, remove any names or contact information.</li><li>&nbsp;Check the bibliography and the text for self-citation.</li><li>Check for implied self-citation. The following phrases may indicate an author's identity and should therefore be edited:<ul><li>I discussed in a previous paper...\"</li><li>\"I have previously shown...\"</li><li>\"My previous work...</li></ul></li><li>Remove any identifying metadata from the file.</li></ol>"
         },
         "setting": {
             "type": "rich-text",
@@ -3992,7 +3992,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tick this box to hide all review data from authors through the end of the review stage, except for reviews that are individually shared with authors during review.",
+            "description": "Tick this box to hide all review information from authors untill the end of the review stage. This can be overridden by manually sharing reviews with authors after they are completed.",
             "is_translatable": false,
             "name": "hide_review_data_pre_release",
             "pretty_name": "Hide review data from authors before release",
@@ -4800,7 +4800,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>It is our policy to share completed reviews from prior review rounds with all reviewers engaged in the review process. You can find the completed reviews from prior rounds below.</p>"
+            "default": "<p>When conducting multiple rounds of review, it is our policy to share the completed reviews from previous rounds with all reviewers. You can find these below.</p>"
         },
         "editable_by": [
             "journal-manager",
