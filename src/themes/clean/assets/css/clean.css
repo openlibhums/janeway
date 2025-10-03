@@ -188,7 +188,9 @@ main a {
 }
 
 .navbar-custom .navbar-nav .nav-link,
-.navbar-custom .nav-link.dropdown-toggle {
+.navbar-custom .nav-link.dropdown-toggle,
+.navbar-dark.navbar-custom .navbar-nav .nav-link,
+.navbar-dark.navbar-custom .nav-link.dropdown-toggle {
   color: var(--nav-text);
   text-decoration: var(--nav-link-decoration);
 }
@@ -196,16 +198,23 @@ main a {
 .navbar-custom .navbar-nav .nav-link:hover,
 .navbar-custom .navbar-nav .nav-link:focus,
 .navbar-custom .nav-link.dropdown-toggle:hover,
-.navbar-custom .nav-link.dropdown-toggle:focus {
+.navbar-custom .nav-link.dropdown-toggle:focus,
+.navbar-dark.navbar-custom .navbar-nav .nav-link:hover,
+.navbar-dark.navbar-custom .navbar-nav .nav-link:focus,
+.navbar-dark.navbar-custom .nav-link.dropdown-toggle:hover,
+.navbar-dark.navbar-custom .nav-link.dropdown-toggle:focus {
   text-decoration: var(--nav-link-decoration-hover);
+  color: var(--nav-text-active);
 }
 
 .navbar-custom .nav-item.active .nav-link,
 .navbar-custom .nav-item:hover .nav-link,
-.navbar-custom .nav-item:focus-visible .nav-link {
+.navbar-custom .nav-item:focus-visible .nav-link,
+.navbar-dark.navbar-custom .nav-item.active .nav-link,
+.navbar-dark.navbar-custom .nav-item:hover .nav-link,
+.navbar-dark.navbar-custom .nav-item:focus-visible .nav-link {
   color: var(--nav-text-active);
 }
-
 .dropdown-toggle::after {
   display: inline-block;
   margin-left: .255em;
@@ -1183,6 +1192,7 @@ main a:focus-visible,
 #lightbox a:focus-visible,
 .navbar-custom .nav-link:focus-visible,
 .navbar-custom .navbar-brand:focus-visible,
+.navbar-dark.navbar-custom .nav-link:focus-visible,
 .btn:focus-visible,
 .btn-primary:focus-visible,
 .btn-secondary:focus-visible,
