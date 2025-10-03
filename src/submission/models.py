@@ -1185,6 +1185,7 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         related_name="image_file",
         on_delete=models.SET_NULL,
+        help_text="A large, landscape image to be displayed at the top of the article page. Recommended size: 750 x 324 pixels.",
     )
     exclude_from_slider = models.BooleanField(default=False)
 
@@ -1194,6 +1195,7 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         related_name="thumbnail_file",
         on_delete=models.SET_NULL,
+        help_text="A small, square image to be used as a thumbnail for the article. Recommended size: 128 x 128 pixels.",
     )
 
     # Whether or not we should display that this article has been "peer reviewed"
@@ -1274,7 +1276,11 @@ class Article(AbstractLastModifiedModel):
 
     # Meta
     meta_image = models.ImageField(
-        blank=True, null=True, upload_to=article_media_upload, storage=fs
+        blank=True,
+        null=True,
+        upload_to=article_media_upload,
+        storage=fs,
+        help_text="The image that will be used when sharing the article on social media.",
     )
 
     preprint_journal_article = models.ForeignKey(

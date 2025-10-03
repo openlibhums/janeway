@@ -889,7 +889,9 @@ class Issue(AbstractLastModifiedModel):
         null=True,
         blank=True,
         storage=fs,
-        help_text=gettext("Landscape hero image used in the carousel and issue page."),
+        help_text=gettext(
+            "Large, landscape image used in the carousel on the homepage and on the top of the issue page."
+        ),
     )
 
     # issue articles
@@ -921,10 +923,9 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         null=True,
         verbose_name="DOI",
-        help_text="The DOI (not URL) to be registered for the issue when registering "
+        help_text="The DOI (not in URL format, e.g. 10.001/my-journal) to be registered for the issue when registering "
         "articles that are part of this issue. If you have enabled issue "
-        "auto-registration in your settings, this field should not be "
-        "entered manually.",
+        "auto-registration in your settings, leave this field blank.",
     )
 
     isbn = models.CharField(

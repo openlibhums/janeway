@@ -3764,7 +3764,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "Tick this box to display guest editors on the article page for primary issues.",
+            "description": "Tick this box to display the guest editors on the article page. This will only apply to the guest editors of the primary issue the article belongs to.",
             "is_translatable": false,
             "name": "display_guest_editors",
             "pretty_name": "Display guest editors",
