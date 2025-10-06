@@ -28,6 +28,8 @@
   --link-decoration-hover: underline;
   --nav-link-decoration: none;
   --nav-link-decoration-hover: underline;
+  --dropdown-item-decoration: none;
+  --dropdown-item-decoration-hover: underline;
   --link-hover-color: var(--brand-primary);
   --link-transition: color 0.2s ease;
 
@@ -227,6 +229,19 @@ main a {
   border-bottom: 2px solid currentColor;
   transform: rotate(45deg);
   margin-top: -0.1em;
+}
+
+/* Dropdown item styles - standardized with nav-link behavior */
+.dropdown-item {
+  color: var(--nav-text);
+  text-decoration: var(--dropdown-item-decoration);
+  transition: var(--link-transition);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: var(--nav-text-active);
+  text-decoration: var(--dropdown-item-decoration-hover);
 }
 
 /* ========================================================================
