@@ -18,14 +18,24 @@
                     {% endif %}
                 </div>
                 <div class="issue-content">
-                    <h2 class="issue-title">{{ issue.display_title }}</h2>
+                    {% if level == "deep" %}
+                        <h3 class="issue-title" id="issue-title-{{ forloop.counter }}">
+                            <span aria-hidden="true">{{ issue.display_title }}</span>
+                            <span class="sr-only"> {{ issue.display_title_a11y }}</span>
+                        </h3>
+                    {% else %}
+                        <h2 class="issue-title" id="issue-title-{{ forloop.counter }}">
+                            <span aria-hidden="true">{{ issue.display_title }}</span>
+                            <span class="sr-only"> {{ issue.display_title_a11y }}</span>
+                        </h2>
+                    {% endif %}
                     {% if issue.date %}
                         <p class="issue-date">{{ issue.date|date:"F Y" }}</p>
                     {% endif %}
                     <p class="issue-count">{{ issue.articles.all.count }} {% trans "items" %}</p>
 
                     <a href="{% url 'journal_issue' issue.id %}"
-                       aria-label='{% trans "View" %} {{ issue.display_title_a11y }} ({{ issue.articles.all.count }} {% trans "items" %})'>
+                       aria-describedby="issue-title-{{ forloop.counter }}">
                         {% trans "View issue" %}
                     </a>
                 </div>
