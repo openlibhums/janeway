@@ -56,6 +56,7 @@
                 <div class="col-md-2">
                     {% if 'svg' in request.press_cover %}
                         {% svg request.press_cover %}
+                        <span class="sr-only">{{ request.press.name }}</span>
                     {% else %}
                         <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
                                          alt="{{ request.press.name }} logo">
