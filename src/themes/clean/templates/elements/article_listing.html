@@ -52,7 +52,7 @@
                 </a>
             {% endif %}
 
-            <ul class="list-inline article-authors">
+            <ul class="list-inline article-authors" aria-label="{% trans 'Authors: ' %}">
                 {% for author in article.frozen_authors.all %}
                     <li class="list-inline-item">
                         {% if forloop.last and article.frozen_authors.all|length > 1 %}{% trans 'and' %} {% endif %}
@@ -61,7 +61,7 @@
                 {% endfor %}
             </ul>
 
-            <ul class="list-inline article-meta">
+            <ul class="list-inline article-meta" aria-label="{% trans 'Article metadata' %}">
                 <li class="list-inline-item meta-item">
                     <i aria-hidden="true" class="fa fa-calendar"></i>
                     <time datetime="{{ article.date_published|date:"Y-m-d" }}">
