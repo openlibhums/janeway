@@ -85,7 +85,9 @@
     {% block body %}{% endblock body %}
 </main>
 <footer class="site-footer" id="footer">
-  {% include "core/footer.html" %}
+    <div class="container">
+        {% include "core/footer.html" %}
+    </div>
 </footer>
 {% include "common/elements/analytics.html" %}
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
