@@ -18,6 +18,7 @@
   --text-white: #fff;
   --text-header: var(--text-black);
   --body-text: #525252;
+  --body-text-dyslexia: var(--text-black);
   --nav-text: #636363;
   --nav-text-active: var(--brand-primary);
   --recede-opacity: 70%;
@@ -39,6 +40,8 @@
   --bg-card-alt: #f8f9fa;
   --bg-blockquote: #F0F0F0;
   --bg-overlay: rgba(55, 55, 55, 0.8);
+  --bg-dyslexia: #F5F5DC;
+  --bg-dyslexia-em: #FAFAC8;
 
   /* UI State Colors */
   --color-success: green;

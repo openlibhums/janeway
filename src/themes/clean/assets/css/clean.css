@@ -575,13 +575,13 @@ a.btn {
 
 .dyslexia-friendly {
     font-family: Verdana !important;
-    color: #4c4c4c;
-    background-color: #F5F5DC;
+    color: var(--body-text-dyslexia);
+    background-color: var(--bg-dyslexia);
 }
 
 .dyslexia-friendly em,
 .dyslexia-friendly i {
-    background-color: #FAFAC8;
+    background-color: var(--bg-dyslexia-em);
     font-style: normal;
 }
 
