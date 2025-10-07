@@ -10,10 +10,12 @@
         <div class="col-md-4 contact">
             <h1 class="sr-only">{% trans 'Contact us' %}</h1>
             <h2 class="side-bar-title">{% trans "Journal Contacts" %}</h2>
-            {% for contact in contacts %}
-                <h3 class="card-title editor-name">{{ contact.name }}</h3>
-                <p>{{ contact.role }}</p>
+            <dl>
+                {% for contact in contacts %}
+                <dt>{{ contact.name }}</dt>
+                <dd>{{ contact.role }}</dd>
             {% endfor %}
+            </dl>
             {% if journal_settings.general.contact_info %}
                 <h2>{% trans 'Contact Information' %}</h2>
                 {{ journal_settings.general.contact_info|safe }}
