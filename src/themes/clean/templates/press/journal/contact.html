@@ -1,38 +1,40 @@
 {% extends "core/base.html" %}
-{% load foundation %}
+{% load bootstrap4 %}
 {% load i18n %}
 
 {% block title %}{% trans "Contact" %}{% endblock title %}
 
 {% block body %}
-	<section id="content" class="no-padding">
-		<div class="row column">
-            <div class="large-4 columns contact">
-                <h1 class="sr-only">{% trans 'Contact us' %}</h1>
-                <h2>{% trans "Press Representatives" %}</h2>
-                {% for contact in contacts %}
-                <h3>{{ contact.name }}</h3>
-                <p>{{ contact.role }}</p>
-                {% endfor %}
-            </div>
-            <div class="large-8 columns">
-                <h2>{% trans "Contact" %}</h2>
-                <form method="POST" novalidate>
-                    {% include "elements/forms/errors.html" with form=contact_form %}
-                    {% csrf_token %}
-                    <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
-                    <select id="id_recipient" name="recipient">
-                        {% for contact in contacts %}<option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
-                    </select>
-                    {% include "admin/elements/forms/required_field_info.html" %}
-                    {{ contact_form.sender|foundation }}
-                    {{ contact_form.subject|foundation }}
-                    {{ contact_form.body|foundation }}
-                    {{ contact_form.captcha|foundation }}
-                    <button type="submit" class="success button">{% trans "Send Message" %}</button>
-                </form>
-            </div>
+    <div class="row">
 
-		</div>
-	</section>
+        <div class="col-md-4 contact">
+            <h1 class="sr-only">{% trans 'Contact us' %}</h1>
+            <h2 class="side-bar-title">{% trans "Press Representatives" %}</h2>
+            {% for contact in contacts %}
+                <h3 class="card-title editor-name">{{ contact.name }}</h3>
+                <p>{{ contact.role }}</p>
+            {% endfor %}
+        </div>
+        <div class="col-md-8">
+            <h2>{% trans "Contact" %}</h2>
+            <form method="POST" novalidate>
+                {% include "elements/forms/errors.html" with form=contact_form %}
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_recipient"
+                           class="form-control-label">{% trans "Who would you like to contact?" %}</label><br>
+                    <select id="id_recipient" name="recipient" class="form-control custom-select">
+                        {% for contact in contacts %}
+                            <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
+                    </select>
+                </div>
+                {% bootstrap_field contact_form.sender %}
+                {% bootstrap_field contact_form.subject %}
+                {% bootstrap_field contact_form.body %}
+                {% bootstrap_field contact_form.captcha %}
+                <button type="submit" class="btn btn-primary">{% trans "Send Message" %}</button>
+            </form>
+        </div>
+
+    </div>
 {% endblock body %}
