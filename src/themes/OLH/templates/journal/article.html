@@ -36,36 +36,25 @@
             </div>
         </section>
         <section class="no-padding meta hide-for-small-only">
-            <div class="orbit article-orbit row" data-orbit>
-                <ul class="orbit-container article-orbit">
-                    <li class="is-active orbit-slide overlay">
-                            <img class="orbit-image"
-                                {% if article.large_image_file.id %}
-                                 src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                {% elif article.issue.large_image %}
-                                 src="{{ article.issue.large_image.url }}"
-                                {% elif journal.default_large_image %}
-                                 src="{{ journal.default_large_image.url }}"
-                                {% else %}
-                                 src=""
-                                {% endif %}
-                                 alt="{{ article.title | striptags }}">
-                        <div class="row column">
-                            <div class="orbit-caption">
-                                <p class="uppercase">{{ article.section.name }}</p>
-                                <h1>{{ article.title|safe }}</h1>
-                                <p class="uppercase">
-                                  {% blocktrans count counter=article.frozen_authors.count %}
-                                    Author
-                                  {% plural %}
-                                    Authors
-                                  {% endblocktrans %}
-                                </p>
-                                {% include "common/elements/journal/article_authors_br.html" %}
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+            <div class="row medium-12">
+              <div class="olh-banner">
+                <img class="olh-banner-image"
+                  src="{{ article.best_large_image_url }}"
+                  alt="{{ article.title | striptags }}">
+                <div class="overlay"></div>
+                <div class="olh-banner-heading">
+                  <p class="uppercase">{{ article.section.name }}</p>
+                  <h1>{{ article.title|safe }}</h1>
+                  <p class="uppercase">
+                    {% blocktrans count counter=article.frozen_authors.count %}
+                      Author
+                    {% plural %}
+                      Authors
+                    {% endblocktrans %}
+                  </p>
+                  {% include "common/elements/journal/article_authors_br.html" %}
+                </div>
+              </div>
             </div>
         </section>
         <div id="author_biographies">
