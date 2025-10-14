@@ -13,12 +13,13 @@
         {% for collection in collections %}
             <div class="col-md-4 row-eq-height">
                 <div class="card" style="width: 20rem;">
+                  <div class="clean-banner">
                     <img
-                        class="card-img-top img-fluid"
+                        class="clean-banner-image"
                         src="{{ collection.hero_image_url }}"
                         alt="{{ collection.issue_title }}"
-                        onerror="if (this.src !='{% static 'common/img/sample/article-small.jpg' %}') this.src='{% static 'common/img/sample/article-small.jpg' %}'"
                     >
+                  </div>
                     <div class="card-block">
                         <a href="{% url 'journal_collection' collection.pk %}">
                             <h2 class="card-title">{{ collection.issue_title }}</h2>

@@ -221,7 +221,7 @@ main a:hover {
     min-width: 100%;
 }
 
-.card img {
+.card img:not(.clean-banner-image) {
     max-height: 250px;
     object-fit: cover;
 }
@@ -276,6 +276,13 @@ main a:hover {
 	top: 40px;
 }
 
+.carousel-item .carousel-caption {
+  /* Bootstrap 4.4 hides the caption on small screens by default,
+   * even for active carousel items.
+   * This unhides them for accessibility. */
+  display: block !important;
+}
+
 footer svg {
     height: 100px;
     width: 100%;
@@ -301,7 +308,7 @@ footer svg {
         padding: 10px;
     }
 
-    .card img {
+    .card img:not(.clean-banner-image) {
         min-height: 220px;
         object-fit: cover;
     }
@@ -809,3 +816,48 @@ textarea.tinymce:focus,
 }
 
 /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
+
+/* Banner for hero / large image */
+
+.clean-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+
+.clean-banner .clean-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width >= 992px) {
+  .col-md-12 .clean-banner,
+  .col-lg-12 .clean-banner {
+    max-height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  .col-md-12 .clean-banner,
+  .col-lg-12 .clean-banner {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+.col-md-4 .clean-banner,
+.col-lg-4 .clean-banner {
+  max-height: 216px;
+}
+.col-md-6 .clean-banner,
+.col-md-8 .clean-banner,
+.col-lg-6 .clean-banner,
+.col-lg-8 .clean-banner {
+  max-height: 288px;
+}

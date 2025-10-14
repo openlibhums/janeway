@@ -1,0 +1,34 @@
+{% load static %}
+{% load settings %}
+
+<div class="col-md-4 row-eq-height">
+  <div class="card">
+    {% if not journal_settings.article.disable_article_large_image %}
+      <div class="clean-banner">
+        <img
+          src="{{ article.best_large_image_url }}"
+          alt="{{ article.title|striptags }}"
+          class="clean-banner-image"
+        />
+      </div>
+    {% endif %}
+    <div class="card-body">
+      <h3 id="{{ article.pk }}-title" class="sr-only">{{ article.title }}</h3>
+      <p class="card-text">{{ article.author_list }}</p>
+      <p class="card-text">
+        <strong>
+          {% if article.is_remote %}
+            <a href="{{ article.remote_url }}" target="_blank">
+              {{ article.title|safe|truncatechars:200 }}
+              {% include "elements/icons/link_external.html" %}
+            </a>
+          {% else %}
+            <a href="{{ article.url }}">
+              {{ article.title|safe|truncatechars:200 }}
+            </a>
+          {% endif %}
+        </strong>
+      </p>
+    </div>
+  </div>
+</div>
