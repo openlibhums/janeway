@@ -32,6 +32,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
@@ -1174,7 +1175,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -2560,6 +2561,34 @@ class Article(AbstractLastModifiedModel):
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        1. article large image
+        2. issue large image
+        3. journal default large image
+        4. press default carousel image
+        5. static hero image fallback
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.press.default_carousel_image:
+            return self.press.default_carousel_image.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):

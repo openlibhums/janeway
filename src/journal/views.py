@@ -1477,7 +1477,10 @@ def manage_issues(request, issue_id=None, event=None):
                 save_issue.journal = request.journal
                 save_issue.save()
                 if request.FILES and save_issue.large_image:
-                    resize_and_crop(save_issue.large_image.path, [750, 324])
+                    resize_and_crop(
+                        save_issue.large_image.path,
+                        field_name="Large image",
+                    )
                 if issue:
                     return redirect(
                         reverse("manage_issues_id", kwargs={"issue_id": issue.pk})

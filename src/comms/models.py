@@ -1,10 +1,12 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
+from django.templatetags.static import static
 from simple_history.models import HistoricalRecords
 from django.utils.html import mark_safe
 
@@ -64,7 +66,7 @@ class NewsItem(models.Model):
         on_delete=models.SET_NULL,
         help_text="An image for the top of the news item page and the "
         "news list page. Note that it will be automatically "
-        "cropped to 750px x 324px, so wide images work best.",
+        "cropped to 1500px x 648px, so wide images work best.",
     )
     tags = models.ManyToManyField("Tag", related_name="tags")
     custom_byline = models.CharField(
@@ -171,7 +173,14 @@ class NewsItem(models.Model):
         if path:
             return self.object.site_url(path=path)
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for best_image_url that is used by the carousel templates.
+        """
+        return self.best_image_url
 
     def __str__(self):
         if self.posted_by:
