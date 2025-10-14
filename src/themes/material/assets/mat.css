@@ -219,6 +219,10 @@ a:hover .article-title {
     opacity: 0.5;
     padding: 10px
 }
+.carousel-text-wrapper h1,
+.carousel-text-wrapper h2 {
+  margin-block: 0;
+}
 
 .no-bottom-padding {
     padding-bottom: 0px !important;
@@ -965,3 +969,69 @@ p + .btn-background {
     color: inherit;
     text-decoration: underline;
 }
+
+/* Banner for hero / large image */
+.material-banner {
+  position: relative;
+  /* overflow: clip; */
+  overflow: hidden;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.material-banner > *,
+.material-banner .material-banner-image {
+  display: block;
+  flex-grow: 1;
+  max-height: 648px;
+}
+.material-banner-heading {
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width > 600px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(432px, 100%);
+  }
+}
+@media (width > 992px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: 540px;
+  }
+}
+@media (width > 1200px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(648px, 100%);
+  }
+}
+/* Carousel items should display text at the top because Materialize JS
+ * sets the carousel height for reasons of its own,
+ * which can have the effect of hiding the heading. */
+.carousel-item.material-banner .material-banner-heading {
+  bottom: unset;
+  top: 0;
+}
+/* Partial-width banners should be shorter */
+.m4 .material-banner,
+.l4 .material-banner {
+  max-height: 216px;
+}
+.m6 .material-banner,
+.m8 .material-banner,
+.l6 .material-banner,
+.l8 .material-banner {
+  max-height: 288px;
+}
+/* End banner image styles */
