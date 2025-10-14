@@ -18,49 +18,24 @@
 
 {% block body %}
     <div id="article_opener" class="row">
-        <div class="col m12">
-            <div class="card">
-                {% if not journal_settings.article.disable_article_large_image %}
-                    <div class="card-image article-card">
-                        <img class="orbit-image"
-                                {% if article.large_image_file.id %}
-                                src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                {% elif article.issue.large_image %}
-                                src="{{ article.issue.large_image.url }}"
-                                {% elif journal.default_large_image %}
-                                src="{{ journal.default_large_image.url }}"
-                                {% else %}
-                                src=""
-                                {% endif %}
-                                alt="{{ article.title|striptags }}">
-
-
-                        <span class="card-title">
-                            <div class="carousel-text-wrapper hide-on-small-only">
-                                <small>
-                                    {{ article.section.name }}
-                                </small>
-                                <br/>
-                                <h1>{{ article.title|safe }}</h1>
-                            </div>
-                        </span>
-                        <span class="card-title" style="font-size: 17px;">
-                            <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
-                                <small>
-                                    {{ article.section.name }}
-                                    <br/>
-                                    <h1>{{ article.title|safe }}</h1>
-                                </small>
-                            </div>
-                        </span>
-                    </div>
-                {% endif %}
-                
-                <div>
-
+      <div class="padding-inline-0-75 m12">
+        <div class="card">
+          {% if not journal_settings.article.disable_article_large_image %}
+            <div class="material-banner">
+              <img class="material-banner-image"
+                src="{{ article.best_large_image_url }}"
+                alt="{{ article.title|striptags }}">
+              <div class="material-banner-heading">
+                <div class="carousel-text-wrapper">
+                  <small>{{ article.section.name }}</small>
+                  <br/>
+                  <h1>{{ article.title|safe }}</h1>
                 </div>
-            </div>   
+              </div>
+            </div>
+          {% endif %}
         </div>
+      </div>
 
         <div id="reading-sticky" class=" col s12 show-on-small hide-on-med-and-up">
             {% include "elements/journal/reading.html" %}
