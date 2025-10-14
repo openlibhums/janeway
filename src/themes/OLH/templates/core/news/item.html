@@ -12,24 +12,9 @@
 
 {% block body %}
 	<section id="content" class="">
-		<div class="row column">
+		<div class="row column medium-12">
             {% if news_item.best_image_url %}
-                <div class="orbit article-orbit" data-orbit>
-                    <ul class="orbit-container article-orbit">
-                        <li class="is-active orbit-slide overlay">
-                                <img class="orbit-image"
-                                    src="{{ news_item.best_image_url }}"
-                                    alt="{{ news_item.title|striptags|unescape }}">
-                            <div class="row column">
-                                <figcaption class="orbit-caption">
-                                    <h1>{{ news_item.title|safe }}</h1>
-                                    <p class="byline">{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
-                                </figcaption>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <br />
+              {% include "elements/news_item_banner.html" %}
             {% else %}
                 <h1>{{ news_item.title|safe }}</h1>
 			    <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human }}</p>
@@ -56,7 +41,9 @@
 
             <br />
 
-			<a href="{% url 'core_news_list' %}" class="button">{% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}</a>
+      <a href="{% url 'core_news_list' %}" class="button">
+        {% trans "Back to" %} {{ journal_settings.news.news_title|default:"News" }} {% trans "List" %}
+      </a>
 		</div>
 	</section>
 {% endblock body %}

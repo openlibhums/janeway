@@ -1,5 +1,5 @@
 {% load i18n %}
-<div>
+<div class="padding-block-1">
     {% regroup articles by section as grouped_articles %}
     {% for section, section_articles in grouped_articles %}
         {% if level == "deep" %}
