@@ -8,7 +8,7 @@
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
-                      <div class="clean-banner">
+                      <div class="clean-banner explicit-image-height">
                         <img class="d-block clean-banner-image"
                           src="{{ carousel_item.best_large_image_url }}"
                           alt="{{ carousel_item.carousel_title|striptags }}">
