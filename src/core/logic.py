@@ -163,7 +163,6 @@ def resize_and_crop(
     :param field_name: human-readable field name for help messages
     :param original_filename: the original filename for help messages
     """
-    cropped = False
     if not size:
         size = [1500, 648]
 
@@ -172,10 +171,10 @@ def resize_and_crop(
         img = Image.open(img_path)
     except FileNotFoundError:
         logger.warning("File not found, can't resize: %s" % img_path)
-        return cropped, []
+        return
     except UnidentifiedImageError:
         # Could be an SVG
-        return cropped, []
+        return
 
     # Warn if the image is not large enough
     request = utils_logic.get_current_request()
@@ -819,7 +818,6 @@ def handle_article_large_image_file(uploaded_file, article, request):
         )
         article.large_image_file = new_file
         article.save()
-
     resize_and_crop(
         new_file.self_article_path(),
         field_name="Large image",
