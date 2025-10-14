@@ -29,6 +29,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.template import Context, Template
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.functional import cached_property
@@ -951,8 +952,17 @@ class Issue(AbstractLastModifiedModel):
             return self.large_image.url
         elif self.journal.default_large_image:
             return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for hero_image_url that is used by the carousel templates.
+        """
+        return self.hero_image_url
 
     @property
     def date_published(self):

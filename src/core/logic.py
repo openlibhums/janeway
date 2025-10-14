@@ -148,24 +148,59 @@ def send_confirmation_link(request, new_user):
     )
 
 
-def resize_and_crop(img_path, size, crop_type="middle"):
+def resize_and_crop(
+    img_path,
+    size=None,
+    crop_type="top",
+    field_name="",
+    original_filename="",
+):
     """
     Resize and crop an image to fit the specified size.
+    :param img_path: filepath to saved image
+    :param size: two-item list with [width, height] in pixels
+    :param crop_type: "top", "middle", or "bottom"
+    :param field_name: human-readable field name for help messages
+    :param original_filename: the original filename for help messages
     """
+    cropped = False
+    if not size:
+        size = [1500, 648]
 
     # If height is higher we resize vertically, if not we resize horizontally
     try:
         img = Image.open(img_path)
     except FileNotFoundError:
         logger.warning("File not found, can't resize: %s" % img_path)
-        return
+        return cropped, []
     except UnidentifiedImageError:
         # Could be an SVG
-        return
+        return cropped, []
+
+    # Warn if the image is not large enough
+    request = utils_logic.get_current_request()
+    filename = original_filename.split("/")[-1] or img_path.split("/")[-1]
+    if img.size[0] < size[0]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[0]} pixels wide, "
+            f"but it should be at least {size[0]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
+    if img.size[1] < size[1]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[1]} pixels tall, "
+            f"but it should be at least {size[1]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
 
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
+
     # The image is scaled/cropped vertically or horizontally depending on the ratio
     if ratio > img_ratio:
         img = img.resize(
@@ -785,7 +820,11 @@ def handle_article_large_image_file(uploaded_file, article, request):
         article.large_image_file = new_file
         article.save()
 
-    resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+    resize_and_crop(
+        new_file.self_article_path(),
+        field_name="Large image",
+        original_filename=uploaded_file.name,
+    )
 
 
 def handle_article_thumb_image_file(uploaded_file, article, request):

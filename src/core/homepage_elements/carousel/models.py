@@ -129,6 +129,12 @@ class Carousel(models.Model):
 
 
 class CarouselObject(models.Model):
+    """
+    This model is deprecated. Carousels are formed dynamically from selected items.
+
+    A warning is not raised, since an early migration uses the model.
+    """
+
     large_image_file = models.ForeignKey(
         "core.File", null=True, blank=True, on_delete=models.SET_NULL
     )

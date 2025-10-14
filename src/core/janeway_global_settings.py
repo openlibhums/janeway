@@ -188,6 +188,7 @@ SETTINGS_EXPORT = [
     "HIJACK_USERS_ENABLED",
     "ENABLE_OIDC",
     "OIDC_SERVICE_NAME",
+    "HERO_IMAGE_FALLBACK",
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -713,3 +714,6 @@ JATS_ARTICLE_TYPES = (
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
+
+# Last-resort hero image (a.k.a. large image), loadable as a static file
+HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
