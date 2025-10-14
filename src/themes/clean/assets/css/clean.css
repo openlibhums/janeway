@@ -828,7 +828,6 @@ textarea.tinymce:focus,
   justify-content: center;
   align-content: start;
 }
-
 .clean-banner .clean-banner-image {
   flex-grow: 1;
   display: block;
@@ -839,25 +838,36 @@ textarea.tinymce:focus,
 }
 /* Full-width banners should be taller on larger screens */
 @media (width >= 992px) {
-  .col-md-12 .clean-banner,
-  .col-lg-12 .clean-banner {
+  :where(.col-md-12, .col-lg-12) .clean-banner:not(.explicit-image-height) {
     max-height: 432px;
   }
 }
 @media (width >= 1200px) {
-  .col-md-12 .clean-banner,
-  .col-lg-12 .clean-banner {
+  :where(.col-md-12, .col-lg-12) .clean-banner:not(.explicit-image-height) {
     max-height: 540px;
   }
 }
 /* Partial-width banners should be shorter */
-.col-md-4 .clean-banner,
-.col-lg-4 .clean-banner {
+:where(.col-md-4, .col-lg-4) .clean-banner:not(.explicit-image-height) {
   max-height: 216px;
 }
-.col-md-6 .clean-banner,
-.col-md-8 .clean-banner,
-.col-lg-6 .clean-banner,
-.col-lg-8 .clean-banner {
+:where(.col-md-6, .col-md-8, .col-lg-6, .col-lg-8) .clean-banner:not(.explicit-image-height) {
   max-height: 288px;
+}
+/* Explicit image height option for carousels */
+.clean-banner.explicit-image-height {
+  max-height: unset;
+}
+.clean-banner.explicit-image-height .clean-banner-image {
+  height: 360px;
+}
+@media (width >= 992px) {
+  .clean-banner.explicit-image-height .clean-banner-image {
+    height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  .clean-banner.explicit-image-height .clean-banner-image {
+    height: 540px;
+  }
 }
