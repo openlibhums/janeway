@@ -461,7 +461,10 @@ def register(request, orcid_token=None):
             else:
                 new_user = form.save()
 
-            if request.journal:
+            submission_limited = request.journal.get_setting(
+                "general", "limit_access_to_submission"
+            )
+            if request.journal and not submission_limited:
                 new_user.add_account_role("author", request.journal)
             logic.send_confirmation_link(request, new_user)
 
