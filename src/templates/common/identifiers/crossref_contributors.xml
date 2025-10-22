@@ -27,5 +27,7 @@
             {% endif %}
         </person_name>
         {% endwith %}
+    {% empty %}
+        <anonymous contributor_role="author" sequence="first"></anonymous>
     {% endfor %}
 </contributors>
