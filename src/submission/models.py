@@ -3363,18 +3363,23 @@ def backwards_compat_authors(
     was removed. This signal is a backwards compatibility measure to ensure
     FrozenAuthor records are being updated correctly.
     """
-    accounts = core_models.Account.objects.filter(pk__in=pk_set)
     if action == "post_add":
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=instance, author__id=models.OuterRef("id")
             ).values_list("order")
         )
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
         accounts = accounts.annotate(order=subq).order_by("order")
         for account in accounts:
             account.snapshot_as_author(instance)
-    if action in ["post_remove", "post_clear"]:
+
+    if action == "post_remove":
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
         instance.frozen_authors().filter(author__in=pk_set).delete()
+
+    if action == "post_clear":
+        instance.frozen_authors().delete()
 
 
 m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)
