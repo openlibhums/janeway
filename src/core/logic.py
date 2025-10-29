@@ -150,7 +150,7 @@ def send_confirmation_link(request, new_user):
 
 def resize_and_crop(
     img_path,
-    size=None,
+    size=settings.DEFAULT_CROP_SIZE,
     crop_type="top",
     field_name="",
     original_filename="",
@@ -158,13 +158,11 @@ def resize_and_crop(
     """
     Resize and crop an image to fit the specified size.
     :param img_path: filepath to saved image
-    :param size: two-item list with [width, height] in pixels
+    :param size: tuple with (width, height) in pixels
     :param crop_type: "top", "middle", or "bottom"
     :param field_name: human-readable field name for help messages
     :param original_filename: the original filename for help messages
     """
-    if not size:
-        size = [1500, 648]
 
     # If height is higher we resize vertically, if not we resize horizontally
     try:
