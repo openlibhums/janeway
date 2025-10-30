@@ -23,6 +23,40 @@ $(document).on('click', '[data-toggle]', function() {
     $button.attr('aria-expanded', !currentExpanded);
 });
 
+// Accessibility: Handle Nav aria-expanded on keyboard navigation
+$(document).on('click', '[aria-expanded]', function() {
+    var $button = $(this);
+    var currentExpanded = $button.attr('aria-expanded') === 'true';
+    $button.attr('aria-expanded', !currentExpanded);
+});
+
+function toggleAriaExpanded(submenu, expanded) {
+  var $parent = submenu.parent('li.is-dropdown-submenu-parent');
+  var $button = $parent.find('a[aria-expanded]');
+  $button.attr('aria-expanded', expanded);
+}
+
+// Accessibility: Listen for Foundation menu events to update aria-expanded
+$(document).ready(function() {
+    // dropdown menu (wide screen)
+    $(document).on('show.zf.dropdownmenu', function(event, $sub) {
+        toggleAriaExpanded($sub, true);
+    });
+    
+    $(document).on('hide.zf.dropdownmenu', function(event, $sub) {
+        $('a[aria-expanded="true"]').attr('aria-expanded', 'false');
+    });
+    
+    // drilldown menu (narrow screen)
+    $(document).on('open.zf.drilldown', function(event, $elem) {
+      toggleAriaExpanded($elem, true);
+    });
+    
+    $(document).on('hide.zf.drilldown', function(event, $elem) {
+        $('a[aria-expanded="true"]').attr('aria-expanded', 'false');
+    });
+});
+
 $(".search-toggle").click(function() {
     var $searchMenu = $("#search-menu");
     if ($searchMenu.is(':visible')) {

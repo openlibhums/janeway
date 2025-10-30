@@ -3,7 +3,10 @@
 {% for issue in issues %}
     <div class="medium-3 columns {% if forloop.last %}end{% endif %}">
         <div class="box issue">
-            <a href="{% url 'journal_issue' issue.id %}" class="box-link"></a>
+            <a href="{% url 'journal_issue' issue.id %}" class="box-link"
+                aria-labelledby="{{ issue.id }}-box-title"
+                aria-describedby="{{ issue.id }}-box-details" >
+            </a>
             {% if issue.cover_image %}
                 {% svg_or_image issue.cover_image alt_text=issue.title %}
             {% elif journal.default_cover_image %}
@@ -13,10 +16,10 @@
             {% endif %}
 
             <div class="info-bar">
-                <h3>
+                <h3 id="{{ issue.id }}-box-title">
                     <span aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</span>
                 </h3>
-                <p>{{ issue.get_sorted_articles.count }} {% trans "items" %}
+                <p id="{{ issue.id }}-box-details">{{ issue.get_sorted_articles.count }} {% trans "items" %}
                 </p>
             </div>
         </div>
