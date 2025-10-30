@@ -2585,8 +2585,8 @@ class Article(AbstractLastModifiedModel):
             return self.issue.large_image.url
         elif self.journal.default_large_image:
             return self.journal.default_large_image.url
-        elif self.press.default_carousel_image:
-            return self.press.default_carousel_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
