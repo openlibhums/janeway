@@ -1,25 +1,23 @@
 :root {
   /* Brand & Theme Colors */
-  --brand-primary: #1e3a5f;
-  --brand-secondary: #5a7a9e;
-  --text-link-alt: #2563a8;
-  --focus-shadow: #2a4a6e;
+  --brand-primary: #0a0f1a;
+  --brand-secondary: #7eb3ff;
   --color-success: #5cb85c;
-    /* Highlight color (shared across themes) */
-  --highlight-color: #FFEB3B;
+  --text-link-alt: #6ba3ff;
+  --focus-shadow: #2563a8;
+  --highlight-color: #ffd93d;
 
   /* Text Colors */
-  /* Must pass WCAG color contrast at --recede-opacity */
-  --text-primary: #212529;
-  --text-muted: #747474;
+  --text-primary: #e4e6eb;
+  --text-muted: #b0b3b8;
   --text-on-dark: white;
-  --text-link: var(--body-text);
-  --text-black: #000;
-  --text-white: #fff;
-  --text-header: var(--text-black);
-  --body-text: #525252;
-  --nav-text: #636363;
-  --nav-text-active: var(--brand-primary);
+  --text-link: #9bb1d4;
+  --text-black: #e4e6eb;
+  --text-white: #0a0f1a;
+  --text-header: #ffffff;
+  --body-text: #e4e6eb;
+  --nav-text: #b0b3b8;
+  --nav-text-active: #4d9fff;
   --recede-opacity: 70%;
 
   /* Link Decoration */
@@ -27,40 +25,39 @@
   --link-decoration-hover: underline;
   --nav-link-decoration: none;
   --nav-link-decoration-hover: underline;
+  --link-hover-color: #4d9fff;
+  --link-transition: color 0.2s ease;
   --dropdown-item-decoration: none;
   --dropdown-item-decoration-hover: underline;
-  --link-hover-color: var(--brand-primary);
-  --link-transition: color 0.2s ease;
 
   /* Background Colors */
-  --bg-body: #fff;
-  --bg-content: white;
-  --bg-footer: #FCFCFC;
-  --bg-card-alt: #f8f9fa;
-  --bg-blockquote: #F0F0F0;
-  --bg-overlay: rgba(55, 55, 55, 0.8);
+  --bg-body: #0a0f1a;
+  --bg-content: #151b2b;
+  --bg-footer: #0d1219;
+  --bg-card-alt: #1a2235;
+  --bg-blockquote: #1a2235;
+  --bg-overlay: rgba(10, 15, 26, 0.9);
 
   /* UI State Colors */
-  --color-success: green;
-  --color-danger: darkred;
+  --color-danger: #ff6b6b;
 
   /* Border Colors */
-  --border-light: #e5e5e5;
-  --border-medium: #6c757d;
-  --border-gray-200: rgb(229, 231, 235);
+  --border-light: #2d3748;
+  --border-medium: #4a5568;
+  --border-gray-200: #2d3748;
 
   /* Header & Navigation */
-  --header-bg: var(--brand-primary);
-  --bg-nav: #fefeff;
+  --header-bg: #0a0f1a;
+  --bg-nav: #0d1219;
 
   /* Button Colors */
-  --btn-primary-bg: var(--brand-primary);
-  --btn-primary-border: var(--brand-primary);
-  --btn-primary-text: white;
-  --btn-outline-secondary: #6c757d;
+  --btn-primary-bg: #4d9fff;
+  --btn-primary-border: #4d9fff;
+  --btn-primary-text: #0a0f1a;
+  --btn-outline-secondary: #a7acb1;
 
   /* Focus & Accessibility */
-  --focus-outline: #F9F9F9;
+  --focus-outline: #4d9fff;
   --focus-ring-size: 4px;
 
   /* Typography */
@@ -85,11 +82,11 @@
   /* Transitions */
   --transition-standard: all 1s ease;
 
-  /* Pagination Colors - Light Mode */
-  --pagination-color: var(--body-text);
-  --pagination-bg: var(--bg-content);
+  /* Pagination Colors - Dark Mode */
+  --pagination-color: #a7acb1;
+  --pagination-bg: transparent;
   --pagination-border: var(--border-light);
-  --pagination-hover-color: var(--brand-primary);
+  --pagination-hover-color: var(--text-on-dark);
   --pagination-hover-bg: var(--bg-card-alt);
   --pagination-active-color: var(--btn-primary-text);
   --pagination-active-bg: var(--btn-primary-bg);

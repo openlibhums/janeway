@@ -2,89 +2,9 @@
 
 /* Palette Selection - Use only one palette */
 @import url('/static/clean/css/evergreen.css');
+/* @import url('/static/clean/css/evergreen.css'); */
 /* @import url('/static/clean/css/ocean.css'); */
 /* @import url('/static/clean/css/cardinal.css'); */
-
-:root {
-  /* Highlight color (shared across themes) */
-  --highlight-color: #FFEB3B;
-
-  /* Text Colors */
-  /* Must pass WCAG color contrast at --recede-opacity */
-  --text-primary: #212529;
-  --text-muted: #747474;
-  --text-on-dark: white;
-  --text-link: var(--body-text);
-  --text-black: #000;
-  --text-white: #fff;
-  --text-header: var(--text-black);
-  --body-text: #525252;
-  --nav-text: #636363;
-  --nav-text-active: var(--brand-primary);
-  --recede-opacity: 70%;
-
-  /* Link Decoration */
-  --link-decoration: underline;
-  --link-decoration-hover: underline;
-  --nav-link-decoration: none;
-  --nav-link-decoration-hover: underline;
-  --dropdown-item-decoration: none;
-  --dropdown-item-decoration-hover: underline;
-  --link-hover-color: var(--brand-primary);
-  --link-transition: color 0.2s ease;
-
-  /* Background Colors */
-  --bg-body: #fff;
-  --bg-content: white;
-  --bg-footer: #FCFCFC;
-  --bg-card-alt: #f8f9fa;
-  --bg-blockquote: #F0F0F0;
-  --bg-overlay: rgba(55, 55, 55, 0.8);
-
-  /* UI State Colors */
-  --color-success: green;
-  --color-danger: darkred;
-
-  /* Border Colors */
-  --border-light: #e5e5e5;
-  --border-medium: #6c757d;
-  --border-gray-200: rgb(229, 231, 235);
-
-  /* Header & Navigation */
-  --header-bg: var(--brand-primary);
-  --bg-nav: #fefeff;
-
-  /* Button Colors */
-  --btn-primary-bg: var(--brand-primary);
-  --btn-primary-border: var(--brand-primary);
-  --btn-primary-text: white;
-
-  /* Focus & Accessibility */
-  --focus-outline: #F9F9F9;
-  --focus-ring-size: 4px;
-
-  /* Typography */
-  --main-font: Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-  /* Spacing */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 15px;
-  --spacing-lg: 20px;
-  --spacing-xl: 30px;
-
-  /* Sizes */
-  --border-radius: 3px;
-  --border-radius-lg: 2rem;
-  --header-height: 120px;
-  --footer-height: 70px;
-  --card-image-height: 250px;
-  --carousel-min-height: 500px;
-  --icon-size: 16px;
-
-  /* Transitions */
-  --transition-standard: all 1s ease;
-}
 
 /* ========================================================================
    Base Styles
@@ -144,6 +64,10 @@ h6 { font-size: 0.875rem; }
   margin-bottom: 0.5rem;
   font-weight: 400;
   line-height: 1.2;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
 }
 
 /* ========================================================================
@@ -217,6 +141,7 @@ main a {
 .navbar-dark.navbar-custom .nav-item:focus-visible .nav-link {
   color: var(--nav-text-active);
 }
+
 .dropdown-toggle::after {
   display: inline-block;
   margin-left: .255em;
@@ -231,6 +156,13 @@ main a {
   margin-top: -0.1em;
 }
 
+/* Dropdown menu container */
+.dropdown-menu {
+  padding: var(--focus-ring-size);
+  background-color: var(--bg-content);
+  border: 1px solid var(--border-light);
+}
+
 /* Dropdown item styles - standardized with nav-link behavior */
 .dropdown-item {
   color: var(--nav-text);
@@ -242,6 +174,11 @@ main a {
 .dropdown-item:focus {
   color: var(--nav-text-active);
   text-decoration: var(--dropdown-item-decoration-hover);
+  background-color: var(--bg-card-alt);
+}
+
+.dropdown-divider {
+  border-top-color: var(--border-light);
 }
 
 /* ========================================================================
@@ -255,6 +192,7 @@ main a {
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease;
+  background-color: var(--bg-content);
 }
 
 .card:hover {
@@ -405,6 +343,23 @@ a.btn {
   opacity: var(--recede-opacity);
 }
 
+.btn-outline-secondary {
+  color: var(--btn-outline-secondary);
+  border-color: var(--btn-outline-secondary);
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  color: var(--brand-primary);
+  background-color: transparent;
+  border-color: var(--brand-primary);
+}
+
+.btn-outline-secondary:focus {
+  box-shadow: 0 0 0 var(--focus-ring-size) rgba(167, 172, 177, 0.25);
+}
+
 /* ========================================================================
    Carousel
    ======================================================================== */
@@ -482,7 +437,7 @@ a.btn {
   margin-bottom: 0.25rem;
   font-weight: 500;
   line-height: 1.3;
-  color: var(--text-header);
+  color: var(--text-white);
 }
 
 .article-thumbnail {
@@ -601,7 +556,7 @@ a.btn {
   display: flex;
   gap: 1rem;
   margin: 0;
-  padding: 9;
+  padding: 9px;
   justify-content: flex-end;
   min-height: fit-content;
   box-sizing: border-box;  
@@ -1069,14 +1024,63 @@ span + .btn-background {
   border-radius: var(--border-radius-lg);
 }
 
-.page-link,
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  gap: 4px;
+}
+
+.page-item {
+  margin: 0;
+}
+
+.page-link {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--pagination-color);
+  background-color: var(--pagination-bg);
+  border: 1px solid var(--pagination-border);
+  border-radius: var(--border-radius);
+  transition: var(--link-transition);
+  cursor: pointer;
+  text-decoration: none;
+}
+
 .page-link:hover,
 .page-link:focus {
-  color: var(--text-link);
+  color: var(--pagination-hover-color);
+  background-color: var(--pagination-hover-bg);
+  border-color: var(--border-medium);
+}
+
+.page-link:focus {
+  z-index: 2;
+  outline: 2px solid var(--focus-outline);
+  outline-offset: 2px;
 }
 
 .page-item.active .page-link {
-  background-color: var(--text-link);
+  color: var(--pagination-active-color);
+  background-color: var(--pagination-active-bg);
+  border-color: var(--pagination-active-border);
+  font-weight: 600;
+}
+
+.page-item.active .page-link:hover {
+  background-color: var(--pagination-active-bg);
+  border-color: var(--pagination-active-border);
+}
+
+.page-link[disabled],
+.page-link:disabled {
+  color: var(--pagination-disabled-color);
+  pointer-events: none;
+  background-color: transparent;
+  border-color: var(--pagination-border);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* ========================================================================
@@ -1314,7 +1318,7 @@ textarea.tinymce:focus-visible,
 }
 
 .issue-card {
-  background: white;
+  background: var(--bg-content);
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.06);
