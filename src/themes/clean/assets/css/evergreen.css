@@ -4,4 +4,95 @@
   --brand-secondary: #4F637D;
   --text-link-alt: #00688B;
   --focus-shadow: #193146;
+  --color-success: #5cb85c;
+    /* Highlight color (shared across themes) */
+  --highlight-color: #FFEB3B;
+
+  /* Text Colors */
+  /* Must pass WCAG color contrast at --recede-opacity */
+  --text-primary: #212529;
+  --text-muted: #747474;
+  --text-on-dark: white;
+  --text-link: var(--body-text);
+  --text-black: #000;
+  --text-white: #fff;
+  --text-header: var(--text-black);
+  --body-text: #525252;
+  --nav-text: #636363;
+  --nav-text-active: var(--brand-primary);
+  --recede-opacity: 70%;
+
+  /* Link Decoration */
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --nav-link-decoration: none;
+  --nav-link-decoration-hover: underline;
+  --dropdown-item-decoration: none;
+  --dropdown-item-decoration-hover: underline;
+  --link-hover-color: var(--brand-primary);
+  --link-transition: color 0.2s ease;
+
+  /* Background Colors */
+  --bg-body: #fff;
+  --bg-content: white;
+  --bg-footer: #FCFCFC;
+  --bg-card-alt: #f8f9fa;
+  --bg-blockquote: #F0F0F0;
+  --bg-overlay: rgba(55, 55, 55, 0.8);
+
+  /* UI State Colors */
+  --color-success: green;
+  --color-danger: darkred;
+
+  /* Border Colors */
+  --border-light: #e5e5e5;
+  --border-medium: #6c757d;
+  --border-gray-200: rgb(229, 231, 235);
+
+  /* Header & Navigation */
+  --header-bg: var(--brand-primary);
+  --bg-nav: #fefeff;
+
+  /* Button Colors */
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-border: var(--brand-primary);
+  --btn-primary-text: white;
+  --btn-outline-secondary: #6c757d;
+
+  /* Focus & Accessibility */
+  --focus-outline: #F9F9F9;
+  --focus-ring-size: 4px;
+
+  /* Typography */
+  --main-font: Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 15px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+
+  /* Sizes */
+  --border-radius: 3px;
+  --border-radius-lg: 2rem;
+  --header-height: 120px;
+  --footer-height: 70px;
+  --card-image-height: 250px;
+  --carousel-min-height: 500px;
+  --icon-size: 16px;
+
+  /* Transitions */
+  --transition-standard: all 1s ease;
+
+  /* Pagination Colors - Light Mode */
+  --pagination-color: var(--body-text);
+  --pagination-bg: var(--bg-content);
+  --pagination-border: var(--border-light);
+  --pagination-hover-color: var(--brand-primary);
+  --pagination-hover-bg: var(--bg-card-alt);
+  --pagination-active-color: var(--btn-primary-text);
+  --pagination-active-bg: var(--btn-primary-bg);
+  --pagination-active-border: var(--btn-primary-border);
+  --pagination-disabled-color: var(--text-muted);
 }
