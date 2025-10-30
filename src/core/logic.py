@@ -151,7 +151,7 @@ def send_confirmation_link(request, new_user):
 def resize_and_crop(
     img_path,
     size=settings.DEFAULT_CROP_SIZE,
-    crop_type="top",
+    crop_type="middle",
     field_name="",
     original_filename="",
 ):

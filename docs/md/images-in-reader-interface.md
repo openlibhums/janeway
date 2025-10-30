@@ -113,7 +113,7 @@ Featured and popular article homepage elements have the same behavior as article
 
 ### Is the large image cropped?
 
-The large image is cropped to a maximum of 1500px wide by 648px tall, in preparation for display at up to 1100px wide (Clean), 1200px wide (OLH), or 1477px wide (Material). The top of the image is kept. (On an earlier version of Janeway, the middle portion was kept.)
+The large image is cropped to a maximum of 1500px wide by 648px tall, in preparation for display at up to 1100px wide (Clean), 1200px wide (OLH), or 1477px wide (Material). The middle of the image is kept. 
 
 The user is warned if they upload an image that is smaller than these dimensions. In the past, the image was cropped to 750px x 324px, so many databases will have smaller images. However, these images have always been forced into a display of up to 1100px to 1477px, so legacy images will not be any less clear than they have been from the beginning. Users can replace their legacy images with higher-resolution versions to get make the display sharper.
 
