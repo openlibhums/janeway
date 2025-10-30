@@ -1,9 +1,9 @@
 {% load pages %}
 
 {% if articles and articles.paginator %}
-<section aria-label="pagination">
+<section aria-label="{% trans 'pagination' %}">
     <div class="pagination-block">
-        <ul class="d-flex justify-content-center list-inline">
+        <ul class="d-flex justify-content-center list-inline" aria-label="{% trans 'page selection' %}">
             {% if articles.has_previous %}
                 <li class="list-inline-item">
                     <a href="?page={{ articles.previous_page_number }}" class="btn btn-primary">
@@ -14,7 +14,10 @@
             {{ articles.page.page_range }}
             {% for page in articles.paginator.page_range %}
                 <li class="list-inline-item">
-                    <a href="?page={{ page }}" class="btn btn-primary">{{ page }}</a>&nbsp;
+                    <a href="?page={{ page }}" class="btn btn-primary">
+                        <span class="sr-only">{% trans 'Page: ' %}</span>
+                        {{ page }}
+                    </a>
                 </li>
             {% endfor %}
             {% if articles.has_next %}

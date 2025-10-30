@@ -1,9 +1,13 @@
 {% load i18n %}
 <section aria-labelledby="about-title">
-    <div class="row" id="about_journal">
-        <div class="col-md-12">
-            <h2 id="about-title" class="index-header">{{ title_value|safe }}</h2>
-            <p>{{ journal_settings.general.journal_description|safe }}</p>
+  <div class="row" id="about_journal">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <h2 id="about-title" class="index-header">{{ title_value|safe }}</h2>
+          <p>{{ journal_settings.general.journal_description|safe }}</p>
         </div>
+      </div>
     </div>
+  </div>
 </section>

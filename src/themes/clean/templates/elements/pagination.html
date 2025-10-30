@@ -64,6 +64,7 @@
     </div>
     <div class="input-group col-sm-12 col-md-6 col-lg-5">
         <select
+            id="paginate_by"
             class="custom-select"
             onchange="this.form.submit()"
             name="paginate_by"
@@ -77,8 +78,8 @@
             {% endif %}
         </select>
         <div class="input-group-append">
-            <label class="input-group-text" labelfor="paginate_by">
-                records per page
+            <label for="paginate_by" class="input-group-text">
+                {% trans 'records per page' %}
             </label>
         </div>
     </div>

@@ -11,20 +11,30 @@
                 </a>
             </p>
             {% endif %}
-            <h2>
+            <h2 id="archive-title">
                 {% if issue.issue_type.code == 'issue' %}{% trans "Issue Archive" %}
                 {% else %} {% trans issue.issue_type.plural_name %}
                 {% endif %}
             </h2>
-            <ul>
-                {% for issue in issues %}
-                {% if issue.issue_type.code == 'issue' %}
-                    <li><a href="{% url 'journal_issue' issue.id %}" aria-label='{{ issue.display_title_a11y }}'>
-                        {{ issue.display_title }} 
-                    </a></li>
-                {% else %}
-                    <li><a href="{% url 'journal_collection' issue.id %}">{{ issue.issue_title }} </a></li>
-                {% endif %}
+            <ul aria-describedby="archive-title">
+                {% for issue_item in issues %}
+                    {% if issue_item.id == issue.id %}
+                        <li>
+                            <span class="sr-only"></span>
+                            <span aria-label='{{ issue.display_title_a11y }}'>
+                                {{ issue.display_title }} 
+                            </span>
+                            ({{ issue.articles.all.count}}) 
+                            <span class="sr-only">{% trans 'Articles' %} {% trans 'this page' %}</span>
+                        </li>
+                    {% elif issue_item.issue_type.code == 'issue' %}
+                        <li><a href="{% url 'journal_issue' issue_item.id %}" aria-label='{{ issue_item.display_title_a11y }}'>
+                            {{ issue_item.display_title }} 
+                        </a>
+                        ({{ issue_item.articles.all.count}}) <span class="sr-only">{% trans 'Articles' %}</span></li>
+                    {% else %}
+                        <li><a href="{% url 'journal_collection' issue_item.id %}">{{ issue_item.issue_title }} </a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

@@ -11,23 +11,38 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>{{ news_item.title|safe }}</h1>
-            <hr aria-hidden="true" />
-        </div>
-        <div class="col-md-12">
-            <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
-            <p>{{ news_item.body|safe }}</p>
-            <br />
-            {% if news_item.tags.all %}
-                <h2>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
-                <ul class="list-inline comma-sep">
-                    {% for tag in news_item.tags.all %}
-                        <li><a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            <a href="{% url 'core_news_list' %}">{% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}</a>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h1 class="card-title">{{ news_item.title|safe }}</h1>
+                    <p class="card-subtitle text-muted mb-2">
+                        {{ news_item.byline }} on {{ news_item.posted|date_human }}
+                    </p>
+                    <span class="card-text">{{ news_item.body|safe }}</span>
+
+                    {% if news_item.tags.all %}
+                        <h2 class="h5 mb-3">
+                            {% trans 'Tags ' %}
+                            <i aria-hidden="true" class="fa fa-tags"></i>
+                        </h2>
+                        <ul class="list-inline">
+                          {% for tag in news_item.tags.all %}
+                            <li class="list-inline-item">
+                              <a href="{% url 'core_news_list_tag' tag.text %}"
+                                 class="badge badge-secondary badge-pill  ">
+                                {{ tag.text }}
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'core_news_list' %}" class="btn btn-outline-secondary">
+                      <i aria-hidden="true" class="fa fa-arrow-left"></i>
+                      {% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-
 {% endblock body %}

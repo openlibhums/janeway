@@ -13,14 +13,32 @@
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h2 id="news-item-{{ item.pk }}">{{ item.title|safe }}</h2>
-                <p class="byline">{{ item.byline }} on {{ item.posted|date_human }}</p>
-                <p>{{ item.body|truncatewords_html:50|safe }}</p>
-                <p><a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-item-{{ item.pk }}">{% trans 'Read More' %}</a></p>
-                <hr aria-hidden="true" />
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h2 id="news-item-{{ item.pk }}" class="card-title">
+                            {{ item.title|safe }}
+                        </h2>
+                        <p class="byline card-subtitle mb-2 text-muted">
+                            {{ item.byline }} on {{ item.posted|date_human }}
+                        </p>
+                        <span class="card-text">
+                            {{ item.body|truncatewords_html:50|safe }}
+                        </span>
+                    </div>
+                    <div class="card-footer">
+                      <a href="{% url 'core_news_item' item.pk %}"
+                         aria-describedby="news-item-{{ item.pk }}"
+                         class="btn btn-outline-secondary">
+                        {% trans 'Read More' %}
+                        <i aria-hidden="true" class="fa fa-arrow-right"></i>
+                      </a>
+                    </div>
+                </div>
             </div>
         {% empty %}
-            <h2> {% trans 'This journal currently has no {{ journal_settings.news.news_title }} items to display.' %}</h2>
+            <h2>
+                {% trans 'This journal currently has no {{ journal_settings.news.news_title }} items to display.' %}
+            </h2>
         {% endfor %}
     </div>
     <section aria-label="pagination">

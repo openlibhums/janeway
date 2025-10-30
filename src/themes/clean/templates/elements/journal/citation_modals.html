@@ -10,14 +10,12 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        <span id="harvard-cite">
-                            <ul class="list-inline comma-ampersand-sep">
-                                {% for author in article.frozenauthor_set.all %}
-                                    <li>{{ author.last_name }}, {{ author.first_name|slice:"1" }}</li>
-                                {% endfor %}
-                            </ul>
-                            ({{ article.date_published.year }}) '{{ article.title|safe }}',
-                            <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                        <span id="harvard-cite">{% for author in article.frozenauthor_set.all %}
+                            {% if not forloop.first and not forloop.last %},
+                            {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                                {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                                ({{ article.date_published.year }}) '{{ article.title|safe }}',
+                                <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}</em>. {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
                             {% if article.identifier.id_type == 'doi' %}
                                 {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                             {% endif %}
@@ -43,15 +41,12 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        <span id="vancouver-cite">
-                            <ul class="list-inline comma-ampersand-sep">
-                                {% for author in article.frozenauthor_set.all %}
-                                    <li>{{ author.last_name }}, {{ author.first_name|slice:"1" }}</li>
-                                {% endfor %}
-                            </ul>
-                            {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} {{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
-                            {% if article.identifier.id_type == 'doi' %}
-                                {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                        <span id="vancouver-cite">{% for author in article.frozenauthor_set.all %}{% if not forloop.first and not forloop.last %},
+                            {% elif forloop.last and not forloop.first %}& {% endif %}{{ author.last_name }},
+                                {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
+                                {{ article.title|safe }}. {% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} Preprints{% endif %}. {{ article.date_published.year }} {{ article.date_published.month }};{% if article.issue %} {{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
+                                {% if article.identifier.id_type == 'doi' %}
+                                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                             {% endif %}
                         </span>
                         {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
@@ -75,12 +70,9 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        <span id="apa-cite">
-                            <ul class="list-inline comma-ampersand-sep">
-                                {% for author in article.frozenauthor_set.all %}
-                                    <li>{{ author.last_name }}, {{ author.first_name|slice:"1" }}</li>
-                                {% endfor %}
-                            </ul>
+                        <span id="apa-cite">{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
+                            &amp; {% endif %}{% endif %}{{ author.last_name }},
+                            {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
                             ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
                             <em>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}</em> {% if article.issue %}{{ article.issue.volume }}({{ article.issue.issue }}){% endif %}{% if article.page_range %}:{{ article.page_range }}.{% endif %}
                             {% if article.identifier.id_type == 'doi' %}

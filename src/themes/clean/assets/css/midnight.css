@@ -1,0 +1,95 @@
+:root {
+  /* Brand & Theme Colors */
+  --brand-primary: #0a0f1a;
+  --brand-secondary: #7eb3ff;
+  --color-success: #5cb85c;
+  --text-link-alt: #6ba3ff;
+  --focus-shadow: #2563a8;
+  --highlight-color: #ffd93d;
+
+  /* Text Colors */
+  --text-primary: #e4e6eb;
+  --text-muted: #b0b3b8;
+  --text-on-dark: white;
+  --text-link: #9bb1d4;
+  --text-black: #e4e6eb;
+  --text-white: #0a0f1a;
+  --text-header: #ffffff;
+  --body-text: #e4e6eb;
+  --nav-text: #b0b3b8;
+  --nav-text-active: #4d9fff;
+  --recede-opacity: 70%;
+
+  /* Link Decoration */
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --nav-link-decoration: none;
+  --nav-link-decoration-hover: underline;
+  --link-hover-color: #4d9fff;
+  --link-transition: color 0.2s ease;
+  --dropdown-item-decoration: none;
+  --dropdown-item-decoration-hover: underline;
+
+  /* Background Colors */
+  --bg-body: #0a0f1a;
+  --bg-content: #151b2b;
+  --bg-footer: #0d1219;
+  --bg-card-alt: #1a2235;
+  --bg-blockquote: #1a2235;
+  --bg-overlay: rgba(10, 15, 26, 0.9);
+
+  /* UI State Colors */
+  --color-danger: #ff6b6b;
+
+  /* Border Colors */
+  --border-light: #2d3748;
+  --border-medium: #4a5568;
+  --border-gray-200: #2d3748;
+
+  /* Header & Navigation */
+  --header-bg: #0a0f1a;
+  --bg-nav: #0d1219;
+
+  /* Button Colors */
+  --btn-primary-bg: #4d9fff;
+  --btn-primary-border: #4d9fff;
+  --btn-primary-text: #0a0f1a;
+  --btn-outline-secondary: #a7acb1;
+
+  /* Focus & Accessibility */
+  --focus-outline: #4d9fff;
+  --focus-ring-size: 4px;
+
+  /* Typography */
+  --main-font: Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 15px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+
+  /* Sizes */
+  --border-radius: 3px;
+  --border-radius-lg: 2rem;
+  --header-height: 120px;
+  --footer-height: 70px;
+  --card-image-height: 250px;
+  --carousel-min-height: 500px;
+  --icon-size: 16px;
+
+  /* Transitions */
+  --transition-standard: all 1s ease;
+
+  /* Pagination Colors - Dark Mode */
+  --pagination-color: #a7acb1;
+  --pagination-bg: transparent;
+  --pagination-border: var(--border-light);
+  --pagination-hover-color: var(--text-on-dark);
+  --pagination-hover-bg: var(--bg-card-alt);
+  --pagination-active-color: var(--btn-primary-text);
+  --pagination-active-bg: var(--btn-primary-bg);
+  --pagination-active-border: var(--btn-primary-border);
+  --pagination-disabled-color: var(--text-muted);
+}

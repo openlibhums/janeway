@@ -7,10 +7,9 @@
     <div class="homepage-element-wrapper homepage-element-{{ element.name|slugify }}">
         {% include element.template_path %}
     </div>
-        <hr aria-hidden="true" />
     {% endfor %}
-
 {% endblock body %}
+
 {% block js %}
 <script type="text/javascript">
 $(function () {

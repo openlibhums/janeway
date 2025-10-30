@@ -9,17 +9,13 @@
 
         <div class="col-md-4 contact">
             <h1 class="sr-only">{% trans 'Contact us' %}</h1>
-            <h2 class="side-bar-title">{% trans "Journal Contacts" %}</h2>
+            <h2 class="side-bar-title">{% trans "Press Representatives" %}</h2>
             <dl>
                 {% for contact in contacts %}
                 <dt>{{ contact.name }}</dt>
                 <dd>{{ contact.role }}</dd>
             {% endfor %}
             </dl>
-            {% if journal_settings.general.contact_info %}
-                <h2>{% trans 'Contact Information' %}</h2>
-                {{ journal_settings.general.contact_info|safe }}
-            {% endif %}
         </div>
         <div class="col-md-8">
             <h2>{% trans "Contact" %}</h2>
@@ -29,7 +25,7 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_recipient"
-                           class="form-control-label">{% trans "Who would you like to contact?" %}</label><br<>
+                           class="form-control-label">{% trans "Who would you like to contact?" %}</label><br>
                     <select id="id_recipient" name="recipient" class="form-control custom-select">
                         {% for contact in contacts %}
                             <option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
