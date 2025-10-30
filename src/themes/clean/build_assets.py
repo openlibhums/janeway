@@ -42,7 +42,7 @@ def process_journals():
                     "static",
                     "clean",
                     "css",
-                    f"journal{journal.id}_override.css"
+                    f"journal{journal.id}_override.css",
                 )
 
                 copy_file(file, override_css_file)
