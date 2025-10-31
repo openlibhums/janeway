@@ -552,6 +552,10 @@ a.btn {
   padding-bottom: var(--spacing-sm);
 }
 
+a[href^="http"] {
+  overflow-wrap: anywhere;
+}
+
 #reading-options{
   display: flex;
   gap: 1rem;
