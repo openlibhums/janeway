@@ -18,7 +18,7 @@
                         <div class="large-5 columns">
                             <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
                                 src="{{ item.best_image_url }}"
-                                alt="{% get_alt_text obj=item.large_image_file context_phrase="hero_image" default=item.title|striptags|unescape %}"/></a>
+                                alt="{{ item.best_image_alt_text }}"/></a>
                         </div>
                         {% endif %}
                         <div class="large-7 columns">

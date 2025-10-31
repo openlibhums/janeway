@@ -12,7 +12,16 @@ register = template.Library()
 @register.simple_tag
 def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None, default=""):
     """
-    Render a return alt text for a file given a context phrase.
+    Render alt text for a file given a context phrase.
+    Priority order for identifier: file_path > token > None.
+    file_path will be hashed using SHA256 before lookup.
+
+    :param obj: Model instance to associate with the alt text
+    :param file_path: File path string to hash and use as identifier
+    :param token: Pre-computed token/hash to use as identifier
+    :param context_phrase: Contextual phrase to help identify specific alt text
+    :param default: Default text to return if no alt text is found
+    :return: The alt text string, default value if alt text is empty, or empty string
     """
     if file_path:
         path = hashlib.sha256(file_path.strip().encode()).hexdigest()
@@ -27,10 +36,6 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None, defa
         context_phrase=context_phrase,
     )
 
-    print("Obj", obj)
-    print("File path", file_path)
-    print("Default", default)
-
     if alt_text == "" and default:
         return default
 
@@ -40,7 +45,15 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None, defa
 @register.simple_tag
 def get_admin_alt_text_snippet(obj=None, file_path=None, token=None, context_phrase=None):
     """
-    Render a block of alt text wrapped in a span with a unique ID for HTMX targeting.
+    Render a block of alt text wrapped in HTML for admin interface with HTMX targeting.
+    Priority order for identifier: file_path > token > None.
+    file_path will be hashed using SHA256 before lookup.
+
+    :param obj: Model instance to associate with the alt text
+    :param file_path: File path string to hash and use as identifier
+    :param token: Pre-computed token/hash to use as identifier
+    :param context_phrase: Contextual phrase to help identify specific alt text
+    :return: Rendered HTML string from the alt_text_snippet.html template
     """
     if file_path:
         path = hashlib.sha256(file_path.strip().encode()).hexdigest()
@@ -71,6 +84,9 @@ def get_admin_alt_text_snippet(obj=None, file_path=None, token=None, context_phr
 def model_string(obj):
     """
     Return the 'app_label.modelname' string for a Django model instance.
+
+    :param obj: Model instance
+    :return: String in format 'app_label.modelname' or empty string if obj has no _meta
     """
     if hasattr(obj, '_meta'):
         return f"{obj._meta.app_label}.{obj._meta.model_name}"
@@ -80,7 +96,10 @@ def model_string(obj):
 @register.filter
 def app_label(obj):
     """
-    Returns 'app_label' for a model instance.
+    Returns the app_label for a Django model instance.
+
+    :param obj: Model instance
+    :return: The app_label string or empty string if obj has no _meta attribute
     """
     try:
         return obj._meta.app_label
@@ -91,8 +110,13 @@ def app_label(obj):
 @register.simple_tag
 def get_id_token(obj=None, file_path=None, token=None):
     """
-    Returns a slugified identifier string based on a model instance or file path.
-    Priority: object > file_path
+    Returns a slugified identifier string based on a model instance, token, or file path.
+    Priority order: obj > token > file_path > fallback.
+
+    :param obj: Model instance to generate ID from
+    :param file_path: File path string to hash and use as identifier
+    :param token: Pre-existing token/hash to use as identifier
+    :return: Slugified identifier string or 'unknown-id-token' if no arguments provided
     """
     if obj:
         return slugify(f"{model_string(obj)}-{obj.pk}")
@@ -105,6 +129,12 @@ def get_id_token(obj=None, file_path=None, token=None):
 
 @register.filter
 def encode_file_path(value):
+    """
+    Encode a file path string to a SHA256 hash.
+
+    :param value: File path string to encode
+    :return: SHA256 hexadecimal hash of the value, or empty string if value is falsy
+    """
     if not value:
         return ''
     return hashlib.sha256(value.encode()).hexdigest()
