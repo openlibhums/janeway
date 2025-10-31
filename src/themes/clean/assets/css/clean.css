@@ -573,10 +573,10 @@ a.btn {
     background: #f1f1f1;
 }
 
-.dyslexia-friendly {
+.dyslexia-friendly{
     font-family: Verdana !important;
-    color: var(--body-text-dyslexia);
-    background-color: var(--bg-dyslexia);
+    color: var(--body-text-dyslexia) !important;
+    background-color: var(--bg-dyslexia) !important;
 }
 
 .dyslexia-friendly .fa {
