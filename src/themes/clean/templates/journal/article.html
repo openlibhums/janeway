@@ -36,7 +36,7 @@
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                        <h1 class="white-text card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
                           {% include "common/elements/journal/article_authors_br.html" %}
                         {% endif %}
