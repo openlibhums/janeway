@@ -910,7 +910,7 @@ span + .btn-background {
     position: sticky;
     max-height: 100vh;
     overflow-y: auto;
-    top: 60px;
+    top: 80px;
     z-index: 999;
 }
 
