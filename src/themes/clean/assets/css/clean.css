@@ -791,6 +791,18 @@ header svg {
 /* ========================================================================
    Form Elements
    ======================================================================== */
+input[type="text"],
+input[type="email"],
+textarea.form-control,
+.custom-select {
+  background: var(--bg-card-alt);
+  color: var(--text-muted);
+  border: solid, 1px, var(--brand-primary);
+}
+.custom-select {
+  background: var(--custom-select-background);
+}
+
 .homepage-element-search-bar input[type="text"] {
   font-size: 1.5rem;
 }
