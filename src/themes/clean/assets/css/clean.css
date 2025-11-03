@@ -870,7 +870,7 @@ textarea.form-control,
 
 .badge-secondary {
   background-color: var(--brand-secondary);
-  color: #fff;
+  color: var(--text-white);
   text-decoration: none;
 }
 
