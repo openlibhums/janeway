@@ -476,6 +476,10 @@ a.btn {
   border-bottom: 1px solid var(--border-light);
 }
 
+.article-list .article-item {
+  padding: 2rem;
+}
+
 .article-item:last-child {
   border-bottom: none;
   padding-bottom: 0;
