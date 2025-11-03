@@ -275,6 +275,10 @@ main a {
   font-size: 1.5rem;
 }
 
+.card-title.white-text {
+  background: var(--bg-overlay);
+}
+
 .full-width-card {
   min-width: 100%;
 }
