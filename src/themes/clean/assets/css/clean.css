@@ -234,6 +234,10 @@ main a {
   background-color: var(--bg-card-alt);
 }
 
+.card-img-overlay.white-text > .card-text {
+  background: var(--bg-overlay);
+}
+
 .card.no-image .card-img-overlay {
   position: relative;
   background-color: var(--bg-card-alt);
@@ -395,7 +399,7 @@ a.btn {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, var(--recede-opacity)) 20%);
+  background: var(--bg-overlay);
   padding: 2rem;
   text-align: center;
 }
