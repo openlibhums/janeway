@@ -853,6 +853,7 @@ header svg {
 .badge-secondary {
   background-color: var(--brand-secondary);
   color: #fff;
+  text-decoration: none;
 }
 
 input + .btn-background {
