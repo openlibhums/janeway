@@ -306,7 +306,7 @@ main a {
 .btn-background:visited {
   background-color: inherit;
   color: inherit;
-  border: 1px solid var(--brand-primary);
+  border: 1px solid var(--btn-outline-secondary);
   padding: 0 10px;
   min-width: 7rem;
   min-height: 2rem;
@@ -320,9 +320,9 @@ main a {
 }
 
 .btn-background:hover {
-  color: var(--text-on-dark);
-  background-color: var(--brand-primary);
-  border-color: var(--brand-primary);
+  color: var(--btn-primary-text);
+  background-color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-border);
   transition: var(--transition-standard);
 }
 
