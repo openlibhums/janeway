@@ -292,8 +292,8 @@ main a {
 
 .btn-primary:hover,
 .btn-primary:focus {
-  color: var(--btn-primary-text);
-  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-bg);
+  background-color: var(--btn-primary-text);
   border-color: var(--btn-primary-border);
 }
 
