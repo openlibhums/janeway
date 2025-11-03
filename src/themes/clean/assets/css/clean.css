@@ -833,6 +833,12 @@ textarea.form-control,
   align-items: stretch;
 }
 
+.input-group-text {
+  color: var(--body-text);
+  background: var(--bg-card-alt);
+  border: solid, 1px, var(--brand-primary);
+}
+
 .input-group .custom-select,
 .input-group .input-group-text {
   height: 2.5rem;
