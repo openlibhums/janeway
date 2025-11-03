@@ -791,8 +791,9 @@ header svg {
   font-size: 1.5rem;
 }
 
-.homepage-element-search-bar .input-group-text {
+.homepage-element-search-bar .input-group .input-group-text {
   font-size: 1.5rem;
+  height: 100%;
 }
 
 .input-group .form-control,
