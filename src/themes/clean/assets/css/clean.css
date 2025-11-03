@@ -579,9 +579,8 @@ a[href^="http"] {
   background-color: var(--bg-body);
 }
 
-.btn-opt {
-    border: 1px solid #1C304A;
-    background: #f1f1f1;
+#reading-options .btn-background {
+    min-width: 3rem;
 }
 
 .dyslexia-friendly{

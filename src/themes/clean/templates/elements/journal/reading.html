@@ -2,7 +2,7 @@
     <h2 class="sr-only">{% trans 'Text display options' %}</h2>
     <div class="btn-group-horizontal">
         <button
-            class="btn btn-opt"
+            class="btn-background"
             type="button"
             onclick="resizeText(-1)"
             aria-label="{% trans 'decrease text size' %}"
@@ -11,7 +11,7 @@
             <span style="font-size: xx-small">Aa -</span>
         </button>
         <button
-            class="btn btn-opt"
+            class="btn-background"
             type="button"
             onclick="resizeText(1)"
             aria-label="{% trans 'increase text size' %}"
@@ -20,7 +20,7 @@
             Aa +
         </button>
         <button
-            class="btn btn-opt"
+            class="btn-background"
             id="dyslexia-mode"
             type="button"
             onclick="toggleDyslexia()"
