@@ -346,9 +346,15 @@ a.btn {
   border: 1px black solid;
 }
 
-.alert .close {
+.alert .close,
+button.close {
   color: var(--color-danger);
   opacity: var(--recede-opacity);
+}
+
+button.close:hover {
+  background: var(--color-danger);
+  color: var(--body-text)
 }
 
 .btn-outline-secondary {
@@ -1157,6 +1163,11 @@ span + .btn-background {
   margin-bottom: 0.2rem;
   min-width: 24px;
   min-height: 24px;
+}
+
+.modal-body {
+  background: var(--bg-body);
+  border: var(--border-medium) 1px solid;
 }
 
 /* ========================================================================
