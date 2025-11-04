@@ -3325,7 +3325,7 @@ def remove_author_from_article(sender, instance, **kwargs):
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
-    if instance.article and instance.article.authors.exists():
+    if instance.article and instance.author in instance.article.authors.all():
         instance.article.authors.remove(instance.author)
 
 
