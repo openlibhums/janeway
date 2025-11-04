@@ -350,6 +350,7 @@ a.btn {
 button.close {
   color: var(--color-danger);
   opacity: var(--recede-opacity);
+  text-shadow: none;
 }
 
 button.close:hover {
