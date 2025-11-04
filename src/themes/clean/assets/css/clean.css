@@ -949,7 +949,8 @@ span + .btn-background {
     z-index: 999;
 }
 
-.table-caption {
+.table-caption,
+.fig-caption {
   margin-bottom: var(--spacing-sm);
   background: var(--bg-card-alt) !important;
 }
