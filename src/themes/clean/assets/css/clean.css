@@ -1170,6 +1170,10 @@ span + .btn-background {
   border: var(--border-medium) 1px solid;
 }
 
+.modal-header {
+    background: var(--bg-card-alt);
+}
+
 /* ========================================================================
    Accessibility & Skip Navigation
    ======================================================================== */
