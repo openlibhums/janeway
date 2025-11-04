@@ -563,6 +563,10 @@ a.btn {
   padding-bottom: var(--spacing-sm);
 }
 
+dt {
+  font-size: larger;
+}
+
 a[href^="http"] {
   overflow-wrap: anywhere;
 }

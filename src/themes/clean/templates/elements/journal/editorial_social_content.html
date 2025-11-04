@@ -1,53 +1,63 @@
 {% if user.website or user.twitter or user.facebook or user.github or user.linkedin %}
-<p><small>
+<ul class="list-inline">
     {% if user.website %}
-        <a href="{{ user.website }}"
-            aria-label="{{ member.user.full_name }}'s website" 
-            >
-            <i aria-hidden="true" class="fa fa-globe"></i> 
-            {% trans 'Website' %}
-            {% include "elements/icons/link_external.html" %}  
-        </a>
+        <li>
+            <a href="{{ user.website }}"
+                aria-label="{{ member.user.full_name }}'s website" 
+                >
+                <i aria-hidden="true" class="fa fa-globe"></i> 
+                {% trans 'Website' %}
+                {% include "elements/icons/link_external.html" %}  
+            </a>
+        </li>
     {% endif %}
 
     {% if user.twitter %}
-        <a href="https://www.twitter.com/{{ user.twitter }}" 
-            aria-label="{{ member.user.full_name }}'s twitter profile"
-            >
-            <i aria-hidden="true" class="fa fa-twitter-square"></i> 
-            {% trans 'Twitter' %}
-            {% include "elements/icons/link_external.html" %}  
-        </a>
+        <li>
+            <a href="https://www.twitter.com/{{ user.twitter }}" 
+                aria-label="{{ member.user.full_name }}'s twitter profile"
+                >
+                <i aria-hidden="true" class="fa fa-twitter-square"></i> 
+                {% trans 'Twitter' %}
+                {% include "elements/icons/link_external.html" %}  
+            </a>
+        </li>
     {% endif %}
 
     {% if user.facebook %}
-        <a href="https://www.facebook.com/{{ user.facebook }}" 
-            aria-label="{{ member.user.full_name }}'s facebook profile"
-            >
-            <i aria-hidden="true" class="fa fa-facebook-square"></i> 
-            {% trans 'Facebook' %}
-            {% include "elements/icons/link_external.html" %}  
-        </a>
+        <li>   
+            <a href="https://www.facebook.com/{{ user.facebook }}" 
+                aria-label="{{ member.user.full_name }}'s facebook profile"
+                >
+                <i aria-hidden="true" class="fa fa-facebook-square"></i> 
+                {% trans 'Facebook' %}
+                {% include "elements/icons/link_external.html" %}  
+            </a>
+        </li>
     {% endif %}
 
     {% if user.github %}
-        <a href="https://www.github.com/{{ user.github}}" 
-            aria-label="{{ member.user.full_name }}'s github profile"
-            >
-            <i aria-hidden="true" class="fa fa-github-square"></i> 
-            {% trans 'Github' %}
-            {% include "elements/icons/link_external.html" %}  
-        </a>
+        <li>
+            <a href="https://www.github.com/{{ user.github}}" 
+                aria-label="{{ member.user.full_name }}'s github profile"
+                >
+                <i aria-hidden="true" class="fa fa-github-square"></i> 
+                {% trans 'Github' %}
+                {% include "elements/icons/link_external.html" %}  
+            </a>
+        </li>
     {% endif %}
 
     {% if user.linkedin %}
-        <a href="https://www.linkedin.com/in/{{ user.linkedin }}" 
-            aria-label="{{ member.user.full_name }}'s linkedin profile"
-            >
-            <i aria-hidden="true" class="fa fa-linkedin-square"></i> 
-            {% trans 'Linkedin' %}
-            {% include "elements/icons/link_external.html" %}  
-        </a>
+        <li>
+            <a href="https://www.linkedin.com/in/{{ user.linkedin }}" 
+                aria-label="{{ member.user.full_name }}'s linkedin profile"
+                >
+                <i aria-hidden="true" class="fa fa-linkedin-square"></i> 
+                {% trans 'Linkedin' %}
+                {% include "elements/icons/link_external.html" %}  
+            </a>
+        </li>
     {% endif %}
-</small></p>
+</ul>
 {% endif %}
