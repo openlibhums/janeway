@@ -3303,19 +3303,13 @@ class SubmissionConfiguration(models.Model):
 @receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
     """
+    This signal is triggered before a FrozenAuthor is deleted.
     This signal will remove an author from a paper if the user deletes the
     frozen author record to ensure they are in sync.
     :param sender: FrozenAuthor class
     :param instance: FrozenAuthor instance
     :return: None
     """
-    if (not instance.article.authors.exists()) and (
-        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
-    ):
-        # Return early so long as deprecated models and fields are not being used.
-        # This avoids triggering the deprecation warning in development.
-        return
-    warnings.warn("Authorship is now exclusively handled via FrozenAuthor.")
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,
@@ -3331,7 +3325,8 @@ def remove_author_from_article(sender, instance, **kwargs):
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
-    instance.article.authors.remove(instance.author)
+    if instance.article and instance.article.authors.exists():
+        instance.article.authors.remove(instance.author)
 
 
 def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -3359,6 +3354,7 @@ def backwards_compat_authors(
     sender, instance, action, reverse, model, pk_set, **kwargs
 ):
     """A signal to make the Article.authors backwards compatible
+    This signal is triggered when the Article-Account many-to-many table changes.
     As part of #4755, the dependency of Article on Account for author linking
     was removed. This signal is a backwards compatibility measure to ensure
     FrozenAuthor records are being updated correctly.
