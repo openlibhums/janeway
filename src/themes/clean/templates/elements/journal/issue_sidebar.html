@@ -16,27 +16,29 @@
                 {% else %} {% trans issue.issue_type.plural_name %}
                 {% endif %}
             </h2>
-            <ul aria-describedby="archive-title">
-                {% for issue_item in issues %}
-                    {% if issue_item.id == issue.id %}
-                        <li>
-                            <span class="sr-only"></span>
-                            <span aria-label='{{ issue.display_title_a11y }}'>
-                                {{ issue.display_title }} 
-                            </span>
-                            ({{ issue.articles.all.count}}) 
-                            <span class="sr-only">{% trans 'Articles' %} {% trans 'this page' %}</span>
+            {% spaceless %}
+                <ul aria-describedby="archive-title" class="no-bullet-list line-spaced-list">
+                    {% for issue_item in issues %}
+                            {% if issue_item.id == issue.id %}
+                                <li><span aria-label='{{ issue.display_title_a11y }}'>
+                                    {{ issue.display_title }} 
+                                    ({{ issue_item.articles.all.count}}<span class="sr-only">{% trans 'Articles' %}</span>) 
+                                </span></li>
+                            {% elif issue_item.issue_type.code == 'issue' %}
+                                <li><a href="{% url 'journal_issue' issue_item.id %}" aria-label='{{ issue_item.display_title_a11y }}'>
+                                    {{ issue_item.display_title }}
+                                    ({{ issue_item.articles.all.count}}<span class="sr-only">{% trans 'Articles' %}</span>) 
+                                </a></li>
+                            {% else %}
+                                <li><a href="{% url 'journal_collection' issue_item.id %}">
+                                    {{ issue_item.issue_title }}
+                                    ({{ issue_item.articles.all.count}}<span class="sr-only">{% trans 'Articles' %}</span>) 
+                                </a></li>
+                            {% endif %}
                         </li>
-                    {% elif issue_item.issue_type.code == 'issue' %}
-                        <li><a href="{% url 'journal_issue' issue_item.id %}" aria-label='{{ issue_item.display_title_a11y }}'>
-                            {{ issue_item.display_title }} 
-                        </a>
-                        ({{ issue_item.articles.all.count}}) <span class="sr-only">{% trans 'Articles' %}</span></li>
-                    {% else %}
-                        <li><a href="{% url 'journal_collection' issue_item.id %}">{{ issue_item.issue_title }} </a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                </ul>
+            {% endspaceless %}
         </div>
     </div>
 </aside>
