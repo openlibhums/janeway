@@ -951,6 +951,7 @@ span + .btn-background {
 
 .table-caption {
   margin-bottom: var(--spacing-sm);
+  background: var(--bg-card-alt) !important;
 }
 
 .math-formulae {
