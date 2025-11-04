@@ -14,11 +14,13 @@
     <div class="box">
         <div class="title-area">
             <h2>Media Files</h2>
-            <a class="button" href="#" data-open="upload_files"><i class="fa fa-plus">&nbsp;</i>Upload Files</a>
+            <a class="button" href="#" data-open="upload_files"><i class="fa fa-plus">&nbsp;</i>Upload files</a>
         </div>
         <div class="content">
-            <p>Here you can upload files for download. <strong>Note</strong>: this area should only be used to upload publicly accessible files. If you want to include a file in a CMS page or a submission item copy and paste the link cell.</p>
-            <p>Files with names that clash with an existing file will be renamed. If you want to upload a new version of a file delete the existing one and upload the new version.</p>
+            <p>This section allows you to upload images and other files.</p>
+            <p>If you want to include an image or file on one of your customisable pages, copy the URL created in the <b>Link</b> column. When you are prompted to provide a source for your image or file, paste this link.</p>
+            <p><strong>Note</strong>: all images and files uploaded here are publicly accessible.</p>
+            <p>If you upload a file with the same name as one already uploaded here, the new file will be renamed. If you want to replace an existing file, delete the current version before uploading the new one.</p>
             <form method="POST">
                 {% csrf_token %}
                 <table class="table" id="media_files">
@@ -56,13 +58,13 @@
          data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
-                <h4><i class="fa fa-upload">&nbsp;</i>Upload Media Files</h4>
+                <h4><i class="fa fa-upload">&nbsp;</i>Upload media files</h4>
             </div>
         </div>
         <div class="card-section">
             <form method="POST" enctype="multipart/form-data" action="{% url 'cms_file_upload' %}">
                 {% csrf_token %}
-                <p>Supply a label and file to upload.</p>
+                <p>Select a file to upload and provide a label. This will display alongside the file name in the table view below.</p>
 
                 {{ form }}
 

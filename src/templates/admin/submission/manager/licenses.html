@@ -7,72 +7,72 @@
 {% block title-sub %}Control journal licences{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    {% if license %}
-        <li><a href="{% url 'submission_licenses' %}">Licences</a></li>
-        <li>Edit {{ license.name }}</li>
-    {% else %}
-        <li>Licences</li>
-    {% endif %}
+{{ block.super }}
+<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+{% if license %}
+<li><a href="{% url 'submission_licenses' %}">Licences</a></li>
+<li>Edit {{ license.name }}</li>
+{% else %}
+<li>Licences</li>
+{% endif %}
 {% endblock %}
 
 {% block body %}
-    <div class="box">
-        <div class="row expanded">
-            <div class="large-6 columns">
-                <div class="title-area">
-                    <h2>Current Licences</h2>
-                </div>
-                <div class="content">
-                    <form method="POST">
-                        <ul class="list-group" id="sortable">
-                            {% csrf_token %}
-                            {% for license in licenses %}
-                                <li class="list-group-item" id="order-{{ license.pk }}">
-                                    <i class="fa fa-arrows">&nbsp;</i>
-                                    {{ license.name }}
-                                    <div class="float-right">
-                                        <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
-                                                class="fa fa-edit"></i></a>
-                                        {% if request.user.is_staff %}
-                                        <a href="{% url 'submission_delete_license' license.pk %}" class="tiny alert button"><i
-                                                class="fa fa-trash"></i></a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="clear"></div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </form>
-                </div>
+<div class="box">
+    <div class="row expanded">
+        <div class="large-6 columns">
+            <div class="title-area">
+                <h2>Current Licences</h2>
             </div>
-            <div class="large-6 columns">
-                <div class="title-area">
-                    {% if license %}
-                    <h2>Edit {{ license.name }}</h2>
-                    {% else %}
-                    <h2>Add New License</h2>
-                    {% endif %}
-                </div>
-                <div class="content">
-                    {% include "elements/forms/errors.html" with form=form %}
-                    <form method="POST">
+            <div class="content">
+                <form method="POST">
+                    <ul class="list-group" id="sortable">
                         {% csrf_token %}
-                        {{ form|foundation }}
-                        <button class="success button" name="save">Save Field</button>
-                    </form>
-                </div>
+                        {% for license in licenses %}
+                        <li class="list-group-item" id="order-{{ license.pk }}">
+                            <i class="fa fa-arrows">&nbsp;</i>
+                            {{ license.name }}
+                            <div class="float-right">
+                                <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
+                                        class="fa fa-edit"></i></a>
+                                {% if request.user.is_staff %}
+                                <a href="{% url 'submission_delete_license' license.pk %}" class="tiny alert button"><i
+                                        class="fa fa-trash"></i></a>
+                                {% endif %}
+                            </div>
+                            <div class="clear"></div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="large-6 columns">
+            <div class="title-area">
+                {% if license %}
+                <h2>Edit {{ license.name }}</h2>
+                {% else %}
+                <h2>Add New Licence</h2>
+                {% endif %}
+            </div>
+            <div class="content">
+                {% include "elements/forms/errors.html" with form=form %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button class="success button" name="save">Save Field</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block js %}
-<script src="{% static "admin/js/csrf.js" %}"></script>
-<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script src="{% static " admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static " common/js/jq-ui.min.js" %}"></script>
 <script>
-    $( "#sortable" ).sortable({
+    $("#sortable").sortable({
         update: function (event, ui) {
             var data = $(this).sortable('serialize');
             console.log(data);
@@ -84,6 +84,6 @@
             });
         }
     });
-    $( "#sortable" ).disableSelection();
+    $("#sortable").disableSelection();
 </script>
-{% endblock js %} 
+{% endblock js %}

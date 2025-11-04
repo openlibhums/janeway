@@ -1,6 +1,7 @@
 <div class="content">
     {% include "admin/elements/forms/field.html" with field=attr_form.full_width_navbar %}
-    <p class="help-text">{% trans 'Full Width Navbar only applies to the Material theme' %}.</p>
+    <p class="help-text">{% trans 'If you are using the 'Material' theme, tick this box to enable a full width
+        navigation bar. This does not apply to other themes' %}.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.multi_page_editorial %}
     {% include "admin/elements/forms/field.html" with field=edit_form.display_journal_title %}
 </div>

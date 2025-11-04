@@ -4,10 +4,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Display of feeds for this journal. Displayed on the About and the Submission pages.",
+            "description": "This text will be displayed on both the About and Submissions pages. It should outline any fees associated with publishing in your journal.",
             "is_translatable": true,
             "name": "publication_fees",
-            "pretty_name": "Publication Fees",
+            "pretty_name": "Publication fees",
             "type": "rich-text"
         },
         "value": {
@@ -23,7 +23,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL of the Journal's Publisher.",
+            "description": "Your publisher's URL.",
             "is_translatable": false,
             "name": "publisher_url",
             "pretty_name": "Publisher URL",
@@ -42,10 +42,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "URL to an external privacy-policy, linked from the footer. If blank, it links to the Janeway CMS page: /site/privacy.",
+            "description": "Link to your privacy policy, which will appear in the footer. If this section is left blank, a link to the blank \"/site/privacy\" default page will be displayed. This page can be accessed through the Content manager.",
             "is_translatable": false,
             "name": "privacy_policy_url",
-            "pretty_name": "External Privacy Policy URL",
+            "pretty_name": "External privacy policy URL",
             "type": "char"
         },
         "value": {
@@ -61,10 +61,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
+            "description": "Name of the journal's publisher. Displayed throughout the site and metadata.",
             "is_translatable": true,
             "name": "publisher_name",
-            "pretty_name": "Publisher Name",
+            "pretty_name": "Publisher name",
             "type": "char"
         },
         "value": {
@@ -80,10 +80,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "<p>Displayed on the About and Submission pages. You should update this to display the Journal's copyright requirements.",
+            "description": "This text will be displayed on both the About and Submissions pages. It should contain your journal's copyright notice, providing the terms which authors agree to when publishing in your journal.",
             "is_translatable": true,
             "name": "copyright_notice",
-            "pretty_name": "Copyright Notice",
+            "pretty_name": "Copyright notice",
             "type": "rich-text"
         },
         "value": {
@@ -98,10 +98,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "<p>Displayed on the Submission pages. You should update this to display the Journal's acceptance criteria.",
+            "description": "This text will be displayed on the Submissions page. It should outline the criteria you use when deciding if an article will be accepted.",
             "is_translatable": true,
             "name": "acceptance_criteria",
-            "pretty_name": "Acceptance Criteria",
+            "pretty_name": "Acceptance criteria",
             "type": "rich-text"
         },
         "value": {
@@ -120,7 +120,7 @@
             "description": "<p>Overrides the term \"Collections\" across all the templates.</p>",
             "is_translatable": true,
             "name": "collection_name",
-            "pretty_name": "Collection Name",
+            "pretty_name": "Collection name",
             "type": "char"
         },
         "value": {
@@ -139,7 +139,7 @@
             "description": "<p>Overrides the term \"Collections\" across all the templates.</p>",
             "is_translatable": true,
             "name": "collection_name_plural",
-            "pretty_name": "Collection Name Plural",
+            "pretty_name": "Collection name plural",
             "type": "char"
         },
         "value": {
@@ -155,10 +155,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Displayed on the About and Submission pages. You should update this with an ordered list of submission requirements.",
+            "description": "This text will be displayed on both the About and Submissions pages. It should provide an ordered list of submission requirements.",
             "is_translatable": true,
             "name": "submission_checklist",
-            "pretty_name": "Submission Checklist",
+            "pretty_name": "Submission checklist",
             "type": "rich-text"
         },
         "value": {
@@ -174,7 +174,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "System emails are sent From this address.",
+            "description": "System emails are sent from this address.",
             "is_translatable": false,
             "name": "from_address",
             "pretty_name": "From Address",
@@ -192,10 +192,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Address set as the 'Reply-to' for system emails.",
+            "description": "When recipients reply to emails sent through Janeway, their replies will be sent to this email address.",
             "is_translatable": false,
             "name": "replyto_address",
-            "pretty_name": "Reply-To Address",
+            "pretty_name": "Reply-To address",
             "type": "char"
         },
         "value": {
@@ -214,7 +214,7 @@
             "description": "Email sent to editors when they are assigned to a submission.",
             "is_translatable": true,
             "name": "editor_assignment",
-            "pretty_name": "Editor Assignment",
+            "pretty_name": "Editor assignment",
             "type": "rich-text"
         },
         "value": {
@@ -233,7 +233,7 @@
             "description": "Email sent to authors when they have submitted an article.",
             "is_translatable": true,
             "name": "submission_acknowledgement",
-            "pretty_name": "Submission Acknowledgement",
+            "pretty_name": "Submission acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -252,7 +252,7 @@
             "description": "Email sent to editors when a reviewer accepts or declines a review.",
             "is_translatable": true,
             "name": "reviewer_acknowledgement",
-            "pretty_name": "Reviewer Acknowledgement",
+            "pretty_name": "Reviewer acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -271,7 +271,7 @@
             "description": "Email sent to authors when requesting revisions.",
             "is_translatable": true,
             "name": "request_revisions",
-            "pretty_name": "Request Revisions",
+            "pretty_name": "Request revisions",
             "type": "rich-text"
         },
         "value": {
@@ -290,7 +290,7 @@
             "description": "Email sent to reviewers when they agree to undertake a review.",
             "is_translatable": true,
             "name": "review_accept_acknowledgement",
-            "pretty_name": "Review Acceptance Acknowledgement",
+            "pretty_name": "Review acceptance acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -309,7 +309,7 @@
             "description": "Email sent to reviewers when they complete a review.",
             "is_translatable": true,
             "name": "review_complete_reviewer_acknowledgement",
-            "pretty_name": "Review Complete Acknowledgement",
+            "pretty_name": "Review complete acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -328,7 +328,7 @@
             "description": "Email sent when a review assignment is updated.",
             "is_translatable": true,
             "name": "review_request_sent",
-            "pretty_name": "Review Request Update",
+            "pretty_name": "Review request update",
             "type": "rich-text"
         },
         "value": {
@@ -344,10 +344,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when a reviewer complete a review.",
+            "description": "Email sent to editors when a reviewer completes a review.",
             "is_translatable": true,
             "name": "review_complete_acknowledgement",
-            "pretty_name": "Review Complete Update",
+            "pretty_name": "Review complete update",
             "type": "rich-text"
         },
         "value": {
@@ -366,7 +366,7 @@
             "description": "Email sent to reviewers when they decline to undertake a review.",
             "is_translatable": true,
             "name": "review_decline_acknowledgement",
-            "pretty_name": "Review Decline Acknowledgement",
+            "pretty_name": "Review decline acknowledgement",
             "type": "rich-text"
         },
         "value": {
@@ -385,7 +385,7 @@
             "description": "Email sent to reviewers to request a review.",
             "is_translatable": true,
             "name": "review_assignment",
-            "pretty_name": "Review Assignment",
+            "pretty_name": "Review assignment",
             "type": "rich-text"
         },
         "value": {
@@ -404,7 +404,7 @@
             "description": "Email to remind reviewers of a new request.",
             "is_translatable": true,
             "name": "default_review_reminder",
-            "pretty_name": "Default Review Reminder",
+            "pretty_name": "Default review reminder",
             "type": "rich-text"
         },
         "value": {
@@ -420,10 +420,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Notify reviewer of accepted request and remind them to review submission.",
+            "description": "Email sent to notify reviewer of accepted request and remind them to review submission.",
             "is_translatable": true,
             "name": "accepted_review_reminder",
-            "pretty_name": "Accepted Review Reminder",
+            "pretty_name": "Accepted review reminder",
             "type": "rich-text"
         },
         "value": {
@@ -442,7 +442,7 @@
             "description": "Email sent to authors when an article is accepted.",
             "is_translatable": true,
             "name": "review_decision_accept",
-            "pretty_name": "Article Review Accept",
+            "pretty_name": "Article review Accept",
             "type": "rich-text"
         },
         "value": {
@@ -461,7 +461,7 @@
             "description": "Email sent to authors when an article is declined.",
             "is_translatable": true,
             "name": "review_decision_decline",
-            "pretty_name": "Article Review Decline",
+            "pretty_name": "Article review Decline",
             "type": "rich-text"
         },
         "value": {
@@ -496,7 +496,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editors when they are unassigned from an article",
+            "description": "Email sent to editors when they are unassigned from an article.",
             "is_translatable": true,
             "name": "unassign_editor",
             "pretty_name": "Unassign Editor",
@@ -515,7 +515,7 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Unassign Editor Email",
+            "description": "Subject for the email sent to editors when they are unassigned from an article.",
             "is_translatable": true,
             "name": "subject_unassign_editor",
             "pretty_name": "Subject Unassign Editor",
@@ -572,7 +572,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Tacked onto the end of system automated emails where there is no actor.",
+            "description": "Added onto the end of automated system emails (where no specific person is sending it).",
             "is_translatable": true,
             "name": "auto_signature",
             "pretty_name": "Auto Signature",
@@ -610,7 +610,7 @@
             "name": "Preprints"
         },
         "setting": {
-            "description": "Allow authors to select to make their works publicly available during ongoing review.",
+            "description": "Tick this box to allow authors to select to make their works publicly available during ongoing review.",
             "is_translatable": false,
             "name": "enable_preprints",
             "pretty_name": "Enable Preprints",
@@ -629,10 +629,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "When enabled, we will send all log entries to slack.",
+            "description": "Tick this box to allow automatic notifications to be sent in a Slack or Discord channel.",
             "is_translatable": false,
             "name": "slack_logging",
-            "pretty_name": "Slack Logging",
+            "pretty_name": "Slack or Discord Logging",
             "type": "boolean"
         },
         "value": {
@@ -648,7 +648,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to use Crossref DOIs.",
+            "description": "Tick this box to use Crossref DOIs.",
             "is_translatable": false,
             "name": "use_crossref",
             "pretty_name": "Use Crossref DOIs",
@@ -667,7 +667,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if `use_crossref` if off.",
+            "description": "Tick this box to register DOIs with Crossref at acceptance automatically. If unticked, DOIs are generated at acceptance but should be manually registered. Has no effect if `use_crossref` is off.",
             "is_translatable": false,
             "name": "register_doi_at_acceptance",
             "pretty_name": "Register DOI at acceptance",
@@ -686,7 +686,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to use Crossref's test server.",
+            "description": "Tick this box to use Crossref's test server.",
             "is_translatable": false,
             "name": "crossref_test",
             "pretty_name": "Use Crossref test deposit server",
@@ -933,7 +933,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When using a custom theme you can set the base theme, when a template from a custom theme is missing templates from the base theme will be used as a backup.",
+            "description": "When using a custom theme, you can set the base theme. When a template from a custom theme is missing, templates from the base theme will be used as a backup.",
             "is_translatable": false,
             "name": "journal_base_theme",
             "pretty_name": "Journal Base Theme",
@@ -952,7 +952,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guide shown to Copyeditors.",
+            "description": "Guide shown to copyeditors.",
             "is_translatable": true,
             "name": "copyediting_guidelines",
             "pretty_name": "Copyediting Guidelines",
@@ -971,7 +971,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guide shown to Author during Copyediting.",
+            "description": "Guide shown to authors during copyediting.",
             "is_translatable": true,
             "name": "author_copyediting_guidelines",
             "pretty_name": "Author Copyediting Guidelines",
@@ -990,14 +990,14 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to copyeditors.",
+            "description": "Email sent to copyeditors notifying them of a new copyediting assignment.",
             "is_translatable": true,
             "name": "copyeditor_assignment_notification",
             "pretty_name": "Copyedit Notify Copyeditor",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ assignment.copyeditor.salutation_name }},<br/><br/>We are requesting that your undertake a copyedit for the article \"{{ assignment.article.safe_title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+            "default": "<p>Dear {{ assignment.copyeditor.salutation_name }},<br/><br/>We are requesting that you undertake a copyedit for the article \"{{ assignment.article.safe_title }}\".<br/><br/>This assignment is due on {{ assignment.due }}. You can access this task on the\u00a0journal site: {{ copyedit_requests_url }} </p><p><br/>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         },
         "editable_by": [
             "editor",
@@ -1009,7 +1009,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to editor when copyedits are complete.",
+            "description": "Email sent to editors when copyedits are complete.",
             "is_translatable": true,
             "name": "copyeditor_notify_editor",
             "pretty_name": "Copyedit Notify Editor",
@@ -1028,7 +1028,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Author asking them to review copyedits.",
+            "description": "Email sent to authors asking them to review copyedits.",
             "is_translatable": true,
             "name": "copyeditor_notify_author",
             "pretty_name": "Copyedit Notify Author",
@@ -1047,10 +1047,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Copyeditor asking them to undertake further copyedits.",
+            "description": "Email sent to copyeditors asking them to undertake further copyedits.",
             "is_translatable": true,
             "name": "copyeditor_reopen_task",
-            "pretty_name": "Copyedit Reopen Task",
+            "pretty_name": "Copyedit Reopen task",
             "type": "rich-text"
         },
         "value": {
@@ -1066,7 +1066,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Copyeditor to thank them.",
+            "description": "Email sent to copyeditors to thank them.",
             "is_translatable": true,
             "name": "copyeditor_ack",
             "pretty_name": "Copyedit Acknowledge",
@@ -1085,10 +1085,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Editor when an author copyedit review is complete.",
+            "description": "Email sent to editors when an author copyedit review is complete.",
             "is_translatable": true,
             "name": "author_copyedit_complete",
-            "pretty_name": "Author Copyediting Complete",
+            "pretty_name": "Author Copyediting complete",
             "type": "rich-text"
         },
         "value": {
@@ -1104,7 +1104,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Guidelines displayed to the typesetter.",
+            "description": "Guidelines displayed to typesetters.",
             "is_translatable": true,
             "name": "typesetting_guide",
             "pretty_name": "Typesetting Guidelines",
@@ -1123,10 +1123,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Production Manager on assignment.",
+            "description": "Email sent to production managers notifying them of a new assignment.",
             "is_translatable": true,
             "name": "production_manager_notification",
-            "pretty_name": "Production Manager Assignment Notification",
+            "pretty_name": "Production Manager assignment notification",
             "type": "rich-text"
         },
         "value": {
@@ -1142,10 +1142,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter on task assignment.",
+            "description": "Email sent to typesetters notifying them of a new assignment.",
             "is_translatable": true,
             "name": "typesetter_notification",
-            "pretty_name": "Typesetter Assignment Notification",
+            "pretty_name": "Typesetter assignment notification",
             "type": "rich-text"
         },
         "value": {
@@ -1161,10 +1161,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Production Manager on typeset task complete.",
+            "description": "Email sent to production managers upon typesetting task completion.",
             "is_translatable": true,
             "name": "typesetter_complete_notification",
-            "pretty_name": "Typesetter Complete Notification",
+            "pretty_name": "Typesetter complete notification",
             "type": "rich-text"
         },
         "value": {
@@ -1180,10 +1180,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter to acknowledge a completed task.",
+            "description": "Email sent to typesetters to acknowledge a completed task.",
             "is_translatable": true,
             "name": "typeset_ack",
-            "pretty_name": "Typesetter Acknowledgement",
+            "pretty_name": "Typesetter acknowlegement",
             "type": "rich-text"
         },
         "value": {
@@ -1199,10 +1199,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Editors when Production is Complete.",
+            "description": "Email sent to editors when production is complete.",
             "is_translatable": true,
             "name": "production_complete",
-            "pretty_name": "Production Complete",
+            "pretty_name": "Production complete",
             "type": "rich-text"
         },
         "value": {
@@ -1218,10 +1218,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Typesetter to inform them that a task has been re-opened.",
+            "description": "Email sent to typesetters to inform them that a task has been reopened.",
             "is_translatable": true,
             "name": "typeset_reopened",
-            "pretty_name": "Typeset Task Reopened",
+            "pretty_name": "Typeset task Reopened",
             "type": "rich-text"
         },
         "value": {
@@ -1237,7 +1237,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Auto email sent to Proofing Manager when they are assigned.",
+            "description": "Automated email sent to proofing manager when they are assigned.",
             "is_translatable": true,
             "name": "notify_proofing_manager",
             "pretty_name": "Notify Proofing Manager",
@@ -1256,10 +1256,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the proofing manager on completion.",
+            "description": "Email sent to proofing managers on completion of a proofing task.",
             "is_translatable": true,
             "name": "notify_proofreader_complete",
-            "pretty_name": "Notify Proofreader Complete",
+            "pretty_name": "Notify Proofreader complete",
             "type": "rich-text"
         },
         "value": {
@@ -1278,7 +1278,7 @@
             "description": "Email sent to a proofreader when they are given an assignment.",
             "is_translatable": true,
             "name": "notify_proofreader_assignment",
-            "pretty_name": "Notify Proofreader of Assignment",
+            "pretty_name": "Notify Proofreader of assignment",
             "type": "rich-text"
         },
         "value": {
@@ -1294,7 +1294,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "description": "Email sent to typesetters requesting changes based on proofing feedback.",
             "is_translatable": true,
             "name": "notify_typesetter_proofing_changes",
             "pretty_name": "Notify Typesetter of Proofreading Feedback",
@@ -1313,7 +1313,7 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the typesetter and proofreaders thanking them.",
+            "description": "Email sent to typesetters and proofreaders thanking them.",
             "is_translatable": true,
             "name": "thank_proofreaders_and_typesetters",
             "pretty_name": "Thank Proofreaders and Typesetters",
@@ -1332,10 +1332,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when Proofing is complete.",
+            "description": "Email sent to editors when proofing is complete.",
             "is_translatable": true,
             "name": "notify_editor_proofing_complete",
-            "pretty_name": "Notify Editor that Proofreading is Complete",
+            "pretty_name": "Notify Editor that Proofreading is complete",
             "type": "rich-text"
         },
         "value": {
@@ -1373,7 +1373,7 @@
             "description": "Notify the proofing manager that corrections are complete.",
             "is_translatable": true,
             "name": "typesetter_corrections_complete",
-            "pretty_name": "Corrections Complete",
+            "pretty_name": "Corrections complete",
             "type": "rich-text"
         },
         "value": {
@@ -1392,7 +1392,7 @@
             "description": "Notify the author of their publication date and time.",
             "is_translatable": true,
             "name": "author_publication",
-            "pretty_name": "Author Publication Notification",
+            "pretty_name": "Author publication notification",
             "type": "rich-text"
         },
         "value": {
@@ -1503,7 +1503,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "When enabled, non staff will not be able to access the site.",
+            "description": "Tick this box to prevent non-staff users from accessing the site.",
             "is_translatable": false,
             "name": "maintenance_mode",
             "pretty_name": "Enable Maintenance Mode",
@@ -1525,7 +1525,7 @@
             "description": "Message displayed when maintenance mode is enabled.",
             "is_translatable": true,
             "name": "maintenance_message",
-            "pretty_name": "Maintenance Mode Message",
+            "pretty_name": "Maintenance Mode message",
             "type": "rich-text"
         },
         "value": {
@@ -1541,10 +1541,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If checked, editorial team link will display in Navigation.",
+            "description": "Tick this box to display the editorial team link in the navigation bar.",
             "is_translatable": false,
             "name": "enable_editorial_display",
-            "pretty_name": "Enable Editorial Team Display",
+            "pretty_name": "Enable editorial team display",
             "type": "boolean"
         },
         "value": {
@@ -1560,7 +1560,7 @@
             "name": "styling"
         },
         "setting": {
-            "description": "If checked, the journal title will be displayed on the top bar of the site (not supported on Material theme)",
+            "description": "Tick this box to display the journal title in the top bar of your site (note this option is not supported on the Material theme).",
             "is_translatable": false,
             "name": "display_journal_title",
             "pretty_name": "Enable Journal title in Navbar",
@@ -1579,7 +1579,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If checked, the article large image will not be displayed on the article page",
+            "description": "Tick this box to prevent the article's large image (header image) from being displayed on the article page.",
             "is_translatable": false,
             "name": "disable_article_large_image",
             "pretty_name": "Disable article large image",
@@ -1598,7 +1598,7 @@
             "name": "article"
         },
         "setting": {
-            "description": "If checked, no article thumbnails will be rendered on public article lists",
+            "description": "Tick this box to prevent article thumbnails from being displayed on public article lists.",
             "is_translatable": false,
             "name": "disable_article_thumbnails",
             "pretty_name": "Disable article thumbnails",
@@ -1617,10 +1617,10 @@
             "name": "styling"
         },
         "setting": {
-            "description": "If checked, editorial groups will have their own pages.",
+            "description": "Tick this box to give editorial teams their own pages.",
             "is_translatable": false,
             "name": "multi_page_editorial",
-            "pretty_name": "Enable Multi Page Editorial Team Display (is overwritten by Enable Team Display)",
+            "pretty_name": "Enable multi-page editorial team display (is overwritten by Enable team display).",
             "type": "boolean"
         },
         "value": {
@@ -1636,10 +1636,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when user requests a password reset.",
+            "description": "Email sent when a user requests a password reset.",
             "is_translatable": true,
             "name": "password_reset",
-            "pretty_name": "Password Reset",
+            "pretty_name": "Password reset",
             "type": "rich-text"
         },
         "value": {
@@ -1655,10 +1655,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when user registers.",
+            "description": "Email sent when a user registers.",
             "is_translatable": true,
             "name": "new_user_registration",
-            "pretty_name": "New User Registration",
+            "pretty_name": "New user registration",
             "type": "rich-text"
         },
         "value": {
@@ -1674,10 +1674,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, Sections Editors can only make a draft of a decision for a Senior Editor to review.",
+            "description": "Tick this box to require senior editors to review and confirm decisions made by section editors.",
             "is_translatable": false,
             "name": "draft_decisions",
-            "pretty_name": "Draft Decisions",
+            "pretty_name": "Draft decisions",
             "type": "boolean"
         },
         "value": {
@@ -1693,7 +1693,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, reviewers will be able to save the progress in a peer-review and come back later to complete it (Only recommended journals using custom review forms that are particularly long)",
+            "description": "Tick this box to enable reviewers to save their progress in a peer review and come back later to complete it. We only recommend this for journals using particularly long review forms.",
             "is_translatable": false,
             "name": "enable_save_review_progress",
             "pretty_name": "Enable save review progress",
@@ -1715,7 +1715,7 @@
             "description": "Email sent when a section editor makes a draft decision.",
             "is_translatable": true,
             "name": "draft_message",
-            "pretty_name": "Draft Decisions Message",
+            "pretty_name": "Draft decisions message",
             "type": "rich-text"
         },
         "value": {
@@ -1731,10 +1731,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when a section editor makes a draft decision.",
+            "description": "Email sent to editors when a section editor makes a draft decision.",
             "is_translatable": true,
             "name": "draft_editor_message",
-            "pretty_name": "Draft Decisions Editor Message",
+            "pretty_name": "Draft decisions editor message",
             "type": "rich-text"
         },
         "value": {
@@ -1750,10 +1750,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Editor when there is a new submission.",
+            "description": "Email sent to editors when there is a new submission.",
             "is_translatable": true,
             "name": "editor_new_submission",
-            "pretty_name": "New Submission for Editor",
+            "pretty_name": "New submission for editor",
             "type": "rich-text"
         },
         "value": {
@@ -1769,7 +1769,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, only Doc, Docx, RTF and ODT files will be accepted during submission.",
+            "description": "Tick this box to only accept DOC, DOCX, RTF and ODT manuscript files during submission.",
             "is_translatable": false,
             "name": "limit_manuscript_types",
             "pretty_name": "Limit Manuscript Types",
@@ -1788,10 +1788,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "NOTE: This setting is deprecated--please use Notify Section Editors of Publication instead. Email sent to the Section Editor when article is published.",
+            "description": "NOTE: This setting is deprecated--please use Notify Section Editors of Publication instead. Email sent to the Section Editor when the article is published.",
             "is_translatable": true,
             "name": "section_editor_pub_notification",
-            "pretty_name": "Section Editor Publication Notification",
+            "pretty_name": "Section Editor publication notification",
             "type": "rich-text"
         },
         "value": {
@@ -1807,10 +1807,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to the Peer Reviewer when article is published.",
+            "description": "Email sent to reviewers when the article they reviewed is published.",
             "is_translatable": true,
             "name": "peer_reviewer_pub_notification",
-            "pretty_name": "Peer Reviewer Publication Notification",
+            "pretty_name": "Peer Reviewer publication notification",
             "type": "rich-text"
         },
         "value": {
@@ -1826,10 +1826,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, one click access links are emailed to reviewers.",
+            "description": "Tick this box to use one-click access links for peer review, allowing reviewers to access their review assignment directly from their email.",
             "is_translatable": false,
             "name": "enable_one_click_access",
-            "pretty_name": "Enable One Click Review Access",
+            "pretty_name": "Enable one-click review access",
             "type": "boolean"
         },
         "value": {
@@ -1845,7 +1845,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, the review dashboard will show all active reviews, otherwise just a count of completed reviews",
+            "description": "Tick this box to show all active reviews on the review dashboard. If this box is not ticked, a count of completed reviews will be shown instead.",
             "is_translatable": false,
             "name": "enable_expanded_review_details",
             "pretty_name": "Enable expanded review details",
@@ -1864,10 +1864,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Digest email sent to editors..",
+            "description": "Digest email sent to editors.",
             "is_translatable": true,
             "name": "editor_digest",
-            "pretty_name": "Editor Digest",
+            "pretty_name": "Editor digest",
             "type": "rich-text"
         },
         "value": {
@@ -1883,10 +1883,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Reviewers.",
+            "description": "Email sent with a digest of outstanding review requests and overdue requests.",
             "is_translatable": true,
             "name": "reviewer_digest",
-            "pretty_name": "Review Digest",
+            "pretty_name": "Review digest",
             "type": "rich-text"
         },
         "value": {
@@ -1902,10 +1902,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to Revision People.",
+            "description": "Email sent to revision people.",
             "is_translatable": true,
             "name": "revision_digest",
-            "pretty_name": "Revision Digest",
+            "pretty_name": "Revision digest",
             "type": "rich-text"
         },
         "value": {
@@ -1921,10 +1921,10 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``",
+            "description": "You can set your DOI pattern. The default is ``{{ article.journal.code }}.{{ article.pk }}``.",
             "is_translatable": false,
             "name": "doi_pattern",
-            "pretty_name": "Article DOI Pattern",
+            "pretty_name": "Article DOI pattern",
             "type": "char"
         },
         "value": {
@@ -1943,7 +1943,7 @@
             "description": "Used for URL generation.",
             "is_translatable": false,
             "name": "is_secure",
-            "pretty_name": "Journal Uses HTTPS",
+            "pretty_name": "Journal uses HTTPS",
             "type": "boolean"
         },
         "value": {
@@ -1959,10 +1959,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Username used to submit files for review by <a target=\"_blank\" href=\"https://www.crossref.org/services/similarity-check/\">Similarity Check</a> or <a target=\"_blank\" href=\"https://www.ithenticate.com/\">iThenticate</a>.",
             "is_translatable": false,
             "name": "username",
-            "pretty_name": "Username for crosscheck/ithenticate",
+            "pretty_name": "Username for Similarity Check or iThenticate",
             "type": "char"
         },
         "value": {
@@ -1978,10 +1978,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "If enabled, links to crosscheck reports will be displayed",
+            "description": "Tick this box to display links to Similarity Check reports.",
             "is_translatable": false,
             "name": "enable",
-            "pretty_name": "Enable Crosscheck",
+            "pretty_name": "Enable Similarity Check",
             "type": "boolean"
         },
         "value": {
@@ -1997,10 +1997,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Password used to submit files for review by Similarity Check or iThenticate.",
             "is_translatable": false,
             "name": "password",
-            "pretty_name": "Password for crosscheck/ithenticate",
+            "pretty_name": "Password for Similarity Check or iThenticate",
             "type": "char"
         },
         "value": {
@@ -2016,10 +2016,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Selected Editors will receive a submission notification. If None, all Editors are emailed.",
+            "description": "The editors selected will receive notifications of new submissions. If none are selected, all editors listed here are notified.",
             "is_translatable": false,
             "name": "editors_for_notification",
-            "pretty_name": "Editors Notified on Submission",
+            "pretty_name": "Editors notified on submission",
             "type": "json"
         },
         "value": {
@@ -2035,14 +2035,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "A set of generic guidelines that reviewers should follow whilst undertaking review for this journal.",
+            "description": "These guidelines will be displayed to reviewers when accessing the review.",
             "is_translatable": true,
             "name": "reviewer_guidelines",
-            "pretty_name": "Reviewer Guidelines",
+            "pretty_name": "Reviewer guidelines",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p><strong>Review feedback</strong></p><p>1) Recommendation:</p><p>Please indicate which of the following options you recommend for this article: Accept; Minor Revisions; Major Revisions; Reject.</p><p>2) Content and argument:</p><p>Please comment on the originality, relevance and scholarly rigour of the article.</p><p>Please comment on whether existing literature in this area has been considered: is any relevant work missing? Are references to existing work accurate?</p><p>Do the introduction and conclusion reflect the argument in the main text?</p><p>Please comment on whether the abstract adequately summarises the article.</p><p>3) Writing style:</p><p>Is the manuscript logically structured and does the argument flow coherently?</p><p>Does the introduction detail the argument in a logical way and does the conclusion adequately summarise it?</p><p>Please comment on the quality of the writing style, commenting as appropriate on spelling, punctuation and grammar.</p><p><br /> </p><p>4) Figures:</p><p>Please comment on the article&rsquo;s use of tables, charts, figures, images or maps.</p><p>Please note if any of the above are missing captions or keys, or require any further editing.</p>\n<p>5) Formatting:</p><p>Does the manuscript adhere to the journal's guidelines?</p><p>Are citations and references formatted to house style?</p><p>6) General comments</p><p> If desired, please provide further comments and suggestions for improvement.</p>"
+            "default": "<p><strong>Review feedback</strong></p><ol><li>Recommendation:<br>Please indicate which of the following options you recommend for this article: Accept; Minor Revisions; Major Revisions; Reject.</li><li>Content and argument:<br>Please comment on the originality, relevance and scholarly rigour of the article.<br>Please comment on whether existing literature in this area has been considered.<br>– Is any relevant work missing? <br>– Are references to existing work accurate?<br>– Do the introduction and conclusion reflect the argument in the main text?<br>Please comment on whether the abstract adequately summarises the article.</li><li>Writing style:<br>Please comment on the quality of the writing style.<br>– Is the manuscript logically structured and does the argument flow coherently?<br>– Does the introduction detail the argument in a logical way and does the conclusion adequately summarise it?<br>– Are there any issues with spelling, punctuation and grammar?</li><li>Figures:<br>Please comment on the article’s use of tables, charts, figures, images or maps.<br>Please note if any of the above are missing captions or keys, or require any further editing.</li><li>Formatting:<br>Please comment on the formatting of the article.<br>– Does the manuscript adhere to the journal's guidelines?<br>– Are citations and references formatted to house style?</li><li>General comments<br>If desired, please provide further comments and suggestions for improvement.</li></ol>"
         },
         "editable_by": [
             "editor",
@@ -2054,10 +2054,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Sets Open, Single Anonymous or Double Anonymous as the default for the anonymity drop down when creating a review assignment.",
+            "description": "Select the type of review to use as the default when creating a new review assignment for this journal.",
             "is_translatable": false,
             "name": "default_review_visibility",
-            "pretty_name": "Default Review Anonymity",
+            "pretty_name": "Default review anonymity",
             "type": "select"
         },
         "value": {
@@ -2073,10 +2073,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "The default number of days before a review assignment is due.",
+            "description": "The default number of days reviewers have to complete their review assignment.",
             "is_translatable": false,
             "name": "default_review_days",
-            "pretty_name": "Default Number of Days for Review",
+            "pretty_name": "Default number of days for review",
             "type": "number"
         },
         "value": {
@@ -2092,10 +2092,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when a user is assigned to production.",
+            "description": "Email sent when a user is assigned to production.",
             "is_translatable": true,
             "name": "production_assign_article",
-            "pretty_name": "Production Assign Article",
+            "pretty_name": "Production assign article",
             "type": "rich-text"
         },
         "value": {
@@ -2111,10 +2111,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Webhook for sending slack messages.",
+            "description": "You can paste the webhook for <a target=\"_blank\" href=\"https://api.slack.com/messaging/webhooks\">Slack</a> or <a target=\"_blank\" href=\"https://discord.com/developers/docs/resources/webhook#create-webhook\">Discord</a> here.",
             "is_translatable": false,
             "name": "slack_webhook",
-            "pretty_name": "Slack Webhook",
+            "pretty_name": "Slack webhook",
             "type": "char"
         },
         "value": {
@@ -2130,10 +2130,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Send to a user specified in notification manager.",
+            "description": "Send to a user specified in the notification manager.",
             "is_translatable": true,
             "name": "notification_submission",
-            "pretty_name": "Submission Notification",
+            "pretty_name": "Submission notification",
             "type": "rich-text"
         },
         "value": {
@@ -2149,10 +2149,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Localised description of the journal.",
+            "description": "Description of the journal (translateable).",
             "is_translatable": true,
             "name": "journal_description",
-            "pretty_name": "Journal Description",
+            "pretty_name": "Journal description",
             "type": "rich-text"
         },
         "value": {
@@ -2168,10 +2168,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Localised description of the journal specifically for the press' journal list page.",
+            "description": "Description of the journal specifically for the press' journal list page (translatable).",
             "is_translatable": true,
             "name": "press_journal_description",
-            "pretty_name": "Journal Description for Press Site",
+            "pretty_name": "Journal description for press site",
             "type": "rich-text"
         },
         "value": {
@@ -2187,10 +2187,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enables the Non Specialist Summary submission field.",
+            "description": "Tick this box to require all submissions to include a non-specialist summary, providing a short explanation of the paper for people who are not experts in the field.",
             "is_translatable": false,
             "name": "submission_summary",
-            "pretty_name": "Non Specialist Summary",
+            "pretty_name": "Non-specialist summary",
             "type": "boolean"
         },
         "value": {
@@ -2206,10 +2206,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Journal's twitter handle.",
+            "description": "Journal's Twitter handle.",
             "is_translatable": false,
             "name": "twitter_handle",
-            "pretty_name": "Twitter Handle",
+            "pretty_name": "Twitter handle",
             "type": "char"
         },
         "value": {
@@ -2225,10 +2225,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Default Review Form.",
+            "description": "Select the form that will be the default option when assigning a review.",
             "is_translatable": false,
             "name": "default_review_form",
-            "pretty_name": "Default Review Form",
+            "pretty_name": "Default review form",
             "type": "select"
         },
         "value": {
@@ -2244,14 +2244,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Journal's Focus and Scope, displayed on the Submissions page.",
+            "description": "This text will be displayed on the Submissions page. It should give an overview of the type of content your journal seeks to publish.",
             "is_translatable": true,
             "name": "focus_and_scope",
-            "pretty_name": "Focus and Scope",
+            "pretty_name": "Focus and scope",
             "type": "rich-text"
         },
         "value": {
-            "default": "This should be updated to reflect your journals focus."
+            "default": "This should be updated to reflect your journal's focus and scope."
         },
         "editable_by": [
             "editor",
@@ -2263,14 +2263,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Journal's publication schedule, displayed on the Submissions page.",
+            "description": "This text will be displayed on the Submissions page. It should indicate how frequently you publish or if you do so on a continuous or rolling basis.",
             "is_translatable": true,
             "name": "publication_cycle",
-            "pretty_name": "Publication Cycle",
+            "pretty_name": "Publication cycle",
             "type": "rich-text"
         },
         "value": {
-            "default": "This journal published continuously all year round/publishes in issues every x months."
+            "default": "This journal is published continuously all year round/publishes in issues every x months."
         },
         "editable_by": [
             "editor",
@@ -2282,14 +2282,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Peer Review Information, displayed on the Submissions page.",
+            "description": "This text will be displayed on the Submissions page. It should provide information about your peer review policy, including whether you operate single anonymous, double anonymous or open peer review.",
             "is_translatable": true,
             "name": "peer_review_info",
-            "pretty_name": "Peer Review Information",
+            "pretty_name": "Peer review information",
             "type": "rich-text"
         },
         "value": {
-            "default": "This journal operates a open/single anonymous/double anonymous, peer review policy."
+            "default": "This journal operates an open/single anonymous/double anonymous, peer review policy."
         },
         "editable_by": [
             "editor",
@@ -2304,7 +2304,7 @@
             "description": "Allow users to change their language.",
             "is_translatable": false,
             "name": "switch_language",
-            "pretty_name": "Switch Language",
+            "pretty_name": "Switch language",
             "type": "boolean"
         },
         "value": {
@@ -2320,10 +2320,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Allows journals to track usage with Google Analytics.",
+            "description": "Insert your <a target=\"_blank\" href=\"https://support.google.com/analytics/answer/9539598?hl=en\">Google tag ID</a>.",
             "is_translatable": true,
             "name": "google_analytics_code",
-            "pretty_name": "Google Analytics Code",
+            "pretty_name": "Google Analytics code",
             "type": "char"
         },
         "value": {
@@ -2339,7 +2339,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Use cookieless GA 4 instead of traditional analytics.",
+            "description": "Use cookieless Google Analytics 4 instead of traditional analytics.",
             "is_translatable": false,
             "name": "use_ga_four",
             "pretty_name": "Use Google Analytics 4",
@@ -2358,10 +2358,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when an existing user updates their email address.",
+            "description": "Email sent when an existing user updates their email address.",
             "is_translatable": true,
             "name": "user_email_change",
-            "pretty_name": "User Email Change",
+            "pretty_name": "User email change",
             "type": "rich-text"
         },
         "value": {
@@ -2377,10 +2377,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when a copyediting assignment is updated.",
+            "description": "Email sent to copyeditors when a copyediting assignment is updated.",
             "is_translatable": true,
             "name": "copyedit_updated",
-            "pretty_name": "Copyediting Request Updated",
+            "pretty_name": "Copyediting request updated",
             "type": "rich-text"
         },
         "value": {
@@ -2396,10 +2396,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when a copyediting assignment is deleted.",
+            "description": "Email sent to copyeditors when a copyediting assignment is deleted.",
             "is_translatable": true,
             "name": "copyedit_deleted",
-            "pretty_name": "Copyediting Request Deleted",
+            "pretty_name": "Copyediting request deleted",
             "type": "rich-text"
         },
         "value": {
@@ -2415,10 +2415,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when a typesetting assignment is deleted.",
+            "description": "Email sent to typesetters when a typesetting assignment is deleted.",
             "is_translatable": true,
             "name": "typeset_deleted",
-            "pretty_name": "Typesetting Request Deleted",
+            "pretty_name": "Typesetting request deleted",
             "type": "rich-text"
         },
         "value": {
@@ -2434,10 +2434,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Sent when a proofing assignment is edited.",
+            "description": "Email sent to proofreaders when a proofing assignment is edited.",
             "is_translatable": true,
             "name": "notify_proofreader_edited",
-            "pretty_name": "Proofing Task Edited",
+            "pretty_name": "Proofing task edited",
             "type": "rich-text"
         },
         "value": {
@@ -2454,9 +2454,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Author Copyediting Complete",
+            "pretty_name": "Author copyediting complete",
             "is_translatable": true,
-            "description": "Subject for Email sent to Editor when an author copyedit review is complete.",
+            "description": "Subject for the email sent to editors when an author copyedit review is complete.",
             "name": "subject_author_copyedit_complete"
         },
         "group": {
@@ -2473,9 +2473,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyediting Decision",
+            "pretty_name": "Copyediting decision",
             "is_translatable": true,
-            "description": "Subject for email sent to managing editor when a copyeditor accepts or declines a request.",
+            "description": "Subject for the email sent to managing editors when a copyeditor accepts or declines a request.",
             "name": "subject_copyediting_decision"
         },
         "group": {
@@ -2492,9 +2492,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Article Publication",
+            "pretty_name": "Article publication",
             "is_translatable": true,
-            "description": "Subject for notifying the author that the article is published.",
+            "description": "Subject for the email notifying the author that the article is published.",
             "name": "subject_author_publication"
         },
         "group": {
@@ -2511,9 +2511,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyedit Acknowledge",
+            "pretty_name": "Copyedit acknowledge",
             "is_translatable": true,
-            "description": "Subject for Email sent to Copyeditor to thank them.",
+            "description": "Subject for the email sent to copyeditors to thank them.",
             "name": "subject_copyeditor_ack"
         },
         "group": {
@@ -2530,9 +2530,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyedit Notify Copyeditor",
+            "pretty_name": "Copyedit notify copyeditor",
             "is_translatable": true,
-            "description": "Subject for Email sent to copyeditors.",
+            "description": "Subject for the email sent to copyeditors to notify them of a new task.",
             "name": "subject_copyeditor_assignment_notification"
         },
         "group": {
@@ -2549,9 +2549,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyedit Notify Author",
+            "pretty_name": "Copyedit notify author",
             "is_translatable": true,
-            "description": "Subject for Email sent to Author asking them to review copyedits.",
+            "description": "Subject for the email sent to authors asking them to review copyedits.",
             "name": "subject_copyeditor_notify_author"
         },
         "group": {
@@ -2568,9 +2568,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyedit Notify Editor",
+            "pretty_name": "Copyedit notify editor",
             "is_translatable": true,
-            "description": "Subject for Email sent to editor when copyedits are complete.",
+            "description": "Subject for the email sent to editors when copyedits are complete.",
             "name": "subject_copyeditor_notify_editor"
         },
         "group": {
@@ -2587,9 +2587,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyedit Reopen Task",
+            "pretty_name": "Copyedit reopen task",
             "is_translatable": true,
-            "description": "Subject for Email sent to Copyeditor asking them to undertake further copyedits.",
+            "description": "Subject for the email sent to copyeditors asking them to undertake further copyedits.",
             "name": "subject_copyeditor_reopen_task"
         },
         "group": {
@@ -2606,9 +2606,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyediting Request Deleted",
+            "pretty_name": "Copyediting request deleted",
             "is_translatable": true,
-            "description": "Subject for Sent when a copyediting assignment is deleted.",
+            "description": "Subject for the email sent to copyeditors when a copyediting assignment is deleted.",
             "name": "subject_copyedit_deleted"
         },
         "group": {
@@ -2625,9 +2625,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Copyediting Request Updated",
+            "pretty_name": "Copyediting request updated",
             "is_translatable": true,
-            "description": "Subject for Sent when a copyediting assignment is updated.",
+            "description": "Subject for the email sent when a copyediting assignment is updated.",
             "name": "subject_copyedit_updated"
         },
         "group": {
@@ -2644,9 +2644,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Draft Decisions Editor Message",
+            "pretty_name": "Draft decisions editor message",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Editor when a section editor makes a draft decision.",
+            "description": "Subject for the email sent to editors when a section editor makes a draft decision.",
             "name": "subject_draft_editor_message"
         },
         "group": {
@@ -2663,9 +2663,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Draft Decisions Message",
+            "pretty_name": "Draft decisions message",
             "is_translatable": true,
-            "description": "Subject for Email sent when a section editor makes a draft decision.",
+            "description": "Subject for the email sent to editors when a section editor makes a draft decision.",
             "name": "subject_draft_message"
         },
         "group": {
@@ -2682,9 +2682,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Editor Assignment",
+            "pretty_name": "Editor assignment",
             "is_translatable": true,
-            "description": "Subject for Email sent to editors when they are assigned to a submission.",
+            "description": "Subject for the email sent to editors when they are assigned to a submission.",
             "name": "subject_editor_assignment"
         },
         "group": {
@@ -2701,9 +2701,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Editor Digest",
+            "pretty_name": "Editor digest",
             "is_translatable": true,
-            "description": "Subject for Email sent to Editors.",
+            "description": "Subject for the editors' digest.",
             "name": "subject_editor_digest"
         },
         "group": {
@@ -2720,9 +2720,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "New Submission for Editor",
+            "pretty_name": "New submission for editor",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Editor when there is a new submission.",
+            "description": "Subject for the email sent to editors when there is a new submission.",
             "name": "subject_editor_new_submission"
         },
         "group": {
@@ -2739,9 +2739,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "New User Registration",
+            "pretty_name": "New user registration",
             "is_translatable": true,
-            "description": "Subject for Email sent when user registers.",
+            "description": "Subject for the email sent when user registers.",
             "name": "subject_new_user_registration"
         },
         "group": {
@@ -2758,9 +2758,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Submission Notification",
+            "pretty_name": "Submission notification",
             "is_translatable": true,
-            "description": "Subject for Send to a user specified in notification manager.",
+            "description": "Subject for the email sent to a user specified in the notification manager.",
             "name": "subject_notification_submission"
         },
         "group": {
@@ -2777,9 +2777,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Editor that Proofreading is Complete",
+            "pretty_name": "Notify editor that proofreading is complete",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Editor when Proofing is complete.",
+            "description": "Subject for the email sent to editors when proofing is complete.",
             "name": "subject_notify_editor_proofing_complete"
         },
         "group": {
@@ -2796,9 +2796,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Proofing Manager",
+            "pretty_name": "Notify proofing manager",
             "is_translatable": true,
-            "description": "Subject for Auto email sent to Proofing Manager when they are assigned.",
+            "description": "Subject for the automated email sent to proofing managers when they are assigned.",
             "name": "subject_notify_proofing_manager"
         },
         "group": {
@@ -2815,9 +2815,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Proofreader of Assignment",
+            "pretty_name": "Notify proofreader of assignment",
             "is_translatable": true,
-            "description": "Subject for Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "description": "Subject for the email sent to typesetters when requesting changes based on proofing feedback.",
             "name": "subject_notify_proofreader_assignment"
         },
         "group": {
@@ -2834,9 +2834,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Proofreader of Cancellation",
+            "pretty_name": "Notify proofreader of cancellation",
             "is_translatable": true,
-            "description": "Subject for Email sent to the proofreader when the manager cancels their task.",
+            "description": "Subject for the email sent to proofreaders when their task is cancelled.",
             "name": "subject_notify_proofreader_cancelled"
         },
         "group": {
@@ -2853,9 +2853,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Proofreader Complete",
+            "pretty_name": "Notify proofreader complete",
             "is_translatable": true,
-            "description": "Subject for Email sent to the proofing manager on completion.",
+            "description": "Subject for the email sent to proofing managers when a proofreading assignment has been completed.",
             "name": "subject_notify_proofreader_complete"
         },
         "group": {
@@ -2872,9 +2872,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Proofing Task Edited",
+            "pretty_name": "Proofing task edited",
             "is_translatable": true,
-            "description": "Subject for Sent when a proofing assignment is edited.",
+            "description": "Subject for the email sent to proofreaders when a proofing assignment is edited.",
             "name": "subject_notify_proofreader_edited"
         },
         "group": {
@@ -2891,9 +2891,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Notify Typesetter of Proofreading Feedback",
+            "pretty_name": "Notify typesetter of proofing feedback",
             "is_translatable": true,
-            "description": "Subject for Email sent to the typesetter requesting changes based on Proofing feedback.",
+            "description": "Subject for the email sent to typesetters requesting changes based on proofing feedback.",
             "name": "subject_notify_typesetter_proofing_changes"
         },
         "group": {
@@ -2910,9 +2910,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Password Reset",
+            "pretty_name": "Password reset",
             "is_translatable": true,
-            "description": "Subject for Email sent when user requests a password reset.",
+            "description": "Subject for the email sent when users request a password reset.",
             "name": "subject_password_reset"
         },
         "group": {
@@ -2929,9 +2929,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Peer Reviewer Publication Notification",
+            "pretty_name": "Peer reviewer publication notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Peer Reviewer when article is published.",
+            "description": "Subject for the email sent to reviewers when the article is published.",
             "name": "subject_peer_reviewer_pub_notification"
         },
         "group": {
@@ -2948,9 +2948,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Production Assign Article",
+            "pretty_name": "Production assign article",
             "is_translatable": true,
-            "description": "Subject for Sent when a user is assigned to production.",
+            "description": "Subject for the email sent when a user is assigned to production.",
             "name": "subject_production_assign_article"
         },
         "group": {
@@ -2967,9 +2967,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Production Complete",
+            "pretty_name": "Production complete",
             "is_translatable": true,
-            "description": "Subject for Email sent to Editors when Production is Complete.",
+            "description": "Subject for the email sent to editors when production is complete.",
             "name": "subject_production_complete"
         },
         "group": {
@@ -2986,9 +2986,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Production Manager Assignment Notification",
+            "pretty_name": "Production manager assignment notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to Production Manager on assignment.",
+            "description": "Subject for the email sent to production managers when they have a new assignment.",
             "name": "subject_production_manager_notification"
         },
         "group": {
@@ -3005,9 +3005,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Request Revisions",
+            "pretty_name": "Request revisions",
             "is_translatable": true,
-            "description": "Subject for Email sent to editors when requesting revisions.",
+            "description": "Subject for the email sent to authors when requesting revisions.",
             "name": "subject_request_revisions"
         },
         "group": {
@@ -3024,9 +3024,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Digest",
+            "pretty_name": "Review digest",
             "is_translatable": true,
-            "description": "Subject for Email sent to Reviewers.",
+            "description": "Subject for the reviewer digest.",
             "name": "subject_reviewer_digest"
         },
         "group": {
@@ -3043,9 +3043,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Assignment Accepted",
+            "pretty_name": "Review assignment accepted",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when they agree to undertake a review.",
+            "description": "Subject for the email sent to reviewers when they agree to undertake a review.",
             "name": "subject_review_accept_acknowledgement"
         },
         "group": {
@@ -3062,9 +3062,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Acknowledgement",
+            "pretty_name": "Review acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to editors when a reviewer accepts or declines a review.",
+            "description": "Subject for the email sent to editors when a reviewer accepts or declines a review.",
             "name": "subject_reviewer_acknowledgement"
         },
         "group": {
@@ -3081,9 +3081,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Assignment",
+            "pretty_name": "Review assignment",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers to request a review.",
+            "description": "Subject for the email sent to reviewers to request a review.",
             "name": "subject_review_assignment"
         },
         "group": {
@@ -3100,9 +3100,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Complete Update",
+            "pretty_name": "Review complete update",
             "is_translatable": true,
-            "description": "Subject for Email sent to editors when a reviewer complete a review.",
+            "description": "Subject for the email sent to editors when a reviewer completes a review.",
             "name": "subject_review_complete_acknowledgement"
         },
         "group": {
@@ -3119,9 +3119,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Complete Acknowledgement",
+            "pretty_name": "Review complete acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when they complete a review.",
+            "description": "Subject for the email sent to reviewers when they complete a review.",
             "name": "subject_review_complete_reviewer_acknowledgement"
         },
         "group": {
@@ -3138,9 +3138,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Article Review Accept",
+            "pretty_name": "Article review accept",
             "is_translatable": true,
-            "description": "Subject for Email sent to authors when an article is accepted.",
+            "description": "Subject for the email sent to authors when an article is accepted.",
             "name": "subject_review_decision_accept"
         },
         "group": {
@@ -3157,9 +3157,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Article Decline",
+            "pretty_name": "Article decline",
             "is_translatable": true,
-            "description": "Subject for Email sent to authors when an article is declined.",
+            "description": "Subject for the email sent to authors when an article is declined.",
             "name": "subject_review_decision_decline"
         },
         "group": {
@@ -3176,9 +3176,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Undo Article Rejection Subject",
+            "pretty_name": "Undo article rejection subject",
             "is_translatable": true,
-            "description": "Subject for email sent to authors when a decision to reject an article is reversed.",
+            "description": "Subject for the email sent to authors when a decision to reject an article is reversed.",
             "name": "subject_review_decision_undecline"
         },
         "group": {
@@ -3195,9 +3195,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Declination Acknowledgement",
+            "pretty_name": "Review declination acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when they decline to undertake a review.",
+            "description": "Subject for the email sent to reviewers when they decline to undertake a review.",
             "name": "subject_review_decline_acknowledgement"
         },
         "group": {
@@ -3214,9 +3214,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Complete Update",
+            "pretty_name": "Review complete update",
             "is_translatable": true,
-            "description": "Subject for Email sent to editors when a reviewer request is sent.",
+            "description": "Subject for the email sent to editors when a reviewer request is sent.",
             "name": "subject_review_request_sent"
         },
         "group": {
@@ -3233,9 +3233,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Review Withdrawl",
+            "pretty_name": "Review withdrawal",
             "is_translatable": true,
-            "description": "Subject for Email sent to reviewers when a review request is withdrawn.",
+            "description": "Subject for the email sent to reviewers when a review request is withdrawn.",
             "name": "subject_review_withdrawl"
         },
         "group": {
@@ -3252,9 +3252,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Revision Digest",
+            "pretty_name": "Revision digest",
             "is_translatable": true,
-            "description": "Subject for Email sent to Revision People.",
+            "description": "Subject for the email sent to revision people.",
             "name": "subject_revision_digest"
         },
         "group": {
@@ -3271,9 +3271,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Section Editor Publication Notification",
+            "pretty_name": "Section editor publication notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to the Section Editor when article is published.",
+            "description": "Subject for the email sent to section editors when the article is published.",
             "name": "subject_section_editor_pub_notification"
         },
         "group": {
@@ -3290,9 +3290,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Submission Acknowledgement",
+            "pretty_name": "Submission acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to authors when they have submitted an article.",
+            "description": "Subject for the email sent to authors when they have submitted an article.",
             "name": "subject_submission_acknowledgement"
         },
         "group": {
@@ -3309,9 +3309,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Thank Proofreaders and Typesetters",
+            "pretty_name": "Thank proofreaders and typesetters",
             "is_translatable": true,
-            "description": "Subject for Email sent to the typesetter and proofreaders thanking them.",
+            "description": "Subject for the email sent to the typesetter and proofreaders, thanking them.",
             "name": "subject_thank_proofreaders_and_typesetters"
         },
         "group": {
@@ -3328,9 +3328,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Typesetter Complete Notification",
+            "pretty_name": "Typesetter complete notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to Production Manager on typeset task complete.",
+            "description": "Subject for the email sent to production managers when a typesetting task is completed.",
             "name": "subject_typesetter_complete_notification"
         },
         "group": {
@@ -3347,9 +3347,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Corrections Complete",
+            "pretty_name": "Corrections complete",
             "is_translatable": true,
-            "description": "Subject for Notify the proofing manager that corrections are complete.",
+            "description": "Subject for the email sent to notify proofing managers that corrections are complete.",
             "name": "subject_typesetter_corrections_complete"
         },
         "group": {
@@ -3366,9 +3366,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Typesetter Assignment Notification",
+            "pretty_name": "Typesetter assignment notification",
             "is_translatable": true,
-            "description": "Subject for Email sent to Typesetter on task assignment.",
+            "description": "Subject for the email sent to typesetters to notify them of a new task.",
             "name": "subject_typesetter_notification"
         },
         "group": {
@@ -3385,9 +3385,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Typesetter Acknowledgement",
+            "pretty_name": "Typesetter acknowledgement",
             "is_translatable": true,
-            "description": "Subject for Email sent to Typesetter to acknowledge a completed task.",
+            "description": "Subject for the email sent to typesetters to acknowledge a completed task.",
             "name": "subject_typeset_ack"
         },
         "group": {
@@ -3404,9 +3404,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Typesetting Request Deleted",
+            "pretty_name": "Typesetting request deleted",
             "is_translatable": true,
-            "description": "Subject for Sent when a typesetting assignment is deleted.",
+            "description": "Subject for the email sent when a typesetting assignment is deleted.",
             "name": "subject_typeset_deleted"
         },
         "group": {
@@ -3423,9 +3423,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Typeset Task Reopened",
+            "pretty_name": "Typeset task reopened",
             "is_translatable": true,
-            "description": "Subject for Email sent to Typesetter to inform them that a task has been re-opened.",
+            "description": "Subject for the email sent to typesetters to inform them that a task has been reopened.",
             "name": "subject_typeset_reopened"
         },
         "group": {
@@ -3442,9 +3442,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "User Email Change",
+            "pretty_name": "User email change",
             "is_translatable": true,
-            "description": "Subject for Sent when an existing user updates their email address.",
+            "description": "Subject for the email sent when an existing user updates their email address.",
             "name": "subject_user_email_change"
         },
         "group": {
@@ -3461,9 +3461,9 @@
         },
         "setting": {
             "type": "boolean",
-            "pretty_name": "Disable Submission",
+            "pretty_name": "Disable submission",
             "is_translatable": false,
-            "description": "If true, users cannot submit new articles.",
+            "description": "Tick this box to prevent people from submitting new articles.",
             "name": "disable_journal_submission"
         },
         "group": {
@@ -3480,9 +3480,9 @@
         },
         "setting": {
             "type": "rich-text",
-            "pretty_name": "Disabled Submission Message",
+            "pretty_name": "Disabled submission message",
             "is_translatable": true,
-            "description": "A message that is displayed when Disable Submission is on.",
+            "description": "A message that is displayed while <b>Disable submission</b> is checked.",
             "name": "disable_journal_submission_message"
         },
         "group": {
@@ -3499,9 +3499,9 @@
         },
         "setting": {
             "type": "boolean",
-            "pretty_name": "Accepts Preprint Submissions",
+            "pretty_name": "Accepts preprint submissions",
             "is_translatable": false,
-            "description": "If true, preprint authors can flow their preprint into the journal for publication.",
+            "description": "Tick this box to enable preprint authors to flow their preprint into the journal for publication.",
             "name": "accepts_preprint_submissions"
         },
         "group": {
@@ -3517,10 +3517,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enables reviewer form download link.",
+            "description": "Tick this box to allow reviewers to download the review form.",
             "is_translatable": false,
             "name": "reviewer_form_download",
-            "pretty_name": "Review Form Download",
+            "pretty_name": "Review form download",
             "type": "boolean"
         },
         "value": {
@@ -3537,9 +3537,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Matomo Tracking Code",
+            "pretty_name": "Matomo tracking code",
             "is_translatable": true,
-            "description": "Tracking code for Matomo.",
+            "description": "Enter the tracking code for <a target=\"_blank\" href=\"https://matomo.org/\">Matomo</a>.",
             "name": "matromo_tracking_code"
         },
         "group": {
@@ -3556,9 +3556,9 @@
         },
         "setting": {
             "type": "rich-text",
-            "pretty_name": "Submission Page Text",
+            "pretty_name": "Submission page text",
             "is_translatable": true,
-            "description": "Introductory text displayed at the head of the Submission page.",
+            "description": "Introductory text displayed at the top of the Submission page.",
             "name": "submission_intro_text"
         },
         "group": {
@@ -3575,9 +3575,9 @@
         },
         "setting": {
             "type": "boolean",
-            "pretty_name": "Abstracts Are Required",
+            "pretty_name": "Abstracts are required",
             "is_translatable": false,
-            "description": "If enabled all submissions will require an abstract.",
+            "description": "Tick this box to require all submissions to include an abstract.",
             "name": "abstract_required"
         },
         "group": {
@@ -3594,9 +3594,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Correction Task Cancelled",
+            "pretty_name": "Correction task cancelled",
             "is_translatable": true,
-            "description": "Subject for Email when Editor cancels or deletes a correction task.",
+            "description": "Subject for the email when editors cancel or delete a correction task.",
             "name": "subject_notify_correction_cancelled"
         },
         "group": {
@@ -3612,10 +3612,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when an Editor cancels or deletes a correction task.",
+            "description": "Email sent when editors cancel or delete a correction task.",
             "is_translatable": false,
             "name": "notify_correction_cancelled",
-            "pretty_name": "Correction Task Cancelled",
+            "pretty_name": "Correction task cancelled",
             "type": "rich-text"
         },
         "value": {
@@ -3628,13 +3628,13 @@
     },
     {
         "value": {
-            "default": "<p>If you are undertaking a single anonymous or double anonymous review you must ensure that the file has any identifying text removed. Consider:</p> <ol> <li>If the paper has a title page removing the authors name and contact information.</li> <li>Check the bibliography and the text for self-citation</li> <li>Also check for mentions not made explicitly. The following phrases might give away an author&rsquo;s identity and should be edited:</li> <ul> <li>&lsquo;As I previously discussed&hellip;.&rsquo;</li> <li>&lsquo;As I have showed&hellip;&rsquo;</li> <li>&lsquo;My previous work&hellip;.&rsquo;</li> </ul> <li>Remove any identifying metadata from the file.</li> </ol>"
+            "default": "<p>Files intended for single or double anonymous review must have all identifying text removed.</p><ol><li>If the paper has a title page, remove any names or contact information.</li><li>&nbsp;Check the bibliography and the text for self-citation.</li><li>Check for implied self-citation. The following phrases may indicate an author's identity and should therefore be edited:<ul><li>I discussed in a previous paper...\"</li><li>\"I have previously shown...\"</li><li>\"My previous work...</li></ul></li><li>Remove any identifying metadata from the file.</li></ol>"
         },
         "setting": {
             "type": "rich-text",
-            "pretty_name": "Review File Help",
+            "pretty_name": "Review file help",
             "is_translatable": true,
-            "description": "Text displayed when a journal defaults to single anonymous or double anonymous review ensuring that files remain anonymous.",
+            "description": "This text is displayed to editors when selecting a file for review (if using single anonymous or double anonymous review).",
             "name": "review_file_help"
         },
         "group": {
@@ -3653,7 +3653,7 @@
             "description": "This label appears on the Submit Start page and this setting allows you to customise what appears there.",
             "is_translatable": true,
             "name": "copyright_submission_label",
-            "pretty_name": "Copyright Submission Label",
+            "pretty_name": "Copyright submission label",
             "type": "mini-html"
         },
         "value": {
@@ -3669,10 +3669,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "The maximum number of proofreaders allowed per round. To disable this set to 0.",
+            "description": "The maximum number of proofreaders allowed per proofreading round. To have no maximum, set this to 0.",
             "is_translatable": false,
             "name": "max_proofreaders",
-            "pretty_name": "Maximum Proofreders per Round",
+            "pretty_name": "Maximum proofreaders per round",
             "type": "number"
         },
         "value": {
@@ -3688,10 +3688,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Lists all of the keywords used by a journal and for each keyword a list of articles that use it.",
+            "description": "Lists all of the keywords used by a journal, and for each keyword a list of articles that use it.",
             "is_translatable": false,
             "name": "keyword_list_page",
-            "pretty_name": "Enable the Keyword list page",
+            "pretty_name": "Enable the keyword list page",
             "type": "boolean"
         },
         "value": {
@@ -3707,10 +3707,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled this will suppress the how to cite block on the article page.",
+            "description": "Tick this box to disable the how-to-cite block on article pages.",
             "is_translatable": false,
             "name": "suppress_how_to_cite",
-            "pretty_name": "Suppress How to Cite",
+            "pretty_name": "Suppress how-to-cite",
             "type": "boolean"
         },
         "value": {
@@ -3727,9 +3727,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Accepted Review Reminder",
+            "pretty_name": "Subject for an accepted review reminder",
             "is_translatable": true,
-            "description": "Subject for Accepted Review Reminder.",
+            "description": "Subject for the email sent to reviewers to remind them of a review they already accepted to review.",
             "name": "subject_accepted_review_reminder"
         },
         "group": {
@@ -3746,9 +3746,9 @@
         },
         "setting": {
             "type": "char",
-            "pretty_name": "Default Review Reminder",
+            "pretty_name": "Subject for the default review reminder",
             "is_translatable": true,
-            "description": "Subject for Review Reminder.",
+            "description": "Subject for the review reminders for reviews that have not yet been accepted or declined.",
             "name": "subject_default_review_reminder"
         },
         "group": {
@@ -3764,10 +3764,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled guest editors will display on the article page for primary issues.",
+            "description": "Tick this box to display the guest editors on the article page. This will only apply to the guest editors of the primary issue the article belongs to.",
             "is_translatable": false,
             "name": "display_guest_editors",
-            "pretty_name": "Display Guest Editors",
+            "pretty_name": "Display guest editors",
             "type": "boolean"
         },
         "value": {
@@ -3783,10 +3783,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Changes the generic text above the File Upload box on the Peer Review form page.",
+            "description": "This text will display above the 'File upload' box on the peer review form.",
             "is_translatable": true,
             "name": "peer_review_upload_text",
-            "pretty_name": "Peer Review Upload Text",
+            "pretty_name": "Peer review upload text",
             "type": "rich-text"
         },
         "value": {
@@ -3802,7 +3802,7 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enable open peer review mode on this journal. With this feature enabled, each peer review can be approved for public display alongside its published article. The peer reviewer and the editor must separately approve each review before it is made public.",
+            "description": "Tick this box to allow peer reviews to be displayed alongside published articles. Each review will still need to be approved by both the editor and the peer reviewer before it is made public.",
             "is_translatable": false,
             "name": "open_peer_review",
             "pretty_name": "Enable open peer review",
@@ -3821,10 +3821,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled this will suppress the citations counter on the article page. The citation block will only appear for articles that have a citation. This setting is overruled by the Disable Metrics setting.",
+            "description": "Tick this box to suppress the citations counter on the article page. The citation block will now only appear for articles that have at least one citation. This setting is overruled by the <b>Disable metrics</b> setting.",
             "is_translatable": false,
             "name": "suppress_citations_metric",
-            "pretty_name": "Suppress Citation Metrics",
+            "pretty_name": "Suppress citation metrics",
             "type": "boolean"
         },
         "value": {
@@ -3840,10 +3840,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled altmetric badges will be displayed in the sidebar.",
+            "description": "Tick this box to display <a target=\"_blank\" href=\"https://www.altmetric.com/\">Altmetric</a> badges in the sidebar.",
             "is_translatable": false,
             "name": "display_altmetric_badge",
-            "pretty_name": "Display Altmetric Badges",
+            "pretty_name": "Display Altmetric badges",
             "type": "boolean"
         },
         "value": {
@@ -3859,10 +3859,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "Select a badge type, 1, large-donut, large-bar etc. Defaults to '1' if none selected.",
+            "description": "Select an Altmetric badge type. The types are: 1, large-donut, large-bar etc. Defaults to '1' if none selected.",
             "is_translatable": false,
             "name": "altmetric_badge_type",
-            "pretty_name": "Altermetric Badge Type",
+            "pretty_name": "Altermetric badge type",
             "type": "char"
         },
         "value": {
@@ -3878,10 +3878,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent to a section editor when a senior editor declines their draft decision.",
+            "description": "Email sent to section editors when a senior editor declines their draft decision.",
             "is_translatable": true,
             "name": "notify_se_draft_declined",
-            "pretty_name": "Draft Decision Declined",
+            "pretty_name": "Draft decision declined",
             "type": "rich-text"
         },
         "value": {
@@ -3897,10 +3897,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Draft Decision Declined email",
+            "description": "Subject for the email sent to section editors when a draft decision has been declined.",
             "is_translatable": true,
             "name": "subject_notify_se_draft_declined",
-            "pretty_name": "Draft Decision Declined Subject",
+            "pretty_name": "Draft decision declined subject",
             "type": "char"
         },
         "value": {
@@ -3916,10 +3916,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on the author page.",
+            "description": "Tick this box to enable authors to see when reviews of their article are requested, due or completed on the author page.",
             "is_translatable": false,
             "name": "enable_peer_review_data_block",
-            "pretty_name": "Enable Peer Review Data on Author Page",
+            "pretty_name": "Enable peer review data on author page",
             "type": "boolean"
         },
         "value": {
@@ -3935,10 +3935,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled the language buttons will use text rather than flags.",
+            "description": "Tick this box to use text, rather than flag icons, to represent languages.",
             "is_translatable": false,
             "name": "enable_language_text",
-            "pretty_name": "Language Button Text Override",
+            "pretty_name": "Language button text override",
             "type": "boolean"
         },
         "value": {
@@ -3954,10 +3954,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled the review assignment page will attempt to match keywords with interests. Warning: This is an expensive process.",
+            "description": "Tick this box if you would like Janeway to suggest potential reviewers by matching the article's keywords with reviewers' listed interests. Warning: this may slow the page.",
             "is_translatable": false,
             "name": "enable_suggested_reviewers",
-            "pretty_name": "Enable Suggested Reviewers",
+            "pretty_name": "Enable suggested reviewers",
             "type": "boolean"
         },
         "value": {
@@ -3973,10 +3973,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled, authors will see the requested, due, and complete date for their article's review assignments on review pages.",
+            "description": "Tick this box to enable authors to see when reviews of their article are requested, due or completed on the review page.",
             "is_translatable": false,
             "name": "enable_peer_review_data_on_review_page",
-            "pretty_name": "Enable Peer Review Data on Review Pages",
+            "pretty_name": "Enable peer review data on review pages",
             "type": "boolean"
         },
         "value": {
@@ -3992,10 +3992,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Enable if you want to hide all review data from authors through the end of the review stage, except reviews that are individually shared with authors during review.",
+            "description": "Tick this box to hide all review information from authors untill the end of the review stage. This can be overridden by manually sharing reviews with authors after they are completed.",
             "is_translatable": false,
             "name": "hide_review_data_pre_release",
-            "pretty_name": "Hide Review Data from Authors Before Release",
+            "pretty_name": "Hide review data from authors before release",
             "type": "boolean"
         },
         "value": {
@@ -4011,10 +4011,10 @@
             "name": "news"
         },
         "setting": {
-            "description": "Title for the News Page and Homepage block",
+            "description": "The title which will appear on your news page and, if enabled, on the news section on your home page.",
             "is_translatable": true,
             "name": "news_title",
-            "pretty_name": "News Title",
+            "pretty_name": "News title",
             "type": "char"
         },
         "value": {
@@ -4030,10 +4030,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "If enabled the article page will not display links to email correspondence authors.",
+            "description": "Tick this box to hide the email address of the article's correspondence author(s). ",
             "is_translatable": false,
             "name": "hide_author_email_links",
-            "pretty_name": "Hide Author Email Links",
+            "pretty_name": "Hide author email links",
             "type": "boolean"
         },
         "value": {
@@ -4049,10 +4049,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If set to true the Login Page Notice will display.",
+            "description": "Tick this box to display a custom message on your login page.",
             "is_translatable": true,
             "name": "display_login_page_notice",
-            "pretty_name": "Display Login Page Notice",
+            "pretty_name": "Display login page notice",
             "type": "boolean"
         },
         "value": {
@@ -4068,10 +4068,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Message to display if you enable Display Login Notice.",
+            "description": "This message will be displayed on your login page if the <b>Display login page notice</b> box is ticked.",
             "is_translatable": true,
             "name": "login_page_notice",
-            "pretty_name": "Login Page Notice",
+            "pretty_name": "Login page notice",
             "type": "rich-text"
         },
         "value": {
@@ -4087,10 +4087,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If set to true the Registration Page Notice will display.",
+            "description": "Tick this box to display a custom message on your registration page.",
             "is_translatable": true,
             "name": "display_register_page_notice",
-            "pretty_name": "Display Registration Page Notice",
+            "pretty_name": "Display registration page notice",
             "type": "boolean"
         },
         "value": {
@@ -4106,10 +4106,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Message to display if you enable Display Registration Page Notice.",
+            "description": "This message will be displayed on your registration page if the <b>Display registration page notice</b> box is ticked.",
             "is_translatable": true,
             "name": "register_page_notice",
-            "pretty_name": "Registration Page Notice",
+            "pretty_name": "Registration page notice",
             "type": "rich-text"
         },
         "value": {
@@ -4125,10 +4125,10 @@
             "name": "crossref"
         },
         "setting": {
-            "description": "For migrated content where we need to tweak the crossref date.",
+            "description": "This setting is for migrated content where we need to tweak the Crossref date.",
             "is_translatable": true,
             "name": "crossref_date_suffix",
-            "pretty_name": "Crossref Date Suffix",
+            "pretty_name": "Crossref date suffix",
             "type": "char"
         },
         "value": {
@@ -4163,10 +4163,10 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "The suffix pattern from which Issue DOIs are auto-generated (e.g. 10.0001/myjournal.issue.1)",
+            "description": "The suffix pattern from which issue DOIs are auto-generated, e.g. 10.0001/myjournal.issue.1.",
             "is_translatable": false,
             "name": "issue_doi_pattern",
-            "pretty_name": "Issue DOI Pattern",
+            "pretty_name": "Issue DOI pattern",
             "type": "char"
         },
         "value": {
@@ -4182,7 +4182,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern",
+            "description": "Automatically register issue DOIs on article publication, based on the issue DOI pattern.",
             "is_translatable": false,
             "name": "register_issue_dois",
             "pretty_name": "Auto-register issue-level DOIs",
@@ -4204,7 +4204,7 @@
             "description": "Languages available for this journal.",
             "is_translatable": false,
             "name": "journal_languages",
-            "pretty_name": "Journal Languages",
+            "pretty_name": "Journal languages",
             "type": "json"
         },
         "value": {
@@ -4223,7 +4223,7 @@
             "description": "The default language for the journal.",
             "is_translatable": false,
             "name": "default_journal_language",
-            "pretty_name": "Default Journal Language",
+            "pretty_name": "Default journal language",
             "type": "char"
         },
         "value": {
@@ -4239,10 +4239,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "If enabled users must request the author role before they are allowed to submit.",
+            "description": "Tick this box to require new users to request the author role before they can submit to your journal.",
             "is_translatable": false,
             "name": "limit_access_to_submission",
-            "pretty_name": "Limit Access to Submission",
+            "pretty_name": "Limit access to submission",
             "type": "boolean"
         },
         "value": {
@@ -4258,10 +4258,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Support email address for editors and staff users.",
+            "description": "This is the email address support requests should be sent to.",
             "is_translatable": false,
             "name": "support_email",
-            "pretty_name": "Support Email",
+            "pretty_name": "Support email",
             "type": "char"
         },
         "value": {
@@ -4277,14 +4277,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Text to accompany access requests. Linked to Limit Access to Submission",
+            "description": "If <b>Limit access to submission</b> is selected, this text will appear when people with the author role go to submit to your journal.",
             "is_translatable": true,
             "name": "submission_access_request_text",
-            "pretty_name": "Submission Access Request Text",
+            "pretty_name": "Submission access request text",
             "type": "rich-text"
         },
         "value": {
-            "default": "Please supply information below to support your request to make a submission to this journal."
+            "default": "Submissions to this journal are currently limited. Please supply any information below to support your request to submit."
         },
         "editable_by": [
             "editor",
@@ -4299,7 +4299,7 @@
             "description": "Email sent to an article's correspondence author when revisions are completed.",
             "is_translatable": true,
             "name": "revisions_complete_receipt",
-            "pretty_name": "Revisions Complete Receipt",
+            "pretty_name": "Revisions complete receipt",
             "type": "rich-text"
         },
         "value": {
@@ -4315,10 +4315,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Email address of the access request contact.",
+            "description": "If <b>Limit access to submission</b> is selected, this text will appear when people with the author role go to submit to your journal.",
             "is_translatable": true,
             "name": "submission_access_request_contact",
-            "pretty_name": "Submission Access Request Contact",
+            "pretty_name": "Submission access request contact",
             "type": "char"
         },
         "value": {
@@ -4334,14 +4334,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "Support message to display to editors and staff on Manager page.",
+            "description": "This message will be displayed to editors and staff on the <b>Manager</b> page of your journal. \"{{ support_email }}\" will be automatically replaced with the email you provide under <b>Support email</b>.",
             "is_translatable": true,
             "name": "support_contact_message_for_staff",
-            "pretty_name": "Janeway Support Contact for Staff",
+            "pretty_name": "Janeway support contact for staff",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>For help with Janeway, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
+            "default": "<p>For support, contact <a href=\"mailto:{{ support_email }}\">{{ support_email }}</a>.</p>"
         },
         "editable_by": [
             "editor",
@@ -4356,7 +4356,7 @@
             "description": "Email sent to the submission access request contact when a new request is added.",
             "is_translatable": true,
             "name": "submission_access_request_notification",
-            "pretty_name": "Submission Access Request Notification",
+            "pretty_name": "Submission access request notification",
             "type": "rich-text"
         },
         "value": {
@@ -4372,10 +4372,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Submission Access Request Notification.",
+            "description": "Subject for the submission access request notification.",
             "is_translatable": true,
             "name": "subject_submission_access_request_notification",
-            "pretty_name": "Submission Access Request Notification",
+            "pretty_name": "Submission access request notification",
             "type": "char"
         },
         "value": {
@@ -4391,10 +4391,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when a Access Request is evaluated by a staff member.",
+            "description": "Email sent to a potential author when a staff member evaluates an access request.",
             "is_translatable": true,
             "name": "submission_access_request_complete",
-            "pretty_name": "Submission Access Request Complete",
+            "pretty_name": "Submission access request complete",
             "type": "rich-text"
         },
         "value": {
@@ -4410,10 +4410,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Submission Access Request Complete.",
+            "description": "Subject for the email sent to a potential author when a staff member evaluates an access request.",
             "is_translatable": true,
             "name": "subject_submission_access_request_complete",
-            "pretty_name": "Submission Access Request Complete",
+            "pretty_name": "Submission access request complete",
             "type": "char"
         },
         "value": {
@@ -4429,10 +4429,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Describe what files you expect at the time of submission.",
+            "description": "This text will be displayed at the step where authors upload files during the submission process. Describe what types of files (manuscripts, cover letters, figures, data, images, etc.) you require.",
             "is_translatable": true,
             "name": "file_submission_guidelines",
-            "pretty_name": "File Submission Guidelines",
+            "pretty_name": "File submission guidelines",
             "type": "rich-text"
         },
         "value": {
@@ -4448,10 +4448,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Instruction text for manuscript file upload pop-up window.",
+            "description": "This text will be displayed in the pop-up window that appears when users click to upload a manuscript.",
             "is_translatable": true,
             "name": "manuscript_file_submission_instructions",
-            "pretty_name": "Manuscript File Submission Instructions",
+            "pretty_name": "Manuscript file submission instructions",
             "type": "rich-text"
         },
         "value": {
@@ -4467,10 +4467,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Instruction text for data and figure file upload pop-up window.",
+            "description": "This text will be displayed in the pop-up window that appears when users click to upload data and figure files.",
             "is_translatable": true,
             "name": "data_figure_file_submission_instructions",
-            "pretty_name": "Data and Figure File Submission Instructions",
+            "pretty_name": "Data and figure file submission instructions",
             "type": "rich-text"
         },
         "value": {
@@ -4486,10 +4486,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Revisions Complete Receipt",
+            "description": "Subject for the email sent to the author to confirm revisions have been completed.",
             "is_translatable": true,
             "name": "subject_revisions_complete_receipt",
-            "pretty_name": "Subject Revisions Complete Receipt",
+            "pretty_name": "Subject revisions complete receipt",
             "type": "char"
         },
         "value": {
@@ -4505,10 +4505,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "A warning displayed warning Editors what will happen when they accept an article.",
+            "description": "This text will be displayed to editors before they accept an article, warning them of what will happen when they do so.",
             "is_translatable": true,
             "name": "accept_article_warning",
-            "pretty_name": "Accept Article Warning",
+            "pretty_name": "Accept article warning",
             "type": "rich-text"
         },
         "value": {
@@ -4524,10 +4524,10 @@
             "name": "kbart"
         },
         "setting": {
-            "description": "Optional period of embargo this journal is subject to. It must follow the kbart format such as 'R2Y' or 'P1Y'",
+            "description": "Optional period of embargo this journal is subject to. It must follow the <a target=\"_blank\" href=\"https://www.niso.org/standards-committees/kbart\">KBART</a> format, such as 'R2Y' or 'P1Y'.",
             "is_translatable": false,
             "name": "embargo_period",
-            "pretty_name": "Embargo Period (KBART)",
+            "pretty_name": "Embargo period (KBART)",
             "type": "char"
         },
         "value": {
@@ -4543,10 +4543,10 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Maximum number of articles on which an action can be performed in the DOI Manager",
+            "description": "Maximum number of articles on which an action can be performed in the DOI manager.",
             "is_translatable": false,
             "name": "doi_manager_action_maximum_size",
-            "pretty_name": "DOI Manager Action Maximum Size",
+            "pretty_name": "DOI manager action maximum size",
             "type": "number"
         },
         "value": {
@@ -4565,7 +4565,7 @@
             "description": "Email sent to an author when an editor deletes their copyedit review task.",
             "is_translatable": false,
             "name": "author_copyedit_deleted",
-            "pretty_name": "Author Copyedit Deleted",
+            "pretty_name": "Author copyedit deleted",
             "type": "rich-text"
         },
         "value": {
@@ -4581,14 +4581,14 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Author Copyedit Deleted email.",
+            "description": "Subject for the email sent to authors when a copyedit review request has been deleted.",
             "is_translatable": false,
             "name": "subject_author_copyedit_deleted",
-            "pretty_name": "Author Copyedit Deleted Subject",
+            "pretty_name": "Author copyedit deleted subject",
             "type": "char"
         },
         "value": {
-            "default": "Copyedit Review Request Deleted"
+            "default": "Copyedit review Request Deleted"
         },
         "editable_by": [
             "editor",
@@ -4600,10 +4600,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent readers when new articles are published.",
+            "description": "Email sent to readers when new articles are published.",
             "is_translatable": true,
             "name": "reader_publication_notification",
-            "pretty_name": "Reader Publication Notification",
+            "pretty_name": "Reader publication notification",
             "type": "rich-text"
         },
         "value": {
@@ -4619,10 +4619,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Submission Access Request Complete.",
+            "description": "Subject for the email sent to readers when new articles are published.",
             "is_translatable": true,
             "name": "subject_reader_publication_notification",
-            "pretty_name": "Subject Reader Publication Notification",
+            "pretty_name": "Subject reader publication notification",
             "type": "char"
         },
         "value": {
@@ -4638,10 +4638,10 @@
             "name": "notifications"
         },
         "setting": {
-            "description": "If enabled Janeway will notify readers of new published articles.",
+            "description": "Tick this box to notify users with the reader role of newly published articles.",
             "is_translatable": false,
             "name": "send_reader_notifications",
-            "pretty_name": "Send Reader Notifications",
+            "pretty_name": "Send reader notifications",
             "type": "boolean"
         },
         "value": {
@@ -4660,7 +4660,7 @@
             "description": "Can include information such as the physical contact address for the journal.",
             "is_translatable": true,
             "name": "contact_info",
-            "pretty_name": "Contact Information",
+            "pretty_name": "Contact information",
             "type": "rich-text"
         },
         "value": {
@@ -4683,7 +4683,10 @@
             "type": "json"
         },
         "value": {
-            "default": ["editor", "journal-manager"]
+            "default": [
+                "editor",
+                "journal-manager"
+            ]
         },
         "editable_by": [
             "journal-manager"
@@ -4701,7 +4704,10 @@
             "type": "json"
         },
         "value": {
-            "default": ["editor", "journal-manager"]
+            "default": [
+                "editor",
+                "journal-manager"
+            ]
         },
         "editable_by": [
             "journal-manager"
@@ -4712,10 +4718,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Reviewers opt in to open review by default, the field will be checked forcing them to opt out if they want to.",
+            "description": "Tick this box to make peer review open by default. Reviewers will still have the opportunity to opt out of making their review open if they choose to.",
             "is_translatable": false,
             "name": "open_review_default_opt_in",
-            "pretty_name": "Open Review Defaults to Opt In",
+            "pretty_name": "Open review defaults to an opt-in",
             "type": "boolean"
         },
         "value": {
@@ -4730,10 +4736,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Reviewers will not be asked to make any recommendation e.g. Accept or Reject. Review recommendation will be set to No Recommendation",
+            "description": "If this box is ticked, reviewers will not be asked to make any recommendation (e.g. accept or reject) as part of their review. The review recommendation will show as 'No recommendation'.'.",
             "is_translatable": false,
             "name": "disable_reviewer_recommendation",
-            "pretty_name": "Disable Reviewer Recommendation",
+            "pretty_name": "Disable reviewer recommendation",
             "type": "boolean"
         },
         "value": {
@@ -4749,10 +4755,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Adds a new decision to the decision helper that allows editors to share peer reviews amongst assigned reviewers.",
+            "description": "Tick this box to allow editors to share peer reviews amongst assigned reviewers. This option becomes available as part of the decision helper.",
             "is_translatable": false,
             "name": "enable_share_reviews_decision",
-            "pretty_name": "Enable Share Reviews Decision",
+            "pretty_name": "Enable share reviews decision",
             "type": "boolean"
         },
         "value": {
@@ -4768,10 +4774,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "When in an additional review round (eg round 2 or 3) reviewers will see completed reviews from previous rounds in the review interface.",
+            "description": "Tick this box to enable reviewers to see completed reviews from previous review rounds.",
             "is_translatable": false,
             "name": "display_completed_reviews_in_additional_rounds",
-            "pretty_name": "Display Completed Reviews in Review Interface",
+            "pretty_name": "Display completed reviews in review interface",
             "type": "boolean"
         },
         "value": {
@@ -4787,14 +4793,14 @@
             "name": "general"
         },
         "setting": {
-            "description": "This text is displayed to reviewers when \"Display Completed Reviews in Review Interface\" is enabled.",
+            "description": "This text is displayed to reviewers when the <b>Display completed reviews in review interface</b> setting is enabled.",
             "is_translatable": false,
             "name": "display_completed_reviews_in_additional_rounds_text",
-            "pretty_name": "Display Completed Reviews in Review Interface Text",
+            "pretty_name": "Display completed reviews in review interface text",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>It is our policy to share completed reviews from prior review rounds with all reviewers engaged in the review process. You can find the completed reviews from prior rounds below.</p>"
+            "default": "<p>When conducting multiple rounds of review, it is our policy to share the completed reviews from previous rounds with all reviewers. You can find these below.</p>"
         },
         "editable_by": [
             "journal-manager",
@@ -4809,7 +4815,7 @@
             "description": "Email sent by editors to reviewers when sharing peer reviews.",
             "is_translatable": true,
             "name": "share_reviews_notification",
-            "pretty_name": "Share Reviews Notification",
+            "pretty_name": "Share reviews notification",
             "type": "rich-text"
         },
         "value": {
@@ -4825,10 +4831,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Share Reviews Notification.",
+            "description": "Subject for the email sent by editors to reviewers when sharing peer reviews.",
             "is_translatable": true,
             "name": "subject_share_reviews_notification",
-            "pretty_name": "Subject for Share Reviews Notification",
+            "pretty_name": "Subject for share reviews notification",
             "type": "char"
         },
         "value": {
@@ -4844,10 +4850,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "When this setting is enabled and you make either a share reviews decision or are sharing reviews via the review interface then Janeway will include any reviewer response letters.",
+            "description": "If this box is ticked, author response letters (which they may provide when completing revisions) will also be made available when you share reviews with reviewers.",
             "is_translatable": false,
             "name": "share_author_response_letters",
-            "pretty_name": "Automatically Share Author Response Letters",
+            "pretty_name": "Automatically share author response letters",
             "type": "boolean"
         },
         "value": {
@@ -4863,10 +4869,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent editors when an author completes a revision request.",
+            "description": "Email sent to editors when an author completes a revision request.",
             "is_translatable": true,
             "name": "revisions_complete_editor_notification",
-            "pretty_name": "Revisions Complete Editor Notification",
+            "pretty_name": "Revisions complete editor notification",
             "type": "rich-text"
         },
         "value": {
@@ -4882,10 +4888,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Revisions Complete Editor Notification.",
+            "description": "Subject for the email sent to editors when an author completes a revision request.",
             "is_translatable": true,
             "name": "subject_revisions_complete_editor_notification",
-            "pretty_name": "Subject for Revisions Complete Editor Notification",
+            "pretty_name": "Subject for revisions complete editor notification",
             "type": "char"
         },
         "value": {
@@ -4901,10 +4907,10 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when an outgoing email bounces.",
+            "description": "Email sent when an outgoing email bounces (fails to deliver).",
             "is_translatable": true,
             "name": "bounced_email_notification",
-            "pretty_name": "Bounced Email Notification",
+            "pretty_name": "Bounced email notification",
             "type": "rich-text"
         },
         "value": {
@@ -4916,14 +4922,14 @@
         ]
     },
     {
-         "group": {
+        "group": {
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Bounced Email Notification.",
+            "description": "Subject for bounced email notification.",
             "is_translatable": true,
             "name": "subject_bounced_email_notification",
-            "pretty_name": "Subject Bounced Email Notification",
+            "pretty_name": "Subject bounced email notification",
             "type": "char"
         },
         "value": {
@@ -4939,10 +4945,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Action URL for an external newsletter signup form",
+            "description": "Action URL for an external newsletter signup form.",
             "is_translatable": false,
             "name": "external_newsletter_signup_url",
-            "pretty_name": "External Newsletter Signup URL",
+            "pretty_name": "External newsletter signup URL",
             "type": "char"
         },
         "value": {
@@ -4960,7 +4966,7 @@
             "description": "The name of a folder containing Django templates that can be used to populate Janeway CMS pages. The folder should be located in the theme's templates folder. All HTML files inside will be loaded into a dropdown in the CMS.",
             "is_translatable": false,
             "name": "custom_cms_templates",
-            "pretty_name": "Custom CMS Templates",
+            "pretty_name": "Custom CMS templates",
             "type": "char"
         },
         "value": {
@@ -4975,10 +4981,10 @@
             "name": "general"
         },
         "setting": {
-            "description": "Removes the editor section from the author's article status page. This does not stop editors from identifying themselves when, for example, rejecting an article if using an account with their name associated.",
+            "description": "Tick this box to hide which editor has been assigned from the author's article status page. Editors may still be identified if they reject an article using an account with their name attached.",
             "is_translatable": false,
             "name": "hide_editors_from_authors",
-            "pretty_name": "Hide Assigned Editor Details",
+            "pretty_name": "Hide assigned editor details",
             "type": "boolean"
         },
         "value": {
@@ -4994,10 +5000,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date an article was submitted will be displayed on the article page.",
+            "description": "Tick this box to display an article's submission date on the article page.",
             "is_translatable": false,
             "name": "display_date_submitted",
-            "pretty_name": "Display Date Submitted",
+            "pretty_name": "Display date submitted",
             "type": "boolean"
         },
         "value": {
@@ -5013,10 +5019,10 @@
             "name": "article"
         },
         "setting": {
-            "description": "When enabled the date an article was accepted will be displayed on the article page.",
+            "description": "Tick this box to display an article's acceptance date on the article page.",
             "is_translatable": false,
             "name": "display_date_accepted",
-            "pretty_name": "Display Date Accepted",
+            "pretty_name": "Display date accepted",
             "type": "boolean"
         },
         "value": {
@@ -5032,10 +5038,10 @@
             "name": "styling"
         },
         "setting": {
-            "description": "Display name for the page displaying editorial groups.",
+            "description": "Set the name for the page displaying editorial groups.",
             "is_translatable": true,
             "name": "editorial_group_page_name",
-            "pretty_name": "Editorial Group Page Name",
+            "pretty_name": "Editorial group page name",
             "type": "char"
         },
         "value": {
@@ -5051,10 +5057,10 @@
             "name": "styling"
         },
         "setting": {
-            "description": "When enabled no group names are displayed on the editorial group page.",
+            "description": "Tick this box to not display group names on the editorial group page.",
             "is_translatable": false,
             "name": "hide_editorial_group_names",
-            "pretty_name": "Hide Editorial Group Names",
+            "pretty_name": "Hide editorial group names",
             "type": "boolean"
         },
         "value": {
@@ -5071,9 +5077,9 @@
         },
         "setting": {
             "name": "notify_section_editors_of_publication",
-            "pretty_name": "Notify Section Editors of Publication",
+            "pretty_name": "Notify section editors of publication",
             "type": "boolean",
-            "description": "When this setting is enabled, section editors will be copied on publication notification emails sent to authors.",
+            "description": "Tick this box to copy in section editors on publication notification emails sent to authors.",
             "is_translatable": false
         },
         "value": {
@@ -5090,9 +5096,9 @@
         },
         "setting": {
             "name": "notify_peer_reviewers_of_publication",
-            "pretty_name": "Notify Peer Reviewers of Publication",
+            "pretty_name": "Notify peer reviewers of publication",
             "type": "boolean",
-            "description": "When enabled this will populate an email from the Peer Reviewer Publication Notification setting to be edited and sent out during the prepublication process.",
+            "description": "Tick this box to notify reviewers when the paper is published. This will use a template from the <b>Peer reviewer publication notification</b> setting.",
             "is_translatable": false
         },
         "value": {
@@ -5108,10 +5114,10 @@
             "name": "styling"
         },
         "setting": {
-            "description": "When this setting is enabled, and a group member has their country set, the editorial team will display the group member's country.",
+            "description": "When this box is ticked, and a group member has their country set, the editorial team will display the group member's country.",
             "is_translatable": false,
             "name": "display_countries_editorial_team",
-            "pretty_name": "Display Country on Editorial Team Page",
+            "pretty_name": "Display country on Editorial team page",
             "type": "boolean"
         },
         "value": {
@@ -5123,391 +5129,382 @@
             "name": "permission"
         },
         "setting": {
-            "description": "When this setting is enabled assigned section editors will not be able to see personally identifiable information about authors until a decision for an article has been made. The general setting Reply-To Address should be set in order for this setting to work correctly.",
+            "description": "When this box is ticked, assigned section editors will not be able to see personally identifiable information about authors until a decision for an article has been made. The general setting Reply-To address should be set for this setting to work correctly.",
             "is_translatable": false,
             "name": "se_pii_filter",
-            "pretty_name": "Section Editor Personally Identifiable Information Filter",
+            "pretty_name": "Section editor personally identifiable information filter",
             "type": "boolean"
         },
         "value": {
             "default": ""
         }
     },
-      {
-    "group": {
-      "name": "email"
-    },
-    "setting": {
-      "description": "Email sent to Typesetter on task assignment.",
-      "is_translatable": true,
-      "name": "typesetting_notify_typesetter",
-      "pretty_name": "Typesetter Assignment Notification (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>Dear {{ assignment.typesetter.salutation_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.safe_title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-    }
-  },
-  {
-    "group": {
-      "name": "email_subject"
-    },
-    "setting": {
-      "description": "Subject for Typesetter Assignment Notification.",
-      "is_translatable": true,
-      "name": "subject_typesetting_notify_typesetter",
-      "pretty_name": "Subject for Typesetter Assignment Notification (PLUGIN)",
-      "type": "char"
-    },
-    "value": {
-      "default": "Typesetting Assignment"
-    }
-  },
-  {
-    "group": {
-      "name": "email"
-    },
-    "setting": {
-      "description": "Email sent to typesetting manager when a typesetter accepts a task.",
-      "is_translatable": true,
-      "name": "typsetting_typesetter_decision_accept",
-      "pretty_name": "Typesetter Accept (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has accepted your assignment your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
-    }
-  },
-  {
-    "group": {
-      "name": "email_subject"
-    },
-    "setting": {
-      "description": "Subject for Typesetter Accept",
-      "is_translatable": true,
-      "name": "subject_typsetting_typesetter_decision_accept",
-      "pretty_name": "Subject for Typesetter Accept (PLUGIN)",
-      "type": "char"
-    },
-    "value": {
-      "default": "Typesetting Assignment Accepted"
-    }
-  },
-  {
-    "group": {
-      "name": "email"
-    },
-    "setting": {
-      "description": "Email sent to typesetting manager when a typesetter declines a task.",
-      "is_translatable": true,
-      "name": "typsetting_typesetter_decision_decline",
-      "pretty_name": "Typesetter Decline (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has declined your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
-    }
-  },
-  {
-    "group": {
-      "name": "email_subject"
-    },
-    "setting": {
-      "description": "Subject for Typesetter Decline",
-      "is_translatable": true,
-      "name": "subject_typsetting_typesetter_decision_decline",
-      "pretty_name": "Subject for Typesetter Decline (PLUGIN)",
-      "type": "char"
-    },
-    "value": {
-      "default": "Typesetting Assignment Declined"
-    }
-  },
-  {
-    "group": {
-      "name": "email"
-    },
-    "setting": {
-      "description": "Email sent to typesetting manager when a typesetter completes a task.",
-      "is_translatable": true,
-      "name": "typesetting_typesetter_complete",
-      "pretty_name": "Typesetter Complete (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
-    }
-  },
-  {
-    "group": {
-      "name": "email_subject"
-    },
-    "setting": {
-      "description": "Subject for Typesetter Complete  (PLUGIN)",
-      "is_translatable": true,
-      "name": "subject_typesetting_typesetter_complete",
-      "pretty_name": "Subject for Typesetter Complete (PLUGIN)",
-      "type": "char"
-    },
-    "value": {
-      "default": "Typesetting Assignment Complete"
-    }
-  },
-  {
-    "group": {
-      "name": "email"
-    },
-    "setting": {
-      "description": "Email sent to Proofreaders on task assignment.",
-      "is_translatable": true,
-      "name": "typesetting_notify_proofreader",
-      "pretty_name": "Proofreader Assignment Notification (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>Dear {{ assignment.proofreader.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to proofread {{ assignment.round.article.safe_title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
-
-    }
-  },
-  {
-    "group": {
-      "name": "email_subject"
-    },
-    "setting": {
-      "description": "Subject for Proofreader Assignment Notification",
-      "is_translatable": true,
-      "name": "subject_typesetting_notify_proofreader",
-      "pretty_name": "Subject for Proofreader Assignment Notification (PLUGIN)",
-      "type": "char"
-    },
-    "value": {
-      "default": "Proofreading Assignment"
-    }
-  },
-  {
-    "group": {
-      "name": "general"
-    },
-    "setting": {
-      "description": "Proofreader guidelines",
-      "is_translatable": true,
-      "name": "typesetting_proofreader_guidelines",
-      "pretty_name": "Proofreader Guide (PLUGIN)",
-      "type": "rich-text"
-    },
-    "value": {
-      "default": "<p>The files below have been assigned to you for proofreading. You must check all files before you can mark this task as complete, including both the PDF and XML proofs (XML is the web display version of the article).</p><p>After downloading the files, you can then upload these with any annotations or corrections marked directly on the proofs. If needed, you can also add additional notes to the typesetter in the text box below.</p><p>Please note that proofreading comments will go back to a typesetter, and so should give concise and clear instructions on any minor corrections needed (do not include questions or optional requests – if you are unsure on something, discuss it with the assigning editor first).</p>"
-    }
-  },
-  {
-    "value": {"default": "Production Complete"},
-    "setting": {
-        "type": "char",
-        "pretty_name": "Production Complete",
-        "is_translatable": true,
-        "description": "Subject for Email sent to Editors when Production is Complete.",
-        "name": "subject_production_complete"
-    },
-    "group": {
-        "name": "email_subject"
-    }
-  },
-  {
-    "group": {
-        "name": "email"
-    },
-    "setting": {
-        "description": "Email sent to Editors when Typesetting is Complete. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_complete",
-        "pretty_name": "Typesetting Complete (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.safe_title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetter on task assignment.",
+            "is_translatable": true,
+            "name": "typesetting_notify_typesetter",
+            "pretty_name": "Typesetter assignment notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.typesetter.salutation_name }},</p><p>This is a notification from {{ request.user.full_name }} that you have been assigned to the production of article {{ assignment.round.article.safe_title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
-  },
-  {
-    "group": {
-        "name": "email_subject"
     },
-    "setting": {
-        "description": "Subject for Typesetting Complete (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_complete",
-        "pretty_name": "Subject for Typesetting Complete (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Typesetting Complete"
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the typesetter assignment notification email.",
+            "is_translatable": true,
+            "name": "subject_typesetting_notify_typesetter",
+            "pretty_name": "Subject for typesetter assignment notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment"
         }
-  },
-
-  {
-    "group": {
-        "name": "email"
     },
-    "setting": {
-        "description": "Email sent to Editors when a Proofreading Assignment is Complete. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_proofreader_completed",
-        "pretty_name": "Proofreading Complete (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear {{assignment.manager.salutation_name}},</p><p>This is a notification to let you know that the proofing you requested for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has now been completed by {{assignment.proofreader.full_name}}.</p><p>Best wishes,</p>"
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetting managers when a typesetter accepts a task.",
+            "is_translatable": true,
+            "name": "typsetting_typesetter_decision_accept",
+            "pretty_name": "Typesetter accept",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has accepted your assignment your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
         }
-  },
-
-  {
-    "group": {
-        "name": "email_subject"
     },
-    "setting": {
-        "description": "Subject for Proofreading Complete (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_proofreader_completed",
-        "pretty_name": "Subject for Proofreading Complete (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Proofreading Assignment Complete"
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for an email sent to typesetting managers when a typesetter accepts a task.",
+            "is_translatable": true,
+            "name": "subject_typsetting_typesetter_decision_accept",
+            "pretty_name": "Subject for typesetter accept",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment Accepted"
         }
-  },
-
-  {
-    "group": {
-        "name": "email"
     },
-    "setting": {
-        "description": "Email sent to Proofreaders when a Proofreading Assignment is Cancelled. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_proofreader_cancelled",
-        "pretty_name": "Proofreading Cancelled (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}} has been cancelled. This means that you no longer need to complete this proofreading task</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetting managers when a typesetter declines a task.",
+            "is_translatable": true,
+            "name": "typsetting_typesetter_decision_decline",
+            "pretty_name": "Typesetter decline",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has declined your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
         }
-  },
-
-  {
-    "group": {
-        "name": "email_subject"
     },
-    "setting": {
-        "description": "Subject for Proofreading Cancelled (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_proofreader_cancelled",
-        "pretty_name": "Subject for Proofreading Cancelled (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Proofreading Assignment Cancelled"
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to typesetting managers when a typesetter declines a task.",
+            "is_translatable": true,
+            "name": "subject_typsetting_typesetter_decision_decline",
+            "pretty_name": "Subject for typesetter decline",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment Declined"
         }
-  },
-
-  {
-    "group": {
-        "name": "email"
     },
-    "setting": {
-        "description": "Email sent to Proofreaders when a Proofreading Assignment is Reset. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_proofreader_reset",
-        "pretty_name": "Proofreading Reset (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been reopened. Please log in to the journal using this link in order to complete this proofreading request: {{ typesetting_proofreading_assignments }}.</p><p>Thank you for your help,</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetting managers when a typesetter completes a task.",
+            "is_translatable": true,
+            "name": "typesetting_typesetter_complete",
+            "pretty_name": "Typesetter complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.manager.salutation_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
         }
-  },
-
-  {
-    "group": {
-        "name": "email_subject"
     },
-    "setting": {
-        "description": "Subject for Proofreading Reset (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_proofreader_reset",
-        "pretty_name": "Subject for Proofreading Reset (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Proofreading Assignment Reopened"
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to typesetting managers when a typesetter completes a task.",
+            "is_translatable": true,
+            "name": "subject_typesetting_typesetter_complete",
+            "pretty_name": "Subject for typesetter complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment complete"
         }
-  },
-
-  {
-    "group": {
-        "name": "email"
     },
-    "setting": {
-        "description": "Email sent to Typesetters when a Typesetting Assignment is Cancelled. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_typesetter_cancelled",
-        "pretty_name": "Typesetting Cancelled (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your typesetting request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been cancelled. This means that you no longer need to complete this task.</p><p>Thank you for your help,</p><p>{{ assignment.manager.signature|safe }}</p>"
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to proofreaders on task assignment.",
+            "is_translatable": true,
+            "name": "typesetting_notify_proofreader",
+            "pretty_name": "Proofreader assignment notification",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ assignment.proofreader.salutation_name }},</p><p>This is an notification from {{ request.user.full_name }} that you have been assigned to proofread {{ assignment.round.article.safe_title }} on journal {{ request.journal.name }}. </p><p>You can view further information on this assignment: {{ typesetting_assignments_url }}.</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
         }
-  },
-
-  {
-    "group": {
-        "name": "email_subject"
     },
-    "setting": {
-        "description": "Subject for Typesetting Cancelled (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_typesetter_cancelled",
-        "pretty_name": "Subject for Typesetting Cancelled (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Typesetting Assignment Cancelled"
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to proofreaders on task assignment.",
+            "is_translatable": true,
+            "name": "subject_typesetting_notify_proofreader",
+            "pretty_name": "Subject for proofreader assignment notification",
+            "type": "char"
+        },
+        "value": {
+            "default": "Proofreading Assignment"
         }
-  },
-
-  {
-    "group": {
-        "name": "email"
     },
-    "setting": {
-        "description": "Email sent to Typesetters when a Typesetting Assignment is Deleted. Used by the typesetting plugin",
-        "is_translatable": true,
-        "name": "typesetting_typesetter_deleted",
-        "pretty_name": "Typesetting Deleted (PLUGIN)",
-        "type": "rich-text"
-    },
-    "value": {
-        "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your typesetting request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been deleted. This means that you no longer need to complete this task.</p><p>Thank you for your help,</p><p>{{ assignment.manager.signature|safe }}</p>"
-        }
-  },
-
-  {
-    "group": {
-        "name": "email_subject"
-    },
-    "setting": {
-        "description": "Subject for Typesetting Deleted (PLUGIN)",
-        "is_translatable": true,
-        "name": "subject_typesetting_typesetter_deleted",
-        "pretty_name": "Subject for Typesetting Deleted (PLUGIN)",
-        "type": "char"
-    },
-    "value": {
-        "default": "Typesetting Assignment Cancelled"
-        }
-  },
-     {
+    {
         "group": {
             "name": "general"
         },
         "setting": {
-            "description": "Whether or not to use CRediT for this journal",
+            "description": "Proofreader guidelines",
+            "is_translatable": true,
+            "name": "typesetting_proofreader_guidelines",
+            "pretty_name": "Proofreader guide",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>The files below have been assigned to you for proofreading. You must check all files before you can mark this task as complete, including both the PDF and XML proofs (XML is the web display version of the article).</p><p>After downloading the files, you can then upload these with any annotations or corrections marked directly on the proofs. If needed, you can also add additional notes to the typesetter in the text box below.</p><p>Please note that proofreading comments will go back to a typesetter, and so should give concise and clear instructions on any minor corrections needed (do not include questions or optional requests – if you are unsure on something, discuss it with the assigning editor first).</p>"
+        }
+    },
+    {
+        "value": {
+            "default": "Production Complete"
+        },
+        "setting": {
+            "type": "char",
+            "pretty_name": "Production complete",
+            "is_translatable": true,
+            "description": "Subject for the email sent to editors when production is complete.",
+            "name": "subject_production_complete"
+        },
+        "group": {
+            "name": "email_subject"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when typesetting is complete.",
+            "is_translatable": true,
+            "name": "typesetting_complete",
+            "pretty_name": "Typesetting complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear editors,</p><p>This is an automatic notification to inform you that Typesetting is complete for article \"{{ article.safe_title}}\".</p><p>Regards,</p><p>{{ request.user.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to editors when typesetting is complete.",
+            "is_translatable": true,
+            "name": "subject_typesetting_complete",
+            "pretty_name": "Subject for typesetting complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Complete"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to editors when a proofreading task is complete.",
+            "is_translatable": true,
+            "name": "typesetting_proofreader_completed",
+            "pretty_name": "Proofreading complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{assignment.manager.salutation_name}},</p><p>This is a notification to let you know that the proofing you requested for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has now been completed by {{assignment.proofreader.full_name}}.</p><p>Best wishes,</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to editors when a proofreading task is complete.",
+            "is_translatable": true,
+            "name": "subject_typesetting_proofreader_completed",
+            "pretty_name": "Subject for proofreading complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Proofreading Assignment Complete"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to proofreaders when a proofreading assignment is cancelled.",
+            "is_translatable": true,
+            "name": "typesetting_proofreader_cancelled",
+            "pretty_name": "Proofreading cancelled",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}} has been cancelled. This means that you no longer need to complete this proofreading task</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to proofreaders when a proofreading assignment is cancelled.",
+            "is_translatable": true,
+            "name": "subject_typesetting_proofreader_cancelled",
+            "pretty_name": "Subject for proofreading cancelled",
+            "type": "char"
+        },
+        "value": {
+            "default": "Proofreading Assignment Cancelled"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to proofreaders when a proofreading assignment is reset (reopened).",
+            "is_translatable": true,
+            "name": "typesetting_proofreader_reset",
+            "pretty_name": "Proofreading reset",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your proofreading request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been reopened. Please log in to the journal using this link in order to complete this proofreading request: {{ typesetting_proofreading_assignments }}.</p><p>Thank you for your help,</p><p>Best wishes,</p><p>{{ assignment.manager.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to proofreaders when a proofreading assignment is reset (reopened).",
+            "is_translatable": true,
+            "name": "subject_typesetting_proofreader_reset",
+            "pretty_name": "Subject for proofreading reset",
+            "type": "char"
+        },
+        "value": {
+            "default": "Proofreading Assignment Reopened"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetters when a typesetting assignment has been cancelled.",
+            "is_translatable": true,
+            "name": "typesetting_typesetter_cancelled",
+            "pretty_name": "Typesetting cancelled",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your typesetting request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been cancelled. This means that you no longer need to complete this task.</p><p>Thank you for your help,</p><p>{{ assignment.manager.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to typesetters when a typesetting assignment has been cancelled.",
+            "is_translatable": true,
+            "name": "subject_typesetting_typesetter_cancelled",
+            "pretty_name": "Subject for typesetting cancelled",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment Cancelled"
+        }
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to typesetters when a typesetting assignment has been deleted.",
+            "is_translatable": true,
+            "name": "typesetting_typesetter_deleted",
+            "pretty_name": "Typesetting deleted",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{assignment.proofreader.salutation_name}},</p><p>This is a notification to let you know that your typesetting request for the article {{assignment.round.article.safe_title}}, with article number {{assignment.round.article.pk}}, has been deleted. This means that you no longer need to complete this task.</p><p>Thank you for your help,</p><p>{{ assignment.manager.signature|safe }}</p>"
+        }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for the email sent to typesetters when an assignment has been deleted.",
+            "is_translatable": true,
+            "name": "subject_typesetting_typesetter_deleted",
+            "pretty_name": "Subject for typesetting deleted",
+            "type": "char"
+        },
+        "value": {
+            "default": "Typesetting Assignment Cancelled"
+        }
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Tick this box to enable CRediT support for this journal.",
             "is_translatable": false,
             "name": "use_credit",
             "pretty_name": "Enable CRediT",
@@ -5529,7 +5526,7 @@
             "description": "Email sent to authors when sending a conditional accept revision request.",
             "is_translatable": true,
             "name": "conditional_accept",
-            "pretty_name": "Conditional Accept",
+            "pretty_name": "Conditional accept",
             "type": "rich-text"
         },
         "value": {
@@ -5548,7 +5545,7 @@
             "description": "Email sent to authors when an article is desk rejected.",
             "is_translatable": true,
             "name": "review_decision_desk_reject",
-            "pretty_name": "Article Desk Reject",
+            "pretty_name": "Article desk reject",
             "type": "rich-text"
         },
         "value": {
@@ -5564,10 +5561,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Conditional Accept Email",
+            "description": "Subject for conditional acceptance email sent to authors.",
             "is_translatable": true,
             "name": "subject_conditional_accept",
-            "pretty_name": "Subject Conditional Accept",
+            "pretty_name": "Subject conditional accept",
             "type": "char"
         },
         "value": {
@@ -5583,10 +5580,10 @@
             "name": "email_subject"
         },
         "setting": {
-            "description": "Subject for Desk Reject Email",
+            "description": "Subject for a desk rejection email sent to authors.",
             "is_translatable": true,
             "name": "subject_review_decision_desk_reject",
-            "pretty_name": "Subject Desk Reject",
+            "pretty_name": "Subject desk reject",
             "type": "char"
         },
         "value": {
