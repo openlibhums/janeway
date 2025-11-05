@@ -1,0 +1,50 @@
+{% extends "admin/core/base.html" %}
+{% load foundation static %}
+
+{% block title %}{{ object.title }} Discussions{% endblock %}
+{% block title-section %}{{ object_type|capfirst }}: {{ object.title }} Discussions{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "admin/css/discussions.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row expanded">
+    <div class="large-3 columns thread-box-left">
+        <div class="box thread-box thread-dark"
+             id="thread-list-container"
+             hx-get="{% url 'discussion_threads_list_partial' object_type object.pk %}"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+             Thread list loads here
+        </div>
+    </div>
+
+    <div class="large-9 columns thread-box-right">
+        <div class="box thread-box"
+             id="thread-detail-container"
+             {% if active_thread_id %}
+                 hx-get="{% url 'discussion_thread_detail_partial' object_type object.pk active_thread_id %}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML"
+             {% endif %}>
+            {% if not active_thread_id %}
+                <div class="empty-state">
+                    <p class="subheader">Select a thread to display posts.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+ Modal for new thread
+<div class="reveal small" id="new_thread_modal" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+</div>
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+{% endblock %}

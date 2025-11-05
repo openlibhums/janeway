@@ -23,6 +23,7 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
         "post__body",
     )
     raw_id_fields = ("owner", "article", "preprint")
+    filter_horizontal = ("participants",)
 
     inlines = [admin_utils.PostInline]
 

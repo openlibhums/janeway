@@ -28,6 +28,7 @@ from security.logic import (
 from utils import setting_handler
 from utils.logger import get_logger
 from repository import models as preprint_models
+from discussion import models as discussion_models
 
 logger = get_logger(__name__)
 
@@ -142,13 +143,47 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal and request.user in request.journal.editor_list():
+        if request.journal and request.user in request.journal.editors():
             return func(request, *args, **kwargs)
 
         if request.repository and request.user in request.repository.managers.all():
             return func(request, *args, **kwargs)
 
         deny_access(request)
+
+    return wrapper
+
+
+def can_access_thread(func):
+    """
+    Checks if the user can access the thread or has global editor/manager access.
+    """
+    @base_check_required
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        thread_id = kwargs.get("thread_id")
+        if thread_id:
+            try:
+                thread = discussion_models.Thread.objects.get(pk=thread_id)
+            except discussion_models.Thread.DoesNotExist:
+                return deny_access(request)
+
+            if thread.user_can_access(user):
+                return func(request, *args, **kwargs)
+
+            return deny_access(request)
+
+        # If no thread_id provided (e.g. thread list),
+        # allow access if the user is editor/manager for the object
+        if request.journal and user in request.journal.editor_list():
+            return func(request, *args, **kwargs)
+
+        if request.repository and user in request.repository.managers.all():
+            return func(request, *args, **kwargs)
+
+        return deny_access(request)
 
     return wrapper
 
@@ -1419,7 +1454,7 @@ def article_stage_review_required(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if not article.stage in models.REVIEW_STAGES:
+        if article.stage not in models.REVIEW_STAGES:
             deny_access(request)
         else:
             return func(request, article_id, *args, **kwargs)

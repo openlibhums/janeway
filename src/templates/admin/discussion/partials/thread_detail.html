@@ -1,0 +1,136 @@
+{% load foundation %}
+
+<div class="thread-detail-header">
+  <h2>{{ thread.subject }}</h2>
+  <p class="subheader">
+    Started on {{ thread.started|date:"F d, Y \\a\\t g:i A" }}
+  </p>
+
+  <!-- Participants section -->
+  <div class="thread-participants">
+    <div class="participants-label">
+      <span class="fa fa-users" aria-hidden="true"></span>
+      Participants ({{ thread.participants.count }})
+    </div>
+
+    <div class="participants-list">
+      {% for participant in thread.participants.all %}
+        <div class="participant-item has-tip"
+             data-tooltip
+             aria-haspopup="true"
+             title="{{ participant.full_name }}">
+          {% include "admin/discussion/avatar.html" with user=participant avatar_class="participant-avatar" %}
+        </div>
+      {% empty %}
+        <span class="no-participants">No participants yet</span>
+      {% endfor %}
+    </div>
+
+    <!-- Invite button trigger -->
+    <div class="participants-actions">
+      <button class="button tiny hollow"
+              hx-get="{% url 'discussion_invite_search' thread.pk %}"
+              hx-target="#invite-modal-content"
+              hx-swap="innerHTML"
+              hx-indicator="#invite-modal-loading"
+              onclick="openInviteModalSpinner();">
+        <span class="fa fa-user-plus" aria-hidden="true"></span> Invite
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Posts -->
+<div class="thread-inner">
+  {% for post in posts %}
+    {% include "admin/discussion/post.html" %}
+  {% empty %}
+    <p class="subheader">No posts yet. Start the discussion below.</p>
+  {% endfor %}
+</div>
+
+<!-- New post form -->
+<div class="new-post-form new-post-form-bottom">
+  <form method="POST"
+        hx-post="{% url 'discussion_add_post' thread.pk %}"
+        hx-target="#thread-detail-container"
+        hx-swap="innerHTML">
+    {% csrf_token %}
+    <div class="row expanded">
+      <div class="small-9 columns">
+        <textarea name="new_post"
+                  rows="3"
+                  placeholder="Write your message..."
+                  required></textarea>
+      </div>
+      <div class="small-3 columns">
+        <button class="button expanded" type="submit">
+          <span class="fa fa-send-o" aria-hidden="true"></span> Send
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Modal container for participant invites -->
+<div class="reveal small" id="invite_modal" data-reveal>
+  <!-- Loading spinner shown while content loads -->
+  <div id="invite-modal-loading" class="loading-indicator" style="display:none;">
+    <i class="fa fa-spinner fa-spin"></i> Loading participants...
+  </div>
+
+  <!-- Invite search partial loads here via HTMX -->
+  <div id="invite-modal-content"></div>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+{% block js %}
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <script>
+    // === Modal & Spinner handling ===
+
+    function openInviteModalSpinner() {
+      // Clear previous modal content
+      document.getElementById('invite-modal-content').innerHTML = '';
+      // Show spinner
+      document.getElementById('invite-modal-loading').style.display = 'block';
+
+      const $modal = $('#invite_modal');
+      if (!$modal.data('zfPlugin')) {
+        new Foundation.Reveal($modal);
+      }
+      const modalInstance = $modal.data('zfPlugin');
+      modalInstance.open();
+    }
+
+    // Show spinner when search form in the modal is submitted
+    document.body.addEventListener('submit', function (evt) {
+      if (evt.target.matches('.invite-search-form')) {
+        const spinner = document.getElementById('invite-modal-loading');
+        if (spinner) spinner.style.display = 'block';
+      }
+    });
+
+    // Hide spinner after modal content is updated
+    document.body.addEventListener('htmx:afterSwap', function (evt) {
+      if (evt.detail.target.id === 'invite-modal-content') {
+        const spinner = document.getElementById('invite-modal-loading');
+        if (spinner) spinner.style.display = 'none';
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.foundation) {
+          jQuery(document).foundation();
+        }
+      }
+    });
+
+    // Global Foundation re-init for all swaps
+    document.body.addEventListener('htmx:afterSwap', function () {
+      if (window.jQuery && window.jQuery.fn && window.jQuery.fn.foundation) {
+        jQuery(document).foundation();
+      }
+    });
+  </script>
+{% endblock js %}

@@ -1,0 +1,69 @@
+{% load foundation %}
+
+<div class="card">
+  <div class="card-divider">
+    <h4><i class="fa fa-user-plus"></i> Invite Participants</h4>
+  </div>
+
+  <div class="card-section invite-modal-body">
+    {% if role_users %}
+      <h5 class="section-title">People with roles on this article</h5>
+      <ul class="no-bullet invite-list">
+        {% for user in role_users %}
+          <li class="invite-list-item">
+            <span class="invite-name">{{ user.full_name|default:"[No Name]" }} - {{ user.email }}</span>
+            <button class="button tiny success invite-btn"
+                    hx-post="{% url 'discussion_add_participant' thread.pk %}"
+                    hx-vals='{"user_id":"{{ user.pk }}"}'
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-swap="none"
+                    hx-on::after-request="window.location.reload();">
+              Invite
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <h5 class="section-title">Search and invite any other user</h5>
+    <form hx-get="{% url 'discussion_invite_search' thread.pk %}"
+          hx-target="#invite-modal-content"
+          hx-swap="innerHTML"
+          hx-indicator="#invite-modal-loading"
+          class="invite-search-form"
+          onsubmit="showInviteSpinner();">
+      <div class="input-group">
+        <input type="text" name="q" class="input-group-field" placeholder="Search users...">
+        <div class="input-group-button">
+          <button type="submit" class="button">Search</button>
+        </div>
+      </div>
+    </form>
+
+    {% if object_list %}
+      <div class="invite-results scrollable-list">
+        <ul class="no-bullet invite-list">
+          {% for user in object_list %}
+            <li class="invite-list-item">
+              <span class="invite-name">{{ user.full_name|default:"[No Name]" }} - {{ user.email }}</span>
+              <button class="button tiny success invite-btn"
+                      hx-post="{% url 'discussion_add_participant' thread.pk %}"
+                      hx-vals='{"user_id":"{{ user.pk }}"}'
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-swap="none"
+                      hx-on::after-request="window.location.reload();">
+                Invite
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% else %}
+      <p class="subheader text-center mt-2">No users found.</p>
+    {% endif %}
+  </div>
+</div>
+
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

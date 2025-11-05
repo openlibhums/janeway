@@ -1,0 +1,26 @@
+<div class="thread-list-header">
+    <h3>Discussions</h3>
+    <a class="button"
+       hx-get="{% url 'discussion_new_thread_modal' object_type object.pk %}"
+       hx-target="#new_thread_modal"
+       hx-swap="innerHTML"
+       data-open="new_thread_modal">
+       <i class="fa fa-plus"></i> New Thread
+    </a>
+</div>
+
+{% if threads %}
+    {% for thread in threads %}
+        <div hx-get="{% url 'discussion_thread_detail_partial' object_type object.pk thread.pk %}"
+             hx-push-url="{% url 'discussion_thread' object_type object.pk thread.pk %}"
+             hx-target="#thread-detail-container"
+             hx-swap="innerHTML"
+             class="thread-list-item">
+            {% include "admin/discussion/thread.html" %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <p class="subheader">No threads yet. Start a new discussion!</p>
+    </div>
+{% endif %}
