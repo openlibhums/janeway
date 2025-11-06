@@ -584,8 +584,8 @@ OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 if ENABLE_OIDC:
     AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
-        'utils.oidc.JanewayOIDCAB',
+        "django.contrib.auth.backends.ModelBackend",
+        "utils.oidc.JanewayOIDCAB",
     )
 
 CORE_FILETEXT_MODEL = "core.FileText"
