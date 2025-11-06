@@ -10,14 +10,42 @@
                 {% include "common/elements/profile_image.html" with classes="thumbnail img-fluid editorial-image" user=user %}
                 <br />
                 <h1>{{ user.full_name }}</h1>
-                <p><strong>{% trans 'Roles' %}: </strong><br>
-                    <ul class="list-inline comma-sep">
-                        {% for role in roles %}
-                            <li>{{ role.role.name }}</li>
-                        {% endfor %}
-                    </ul>
-                </p>
-                {% include "common/elements/profile_affiliations.html" %}
+                <dl>
+                    {% if roles.exists %}
+                        <dt>
+                            {% blocktrans count counter=roles.count %}
+                                Role
+                            {% plural %}
+                                Roles
+                            {% endblocktrans %}
+                        </dt>
+                            <dd>
+                                <ul class="list-no-bullet">
+                                    {% for role in roles %}
+                                        <li>{{ role.role.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </dd>
+                    {% endif %}
+                    {% if user.affiliations.exists %}
+                        <dt>
+                            {% blocktrans count counter=user.affiliations.count %}
+                                Affiliation
+                            {% plural %}
+                                Affiliations
+                            {% endblocktrans %}
+                        </dt>
+                        <dd>
+                            {% include "common/elements/affiliations_ul.html" with affiliations=user.affiliations %}
+                        </dd>
+                    {% endif %}
+                    {% if user.website or user.twitter or user.facebook or user.github or user.linkedin %}
+                        <dt>{% trans 'Social Media' %}</dt>
+                        <dd>
+                            {% include "elements/journal/editorial_social_content.html" with user=user %}
+                        </dd>
+                    {% endif %}
+                </dl>
             </div>
             <div class="col-md-9">
                 {% if user.biography %}

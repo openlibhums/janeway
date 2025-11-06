@@ -36,7 +36,7 @@
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                        <h1 class="white-text card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
                           {% include "common/elements/journal/article_authors_br.html" %}
                         {% endif %}
@@ -52,7 +52,7 @@
 
     <div id="article_metadata" class="row">
 
-        <div class="col-md-7">
+        <div class="col-lg-7">
             <div id="article">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
@@ -75,7 +75,7 @@
                     <p>{{ article.rights | safe }} </p>
                 {% endif %}
                 {% if article.is_published or proofing %}
-                    <div class="d-lg-none d-xl-none d-md-none">
+                    <div class="d-lg-none">
                         <h2>{% trans 'Files' %}</h2>
                         {% if galleys %}
                             <ul class="no-bullet-list">
@@ -131,7 +131,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col-md-4 offset-md-1 left-bar">
+        <div class="col-lg-4 offset-lg-1 left-bar">
           <div class="card">
             <div class="card-body">
               <section aria-label="{% trans 'Article Information' %}">
@@ -375,13 +375,11 @@
             </div>
           </div>
          {% if article_content %}
-            <div class="sticky-toc article-menu" id="toc-section">
+            <div class="sticky-toc article-menu card" id="toc-section">
               <section aria-labelledby="toc-title">
-                <div class="card">
                   <div class="card-body">
                     <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
                     <ul id="toc" class="no-bullet-list table-of-contents"></ul>
-                  </div>
                 </div>
               </section>
             </div>

@@ -18,6 +18,7 @@
   --text-white: #fff;
   --text-header: var(--text-black);
   --body-text: #525252;
+  --body-text-dyslexia: var(--text-black);
   --nav-text: #636363;
   --nav-text-active: var(--brand-primary);
   --recede-opacity: 70%;
@@ -39,6 +40,8 @@
   --bg-card-alt: #f8f9fa;
   --bg-blockquote: #F0F0F0;
   --bg-overlay: rgba(55, 55, 55, 0.8);
+  --bg-dyslexia: #F5F5DC;
+  --bg-dyslexia-em: #FAFAC8;
 
   /* UI State Colors */
   --color-success: green;
@@ -95,4 +98,7 @@
   --pagination-active-bg: var(--btn-primary-bg);
   --pagination-active-border: var(--btn-primary-border);
   --pagination-disabled-color: var(--text-muted);
+
+  /* workarounds, note the fill colour is hardcoded not a variable*/
+  --custom-select-background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23747474' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px;
 }

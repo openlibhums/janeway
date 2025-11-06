@@ -2,7 +2,7 @@
 {% load static %}
 {% load dates %}
 
-<article class="article-item" aria-label="{{ article.title|striptags }}">
+<div class="card article-item" aria-label="{{ article.title|striptags }}">
     <div class="row align-items-start">
         {% if not journal_settings.article.disable_article_thumbnails %}
           <div class="col-2 col-md-2">
@@ -93,4 +93,4 @@
             {% endif %}
         </div>
     </div>
-</article>
+</div>
