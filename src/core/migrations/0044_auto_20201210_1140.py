@@ -7,15 +7,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0043_install_ci_extension_pg'),
+        ("core", "0043_install_ci_extension_pg"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='email',
-            field=core.model_utils.PGCaseInsensitiveEmailField(max_length=254, unique=True, verbose_name='Email'),
+            model_name="account",
+            name="email",
+            field=core.model_utils.PGCaseInsensitiveEmailField(
+                max_length=254, unique=True, verbose_name="Email"
+            ),
         ),
     ]

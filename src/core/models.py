@@ -20,7 +20,11 @@ import zipfile
 
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.core.exceptions import ValidationError
 from django.db import (
     connection,
@@ -75,9 +79,10 @@ IMAGE_GALLEY_TEMPLATE = """
     <img class="responsive-img" src={url} alt="{alt}">
 """
 
+
 def profile_images_upload_path(instance, filename):
     try:
-        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        filename = str(uuid.uuid4()) + "." + str(filename.split(".")[1])
     except IndexError:
         filename = str(uuid.uuid4())
 
@@ -86,91 +91,270 @@ def profile_images_upload_path(instance, filename):
 
 
 SALUTATION_CHOICES = (
-    ('Miss', _('Miss')),
-    ('Ms', _('Ms')),
-    ('Mrs', _('Mrs')),
-    ('Mr', _('Mr')),
-    ('Mx', _('Mx')),
-    ('Dr', _('Dr')),
-    ('Prof.', _('Prof.')),
+    ("Miss", _("Miss")),
+    ("Ms", _("Ms")),
+    ("Mrs", _("Mrs")),
+    ("Mr", _("Mr")),
+    ("Mx", _("Mx")),
+    ("Dr", _("Dr")),
+    ("Prof.", _("Prof.")),
 )
 
-COUNTRY_CHOICES = [(u'AF', u'Afghanistan'), (u'AX', u'\xc5land Islands'), (u'AL', u'Albania'),
-                   (u'DZ', u'Algeria'), (u'AS', u'American Samoa'), (u'AD', u'Andorra'), (u'AO', u'Angola'),
-                   (u'AI', u'Anguilla'), (u'AQ', u'Antarctica'), (u'AG', u'Antigua and Barbuda'), (u'AR', u'Argentina'),
-                   (u'AM', u'Armenia'), (u'AW', u'Aruba'), (u'AU', u'Australia'), (u'AT', u'Austria'),
-                   (u'AZ', u'Azerbaijan'), (u'BS', u'Bahamas'), (u'BH', u'Bahrain'), (u'BD', u'Bangladesh'),
-                   (u'BB', u'Barbados'), (u'BY', u'Belarus'), (u'BE', u'Belgium'), (u'BZ', u'Belize'),
-                   (u'BJ', u'Benin'), (u'BM', u'Bermuda'), (u'BT', u'Bhutan'),
-                   (u'BO', u'Bolivia, Plurinational State of'), (u'BQ', u'Bonaire, Sint Eustatius and Saba'),
-                   (u'BA', u'Bosnia and Herzegovina'), (u'BW', u'Botswana'), (u'BV', u'Bouvet Island'),
-                   (u'BR', u'Brazil'), (u'IO', u'British Indian Ocean Territory'), (u'BN', u'Brunei Darussalam'),
-                   (u'BG', u'Bulgaria'), (u'BF', u'Burkina Faso'), (u'BI', u'Burundi'), (u'KH', u'Cambodia'),
-                   (u'CM', u'Cameroon'), (u'CA', u'Canada'), (u'CV', u'Cape Verde'), (u'KY', u'Cayman Islands'),
-                   (u'CF', u'Central African Republic'), (u'TD', u'Chad'), (u'CL', u'Chile'), (u'CN', u'China'),
-                   (u'CX', u'Christmas Island'), (u'CC', u'Cocos (Keeling) Islands'), (u'CO', u'Colombia'),
-                   (u'KM', u'Comoros'), (u'CG', u'Congo'), (u'CD', u'Congo, The Democratic Republic of the'),
-                   (u'CK', u'Cook Islands'), (u'CR', u'Costa Rica'), (u'CI', u"C\xf4te d'Ivoire"), (u'HR', u'Croatia'),
-                   (u'CU', u'Cuba'), (u'CW', u'Cura\xe7ao'), (u'CY', u'Cyprus'), (u'CZ', u'Czech Republic'),
-                   (u'DK', u'Denmark'), (u'DJ', u'Djibouti'), (u'DM', u'Dominica'), (u'DO', u'Dominican Republic'),
-                   (u'EC', u'Ecuador'), (u'EG', u'Egypt'), (u'SV', u'El Salvador'), (u'GQ', u'Equatorial Guinea'),
-                   (u'ER', u'Eritrea'), (u'EE', u'Estonia'), (u'ET', u'Ethiopia'),
-                   (u'FK', u'Falkland Islands (Malvinas)'), (u'FO', u'Faroe Islands'), (u'FJ', u'Fiji'),
-                   (u'FI', u'Finland'), (u'FR', u'France'), (u'GF', u'French Guiana'), (u'PF', u'French Polynesia'),
-                   (u'TF', u'French Southern Territories'), (u'GA', u'Gabon'), (u'GM', u'Gambia'), (u'GE', u'Georgia'),
-                   (u'DE', u'Germany'), (u'GH', u'Ghana'), (u'GI', u'Gibraltar'), (u'GR', u'Greece'),
-                   (u'GL', u'Greenland'), (u'GD', u'Grenada'), (u'GP', u'Guadeloupe'), (u'GU', u'Guam'),
-                   (u'GT', u'Guatemala'), (u'GG', u'Guernsey'), (u'GN', u'Guinea'), (u'GW', u'Guinea-Bissau'),
-                   (u'GY', u'Guyana'), (u'HT', u'Haiti'), (u'HM', u'Heard Island and McDonald Islands'),
-                   (u'VA', u'Holy See (Vatican City State)'), (u'HN', u'Honduras'), (u'HK', u'Hong Kong'),
-                   (u'HU', u'Hungary'), (u'IS', u'Iceland'), (u'IN', u'India'), (u'ID', u'Indonesia'),
-                   (u'IR', u'Iran, Islamic Republic of'), (u'IQ', u'Iraq'), (u'IE', u'Ireland'),
-                   (u'IM', u'Isle of Man'), (u'IL', u'Israel'), (u'IT', u'Italy'), (u'JM', u'Jamaica'),
-                   (u'JP', u'Japan'), (u'JE', u'Jersey'), (u'JO', u'Jordan'), (u'KZ', u'Kazakhstan'), (u'KE', u'Kenya'),
-                   (u'KI', u'Kiribati'), (u'KP', u"Korea, Democratic People's Republic of"),
-                   (u'KR', u'Korea, Republic of'), (u'KW', u'Kuwait'), (u'KG', u'Kyrgyzstan'),
-                   (u'LA', u"Lao People's Democratic Republic"), (u'LV', u'Latvia'), (u'LB', u'Lebanon'),
-                   (u'LS', u'Lesotho'), (u'LR', u'Liberia'), (u'LY', u'Libya'), (u'LI', u'Liechtenstein'),
-                   (u'LT', u'Lithuania'), (u'LU', u'Luxembourg'), (u'MO', u'Macao'), (u'MK', u'Macedonia, Republic of'),
-                   (u'MG', u'Madagascar'), (u'MW', u'Malawi'), (u'MY', u'Malaysia'), (u'MV', u'Maldives'),
-                   (u'ML', u'Mali'), (u'MT', u'Malta'), (u'MH', u'Marshall Islands'), (u'MQ', u'Martinique'),
-                   (u'MR', u'Mauritania'), (u'MU', u'Mauritius'), (u'YT', u'Mayotte'), (u'MX', u'Mexico'),
-                   (u'FM', u'Micronesia, Federated States of'), (u'MD', u'Moldova, Republic of'), (u'MC', u'Monaco'),
-                   (u'MN', u'Mongolia'), (u'ME', u'Montenegro'), (u'MS', u'Montserrat'), (u'MA', u'Morocco'),
-                   (u'MZ', u'Mozambique'), (u'MM', u'Myanmar'), (u'NA', u'Namibia'), (u'NR', u'Nauru'),
-                   (u'NP', u'Nepal'), (u'NL', u'Netherlands'), (u'NC', u'New Caledonia'), (u'NZ', u'New Zealand'),
-                   (u'NI', u'Nicaragua'), (u'NE', u'Niger'), (u'NG', u'Nigeria'), (u'NU', u'Niue'),
-                   (u'NF', u'Norfolk Island'), (u'MP', u'Northern Mariana Islands'), (u'NO', u'Norway'),
-                   (u'OM', u'Oman'), (u'PK', u'Pakistan'), (u'PW', u'Palau'), (u'PS', u'Palestine, State of'),
-                   (u'PA', u'Panama'), (u'PG', u'Papua New Guinea'), (u'PY', u'Paraguay'), (u'PE', u'Peru'),
-                   (u'PH', u'Philippines'), (u'PN', u'Pitcairn'), (u'PL', u'Poland'), (u'PT', u'Portugal'),
-                   (u'PR', u'Puerto Rico'), (u'QA', u'Qatar'), (u'RE', u'R\xe9union'), (u'RO', u'Romania'),
-                   (u'RU', u'Russian Federation'), (u'RW', u'Rwanda'), (u'BL', u'Saint Barth\xe9lemy'),
-                   (u'SH', u'Saint Helena, Ascension and Tristan da Cunha'), (u'KN', u'Saint Kitts and Nevis'),
-                   (u'LC', u'Saint Lucia'), (u'MF', u'Saint Martin (French part)'),
-                   (u'PM', u'Saint Pierre and Miquelon'), (u'VC', u'Saint Vincent and the Grenadines'),
-                   (u'WS', u'Samoa'), (u'SM', u'San Marino'), (u'ST', u'Sao Tome and Principe'),
-                   (u'SA', u'Saudi Arabia'), (u'SN', u'Senegal'), (u'RS', u'Serbia'), (u'SC', u'Seychelles'),
-                   (u'SL', u'Sierra Leone'), (u'SG', u'Singapore'), (u'SX', u'Sint Maarten (Dutch part)'),
-                   (u'SK', u'Slovakia'), (u'SI', u'Slovenia'), (u'SB', u'Solomon Islands'), (u'SO', u'Somalia'),
-                   (u'ZA', u'South Africa'), (u'GS', u'South Georgia and the South Sandwich Islands'),
-                   (u'ES', u'Spain'), (u'LK', u'Sri Lanka'), (u'SD', u'Sudan'), (u'SR', u'Suriname'),
-                   (u'SS', u'South Sudan'), (u'SJ', u'Svalbard and Jan Mayen'), (u'SZ', u'Swaziland'),
-                   (u'SE', u'Sweden'), (u'CH', u'Switzerland'), (u'SY', u'Syrian Arab Republic'),
-                   (u'TW', u'Taiwan, Province of China'), (u'TJ', u'Tajikistan'),
-                   (u'TZ', u'Tanzania, United Republic of'), (u'TH', u'Thailand'), (u'TL', u'Timor-Leste'),
-                   (u'TG', u'Togo'), (u'TK', u'Tokelau'), (u'TO', u'Tonga'), (u'TT', u'Trinidad and Tobago'),
-                   (u'TN', u'Tunisia'), (u'TR', u'Turkey'), (u'TM', u'Turkmenistan'),
-                   (u'TC', u'Turks and Caicos Islands'), (u'TV', u'Tuvalu'), (u'UG', u'Uganda'), (u'UA', u'Ukraine'),
-                   (u'AE', u'United Arab Emirates'), (u'GB', u'United Kingdom'), (u'US', u'United States'),
-                   (u'UM', u'United States Minor Outlying Islands'), (u'UY', u'Uruguay'), (u'UZ', u'Uzbekistan'),
-                   (u'VU', u'Vanuatu'), (u'VE', u'Venezuela, Bolivarian Republic of'), (u'VN', u'Viet Nam'),
-                   (u'VG', u'Virgin Islands, British'), (u'VI', u'Virgin Islands, U.S.'), (u'WF', u'Wallis and Futuna'),
-                   (u'EH', u'Western Sahara'), (u'YE', u'Yemen'), (u'ZM', u'Zambia'), (u'ZW', u'Zimbabwe')]
+COUNTRY_CHOICES = [
+    ("AF", "Afghanistan"),
+    ("AX", "\xc5land Islands"),
+    ("AL", "Albania"),
+    ("DZ", "Algeria"),
+    ("AS", "American Samoa"),
+    ("AD", "Andorra"),
+    ("AO", "Angola"),
+    ("AI", "Anguilla"),
+    ("AQ", "Antarctica"),
+    ("AG", "Antigua and Barbuda"),
+    ("AR", "Argentina"),
+    ("AM", "Armenia"),
+    ("AW", "Aruba"),
+    ("AU", "Australia"),
+    ("AT", "Austria"),
+    ("AZ", "Azerbaijan"),
+    ("BS", "Bahamas"),
+    ("BH", "Bahrain"),
+    ("BD", "Bangladesh"),
+    ("BB", "Barbados"),
+    ("BY", "Belarus"),
+    ("BE", "Belgium"),
+    ("BZ", "Belize"),
+    ("BJ", "Benin"),
+    ("BM", "Bermuda"),
+    ("BT", "Bhutan"),
+    ("BO", "Bolivia, Plurinational State of"),
+    ("BQ", "Bonaire, Sint Eustatius and Saba"),
+    ("BA", "Bosnia and Herzegovina"),
+    ("BW", "Botswana"),
+    ("BV", "Bouvet Island"),
+    ("BR", "Brazil"),
+    ("IO", "British Indian Ocean Territory"),
+    ("BN", "Brunei Darussalam"),
+    ("BG", "Bulgaria"),
+    ("BF", "Burkina Faso"),
+    ("BI", "Burundi"),
+    ("KH", "Cambodia"),
+    ("CM", "Cameroon"),
+    ("CA", "Canada"),
+    ("CV", "Cape Verde"),
+    ("KY", "Cayman Islands"),
+    ("CF", "Central African Republic"),
+    ("TD", "Chad"),
+    ("CL", "Chile"),
+    ("CN", "China"),
+    ("CX", "Christmas Island"),
+    ("CC", "Cocos (Keeling) Islands"),
+    ("CO", "Colombia"),
+    ("KM", "Comoros"),
+    ("CG", "Congo"),
+    ("CD", "Congo, The Democratic Republic of the"),
+    ("CK", "Cook Islands"),
+    ("CR", "Costa Rica"),
+    ("CI", "C\xf4te d'Ivoire"),
+    ("HR", "Croatia"),
+    ("CU", "Cuba"),
+    ("CW", "Cura\xe7ao"),
+    ("CY", "Cyprus"),
+    ("CZ", "Czech Republic"),
+    ("DK", "Denmark"),
+    ("DJ", "Djibouti"),
+    ("DM", "Dominica"),
+    ("DO", "Dominican Republic"),
+    ("EC", "Ecuador"),
+    ("EG", "Egypt"),
+    ("SV", "El Salvador"),
+    ("GQ", "Equatorial Guinea"),
+    ("ER", "Eritrea"),
+    ("EE", "Estonia"),
+    ("ET", "Ethiopia"),
+    ("FK", "Falkland Islands (Malvinas)"),
+    ("FO", "Faroe Islands"),
+    ("FJ", "Fiji"),
+    ("FI", "Finland"),
+    ("FR", "France"),
+    ("GF", "French Guiana"),
+    ("PF", "French Polynesia"),
+    ("TF", "French Southern Territories"),
+    ("GA", "Gabon"),
+    ("GM", "Gambia"),
+    ("GE", "Georgia"),
+    ("DE", "Germany"),
+    ("GH", "Ghana"),
+    ("GI", "Gibraltar"),
+    ("GR", "Greece"),
+    ("GL", "Greenland"),
+    ("GD", "Grenada"),
+    ("GP", "Guadeloupe"),
+    ("GU", "Guam"),
+    ("GT", "Guatemala"),
+    ("GG", "Guernsey"),
+    ("GN", "Guinea"),
+    ("GW", "Guinea-Bissau"),
+    ("GY", "Guyana"),
+    ("HT", "Haiti"),
+    ("HM", "Heard Island and McDonald Islands"),
+    ("VA", "Holy See (Vatican City State)"),
+    ("HN", "Honduras"),
+    ("HK", "Hong Kong"),
+    ("HU", "Hungary"),
+    ("IS", "Iceland"),
+    ("IN", "India"),
+    ("ID", "Indonesia"),
+    ("IR", "Iran, Islamic Republic of"),
+    ("IQ", "Iraq"),
+    ("IE", "Ireland"),
+    ("IM", "Isle of Man"),
+    ("IL", "Israel"),
+    ("IT", "Italy"),
+    ("JM", "Jamaica"),
+    ("JP", "Japan"),
+    ("JE", "Jersey"),
+    ("JO", "Jordan"),
+    ("KZ", "Kazakhstan"),
+    ("KE", "Kenya"),
+    ("KI", "Kiribati"),
+    ("KP", "Korea, Democratic People's Republic of"),
+    ("KR", "Korea, Republic of"),
+    ("KW", "Kuwait"),
+    ("KG", "Kyrgyzstan"),
+    ("LA", "Lao People's Democratic Republic"),
+    ("LV", "Latvia"),
+    ("LB", "Lebanon"),
+    ("LS", "Lesotho"),
+    ("LR", "Liberia"),
+    ("LY", "Libya"),
+    ("LI", "Liechtenstein"),
+    ("LT", "Lithuania"),
+    ("LU", "Luxembourg"),
+    ("MO", "Macao"),
+    ("MK", "Macedonia, Republic of"),
+    ("MG", "Madagascar"),
+    ("MW", "Malawi"),
+    ("MY", "Malaysia"),
+    ("MV", "Maldives"),
+    ("ML", "Mali"),
+    ("MT", "Malta"),
+    ("MH", "Marshall Islands"),
+    ("MQ", "Martinique"),
+    ("MR", "Mauritania"),
+    ("MU", "Mauritius"),
+    ("YT", "Mayotte"),
+    ("MX", "Mexico"),
+    ("FM", "Micronesia, Federated States of"),
+    ("MD", "Moldova, Republic of"),
+    ("MC", "Monaco"),
+    ("MN", "Mongolia"),
+    ("ME", "Montenegro"),
+    ("MS", "Montserrat"),
+    ("MA", "Morocco"),
+    ("MZ", "Mozambique"),
+    ("MM", "Myanmar"),
+    ("NA", "Namibia"),
+    ("NR", "Nauru"),
+    ("NP", "Nepal"),
+    ("NL", "Netherlands"),
+    ("NC", "New Caledonia"),
+    ("NZ", "New Zealand"),
+    ("NI", "Nicaragua"),
+    ("NE", "Niger"),
+    ("NG", "Nigeria"),
+    ("NU", "Niue"),
+    ("NF", "Norfolk Island"),
+    ("MP", "Northern Mariana Islands"),
+    ("NO", "Norway"),
+    ("OM", "Oman"),
+    ("PK", "Pakistan"),
+    ("PW", "Palau"),
+    ("PS", "Palestine, State of"),
+    ("PA", "Panama"),
+    ("PG", "Papua New Guinea"),
+    ("PY", "Paraguay"),
+    ("PE", "Peru"),
+    ("PH", "Philippines"),
+    ("PN", "Pitcairn"),
+    ("PL", "Poland"),
+    ("PT", "Portugal"),
+    ("PR", "Puerto Rico"),
+    ("QA", "Qatar"),
+    ("RE", "R\xe9union"),
+    ("RO", "Romania"),
+    ("RU", "Russian Federation"),
+    ("RW", "Rwanda"),
+    ("BL", "Saint Barth\xe9lemy"),
+    ("SH", "Saint Helena, Ascension and Tristan da Cunha"),
+    ("KN", "Saint Kitts and Nevis"),
+    ("LC", "Saint Lucia"),
+    ("MF", "Saint Martin (French part)"),
+    ("PM", "Saint Pierre and Miquelon"),
+    ("VC", "Saint Vincent and the Grenadines"),
+    ("WS", "Samoa"),
+    ("SM", "San Marino"),
+    ("ST", "Sao Tome and Principe"),
+    ("SA", "Saudi Arabia"),
+    ("SN", "Senegal"),
+    ("RS", "Serbia"),
+    ("SC", "Seychelles"),
+    ("SL", "Sierra Leone"),
+    ("SG", "Singapore"),
+    ("SX", "Sint Maarten (Dutch part)"),
+    ("SK", "Slovakia"),
+    ("SI", "Slovenia"),
+    ("SB", "Solomon Islands"),
+    ("SO", "Somalia"),
+    ("ZA", "South Africa"),
+    ("GS", "South Georgia and the South Sandwich Islands"),
+    ("ES", "Spain"),
+    ("LK", "Sri Lanka"),
+    ("SD", "Sudan"),
+    ("SR", "Suriname"),
+    ("SS", "South Sudan"),
+    ("SJ", "Svalbard and Jan Mayen"),
+    ("SZ", "Swaziland"),
+    ("SE", "Sweden"),
+    ("CH", "Switzerland"),
+    ("SY", "Syrian Arab Republic"),
+    ("TW", "Taiwan, Province of China"),
+    ("TJ", "Tajikistan"),
+    ("TZ", "Tanzania, United Republic of"),
+    ("TH", "Thailand"),
+    ("TL", "Timor-Leste"),
+    ("TG", "Togo"),
+    ("TK", "Tokelau"),
+    ("TO", "Tonga"),
+    ("TT", "Trinidad and Tobago"),
+    ("TN", "Tunisia"),
+    ("TR", "Turkey"),
+    ("TM", "Turkmenistan"),
+    ("TC", "Turks and Caicos Islands"),
+    ("TV", "Tuvalu"),
+    ("UG", "Uganda"),
+    ("UA", "Ukraine"),
+    ("AE", "United Arab Emirates"),
+    ("GB", "United Kingdom"),
+    ("US", "United States"),
+    ("UM", "United States Minor Outlying Islands"),
+    ("UY", "Uruguay"),
+    ("UZ", "Uzbekistan"),
+    ("VU", "Vanuatu"),
+    ("VE", "Venezuela, Bolivarian Republic of"),
+    ("VN", "Viet Nam"),
+    ("VG", "Virgin Islands, British"),
+    ("VI", "Virgin Islands, U.S."),
+    ("WF", "Wallis and Futuna"),
+    ("EH", "Western Sahara"),
+    ("YE", "Yemen"),
+    ("ZM", "Zambia"),
+    ("ZW", "Zimbabwe"),
+]
 
 TIMEZONE_CHOICES = tuple(zip(pytz.all_timezones, pytz.all_timezones))
 
-SUMMERNOTE_SENTINEL = '<p><br></p>'
+SUMMERNOTE_SENTINEL = "<p><br></p>"
 
 
 class Country(models.Model):
@@ -178,16 +362,15 @@ class Country(models.Model):
     name = models.TextField(max_length=255)
 
     class Meta:
-        ordering = ('name', 'code')
-        verbose_name_plural = 'countries'
+        ordering = ("name", "code")
+        verbose_name_plural = "countries"
 
     def __str__(self):
         return self.name
 
 
 class AccountQuerySet(AffiliationCompatibleQueryset):
-
-    AFFILIATION_RELATED_NAME = 'account'
+    AFFILIATION_RELATED_NAME = "account"
 
     def create(self, **kwargs):
         # Remove kwargs pointing to deprecated fields so they
@@ -210,7 +393,7 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
 
 class AccountManager(BaseUserManager):
     def create_user(self, username=None, password=None, email=None, **kwargs):
-        """ Creates a user from the given username or email
+        """Creates a user from the given username or email
         In Janeway, users rely on email addresses to log in. For compatibility
         with 3rd party libraries, we allow a username argument, however only a
         email address will be accepted as the username and email.
@@ -222,8 +405,8 @@ class AccountManager(BaseUserManager):
         try:
             validate_email(email)
             email = self.normalize_email(email)
-        except(ValidationError, TypeError, ValueError):
-            raise ValueError(f'{email} not a valid email address.')
+        except (ValidationError, TypeError, ValueError):
+            raise ValueError(f"{email} not a valid email address.")
 
         account = self.model(
             # The original case of the email is preserved
@@ -258,26 +441,26 @@ class AccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
-    email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_('Email'))
-    username = models.CharField(max_length=254, unique=True, verbose_name=_('Username'))
+    email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_("Email"))
+    username = models.CharField(max_length=254, unique=True, verbose_name=_("Username"))
 
     name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(
         max_length=300,
         blank=False,
-        verbose_name=_('First name'),
+        verbose_name=_("First name"),
         validators=[plain_text_validator],
     )
     middle_name = models.CharField(
         max_length=300,
         blank=True,
-        verbose_name=_('Middle name'),
+        verbose_name=_("Middle name"),
         validators=[plain_text_validator],
     )
     last_name = models.CharField(
         max_length=300,
         blank=False,
-        verbose_name=_('Last name'),
+        verbose_name=_("Last name"),
         validators=[plain_text_validator],
     )
 
@@ -287,26 +470,44 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=10,
         choices=SALUTATION_CHOICES,
         blank=True,
-        verbose_name=_('Salutation'),
+        verbose_name=_("Salutation"),
         validators=[plain_text_validator],
     )
     suffix = models.CharField(
         max_length=300,
         blank=True,
-        verbose_name=_('Name suffix'),
+        verbose_name=_("Name suffix"),
         validators=[plain_text_validator],
     )
     biography = JanewayBleachField(
         blank=True,
-        verbose_name=_('Biography'),
+        verbose_name=_("Biography"),
     )
-    orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name=_('ORCiD'))
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Twitter Handle'))
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Facebook Handle'))
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Linkedin Profile'))
-    website = models.URLField(max_length=300, null=True, blank=True, verbose_name=_('Website'))
-    github = models.CharField(max_length=300, null=True, blank=True, verbose_name=_('Github Username'))
-    profile_image = models.ImageField(upload_to=profile_images_upload_path, null=True, blank=True, storage=fs, verbose_name=("Profile Image"))
+    orcid = models.CharField(
+        max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
+    )
+    twitter = models.CharField(
+        max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
+    )
+    facebook = models.CharField(
+        max_length=300, null=True, blank=True, verbose_name=_("Facebook Handle")
+    )
+    linkedin = models.CharField(
+        max_length=300, null=True, blank=True, verbose_name=_("Linkedin Profile")
+    )
+    website = models.URLField(
+        max_length=300, null=True, blank=True, verbose_name=_("Website")
+    )
+    github = models.CharField(
+        max_length=300, null=True, blank=True, verbose_name=_("Github Username")
+    )
+    profile_image = models.ImageField(
+        upload_to=profile_images_upload_path,
+        null=True,
+        blank=True,
+        storage=fs,
+        verbose_name=("Profile Image"),
+    )
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
     confirmation_code = models.CharField(
@@ -314,20 +515,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
         verbose_name=_("Confirmation Code"),
-        help_text='A UUID created upon registration and retrieved '
-                  'for authentication during account activation',
+        help_text="A UUID created upon registration and retrieved "
+        "for authentication during account activation",
     )
     signature = JanewayBleachField(
         blank=True,
         verbose_name=_("Signature"),
     )
-    interest = models.ManyToManyField('Interest', null=True, blank=True)
+    interest = models.ManyToManyField("Interest", null=True, blank=True)
     preferred_timezone = DynamicChoiceField(
-            max_length=300, null=True, blank=True,
-            choices=tuple(),
-            dynamic_choices=TIMEZONE_CHOICES,
-            verbose_name=_("Preferred Timezone")
-        )
+        max_length=300,
+        null=True,
+        blank=True,
+        choices=tuple(),
+        dynamic_choices=TIMEZONE_CHOICES,
+        verbose_name=_("Preferred Timezone"),
+    )
 
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -339,9 +542,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
     enable_public_profile = models.BooleanField(
         default=False,
-        help_text=_(
-            'If enabled, your basic profile will be available to the public.'
-        ),
+        help_text=_("If enabled, your basic profile will be available to the public."),
         verbose_name=_("Enable public profile"),
     )
 
@@ -351,14 +552,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     objects = AccountManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
 
     class Meta:
-        ordering = ('first_name', 'last_name', 'username')
-        unique_together = ('email', 'username')
+        ordering = ("first_name", "last_name", "username")
+        unique_together = ("email", "username")
 
     def clean(self, *args, **kwargs):
-        """ Normalizes the email address
+        """Normalizes the email address
 
         The username is lowercased instead, to cope with a bug present for
         accounts imported/registered prior to v.1.3.8
@@ -375,15 +576,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return self.full_name()
 
     def password_policy_check(self, request, password):
-        rules = [
-            lambda s: len(password) >= request.press.password_length or 'length'
-        ]
+        rules = [lambda s: len(password) >= request.press.password_length or "length"]
 
         if request.press.password_upper:
-            rules.append(lambda password: any(x.isupper() for x in password) or 'upper')
+            rules.append(lambda password: any(x.isupper() for x in password) or "upper")
 
         if request.press.password_number:
-            rules.append(lambda password: any(x.isdigit() for x in password) or 'digit')
+            rules.append(lambda password: any(x.isdigit() for x in password) or "digit")
 
         problems = [p for p in [r(password) for r in rules] if p != True]
 
@@ -397,7 +596,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         if not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
             return self.email
         else:
-            return ''
+            return ""
 
     def get_full_name(self):
         """Deprecated in 1.5.2"""
@@ -408,7 +607,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def first_names(self):
-        return ' '.join([self.first_name, self.middle_name])
+        return " ".join([self.first_name, self.middle_name])
 
     def full_name(self):
         name_elements = [
@@ -422,18 +621,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def salutation_name(self):
         if self.salutation:
-            return u"%s %s" % (self.salutation, self.last_name)
+            return "%s %s" % (self.salutation, self.last_name)
         else:
-            return u"%s %s" % (self.first_name, self.last_name)
+            return "%s %s" % (self.first_name, self.last_name)
 
     def initials(self):
         if self.first_name and self.last_name:
             if self.middle_name:
-                return u"%s%s%s" % (self.first_name[:1], self.middle_name[:1], self.last_name[:1])
+                return "%s%s%s" % (
+                    self.first_name[:1],
+                    self.middle_name[:1],
+                    self.last_name[:1],
+                )
             else:
-                return u"%s%s" % (self.first_name[:1], self.last_name[:1])
+                return "%s%s" % (self.first_name[:1], self.last_name[:1])
         else:
-            return 'N/A'
+            return "N/A"
 
     def affiliation(self):
         """
@@ -459,7 +662,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     @property
     def institution(self):
         affil = self.primary_affiliation()
-        return str(affil.organization) if affil else ''
+        return str(affil.organization) if affil else ""
 
     @institution.setter
     def institution(self, value):
@@ -471,7 +674,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     @property
     def department(self):
         affil = self.primary_affiliation()
-        return str(affil.department) if affil else ''
+        return str(affil.department) if affil else ""
 
     @department.setter
     def department(self, value):
@@ -500,7 +703,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
         )
 
     def active_copyedits(self):
-        return copyediting_models.CopyeditAssignment.objects.filter(copyeditor=self, copyedit_acknowledged=False)
+        return copyediting_models.CopyeditAssignment.objects.filter(
+            copyeditor=self, copyedit_acknowledged=False
+        )
 
     def active_typesets(self):
         """
@@ -509,9 +714,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
         """
         from production import models as production_models
         from proofing import models as proofing_models
+
         task_list = list()
-        typeset_tasks = production_models.TypesetTask.objects.filter(typesetter=self, completed__isnull=True)
-        proofing_tasks = proofing_models.TypesetterProofingTask.objects.filter(typesetter=self, completed__isnull=True)
+        typeset_tasks = production_models.TypesetTask.objects.filter(
+            typesetter=self, completed__isnull=True
+        )
+        proofing_tasks = proofing_models.TypesetterProofingTask.objects.filter(
+            typesetter=self, completed__isnull=True
+        )
 
         for task in typeset_tasks:
             task_list.append(task)
@@ -542,8 +752,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def roles_for_journal(self, journal):
         return [
-            account_role.role for account_role in
-            AccountRole.objects.filter(user=self, journal=journal)
+            account_role.role
+            for account_role in AccountRole.objects.filter(user=self, journal=journal)
         ]
 
     def check_role(self, journal, role, staff_override=True):
@@ -559,19 +769,19 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_journal_manager(self, journal):
         # this is an explicit check to avoid recursion in check_role.
         return AccountRole.objects.filter(
-                user=self,
-                journal=journal,
-                role__slug='journal-manager',
-            ).exists()
+            user=self,
+            journal=journal,
+            role__slug="journal-manager",
+        ).exists()
 
     def is_editor(self, request, journal=None):
         if not journal:
-            return self.check_role(request.journal, 'editor')
+            return self.check_role(request.journal, "editor")
         else:
-            return self.check_role(journal, 'editor')
+            return self.check_role(journal, "editor")
 
     def is_section_editor(self, request):
-        return self.check_role(request.journal, 'section-editor')
+        return self.check_role(request.journal, "section-editor")
 
     def has_an_editor_role(self, request):
         editor = self.is_editor(request)
@@ -583,25 +793,25 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return False
 
     def is_reviewer(self, request):
-        return self.check_role(request.journal, 'reviewer')
+        return self.check_role(request.journal, "reviewer")
 
     def is_author(self, request):
-        return self.check_role(request.journal, 'author')
+        return self.check_role(request.journal, "author")
 
     def is_proofreader(self, request):
-        return self.check_role(request.journal, 'proofreader')
+        return self.check_role(request.journal, "proofreader")
 
     def is_production(self, request):
-        return self.check_role(request.journal, 'production')
+        return self.check_role(request.journal, "production")
 
     def is_copyeditor(self, request):
-        return self.check_role(request.journal, 'copyeditor')
+        return self.check_role(request.journal, "copyeditor")
 
     def is_typesetter(self, request):
-        return self.check_role(request.journal, 'typesetter')
+        return self.check_role(request.journal, "typesetter")
 
     def is_proofing_manager(self, request):
-        return self.check_role(request.journal, 'proofing-manager')
+        return self.check_role(request.journal, "proofing-manager")
 
     def is_repository_manager(self, repository):
         if self in repository.managers.all():
@@ -616,7 +826,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return False
 
     def is_reader(self, request):
-        return self.check_role(request.journal, 'reader', staff_override=False)
+        return self.check_role(request.journal, "reader", staff_override=False)
 
     def snapshot_affiliations(self, frozen_author):
         """
@@ -634,7 +844,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         """
         Old function name for snapshot_as_author.
         """
-        raise DeprecationWarning("Use snapshot_as_author instead.")
+        warnings.warn("Use snapshot_as_author instead.")
         return self.snapshot_as_author(article, force_update)
 
     def snapshot_as_author(self, article, force_update=True):
@@ -644,22 +854,22 @@ class Account(AbstractBaseUser, PermissionsMixin):
         article: submission.models.Article
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
-        self.add_account_role('author', article.journal)
+        self.add_account_role("author", article.journal)
         if self.name_prefix:
             name_prefix = self.name_prefix
         elif self.salutation:
             name_prefix = self.salutation
         else:
-            name_prefix = ''
+            name_prefix = ""
 
         frozen_dict = {
-            'name_prefix': name_prefix,
-            'first_name': self.first_name,
-            'middle_name': self.middle_name,
-            'last_name': self.last_name,
-            'name_suffix': self.suffix,
-            'display_email': True if self == article.correspondence_author else False,
-            'order': article.next_frozen_author_order(),
+            "name_prefix": name_prefix,
+            "first_name": self.first_name,
+            "middle_name": self.middle_name,
+            "last_name": self.last_name,
+            "name_suffix": self.suffix,
+            "display_email": True if self == article.correspondence_author else False,
+            "order": article.next_frozen_author_order(),
         }
 
         frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
@@ -688,7 +898,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def average_reviewer_score(self):
-        reviewer_ratings = review_models.ReviewerRating.objects.filter(assignment__reviewer=self)
+        reviewer_ratings = review_models.ReviewerRating.objects.filter(
+            assignment__reviewer=self
+        )
         ratings = [reviewer_rating.rating for reviewer_rating in reviewer_ratings]
 
         return statistics.mean(ratings) if ratings else 0
@@ -711,6 +923,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def preprint_subjects(self):
         "Returns a list of preprint subjects this user is an editor for"
         from repository import models as repository_models
+
         subjects = repository_models.Subject.objects.filter(
             editors__exact=self,
         )
@@ -718,9 +931,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @property
     def hypothesis_username(self):
-        username = '{pk}{first_name}{last_name}'.format(pk=self.pk,
-                                                        first_name=self.first_name,
-                                                        last_name=self.last_name)[:30]
+        username = "{pk}{first_name}{last_name}".format(
+            pk=self.pk, first_name=self.first_name, last_name=self.last_name
+        )[:30]
         return username.lower()
 
 
@@ -731,7 +944,9 @@ def generate_expiry_date():
 class OrcidToken(models.Model):
     token = models.UUIDField(default=uuid.uuid4)
     orcid = models.CharField(max_length=200)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
+    expiry = models.DateTimeField(
+        default=generate_expiry_date, verbose_name=_("Expires on")
+    )
 
     def __str__(self):
         return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
@@ -743,14 +958,16 @@ class PasswordResetToken(models.Model):
         on_delete=models.CASCADE,
     )
     token = models.CharField(max_length=300, default=uuid.uuid4)
-    expiry = models.DateTimeField(default=generate_expiry_date, verbose_name=_('Expires on'))
+    expiry = models.DateTimeField(
+        default=generate_expiry_date, verbose_name=_("Expires on")
+    )
     expired = models.BooleanField(default=False)
 
     def __str__(self):
         return "Account: {0}, Expiry: {1}, [{2}]".format(
             self.account.full_name(),
             self.expiry,
-            'Expired' if self.expired else 'Active',
+            "Expired" if self.expired else "Active",
         )
 
     def has_expired(self):
@@ -762,29 +979,28 @@ class PasswordResetToken(models.Model):
             return False
 
     class Meta:
-        ordering = ['-expiry']
+        ordering = ["-expiry"]
 
 
 class Role(models.Model):
     name = models.CharField(
         max_length=100,
-        help_text='Display name for this role '
-                  '(can include spaces and capital letters)',
+        help_text="Display name for this role (can include spaces and capital letters)",
     )
     slug = models.CharField(
         max_length=100,
-        help_text='Normalized string representing this role '
-                  'containing only lowercase letters and hyphens.',
+        help_text="Normalized string representing this role "
+        "containing only lowercase letters and hyphens.",
     )
 
     class Meta:
-        ordering = ('name', 'slug')
+        ordering = ("name", "slug")
 
     def __str__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def __repr__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
 
 class AccountRole(models.Model):
@@ -793,7 +1009,7 @@ class AccountRole(models.Model):
         on_delete=models.CASCADE,
     )
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
     role = models.ForeignKey(
@@ -802,8 +1018,8 @@ class AccountRole(models.Model):
     )
 
     class Meta:
-        unique_together = ('journal', 'user', 'role')
-        ordering = ('journal', 'role')
+        unique_together = ("journal", "user", "role")
+        ordering = ("journal", "role")
 
     def __str__(self):
         return "{0} {1} {2}".format(self.user, self.journal, self.role.name)
@@ -813,31 +1029,31 @@ class Interest(models.Model):
     name = models.CharField(max_length=250)
 
     def __str__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def __repr__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
 
 setting_types = (
-    ('rich-text', 'Rich Text'),
-    ('mini-html', 'Mini HTML'),
-    ('text', 'Plain Text'),
-    ('char', 'Characters'),
-    ('number', 'Number'),
-    ('boolean', 'Boolean'),
-    ('file', 'File'),
-    ('select', 'Select'),
-    ('json', 'JSON'),
+    ("rich-text", "Rich Text"),
+    ("mini-html", "Mini HTML"),
+    ("text", "Plain Text"),
+    ("char", "Characters"),
+    ("number", "Number"),
+    ("boolean", "Boolean"),
+    ("file", "File"),
+    ("select", "Select"),
+    ("json", "JSON"),
 )
 
 privacy_types = (
-    ('public', 'Public'),
-    ('typesetters', 'Typesetters'),
-    ('proofreaders', 'Proofreaders'),
-    ('copyeditors', 'Copyedtiors'),
-    ('editors', 'Editors'),
-    ('owner', 'Owner'),
+    ("public", "Public"),
+    ("typesetters", "Typesetters"),
+    ("proofreaders", "Proofreaders"),
+    ("copyeditors", "Copyedtiors"),
+    ("editors", "Editors"),
+    ("owner", "Owner"),
 )
 
 
@@ -849,10 +1065,10 @@ class SettingGroup(models.Model):
     enabled = models.BooleanField(default=True)
 
     def __str__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def __repr__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def validate(self, value):
         if self.name in self.VALIDATORS:
@@ -868,7 +1084,7 @@ class Setting(models.Model):
         on_delete=models.CASCADE,
     )
     types = models.CharField(max_length=20, choices=setting_types)
-    pretty_name = models.CharField(max_length=100, default='')
+    pretty_name = models.CharField(max_length=100, default="")
     description = models.TextField(null=True, blank=True)
 
     is_translatable = models.BooleanField(default=False)
@@ -876,24 +1092,24 @@ class Setting(models.Model):
     editable_by = models.ManyToManyField(
         Role,
         blank=True,
-        help_text='Determines who can edit this setting based on their assigned roles.',
+        help_text="Determines who can edit this setting based on their assigned roles.",
     )
 
     class Meta:
-        ordering = ('group', 'name')
+        ordering = ("group", "name")
 
     def __str__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     def __repr__(self):
-        return u'%s' % self.name
+        return "%s" % self.name
 
     @property
     def default_setting_value(self):
         return SettingValue.objects.get(
             setting=self,
             journal=None,
-    )
+        )
 
     def validate(self, value):
         if self.types in self.VALIDATORS:
@@ -905,7 +1121,7 @@ class Setting(models.Model):
 
 class SettingValue(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
@@ -917,9 +1133,7 @@ class SettingValue(models.Model):
     value = models.TextField(null=True, blank=True)
 
     class Meta:
-        unique_together = (
-                ("journal", "setting"),
-        )
+        unique_together = (("journal", "setting"),)
 
     def __repr__(self):
         if self.journal:
@@ -936,53 +1150,51 @@ class SettingValue(models.Model):
         return self.process_value()
 
     def process_value(self):
-        """ Converts string values of settings to proper values
+        """Converts string values of settings to proper values
 
         :return: a value
         """
 
-        if self.setting.types == 'boolean' and self.value == 'on':
+        if self.setting.types == "boolean" and self.value == "on":
             return True
-        elif self.setting.types == 'boolean':
+        elif self.setting.types == "boolean":
             return False
-        elif self.setting.types == 'number':
+        elif self.setting.types == "number":
             try:
                 return int(self.value)
             except BaseException:
                 return 0
-        elif self.setting.types == 'json' and self.value:
+        elif self.setting.types == "json" and self.value:
             try:
                 return json.loads(self.value)
             except json.JSONDecodeError as e:
                 logger.error(
                     "Error loading JSON setting {setting_name} on {site_name} site.".format(
                         setting_name=self.setting.name,
-                        site_name=self.journal.name if self.journal else 'press'
+                        site_name=self.journal.name if self.journal else "press",
                     )
                 )
-                return ''
-        elif self.setting.types == 'rich-text' and self.value == SUMMERNOTE_SENTINEL:
-            return ''
+                return ""
+        elif self.setting.types == "rich-text" and self.value == SUMMERNOTE_SENTINEL:
+            return ""
         else:
             return self.value
 
     @property
     def render_value(self):
-        """ Converts string values of settings to values for rendering
+        """Converts string values of settings to values for rendering
 
         :return: a value
         """
-        if self.setting.types == 'boolean' and not self.value:
+        if self.setting.types == "boolean" and not self.value:
             return "off"
-        elif self.setting.types == 'boolean':
+        elif self.setting.types == "boolean":
             return "on"
-        elif self.setting.types == 'file':
+        elif self.setting.types == "file":
             if self.journal:
-                return self.journal.site_url(
-                    reverse("journal_file", self.value))
+                return self.journal.site_url(reverse("journal_file", self.value))
             else:
-                return self.press.site_url(
-                    reverse("serve_press_file", self.value))
+                return self.press.site_url(reverse("serve_press_file", self.value))
         else:
             return self.value
 
@@ -992,6 +1204,7 @@ class SettingValue(models.Model):
             return self.journal.press
         else:
             from press.models import Press
+
             return Press.objects.all()[0]
 
     def validate(self):
@@ -1007,13 +1220,19 @@ class SettingValue(models.Model):
 
 
 class File(AbstractLastModifiedModel):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
+    article_id = models.PositiveIntegerField(
+        blank=True, null=True, verbose_name=_("Article PK")
+    )
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_('Label'))
-    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
+    label = models.CharField(
+        max_length=1000, null=True, blank=True, verbose_name=_("Label")
+    )
+    description = JanewayBleachField(
+        null=True, blank=True, verbose_name=_("Description")
+    )
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -1024,20 +1243,24 @@ class File(AbstractLastModifiedModel):
 
     # Remote galley handling
     is_remote = models.BooleanField(default=False)
-    remote_url = models.URLField(blank=True, null=True, verbose_name=_('Remote URL of file'))
+    remote_url = models.URLField(
+        blank=True, null=True, verbose_name=_("Remote URL of file")
+    )
 
     history = models.ManyToManyField(
-        'FileHistory',
+        "FileHistory",
         blank=True,
     )
-    text = models.OneToOneField(swapper.get_model_name('core', 'FileText'),
-        blank=True, null=True,
+    text = models.OneToOneField(
+        swapper.get_model_name("core", "FileText"),
+        blank=True,
+        null=True,
         related_name="file",
         on_delete=models.SET_NULL,
     )
 
     class Meta:
-        ordering = ('sequence', 'pk')
+        ordering = ("sequence", "pk")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -1064,7 +1287,7 @@ class File(AbstractLastModifiedModel):
                 path = self.self_article_path()
                 os.unlink(path)
             except FileNotFoundError:
-                print('file_not_found')
+                print("file_not_found")
         elif journal:
             try:
                 path = self.journal_path(journal)
@@ -1077,22 +1300,39 @@ class File(AbstractLastModifiedModel):
         os.unlink(path)
 
     def preprint_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'press', 'preprints', str(self.uuid_filename))
+        return os.path.join(
+            settings.BASE_DIR, "files", "press", "preprints", str(self.uuid_filename)
+        )
 
     def press_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'press', str(self.uuid_filename))
+        return os.path.join(
+            settings.BASE_DIR, "files", "press", str(self.uuid_filename)
+        )
 
     def journal_path(self, journal):
-        return os.path.join(settings.BASE_DIR, 'files', 'journals', str(journal.pk), str(self.uuid_filename))
+        return os.path.join(
+            settings.BASE_DIR,
+            "files",
+            "journals",
+            str(journal.pk),
+            str(self.uuid_filename),
+        )
 
     def self_article_path(self):
         if self.article_id:
-            return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.article_id), str(self.uuid_filename))
+            return os.path.join(
+                settings.BASE_DIR,
+                "files",
+                "articles",
+                str(self.article_id),
+                str(self.uuid_filename),
+            )
 
     def url(self):
         from core.middleware import GlobalRequestMiddleware
+
         request = GlobalRequestMiddleware.get_current_request()
-        url_kwargs = {'file_id': self.pk}
+        url_kwargs = {"file_id": self.pk}
 
         if request.journal and self.article_id:
             raise NotImplementedError
@@ -1100,7 +1340,7 @@ class File(AbstractLastModifiedModel):
             raise NotImplementedError
         else:
             return reverse(
-                'serve_press_file',
+                "serve_press_file",
                 kwargs=url_kwargs,
             )
 
@@ -1108,11 +1348,24 @@ class File(AbstractLastModifiedModel):
         return files.get_file(self, article, as_bytes=as_bytes)
 
     def get_file_path(self, article):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id), str(self.uuid_filename))
+        return os.path.join(
+            settings.BASE_DIR,
+            "files",
+            "articles",
+            str(article.id),
+            str(self.uuid_filename),
+        )
 
     def get_file_size(self, article):
-        return os.path.getsize(os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id),
-                                            str(self.uuid_filename)))
+        return os.path.getsize(
+            os.path.join(
+                settings.BASE_DIR,
+                "files",
+                "articles",
+                str(article.id),
+                str(self.uuid_filename),
+            )
+        )
 
     def next_history_seq(self):
         try:
@@ -1126,14 +1379,15 @@ class File(AbstractLastModifiedModel):
             try:
                 return files.checksum(self.self_article_path())
             except FileNotFoundError:
-                return 'No checksum could be calculated.'
+                return "No checksum could be calculated."
         else:
             logger.error(
-                'Galley file ({file_id}) found with no article_id.'.format(
+                "Galley file ({file_id}) found with no article_id.".format(
                     file_id=self.pk
-                ), extra={'stack': True}
+                ),
+                extra={"stack": True},
             )
-            return 'No checksum could be calculated.'
+            return "No checksum could be calculated."
 
     def public_download_name(self):
         article = self.article
@@ -1151,24 +1405,22 @@ class File(AbstractLastModifiedModel):
                 )
             else:
                 logger.warning(
-                    'Article {pk} has no author records'.format(
-                        pk=article.pk
-                    )
+                    "Article {pk} has no author records".format(pk=article.pk)
                 )
-                author_surname = ''
+                author_surname = ""
 
-            file_name = '{code}-{pk}{surname}{extension}'.format(
+            file_name = "{code}-{pk}{surname}{extension}".format(
                 code=article.journal.code,
                 pk=article.pk,
                 surname=author_surname,
-                extension=extension
+                extension=extension,
             )
             return file_name.lower()
         else:
             return self.original_filename
 
     def index_full_text(self, save=True):
-        """ Extracts text from the File and stores it into an indexed model
+        """Extracts text from the File and stores it into an indexed model
 
         Depending on the database backend, preprocessing ahead of indexing varies;
         As an example, for Postgresql, instead of storing the text as a LOB, a
@@ -1212,14 +1464,16 @@ class File(AbstractLastModifiedModel):
 
     @property
     def date_modified(self):
-        warnings.warn("'date_modified' is deprecated and will be removed, use last_modified instead.")
+        warnings.warn(
+            "'date_modified' is deprecated and will be removed, use last_modified instead."
+        )
         return self.last_modified
 
     def __str__(self):
-        return u'%s' % self.original_filename
+        return "%s" % self.original_filename
 
     def __repr__(self):
-        return u'%s' % self.original_filename
+        return "%s" % self.original_filename
 
 
 class AbstractFileText(models.Model):
@@ -1244,7 +1498,8 @@ class AbstractFileText(models.Model):
 
 class FileText(AbstractFileText):
     class Meta:
-        swappable = swapper.swappable_setting('core', 'FileText')
+        swappable = swapper.swappable_setting("core", "FileText")
+
     pass
 
 
@@ -1254,10 +1509,9 @@ class PGFileText(AbstractFileText):
     class Meta:
         required_db_vendor = "postgresql"
 
-
     @staticmethod
     def preprocess_contents(text, lang=None):
-        """ Casts the given text into a postgres TSVector
+        """Casts the given text into a postgres TSVector
 
         The result can be cached so that there is no need to store the original
         text and also speed up the search queries.
@@ -1269,14 +1523,14 @@ class PGFileText(AbstractFileText):
         """
         cursor = connection.cursor()
         # Remove NULL characters before vectorising
-        text = text.replace("\x00", "\uFFFD")
+        text = text.replace("\x00", "\ufffd")
         result = cursor.execute("SELECT to_tsvector(%s) as vector", [text])
         return cursor.fetchone()[0]
 
 
 @receiver(models.signals.pre_save, sender=File)
 def update_file_index(sender, instance, **kwargs):
-    """ Updates the indexed contents in the database """
+    """Updates the indexed contents in the database"""
     if not instance.pk:
         return False
 
@@ -1285,13 +1539,19 @@ def update_file_index(sender, instance, **kwargs):
 
 
 class FileHistory(models.Model):
-    article_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Article PK'))
+    article_id = models.PositiveIntegerField(
+        blank=True, null=True, verbose_name=_("Article PK")
+    )
 
     mime_type = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Label'))
-    description = JanewayBleachField(null=True, blank=True, verbose_name=_('Description'))
+    label = models.CharField(
+        max_length=200, null=True, blank=True, verbose_name=_("Label")
+    )
+    description = JanewayBleachField(
+        null=True, blank=True, verbose_name=_("Description")
+    )
     sequence = models.IntegerField(default=1)
     owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
     privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
@@ -1302,40 +1562,48 @@ class FileHistory(models.Model):
         return "Iteration {0}: {1}".format(self.history_seq, self.original_filename)
 
     class Meta:
-        ordering = ('history_seq',)
-        verbose_name_plural = 'file histories'
+        ordering = ("history_seq",)
+        verbose_name_plural = "file histories"
 
 
 def galley_type_choices():
     return (
-        ('pdf', 'PDF'),
-        ('epub', 'EPUB'),
-        ('html', 'HTML'),
-        ('xml', 'XML'),
-        ('doc', 'Word (Doc)'),
-        ('docx', 'Word (DOCX)'),
-        ('odt', 'OpenDocument Text Document'),
-        ('tex', 'LaTeX'),
-        ('rtf', 'RTF'),
-        ('other', _('Other')),
-        ('image', _('Image')),
+        ("pdf", "PDF"),
+        ("epub", "EPUB"),
+        ("html", "HTML"),
+        ("xml", "XML"),
+        ("doc", "Word (Doc)"),
+        ("docx", "Word (DOCX)"),
+        ("odt", "OpenDocument Text Document"),
+        ("tex", "LaTeX"),
+        ("rtf", "RTF"),
+        ("other", _("Other")),
+        ("image", _("Image")),
     )
 
 
 class Galley(AbstractLastModifiedModel):
     # Local Galley
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         null=True,
         on_delete=models.CASCADE,
     )
     file = models.ForeignKey(File, on_delete=models.CASCADE)
-    css_file = models.ForeignKey(File, related_name='css_file', null=True, blank=True, on_delete=models.SET_NULL)
-    images = models.ManyToManyField(File, related_name='images', null=True, blank=True)
-    xsl_file = models.ForeignKey('core.XSLFile', related_name='xsl_file', null=True, blank=True, on_delete=models.SET_NULL)
+    css_file = models.ForeignKey(
+        File, related_name="css_file", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    images = models.ManyToManyField(File, related_name="images", null=True, blank=True)
+    xsl_file = models.ForeignKey(
+        "core.XSLFile",
+        related_name="xsl_file",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     public = models.BooleanField(
         default=True,
-        help_text='Uncheck if the typeset file should not be publicly available after the article is published.'
+        help_text="Uncheck if the typeset file should not be publicly available after the article is published.",
     )
 
     # Remote Galley
@@ -1346,8 +1614,8 @@ class Galley(AbstractLastModifiedModel):
     label = models.CharField(
         max_length=400,
         help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
-                  'you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for '
-                  'you, leave it blank.',
+        "you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for "
+        "you, leave it blank.",
     )
     type = models.CharField(max_length=100, choices=galley_type_choices())
     sequence = models.IntegerField(default=0)
@@ -1356,7 +1624,8 @@ class Galley(AbstractLastModifiedModel):
         if self.file and self.file.article_id:
             self.file.unlink_file()
         for image_file in self.images.all():
-            if  not image_file.images.exclude(galley=self).exists():
+            galleys_related_to_image = image_file.images
+            if not galleys_related_to_image.exclude(images=image_file).exists():
                 image_file.unlink_file()
 
     def __str__(self):
@@ -1373,18 +1642,17 @@ class Galley(AbstractLastModifiedModel):
 
     def render(self, recover=False):
         return files.render_xml(
-            self.file, self.article,
+            self.file,
+            self.article,
             xsl_path=self.xsl_file.file.path,
             recover=recover,
         )
 
     def render_crossref(self):
         xsl_path = os.path.join(
-                settings.BASE_DIR, 'transform', 'xsl',  files.CROSSREF_XSL)
-        return files.render_xml(
-                self.file, self.article,
-                xsl_path=xsl_path
+            settings.BASE_DIR, "transform", "xsl", files.CROSSREF_XSL
         )
+        return files.render_xml(self.file, self.article, xsl_path=xsl_path)
 
     def has_missing_image_files(self, show_all=False):
         if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
@@ -1392,12 +1660,12 @@ class Galley(AbstractLastModifiedModel):
 
         xml_file_contents = self.file.get_file(self.article)
 
-        souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
+        souped_xml = BeautifulSoup(xml_file_contents, "lxml")
 
         elements = {
-            'img': 'src',
-            'graphic': 'xlink:href',
-            'inline-graphic': 'xlink:href',
+            "img": "src",
+            "graphic": "xlink:href",
+            "inline-graphic": "xlink:href",
         }
 
         missing_elements = []
@@ -1436,8 +1704,8 @@ class Galley(AbstractLastModifiedModel):
             return self.render(recover=recover)
         elif self.file.mime_type in files.IMAGE_MIMETYPES:
             url = reverse(
-                'article_download_galley',
-                kwargs={"article_id": self.article.id, "galley_id": self.id}
+                "article_download_galley",
+                kwargs={"article_id": self.article.id, "galley_id": self.id},
             )
             contents = IMAGE_GALLEY_TEMPLATE.format(
                 url=url,
@@ -1446,9 +1714,10 @@ class Galley(AbstractLastModifiedModel):
             return contents
 
     def path(self):
-        url = reverse('article_download_galley',
-                      kwargs={'article_id': self.article.pk,
-                              'galley_id': self.pk})
+        url = reverse(
+            "article_download_galley",
+            kwargs={"article_id": self.article.pk, "galley_id": self.pk},
+        )
         return self.article.journal.site_url(path=url)
 
     @staticmethod
@@ -1456,7 +1725,7 @@ class Galley(AbstractLastModifiedModel):
         return files.MIMETYPES_WITH_FIGURES
 
     def save(self, *args, **kwargs):
-        if self.type == 'xml' and not self.xsl_file:
+        if self.type == "xml" and not self.xsl_file:
             if self.article.journal:
                 self.xsl_file = self.article.journal.xsl
             else:
@@ -1476,12 +1745,14 @@ def upload_to_journal(instance, filename):
 class XSLFile(models.Model):
     file = models.FileField(
         upload_to=upload_to_journal,
-        storage=JanewayFileSystemStorage('files/xsl'),
+        storage=JanewayFileSystemStorage("files/xsl"),
     )
-    journal = models.ForeignKey("journal.Journal", on_delete=models.CASCADE,
-                                blank=True, null=True)
+    journal = models.ForeignKey(
+        "journal.Journal", on_delete=models.CASCADE, blank=True, null=True
+    )
     date_uploaded = models.DateTimeField(default=timezone.now)
-    label = models.CharField(max_length=255,
+    label = models.CharField(
+        max_length=255,
         help_text="A label to help recognise this stylesheet",
         unique=True,
     )
@@ -1492,13 +1763,11 @@ class XSLFile(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return "%s(%s@%s)" % (
-            self.__class__.__name__, self.label, self.file.path)
+        return "%s(%s@%s)" % (self.__class__.__name__, self.label, self.file.path)
 
 
 def default_xsl():
-    return XSLFile.objects.get(
-            label=settings.DEFAULT_XSL_FILE_LABEL).pk
+    return XSLFile.objects.get(label=settings.DEFAULT_XSL_FILE_LABEL).pk
 
 
 class SupplementaryFile(models.Model):
@@ -1523,10 +1792,10 @@ class SupplementaryFile(models.Model):
 
     def url(self):
         path = reverse(
-            'article_download_supp_file',
+            "article_download_supp_file",
             kwargs={
-                'article_id': self.file.article.pk,
-                'supp_file_id': self.pk,
+                "article_id": self.file.article.pk,
+                "supp_file_id": self.pk,
             },
         )
 
@@ -1534,20 +1803,29 @@ class SupplementaryFile(models.Model):
 
 
 class Task(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='task_content_type', null=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="task_content_type",
+        null=True,
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     title = models.CharField(max_length=300)
     description = JanewayBleachField()
-    complete_events = models.ManyToManyField('core.TaskCompleteEvents')
-    link = models.TextField(null=True, blank=True, help_text='A url name, where the action of this task can undertaken')
+    complete_events = models.ManyToManyField("core.TaskCompleteEvents")
+    link = models.TextField(
+        null=True,
+        blank=True,
+        help_text="A url name, where the action of this task can undertaken",
+    )
     assignees = models.ManyToManyField(Account)
     completed_by = models.ForeignKey(
         Account,
         blank=True,
         null=True,
-        related_name='completed_by',
+        related_name="completed_by",
         on_delete=models.SET_NULL,
     )
 
@@ -1582,16 +1860,20 @@ class Task(models.Model):
         # To militate against this risk, we recommend that task_obj is _always_ set to an article and that, likewise,
         # task.object is always an article. All other workflow components can be looked up from this point.
 
-        tasks_to_destroy = Task.objects.filter(complete_events__event_name=kwargs['event'],
-                                               content_type=ContentType.objects.get_for_model(kwargs['task_obj']),
-                                               object_id=kwargs['task_obj'].pk)
+        tasks_to_destroy = Task.objects.filter(
+            complete_events__event_name=kwargs["event"],
+            content_type=ContentType.objects.get_for_model(kwargs["task_obj"]),
+            object_id=kwargs["task_obj"].pk,
+        )
 
         for task in tasks_to_destroy:
             task.completed = timezone.now()
             task.save()
 
     def __str__(self):
-        return "Task for {0} #{1}: {2}".format(self.content_type, self.object_id, self.title)
+        return "Task for {0} #{1}: {2}".format(
+            self.content_type, self.object_id, self.title
+        )
 
 
 class TaskCompleteEvents(models.Model):
@@ -1601,19 +1883,19 @@ class TaskCompleteEvents(models.Model):
         return self.event_name
 
     class Meta:
-        verbose_name_plural = 'task complete events'
+        verbose_name_plural = "task complete events"
 
 
 class EditorialGroup(models.Model):
     name = models.CharField(max_length=500)
     press = models.ForeignKey(
-        'press.Press',
+        "press.Press",
         on_delete=models.CASCADE,
         default=default_press_id,
     )
     description = JanewayBleachField(blank=True, null=True)
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
         blank=True,
         null=True,
@@ -1625,7 +1907,7 @@ class EditorialGroup(models.Model):
     )
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def next_member_sequence(self):
         orderings = [member.sequence for member in self.editorialgroupmember_set.all()]
@@ -1636,9 +1918,9 @@ class EditorialGroup(models.Model):
 
     def __str__(self):
         if self.journal:
-            return f'{self.name} ({self.journal.code})'
+            return f"{self.name} ({self.journal.code})"
         else:
-            return f'{self.name} ({self.press})'
+            return f"{self.name} ({self.press})"
 
 
 class EditorialGroupMember(models.Model):
@@ -1653,21 +1935,25 @@ class EditorialGroupMember(models.Model):
     sequence = models.PositiveIntegerField()
     statement = models.TextField(
         blank=True,
-        help_text='A statement of interest or purpose',
+        help_text="A statement of interest or purpose",
     )
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
-        return f'{self.user} in {self.group}'
+        return f"{self.user} in {self.group}"
 
 
 class Contacts(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
-                                     related_name='contact_content_type', null=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="contact_content_type",
+        null=True,
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     name = models.CharField(max_length=300)
     email = models.EmailField()
@@ -1678,48 +1964,53 @@ class Contacts(models.Model):
         # This verbose name will hopefully more clearly
         # distinguish this model from the below model `Contact`
         # in the admin area.
-        verbose_name_plural = 'contacts'
-        ordering = ('sequence', 'name')
+        verbose_name_plural = "contacts"
+        ordering = ("sequence", "name")
 
     def __str__(self):
         return "{0}, {1} - {2}".format(self.name, self.object, self.role)
 
 
 class Contact(models.Model):
-    recipient = models.EmailField(max_length=200, verbose_name=_('Who would you like to contact?'))
-    sender = models.EmailField(max_length=200, verbose_name=_('Your contact email address'))
-    subject = models.CharField(max_length=300, verbose_name=_('Subject'))
-    body = JanewayBleachField(verbose_name=_('Your message'))
+    recipient = models.EmailField(
+        max_length=200, verbose_name=_("Who would you like to contact?")
+    )
+    sender = models.EmailField(
+        max_length=200, verbose_name=_("Your contact email address")
+    )
+    subject = models.CharField(max_length=300, verbose_name=_("Subject"))
+    body = JanewayBleachField(verbose_name=_("Your message"))
     client_ip = models.GenericIPAddressField(blank=True, null=True)
     date_sent = models.DateField(auto_now_add=True)
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='contact_c_t',
-                                     null=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, related_name="contact_c_t", null=True
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
         # This verbose name will hopefully more clearly
         # distinguish this model from the above model `Contacts`
         # in the admin area.
-        verbose_name_plural = 'contact messages'
+        verbose_name_plural = "contact messages"
 
 
 class DomainAlias(AbstractSiteModel):
     redirect = models.BooleanField(
-            default=True,
-            verbose_name="301",
-            help_text="If enabled, the site will throw a 301 redirect to the "
-                "master domain."
+        default=True,
+        verbose_name="301",
+        help_text="If enabled, the site will throw a 301 redirect to the "
+        "master domain.",
     )
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
     press = models.ForeignKey(
-        'press.Press',
+        "press.Press",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
@@ -1731,70 +2022,79 @@ class DomainAlias(AbstractSiteModel):
 
     @property
     def redirect_url(self):
-           return self.site_object.site_url()
+        return self.site_object.site_url()
 
     def build_redirect_url(self, path=None):
-           return self.site_object.site_url(path=path)
+        return self.site_object.site_url(path=path)
 
     def save(self, *args, **kwargs):
         if not bool(self.journal) ^ bool(self.press):
-            raise ValidationError(
-                    " One and only one of press or journal must be set")
+            raise ValidationError(" One and only one of press or journal must be set")
         return super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name_plural = 'domain aliases'
+        verbose_name_plural = "domain aliases"
 
 
 BASE_ELEMENTS = [
-    {'name': 'review',
-     'handshake_url': 'review_home',
-     'jump_url': 'review_in_review',
-     'stage': submission_models.STAGE_UNASSIGNED,
-     'article_url': True},
-    {'name': 'copyediting',
-     'handshake_url': 'copyediting',
-     'jump_url': 'article_copyediting',
-     'stage': submission_models.STAGE_EDITOR_COPYEDITING,
-     'article_url': True},
-    {'name': 'typesetting',
-     'handshake_url': 'typesetting_articles',
-     'jump_url': 'typesetting_article',
-     'stage': submission_models.STAGE_TYPESETTING_PLUGIN,
-     'article_url': True},
-    {'name': 'prepublication',
-     'handshake_url': 'publish',
-     'jump_url': 'publish_article',
-     'stage': submission_models.STAGE_READY_FOR_PUBLICATION,
-     'article_url': True},
-    {'name': 'production',
-     'handshake_url': 'production_list',
-     'jump_url': 'production_article',
-     'stage': submission_models.STAGE_TYPESETTING,
-     'article_url': False},
-    {'name': 'proofing',
-     'handshake_url': 'proofing_list',
-     'jump_url': 'proofing_article',
-     'stage': submission_models.STAGE_PROOFING,
-     'article_url': False},
+    {
+        "name": "review",
+        "handshake_url": "review_home",
+        "jump_url": "review_in_review",
+        "stage": submission_models.STAGE_UNASSIGNED,
+        "article_url": True,
+    },
+    {
+        "name": "copyediting",
+        "handshake_url": "copyediting",
+        "jump_url": "article_copyediting",
+        "stage": submission_models.STAGE_EDITOR_COPYEDITING,
+        "article_url": True,
+    },
+    {
+        "name": "typesetting",
+        "handshake_url": "typesetting_articles",
+        "jump_url": "typesetting_article",
+        "stage": submission_models.STAGE_TYPESETTING_PLUGIN,
+        "article_url": True,
+    },
+    {
+        "name": "prepublication",
+        "handshake_url": "publish",
+        "jump_url": "publish_article",
+        "stage": submission_models.STAGE_READY_FOR_PUBLICATION,
+        "article_url": True,
+    },
+    {
+        "name": "production",
+        "handshake_url": "production_list",
+        "jump_url": "production_article",
+        "stage": submission_models.STAGE_TYPESETTING,
+        "article_url": False,
+    },
+    {
+        "name": "proofing",
+        "handshake_url": "proofing_list",
+        "jump_url": "proofing_article",
+        "stage": submission_models.STAGE_PROOFING,
+        "article_url": False,
+    },
 ]
 
-BASE_ELEMENT_NAMES = [
-    element.get('name') for element in BASE_ELEMENTS
-]
+BASE_ELEMENT_NAMES = [element.get("name") for element in BASE_ELEMENTS]
 
 
 class Workflow(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
-    elements = models.ManyToManyField('WorkflowElement')
+    elements = models.ManyToManyField("WorkflowElement")
 
 
 class WorkflowElement(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
     element_name = models.CharField(max_length=255)
@@ -1808,11 +2108,12 @@ class WorkflowElement(models.Model):
     order = models.PositiveIntegerField(default=20)
 
     class Meta:
-        ordering = ('order', 'element_name')
+        ordering = ("order", "element_name")
 
     @property
     def stages(self):
         from core import workflow
+
         try:
             return workflow.ELEMENT_STAGES[self.element_name]
         except KeyError:
@@ -1828,6 +2129,7 @@ class WorkflowElement(models.Model):
     @property
     def settings(self):
         from core import workflow
+
         return workflow.workflow_plugin_settings(self)
 
     def __str__(self):
@@ -1836,7 +2138,7 @@ class WorkflowElement(models.Model):
 
 class WorkflowLog(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     element = models.ForeignKey(
@@ -1844,12 +2146,18 @@ class WorkflowLog(models.Model):
         on_delete=models.CASCADE,
     )
     timestamp = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(
+        "core.Account",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
-        ordering = ('timestamp',)
+        ordering = ("timestamp",)
 
     def __str__(self):
-        return '{0} {1}'.format(self.element.element_name, self.timestamp)
+        return "{0} {1}".format(self.element.element_name, self.timestamp)
 
 
 class HomepageElement(models.Model):
@@ -1866,16 +2174,20 @@ class HomepageElement(models.Model):
     sequence = models.PositiveIntegerField(default=999)
 
     # the associated object
-    content_type = models.ForeignKey(ContentType,
-                                     on_delete=models.CASCADE,
-                                     related_name='element_content_type',
-                                     null=True)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="element_content_type",
+        null=True,
+    )
 
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
-    available_to_press = models.BooleanField(default=False, help_text='Determines if this element is '
-                                                                      'available for the press.')
+    available_to_press = models.BooleanField(
+        default=False,
+        help_text="Determines if this element is available for the press.",
+    )
 
     # whether or not this item is active
     active = models.BooleanField(default=False)
@@ -1884,9 +2196,9 @@ class HomepageElement(models.Model):
     has_config = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name_plural = 'Homepage Elements'
-        ordering = ('sequence', 'name')
-        unique_together = ('name', 'content_type', 'object_id')
+        verbose_name_plural = "Homepage Elements"
+        ordering = ("sequence", "name")
+        unique_together = ("name", "content_type", "object_id")
 
     def __str__(self):
         return self.name
@@ -1900,23 +2212,23 @@ class LoginAttempt(models.Model):
 
 class AccessRequest(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
     repository = models.ForeignKey(
-        'repository.Repository',
+        "repository.Repository",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         on_delete=models.CASCADE,
     )
     role = models.ForeignKey(
-        'core.Role',
+        "core.Role",
         on_delete=models.CASCADE,
     )
     requested = models.DateTimeField(
@@ -1931,11 +2243,11 @@ class AccessRequest(models.Model):
     )
     evaluation_note = JanewayBleachField(
         null=True,
-        help_text='This note will be sent to the requester when you approve or decline their request.',
+        help_text="This note will be sent to the requester when you approve or decline their request.",
     )
 
     def __str__(self):
-        return 'User {} requested {} permission for {}'.format(
+        return "User {} requested {} permission for {}".format(
             self.user.full_name(),
             self.journal.name if self.journal else self.repository.name,
             self.role.name,
@@ -1951,6 +2263,7 @@ def setup_user_signature(sender, instance, created, **kwargs):
 
 # This model is vestigial and will be removed in v1.5
 
+
 class SettingValueTranslation(models.Model):
     hvad_value = models.TextField(
         blank=True,
@@ -1963,12 +2276,13 @@ class SettingValueTranslation(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'core_settingvalue_translation'
+        db_table = "core_settingvalue_translation"
 
 
 def log_hijack_started(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    action = '{} ({}) has hijacked {} ({})'.format(
+
+    action = "{} ({}) has hijacked {} ({})".format(
         hijacker.full_name(),
         hijacker.pk,
         hijacked.full_name(),
@@ -1976,18 +2290,19 @@ def log_hijack_started(sender, hijacker, hijacked, request, **kwargs):
     )
 
     utils_models.LogEntry.add_entry(
-        types='Hijack Start',
+        types="Hijack Start",
         description=action,
-        level='Info',
+        level="Info",
         actor=hijacker,
         request=request,
-        target=hijacked
+        target=hijacked,
     )
 
 
 def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
     from utils import models as utils_models
-    action = '{} ({}) has released {} ({})'.format(
+
+    action = "{} ({}) has released {} ({})".format(
         hijacker.full_name(),
         hijacker.pk,
         hijacked.full_name(),
@@ -1995,12 +2310,12 @@ def log_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
     )
 
     utils_models.LogEntry.add_entry(
-        types='Hijack Release',
+        types="Hijack Release",
         description=action,
-        level='Info',
+        level="Info",
         actor=hijacker,
         request=request,
-        target=hijacked
+        target=hijacked,
     )
 
 
@@ -2009,33 +2324,31 @@ hijack_ended.connect(log_hijack_ended)
 
 
 class OrganizationNameManager(models.Manager):
-
     def bulk_create_from_ror(self, ror_records):
         organizations_by_ror_id = {
-            org.ror_id: org for org in Organization.objects.filter(
-                ~models.Q(ror_id__exact="")
-            )
+            org.ror_id: org
+            for org in Organization.objects.filter(~models.Q(ror_id__exact=""))
         }
         organization_names = []
         logger.debug(f"Importing organization names")
         for record in ror_records:
-            ror_id = os.path.split(record.get('id', ''))[-1]
+            ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
-            for name in record.get('names'):
+            for name in record.get("names"):
                 kwargs = {}
-                kwargs['value'] = name.get('value', '')
+                kwargs["value"] = name.get("value", "")
 
-                if name.get('lang'):
-                    kwargs['language'] = name.get('language', '')
+                if name.get("lang"):
+                    kwargs["language"] = name.get("language", "")
 
-                if 'ror_display' in name.get('types'):
-                    kwargs['ror_display_for'] = organization
-                if 'label' in name.get('types'):
-                    kwargs['label_for'] = organization
-                if 'alias' in name.get('types'):
-                    kwargs['alias_for'] = organization
-                if 'acronym' in name.get('types'):
-                    kwargs['acronym_for'] = organization
+                if "ror_display" in name.get("types"):
+                    kwargs["ror_display_for"] = organization
+                if "label" in name.get("types"):
+                    kwargs["label_for"] = organization
+                if "alias" in name.get("types"):
+                    kwargs["alias_for"] = organization
+                if "acronym" in name.get("types"):
+                    kwargs["acronym_for"] = organization
                 organization_names.append(OrganizationName(**kwargs))
         return OrganizationName.objects.bulk_create(organization_names)
 
@@ -2047,22 +2360,18 @@ class OrganizationNameManager(models.Manager):
         and sends those records through OrganizationName.bulk_create_from_ror
         """
         organizations_by_ror_id = {
-            org.ror_id: org for org in Organization.objects.filter(
-                ~models.Q(ror_id__exact="")
-            ).prefetch_related(
-                "labels"
-            ).prefetch_related(
-                "aliases"
-            ).prefetch_related(
-                "acronyms"
-            )
+            org.ror_id: org
+            for org in Organization.objects.filter(~models.Q(ror_id__exact=""))
+            .prefetch_related("labels")
+            .prefetch_related("aliases")
+            .prefetch_related("acronyms")
         }
 
         ror_records_with_updated_names = []
         org_name_pks_to_delete = set()
         logger.debug(f"Updating names")
         for record in ror_records:
-            ror_id = os.path.split(record.get('id', ''))[-1]
+            ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
 
             # Note that this set does not need to include ror_display
@@ -2078,16 +2387,14 @@ class OrganizationNameManager(models.Manager):
 
             janeway_name_values = set([name.value for name in janeway_names])
 
-            ror_name_values = set([
-                name.get('value') for name in record.get('names', [])
-            ])
+            ror_name_values = set(
+                [name.get("value") for name in record.get("names", [])]
+            )
 
             # Delete and recreate all authority-controlled names
             # when the names differ between Janeway and ROR.
             if janeway_name_values.difference(ror_name_values):
-                org_name_pks_to_delete.update(
-                    [name.pk for name in janeway_names]
-                )
+                org_name_pks_to_delete.update([name.pk for name in janeway_names])
                 ror_records_with_updated_names.append(record)
 
         self.filter(pk__in=org_name_pks_to_delete).delete()
@@ -2104,43 +2411,43 @@ class OrganizationName(models.Model):
         verbose_name="Organization name",
     )
     ror_display_for = models.OneToOneField(
-        'Organization',
+        "Organization",
         on_delete=models.CASCADE,
-        related_name='ror_display',
+        related_name="ror_display",
         blank=True,
         null=True,
         help_text="This name is a preferred ROR-provided display name.",
     )
     label_for = models.ForeignKey(
-        'Organization',
+        "Organization",
         on_delete=models.CASCADE,
-        related_name='labels',
+        related_name="labels",
         blank=True,
         null=True,
         help_text="This name is a preferred ROR-provided alternative, "
-            "often in a different language from the ROR display name.",
+        "often in a different language from the ROR display name.",
     )
     custom_label_for = models.OneToOneField(
-        'Organization',
+        "Organization",
         on_delete=models.CASCADE,
-        related_name='custom_label',
+        related_name="custom_label",
         blank=True,
         null=True,
         help_text="This name is a custom label entered by the end user. "
-            "Only exists in Janeway, independent of ROR.",
+        "Only exists in Janeway, independent of ROR.",
     )
     alias_for = models.ForeignKey(
-        'Organization',
+        "Organization",
         on_delete=models.CASCADE,
-        related_name='aliases',
+        related_name="aliases",
         blank=True,
         null=True,
         help_text="This name is a less preferred ROR-provided alternative.",
     )
     acronym_for = models.ForeignKey(
-        'Organization',
+        "Organization",
         on_delete=models.CASCADE,
-        related_name='acronyms',
+        related_name="acronyms",
         blank=True,
         null=True,
         help_text="This name is a ROR-provided acronym.",
@@ -2157,7 +2464,6 @@ class OrganizationName(models.Model):
 
 
 class OrganizationQueryset(models.query.QuerySet):
-
     @transaction.atomic
     def deduplicate_to_ror(self, limit=None):
         """
@@ -2172,12 +2478,10 @@ class OrganizationQueryset(models.query.QuerySet):
 
         # Identify names to deduplicate
         uncontrolled_organizations = self.filter(
-            ror_id='',
+            ror_id="",
             custom_label__isnull=False,
             controlledaffiliation__isnull=False,
-        ).prefetch_related(
-            'custom_label'
-        )
+        ).prefetch_related("custom_label")
         num_before = uncontrolled_organizations.count()
         logger.debug(f"Trying to match {num_before} organization names to ROR data.")
         if limit:
@@ -2187,12 +2491,10 @@ class OrganizationQueryset(models.query.QuerySet):
         orgs_by_name = {}
         ambiguous_names_in_ror = set()
         ambiguous_names_in_db = set()
-        labels = OrganizationName.objects.filter(
-            label_for__isnull=False
-        ).prefetch_related(
-            'ror_display_for'
-        ).prefetch_related(
-            'label_for'
+        labels = (
+            OrganizationName.objects.filter(label_for__isnull=False)
+            .prefetch_related("ror_display_for")
+            .prefetch_related("label_for")
         )
         for name in labels:
             norm_name = name.value.lower()
@@ -2209,7 +2511,7 @@ class OrganizationQueryset(models.query.QuerySet):
         affils_by_org_id = {}
         for affil in ControlledAffiliation.objects.filter(
             organization__isnull=False
-        ).prefetch_related('organization'):
+        ).prefetch_related("organization"):
             org_id = affil.organization.pk
             if org_id not in affils_by_org_id:
                 affils_by_org_id[org_id] = set()
@@ -2229,27 +2531,26 @@ class OrganizationQueryset(models.query.QuerySet):
                 ambiguous_names_in_db.add(norm_name)
 
         # Run the update and delete operations
-        ControlledAffiliation.objects.bulk_update(affiliations_to_update, ['organization'], batch_size=3600)
+        ControlledAffiliation.objects.bulk_update(
+            affiliations_to_update, ["organization"], batch_size=3600
+        )
         Organization.objects.filter(pk__in=orgs_to_delete).delete()
 
         # Report back to user
         num_after = self.filter(
-            ror_id='',
+            ror_id="",
             custom_label__isnull=False,
         ).count()
         deduplicated = num_before - num_after
         percent_matched = round(100 * deduplicated / num_before)
         logger.debug(
-            f"Matched {deduplicated} "
-            f"organizations ({percent_matched}%) to ROR records."
+            f"Matched {deduplicated} organizations ({percent_matched}%) to ROR records."
         )
-        logger.debug(
-            f"{num_after} uncontrolled organizations remain."
-        )
+        logger.debug(f"{num_after} uncontrolled organizations remain.")
         if ambiguous_names_in_db:
             logger.debug(
-                f'Some ambiguous names ({len(ambiguous_names_in_db)}) could '
-                f'nearly be matched but were not globally unique. '
+                f"Some ambiguous names ({len(ambiguous_names_in_db)}) could "
+                f"nearly be matched but were not globally unique. "
             )
             # logger.debug(f'Ambiguous names: {ambiguous_names_in_db}')
 
@@ -2257,17 +2558,18 @@ class OrganizationQueryset(models.query.QuerySet):
             organization__isnull=False,
         ).count()
         affils_with_controlled_org = ControlledAffiliation.objects.filter(
-            models.Q(organization__isnull=False) & ~models.Q(organization__ror_id=''),
+            models.Q(organization__isnull=False) & ~models.Q(organization__ror_id=""),
         ).count()
-        ror_controlled_affils_percent = round(100 * affils_with_controlled_org / total_affils_with_org)
+        ror_controlled_affils_percent = round(
+            100 * affils_with_controlled_org / total_affils_with_org
+        )
         logger.debug(
-            f'{affils_with_controlled_org} ({ror_controlled_affils_percent}%) of the '
-            f'affiliations in this Janeway instance are now linked to ROR data.'
+            f"{affils_with_controlled_org} ({ror_controlled_affils_percent}%) of the "
+            f"affiliations in this Janeway instance are now linked to ROR data."
         )
 
 
 class OrganizationManager(models.Manager):
-
     def get_queryset(self):
         return OrganizationQueryset(self.model)
 
@@ -2280,26 +2582,28 @@ class OrganizationManager(models.Manager):
 
     def bulk_link_locations_from_ror(self, ror_records):
         locations_by_geonames_id = {
-            loc.geonames_id: loc for loc in Location.objects.filter(
+            loc.geonames_id: loc
+            for loc in Location.objects.filter(
                 geonames_id__isnull=False,
             )
         }
         organizations_by_ror_id = {
-            org.ror_id: org for org in self.filter(
-                ~models.Q(ror_id__exact="")
-            ).prefetch_related('locations')
+            org.ror_id: org
+            for org in self.filter(~models.Q(ror_id__exact="")).prefetch_related(
+                "locations"
+            )
         }
         organization_location_links = []
         logger.debug(f"Linking locations")
         for record in ror_records:
-            ror_id = os.path.split(record.get('id', ''))[-1]
+            ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
-            janeway_geonames_ids = set([
-                loc.geonames_id for loc in organization.locations.all()
-            ])
-            ror_geonames_ids = set([
-                loc.get('geonames_id') for loc in record.get('locations', [])
-            ])
+            janeway_geonames_ids = set(
+                [loc.geonames_id for loc in organization.locations.all()]
+            )
+            ror_geonames_ids = set(
+                [loc.get("geonames_id") for loc in record.get("locations", [])]
+            )
 
             # Unlink locations that have been removed from the record.
             # Do this without a bulk operation because it is likely to be uncommon.
@@ -2317,24 +2621,20 @@ class OrganizationManager(models.Manager):
                     )
                 )
 
-        Organization.locations.through.objects.bulk_create(
-            organization_location_links
-        )
+        Organization.locations.through.objects.bulk_create(organization_location_links)
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
-        logger.debug(
-            f"Importing organizations"
-        )
+        logger.debug(f"Importing organizations")
         for record in ror_records:
-            ror_id = os.path.split(record.get('id', ''))[-1]
+            ror_id = os.path.split(record.get("id", ""))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
-            website = ''
-            for link in record.get('links', []):
-                if link.get('type') == 'website':
-                    website = link.get('value', '')
+            website = ""
+            for link in record.get("links", []):
+                if link.get("type") == "website":
+                    website = link.get("value", "")
                     break
-            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            ror_status = record.get("status", Organization.RORStatus.UNKNOWN)
             new_organizations.append(
                 Organization(
                     ror_id=ror_id,
@@ -2351,38 +2651,34 @@ class OrganizationManager(models.Manager):
         Bulk updates organizations from ROR records.
         """
         organizations_by_ror_id = {
-            org.ror_id: org for org in self.filter(
-                ~models.Q(ror_id__exact="")
-            )
+            org.ror_id: org for org in self.filter(~models.Q(ror_id__exact=""))
         }
         organizations_to_update = []
         fields_to_update = set()
-        logger.debug(
-            f"Updating organizations"
-        )
+        logger.debug(f"Updating organizations")
         for record in ror_records:
-            ror_id = os.path.split(record.get('id', ''))[-1]
+            ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
 
             last_modified = record.get("admin", {}).get("last_modified", {})
-            timestamp=last_modified.get("date", "")
+            timestamp = last_modified.get("date", "")
             if organization.ror_record_timestamp != timestamp:
                 organization.ror_record_timestamp = timestamp
-                fields_to_update.add('ror_record_timestamp')
+                fields_to_update.add("ror_record_timestamp")
 
-            website = ''
-            for link in record.get('links', []):
-                if link.get('type') == 'website':
-                    website = link.get('value', '')
+            website = ""
+            for link in record.get("links", []):
+                if link.get("type") == "website":
+                    website = link.get("value", "")
                     break
             if organization.website != website:
                 organization.website = website
-                fields_to_update.add('website')
+                fields_to_update.add("website")
 
-            ror_status = record.get('status', Organization.RORStatus.UNKNOWN)
+            ror_status = record.get("status", Organization.RORStatus.UNKNOWN)
             if organization.ror_status != ror_status:
                 organization.ror_status = ror_status
-                fields_to_update.add('ror_status')
+                fields_to_update.add("ror_status")
 
             organizations_to_update.append(organization)
 
@@ -2403,9 +2699,9 @@ class OrganizationManager(models.Manager):
         """
         logger.debug(f"Running ROR import with limit={limit}")
         num_errors_before = RORImportError.objects.count()
-        with zipfile.ZipFile(ror_import.zip_path, mode='r') as zip_ref:
+        with zipfile.ZipFile(ror_import.zip_path, mode="r") as zip_ref:
             for file_info in zip_ref.infolist():
-                if file_info.filename.endswith('v2.json'):
+                if file_info.filename.endswith("v2.json"):
                     string = zip_ref.read(file_info).decode()
                     if limit:
                         records = json.loads(string)[:limit]
@@ -2424,7 +2720,7 @@ class OrganizationManager(models.Manager):
                 Organization.objects.bulk_link_locations_from_ror(new_records)
                 OrganizationName.objects.bulk_create_from_ror(new_records)
             except Exception as error:
-                message = f'{type(error)}: {error}'
+                message = f"{type(error)}: {error}"
                 RORImportError.objects.create(
                     ror_import=ror_import,
                     message=message,
@@ -2440,12 +2736,10 @@ class OrganizationManager(models.Manager):
                 with transaction.atomic():
                     Location.objects.bulk_update_from_ror(updated_records)
                     Organization.objects.bulk_update_from_ror(updated_records)
-                    Organization.objects.bulk_link_locations_from_ror(
-                        updated_records
-                    )
+                    Organization.objects.bulk_link_locations_from_ror(updated_records)
                     OrganizationName.objects.bulk_update_from_ror(updated_records)
             except Exception as error:
-                message = f'{type(error)}: {error}'
+                message = f"{type(error)}: {error}"
                 RORImportError.objects.create(
                     ror_import=ror_import,
                     message=message,
@@ -2461,31 +2755,30 @@ class OrganizationManager(models.Manager):
         num_errors_after = RORImportError.objects.count()
         if num_errors_after > num_errors_before:
             logger.warn(
-                f'ROR import errors logged: { num_errors_after - num_errors_before }'
+                f"ROR import errors logged: {num_errors_after - num_errors_before}"
             )
 
 
 def validate_ror_id(ror_id):
-    ror_regex = r'^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$'
+    ror_regex = r"^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$"
     prog = re.compile(ror_regex)
     if not prog.match(ror_id):
-        raise ValidationError(f'{ror_id} is not a valid ROR identifier')
+        raise ValidationError(f"{ror_id} is not a valid ROR identifier")
 
 
 class Organization(models.Model):
-
     class RORStatus(models.TextChoices):
-        ACTIVE = 'active', _('Active')
-        INACTIVE = 'inactive', _('Inactive')
-        WITHDRAWN = 'withdrawn', _('Withdrawn')
-        UNKNOWN = 'unknown', _('Unknown')
+        ACTIVE = "active", _("Active")
+        INACTIVE = "inactive", _("Inactive")
+        WITHDRAWN = "withdrawn", _("Withdrawn")
+        UNKNOWN = "unknown", _("Unknown")
 
     ror_id = models.CharField(
         blank=True,
         max_length=10,
         validators=[validate_ror_id],
-        verbose_name='ROR ID',
-        help_text='Non-URI form of Research Organization Registry identifier',
+        verbose_name="ROR ID",
+        help_text="Non-URI form of Research Organization Registry identifier",
     )
     ror_status = models.CharField(
         blank=True,
@@ -2496,42 +2789,43 @@ class Organization(models.Model):
     ror_record_timestamp = models.CharField(
         max_length=10,
         blank=True,
-        help_text='The admin.last_modified.date string from ROR data',
+        help_text="The admin.last_modified.date string from ROR data",
     )
     website = models.CharField(
         blank=True,
         max_length=2000,
     )
     locations = models.ManyToManyField(
-        'Location',
+        "Location",
         blank=True,
         null=True,
     )
     objects = OrganizationManager()
 
     class Meta:
+        ordering = ("ror_display__value", "custom_label__value")
         constraints = [
             models.UniqueConstraint(
-                fields=['ror_id'],
-                condition=~models.Q(ror_id__exact=''),
-                name='filled_unique',
+                fields=["ror_id"],
+                condition=~models.Q(ror_id__exact=""),
+                name="filled_unique",
             )
         ]
 
     @property
     def name_location(self):
         elements = [
-            str(self.name) if self.name else '',
-            str(self.location) if self.location else '',
+            str(self.name) if self.name else "",
+            str(self.location) if self.location else "",
         ]
-        return ', '.join([element for element in elements if element])
+        return ", ".join([element for element in elements if element])
 
     def __str__(self):
-        return str(self.name) if self.name else ''
+        return str(self.name) if self.name else ""
 
     @property
     def uri(self):
-        return f'https://ror.org/{self.ror_id}' if self.ror_id else ''
+        return f"https://ror.org/{self.ror_id}" if self.ror_id else ""
 
     @property
     def name(self):
@@ -2569,11 +2863,11 @@ class Organization(models.Model):
         All names.
         """
         return OrganizationName.objects.filter(
-            models.Q(ror_display_for=self) |
-            models.Q(custom_label_for=self) |
-            models.Q(label_for=self) |
-            models.Q(alias_for=self) |
-            models.Q(acronym_for=self),
+            models.Q(ror_display_for=self)
+            | models.Q(custom_label_for=self)
+            | models.Q(label_for=self)
+            | models.Q(alias_for=self)
+            | models.Q(acronym_for=self),
         )
 
     @property
@@ -2586,8 +2880,8 @@ class Organization(models.Model):
     @classmethod
     def get_or_create_without_ror(
         cls,
-        institution='',
-        country='',
+        institution="",
+        country="",
         account=None,
         frozen_author=None,
         preprint_author=None,
@@ -2630,11 +2924,11 @@ class Organization(models.Model):
                         controlledaffiliation__account=account,
                         controlledaffiliation__frozen_author=frozen_author,
                         controlledaffiliation__preprint_author=preprint_author,
-                        ror_id__exact='',
+                        ror_id__exact="",
                     )
                     # If there is an institution name, we should only match organizations
                     # with that as a custom label.
-                    if institution:
+                    if institution and institution != " ":
                         query &= models.Q(custom_label__value=institution)
                     organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2643,9 +2937,9 @@ class Organization(models.Model):
                     created = True
 
         # Set custom label if organization is not controlled by ROR
-        if institution and not organization.ror_id:
+        if institution and institution != " " and not organization.ror_id:
             organization_name, _created = OrganizationName.objects.update_or_create(
-                defaults={'value': institution},
+                defaults={"value": institution},
                 custom_label_for=organization,
             )
 
@@ -2654,12 +2948,12 @@ class Organization(models.Model):
             try:
                 country = Country.objects.get(code=country)
             except Country.DoesNotExist:
-                country = ''
+                country = ""
 
         # Set country data if organization is not controlled by ROR
         if country and not organization.ror_id:
             location, _created = Location.objects.get_or_create(
-                name='',
+                name="",
                 country=country,
             )
             organization.locations.clear()
@@ -2676,6 +2970,7 @@ class ControlledAffiliation(models.Model):
     Named ControlledAffiliation to avoid a name clash
     with an old field named 'affiliation'.
     """
+
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
@@ -2697,15 +2992,15 @@ class ControlledAffiliation(models.Model):
     title = models.CharField(
         blank=True,
         max_length=300,
-        verbose_name=_('Title, position, or role'),
+        verbose_name=_("Title, position, or role"),
     )
     department = models.CharField(
         blank=True,
         max_length=300,
-        verbose_name=_('Department, unit, or team'),
+        verbose_name=_("Department, unit, or team"),
     )
     organization = models.ForeignKey(
-        'Organization',
+        "Organization",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -2729,27 +3024,26 @@ class ControlledAffiliation(models.Model):
     class Meta:
         constraints = [
             check_exclusive_fields_constraint(
-                'controlled_affiliation',
-                ['account', 'frozen_author', 'preprint_author'],
+                "controlled_affiliation",
+                ["account", "frozen_author", "preprint_author"],
             )
         ]
-        ordering = ['-is_primary', '-end', '-start', '-pk']
+        ordering = ["-is_primary", "-pk"]
 
     def title_department(self):
         elements = [
             self.title,
             self.department,
         ]
-        return ', '.join([element for element in elements if element])
+        return ", ".join([element for element in elements if element])
 
     def __str__(self):
         elements = [
             self.title,
             self.department,
-            str(self.organization.name) if self.organization else '',
+            str(self.organization.name) if self.organization else "",
         ]
-        return ', '.join([element for element in elements if element])
-
+        return ", ".join([element for element in elements if element])
 
     @property
     def is_current(self):
@@ -2761,13 +3055,15 @@ class ControlledAffiliation(models.Model):
 
     @classmethod
     def set_primary_if_first(cls, obj):
-        other_affiliations = cls.objects.filter(
-            account=obj.account,
-            frozen_author=obj.frozen_author,
-            preprint_author=obj.preprint_author,
-        ).exclude(
-            pk=obj.pk
-        ).exists()
+        other_affiliations = (
+            cls.objects.filter(
+                account=obj.account,
+                frozen_author=obj.frozen_author,
+                preprint_author=obj.preprint_author,
+            )
+            .exclude(pk=obj.pk)
+            .exists()
+        )
         if not other_affiliations:
             obj.is_primary = True
 
@@ -2779,9 +3075,7 @@ class ControlledAffiliation(models.Model):
                 account=obj.account,
                 frozen_author=obj.frozen_author,
                 preprint_author=obj.preprint_author,
-            ).exclude(
-                pk=obj.pk
-            ).update(
+            ).exclude(pk=obj.pk).update(
                 is_primary=False,
             )
 
@@ -2793,14 +3087,13 @@ class ControlledAffiliation(models.Model):
     ):
         """
         Get the primary affiliation, or if none,
-        the current affiliation with the most recent start date, or if none,
         the affiliation with the highest pk, or if none,
         an empty string.
         :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
         :param as_object: whether to return a Python object
         """
         if not affiliated_object.affiliations.exists():
-            return None if as_object else ''
+            return None if as_object else ""
         try:
             affil = affiliated_object.affiliations.get(is_primary=True)
         except ControlledAffiliation.DoesNotExist:
@@ -2810,10 +3103,10 @@ class ControlledAffiliation(models.Model):
     @classmethod
     def get_or_create_without_ror(
         cls,
-        institution='',
-        department='',
-        title='',
-        country='',
+        institution="",
+        department="",
+        title="",
+        country="",
         account=None,
         frozen_author=None,
         preprint_author=None,
@@ -2847,18 +3140,20 @@ class ControlledAffiliation(models.Model):
         if not defaults:
             defaults = {}
 
-        defaults.update({
-            'organization': organization,
-        })
+        defaults.update(
+            {
+                "organization": organization,
+            }
+        )
         if department:
-            defaults['department'] = department
+            defaults["department"] = department
         if title:
-            defaults['title'] = title
+            defaults["title"] = title
         kwargs = {
-            'is_primary': True,
-            'account': account,
-            'frozen_author': frozen_author,
-            'preprint_author': preprint_author,
+            "is_primary": True,
+            "account": account,
+            "frozen_author": frozen_author,
+            "preprint_author": preprint_author,
         }
 
         # Create or update the actual affiliation if the associated
@@ -2870,8 +3165,8 @@ class ControlledAffiliation(models.Model):
             )
         except (ValueError, IntegrityError):
             logger.warning(
-                f'The affiliation could not be created '
-                f'with defaults {defaults} and kwargs {kwargs}.'
+                f"The affiliation could not be created "
+                f"with defaults {defaults} and kwargs {kwargs}."
             )
             affiliation = None
             created = False
@@ -2884,7 +3179,6 @@ class ControlledAffiliation(models.Model):
 
 
 class LocationManager(models.Manager):
-
     def bulk_create_from_ror(self, ror_records):
         """
         Bulk creates location objects for which a matching Geonames ID
@@ -2896,24 +3190,20 @@ class LocationManager(models.Manager):
         current_geonames_ids = set(
             loc.geonames_id for loc in self.all() if loc.geonames_id
         )
-        countries_by_code = {
-            country.code: country for country in Country.objects.all()
-        }
+        countries_by_code = {country.code: country for country in Country.objects.all()}
         new_locations = []
-        logger.debug(
-            f"Importing locations"
-        )
+        logger.debug(f"Importing locations")
         for record in ror_records:
-            for record_location in record.get('locations'):
-                geonames_id = record_location.get('geonames_id')
+            for record_location in record.get("locations"):
+                geonames_id = record_location.get("geonames_id")
                 if geonames_id and geonames_id not in current_geonames_ids:
-                    details = record_location.get('geonames_details', {})
+                    details = record_location.get("geonames_details", {})
                     new_locations.append(
                         Location(
                             geonames_id=geonames_id,
-                            name=details.get('name', ''),
+                            name=details.get("name", ""),
                             country=countries_by_code.get(
-                                details.get('country_code', '')
+                                details.get("country_code", "")
                             ),
                         )
                     )
@@ -2932,32 +3222,26 @@ class LocationManager(models.Manager):
         locations_by_geonames_id = {
             loc.geonames_id: loc for loc in self.all() if loc.geonames_id
         }
-        countries_by_code = {
-            country.code: country for country in Country.objects.all()
-        }
+        countries_by_code = {country.code: country for country in Country.objects.all()}
         locations_to_update = []
         ror_records_with_new_loc = []
         fields_to_update = set()
-        logger.debug(
-            f"Updating locations"
-        )
+        logger.debug(f"Updating locations")
         for record in ror_records:
-            for record_location in record.get('locations'):
-                geonames_id = record_location.get('geonames_id')
+            for record_location in record.get("locations"):
+                geonames_id = record_location.get("geonames_id")
                 if not geonames_id:
                     break
                 if geonames_id in locations_by_geonames_id:
-                    details = record_location.get('geonames_details', {})
+                    details = record_location.get("geonames_details", {})
                     location = locations_by_geonames_id[geonames_id]
-                    country = countries_by_code.get(
-                        details.get('country_code', '')
-                    )
-                    if location.name != details.get('name', ''):
-                        location.name = details.get('name', '')
-                        fields_to_update.add('name')
+                    country = countries_by_code.get(details.get("country_code", ""))
+                    if location.name != details.get("name", ""):
+                        location.name = details.get("name", "")
+                        fields_to_update.add("name")
                     if location.country != country:
                         location.country = country
-                        fields_to_update.add('country')
+                        fields_to_update.add("country")
                     locations_to_update.append(location)
                 elif geonames_id not in locations_by_geonames_id:
                     ror_records_with_new_loc.append(record)
@@ -2992,7 +3276,7 @@ class Location(models.Model):
 
     def __str__(self):
         elements = [
-            self.name if self.name else '',
-            str(self.country) if self.country else '',
+            self.name if self.name else "",
+            str(self.country) if self.country else "",
         ]
-        return ', '.join([element for element in elements if element])
+        return ", ".join([element for element in elements if element])

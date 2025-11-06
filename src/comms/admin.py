@@ -10,8 +10,8 @@ from simple_history.admin import SimpleHistoryAdmin
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('text', '_count')
-    search_fields = ('text',)
+    list_display = ("text", "_count")
+    search_fields = ("text",)
 
     def _count(self, obj):
         return obj.tags.count()
@@ -22,17 +22,33 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class NewsItemAdmin(SimpleHistoryAdmin):
-    list_display = ('title', 'posted', 'posted_by',
-                    'start_display', 'end_display', 'object')
-    list_filter = (admin_utils.GenericRelationJournalFilter,
-                   admin_utils.GenericRelationPressFilter,
-                   'posted', 'start_display', 'end_display')
-    search_fields = ('title', 'body', 'tags__text', 'posted_by__email',
-                     'posted_by__first_name', 'posted_by__last_name',
-                     'custom_byline')
-    date_hierarchy = ('posted')
-    filter_horizontal = ('tags',)
-    raw_id_fields = ('posted_by', 'large_image_file')
+    list_display = (
+        "title",
+        "posted",
+        "posted_by",
+        "start_display",
+        "end_display",
+        "object",
+    )
+    list_filter = (
+        admin_utils.GenericRelationJournalFilter,
+        admin_utils.GenericRelationPressFilter,
+        "posted",
+        "start_display",
+        "end_display",
+    )
+    search_fields = (
+        "title",
+        "body",
+        "tags__text",
+        "posted_by__email",
+        "posted_by__first_name",
+        "posted_by__last_name",
+        "custom_byline",
+    )
+    date_hierarchy = "posted"
+    filter_horizontal = ("tags",)
+    raw_id_fields = ("posted_by", "large_image_file")
 
 
 admin_list = [

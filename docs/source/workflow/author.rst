@@ -70,27 +70,27 @@ Individual journals can add more fields to this page and they will be displayed 
     
 Author Information
 ------------------
-On the Author Information page we can add the authors of our paper. The submitting user is added as an author automatically, but they can remove themselves and add other authors if needed.
+On the Author Information page you can add the authors of your paper.
 
-.. figure:: ../nstatic/no_authors.png
+.. figure:: ../nstatic/submit-authors.png
+    The author information page where you can add, remove, and edit authors.
 
-    In this example journal the submitting user has not been added as an author but can use the "Add self as author" button to add themselves
+.. tip::
+    If you logged in with ORCID, the main affiliation you have on your public ORCID profile will be auto-populated.
 
-To add more authors we can either search the journal's author list or create a new author. Note that if you don't search first and use the Add New Author button to add an author who's email address is in the database this will not create a new record but add their existing record to your submission.
+Affiliation data is linked to the Research Organization Registry (ROR), which improves discovery and impact assessment.
 
-- Search
-    - You can search the journal's database of authors using email address or, even better ORCID. If a matching record is found they will be added as a co-author. If not, you will be notified that no account has been found.
-- Add Authors
-    - You can use the Add New Author button to create a new author record for your co-authors if they don't have one already. Clicking the button shows a popup with a series of fields to complete. The following fields are mandataory in Janeway:
-        - First Name
-        - Last Name
-        - Institution (can be supplied as N/a or Independent for those who do not have one)
-        - Email Address
-    - An account will also be generated so that the co-author can log in to the journal to check the progress of the paper. They will need to use the Password Reset function to get access to their account.
-    
-.. figure:: ../nstatic/current_authors.png
+You can edit these details further if you like, including name, affiliation, and display preferences.
 
-    There are now two authors added to the submission. You can use the trash icon to delete authors and the arrow handles to drag and drop to re-order the authors
+Author order can be changed with the up and down arrow buttons. The corresponding author can be changed if the desired correspondence author has a user account.
+
+You will be added as an author automatically, but you can remove yourself and add other authors if needed.
+
+.. figure:: ../nstatic/add-author-from-search.png
+    You can add an author by ORCID or email address if they are already known to the system.
+
+.. figure:: ../nstatic/add-author-manually.png
+    Or you can enter the author details manually.
 
 Article Files
 -------------

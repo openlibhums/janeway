@@ -19,14 +19,14 @@ def index(request):
     :return: HttpResponse or if request.POST: HttpRedirect
     """
     if request.POST:
-        file = request.FILES.get('press_logo')
-        file = files.save_file_to_press(request, file, 'Press Logo', '')
+        file = request.FILES.get("press_logo")
+        file = files.save_file_to_press(request, file, "Press Logo", "")
         request.press.thumbnail_image = file
         request.press.save()
 
-        return redirect(reverse('install_index'))
+        return redirect(reverse("install_index"))
 
-    template = 'install/index.html'
+    template = "install/index.html"
     context = {}
 
     return render(request, template, context)
@@ -40,8 +40,11 @@ def journal(request):
     :return: HttpResponse object
     """
     settings_to_get = [
-        'journal_name', 'journal_issn', 'print_issn',
-        'publisher_name', 'publisher_url',
+        "journal_name",
+        "journal_issn",
+        "print_issn",
+        "publisher_name",
+        "publisher_url",
     ]
     initial_items = logic.get_initial_settings(request.journal, settings_to_get)
 
@@ -56,10 +59,10 @@ def journal(request):
             attr_form.save()
             sett_form.save(request=request)
 
-    template = 'install/journal.html'
+    template = "install/journal.html"
     context = {
-        'attr_form': attr_form,
-        'sett_form': sett_form,
+        "attr_form": attr_form,
+        "sett_form": sett_form,
     }
 
     return render(request, template, context)
@@ -72,7 +75,7 @@ def next(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    template = 'install/next.html'
+    template = "install/next.html"
     context = {}
 
     return render(request, template, context)

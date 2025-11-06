@@ -6,22 +6,20 @@ from django.db import migrations
 
 
 def remove_old_setting(apps, schema_editor):
-    Setting = apps.get_model('core', 'Setting')
+    Setting = apps.get_model("core", "Setting")
     Setting.objects.filter(
-        group__name='general',
-        name='hide_review_metadata_from_authors',
+        group__name="general",
+        name="hide_review_metadata_from_authors",
     ).delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0075_reader_role'),
+        ("core", "0075_reader_role"),
     ]
 
     operations = [
         migrations.RunPython(
-            remove_old_setting,
-            reverse_code=migrations.RunPython.noop
+            remove_old_setting, reverse_code=migrations.RunPython.noop
         ),
     ]

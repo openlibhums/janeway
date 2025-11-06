@@ -6,18 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0017_file_fields_for_the_last_time'),
+        ("journal", "0017_file_fields_for_the_last_time"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='disable_html_downloads',
+            model_name="journal",
+            name="disable_html_downloads",
             field=models.BooleanField(
                 default=False,
-                help_text='Used to disable download links for HTML files on the Article page.',
+                help_text="Used to disable download links for HTML files on the Article page.",
             ),
         ),
     ]

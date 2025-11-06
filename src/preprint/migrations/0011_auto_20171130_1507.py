@@ -7,22 +7,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0011_auto_20171010_1535'),
-        ('preprint', '0010_versionqueue'),
+        ("core", "0011_auto_20171010_1535"),
+        ("preprint", "0010_versionqueue"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='versionqueue',
-            name='galley',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='core.Galley'),
+            model_name="versionqueue",
+            name="galley",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="core.Galley"
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='versionqueue',
-            name='update_type',
-            field=models.CharField(choices=[('correction', 'Correction'), ('version', 'New Version')], max_length=10),
+            model_name="versionqueue",
+            name="update_type",
+            field=models.CharField(
+                choices=[("correction", "Correction"), ("version", "New Version")],
+                max_length=10,
+            ),
         ),
     ]

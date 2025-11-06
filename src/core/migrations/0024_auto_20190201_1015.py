@@ -6,21 +6,21 @@ from django.db import migrations
 
 
 def fix_featured_articles(apps, schema_editor):
-    HomepageElement = apps.get_model('core', 'HomepageElement')
-    elements = HomepageElement.objects.filter(name='Featured Articles')
+    HomepageElement = apps.get_model("core", "HomepageElement")
+    elements = HomepageElement.objects.filter(name="Featured Articles")
 
     for element in elements:
-        element.configure_url = 'featured_articles_setup'
+        element.configure_url = "featured_articles_setup"
         element.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0023_fix_journal_base_url_from_settings'),
+        ("core", "0023_fix_journal_base_url_from_settings"),
     ]
 
     operations = [
-        migrations.RunPython(fix_featured_articles,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            fix_featured_articles, reverse_code=migrations.RunPython.noop
+        ),
     ]

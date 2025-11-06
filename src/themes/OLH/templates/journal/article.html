@@ -30,7 +30,7 @@
                         Authors
                       {% endblocktrans %}
                     </small>
-                    {% include "common/elements/journal/article_authors_br.html" %}
+                    {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                 </div>
             </div>
         </section>
@@ -60,7 +60,7 @@
                                     Authors
                                   {% endblocktrans %}
                                 </p>
-                                {% include "common/elements/journal/article_authors_br.html" %}
+                                {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                             </div>
                         </div>
                     </li>
@@ -100,14 +100,6 @@
                                     </li>
                                     <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
                                     <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}" >
-                                                <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                                                <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
-                                            </a>
-                                        </li>
-                                    {% endif %}
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
                                         <a href="#">
@@ -146,7 +138,7 @@
                           Authors
                         {% endblocktrans %}
                       </small>
-                      {% include "common/elements/journal/article_authors_br.html" %}
+                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                     </div>
                 <hr/>
                 {% endif %}
@@ -287,20 +279,11 @@
                           data-anchor="content" data-sticky-on="large">
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
-                            {% if journal_settings.article.disable_article_large_image %}
-                                <div class="section">
-                                    <h3>
-                                      {% blocktrans count counter=article.frozen_authors.count %}
-                                        Author
-                                      {% plural %}
-                                        Authors
-                                      {% endblocktrans %}
-                                    </h3>
-                                    {% include "common/elements/journal/article_authors_ul.html" %}
-                                </div>
-                            {% endif %}
-
                             {% include "elements/journal/share.html" %}
+                            <div class="section">
+                              <h3>Author details</h3>
+                              {% include "elements/journal/article_authors_full.html" %}
+                            </div>
                             <div class="section">
                                 {% if article.is_published or proofing %}
                                     <h3>{% trans "Downloads" %}</h3>
@@ -403,6 +386,7 @@
                                 </ul>
                             </div>
                         {% endif %}
+                        {% hook 'article_sidebar' article %}
 
                         {% if article_content %}
                         <div id="toc-section" class="section hide-for-small-only">
@@ -445,24 +429,6 @@
                                 <p> {% trans 'File Checksums are not available for this article.' %}</p>
                             {% endif %}
                         </div>
-
-                        {% if journal_settings.general.use_credit and author.credits.exists %}
-                          <div class="section hide-for-small-only">
-                            <h3>{% trans "CRediT Roles" %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h3>
-                            <ul>
-                              {% for author, credit_records in article.authors_and_credits.items %}
-                                <li>
-                                  {{ author.full_name }}:
-                                  <span class="credit">
-                                    {% for record in credit_records %}
-                                      {{ record }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                  </span>
-                                </li>
-                              {% endfor %}
-                            </ul>
-                          </div>
-                        {% endif %}
 
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}

@@ -6,12 +6,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 CAROUSEL_MODES = [
-    ('off', _('Off')),
-    ('latest', _('Latest Articles')),
-    ('news', _('Latest News')),
-    ('selected-articles', _('Selected Articles')),
-    ('mixed', _('Latest Articles and News')),
-    ('mixed-selected', _('Selected Articles and News')),
+    ("off", _("Off")),
+    ("latest", _("Latest Articles")),
+    ("news", _("Latest News")),
+    ("selected-articles", _("Selected Articles")),
+    ("mixed", _("Latest Articles and News")),
+    ("mixed-selected", _("Selected Articles and News")),
 ]
 
 
@@ -20,7 +20,7 @@ class Carousel(models.Model):
         max_length=200,
         blank=False,
         null=False,
-        default='Latest',
+        default="Latest",
         choices=CAROUSEL_MODES,
     )
     enabled = True
@@ -39,10 +39,10 @@ class Carousel(models.Model):
 
     # these fields contains a custom list of articles and article-like carousel objects for Mixed and News modes
     articles = models.ManyToManyField(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
-        related_name='articles',
+        related_name="articles",
     )
 
     latest_news = models.BooleanField(
@@ -52,21 +52,21 @@ class Carousel(models.Model):
 
     # a selected news field
     news_articles = models.ManyToManyField(
-        'comms.NewsItem',
+        "comms.NewsItem",
         blank=True,
     )
 
     # article and news limits
     article_limit = models.IntegerField(
-        verbose_name='Maximum Number of Articles to Show',
+        verbose_name="Maximum Number of Articles to Show",
         default=3,
     )
     news_limit = models.IntegerField(
-        verbose_name='Maximum Number of News Items to Show',
+        verbose_name="Maximum Number of News Items to Show",
         default=0,
     )
     issues = models.ManyToManyField(
-        'journal.issue',
+        "journal.issue",
         verbose_name=_("Issues and Collections"),
         blank=True,
     )
@@ -78,6 +78,7 @@ class Carousel(models.Model):
 
     def get_items(self):
         import core.logic as core_logic
+
         Article = apps.get_model("submission", "Article")
         Issue = apps.get_model("journal", "Issue")
         NewsItem = apps.get_model("comms", "NewsItem")
@@ -87,12 +88,12 @@ class Carousel(models.Model):
         issues = Issue.objects.none()
 
         if self.latest_articles:
-            if hasattr(self, 'press'):
-                articles |= core_logic.latest_articles(self, 'press')
-            elif hasattr(self, 'journal'):
-                articles |= core_logic.latest_articles(self, 'journal')
+            if hasattr(self, "press"):
+                articles |= core_logic.latest_articles(self, "press")
+            elif hasattr(self, "journal"):
+                articles |= core_logic.latest_articles(self, "journal")
             if self.article_limit > 0:
-                articles = articles[:self.article_limit]
+                articles = articles[: self.article_limit]
 
         if self.articles.exists():
             if self.exclude:
@@ -101,12 +102,12 @@ class Carousel(models.Model):
                 articles = chain(self.articles.all(), articles)
 
         if self.latest_news:
-            if hasattr(self, 'press'):
-                news |= core_logic.news_items(self, 'press')
-            elif hasattr(self, 'journal'):
-                news |= core_logic.news_items(self, 'journal')
+            if hasattr(self, "press"):
+                news |= core_logic.news_items(self, "press")
+            elif hasattr(self, "journal"):
+                news |= core_logic.news_items(self, "journal")
             if self.news_limit > 0:
-                news = news[:self.news_limit]
+                news = news[: self.news_limit]
 
         if self.news_articles.exists():
             if self.exclude:
@@ -128,11 +129,13 @@ class Carousel(models.Model):
 
 
 class CarouselObject(models.Model):
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True, on_delete=models.SET_NULL)
+    large_image_file = models.ForeignKey(
+        "core.File", null=True, blank=True, on_delete=models.SET_NULL
+    )
     url = models.CharField(max_length=5000, blank=True, null=True)
     title = models.CharField(max_length=300)
     index = models.IntegerField(default=1)
-    articleID = models.ManyToManyField('submission.Article', null=True, blank=True)
+    articleID = models.ManyToManyField("submission.Article", null=True, blank=True)
 
     @property
     def local_url(self):

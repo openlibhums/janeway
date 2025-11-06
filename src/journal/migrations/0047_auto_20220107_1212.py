@@ -5,23 +5,25 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 from django.conf import settings
 
+
 def remove_stale_domains(apps, schema_editor):
-    if hasattr(settings, 'URL_CONFIG') and settings.URL_CONFIG == 'path':
-        Journal = apps.get_model('journal', 'Journal')
+    if hasattr(settings, "URL_CONFIG") and settings.URL_CONFIG == "path":
+        Journal = apps.get_model("journal", "Journal")
         Journal.objects.all().update(domain=None)
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('journal', '0046_auto_20210922_1436'),
+        ("journal", "0046_auto_20210922_1436"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='domain',
+            model_name="journal",
+            name="domain",
             field=models.CharField(blank=True, max_length=255, null=True, unique=True),
         ),
         migrations.RunPython(
-            remove_stale_domains, reverse_code=migrations.RunPython.noop),
+            remove_stale_domains, reverse_code=migrations.RunPython.noop
+        ),
     ]

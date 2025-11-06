@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def forwards_func(apps, schema_editor):
         NewsItem = apps.get_model("core", "NewsItem")
         CommsItem = apps.get_model("comms", "NewsItem")
@@ -33,7 +32,7 @@ class Migration(migrations.Migration):
         pass
 
     dependencies = [
-        ('core', '0004_auto_20170813_1302'),
+        ("core", "0004_auto_20170813_1302"),
     ]
 
     operations = [

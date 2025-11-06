@@ -14,9 +14,8 @@ def set_default_xsl(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0035_journal_xsl'),
+        ("journal", "0035_journal_xsl"),
     ]
 
     operations = [

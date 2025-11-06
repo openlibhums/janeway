@@ -28,10 +28,10 @@ def svg(filename):
 
     mimetype = mimetypes.guess_type(path, strict=True)
 
-    if not mimetype or mimetype[0] != 'image/svg+xml':
+    if not mimetype or mimetype[0] != "image/svg+xml":
         return mark_safe(
             '<img src="{url}" class="top-bar-image img-fluid">'.format(
-                url=reverse('press_cover_download'),
+                url=reverse("press_cover_download"),
             )
         )
 
@@ -63,7 +63,7 @@ def svg_or_image(image_field, css_class="", alt_text="", inline=False):
 
     mimetype = mimetypes.guess_type(image_field.path, strict=True)
 
-    if not inline or not mimetype or mimetype[0] != 'image/svg+xml':
+    if not inline or not mimetype or mimetype[0] != "image/svg+xml":
         return mark_safe(
             '<img src="{url}" class="{css_class}" alt="{alt_text}">'.format(
                 url=image_field.url,
@@ -78,4 +78,3 @@ def svg_or_image(image_field, css_class="", alt_text="", inline=False):
     except FileNotFoundError:
         logger.warning("Could not read SVG file %s", image_field.path)
         return None
-

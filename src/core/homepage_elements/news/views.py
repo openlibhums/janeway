@@ -17,16 +17,12 @@ def news_config(request):
         )
         if form.is_valid():
             form.save()
-            messages.add_message(
-                request,
-                messages.INFO,
-                'News settings updated.'
-            )
-            return redirect(reverse('home_settings_index'))
+            messages.add_message(request, messages.INFO, "News settings updated.")
+            return redirect(reverse("home_settings_index"))
 
-    template = 'news_settings.html'
+    template = "news_settings.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)

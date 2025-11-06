@@ -6,20 +6,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0005_auto_20171002_1503'),
+        ("journal", "0005_auto_20171002_1503"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='code',
+            model_name="journal",
+            name="code",
             field=models.CharField(max_length=10),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='domain',
-            field=models.CharField(default='www.example.com', max_length=255, unique=True),
+            model_name="journal",
+            name="domain",
+            field=models.CharField(
+                default="www.example.com", max_length=255, unique=True
+            ),
         ),
     ]

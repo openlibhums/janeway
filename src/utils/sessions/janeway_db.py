@@ -6,9 +6,7 @@ from django.db import transaction
 
 
 class SessionStore(db.SessionStore):
-
     @classmethod
     @transaction.atomic
     def clear_expired(cls):
-        cls.get_model_class().objects.filter(
-            expire_date__lt=timezone.now()).delete()
+        cls.get_model_class().objects.filter(expire_date__lt=timezone.now()).delete()

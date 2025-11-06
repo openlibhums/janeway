@@ -9,9 +9,12 @@ from django.db import models
 
 class CoreConfig(AppConfig):
     """Configures the core app."""
-    name = 'core'
+
+    name = "core"
 
     def ready(self):
+        from core import upgrade  # register upgrade signals
         from core.model_utils import SearchLookup
+
         models.CharField.register_lookup(SearchLookup)
         models.TextField.register_lookup(SearchLookup)

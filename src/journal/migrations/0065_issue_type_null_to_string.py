@@ -6,22 +6,20 @@ from utils import migration_utils
 
 
 def migrate_null_values(apps, schema_editor):
-    model = apps.get_model('journal', 'IssueType')
+    model = apps.get_model("journal", "IssueType")
     fields = [
-        'custom_plural',
+        "custom_plural",
     ]
     migration_utils.store_empty_strings(model, fields)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0064_journal_default_editorial_team_image'),
+        ("journal", "0064_journal_default_editorial_team_image"),
     ]
 
     operations = [
         migrations.RunPython(
-            migrate_null_values,
-            reverse_code=migrations.RunPython.noop
+            migrate_null_values, reverse_code=migrations.RunPython.noop
         ),
     ]

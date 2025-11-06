@@ -26,23 +26,18 @@ from bs4 import BeautifulSoup
 logger = get_logger(__name__)
 
 identifier_choices = (
-    ('doi', 'DOI'),
-    ('uri', 'URI Path'),
-    ('pubid', 'Publisher ID'),
+    ("doi", "DOI"),
+    ("uri", "URI Path"),
+    ("pubid", "Publisher ID"),
 )
 
-IDENTIFIER_TYPES = {
-    'uri',
-    'pubid',
-    'id',
-    'doi'
-}
+IDENTIFIER_TYPES = {"uri", "pubid", "id", "doi"}
 
 NON_DOI_IDENTIFIER_TYPES = IDENTIFIER_TYPES - {"doi"}
 
-DOI_REGEX_PATTERN = '10.\d{4,9}/[-._;()/:A-Za-z0-9]+'
-URL_DOI_REGEX_PATTERN = 'https://doi.org/10.\d{4,9}/[-._;()/:A-Za-z0-9]+'
-PUB_ID_REGEX_PATTERN = '[\w-]+'
+DOI_REGEX_PATTERN = "10.\d{4,9}/[-._;()/:A-Za-z0-9]+"
+URL_DOI_REGEX_PATTERN = "https://doi.org/10.\d{4,9}/[-._;()/:A-Za-z0-9]+"
+PUB_ID_REGEX_PATTERN = "[\w-]+"
 PUB_ID_RE = re.compile("^{}$".format(PUB_ID_REGEX_PATTERN))
 DOI_RE = re.compile(DOI_REGEX_PATTERN)
 URL_DOI_RE = re.compile(URL_DOI_REGEX_PATTERN)
@@ -62,7 +57,7 @@ class CrossrefDeposit(models.Model):
     document = models.TextField(
         null=True,
         blank=True,
-        help_text='The deposit document with rendered XML for the DOI batch.'
+        help_text="The deposit document with rendered XML for the DOI batch.",
     )
     has_result = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
@@ -82,20 +77,24 @@ class CrossrefDeposit(models.Model):
     )
 
     class Meta:
-        ordering = ('-date_time',)
+        ordering = ("-date_time",)
 
     @property
     @cache(30)
     def journal(self):
-        journals = set([crossref_status.identifier.article.journal for crossref_status in self.crossrefstatus_set.all()])
+        journals = set(
+            [
+                crossref_status.identifier.article.journal
+                for crossref_status in self.crossrefstatus_set.all()
+            ]
+        )
         if len(journals) > 1:
-            error = f'Identifiers from multiple journals passed to CrossrefDeposit: {journals}'
+            error = f"Identifiers from multiple journals passed to CrossrefDeposit: {journals}"
             logger.debug(error)
         elif len(journals) == 1:
             return journals.pop()
         else:
             return None
-
 
     def poll(self):
         self.polling_attempts += 1
@@ -104,70 +103,81 @@ class CrossrefDeposit(models.Model):
         test_mode, username, password = logic.get_poll_settings(self.journal)
 
         if test_mode:
-            test_var = 'test'
+            test_var = "test"
         else:
-            test_var = 'doi'
+            test_var = "doi"
 
-        url = 'https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result'.format(username, password, self.file_name, test_var)
+        url = "https://{3}.crossref.org/servlet/submissionDownload?usr={0}&pwd={1}&file_name={2}.xml&type=result".format(
+            username, password, self.file_name, test_var
+        )
 
         try:
             response = requests.get(url, timeout=settings.HTTP_TIMEOUT_SECONDS)
             response.raise_for_status()
             self.result_text = response.text
             self.has_result = ' status="unknown_submission"' not in self.result_text
-            self.queued = 'status="queued"' in self.result_text or 'in_process' in self.result_text
-            self.success = '<failure_count>0</failure_count>' in self.result_text and not 'status="queued"' in self.result_text
+            self.queued = (
+                'status="queued"' in self.result_text
+                or "in_process" in self.result_text
+            )
+            self.success = (
+                "<failure_count>0</failure_count>" in self.result_text
+                and not 'status="queued"' in self.result_text
+            )
             self.citation_success = not ' status="error"' in self.result_text
             self.save()
             logger.debug(self)
-            return f'Polled ({self.journal.code})', False
+            return f"Polled ({self.journal.code})", False
         except requests.RequestException as e:
             self.success = False
             self.has_result = True
-            self.result_text = f'Error ({self.journal.code}): {e}'
+            self.result_text = f"Error ({self.journal.code}): {e}"
             self.save()
             logger.error(self.result_text)
             logger.error(self)
-            return f'Error ({self.journal.code})', True
+            return f"Error ({self.journal.code})", True
 
     def get_record_diagnostic(self, doi):
-        soup = BeautifulSoup(self.result_text, 'lxml-xml')
-        record_diagnostics = soup.find_all('record_diagnostic')
+        soup = BeautifulSoup(self.result_text, "lxml-xml")
+        record_diagnostics = soup.find_all("record_diagnostic")
         for record_diagnostic in record_diagnostics:
             if record_diagnostic.doi and record_diagnostic.doi.string:
                 if doi in record_diagnostic.doi.string:
                     return str(record_diagnostic)
 
     def __str__(self):
-        return ("[Deposit:{self.file_name}]"
+        return (
+            "[Deposit:{self.file_name}]"
             "[queued:{self.queued}]"
             "[success:{self.success}]"
             "[citation_success:{citation_success}]".format(
                 self=self,
-                #Citation success only to be considered for succesful deposits
+                # Citation success only to be considered for succesful deposits
                 citation_success=self.citation_success if self.success else None,
             )
         )
 
 
 class CrossrefStatus(models.Model):
-
-    UNTRIED = 'untried'
-    QUEUED = 'queued'
-    REGISTERED = 'registered'
-    REGISTERED_BUT_CITATION_PROBLEMS = 'registered_but_citation_problems'
-    WARNING = 'warning'
-    FAILED = 'failed'
-    UNKNOWN = ''
+    UNTRIED = "untried"
+    QUEUED = "queued"
+    REGISTERED = "registered"
+    REGISTERED_BUT_CITATION_PROBLEMS = "registered_but_citation_problems"
+    WARNING = "warning"
+    FAILED = "failed"
+    UNKNOWN = ""
 
     CROSSREF_STATUS_CHOICES = (
-        (UNTRIED, 'Not yet registered'),
-        (QUEUED, 'Queued at Crossref'),
-        (REGISTERED, 'Registered'),
-        (REGISTERED_BUT_CITATION_PROBLEMS, 'Registered (but some citations not correctly parsed)'),
-        (WARNING, 'Registered with warning'),
-        (FAILED, 'Registration failed'),
-        (UNKNOWN, 'Unknown'),
+        (UNTRIED, "Not yet registered"),
+        (QUEUED, "Queued at Crossref"),
+        (REGISTERED, "Registered"),
+        (
+            REGISTERED_BUT_CITATION_PROBLEMS,
+            "Registered (but some citations not correctly parsed)",
+        ),
+        (WARNING, "Registered with warning"),
+        (FAILED, "Registration failed"),
+        (UNKNOWN, "Unknown"),
     )
 
     identifier = models.OneToOneField(
@@ -180,9 +190,9 @@ class CrossrefStatus(models.Model):
     )
     message = models.CharField(
         blank=True,
-        default='Unknown',
+        default="Unknown",
         max_length=255,
-        help_text='A user-friendly message about the status of registration with Crossref.',
+        help_text="A user-friendly message about the status of registration with Crossref.",
         choices=CROSSREF_STATUS_CHOICES,
     )
 
@@ -214,22 +224,21 @@ class CrossrefStatus(models.Model):
 
         self.save()
 
-
     def get_granular_status(self):
         doi = self.identifier.identifier
         try:
             record_diagnostic = self.latest_deposit.get_record_diagnostic(doi)
             if record_diagnostic:
-                soup = BeautifulSoup(record_diagnostic, 'lxml-xml')
+                soup = BeautifulSoup(record_diagnostic, "lxml-xml")
                 tag = soup.record_diagnostic
-                if tag['status'] == 'Success':
+                if tag["status"] == "Success":
                     return self.REGISTERED
-                elif tag['status'] == 'Warning':
+                elif tag["status"] == "Warning":
                     return self.WARNING
                 else:
                     return self.FAILED
         except AttributeError:
-            return ''
+            return ""
 
     @property
     def latest_deposit(self):
@@ -237,14 +246,13 @@ class CrossrefStatus(models.Model):
 
     def __str__(self):
         if self.latest_deposit:
-            return f'{self.identifier} {self.message} ' \
-                   f'{self.latest_deposit.date_time}'
+            return f"{self.identifier} {self.message} {self.latest_deposit.date_time}"
         else:
             return self.message
 
     class Meta:
-        verbose_name = 'Crossref status'
-        verbose_name_plural = 'Crossref statuses'
+        verbose_name = "Crossref status"
+        verbose_name_plural = "Crossref statuses"
 
 
 class Identifier(models.Model):
@@ -254,7 +262,7 @@ class Identifier(models.Model):
     article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
 
     def __str__(self):
-        return u'[{0}]: {1}'.format(self.id_type.upper(), self.identifier)
+        return "[{0}]: {1}".format(self.id_type.upper(), self.identifier)
 
     def register(self):
         if self.is_doi:
@@ -265,13 +273,13 @@ class Identifier(models.Model):
 
     def get_doi_url(self):
         if self.is_doi:
-            return 'https://doi.org/{0}'.format(self.identifier)
+            return "https://doi.org/{0}".format(self.identifier)
         else:
-            return 'This identifier is not a DOI.'
+            return "This identifier is not a DOI."
 
     @property
     def is_doi(self):
-        if self.id_type == 'doi':
+        if self.id_type == "doi":
             return True
 
         return False
@@ -279,7 +287,7 @@ class Identifier(models.Model):
 
 class BrokenDOI(models.Model):
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
     )
     identifier = models.ForeignKey(

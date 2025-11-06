@@ -6,20 +6,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0011_auto_20200713_1317'),
+        ("typesetting", "0011_auto_20200713_1317"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='typesettingassignment',
-            name='display_proof_comments',
-            field=models.BooleanField(default=True, help_text='Allow the typesetter to see the proofreading comments'),
+            model_name="typesettingassignment",
+            name="display_proof_comments",
+            field=models.BooleanField(
+                default=True,
+                help_text="Allow the typesetter to see the proofreading comments",
+            ),
         ),
         migrations.AddField(
-            model_name='typesettingcorrection',
-            name='label',
+            model_name="typesettingcorrection",
+            name="label",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

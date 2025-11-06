@@ -9,58 +9,88 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0062_auto_20220209_1556'),
-        ('repository', '0026_merge_20211011_0906'),
+        ("core", "0062_auto_20220209_1556"),
+        ("repository", "0026_merge_20211011_0906"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RepositoryRole',
+            name="RepositoryRole",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='repository',
-            name='limit_access_to_submission',
-            field=models.BooleanField(default=False, help_text='If enabled, users need to request access to submit preprints.'),
+            model_name="repository",
+            name="limit_access_to_submission",
+            field=models.BooleanField(
+                default=False,
+                help_text="If enabled, users need to request access to submit preprints.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='submission_access_contact',
-            field=models.EmailField(blank=True, help_text='Will be notified of new submission access requests.', max_length=254, null=True),
+            model_name="repository",
+            name="submission_access_contact",
+            field=models.EmailField(
+                blank=True,
+                help_text="Will be notified of new submission access requests.",
+                max_length=254,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='submission_access_request_text',
-            field=models.TextField(blank=True, help_text='Describe any supporting information you want users to supply when requestingaccess permissions for this repository. Linked to Limit Access to Submissions.', null=True),
+            model_name="repository",
+            name="submission_access_request_text",
+            field=models.TextField(
+                blank=True,
+                help_text="Describe any supporting information you want users to supply when requestingaccess permissions for this repository. Linked to Limit Access to Submissions.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='keywords',
-            field=core.model_utils.M2MOrderedThroughField(blank=True, null=True, through='repository.KeywordPreprint', to='submission.Keyword'),
+            model_name="preprint",
+            name="keywords",
+            field=core.model_utils.M2MOrderedThroughField(
+                blank=True,
+                null=True,
+                through="repository.KeywordPreprint",
+                to="submission.Keyword",
+            ),
         ),
         migrations.AlterField(
-            model_name='versionqueue',
-            name='title',
-            field=models.CharField(help_text='Your article title', max_length=300),
+            model_name="versionqueue",
+            name="title",
+            field=models.CharField(help_text="Your article title", max_length=300),
         ),
         migrations.AddField(
-            model_name='repositoryrole',
-            name='repository',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='repository.Repository'),
+            model_name="repositoryrole",
+            name="repository",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="repository.Repository"
+            ),
         ),
         migrations.AddField(
-            model_name='repositoryrole',
-            name='role',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Role'),
+            model_name="repositoryrole",
+            name="role",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="core.Role"
+            ),
         ),
         migrations.AddField(
-            model_name='repositoryrole',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="repositoryrole",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

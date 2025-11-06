@@ -6,19 +6,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0046_auto_20210922_1436'),
+        ("journal", "0046_auto_20210922_1436"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issue',
-            name='code',
-            field=models.SlugField(blank=True, help_text="An optional alphanumeric code (Slug) used to generate a verbose  url for this issue. e.g: 'winter-special-issue'.", max_length=700, null=True),
+            model_name="issue",
+            name="code",
+            field=models.SlugField(
+                blank=True,
+                help_text="An optional alphanumeric code (Slug) used to generate a verbose  url for this issue. e.g: 'winter-special-issue'.",
+                max_length=700,
+                null=True,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='issue',
-            unique_together=set([('journal', 'code')]),
+            name="issue",
+            unique_together=set([("journal", "code")]),
         ),
     ]

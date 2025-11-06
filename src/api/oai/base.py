@@ -17,27 +17,26 @@ from utils.http import allow_mutating_GET
 
 metadata_formats = [
     {
-        'prefix': 'oai_dc',
-        'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
-        'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+        "prefix": "oai_dc",
+        "schema": "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
+        "metadataNamespace": "http://www.openarchives.org/OAI/2.0/oai_dc/",
     },
     {
-        'prefix': 'jats',
-        'schema': 'https://jats.nlm.nih.gov/publishing/0.4/xsd/JATS-journalpublishing0.xsd',
-        'metadataNamespace': 'http://jats.nlm.nih.gov',
-    }
+        "prefix": "jats",
+        "schema": "https://jats.nlm.nih.gov/publishing/0.4/xsd/JATS-journalpublishing0.xsd",
+        "metadataNamespace": "http://jats.nlm.nih.gov",
+    },
 ]
 
 
 class OAIModelView(BaseListView, TemplateResponseMixin):
-    """ Base class for OAI views generated from model Querysets """
+    """Base class for OAI views generated from model Querysets"""
+
     content_type = "application/xml"
 
-    metadata_prefix = 'oai_dc'
+    metadata_prefix = "oai_dc"
 
-    metadata_formats_set = {
-        format.get('prefix') for format in metadata_formats
-    }
+    metadata_formats_set = {format.get("prefix") for format in metadata_formats}
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -55,19 +54,20 @@ class OAIModelView(BaseListView, TemplateResponseMixin):
         return qs
 
     def validate_metadata_format(self):
-        if self.metadata_prefix \
-                and self.metadata_prefix not in self.metadata_formats_set:
+        if (
+            self.metadata_prefix
+            and self.metadata_prefix not in self.metadata_formats_set
+        ):
             raise exceptions.OAIUnsupportedMetadataFormat()
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["metadata_prefix"] = self.request.GET.get("metadataPrefix",
-                                                          "oai_dc")
+        context["metadata_prefix"] = self.request.GET.get("metadataPrefix", "oai_dc")
         return context
 
 
 class OAIPaginationMixin(View):
-    """ A Mixin allowing views to be paginated via OAI resumptionToken
+    """A Mixin allowing views to be paginated via OAI resumptionToken
 
     The resumptionToken is a query parameter that allows a consumer of the OAI
     interface to resume consuming elements of a listed query when the bounds
@@ -80,6 +80,7 @@ class OAIPaginationMixin(View):
     is addressed in the `dispatch` method where we have no option but to mutate
     the self.request.GET member in order to inject those querystring filters.
     """
+
     page_kwarg = "token_page"
 
     def __init__(self, *args, **kwargs):
@@ -87,7 +88,7 @@ class OAIPaginationMixin(View):
         self._decoded_token = {}
 
     def dispatch(self, *args, **kwargs):
-        """ Adds resumptionToken encoded parameters into request.GET
+        """Adds resumptionToken encoded parameters into request.GET
 
         This makes the implementation of resumptionToken transparent to any
         child views that will see all encoded filters in the resumptionToken
@@ -112,14 +113,14 @@ class OAIPaginationMixin(View):
 
     def get_token_context(self, context):
         return {
-                "page": context["page_obj"].next_page_number(),
+            "page": context["page_obj"].next_page_number(),
         }
 
     def encode_token(self, context):
         token_data = {}
         for key, value in self.request.GET.items():
             # verb is an exception as per OAI spec
-            if key not in {'resumptionToken', "verb"}:
+            if key not in {"resumptionToken", "verb"}:
                 token_data[key] = value
         token_data.update(self.get_token_context(context))
 
@@ -141,7 +142,6 @@ class OAIPaginationMixin(View):
 
 
 class OAIDateFilterMixin(OAIPaginationMixin):
-
     def filter_by_date_range(self, qs):
         try:
             if self.from_:
@@ -153,7 +153,10 @@ class OAIDateFilterMixin(OAIPaginationMixin):
                 # if it is not, add a default H:m:sZ.
                 if not until_date.tzinfo:
                     untile_date = until_date.replace(
-                            hour=23, minute=59, second=59, tzinfo=utc,
+                        hour=23,
+                        minute=59,
+                        second=59,
+                        tzinfo=utc,
                     )
 
                 qs = qs.filter(date_published__lte=until_date)

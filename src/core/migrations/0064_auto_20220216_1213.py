@@ -7,27 +7,26 @@ from django.conf import settings
 
 
 def update_crossref_date_suffix(apps, schema_editor):
-    SettingValue = apps.get_model('core', 'SettingValue')
+    SettingValue = apps.get_model("core", "SettingValue")
     setting_values = SettingValue.objects.filter(
-        setting__group__name='crossref',
-        setting__name='crossref_date_suffix',
+        setting__group__name="crossref",
+        setting__name="crossref_date_suffix",
     )
     # Loop over all SettingValues and update all of the value strings for each available language.
     for setting_value in setting_values:
         for language in settings.LANGUAGES:
-            value_string = 'value_{}'.format(language[0])
+            value_string = "value_{}".format(language[0])
             setattr(
                 setting_value,
                 value_string,
-                '656',
+                "656",
             )
             setting_value.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0063_fix_review_accept_ack'),
+        ("core", "0063_fix_review_accept_ack"),
     ]
 
     operations = [

@@ -13,41 +13,40 @@ def check_use_i18n_on(*args, **kwargs):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0046_delete_review_request_sent'),
+        ("core", "0046_delete_review_request_sent"),
     ]
 
     operations = [
         migrations.RunPython(check_use_i18n_on, reverse_code=migrations.RunPython.noop),
         migrations.RenameField(
-            model_name='settingvaluetranslation',
-            old_name='value',
-            new_name='hvad_value',
+            model_name="settingvaluetranslation",
+            old_name="value",
+            new_name="hvad_value",
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value',
+            model_name="settingvalue",
+            name="value",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value_cy',
+            model_name="settingvalue",
+            name="value_cy",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value_de',
+            model_name="settingvalue",
+            name="value_de",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value_en',
+            model_name="settingvalue",
+            name="value_en",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='settingvalue',
-            name='value_fr',
+            model_name="settingvalue",
+            name="value_fr",
             field=models.TextField(blank=True, null=True),
         ),
     ]

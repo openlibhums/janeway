@@ -16,14 +16,13 @@ class Command(BaseCommand):
     help = "Generates robots.txt files."
 
     def handle(self, *args, **options):
-
         site_map_path = reverse(
-            'website_sitemap',
+            "website_sitemap",
         )
         storage_path = os.path.join(
             settings.BASE_DIR,
-            'files',
-            'robots',
+            "files",
+            "robots",
         )
         if not os.path.exists(storage_path):
             os.makedirs(storage_path)
@@ -33,19 +32,16 @@ class Command(BaseCommand):
             path=site_map_path,
         )
         press_robots_txt = render_to_string(
-            'common/robots.txt',
-            {'url': press_url},
+            "common/robots.txt",
+            {"url": press_url},
         )
 
-        file_path = os.path.join(
-            storage_path,
-            'robots.txt'
-        )
-        with open(file_path, 'w+') as file:
+        file_path = os.path.join(storage_path, "robots.txt")
+        with open(file_path, "w+") as file:
             file.write(press_robots_txt)
             file.close()
 
-        if settings.URL_CONFIG == 'domain':
+        if settings.URL_CONFIG == "domain":
             domain_mode_journals = journal_models.Journal.objects.filter(
                 domain__isnull=False,
             )
@@ -54,14 +50,12 @@ class Command(BaseCommand):
                     path=site_map_path,
                 )
                 journal_robots_txt = render_to_string(
-                    'common/robots.txt',
-                    {'url': journal_url}
+                    "common/robots.txt", {"url": journal_url}
                 )
                 file_path = os.path.join(
-                    storage_path,
-                    'journal_{}_robots.txt'.format(journal.code)
+                    storage_path, "journal_{}_robots.txt".format(journal.code)
                 )
-                with open(file_path, 'w') as file:
+                with open(file_path, "w") as file:
                     file.write(journal_robots_txt)
                     file.close()
 
@@ -73,13 +67,11 @@ class Command(BaseCommand):
                     path=site_map_path,
                 )
                 repo_robots_txt = render_to_string(
-                    'common/robots.txt',
-                    {'url': repo_url}
+                    "common/robots.txt", {"url": repo_url}
                 )
                 file_path = os.path.join(
-                    storage_path,
-                    'repo_{}_robots.txt'.format(repo.code)
+                    storage_path, "repo_{}_robots.txt".format(repo.code)
                 )
-                with open(file_path, 'w') as file:
+                with open(file_path, "w") as file:
                     file.write(repo_robots_txt)
                     file.close()

@@ -6,7 +6,7 @@ from submission import models as submission_models
 
 
 class Command(BaseCommand):
-    """ A management command to reset frozen author records with live profile records."""
+    """A management command to reset frozen author records with live profile records."""
 
     help = "Resets frozen author records with fresh data."
 
@@ -16,20 +16,21 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument("--hard",
-                action='store_true',
-                default=False,
-                help="Also deletes manually added frozen records"
+        parser.add_argument(
+            "--hard",
+            action="store_true",
+            default=False,
+            help="Also deletes manually added frozen records",
         )
 
     def handle(self, *args, **options):
-        """ Resets frozen author records with live profile records.
+        """Resets frozen author records with live profile records.
 
         :param args: None
         :param options: None.
         :return: None
         """
-        raise DeprecationWarning(
+        warnings.warn(
             "This command can cause unintended behavior because "
             "accounts are not created for all authors during submission."
         )

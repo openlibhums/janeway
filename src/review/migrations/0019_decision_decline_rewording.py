@@ -22,33 +22,90 @@ def decline_to_reject(apps, schema_editor):
     DecisionDraft.objects.filter(decision="decline").update(decision="reject")
 
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0018_auto_20230120_1546'),
+        ("review", "0018_auto_20230120_1546"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='decision',
-            field=models.CharField(choices=[(review.const.EditorialDecisions['ACCEPT'], 'Accept Without Revisions'), (review.const.EditorialDecisions['MINOR_REVISIONS'], 'Minor Revisions Required'), (review.const.EditorialDecisions['MAJOR_REVISIONS'], 'Major Revisions Required'), (review.const.EditorialDecisions['DECLINE'], 'Reject')], max_length=100, verbose_name='Draft Decision'),
+            model_name="decisiondraft",
+            name="decision",
+            field=models.CharField(
+                choices=[
+                    (
+                        review.const.EditorialDecisions["ACCEPT"],
+                        "Accept Without Revisions",
+                    ),
+                    (
+                        review.const.EditorialDecisions["MINOR_REVISIONS"],
+                        "Minor Revisions Required",
+                    ),
+                    (
+                        review.const.EditorialDecisions["MAJOR_REVISIONS"],
+                        "Major Revisions Required",
+                    ),
+                    (review.const.EditorialDecisions["DECLINE"], "Reject"),
+                ],
+                max_length=100,
+                verbose_name="Draft Decision",
+            ),
         ),
         migrations.AlterField(
-            model_name='decisiondraft',
-            name='editor_decision',
-            field=models.CharField(blank=True, choices=[(review.const.EditorialDecisions['ACCEPT'], 'Accept'), (review.const.EditorialDecisions['DECLINE'], 'Decline')], max_length=20, null=True),
+            model_name="decisiondraft",
+            name="editor_decision",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    (review.const.EditorialDecisions["ACCEPT"], "Accept"),
+                    (review.const.EditorialDecisions["DECLINE"], "Decline"),
+                ],
+                max_length=20,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='reviewassignment',
-            name='decision',
-            field=models.CharField(blank=True, choices=[(review.const.EditorialDecisions['ACCEPT'], 'Accept Without Revisions'), (review.const.EditorialDecisions['MINOR_REVISIONS'], 'Minor Revisions Required'), (review.const.EditorialDecisions['MAJOR_REVISIONS'], 'Major Revisions Required'), (review.const.EditorialDecisions['DECLINE'], 'Reject')], max_length=20, null=True, verbose_name='Recommendation'),
+            model_name="reviewassignment",
+            name="decision",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    (
+                        review.const.EditorialDecisions["ACCEPT"],
+                        "Accept Without Revisions",
+                    ),
+                    (
+                        review.const.EditorialDecisions["MINOR_REVISIONS"],
+                        "Minor Revisions Required",
+                    ),
+                    (
+                        review.const.EditorialDecisions["MAJOR_REVISIONS"],
+                        "Major Revisions Required",
+                    ),
+                    (review.const.EditorialDecisions["DECLINE"], "Reject"),
+                ],
+                max_length=20,
+                null=True,
+                verbose_name="Recommendation",
+            ),
         ),
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='type',
-            field=models.CharField(choices=[(review.const.EditorialDecisions['MINOR_REVISIONS'], 'Minor Revisions'), (review.const.EditorialDecisions['MAJOR_REVISIONS'], 'Major Revisions')], default='minor_revisions', max_length=20),
+            model_name="revisionrequest",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    (
+                        review.const.EditorialDecisions["MINOR_REVISIONS"],
+                        "Minor Revisions",
+                    ),
+                    (
+                        review.const.EditorialDecisions["MAJOR_REVISIONS"],
+                        "Major Revisions",
+                    ),
+                ],
+                default="minor_revisions",
+                max_length=20,
+            ),
         ),
         migrations.RunPython(reject_to_decline, reverse_code=decline_to_reject),
     ]

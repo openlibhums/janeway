@@ -9,25 +9,56 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0030_merge_20190405_1549'),
+        ("core", "0030_merge_20190405_1549"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='XSLFile',
+            name="XSLFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(storage=core.file_system.JanewayFileSystemStorage('transform/xsl'), upload_to='')),
-                ('date_uploaded', models.DateTimeField(default=django.utils.timezone.now)),
-                ('label', models.CharField(help_text='A label to help recognise this stylesheet', max_length=255, unique=True)),
-                ('comments', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.FileField(
+                        storage=core.file_system.JanewayFileSystemStorage(
+                            "transform/xsl"
+                        ),
+                        upload_to="",
+                    ),
+                ),
+                (
+                    "date_uploaded",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "label",
+                    models.CharField(
+                        help_text="A label to help recognise this stylesheet",
+                        max_length=255,
+                        unique=True,
+                    ),
+                ),
+                ("comments", models.TextField(blank=True, null=True)),
             ],
         ),
         migrations.AddField(
-            model_name='galley',
-            name='xsl_file',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='xsl_file', to='core.XSLFile'),
+            model_name="galley",
+            name="xsl_file",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="xsl_file",
+                to="core.XSLFile",
+            ),
         ),
     ]

@@ -7,7 +7,6 @@ from utils import setting_handler
 
 
 class TestSettingHandler(TestCase):
-
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
@@ -18,19 +17,22 @@ class TestSettingHandler(TestCase):
         setting_name = "test_get_setting"
         setting_value = "banana"
         setting = setting_handler.create_setting(
-                "test_group", "test_get_setting",
-                type="text",
-                pretty_name="Some Name",
-                description=None,
+            "test_group",
+            "test_get_setting",
+            type="text",
+            pretty_name="Some Name",
+            description=None,
         )
         setting_handler.save_setting(
-                "test_group", "test_get_setting",
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            "test_get_setting",
+            journal=self.journal_one,
+            value=setting_value,
         )
         result = setting_handler.get_setting(
-                "test_group", "test_get_setting",
-                journal=self.journal_one,
+            "test_group",
+            "test_get_setting",
+            journal=self.journal_one,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -38,21 +40,24 @@ class TestSettingHandler(TestCase):
         setting_name = "test_fallback_setting"
         setting_value = "banana"
         setting = setting_handler.create_setting(
-                "test_group", "test_get_setting",
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            "test_get_setting",
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
         setting_handler.save_setting(
-                "test_group", "test_get_setting",
-                journal=self.journal_one,
-                value=setting_value
+            "test_group",
+            "test_get_setting",
+            journal=self.journal_one,
+            value=setting_value,
         )
         with helpers.activate_translation("cy"):
             result = setting_handler.get_setting(
-                    "test_group", "test_get_setting",
-                    journal=self.journal_one,
+                "test_group",
+                "test_get_setting",
+                journal=self.journal_one,
             )
         self.assertEqual(result.value, setting_value)
 
@@ -60,20 +65,23 @@ class TestSettingHandler(TestCase):
         setting_name = "test_get_default_setting"
         setting_value = "default_banana"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=False,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=False,
         )
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=None,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=None,
+            value=setting_value,
         )
         result = setting_handler.get_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -81,21 +89,21 @@ class TestSettingHandler(TestCase):
         setting_name = "test_get_default_fallback_for_lang_setting"
         setting_value = "banana"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=None,
-                value=setting_value
+            "test_group", setting_name, journal=None, value=setting_value
         )
         with helpers.activate_translation("cy"):
             result = setting_handler.get_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
             )
         self.assertEqual(result.value, setting_value)
 
@@ -104,20 +112,23 @@ class TestSettingHandler(TestCase):
         setting_name = "test_get_setting_with_language"
         setting_value = "plátano"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
+            value=setting_value,
         )
         result = setting_handler.get_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -125,20 +136,23 @@ class TestSettingHandler(TestCase):
         setting_name = "test_save_setting"
         setting_value = "This is the setting"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
+            value=setting_value,
         )
         result = setting_handler.get_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
         )
         self.assertEqual(result.value, setting_value)
 
@@ -149,21 +163,24 @@ class TestSettingHandler(TestCase):
         setting_value = "plátano"
         expected_result = None
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
+            value=setting_value,
         )
         with helpers.activate_translation(settings.LANGUAGE_CODE):
             result = setting_handler.get_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
             )
         self.assertEqual(result.value, expected_result)
 
@@ -173,33 +190,38 @@ class TestSettingHandler(TestCase):
         setting_value = "banana"
         xl_setting_value = "plátano"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
-        #Save the setting on the default language
+        # Save the setting on the default language
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
+            value=setting_value,
         )
-        #Save the translated value
+        # Save the translated value
         with helpers.activate_translation("cy"):
             setting_handler.save_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
-                    value=xl_setting_value,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
+                value=xl_setting_value,
             )
         result = setting_handler.get_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
         ).value
         with helpers.activate_translation("cy"):
             xl_result = setting_handler.get_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
             ).value
 
         self.assertEqual(result, setting_value)
@@ -211,42 +233,48 @@ class TestSettingHandler(TestCase):
         setting_value = "banana"
         xl_setting_value = "plátano"
         setting = setting_handler.create_setting(
-                "test_group", setting_name,
-                type="text",
-                pretty_name="Pretty Name",
-                description=None,
-                is_translatable=True,
+            "test_group",
+            setting_name,
+            type="text",
+            pretty_name="Pretty Name",
+            description=None,
+            is_translatable=True,
         )
-        #Save the setting on the default language
+        # Save the setting on the default language
         setting_handler.save_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
-                value=setting_value,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
+            value=setting_value,
         )
-        #Save  a wrongly translated value
+        # Save  a wrongly translated value
         wrong_translation = xl_setting_value + "mal"
         with helpers.activate_translation("cy"):
             setting_handler.save_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
-                    value=wrong_translation,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
+                value=wrong_translation,
             )
-            #save the correctly translated value
+            # save the correctly translated value
             setting_handler.save_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
-                    value=xl_setting_value,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
+                value=xl_setting_value,
             )
 
-        #Fetch the results
+        # Fetch the results
         result = setting_handler.get_setting(
-                "test_group", setting_name,
-                journal=self.journal_one,
+            "test_group",
+            setting_name,
+            journal=self.journal_one,
         ).value
         with helpers.activate_translation("cy"):
             xl_result = setting_handler.get_setting(
-                    "test_group", setting_name,
-                    journal=self.journal_one,
+                "test_group",
+                setting_name,
+                journal=self.journal_one,
             ).value
 
         self.assertEqual(result, setting_value)

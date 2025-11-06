@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0006_auto_20200227_1051'),
+        ("typesetting", "0006_auto_20200227_1051"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='typesettingassignment',
-            name='cancelled',
+            model_name="typesettingassignment",
+            name="cancelled",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

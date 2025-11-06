@@ -1,0 +1,92 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% get_current_language as LANGUAGE_CODE %}
+{% get_language_info for LANGUAGE_CODE as language_info %}
+
+{% block title %}News Manager{% endblock title %}
+{% block title-section %}News Manager{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li>News Manager</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Manage News for {{ request.site_type.name }}</h2>
+                <a href="{% url 'core_manager_create_news' %}" class="button">Add News Item</a>
+            </div>
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+
+                    {% endblocktrans %}
+                </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <table id="news-items" class="table scroll">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Posted By</th>
+                            <th>Byline</th>
+                            <th>Posted</th>
+                            <th>Start Display</th>
+                            <th>End Display</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sortable">
+                        {% for item in news_items %}
+                            <tr>
+                                <td>{{ item.pk }}</td>
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.posted_by.full_name }}</td>
+                                <td>{{ item.custom_byline|default_if_none:"--" }}</td>
+                                <td>{{ item.posted }}</td>
+                                <td>{{ item.start_display|date:"Y-m-d" }}</td>
+                                <td>{{ item.end_display|date:"Y-m-d" }}</td>
+                                <td>
+                                    <a href="{% url 'core_manager_edit_news' item.pk %}" class="tiny warning button">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <button type="submit" class="tiny alert button delete" name="delete"
+                                            value="{{ item.pk }}">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static "admin/js/csrf.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                if (!confirm("Are you sure you want to delete this news item?")) {
+                    return false;
+                }
+            });
+        });
+    </script>
+    {% include "elements/datatables.html" with target="#news-items" sort=4 order='desc' %}
+{% endblock js %}

@@ -8,40 +8,60 @@ import repository.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0003_auto_20200617_1541'),
+        ("repository", "0003_auto_20200617_1541"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='meta_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(location='/vol/janeway/src/media'), upload_to=repository.models.preprint_file_upload),
+            model_name="preprint",
+            name="meta_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=repository.models.preprint_file_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='live',
-            field=models.BooleanField(default=False, verbose_name='Repository is Live?'),
+            model_name="repository",
+            name="live",
+            field=models.BooleanField(
+                default=False, verbose_name="Repository is Live?"
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='logo',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(location='/vol/janeway/src/media'), upload_to=repository.models.repo_media_upload),
+            model_name="repository",
+            name="logo",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=repository.models.repo_media_upload,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='short_name',
-            field=models.CharField(help_text='Shortened version of the name eg. olh. Max 15 chars.', max_length=15),
+            model_name="repository",
+            name="short_name",
+            field=models.CharField(
+                help_text="Shortened version of the name eg. olh. Max 15 chars.",
+                max_length=15,
+            ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='start',
-            field=models.TextField(blank=True, null=True, verbose_name='Submission Start Text'),
+            model_name="repository",
+            name="start",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Submission Start Text"
+            ),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='slug',
+            model_name="subject",
+            name="slug",
             field=models.SlugField(blank=True, max_length=255),
         ),
     ]

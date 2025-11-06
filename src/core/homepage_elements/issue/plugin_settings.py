@@ -1,9 +1,9 @@
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-PLUGIN_NAME = 'Current Issue'
-DESCRIPTION = 'This is a homepage element that renders featured current issues.'
-AUTHOR = 'Martin Paul Eve'
+PLUGIN_NAME = "Current Issue"
+DESCRIPTION = "This is a homepage element that renders featured current issues."
+AUTHOR = "Martin Paul Eve"
 
 
 def install():
@@ -18,11 +18,12 @@ def install():
         content_type = ContentType.objects.get_for_model(journal)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='current_issue_setup',
-            template_path='journal/homepage_elements/issue_block.html',
+            configure_url="current_issue_setup",
+            template_path="journal/homepage_elements/issue_block.html",
             content_type=content_type,
             object_id=journal.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
 
@@ -32,11 +33,12 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='current_issue_setup',
-            template_path='journal/homepage_elements/issue_block.html',
+            configure_url="current_issue_setup",
+            template_path="journal/homepage_elements/issue_block.html",
             content_type=content_type,
             object_id=press.pk,
-            has_config=True)
+            has_config=True,
+        )
 
         element.save()
 
@@ -45,10 +47,10 @@ def hook_registry():
     try:
         install()
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.issue.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.issue.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
         }
     except OperationalError:

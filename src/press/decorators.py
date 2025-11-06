@@ -16,10 +16,6 @@ def journals_enabled(func):
         if request.press and not request.press.disable_journals:
             return func(request, *args, **kwargs)
 
-        return redirect(
-            reverse(
-                'website_index'
-            )
-        )
+        return redirect(reverse("website_index"))
 
     return disable_journals_wrapper

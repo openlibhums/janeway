@@ -21,7 +21,7 @@ def index(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    template = 'reports/index.html'
+    template = "reports/index.html"
     context = {}
 
     return render(request, template, context)
@@ -34,16 +34,17 @@ def metrics(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    articles = models.Article.objects.filter(journal=request.journal,
-                                             stage=models.STAGE_PUBLISHED)
+    articles = models.Article.objects.filter(
+        journal=request.journal, stage=models.STAGE_PUBLISHED
+    )
 
     total_views, total_downs = logic.get_view_and_download_totals(articles)
 
-    template = 'reports/metrics.html'
+    template = "reports/metrics.html"
     context = {
-        'articles': articles,
-        'total_views': total_views,
-        'total_downs': total_downs,
+        "articles": articles,
+        "total_views": total_views,
+        "total_downs": total_downs,
     }
 
     return render(request, template, context)
@@ -56,15 +57,17 @@ def dois(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    broken_dois = ident_models.BrokenDOI.objects.filter(article__journal=request.journal)
+    broken_dois = ident_models.BrokenDOI.objects.filter(
+        article__journal=request.journal
+    )
 
-    if request.POST and 'run' in request.POST:
-        call_command('doi_check')
-        return redirect(reverse('reports_dois', request.journal.code))
+    if request.POST and "run" in request.POST:
+        call_command("doi_check")
+        return redirect(reverse("reports_dois", request.journal.code))
 
-    template = 'reports/dois.html'
+    template = "reports/dois.html"
     context = {
-        'broken_dois': broken_dois,
+        "broken_dois": broken_dois,
     }
 
     return render(request, template, context)

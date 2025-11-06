@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preprint', '0008_auto_20171013_1104'),
+        ("preprint", "0008_auto_20171013_1104"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subject',
-            name='enabled',
-            field=models.BooleanField(default=True, help_text='If disabled, this subject will not appear publicly.'),
+            model_name="subject",
+            name="enabled",
+            field=models.BooleanField(
+                default=True,
+                help_text="If disabled, this subject will not appear publicly.",
+            ),
         ),
     ]

@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0054a_journal_press_image_override_temp'),
+        ("journal", "0054a_journal_press_image_override_temp"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='journal',
-            name='press_image_override',
+            model_name="journal",
+            name="press_image_override",
         ),
     ]

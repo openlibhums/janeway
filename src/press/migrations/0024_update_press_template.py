@@ -4,14 +4,17 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-REST_BASE = "{{ request.press_base_url }}{% url 'core_reset_password' reset_token.token %}"
+REST_BASE = (
+    "{{ request.press_base_url }}{% url 'core_reset_password' reset_token.token %}"
+)
 RESET_NEW = "{% site_url 'core_reset_password' reset_token.token %}"
 
 REG_BASE = "{{ request.press_base_url }}{% url 'core_confirm_account' user.confirmation_code %}"
 REG_NEW = "{% site_url 'core_confirm_account' user.confirmation_code %}"
 
+
 def update_press_templates(apps, schema_editor):
-    Press = apps.get_model('press', 'Press')
+    Press = apps.get_model("press", "Press")
     try:
         press_obj = Press.objects.all()[0]
 
@@ -31,12 +34,11 @@ def update_press_templates(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('press', '0023_auto_20200718_1117'),
+        ("press", "0023_auto_20200718_1117"),
     ]
 
     operations = [
         migrations.RunPython(
-            update_press_templates,
-            reverse_code=migrations.RunPython.noop
+            update_press_templates, reverse_code=migrations.RunPython.noop
         )
     ]

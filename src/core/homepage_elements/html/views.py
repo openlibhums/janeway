@@ -14,19 +14,19 @@ from security.decorators import editor_user_required
 
 @editor_user_required
 def html_settings(request):
-    plugin = models.Plugin.objects.get(name='HTML')
+    plugin = models.Plugin.objects.get(name="HTML")
 
     html_content = setting_handler.get_plugin_setting(
         plugin,
-        'html_block_content',
+        "html_block_content",
         request.journal,
         create=True,
-        pretty='HTML Block Content'
+        pretty="HTML Block Content",
     ).value
 
     form = forms.HTMLForm(
         initial={
-            'html_content': html_content,
+            "html_content": html_content,
         }
     )
 
@@ -36,12 +36,12 @@ def html_settings(request):
         )
         if form.is_valid():
             form.save(request.journal)
-            messages.add_message(request, messages.INFO, 'HTML Block updated.')
-            return redirect(reverse('home_settings_index'))
+            messages.add_message(request, messages.INFO, "HTML Block updated.")
+            return redirect(reverse("home_settings_index"))
 
-    template = 'html_settings.html'
+    template = "html_settings.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)

@@ -24,10 +24,12 @@ def get_random_journals():
 
 
 def yield_homepage_element_context(request, homepage_elements):
-    if homepage_elements is not None and homepage_elements.filter(
+    if (
+        homepage_elements is not None
+        and homepage_elements.filter(
             name=plugin_settings.PLUGIN_NAME,
-    ).exists():
-
+        ).exists()
+    ):
         if request.press.random_featured_journals:
             featured_journals = get_random_journals()
         else:
@@ -35,16 +37,16 @@ def yield_homepage_element_context(request, homepage_elements):
 
         setting, c = press_models.PressSetting.objects.get_or_create(
             press=request.press,
-            name='journals_and_html_content',
+            name="journals_and_html_content",
         )
         html_block_content = setting.value
 
         if not setting.value:
-            html_block_content = '<p>This element has no content.</p>'
+            html_block_content = "<p>This element has no content.</p>"
 
         return {
-            'featured_journals': sorted(featured_journals, key=lambda x: x.name),
-            'html_block_content': html_block_content,
+            "featured_journals": sorted(featured_journals, key=lambda x: x.name),
+            "html_block_content": html_block_content,
         }
     else:
         return {}

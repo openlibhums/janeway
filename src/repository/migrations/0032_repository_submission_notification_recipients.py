@@ -7,16 +7,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('repository', '0031_repository_active_licenses'),
+        ("repository", "0031_repository_active_licenses"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='submission_notification_recipients',
-            field=models.ManyToManyField(blank=True, related_name='submission_notification_repositories', to=settings.AUTH_USER_MODEL),
+            model_name="repository",
+            name="submission_notification_recipients",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="submission_notification_repositories",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

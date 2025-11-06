@@ -15,17 +15,23 @@ NEW_VALUE = "<p>Dear {{ review_assignment.editor.full_name }},</p><p>{{ review_a
 def replace_review_completed_ack(apps, schema_editor):
     migration_utils.update_default_setting_values(
         apps,
-        setting_name='review_complete_acknowledgement',
-        group_name='email',
-        values_to_replace=[OLD_VALUE_ONE, OLD_VALUE_TWO, OLD_VALUE_THREE, OLD_VALUE_FOUR, OLD_VALUE_FIVE, OLD_VALUE_SIX],
+        setting_name="review_complete_acknowledgement",
+        group_name="email",
+        values_to_replace=[
+            OLD_VALUE_ONE,
+            OLD_VALUE_TWO,
+            OLD_VALUE_THREE,
+            OLD_VALUE_FOUR,
+            OLD_VALUE_FIVE,
+            OLD_VALUE_SIX,
+        ],
         replacement_value=NEW_VALUE,
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0095_auto_20240605_1024'),
+        ("core", "0095_auto_20240605_1024"),
     ]
 
     operations = [

@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0105_migrate_affiliation_institution'),
-        ('repository', '0046_historicalrepository_enable_comments_and_more'),
+        ("core", "0105_migrate_affiliation_institution"),
+        ("repository", "0046_historicalrepository_enable_comments_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprintauthor',
-            name='affiliation',
+            model_name="preprintauthor",
+            name="affiliation",
         ),
         migrations.AlterField(
-            model_name='author',
-            name='affiliation',
+            model_name="author",
+            name="affiliation",
             field=models.TextField(blank=True, null=True),
         ),
     ]

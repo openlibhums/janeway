@@ -19,22 +19,26 @@ def proofreader_for_article_required(func):
     def wrapper(request, *args, **kwargs):
         if not base_check(request):
             return redirect(
-                '{0}?next={1}'.format(
-                    reverse('core_login'),
+                "{0}?next={1}".format(
+                    reverse("core_login"),
                     request.path,
                 )
             )
 
-        elif request.user.is_editor(request) or request.user.is_staff or request.user.is_production(request):
+        elif (
+            request.user.is_editor(request)
+            or request.user.is_staff
+            or request.user.is_production(request)
+        ):
             return func(request, *args, **kwargs)
 
         # User is Assigned as proofreader, regardless of role
         elif models.GalleyProofing.objects.filter(
-                pk=kwargs['assignment_id'],
-                proofreader=request.user,
-                cancelled=False,
-                completed__isnull=True,
-                round__article__journal=request.journal,
+            pk=kwargs["assignment_id"],
+            proofreader=request.user,
+            cancelled=False,
+            completed__isnull=True,
+            round__article__journal=request.journal,
         ).exists():
             return func(request, *args, **kwargs)
 
@@ -45,7 +49,7 @@ def proofreader_for_article_required(func):
 
 
 def can_preview_typesetting_article(func):
-    """ Checks if the user should be allowed to preview articles files
+    """Checks if the user should be allowed to preview articles files
 
     The user should either be an editor/production manager, a proofreader
     for the article or a typesetter for the article
@@ -54,35 +58,45 @@ def can_preview_typesetting_article(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        assignment_id = kwargs.get('assignment_id')
+        assignment_id = kwargs.get("assignment_id")
         if not base_check(request):
             return redirect(
-                '{0}?next={1}'.format(
-                    reverse('core_login'),
+                "{0}?next={1}".format(
+                    reverse("core_login"),
                     request.path,
                 )
             )
 
-        elif request.user.is_editor(request) or request.user.is_staff or request.user.is_production(request):
+        elif (
+            request.user.is_editor(request)
+            or request.user.is_staff
+            or request.user.is_production(request)
+        ):
             return func(request, *args, **kwargs)
 
         # User is Assigned as proofreader, regardless of role
-        elif assignment_id and models.GalleyProofing.objects.filter(
+        elif (
+            assignment_id
+            and models.GalleyProofing.objects.filter(
                 pk=assignment_id,
                 proofreader=request.user,
                 cancelled=False,
                 completed__isnull=True,
                 round__article__journal=request.journal,
-        ).exists():
+            ).exists()
+        ):
             return func(request, *args, **kwargs)
 
         # User is Assigned as typesetter, regardless of role
-        elif assignment_id and models.TypesettingAssignment.objects.filter(
+        elif (
+            assignment_id
+            and models.TypesettingAssignment.objects.filter(
                 pk=assignment_id,
                 typesetter=request.user,
                 cancelled__isnull=True,
                 round__article__journal=request.journal,
-        ).exists():
+            ).exists()
+        ):
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -95,10 +109,11 @@ def require_not_notified(object_model):
     Decorator that checks if an object's notified boolean attribute is True
     and redirects
     """
+
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
-            assignment_id = kwargs.get('assignment_id')
+            assignment_id = kwargs.get("assignment_id")
 
             if not assignment_id:
                 raise Http404
@@ -114,7 +129,9 @@ def require_not_notified(object_model):
                 )
 
             return func(request, *args, **kwargs)
+
         return inner
+
     return decorator
 
 
@@ -122,8 +139,9 @@ def user_can_manage_file(func):
     """
     A decorator for checking if the current user can manage a file.
     """
+
     def wrapper(request, *args, **kwargs):
-        file_object_id = kwargs.get('file_id', None)
+        file_object_id = kwargs.get("file_id", None)
 
         if not file_object_id:
             raise Http404
@@ -146,17 +164,9 @@ def can_manage_file(request, file_object):
     Determines if a user can view and download a file in the Typesetting Plugin.
     """
     if request.user.is_anonymous:
-        return redirect(
-            '{0}?next={1}'.format(
-                reverse('core_login'),
-                request.path
-            )
-        )
+        return redirect("{0}?next={1}".format(reverse("core_login"), request.path))
 
-    if (
-        request.user.is_staff or
-        request.user.is_editor(request)
-    ):
+    if request.user.is_staff or request.user.is_editor(request):
         return True
 
     if file_object.article_id:
@@ -171,10 +181,7 @@ def can_manage_file(request, file_object):
         # Files without article ids should not be downloadable here.
         return False
 
-    if (
-        request.user.is_production(request) or
-        file_object.owner == request.user
-    ):
+    if request.user.is_production(request) or file_object.owner == request.user:
         return True
 
     # deny access to all others

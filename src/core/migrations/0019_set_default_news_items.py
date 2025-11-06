@@ -16,15 +16,12 @@ def set_default_news_items(apps, schema_editor):
     else:
         journals = Journal.objects.all()
         for journal in journals:
-
             plugin_setting, c = PluginSetting.objects.get_or_create(
-                plugin=plugin,
-                name="number_of_articles"
+                plugin=plugin, name="number_of_articles"
             )
 
             plugin_setting_value, c = PluginSettingValue.objects.get_or_create(
-                setting=plugin_setting,
-                journal=journal
+                setting=plugin_setting, journal=journal
             )
 
             SQL = """
@@ -37,20 +34,14 @@ def set_default_news_items(apps, schema_editor):
                 cursor.execute(SQL)
 
 
-
-
-
-
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0018_auto_20181116_1123'),
-        ('utils', '0009_auto_20180808_1514'),
+        ("core", "0018_auto_20181116_1123"),
+        ("utils", "0009_auto_20180808_1514"),
     ]
 
     operations = [
         migrations.RunPython(
-            set_default_news_items,
-            reverse_code=migrations.RunPython.noop
+            set_default_news_items, reverse_code=migrations.RunPython.noop
         ),
     ]

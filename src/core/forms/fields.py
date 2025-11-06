@@ -21,6 +21,7 @@ class MultipleFileField(forms.FileField):
             result = single_file_clean(data, initial)
         return result
 
+
 class TagitField(forms.CharField):
     widget = TagitWidget
 
@@ -30,7 +31,6 @@ class TagitField(forms.CharField):
                 return tuple(item for item in value.split(","))
             except (AttributeError, ValueError):
                 raise ValidationError(
-                    "%s is not a valid value for %s"
-                    "" % (value, self.label)
+                    "%s is not a valid value for %s" % (value, self.label)
                 )
         return tuple()

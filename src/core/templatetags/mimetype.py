@@ -15,8 +15,8 @@ def get_mime(file_field):
     Usage: {{ request.press.favicon|get_mime }}
     """
     try:
-        if file_field and hasattr(file_field, 'path'):
+        if file_field and hasattr(file_field, "path"):
             return file_path_mime(file_field.path)
     except FileNotFoundError:
         pass
-    return 'application/octet-stream'
+    return "application/octet-stream"

@@ -10,6 +10,7 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
+import warnings
 
 from core import models as core_models, logic
 from review import models as review_models
@@ -34,6 +35,7 @@ logger = get_logger(__name__)
 
 # General role-based security decorators
 
+
 def base_check(request, login_redirect=False):
     """Janeway equivalent to Django's login_required logic
 
@@ -53,10 +55,10 @@ def base_check(request, login_redirect=False):
                 params = urlencode({"next": f"{request.path}?{request_params}"})
             else:
                 params = urlencode({"next": request.path})
-            return redirect('{0}?{1}'.format(reverse('core_login'), params))
+            return redirect("{0}?{1}".format(reverse("core_login"), params))
         elif isinstance(login_redirect, str):
             params = urlencode({"next": login_redirect})
-            return redirect('{0}?{1}'.format(reverse('core_login'), params))
+            return redirect("{0}?{1}".format(reverse("core_login"), params))
         else:
             return False
 
@@ -64,10 +66,11 @@ def base_check(request, login_redirect=False):
 
 
 def base_check_required(func):
-    """ Decorator similar to django login_required
+    """Decorator similar to django login_required
 
     Validates the request user against base_check instead
     """
+
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         check = base_check(request, login_redirect=True)
@@ -75,6 +78,7 @@ def base_check_required(func):
             return func(request, *args, **kwargs)
         else:
             return check
+
     return wrapper
 
 
@@ -87,21 +91,23 @@ def editor_is_not_author(func):
     """
 
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
-        decision = kwargs.get('decision', ED.REVIEW.value)
+        article_id = kwargs.get("article_id", None)
+        decision = kwargs.get("decision", ED.REVIEW.value)
 
         if not article_id:
             raise Http404
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if request.user in article.author_accounts and not article.editor_override(request.user):
+        if request.user in article.author_accounts and not article.editor_override(
+            request.user
+        ):
             return redirect(
                 reverse(
-                    'review_warning',
+                    "review_warning",
                     kwargs={
-                        'article_id': article.pk,
-                        'decision': decision,
+                        "article_id": article.pk,
+                        "decision": decision,
                     },
                 ),
             )
@@ -112,7 +118,7 @@ def editor_is_not_author(func):
 
 
 def senior_editor_user_required(func):
-    """ This decorator checks that a user is an editor, Note that this decorator does NOT check for conflict of interest
+    """This decorator checks that a user is an editor, Note that this decorator does NOT check for conflict of interest
     problems. Use the user_can_edit_article to do a check against an article.
 
     :param func: the function to callback from the decorator
@@ -121,7 +127,6 @@ def senior_editor_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
@@ -156,11 +161,13 @@ def production_manager_roles(func):
     :return: either the function call or permission denied
     """
 
-
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
-        if request.user.is_editor(request) or request.user.is_section_editor(request) or request.user.is_production(request):
+        if (
+            request.user.is_editor(request)
+            or request.user.is_section_editor(request)
+            or request.user.is_production(request)
+        ):
             return func(request, *args, **kwargs)
 
         else:
@@ -171,16 +178,18 @@ def production_manager_roles(func):
 
 def proofing_manager_roles(func):
     """
-        Checks if the current user has one of the proofing manager roles.
-        :param func: the function to callback from the decorator
-        :return: either the function call or permission denied
-        """
+    Checks if the current user has one of the proofing manager roles.
+    :param func: the function to callback from the decorator
+    :return: either the function call or permission denied
+    """
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
-        if request.user.is_editor(request) or request.user.is_section_editor(
-                request) or request.user.is_proofing_manager(request):
+        if (
+            request.user.is_editor(request)
+            or request.user.is_section_editor(request)
+            or request.user.is_proofing_manager(request)
+        ):
             return func(request, *args, **kwargs)
 
         else:
@@ -194,22 +203,22 @@ def role_can_access(access_setting):
     This decorator determines if a user can access a given view based on the
     roles that are allowed to access it.
     """
+
     def decorator(func):
         @base_check_required
         def wrapper(request, *args, **kwargs):
-
             if request.user.is_staff:
                 return func(request, *args, **kwargs)
 
             setting = setting_handler.get_setting(
-                setting_group_name='permission',
+                setting_group_name="permission",
                 setting_name=access_setting,
                 journal=request.journal,
             )
 
             journal_roles = request.user.roles.get(request.journal.code) or set()
             setting_roles = set(setting.processed_value or [])
-            
+
             # If no roles for the setting are configured we deny access
             # in the event that we want all roles to have access they
             # should be explicitly defined.
@@ -217,7 +226,9 @@ def role_can_access(access_setting):
                 return func(request, *args, **kwargs)
 
             deny_access(request)
+
         return wrapper
+
     return decorator
 
 
@@ -228,9 +239,8 @@ def user_can_edit_setting(func):
     """
 
     def wrapper(request, *args, **kwargs):
-
-        setting_group_name = kwargs.get('setting_group', None)
-        setting_name = kwargs.get('setting_name', None)
+        setting_group_name = kwargs.get("setting_group", None)
+        setting_name = kwargs.get("setting_name", None)
 
         if not setting_group_name or not setting_name:
             deny_access(request)
@@ -257,15 +267,18 @@ def editor_or_journal_manager_required(func):
     This decorator checks that a user is either an editor a
     journal-manager.
     """
+
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.user.is_editor(request) or request.user.is_journal_manager(request.journal):
+        if request.user.is_editor(request) or request.user.is_journal_manager(
+            request.journal
+        ):
             return func(request, *args, **kwargs)
         deny_access(request)
 
 
 def editor_user_required(func):
-    """ This decorator checks that a user is an editor, or
+    """This decorator checks that a user is an editor, or
     that the user is a section editor assigned to the article in the url.
 
     Note that this decorator does NOT check for conflict of interest
@@ -278,9 +291,13 @@ def editor_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
+        article_id = kwargs.get("article_id", None)
 
-        if request.user.is_editor(request) or request.user.is_staff or request.user.is_journal_manager(request.journal):
+        if (
+            request.user.is_editor(request)
+            or request.user.is_staff
+            or request.user.is_journal_manager(request.journal)
+        ):
             return func(request, *args, **kwargs)
 
         elif request.user.is_section_editor(request) and article_id:
@@ -298,20 +315,21 @@ def editor_user_required(func):
 
 def editor_user_required_and_can_see_pii(func):
     """Extends editor_user_required to check if SE can see PII"""
+
     @editor_user_required
     def can_see_pii_decorator(request, *args, **kwargs):
-        article_id = kwargs.get('article_id')
+        article_id = kwargs.get("article_id")
         article = get_object_or_404(models.Article, pk=article_id)
-        if (
-            request.user in article.section_editors()
-            and not can_see_pii(request, article)
+        if request.user in article.section_editors() and not can_see_pii(
+            request, article
         ):
             deny_access(
                 request,
                 "You cannot access this page yet, because it could reveal"
-                " personally identifiable information."
+                " personally identifiable information.",
             )
         return func(request, *args, **kwargs)
+
     return can_see_pii_decorator
 
 
@@ -340,10 +358,13 @@ def section_editor_draft_decisions(func):
     :param func: the function to callback from the decorator
     :return: either the function call or raises an permissiondenied.
     """
+
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
-        drafting = setting_handler.get_setting('general', 'draft_decisions', request.journal).value
+        article_id = kwargs.get("article_id", None)
+        drafting = setting_handler.get_setting(
+            "general", "draft_decisions", request.journal
+        ).value
 
         if request.user.is_section_editor(request) and article_id:
             article = get_object_or_404(models.Article, pk=article_id)
@@ -356,7 +377,7 @@ def section_editor_draft_decisions(func):
 
 
 def reviewer_user_required(func):
-    """ This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
+    """This decorator checks that a user is a reviewer, Note that this decorator does NOT check for conflict of
     interest problems. Use the user_can_edit_article to do a check against an article.
 
     :param func: the function to callback from the decorator
@@ -365,7 +386,6 @@ def reviewer_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_reviewer(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
@@ -375,7 +395,7 @@ def reviewer_user_required(func):
 
 
 def author_user_required(func):
-    """ This decorator checks that a user is an author
+    """This decorator checks that a user is an author
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -392,7 +412,7 @@ def author_user_required(func):
 
 
 def article_author_required(func):
-    """ This decorator checks that a user is an author and is an author of the article
+    """This decorator checks that a user is an author and is an author of the article
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -400,8 +420,8 @@ def article_author_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs['article_id']
-        article = models.Article.get_article(request.journal, 'id', article_id)
+        article_id = kwargs["article_id"]
+        article = models.Article.get_article(request.journal, "id", article_id)
 
         if request.user.is_author(request) and article.user_is_author(request.user):
             return func(request, *args, **kwargs)
@@ -412,7 +432,7 @@ def article_author_required(func):
 
 
 def proofreader_user_required(func):
-    """ This decorator checks that a user is a proofreader
+    """This decorator checks that a user is a proofreader
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -420,7 +440,6 @@ def proofreader_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_proofreader(request) or request.user.is_proofreader(request):
             return func(request, *args, **kwargs)
         else:
@@ -430,7 +449,7 @@ def proofreader_user_required(func):
 
 
 def copyeditor_user_required(func):
-    """ This decorator checks that a user is a copyeditor.
+    """This decorator checks that a user is a copyeditor.
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -438,7 +457,6 @@ def copyeditor_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_copyeditor(request) or request.user.is_copyeditor(request):
             return func(request, *args, **kwargs)
         else:
@@ -448,7 +466,7 @@ def copyeditor_user_required(func):
 
 
 def copyeditor_for_copyedit_required(func):
-    """ This decorator checks that a user is a copyeditor and that they are the copyeditor for this article.
+    """This decorator checks that a user is a copyeditor and that they are the copyeditor for this article.
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -456,11 +474,16 @@ def copyeditor_for_copyedit_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        copyedit_id = kwargs["copyedit_id"]
+        copyedit = get_object_or_404(
+            copyediting_models.CopyeditAssignment, pk=copyedit_id
+        )
 
-        copyedit_id = kwargs['copyedit_id']
-        copyedit = get_object_or_404(copyediting_models.CopyeditAssignment, pk=copyedit_id)
-
-        if request.user == copyedit.copyeditor and request.user.is_copyeditor(request) or request.user.is_staff:
+        if (
+            request.user == copyedit.copyeditor
+            and request.user.is_copyeditor(request)
+            or request.user.is_staff
+        ):
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -469,7 +492,7 @@ def copyeditor_for_copyedit_required(func):
 
 
 def typesetting_user_or_production_user_or_editor_required(func):
-    """ This decorator checks that a user is a production manager
+    """This decorator checks that a user is a production manager
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http403
@@ -477,9 +500,12 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
-        if request.user.is_typesetter(request) or request.user.is_production(request) or \
-                request.user.is_editor(request) or request.user.is_staff:
+        if (
+            request.user.is_typesetter(request)
+            or request.user.is_production(request)
+            or request.user.is_editor(request)
+            or request.user.is_staff
+        ):
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -488,7 +514,7 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
 
 def production_user_or_editor_required(func):
-    """ This decorator checks that a user is a production manager
+    """This decorator checks that a user is a production manager
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http403
@@ -496,10 +522,14 @@ def production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
-        typeset_id = kwargs.get('typeset_id', None)
+        article_id = kwargs.get("article_id", None)
+        typeset_id = kwargs.get("typeset_id", None)
 
-        if request.user.is_production(request) or request.user.is_editor(request) or request.user.is_staff:
+        if (
+            request.user.is_production(request)
+            or request.user.is_editor(request)
+            or request.user.is_staff
+        ):
             return func(request, *args, **kwargs)
 
         elif article_id:
@@ -514,7 +544,7 @@ def production_user_or_editor_required(func):
             typeset_task = get_object_or_404(
                 production_models.TypesetTask,
                 pk=typeset_id,
-                assignment__article__journal=request.journal
+                assignment__article__journal=request.journal,
             )
             if request.user in typeset_task.assignment.article.section_editors():
                 return func(request, *args, **kwargs)
@@ -525,7 +555,7 @@ def production_user_or_editor_required(func):
 
 
 def reviewer_user_for_assignment_required(func):
-    """ This decorator checks permissions for a user to accept or decline a review request. It also checks that the
+    """This decorator checks permissions for a user to accept or decline a review request. It also checks that the
     associated article is in a stage for which it is valid to perform this action.
 
     :param func: the function to callback from the decorator
@@ -536,7 +566,7 @@ def reviewer_user_for_assignment_required(func):
         from review import logic as reviewer_logic
 
         access_code = reviewer_logic.get_access_code(request)
-        assignment_id = kwargs['assignment_id']
+        assignment_id = kwargs["assignment_id"]
 
         if not access_code:
             check = base_check(request, login_redirect=True)
@@ -547,8 +577,9 @@ def reviewer_user_for_assignment_required(func):
 
         if access_code is not None:
             try:
-                assignment = review_models.ReviewAssignment.objects.get(pk=assignment_id,
-                                                                        access_code=access_code)
+                assignment = review_models.ReviewAssignment.objects.get(
+                    pk=assignment_id, access_code=access_code
+                )
 
                 if assignment:
                     return func(request, *args, **kwargs)
@@ -566,17 +597,20 @@ def reviewer_user_for_assignment_required(func):
 
         try:
             if request.user.is_staff:
-                assignment = review_models.ReviewAssignment.objects.get(pk=assignment_id)
+                assignment = review_models.ReviewAssignment.objects.get(
+                    pk=assignment_id
+                )
 
                 if assignment:
                     return func(request, *args, **kwargs)
                 else:
                     deny_access(request)
 
-            assignment = review_models.ReviewAssignment.objects.get(pk=assignment_id, reviewer=request.user)
+            assignment = review_models.ReviewAssignment.objects.get(
+                pk=assignment_id, reviewer=request.user
+            )
 
             if assignment:
-
                 if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
                     deny_access(request)
                 else:
@@ -605,7 +639,7 @@ def user_has_completed_review_for_article(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id')
+        article_id = kwargs.get("article_id")
         if article_id:
             article = get_object_or_404(
                 models.Article,
@@ -626,7 +660,7 @@ def user_has_completed_review_for_article(func):
 
 # Article-specific user enforcement
 def article_production_user_required(func):
-    """ This decorator checks permissions for a user to view production
+    """This decorator checks permissions for a user to view production
     information about a specific article
 
     :param func: the function to callback from the decorator
@@ -635,25 +669,36 @@ def article_production_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article_id = kwargs["article_id"]
 
-        article_id = kwargs['article_id']
-
-        article = models.Article.get_article(request.journal, 'id', article_id)
-        assigned = get_object_or_404(production_models.ProductionAssignment, article=article)
+        article = models.Article.get_article(request.journal, "id", article_id)
+        assigned = get_object_or_404(
+            production_models.ProductionAssignment, article=article
+        )
 
         # if the user is editor or section editor of the article
-        if request.user in article.section_editors() or request.user in article.editor_list():
+        if (
+            request.user in article.section_editors()
+            or request.user in article.editor_list()
+        ):
             return func(request, *args, **kwargs)
 
         # If article is in production and user is the production manager
-        if ((assigned.production_manager.pk == request.user.pk) and article.stage == models.STAGE_TYPESETTING) or request.user.is_staff:
+        if (
+            (assigned.production_manager.pk == request.user.pk)
+            and article.stage == models.STAGE_TYPESETTING
+        ) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
         # If article is in proofing and the user is the proofing manager
         if article.stage == models.STAGE_PROOFING:
-            proofing_assigned = get_object_or_404(proofing_models.ProofingAssignment, article=article)
-            if (request.user.is_proofing_manager and proofing_assigned.proofing_manager == request.user) or \
-                    request.user.is_staff:
+            proofing_assigned = get_object_or_404(
+                proofing_models.ProofingAssignment, article=article
+            )
+            if (
+                request.user.is_proofing_manager
+                and proofing_assigned.proofing_manager == request.user
+            ) or request.user.is_staff:
                 return func(request, *args, **kwargs)
 
         else:
@@ -663,20 +708,22 @@ def article_production_user_required(func):
 
 
 def article_stage_production_required(func):
-    """ This decorator checks that a specific article is in the typesetting stage
+    """This decorator checks that a specific article is in the typesetting stage
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        if 'typeset_id' in kwargs:
-            typesetting_assignment = production_models.TypesetTask.objects.get(pk=kwargs.get('typeset_id'))
+        if "typeset_id" in kwargs:
+            typesetting_assignment = production_models.TypesetTask.objects.get(
+                pk=kwargs.get("typeset_id")
+            )
             article_id = typesetting_assignment.assignment.article.pk
         else:
-            article_id = kwargs['article_id']
+            article_id = kwargs["article_id"]
 
-        article = models.Article.get_article(request.journal, 'id', article_id)
+        article = models.Article.get_article(request.journal, "id", article_id)
 
         if article and article.stage == models.STAGE_TYPESETTING:
             return func(request, *args, **kwargs)
@@ -687,17 +734,19 @@ def article_stage_production_required(func):
 
 
 def article_stage_accepted_or_later_required(func):
-    """ This decorator checks that a specific article has been accepted
+    """This decorator checks that a specific article has been accepted
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        identifier_type = kwargs['identifier_type']
-        identifier = kwargs['identifier']
+        identifier_type = kwargs["identifier_type"]
+        identifier = kwargs["identifier"]
 
-        article_object = models.Article.get_article(request.journal, identifier_type, identifier)
+        article_object = models.Article.get_article(
+            request.journal, identifier_type, identifier
+        )
 
         if article_object is None or not article_object.is_accepted():
             deny_access(request)
@@ -708,7 +757,7 @@ def article_stage_accepted_or_later_required(func):
 
 
 def article_stage_accepted_or_later_or_staff_required(func):
-    """ This decorator checks that a specific article has been accepted or the user is staff
+    """This decorator checks that a specific article has been accepted or the user is staff
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -716,21 +765,30 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
     @wraps(func)
     def wrapper(request, *args, **kwargs):
-        identifier_type = kwargs['identifier_type']
-        identifier = kwargs['identifier']
+        identifier_type = kwargs["identifier_type"]
+        identifier = kwargs["identifier"]
 
-        article_object = models.Article.get_article(request.journal, identifier_type, identifier)
+        article_object = models.Article.get_article(
+            request.journal, identifier_type, identifier
+        )
 
-        if not request.journal and request.site_type.code == 'press':
-            article_object = models.Article.get_press_article(request.press, identifier_type, identifier)
+        if not request.journal and request.site_type.code == "press":
+            article_object = models.Article.get_press_article(
+                request.press, identifier_type, identifier
+            )
 
         if article_object is not None and article_object.is_accepted():
             return func(request, *args, **kwargs)
         elif request.user.is_anonymous:
             deny_access(request)
-        elif article_object is not None and (request.user.is_editor(request) or request.user.is_staff):
+        elif article_object is not None and (
+            request.user.is_editor(request) or request.user.is_staff
+        ):
             return func(request, *args, **kwargs)
-        elif article_object is not None and request.user in article_object.section_editors():
+        elif (
+            article_object is not None
+            and request.user in article_object.section_editors()
+        ):
             return func(request, *args, **kwargs)
         else:
             deny_access(request)
@@ -739,21 +797,21 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
 
 def article_edit_user_required(func):
-    raise DeprecationWarning('Use user_can_edit_article instead.')
+    warnings.warn("Use user_can_edit_article instead.")
     return user_can_edit_article(func)
 
 
 def user_can_edit_article(func):
-    """ This decorator checks permissions for a user to edit a specific article
+    """This decorator checks permissions for a user to edit a specific article
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs['article_id']
+        article_id = kwargs["article_id"]
 
-        article = models.Article.get_article(request.journal, 'id', article_id)
+        article = models.Article.get_article(request.journal, "id", article_id)
 
         if article.can_edit(request.user):
             return func(request, *args, **kwargs)
@@ -764,14 +822,14 @@ def user_can_edit_article(func):
 
 
 def user_can_edit_author(func):
-    """ This decorator checks permissions for a user to edit a specific author
+    """This decorator checks permissions for a user to edit a specific author
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        author_id = kwargs['author_id']
+        author_id = kwargs["author_id"]
         author = models.FrozenAuthor.objects.get(pk=author_id)
         if author.can_edit(request.user):
             return func(request, *args, **kwargs)
@@ -783,15 +841,16 @@ def user_can_edit_author(func):
 
 # File permissions
 
+
 def file_user_required(func):
-    """ This decorator checks that a user has permission to view a file
+    """This decorator checks that a user has permission to view a file
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        file_id = kwargs['file_id']
+        file_id = kwargs["file_id"]
 
         if file_id == "None":
             return func(request, *args, **kwargs)
@@ -801,79 +860,99 @@ def file_user_required(func):
         if can_view_file(request, request.user, file_object):
             return func(request, *args, **kwargs)
         else:
-            messages.add_message(request, messages.ERROR, 'File is not accessible to this user.')
+            messages.add_message(
+                request, messages.ERROR, "File is not accessible to this user."
+            )
             deny_access(request)
 
     return wrapper
 
 
 def file_history_user_required(func):
-    """ This decorator checks permissions for a user to view the history of a specific article
+    """This decorator checks permissions for a user to view the history of a specific article
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        file_object = get_object_or_404(core_models.File, pk=kwargs['file_id'])
+        file_object = get_object_or_404(core_models.File, pk=kwargs["file_id"])
 
         try:
-            article = models.Article.get_article(request.journal, 'id', kwargs['article_id'])
+            article = models.Article.get_article(
+                request.journal, "id", kwargs["article_id"]
+            )
         except KeyError:
-            article = models.Article.get_article(request.journal, kwargs['identifier_type'], kwargs['identifier'])
+            article = models.Article.get_article(
+                request.journal, kwargs["identifier_type"], kwargs["identifier"]
+            )
 
         if can_view_file_history(request, request.user, file_object, article):
             return func(request, *args, **kwargs)
 
-        messages.add_message(request, messages.ERROR, 'File editing not accessible to this user.')
+        messages.add_message(
+            request, messages.ERROR, "File editing not accessible to this user."
+        )
         deny_access(request)
 
     return wrapper
 
 
 def file_edit_user_required(func):
-    """ This decorator checks permissions for a user to edit a specific article
+    """This decorator checks permissions for a user to edit a specific article
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        file_object = get_object_or_404(core_models.File, pk=kwargs['file_id'])
+        file_object = get_object_or_404(core_models.File, pk=kwargs["file_id"])
 
         try:
-            article = models.Article.get_article(request.journal, 'id', kwargs['article_id'])
+            article = models.Article.get_article(
+                request.journal, "id", kwargs["article_id"]
+            )
         except KeyError:
-            article = models.Article.get_article(request.journal, kwargs['identifier_type'], kwargs['identifier'])
+            article = models.Article.get_article(
+                request.journal, kwargs["identifier_type"], kwargs["identifier"]
+            )
 
         if can_edit_file(request, request.user, file_object, article):
             return func(request, *args, **kwargs)
 
-        messages.add_message(request, messages.ERROR, 'File editing not accessible to this user.')
+        messages.add_message(
+            request, messages.ERROR, "File editing not accessible to this user."
+        )
         deny_access(request)
 
     return wrapper
 
 
 def data_figure_file(func):
-    """ This decorator checks that a file is a data or figure file in the specified article
+    """This decorator checks that a file is a data or figure file in the specified article
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
     """
 
     def wrapper(request, *args, **kwargs):
-        file_object = get_object_or_404(core_models.File, pk=kwargs['file_id'])
+        file_object = get_object_or_404(core_models.File, pk=kwargs["file_id"])
 
         try:
-            article = models.Article.get_article(request.journal, 'id', kwargs['article_id'])
+            article = models.Article.get_article(
+                request.journal, "id", kwargs["article_id"]
+            )
         except KeyError:
-            article = models.Article.get_article(request.journal, kwargs['identifier_type'], kwargs['identifier'])
+            article = models.Article.get_article(
+                request.journal, kwargs["identifier_type"], kwargs["identifier"]
+            )
 
         if is_data_figure_file(file_object, article):
             return func(request, *args, **kwargs)
 
-        messages.add_message(request, messages.ERROR, 'File is not a data or figure file.')
+        messages.add_message(
+            request, messages.ERROR, "File is not a data or figure file."
+        )
         deny_access(request)
 
     return wrapper
@@ -881,8 +960,9 @@ def data_figure_file(func):
 
 # General checks to avoid "raise Http404()" logic elsewhere
 
+
 def has_request(func):
-    """ This decorator checks that the request object is not None
+    """This decorator checks that the request object is not None
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -898,7 +978,7 @@ def has_request(func):
 
 
 def has_journal(func):
-    """ This decorator checks that the request object is not None
+    """This decorator checks that the request object is not None
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -914,7 +994,7 @@ def has_journal(func):
 
 
 def article_exists(func):
-    """ This decorator checks that a specific article has been accepted or the user is staff
+    """This decorator checks that a specific article has been accepted or the user is staff
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -922,11 +1002,13 @@ def article_exists(func):
 
     def wrapper(request, *args, **kwargs):
         try:
-            article_object = models.Article.get_article(request.journal, 'id', kwargs['article_id'])
+            article_object = models.Article.get_article(
+                request.journal, "id", kwargs["article_id"]
+            )
         except KeyError:
-            article_object = models.Article.get_article(request.journal,
-                                                        kwargs['identifier_type'],
-                                                        kwargs['identifier'])
+            article_object = models.Article.get_article(
+                request.journal, kwargs["identifier_type"], kwargs["identifier"]
+            )
 
         if article_object is None:
             raise Http404()
@@ -948,10 +1030,13 @@ def article_decision_not_made(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         try:
-            article_object = models.Article.objects.get(pk=kwargs['article_id'], journal=request.journal)
+            article_object = models.Article.objects.get(
+                pk=kwargs["article_id"], journal=request.journal
+            )
         except KeyError:
-            article_object = review_models.ReviewAssignment.objects.get(pk=kwargs['review_id'],
-                                                                        article__journal=request.journal).article
+            article_object = review_models.ReviewAssignment.objects.get(
+                pk=kwargs["review_id"], article__journal=request.journal
+            ).article
 
         under_consideration = models.REVIEW_STAGES.copy()
         under_consideration.remove(models.STAGE_ACCEPTED)
@@ -961,24 +1046,24 @@ def article_decision_not_made(func):
             messages.add_message(
                 request,
                 messages.INFO,
-                'This article is not in a review stage.',
+                "This article is not in a review stage.",
             )
             return redirect(
                 reverse(
-                    'review_in_review',
-                    kwargs={'article_id': article_object.pk},
+                    "review_in_review",
+                    kwargs={"article_id": article_object.pk},
                 )
             )
         else:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'This article is no longer under review.',
+                "This article is no longer under review.",
             )
             return redirect(
                 reverse(
-                    'review_in_review',
-                    kwargs={'article_id': article_object.pk},
+                    "review_in_review",
+                    kwargs={"article_id": article_object.pk},
                 )
             )
 
@@ -986,7 +1071,7 @@ def article_decision_not_made(func):
 
 
 def typesetter_user_required(func):
-    """ This decorator checks that a user is a typesetter.
+    """This decorator checks that a user is a typesetter.
 
     :param func: the function to callback from the decorator
     :return: either the function call or raises an Http404
@@ -994,7 +1079,6 @@ def typesetter_user_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_typesetter(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
@@ -1005,17 +1089,17 @@ def typesetter_user_required(func):
 
 def typesetter_or_editor_required(func):
     """
-        This decorator pulls a typeset task and checks the current user is either an editor or a typesetter with
-        an active task.
+    This decorator pulls a typeset task and checks the current user is either an editor or a typesetter with
+    an active task.
 
-        :param func: the function to callback from the decorator
-        :return: either the function call or raises an PermissionDenied
-        """
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an PermissionDenied
+    """
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
-        typeset_id = kwargs.get('typeset_id', None)
+        article_id = kwargs.get("article_id", None)
+        typeset_id = kwargs.get("typeset_id", None)
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -1026,8 +1110,11 @@ def typesetter_or_editor_required(func):
                 pk=typeset_id,
                 assignment__article__journal=request.journal,
             )
-            if request.user == typeset_assignment.typesetter and not typeset_assignment.completed and \
-                    request.user.is_typesetter(request):
+            if (
+                request.user == typeset_assignment.typesetter
+                and not typeset_assignment.completed
+                and request.user.is_typesetter(request)
+            ):
                 return func(request, *args, **kwargs)
 
         if article_id:
@@ -1053,9 +1140,13 @@ def proofing_manager_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        article_id = kwargs.get('article_id', None)
+        article_id = kwargs.get("article_id", None)
 
-        if request.user.is_editor(request) or request.user.is_staff or request.user.is_proofing_manager(request):
+        if (
+            request.user.is_editor(request)
+            or request.user.is_staff
+            or request.user.is_proofing_manager(request)
+        ):
             return func(request, *args, **kwargs)
         elif article_id:
             article = get_object_or_404(
@@ -1080,11 +1171,10 @@ def proofing_manager_for_article_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article = get_object_or_404(models.Article, pk=kwargs["article_id"])
 
-        article = get_object_or_404(models.Article, pk=kwargs['article_id'])
-
-        if not hasattr(article, 'proofingassignment'):
-            return redirect(reverse('proofing_list'))
+        if not hasattr(article, "proofingassignment"):
+            return redirect(reverse("proofing_list"))
 
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
@@ -1097,8 +1187,7 @@ def proofing_manager_for_article_required(func):
 
         try:
             proofing_models.ProofingAssignment.objects.get(
-                article=article,
-                proofing_manager=request.user
+                article=article, proofing_manager=request.user
             )
             return func(request, *args, **kwargs)
         except proofing_models.ProofingAssignment.DoesNotExist:
@@ -1118,7 +1207,6 @@ def proofreader_or_typesetter_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
@@ -1139,11 +1227,9 @@ def proofreader_for_article_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if 'article_id' in kwargs:
+        if "article_id" in kwargs:
             article = get_object_or_404(
-                    models.Article,
-                    pk=kwargs['article_id'],
-                    journal=request.journal
+                models.Article, pk=kwargs["article_id"], journal=request.journal
             )
         else:
             article = None
@@ -1151,20 +1237,17 @@ def proofreader_for_article_required(func):
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        #proofing manager
-        elif (
-              article
-              and request.user == article.proofingassignment.proofing_manager
-        ):
+        # proofing manager
+        elif article and request.user == article.proofingassignment.proofing_manager:
             return func(request, *args, **kwargs)
 
-        #User is Assigned as proofreader, regardless of role
+        # User is Assigned as proofreader, regardless of role
         elif proofing_models.ProofingTask.objects.filter(
-                pk=kwargs['proofing_task_id'],
-                proofreader=request.user,
-                cancelled=False,
-                completed__isnull=True,
-                round__assignment__article__journal=request.journal
+            pk=kwargs["proofing_task_id"],
+            proofreader=request.user,
+            cancelled=False,
+            completed__isnull=True,
+            round__assignment__article__journal=request.journal,
         ).exists():
             return func(request, *args, **kwargs)
 
@@ -1183,20 +1266,21 @@ def typesetter_for_corrections_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         if request.user.is_editor(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
 
         try:
             proofing_models.TypesetterProofingTask.objects.get(
-                pk=kwargs['typeset_task_id'],
+                pk=kwargs["typeset_task_id"],
                 cancelled=False,
                 completed__isnull=True,
                 typesetter=request.user,
-                proofing_task__round__assignment__article__journal=request.journal)
+                proofing_task__round__assignment__article__journal=request.journal,
+            )
             return func(request, *args, **kwargs)
         except proofing_models.TypesetterProofingTask.DoesNotExist:
             deny_access(request)
+
     return wrapper
 
 
@@ -1210,8 +1294,8 @@ def press_only(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
         if request.journal or request.repository:
-            messages.add_message(request, messages.INFO, 'This is a press only page.')
-            return redirect(reverse('core_manager_index'))
+            messages.add_message(request, messages.INFO, "This is a press only page.")
+            return redirect(reverse("core_manager_index"))
 
         return func(request, *args, **kwargs)
 
@@ -1227,11 +1311,10 @@ def preprint_editor_or_author_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-
         preprint = get_object_or_404(
             preprint_models.Preprint,
-            pk=kwargs['preprint_id'],
-            repository=request.repository
+            pk=kwargs["preprint_id"],
+            repository=request.repository,
         )
 
         if request.user == preprint.owner or request.user.is_staff:
@@ -1258,15 +1341,21 @@ def is_article_preprint_editor(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
         if not base_check(request):
-            return redirect('{0}?next={1}'.format(reverse('core_login'), request.path_info))
+            return redirect(
+                "{0}?next={1}".format(reverse("core_login"), request.path_info)
+            )
 
         preprint = get_object_or_404(
             preprint_models.Preprint,
-            pk=kwargs['preprint_id'],
-            repository=request.repository
+            pk=kwargs["preprint_id"],
+            repository=request.repository,
         )
 
-        if request.user in preprint.subject_editors() or request.user.is_staff or request.user.is_repository_manager(request.repository):
+        if (
+            request.user in preprint.subject_editors()
+            or request.user.is_staff
+            or request.user.is_repository_manager(request.repository)
+        ):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1283,9 +1372,11 @@ def is_repository_manager(func):
 
     @base_check_required
     def preprint_manager_wrapper(request, *args, **kwargs):
-
         if request.repository and request.user:
-            if request.user.is_staff or request.user in request.repository.managers.all():
+            if (
+                request.user.is_staff
+                or request.user in request.repository.managers.all()
+            ):
                 return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1294,23 +1385,22 @@ def is_repository_manager(func):
 
 
 def deny_access(request, *args, **kwargs):
-    """ Wrapper for raising a PermissionDenied exception
+    """Wrapper for raising a PermissionDenied exception
 
     *args and **kwargs are passed to the PermissionDenied constructor
     :param request: A django HttpRequest
     """
     try:
         ident = request.user.email
-        roles = list(request.user.accountrole_set.filter(
-            journal=request.journal))
+        roles = list(request.user.accountrole_set.filter(journal=request.journal))
     except AttributeError:
         ident = request.user
         roles = []
 
     logger.info(
-        "[ACCESS_DENIED:{ident}:{request.path_info}]"
-        "[ROLES:{roles}]"
-        "".format(request=request, ident=ident, roles={r.role for r in roles}),
+        "[ACCESS_DENIED:{ident}:{request.path_info}][ROLES:{roles}]".format(
+            request=request, ident=ident, roles={r.role for r in roles}
+        ),
     )
 
     raise PermissionDenied(*args, **kwargs)
@@ -1325,13 +1415,10 @@ def article_stage_review_required(func):
 
     def review_required_wrapper(request, article_id=None, *args, **kwargs):
         if not article_id:
-            logger.debug('404 thrown as no article_id in kwargs')
+            logger.debug("404 thrown as no article_id in kwargs")
             raise Http404
 
-        article = get_object_or_404(
-            models.Article,
-            pk=article_id
-        )
+        article = get_object_or_404(models.Article, pk=article_id)
 
         if not article.stage in models.REVIEW_STAGES:
             deny_access(request)
@@ -1349,10 +1436,10 @@ def keyword_page_enabled(func):
     """
 
     def keyword_page_enabled_wrapper(request, *args, **kwargs):
-        if not request.journal.get_setting('general', 'keyword_list_page'):
+        if not request.journal.get_setting("general", "keyword_list_page"):
             return redirect(
                 reverse(
-                    'website_index',
+                    "website_index",
                 )
             )
         else:
@@ -1371,9 +1458,11 @@ def submission_authorised(func):
     @base_check_required
     def submission_authorised_wrapper(request, *args, **kwargs):
         if (
-                request.user.is_staff or
-                (request.journal and request.user in request.journal.editors()) or
-                (request.repository and request.user in request.repository.managers.all())
+            request.user.is_staff
+            or (request.journal and request.user in request.journal.editors())
+            or (
+                request.repository and request.user in request.repository.managers.all()
+            )
         ):
             return func(request, *args, **kwargs)
 
@@ -1381,23 +1470,17 @@ def submission_authorised(func):
             if not preprint_models.RepositoryRole.objects.filter(
                 repository=request.repository,
                 user=request.user,
-                role__slug='author',
+                role__slug="author",
             ).exists():
-                return redirect(
-                    reverse(
-                        'request_submission_access'
-                    )
-                )
+                return redirect(reverse("request_submission_access"))
 
-        if request.journal and request.journal.get_setting('general', 'limit_access_to_submission'):
+        if request.journal and request.journal.get_setting(
+            "general", "limit_access_to_submission"
+        ):
             if not request.user.is_author(
                 request,
             ):
-                return redirect(
-                    reverse(
-                        'request_submission_access'
-                    )
-                )
+                return redirect(reverse("request_submission_access"))
 
         return func(request, *args, **kwargs)
 
@@ -1408,9 +1491,10 @@ def article_is_not_submitted(func):
     """
     Checks that an article is not already submitted.
     """
+
     @wraps(func)
     def _article_is_not_submitted(request, *args, **kwargs):
-        article_id = kwargs.get('article_id')
+        article_id = kwargs.get("article_id")
         try:
             article = models.Article.objects.get(
                 pk=article_id,
@@ -1419,7 +1503,7 @@ def article_is_not_submitted(func):
             )
             return func(request, *args, **kwargs)
         except models.Article.DoesNotExist:
-            raise Http404('This article has already been submitted.')
+            raise Http404("This article has already been submitted.")
 
     return _article_is_not_submitted
 
@@ -1437,14 +1521,15 @@ def setting_is_enabled(setting_name, setting_group_name):
 
     If a setting is not found, this decorator will return PermissionDenied.
     """
+
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
             # Check if we have a journal and if the setting returns True
             try:
                 if request.journal and request.journal.get_setting(
-                        group_name=setting_group_name,
-                        setting_name=setting_name,
+                    group_name=setting_group_name,
+                    setting_name=setting_name,
                 ):
                     return func(request, *args, **kwargs)
             except core_models.Setting.DoesNotExist:
@@ -1454,10 +1539,11 @@ def setting_is_enabled(setting_name, setting_group_name):
             deny_access(request)
 
         return inner
+
     return decorator
 
 
-def repository_setting_enabled(attr_name, error_message='Setting disabled'):
+def repository_setting_enabled(attr_name, error_message="Setting disabled"):
     """
     Generally should only be used with boolean fields. Repository must be set
     on request.
@@ -1469,16 +1555,14 @@ def repository_setting_enabled(attr_name, error_message='Setting disabled'):
         error_message='A N Error Message',
     )
     """
+
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
             if request.repository is None:
-                raise Http404('No repository found.')
+                raise Http404("No repository found.")
 
-            value = getattr(
-                request.repository,
-                attr_name
-            )
+            value = getattr(request.repository, attr_name)
 
             if value:
                 return func(request, *args, **kwargs)
@@ -1486,4 +1570,5 @@ def repository_setting_enabled(attr_name, error_message='Setting disabled'):
             raise Http404(error_message)
 
         return inner
+
     return decorator

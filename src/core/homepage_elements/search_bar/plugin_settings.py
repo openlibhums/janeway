@@ -4,11 +4,11 @@ from django.contrib.contenttypes.models import ContentType
 
 from utils import models, setting_handler
 
-PLUGIN_NAME = 'Search Bar'
-SHORT_NAME = 'search_bar'
-DESCRIPTION = 'This is a homepage element that renders a search bar.'
-AUTHOR = 'Mauro Sanchez'
-VERSION = '1.0'
+PLUGIN_NAME = "Search Bar"
+SHORT_NAME = "search_bar"
+DESCRIPTION = "This is a homepage element that renders a search bar."
+AUTHOR = "Mauro Sanchez"
+VERSION = "1.0"
 
 
 def install():
@@ -23,10 +23,10 @@ def install():
         defaults=dict(
             version=VERSION,
             enabled=True,
-            display_name='Search Bar',
+            display_name="Search Bar",
             press_wide=True,
             homepage_element=True,
-        )
+        ),
     )
     for journal in journals:
         content_type = ContentType.objects.get_for_model(journal)
@@ -36,10 +36,10 @@ def install():
             object_id=journal.pk,
             defaults=dict(
                 configure_url=None,
-                template_path='core/homepage_elements/search_bar.html',
+                template_path="core/homepage_elements/search_bar.html",
                 has_config=False,
                 available_to_press=False,
-            )
+            ),
         )
 
         element.save()
@@ -54,7 +54,7 @@ def install():
             object_id=press.pk,
             defaults=dict(
                 configure_url=None,
-                template_path='core/homepage_elements/search_bar.html',
+                template_path="core/homepage_elements/search_bar.html",
                 has_config=False,
                 available_to_press=False,
             ),
@@ -66,10 +66,10 @@ def install():
 def hook_registry():
     try:
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.search_bar.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.search_bar.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
         }
     except (OperationalError, ProgrammingError):

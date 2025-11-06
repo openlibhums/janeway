@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0060_remove_display_about_on_submissions'),
+        ("core", "0060_remove_display_about_on_submissions"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='domainalias',
-            name='domain',
+            model_name="domainalias",
+            name="domain",
             field=models.CharField(blank=True, max_length=255, null=True, unique=True),
         ),
     ]

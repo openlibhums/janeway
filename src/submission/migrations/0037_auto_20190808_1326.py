@@ -6,9 +6,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0036_article_source_files'),
+        ("submission", "0036_article_source_files"),
     ]
 
     # Empty migration for backwards compatibility

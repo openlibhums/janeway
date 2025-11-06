@@ -5,6 +5,7 @@ from urllib.parse import quote
 
 register = template.Library()
 
+
 @register.simple_tag(takes_context=True)
 def url_with_next(context, url_name, *args, **kwargs):
     """
@@ -12,8 +13,8 @@ def url_with_next(context, url_name, *args, **kwargs):
     the reversed URL to include the same 'next' parameter that
     already exists in the GET data of the request.
     """
-    request = context.get('request')
-    next_url = request.GET.get('next', '')
+    request = context.get("request")
+    next_url = request.GET.get("next", "")
     return reverse_with_next(url_name, next_url, args=args, kwargs=kwargs)
 
 
@@ -26,11 +27,11 @@ def url_with_return(context, url_name, *args, **kwargs):
 
     Note that `full_page_path` can be set by `url_with_full_page_path`.
     """
-    full_page_path = context.get('full_page_path', '')
+    full_page_path = context.get("full_page_path", "")
     if full_page_path:
         next_url = full_page_path
     else:
-        request = context.get('request')
+        request = context.get("request")
         next_url = request.get_full_path()
     return reverse_with_next(url_name, next_url, args=args, kwargs=kwargs)
 
@@ -46,10 +47,8 @@ def url_with_full_page_path(context, url_name, *args, **kwargs):
     by putting it in the view `context`. From there it can be accessed by
     `url_with_return` in partial page templates.
     """
-    request = context.get('request')
-    query_params = {
-        'full_page_path': request.get_full_path()
-    }
+    request = context.get("request")
+    query_params = {"full_page_path": request.get_full_path()}
     return reverse_with_query(
         url_name,
         args=args,

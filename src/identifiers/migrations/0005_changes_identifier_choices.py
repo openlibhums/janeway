@@ -6,15 +6,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('identifiers', '0004_auto_20170921_1113'),
+        ("identifiers", "0004_auto_20170921_1113"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='identifier',
-            name='id_type',
-            field=models.CharField(choices=[('doi', 'DOI'), ('uri', 'URI Path'), ('pubid', 'Publisher ID')], max_length=300),
+            model_name="identifier",
+            name="id_type",
+            field=models.CharField(
+                choices=[
+                    ("doi", "DOI"),
+                    ("uri", "URI Path"),
+                    ("pubid", "Publisher ID"),
+                ],
+                max_length=300,
+            ),
         ),
     ]

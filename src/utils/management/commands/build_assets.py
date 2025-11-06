@@ -21,7 +21,6 @@ class Command(BaseCommand):
             try:
                 builder = import_module(module_name)
             except ModuleNotFoundError:
-                logger.info(
-                    "Theme '%s' doesn't implement 'build_assets'.", theme)
+                logger.info("Theme '%s' doesn't implement 'build_assets'.", theme)
             else:
                 builder.build()

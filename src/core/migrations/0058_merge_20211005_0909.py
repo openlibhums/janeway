@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0057_xslt_1-4-0'),
-        ('core', '0057_auto_20211004_1130'),
+        ("core", "0057_xslt_1-4-0"),
+        ("core", "0057_auto_20211004_1130"),
     ]
 
-    operations = [
-    ]
+    operations = []

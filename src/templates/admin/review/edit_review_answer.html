@@ -27,7 +27,7 @@
                 <h2>Editor Version</h2>
             </div>
             <div class="content">
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% include "admin/elements/single_field_generate_form.html" with form=form %}
                     <button type="submit" class="button success">Save Editor Version</button>

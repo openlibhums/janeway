@@ -5,14 +5,20 @@ from core import models
 
 @register(models.SettingValue)
 class SettingValueTranslationOptions(TranslationOptions):
-    fields = ('value',)
+    fields = ("value",)
 
 
 @register(models.EditorialGroup)
 class EditorialGroupTranslationOptions(TranslationOptions):
-    fields = ('name', 'description',)
+    fields = (
+        "name",
+        "description",
+    )
 
 
 @register(models.Contacts)
 class ContactTranslationOptions(TranslationOptions):
-    fields = ('name', 'role',)
+    fields = (
+        "name",
+        "role",
+    )

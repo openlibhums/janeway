@@ -8,11 +8,12 @@ def create_locations(apps):
     Country = apps.get_model("core", "Country")
     Location = apps.get_model("core", "Location")
     countries_with_a_location = set(
-        loc.country.code for loc in Location.objects.filter(
-            name='',
+        loc.country.code
+        for loc in Location.objects.filter(
+            name="",
             country__isnull=False,
             geonames_id__isnull=True,
-        ).prefetch_related('country')
+        ).prefetch_related("country")
     )
     countries_to_create = []
     for country in Country.objects.all():
@@ -30,20 +31,18 @@ def create_organizations(apps, accounts, frozen_authors, preprint_authors):
     organizations_to_create = []
     for account in accounts:
         organizations_to_create.append(
-            Organization(migration_id=f'account_{account.pk}')
+            Organization(migration_id=f"account_{account.pk}")
         )
     for frozen_author in frozen_authors:
         organizations_to_create.append(
-            Organization(migration_id=f'frozen_{frozen_author.pk}')
+            Organization(migration_id=f"frozen_{frozen_author.pk}")
         )
     for preprint_author in preprint_authors:
         organizations_to_create.append(
-            Organization(migration_id=f'preprint_{preprint_author.pk}')
+            Organization(migration_id=f"preprint_{preprint_author.pk}")
         )
     Organization.objects.bulk_create(organizations_to_create, batch_size=3600)
-    orgs_by_migration_id = {
-        org.migration_id: org for org in Organization.objects.all()
-    }
+    orgs_by_migration_id = {org.migration_id: org for org in Organization.objects.all()}
     return orgs_by_migration_id
 
 
@@ -59,9 +58,9 @@ def migrate_country(
     organization_location_links = {}
     for account in accounts:
         if account.country:
-            organization = orgs_by_migration_id[f'account_{account.pk}']
+            organization = orgs_by_migration_id[f"account_{account.pk}"]
             location = locations_by_country_code[account.country.code]
-            key = f'{organization.pk}_{location.pk}'
+            key = f"{organization.pk}_{location.pk}"
             if key not in organization_location_links:
                 link = Organization.locations.through(
                     organization_id=organization.pk,
@@ -70,9 +69,9 @@ def migrate_country(
                 organization_location_links[key] = link
     for frozen_author in frozen_authors:
         if frozen_author.country:
-            organization = orgs_by_migration_id[f'frozen_{frozen_author.pk}']
+            organization = orgs_by_migration_id[f"frozen_{frozen_author.pk}"]
             location = locations_by_country_code[frozen_author.country.code]
-            key = f'{organization.pk}_{location.pk}'
+            key = f"{organization.pk}_{location.pk}"
             if key not in organization_location_links:
                 link = Organization.locations.through(
                     organization_id=organization.pk,
@@ -96,7 +95,7 @@ def migrate_institution(
     OrganizationName = apps.get_model("core", "OrganizationName")
     org_names_to_create = []
     for account in accounts:
-        organization = orgs_by_migration_id[f'account_{account.pk}']
+        organization = orgs_by_migration_id[f"account_{account.pk}"]
         if account.institution:
             org_names_to_create.append(
                 OrganizationName(
@@ -105,7 +104,7 @@ def migrate_institution(
                 )
             )
     for frozen_author in frozen_authors:
-        organization = orgs_by_migration_id[f'frozen_{frozen_author.pk}']
+        organization = orgs_by_migration_id[f"frozen_{frozen_author.pk}"]
         if frozen_author.institution:
             org_names_to_create.append(
                 OrganizationName(
@@ -114,7 +113,7 @@ def migrate_institution(
                 )
             )
     for preprint_author in preprint_authors:
-        organization = orgs_by_migration_id[f'preprint_{preprint_author.pk}']
+        organization = orgs_by_migration_id[f"preprint_{preprint_author.pk}"]
         org_names_to_create.append(
             OrganizationName(
                 value=preprint_author.affiliation,
@@ -134,7 +133,7 @@ def create_affiliations(
     ControlledAffiliation = apps.get_model("core", "ControlledAffiliation")
     affiliations_to_create = []
     for account in accounts:
-        organization = orgs_by_migration_id[f'account_{account.pk}']
+        organization = orgs_by_migration_id[f"account_{account.pk}"]
         affiliations_to_create.append(
             ControlledAffiliation(
                 account=account,
@@ -144,7 +143,7 @@ def create_affiliations(
             )
         )
     for frozen_author in frozen_authors:
-        organization = orgs_by_migration_id[f'frozen_{frozen_author.pk}']
+        organization = orgs_by_migration_id[f"frozen_{frozen_author.pk}"]
         affiliations_to_create.append(
             ControlledAffiliation(
                 frozen_author=frozen_author,
@@ -154,7 +153,7 @@ def create_affiliations(
             )
         )
     for preprint_author in preprint_authors:
-        organization = orgs_by_migration_id[f'preprint_{preprint_author.pk}']
+        organization = orgs_by_migration_id[f"preprint_{preprint_author.pk}"]
         affiliations_to_create.append(
             ControlledAffiliation(
                 preprint_author=preprint_author,
@@ -167,7 +166,7 @@ def create_affiliations(
 
 def remove_migration_ids(apps):
     Organization = apps.get_model("core", "Organization")
-    Organization.objects.filter(~Q(migration_id='')).update(migration_id='')
+    Organization.objects.filter(~Q(migration_id="")).update(migration_id="")
 
 
 def manage_data_migration(apps, schema_editor):
@@ -176,12 +175,10 @@ def manage_data_migration(apps, schema_editor):
     PreprintAuthor = apps.get_model("repository", "PreprintAuthor")
 
     accounts = Account.objects.filter(
-        ~Q(institution__exact='')
-        | ~Q(department__exact='')
+        ~Q(institution__exact="") | ~Q(department__exact="")
     )
     frozen_authors = FrozenAuthor.objects.filter(
-        ~Q(institution__exact='')
-        | ~Q(department__exact='')
+        ~Q(institution__exact="") | ~Q(department__exact="")
     )
     preprint_authors = PreprintAuthor.objects.filter(
         affiliation__isnull=False,
@@ -220,14 +217,12 @@ def manage_data_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0104_location_organization_affiliation'),
+        ("core", "0104_location_organization_affiliation"),
     ]
 
     operations = [
         migrations.RunPython(
-            manage_data_migration,
-            reverse_code=migrations.RunPython.noop
+            manage_data_migration, reverse_code=migrations.RunPython.noop
         ),
     ]

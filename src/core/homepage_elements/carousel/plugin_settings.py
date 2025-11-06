@@ -1,9 +1,9 @@
 from django.db.utils import OperationalError
 from django.contrib.contenttypes.models import ContentType
 
-PLUGIN_NAME = 'Carousel'
-DESCRIPTION = 'This is a homepage element that renders a carousel.'
-AUTHOR = 'Martin Paul Eve'
+PLUGIN_NAME = "Carousel"
+DESCRIPTION = "This is a homepage element that renders a carousel."
+AUTHOR = "Martin Paul Eve"
 
 
 def install():
@@ -18,12 +18,13 @@ def install():
         content_type = ContentType.objects.get_for_model(journal)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='carousel_settings',
-            template_path='journal/homepage_elements/carousel.html',
+            configure_url="carousel_settings",
+            template_path="journal/homepage_elements/carousel.html",
             content_type=content_type,
             object_id=journal.pk,
             has_config=True,
-            defaults={'available_to_press': True})
+            defaults={"available_to_press": True},
+        )
 
         element.save()
 
@@ -33,12 +34,13 @@ def install():
         content_type = ContentType.objects.get_for_model(press)
         element, created = core_models.HomepageElement.objects.get_or_create(
             name=PLUGIN_NAME,
-            configure_url='carousel_settings',
-            template_path='journal/homepage_elements/carousel.html',
+            configure_url="carousel_settings",
+            template_path="journal/homepage_elements/carousel.html",
             content_type=content_type,
             object_id=press.pk,
             has_config=True,
-            defaults={'available_to_press': True})
+            defaults={"available_to_press": True},
+        )
 
         element.save()
 
@@ -47,14 +49,14 @@ def hook_registry():
     try:
         install()
         return {
-            'yield_homepage_element_context': {
-                'module': 'core.homepage_elements.carousel.hooks',
-                'function': 'yield_homepage_element_context',
-                'name': PLUGIN_NAME,
+            "yield_homepage_element_context": {
+                "module": "core.homepage_elements.carousel.hooks",
+                "function": "yield_homepage_element_context",
+                "name": PLUGIN_NAME,
             }
         }
     except OperationalError:
         # if we get here the database hasn't yet been created
         return {}
-    except BaseException:        # if we get here, well, something has gone very wrong
+    except BaseException:  # if we get here, well, something has gone very wrong
         return {}

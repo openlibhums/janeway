@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0009_auto_20170925_1133'),
+        ("core", "0009_auto_20170925_1133"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='enable_public_profile',
-            field=models.BooleanField(default=False, help_text='If enabled, your basic profile will be available to the public.'),
+            model_name="account",
+            name="enable_public_profile",
+            field=models.BooleanField(
+                default=False,
+                help_text="If enabled, your basic profile will be available to the public.",
+            ),
         ),
     ]

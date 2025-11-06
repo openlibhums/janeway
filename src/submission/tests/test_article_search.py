@@ -25,12 +25,7 @@ FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 
 
 
 class ArticleSearchTests(TransactionTestCase):
-    roles_path = os.path.join(
-        settings.BASE_DIR,
-        'utils',
-        'install',
-        'roles.json'
-    )
+    roles_path = os.path.join(settings.BASE_DIR, "utils", "install", "roles.json")
     fixtures = [roles_path]
 
     @staticmethod
@@ -50,26 +45,26 @@ class ArticleSearchTests(TransactionTestCase):
 
     def create_authors(self):
         author_1_data = {
-            'email': 'one@example.org',
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Prof.',
-            'first_name': 'Martin',
-            'middle_name': '',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": "one@example.org",
+            "is_active": True,
+            "password": "this_is_a_password",
+            "salutation": "Prof.",
+            "first_name": "Martin",
+            "middle_name": "",
+            "last_name": "Eve",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         author_2_data = {
-            'email': 'two@example.org',
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'salutation': 'Sr.',
-            'first_name': 'Mauro',
-            'middle_name': '',
-            'last_name': 'Sanchez',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": "two@example.org",
+            "is_active": True,
+            "password": "this_is_a_password",
+            "salutation": "Sr.",
+            "first_name": "Mauro",
+            "middle_name": "",
+            "last_name": "Sanchez",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         author_1 = helpers.create_author(self.journal_one, **author_1_data)
         author_2 = helpers.create_author(self.journal_one, **author_2_data)
@@ -94,6 +89,7 @@ class ArticleSearchTests(TransactionTestCase):
             Computer, run a level-two diagnostic on warp-drive systems.
         """
         from django.db import connection
+
         if connection.vendor == "sqlite":
             # No native support for full text search in sqlite
             return
@@ -164,7 +160,7 @@ class ArticleSearchTests(TransactionTestCase):
 
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_title(self):
-        text_to_search ="Computer, run a level-two diagnostic on warp-drive systems."
+        text_to_search = "Computer, run a level-two diagnostic on warp-drive systems."
         needle = "diagnostic"
 
         article = models.Article.objects.create(

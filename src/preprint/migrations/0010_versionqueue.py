@@ -8,24 +8,51 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
-        ('core', '0011_auto_20171010_1535'),
-        ('preprint', '0009_subject_enabled'),
+        ("submission", "0019_auto_20171130_1115"),
+        ("core", "0011_auto_20171010_1535"),
+        ("preprint", "0009_subject_enabled"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='VersionQueue',
+            name="VersionQueue",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('update_type', models.CharField(choices=[('correction', 'Correction'), ('version', 'Version')], max_length=10)),
-                ('date_submitted', models.DateTimeField(default=django.utils.timezone.now)),
-                ('date_decision', models.DateTimeField(blank=True, null=True)),
-                ('approved', models.BooleanField(default=False)),
-                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submission.Article')),
-                ('file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.File')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "update_type",
+                    models.CharField(
+                        choices=[("correction", "Correction"), ("version", "Version")],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "date_submitted",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("date_decision", models.DateTimeField(blank=True, null=True)),
+                ("approved", models.BooleanField(default=False)),
+                (
+                    "article",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submission.Article",
+                    ),
+                ),
+                (
+                    "file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="core.File"
+                    ),
+                ),
             ],
         ),
     ]

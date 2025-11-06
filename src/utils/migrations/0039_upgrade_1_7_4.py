@@ -20,11 +20,11 @@ def upgrade(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0038_upgrade_1_7_2'),
+        ("utils", "0038_upgrade_1_7_2"),
     ]
 
     operations = [
-        migrations.RunPython(upgrade, reverse_code=rollback),
+        # Version data migrations are handled via signals now
+        # migrations.RunPython(upgrade, reverse_code=rollback),
     ]

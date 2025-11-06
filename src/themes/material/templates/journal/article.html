@@ -242,20 +242,7 @@
                             Authors
                           {% endblocktrans %}
                         </h4>
-                        <ul id="author-list">
-                            {% for author in article.frozen_authors.all %}
-                                <li>
-                                  {% include "common/elements/journal/article_author_display.html" %}
-                                     {% if journal_settings.general.use_credit and author.credits.exists %}
-                                       [<span class="credit">
-                                         {% for credit in author.credits %}
-                                           {{ credit }}{% if not forloop.last %}, {% endif %}
-                                         {% endfor %}
-                                       </span>]
-                                     {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>    
+                        {% include "common/elements/journal/article_authors_full.html" %}
                     {% endif %}
 
                     <div class="spacer">
@@ -446,6 +433,7 @@
                             <div class="divider"></div>
                         </div>
                     {% endif %}
+                    {% hook 'article_sidebar' %}
 
                     {% if article.preprint and article.preprint.is_published %}
                       <h4>{{ article.preprint.repository.object_name }}</h4>

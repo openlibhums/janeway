@@ -8,30 +8,46 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0019_auto_20181218_1546'),
+        ("press", "0019_auto_20181218_1546"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='press',
-            name='enable_preprints',
-            field=models.BooleanField(default=False, help_text='Enables the repository system for this press.', verbose_name='Enable repository system',)
+            model_name="press",
+            name="enable_preprints",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enables the repository system for this press.",
+                verbose_name="Enable repository system",
+            ),
         ),
         migrations.AlterField(
-            model_name='press',
-            name='footer_description',
-            field=models.TextField(blank=True, help_text='Additional HTML for the press footer.', null=True),
+            model_name="press",
+            name="footer_description",
+            field=models.TextField(
+                blank=True, help_text="Additional HTML for the press footer.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='press',
-            name='password_length',
-            field=models.PositiveIntegerField(default=12, help_text='The minimum length of an account password.', validators=[django.core.validators.MinValueValidator(9)]),
+            model_name="press",
+            name="password_length",
+            field=models.PositiveIntegerField(
+                default=12,
+                help_text="The minimum length of an account password.",
+                validators=[django.core.validators.MinValueValidator(9)],
+            ),
         ),
         migrations.AlterField(
-            model_name='press',
-            name='thumbnail_image',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='press_thumbnail_image', to='core.File', verbose_name='Press Logo'),
+            model_name="press",
+            name="thumbnail_image",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="press_thumbnail_image",
+                to="core.File",
+                verbose_name="Press Logo",
+            ),
         ),
     ]

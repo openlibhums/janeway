@@ -7,15 +7,9 @@ import os
 
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import (
-    render,
-    get_object_or_404,
-    redirect,
-    HttpResponse,
-    Http404
-)
+from django.shortcuts import render, get_object_or_404, redirect, HttpResponse, Http404
 from django.urls import reverse
-from django.utils import translation
+from django.utils import timezone, translation
 from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required
@@ -51,14 +45,15 @@ def index(request):
     collection_nav_items = None
     if request.journal:
         collection_nav_items = models.NavigationItem.get_issue_types_for_nav(
-            request.journal)
+            request.journal
+        )
     xsl_form = XSLFileForm()
     xsl_files = core_models.XSLFile.objects.filter(
-        Q(journal=request.journal)|Q(journal__isnull=True)
+        Q(journal=request.journal) | Q(journal__isnull=True)
     )
 
-    if request.POST and 'delete' in request.POST:
-        page_id = request.POST.get('delete')
+    if request.POST and "delete" in request.POST:
+        page_id = request.POST.get("delete")
         page = get_object_or_404(
             models.Page,
             pk=page_id,
@@ -66,40 +61,40 @@ def index(request):
             object_id=request.site_type.pk,
         )
         page.delete()
-        return redirect(reverse('cms_index'))
+        return redirect(reverse("cms_index"))
 
-    if request.POST and 'new_xsl' in request.POST:
+    if request.POST and "new_xsl" in request.POST:
         xsl_form = XSLFileForm(request.POST, request.FILES)
         if xsl_form.is_valid():
             xsl_form.save()
             messages.add_message(request, messages.INFO, "XSLT file has been uploaded.")
         else:
             messages.add_message(
-                request, messages.ERROR,
-                "Please correct the errors on the form and try again"
+                request,
+                messages.ERROR,
+                "Please correct the errors on the form and try again",
             )
 
-        if 'clear' in request.POST:
+        if "clear" in request.POST:
             files.unlink_journal_file(request, file=None, xslt=True)
             request.journal.has_xslt = False
             request.journal.save()
 
-    elif request.POST and 'change_xsl' in request.POST:
-        xsl_file = get_object_or_404(core_models.XSLFile,
-                pk=request.POST["change_xsl"])
+    elif request.POST and "change_xsl" in request.POST:
+        xsl_file = get_object_or_404(core_models.XSLFile, pk=request.POST["change_xsl"])
         request.journal.xsl = xsl_file
         request.journal.save()
 
-        return redirect(reverse('cms_index'))
+        return redirect(reverse("cms_index"))
 
-    template = 'cms/index.html'
+    template = "cms/index.html"
     context = {
-        'journal': request.journal,
-        'pages': pages,
-        'top_nav_items': top_nav_items,
-        'collection_nav_items': collection_nav_items,
-        'xsl_form': xsl_form,
-        'xsl_files': xsl_files,
+        "journal": request.journal,
+        "pages": pages,
+        "top_nav_items": top_nav_items,
+        "collection_nav_items": collection_nav_items,
+        "xsl_form": xsl_form,
+        "xsl_files": xsl_files,
     }
 
     return render(request, template, context)
@@ -116,37 +111,34 @@ def view_page(request, page_name):
         models.Page,
         name=page_name,
         content_type=request.model_content_type,
-        object_id=request.site_type.pk
+        object_id=request.site_type.pk,
     )
 
     if page.template:
-        templates_path = logic.get_custom_templates_path(
-            request.journal,
-            request.press
-        )
+        templates_path = logic.get_custom_templates_path(request.journal, request.press)
         if not templates_path:
             logger.error(
-                f'No custom template folder has been set '
-                f'but CMS page {page.pk} expects to find one.'
+                f"No custom template folder has been set "
+                f"but CMS page {page.pk} expects to find one."
             )
             raise Http404
         elif not os.path.exists(
             os.path.join(templates_path, os.path.basename(page.template))
         ):
             logger.error(
-                f'CMS page {page.pk} is set to use '
-                f'nonexistent template {page.template}.'
+                f"CMS page {page.pk} is set to use "
+                f"nonexistent template {page.template}."
             )
             raise Http404
         else:
             template = page.template
     elif request.journal:
-        template = 'cms/page.html'
+        template = "cms/page.html"
     else:
-        template = 'press/cms/page.html'
+        template = "press/cms/page.html"
 
     context = {
-        'page': page,
+        "page": page,
     }
 
     return render(request, template, context)
@@ -163,8 +155,12 @@ def page_manage(request, page_id=None):
     """
     with translation.override(request.override_language):
         if page_id:
-            page = get_object_or_404(models.Page, pk=page_id,
-                                     content_type=request.model_content_type, object_id=request.site_type.pk)
+            page = get_object_or_404(
+                models.Page,
+                pk=page_id,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
+            )
             page_form = forms.PageForm(instance=page)
             edit = True
         else:
@@ -173,7 +169,6 @@ def page_manage(request, page_id=None):
             edit = False
 
         if request.POST:
-
             if page_id:
                 page_form = forms.PageForm(request.POST, instance=page)
             else:
@@ -185,18 +180,18 @@ def page_manage(request, page_id=None):
                 page.object_id = request.site_type.pk
                 page.save()
 
-                messages.add_message(request, messages.INFO, 'Page saved.')
+                messages.add_message(request, messages.INFO, "Page saved.")
                 return language_override_redirect(
                     request,
-                    'cms_page_edit',
-                    {'page_id': page.pk},
+                    "cms_page_edit",
+                    {"page_id": page.pk},
                 )
 
-    template = 'cms/page_manage.html'
+    template = "cms/page_manage.html"
     context = {
-        'page': page,
-        'form': page_form,
-        'edit': edit,
+        "page": page,
+        "form": page_form,
+        "edit": edit,
     }
 
     return render(request, template, context)
@@ -228,11 +223,11 @@ def nav(request, nav_id=None):
                 request.journal,
             )
 
-        if request.POST.get('nav'):
-            attr = request.POST.get('nav')
+        if request.POST.get("nav"):
+            attr = request.POST.get("nav")
             setattr(request.journal, attr, not getattr(request.journal, attr))
             request.journal.save()
-            return redirect(reverse('cms_nav'))
+            return redirect(reverse("cms_nav"))
 
         elif "editorial_team" in request.POST:
             setting_handler.toggle_boolean_setting(
@@ -242,7 +237,7 @@ def nav(request, nav_id=None):
             )
             clear_cache()
 
-        elif 'keyword_list_page' in request.POST:
+        elif "keyword_list_page" in request.POST:
             setting_handler.toggle_boolean_setting(
                 setting_group_name="general",
                 setting_name="keyword_list_page",
@@ -266,9 +261,11 @@ def nav(request, nav_id=None):
             )
             models.NavigationItem.toggle_collection_nav(issue_type)
 
-        if request.POST and 'edit_nav' in request.POST:
+        if request.POST and "edit_nav" in request.POST:
             form = forms.NavForm(
-                request.POST, request=request, instance=nav_to_edit,
+                request.POST,
+                request=request,
+                instance=nav_to_edit,
             )
 
             if form.is_valid():
@@ -280,28 +277,28 @@ def nav(request, nav_id=None):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Nav Item Saved.',
+                    "Nav Item Saved.",
                 )
 
                 return language_override_redirect(
                     request,
-                    'cms_nav_edit',
-                    {'nav_id': new_nav_item.pk},
+                    "cms_nav_edit",
+                    {"nav_id": new_nav_item.pk},
                 )
 
-    template = 'cms/nav.html'
+    template = "cms/nav.html"
     context = {
-        'form': form,
-        'top_nav_items': top_nav_items,
-        'collection_nav_items': collection_nav_items,
+        "form": form,
+        "top_nav_items": top_nav_items,
+        "collection_nav_items": collection_nav_items,
     }
 
     if request.journal:
-        context['keyword_list_page'] = request.journal.get_setting(
+        context["keyword_list_page"] = request.journal.get_setting(
             "general",
             "keyword_list_page",
         )
-        context['enable_editorial_display'] = request.journal.get_setting(
+        context["enable_editorial_display"] = request.journal.get_setting(
             "general",
             "enable_editorial_display",
         )
@@ -317,8 +314,8 @@ def submission_items(request):
     item_list = models.SubmissionItem.objects.filter(
         journal=request.journal,
     )
-    if request.POST and 'delete' in request.POST:
-        item_id = request.POST.get('delete')
+    if request.POST and "delete" in request.POST:
+        item_id = request.POST.get("delete")
         try:
             models.SubmissionItem.objects.get(
                 pk=item_id,
@@ -327,21 +324,21 @@ def submission_items(request):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Item deleted.',
+                "Item deleted.",
             )
         except models.SubmissionItem.DoesNotExist:
             messages.add_message(
                 request,
                 messages.ERROR,
-                'No matching Submission Item found.',
+                "No matching Submission Item found.",
             )
 
         return redirect(
-            reverse('cms_submission_items'),
+            reverse("cms_submission_items"),
         )
-    template = 'admin/cms/submission_item_list.html'
+    template = "admin/cms/submission_item_list.html"
     context = {
-        'item_list': item_list,
+        "item_list": item_list,
     }
     return render(request, template, context)
 
@@ -365,27 +362,23 @@ def edit_or_create_submission_item(request, item_id=None):
         )
         if request.POST:
             form = forms.SubmissionItemForm(
-                request.POST,
-                instance=item,
-                journal=request.journal
+                request.POST, instance=item, journal=request.journal
             )
             if form.is_valid():
                 saved_item = form.save()
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'New item created.' if not item else 'Item updated.'
+                    "New item created." if not item else "Item updated.",
                 )
                 return language_override_redirect(
-                    request,
-                    'cms_edit_submission_item',
-                    {'item_id': saved_item.pk}
+                    request, "cms_edit_submission_item", {"item_id": saved_item.pk}
                 )
 
-    template = 'admin/cms/submission_item_form.html'
+    template = "admin/cms/submission_item_form.html"
     context = {
-        'form': form,
-        'item': item,
+        "form": form,
+        "item": item,
     }
     return render(request, template, context)
 
@@ -397,11 +390,9 @@ def order_submission_items(request):
         journal=request.journal,
     )
     set_order(
-        items,
-        'order',
-        [int(item_pk) for item_pk in request.POST.getlist('item[]')]
+        items, "order", [int(item_pk) for item_pk in request.POST.getlist("item[]")]
     )
-    return HttpResponse('Ok')
+    return HttpResponse("Ok")
 
 
 @editor_user_required
@@ -413,8 +404,8 @@ def file_list(request):
         journal=request.journal,
     )
 
-    if request.POST and 'delete' in request.POST:
-        id_to_delete = request.POST.get('delete')
+    if request.POST and "delete" in request.POST:
+        id_to_delete = request.POST.get("delete")
         media_file = get_object_or_404(
             models.MediaFile,
             pk=id_to_delete,
@@ -424,14 +415,14 @@ def file_list(request):
         media_file.delete()
         return redirect(
             reverse(
-                'cms_file_list',
+                "cms_file_list",
             )
         )
 
-    template = 'admin/cms/media_files.html'
+    template = "admin/cms/media_files.html"
     context = {
-        'media_files': media_files,
-        'form': form,
+        "media_files": media_files,
+        "form": form,
     }
     return render(
         request,
@@ -461,6 +452,6 @@ def file_upload(request):
         )
     return redirect(
         reverse(
-            'cms_file_list',
+            "cms_file_list",
         )
     )

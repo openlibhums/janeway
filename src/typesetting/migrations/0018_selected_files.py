@@ -2,11 +2,11 @@ from django.db import migrations, models
 
 
 def select_expected_files(apps, schema_editor):
-    TypesettingAssignment = apps.get_model('typesetting', 'TypesettingAssignment')
-    TypesettingRound = apps.get_model('typesetting', 'TypesettingRound')
-    File = apps.get_model('core', 'File')
+    TypesettingAssignment = apps.get_model("typesetting", "TypesettingAssignment")
+    TypesettingRound = apps.get_model("typesetting", "TypesettingRound")
+    File = apps.get_model("core", "File")
     for assignment in TypesettingAssignment.objects.exclude(
-        round__article__stage='Archived',
+        round__article__stage="Archived",
     ):
         article = assignment.round.article
 
@@ -38,14 +38,12 @@ def select_expected_files(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0017_auto_20240708_1727'),
+        ("typesetting", "0017_auto_20240708_1727"),
     ]
 
     operations = [
         migrations.RunPython(
-            select_expected_files,
-            reverse_code=migrations.RunPython.noop
+            select_expected_files, reverse_code=migrations.RunPython.noop
         ),
     ]

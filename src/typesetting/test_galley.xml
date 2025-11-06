@@ -66,7 +66,14 @@
         </sec>
         <sec>
             <title>2 Section Title</title>
-            <p>Para</p>
+            <p>Para. See <xref ref-type="fig" rid="F1">figure 1</xref> for details.</p>
+            <fig id="F1">
+            <label>Figure 1</label>
+            <caption>
+            <p>Proident aliqua commodo consequat nisi est enim occaecat nisi minim consectetur ut eiusmod labore.</p>
+            </caption>
+            <graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="test_figure.png"/>
+            </fig>
         </sec>
         <sec>
             <title>7 Conclusion</title>

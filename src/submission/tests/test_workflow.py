@@ -35,39 +35,34 @@ FROZEN_DATETIME_1990 = timezone.make_aware(timezone.datetime(1990, 1, 1, 12, 0, 
 
 
 class SubmissionTests(TestCase):
-    roles_path = os.path.join(
-        settings.BASE_DIR,
-        'utils',
-        'install',
-        'roles.json'
-    )
+    roles_path = os.path.join(settings.BASE_DIR, "utils", "install", "roles.json")
     fixtures = [roles_path]
 
     def test_new_journals_has_submission_configuration(self):
         if not self.journal_one.submissionconfiguration:
-            self.fail('Journal does not have a submissionconfiguration object.')
+            self.fail("Journal does not have a submissionconfiguration object.")
 
     @classmethod
     def create_authors(cls):
         author_1_data = {
-            'email': 'one@example.org',
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'first_name': 'Martin',
-            'middle_name': '',
-            'last_name': 'Eve',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": "one@example.org",
+            "is_active": True,
+            "password": "this_is_a_password",
+            "first_name": "Martin",
+            "middle_name": "",
+            "last_name": "Eve",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         author_2_data = {
-            'email': 'two@example.org',
-            'is_active': True,
-            'password': 'this_is_a_password',
-            'first_name': 'Mauro',
-            'middle_name': '',
-            'last_name': 'Sanchez',
-            'department': 'English & Humanities',
-            'institution': 'Birkbeck, University of London',
+            "email": "two@example.org",
+            "is_active": True,
+            "password": "this_is_a_password",
+            "first_name": "Mauro",
+            "middle_name": "",
+            "last_name": "Sanchez",
+            "department": "English & Humanities",
+            "institution": "Birkbeck, University of London",
         }
         author_1 = helpers.create_author(cls.journal_one, **author_1_data)
         author_2 = helpers.create_author(cls.journal_one, **author_2_data)
@@ -77,13 +72,13 @@ class SubmissionTests(TestCase):
     @classmethod
     def create_sections(cls):
         cls.section_1 = models.Section.objects.create(
-            name='Test Public Section',
+            name="Test Public Section",
             journal=cls.journal_one,
         )
         cls.section_2 = models.Section.objects.create(
-            name='Test Private Section',
+            name="Test Private Section",
             public_submissions=False,
-            journal=cls.journal_one
+            journal=cls.journal_one,
         )
         cls.section_3 = models.Section.objects.create(
             journal=cls.journal_one,
@@ -108,18 +103,18 @@ class SubmissionTests(TestCase):
 
         cls.boolean_field = models.Field.objects.create(
             journal=cls.journal_one,
-            name='test_boolean',
-            kind='check',
+            name="test_boolean",
+            kind="check",
             order=1,
-            help_text='Test boolean field',
-            required=False
+            help_text="Test boolean field",
+            required=False,
         )
         cls.text_field = models.Field.objects.create(
             journal=cls.journal_one,
-            name='test_text',
-            kind='text',
+            name="test_text",
+            kind="text",
             order=1,
-            help_text='Test text field',
+            help_text="Test text field",
             required=False,
         )
 
@@ -144,16 +139,16 @@ class SubmissionTests(TestCase):
 
     def test_article_how_to_cite(self):
         issue = journal_models.Issue.objects.create(
-                journal=self.journal_one,
-                issue="0",
-                volume=1,
+            journal=self.journal_one,
+            issue="0",
+            volume=1,
         )
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test article",
             primary_issue=issue,
             date_published=FROZEN_DATETIME_2020,
-            page_numbers = "2-4"
+            page_numbers="2-4",
         )
         author = models.FrozenAuthor.objects.create(
             article=article,
@@ -176,12 +171,12 @@ class SubmissionTests(TestCase):
         issue = journal_models.Issue.objects.create(journal=self.journal_one)
         journal_models.Issue
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test article",
             primary_issue=issue,
             date_published=FROZEN_DATETIME_2020,
-            page_numbers = "2-4",
-            custom_how_to_cite = "Banana",
+            page_numbers="2-4",
+            custom_how_to_cite="Banana",
         )
         author = models.FrozenAuthor.objects.create(
             article=article,
@@ -202,8 +197,7 @@ class SubmissionTests(TestCase):
         func = Mock()
         decorated = decorators.funding_is_enabled(func)
         decorated(request)
-        self.assertTrue(func.called,
-            "Funding pages not available when they should be")
+        self.assertTrue(func.called, "Funding pages not available when they should be")
 
     def test_funding_is_enabled_decorator_disabled(self):
         request = Mock()
@@ -219,7 +213,7 @@ class SubmissionTests(TestCase):
 
     def test_snapshot_as_author_metadata_do_not_override(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
@@ -231,13 +225,14 @@ class SubmissionTests(TestCase):
         author.snapshot_as_author(article, force_update=False)
 
         self.assertEqual(
-            frozen.department, new_department,
+            frozen.department,
+            new_department,
             msg="Frozen author info has been overridden by snapshot_as_author",
         )
 
     def test_snapshot_as_author_metadata_override(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test article",
         )
         author, _ = self.create_authors()
@@ -250,7 +245,8 @@ class SubmissionTests(TestCase):
         frozen = author.snapshot_as_author(article, force_update=True)
 
         self.assertEqual(
-            frozen.department, author.department,
+            frozen.department,
+            author.department,
             msg="Frozen author edits have not been overridden by snapshot_as_author",
         )
 
@@ -284,7 +280,7 @@ class SubmissionTests(TestCase):
 
     def test_snapshot_as_author_order(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test article",
         )
         author_1, author_2 = self.create_authors()
@@ -298,16 +294,13 @@ class SubmissionTests(TestCase):
 
     def test_article_keyword_default_order(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of keywords",
         )
         keywords = ["one", "two", "three", "four"]
         for i, kw in enumerate(keywords):
             kw_obj = models.Keyword.objects.create(word=kw)
-            models.KeywordArticle.objects.get_or_create(
-                keyword=kw_obj,
-                article=article
-            )
+            models.KeywordArticle.objects.get_or_create(keyword=kw_obj, article=article)
 
         self.assertEqual(
             keywords,
@@ -316,7 +309,7 @@ class SubmissionTests(TestCase):
 
     def test_article_keyword_add(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of keywords",
         )
         keywords = ["one", "two", "three", "four"]
@@ -331,7 +324,7 @@ class SubmissionTests(TestCase):
 
     def test_article_keyword_remove(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of keywords",
         )
         keywords = ["one", "two", "three", "four"]
@@ -351,7 +344,7 @@ class SubmissionTests(TestCase):
 
     def test_article_keyword_clear(self):
         article = models.Article.objects.create(
-            journal = self.journal_one,
+            journal=self.journal_one,
             title="Test article: a test of keywords",
         )
         keywords = ["one", "two", "three", "four"]
@@ -366,7 +359,7 @@ class SubmissionTests(TestCase):
         )
 
     def test_edit_section(self):
-        """ Ensures editors can select sections that are not submissible"""
+        """Ensures editors can select sections that are not submissible"""
         article = models.Article.objects.create(
             journal=self.journal_one,
             title="Test article: a test of sections",
@@ -394,7 +387,7 @@ class SubmissionTests(TestCase):
             form = forms.ArticleInfoSubmit(instance=article)
             self.assertTrue(section not in form.fields["section"].queryset)
 
-    @override_settings(URL_CONFIG='domain')
+    @override_settings(URL_CONFIG="domain")
     def test_submit_info_view_form_selection_editor(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
@@ -411,13 +404,13 @@ class SubmissionTests(TestCase):
         )
         clear_script_prefix()
         response = self.client.get(
-            reverse('submit_info', kwargs={'article_id': article.pk}),
+            reverse("submit_info", kwargs={"article_id": article.pk}),
             SERVER_NAME="testserver",
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, section.__str__())
 
-    @override_settings(URL_CONFIG='domain')
+    @override_settings(URL_CONFIG="domain")
     def test_submit_info_view_form_selection_author(self):
         author_1, _ = self.create_authors()
         clear_cache()
@@ -437,7 +430,7 @@ class SubmissionTests(TestCase):
         )
         clear_script_prefix()
         response = self.client.get(
-            reverse('submit_info', kwargs={'article_id': article.pk}),
+            reverse("submit_info", kwargs={"article_id": article.pk}),
             SERVER_NAME="testserver",
         )
         self.assertEqual(response.status_code, 200)
@@ -445,14 +438,16 @@ class SubmissionTests(TestCase):
 
     def test_article_issue_title(self):
         from utils.testing import helpers
+
         issue = helpers.create_issue(
             self.journal_one,
             vol=5,
             number=4,
         )
-        issue.issue_title = 'Fall 2025'
+        issue.issue_title = "Fall 2025"
         from utils.logic import get_aware_datetime
-        issue.date = get_aware_datetime('2025-10-01')
+
+        issue.date = get_aware_datetime("2025-10-01")
         issue.save()
 
         article = models.Article.objects.create(
@@ -463,14 +458,12 @@ class SubmissionTests(TestCase):
             primary_issue=issue,
         )
 
-        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
-                                       '2025 • Fall 2025 • 3–5'
+        expected_article_issue_title = "Volume 5 • Issue 4 • 2025 • Fall 2025 • 3–5"
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
-        article.page_numbers='x–ix'
+        article.page_numbers = "x–ix"
         article.save()
-        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
-                                       '2025 • Fall 2025 • x–ix'
+        expected_article_issue_title = "Volume 5 • Issue 4 • 2025 • Fall 2025 • x–ix"
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
         article.first_page = None
@@ -478,47 +471,45 @@ class SubmissionTests(TestCase):
         article.page_numbers = None
         article.total_pages = 1
         article.save()
-        expected_article_issue_title = 'Volume 5 • Issue 4 • ' \
-                                       '2025 • Fall 2025 • 1 page'
+        expected_article_issue_title = "Volume 5 • Issue 4 • 2025 • Fall 2025 • 1 page"
         self.assertEqual(expected_article_issue_title, article.issue_title)
 
     def test_url_based_orcid_cleaned(self):
-        clean_orcid = clean_orcid_id(
-            'https://orcid.org/0000-0003-2126-266X'
-        )
+        clean_orcid = clean_orcid_id("https://orcid.org/0000-0003-2126-266X")
         self.assertEqual(
             clean_orcid,
-            '0000-0003-2126-266X',
+            "0000-0003-2126-266X",
         )
 
     def test_orcid_value_error_raised(self):
         with self.assertRaises(ValueError):
-            clean_orcid_id('Mauro-sfak-orci-dtst')
+            clean_orcid_id("Mauro-sfak-orci-dtst")
 
     def test_author_form_harmful_inputs(self):
         harmful_string = '<span onClick="alert()"> This are not the droids you are looking for </span>'
-        for i, attr in enumerate({
-            "first_name",
-            "last_name",
-            "middle_name",
-            "name_prefix",
-            "name_suffix",
-        }):
+        for i, attr in enumerate(
+            {
+                "first_name",
+                "last_name",
+                "middle_name",
+                "name_prefix",
+                "name_suffix",
+            }
+        ):
             form = forms.EditFrozenAuthor(
                 {
-                    'first_name': 'Andy',
-                    'last_name': 'Byers',
-                    'frozen_biography': 'Andy',
-                    'frozen_email': f'andy{i}@janeway.systems',
+                    "first_name": "Andy",
+                    "last_name": "Byers",
+                    "frozen_biography": "Andy",
+                    "frozen_email": f"andy{i}@janeway.systems",
                     **{attr: harmful_string},
                 }
             )
             self.assertFalse(
-                form.is_valid(),
-                f"Harmful code injected into field '{attr}'"
+                form.is_valid(), f"Harmful code injected into field '{attr}'"
             )
 
-    @override_settings(URL_CONFIG='domain')
+    @override_settings(URL_CONFIG="domain")
     def test_article_encoding_bibtex(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -551,15 +542,13 @@ class SubmissionTests(TestCase):
                 journal = {%s}
             }
         """ % (article.pk, article.pk, article.journal.issn, article.journal.name)
-        bibtex_lines = [
-            line.strip() for line in bibtex.splitlines() if line.strip()
-        ]
+        bibtex_lines = [line.strip() for line in bibtex.splitlines() if line.strip()]
         expected_lines = [
             line.strip() for line in expected.splitlines() if line.strip()
         ]
         self.assertEqual(bibtex_lines, expected_lines)
 
-    @override_settings(URL_CONFIG='domain')
+    @override_settings(URL_CONFIG="domain")
     def test_article_encoding_ris(self):
         article = helpers.create_article(
             journal=self.journal_one,
@@ -590,9 +579,7 @@ class SubmissionTests(TestCase):
             UR  - http://testserver/article/id/{article_id}/
             ER  -
         """.format(article_id=article.pk, journal_name=article.journal.name)
-        ris_lines = [
-            line.strip() for line in ris.splitlines() if line.strip()
-        ]
+        ris_lines = [line.strip() for line in ris.splitlines() if line.strip()]
         expected_lines = [
             line.strip() for line in expected.splitlines() if line.strip()
         ]
@@ -601,35 +588,35 @@ class SubmissionTests(TestCase):
     def test_page_range_first_last(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
-            title='Test article: A test of page ranges',
+            title="Test article: A test of page ranges",
             first_page=3,
             last_page=5,
         )
-        self.assertEqual(article.page_range, '3–5')
+        self.assertEqual(article.page_range, "3–5")
 
     def test_page_range_first_only(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
-            title='Test article: A test of page ranges',
+            title="Test article: A test of page ranges",
             first_page=3,
         )
-        self.assertEqual(article.page_range, '3')
+        self.assertEqual(article.page_range, "3")
 
     def test_page_range_custom(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
-            title='Test article: A test of page ranges',
+            title="Test article: A test of page ranges",
             first_page=3,
             last_page=5,
-            page_numbers='custom'
+            page_numbers="custom",
         )
-        self.assertEqual(article.page_range, 'custom')
+        self.assertEqual(article.page_range, "custom")
 
     def test_editor_sees_non_public_sections(self):
         clear_cache()
         article = models.Article.objects.create(
             journal=self.journal_one,
-            title='Test article: Testing non public sections',
+            title="Test article: Testing non public sections",
             current_step=2,
             owner=self.editor,
         )
@@ -639,14 +626,12 @@ class SubmissionTests(TestCase):
         clear_script_prefix()
         response = self.client.get(
             reverse(
-                'submit_info',
-                kwargs={'article_id': article.pk},
+                "submit_info",
+                kwargs={"article_id": article.pk},
             ),
             SERVER_NAME="testserver",
         )
-        self.assertEqual(
-            response.status_code, 200
-        )
+        self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             self.section_2.display_name_public_submission(),
@@ -656,9 +641,9 @@ class SubmissionTests(TestCase):
         author = helpers.create_author(self.journal_one)
         article = models.Article.objects.create(
             journal=self.journal_one,
-            title='Test article: Testing public sections',
+            title="Test article: Testing public sections",
             current_step=2,
-            owner=author
+            owner=author,
         )
         self.client.force_login(
             author,
@@ -666,14 +651,12 @@ class SubmissionTests(TestCase):
         clear_script_prefix()
         response = self.client.get(
             reverse(
-                'submit_info',
-                kwargs={'article_id': article.pk},
+                "submit_info",
+                kwargs={"article_id": article.pk},
             ),
             SERVER_NAME="testserver",
         )
-        self.assertEqual(
-            response.status_code, 200
-        )
+        self.assertEqual(response.status_code, 200)
         self.assertNotContains(
             response,
             self.section_2.display_name_public_submission(),
@@ -681,11 +664,11 @@ class SubmissionTests(TestCase):
 
     def test_boolean_field_unchecked_sets_false(self):
         post_data = {
-            'title': 'Updated Title',
-            'absract': 'Test Abstract',
-            'language': 'eng',
-            'section': self.section_1.pk,
-            'license': self.licence.pk,
+            "title": "Updated Title",
+            "absract": "Test Abstract",
+            "language": "eng",
+            "section": self.section_1.pk,
+            "license": self.licence.pk,
         }
 
         request = helpers.get_request(journal=self.journal_one)
@@ -707,16 +690,16 @@ class SubmissionTests(TestCase):
             article=self.article,
             field=self.boolean_field,
         )
-        self.assertEqual(field_answer.answer, '')
+        self.assertEqual(field_answer.answer, "")
 
     def test_boolean_field_unchecked_sets_true(self):
         post_data = {
-            'title': 'Updated Title',
-            'absract': 'Test Abstract',
-            'language': 'eng',
-            'section': self.section_1.pk,
-            'license': self.licence.pk,
-            'test_boolean': 'on'
+            "title": "Updated Title",
+            "absract": "Test Abstract",
+            "language": "eng",
+            "section": self.section_1.pk,
+            "license": self.licence.pk,
+            "test_boolean": "on",
         }
 
         request = helpers.get_request(journal=self.journal_one)
@@ -738,16 +721,16 @@ class SubmissionTests(TestCase):
             article=self.article,
             field=self.boolean_field,
         )
-        self.assertEqual(field_answer.answer, 'on')
+        self.assertEqual(field_answer.answer, "on")
 
     def test_text_field_sets(self):
         post_data = {
-            'title': 'Updated Title',
-            'absract': 'Test Abstract',
-            'language': 'eng',
-            'section': self.section_1.pk,
-            'license': self.licence.pk,
-            'test_text': 'Sometimes first contact is last contact.'
+            "title": "Updated Title",
+            "absract": "Test Abstract",
+            "language": "eng",
+            "section": self.section_1.pk,
+            "license": self.licence.pk,
+            "test_text": "Sometimes first contact is last contact.",
         }
 
         request = helpers.get_request(journal=self.journal_one)
@@ -771,5 +754,5 @@ class SubmissionTests(TestCase):
         )
         self.assertEqual(
             field_answer.answer,
-            'Sometimes first contact is last contact.',
+            "Sometimes first contact is last contact.",
         )

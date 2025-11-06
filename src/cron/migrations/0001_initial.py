@@ -7,61 +7,103 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='CronTask',
+            name="CronTask",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('task_type', models.CharField(max_length=255)),
-                ('task_data', models.TextField(blank=True, null=True)),
-                ('added', models.DateTimeField(default=django.utils.timezone.now)),
-                ('run_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('email_to', models.EmailField(blank=True, max_length=254, null=True)),
-                ('email_subject', models.CharField(blank=True, max_length=255, null=True)),
-                ('email_html', models.TextField(blank=True, null=True)),
-                ('email_cc', models.CharField(blank=True, max_length=255, null=True)),
-                ('email_bcc', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("task_type", models.CharField(max_length=255)),
+                ("task_data", models.TextField(blank=True, null=True)),
+                ("added", models.DateTimeField(default=django.utils.timezone.now)),
+                ("run_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ("email_to", models.EmailField(blank=True, max_length=254, null=True)),
+                (
+                    "email_subject",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("email_html", models.TextField(blank=True, null=True)),
+                ("email_cc", models.CharField(blank=True, max_length=255, null=True)),
+                ("email_bcc", models.CharField(blank=True, max_length=255, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Reminder',
+            name="Reminder",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('review', 'Review'), ('revisions', 'Revision')], max_length=100)),
                 (
-                    'run_type',
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("review", "Review"), ("revisions", "Revision")],
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "run_type",
                     models.CharField(
                         choices=[
-                            ('before', 'before the due date'),
-                            ('after', 'after the due date')
+                            ("before", "before the due date"),
+                            ("after", "after the due date"),
                         ],
-                        max_length=100
-                    )
+                        max_length=100,
+                    ),
                 ),
                 (
-                    'days',
+                    "days",
                     models.PositiveIntegerField(
-                        help_text='The number of days before or after '
-                                  'the due date this reminder should fire'
-                    )
+                        help_text="The number of days before or after "
+                        "the due date this reminder should fire"
+                    ),
                 ),
-                ('template_name', models.CharField(help_text='The name of the email template', max_length=100)),
-                ('subject', models.CharField(max_length=200)),
+                (
+                    "template_name",
+                    models.CharField(
+                        help_text="The name of the email template", max_length=100
+                    ),
+                ),
+                ("subject", models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
-            name='SentReminder',
+            name="SentReminder",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('review', 'Review'), ('revisions', 'Revision')], max_length=100)),
-                ('object_id', models.PositiveIntegerField()),
-                ('sent', models.DateField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("review", "Review"), ("revisions", "Revision")],
+                        max_length=100,
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField()),
+                ("sent", models.DateField(default=django.utils.timezone.now)),
             ],
         ),
     ]

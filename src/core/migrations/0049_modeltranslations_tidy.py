@@ -6,23 +6,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0048_modeltranslations_data'),
+        ("core", "0048_modeltranslations_data"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='settingvaluetranslation',
+            name="settingvaluetranslation",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='settingvaluetranslation',
-            name='master',
+            model_name="settingvaluetranslation",
+            name="master",
         ),
         migrations.AlterModelManagers(
-            name='settingvalue',
-            managers=[
-            ],
+            name="settingvalue",
+            managers=[],
         ),
     ]

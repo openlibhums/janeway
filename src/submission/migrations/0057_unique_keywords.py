@@ -8,13 +8,15 @@ from core.model_utils import merge_models
 
 
 def deduplicate_keywords(apps, schema_editor):
-    """Merges duplicated keyword models """
+    """Merges duplicated keyword models"""
     Keyword = apps.get_model("submission", "Keyword")
-    to_fix = Keyword.objects.values(
-        "word"
-    ).annotate(
-        Count("id")
-    ).order_by().filter(id__count__gt=1).values("word")
+    to_fix = (
+        Keyword.objects.values("word")
+        .annotate(Count("id"))
+        .order_by()
+        .filter(id__count__gt=1)
+        .values("word")
+    )
 
     for word in to_fix:
         kws = Keyword.objects.filter(word=word["word"])
@@ -26,15 +28,13 @@ def deduplicate_keywords(apps, schema_editor):
 class Migration(migrations.Migration):
     atomic = False
     dependencies = [
-        ('submission', '0056_auto_20210803_0906'),
+        ("submission", "0056_auto_20210803_0906"),
     ]
     operations = [
-        migrations.RunPython(
-            deduplicate_keywords, migrations.RunPython.noop
-        ),
+        migrations.RunPython(deduplicate_keywords, migrations.RunPython.noop),
         migrations.AlterField(
-            model_name='keyword',
-            name='word',
+            model_name="keyword",
+            name="word",
             field=models.CharField(max_length=200, unique=True),
         ),
     ]

@@ -21,6 +21,7 @@ This guide has been written to avoid using language like "easy", "just" or "simp
    imports
    styling
    dev
+   metadata
    repository
    changelog
 

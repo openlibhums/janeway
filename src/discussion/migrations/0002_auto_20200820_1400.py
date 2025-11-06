@@ -8,21 +8,25 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('discussion', '0001_initial'),
+        ("discussion", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='read_by',
+            model_name="post",
+            name="read_by",
             field=models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='owner',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='posts', to=settings.AUTH_USER_MODEL),
+            model_name="post",
+            name="owner",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="posts",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

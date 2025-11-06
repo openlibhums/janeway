@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0009_auto_20180808_1514'),
+        ("utils", "0009_auto_20180808_1514"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='version',
-            name='rollback',
+            model_name="version",
+            name="rollback",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

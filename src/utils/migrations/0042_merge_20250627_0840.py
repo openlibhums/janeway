@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('utils', '0040_upgrade_1_7_5'),
-        ('utils', '0041_rorimport_rorimporterror'),
+        ("utils", "0040_upgrade_1_7_5"),
+        ("utils", "0041_rorimport_rorimporterror"),
     ]
 
-    operations = [
-    ]
+    operations = []

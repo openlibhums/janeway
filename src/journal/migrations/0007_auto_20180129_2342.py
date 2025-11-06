@@ -7,26 +7,35 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0019_auto_20171130_1115'),
-        ('journal', '0006_auto_20171115_1216'),
+        ("submission", "0019_auto_20171130_1115"),
+        ("journal", "0006_auto_20171115_1216"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='articleordering',
-            name='section',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='submission.Section'),
+            model_name="articleordering",
+            name="section",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="submission.Section",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='current_issue',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='current_issue', to='journal.Issue'),
+            model_name="journal",
+            name="current_issue",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="current_issue",
+                to="journal.Issue",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='articleordering',
-            unique_together=set([('article',)]),
+            name="articleordering",
+            unique_together=set([("article",)]),
         ),
     ]

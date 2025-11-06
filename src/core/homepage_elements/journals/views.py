@@ -18,23 +18,13 @@ def featured_journals(request):
         form = forms.FeaturedJournalsForm(request.POST, instance=request.press)
         if form.is_valid():
             form.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Saved.'
-            )
+            messages.add_message(request, messages.SUCCESS, "Saved.")
 
-            return redirect(
-                reverse(
-                    'home_settings_index'
-                )
-            )
+            return redirect(reverse("home_settings_index"))
 
-    template = 'featured_journals.html'
+    template = "featured_journals.html"
     context = {
-        'form': form,
+        "form": form,
     }
 
     return render(request, template, context)
-
-

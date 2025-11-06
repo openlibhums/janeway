@@ -36,9 +36,9 @@ def get_month_day_range(date):
 
 
 def handle_file_upload(request, preprint):
-    if 'file' in request.FILES:
-        label = request.POST.get('label')
-        for uploaded_file in request.FILES.getlist('file'):
+    if "file" in request.FILES:
+        label = request.POST.get("label")
+        for uploaded_file in request.FILES.getlist("file"):
             save_galley(
                 preprint,
                 request,
@@ -50,17 +50,17 @@ def handle_file_upload(request, preprint):
 
 def determine_action(preprint):
     if preprint.date_accepted and not preprint.date_declined:
-        return 'accept'
+        return "accept"
     else:
-        return 'decline'
+        return "decline"
 
 
 def get_pdf(article):
     try:
         try:
-            pdf = article.galley_set.get(file__mime_type='application/pdf')
+            pdf = article.galley_set.get(file__mime_type="application/pdf")
         except core_models.Galley.MultipleObjectsReturned:
-            pdf = article.galley_set.filter(file__mime_type='application/pdf')[0]
+            pdf = article.galley_set.filter(file__mime_type="application/pdf")[0]
     except core_models.Galley.DoesNotExist:
         pdf = None
 
@@ -69,7 +69,7 @@ def get_pdf(article):
 
 def get_html(article):
     try:
-        galley = article.galley_set.get(type='html')
+        galley = article.galley_set.get(type="html")
         html = galley.file_content()
     except core_models.Galley.DoesNotExist:
         html = None
@@ -79,9 +79,9 @@ def get_html(article):
 
 def get_publication_text(request, preprint, action):
     context = {
-        'preprint': preprint,
-        'request': request,
-        'action': action,
+        "preprint": preprint,
+        "request": request,
+        "action": action,
     }
 
     if preprint.date_declined and not preprint.date_published:
@@ -99,9 +99,9 @@ def get_publication_text(request, preprint, action):
 
 def raise_comment_event(request, comment):
     kwargs = {
-        'request': request,
-        'preprint': comment.preprint,
-        'comment': comment,
+        "request": request,
+        "preprint": comment.preprint,
+        "comment": comment,
     }
     event_logic.Events.raise_event(
         event_logic.Events.ON_PREPRINT_COMMENT,
@@ -111,17 +111,17 @@ def raise_comment_event(request, comment):
     messages.add_message(
         request,
         messages.SUCCESS,
-        'Your comment has been saved. It has been sent for moderation.',
+        "Your comment has been saved. It has been sent for moderation.",
     )
 
 
 def comment_manager_post(request, preprint):
-    if 'comment_public' in request.POST:
-        comment_id = request.POST.get('comment_public')
-    elif 'comment_reviewed' in request.POST:
-        comment_id = request.POST.get('comment_reviewed')
-    elif 'comment_delete' in request.POST:
-        comment_id = request.POST.get('comment_delete')
+    if "comment_public" in request.POST:
+        comment_id = request.POST.get("comment_public")
+    elif "comment_reviewed" in request.POST:
+        comment_id = request.POST.get("comment_reviewed")
+    elif "comment_delete" in request.POST:
+        comment_id = request.POST.get("comment_delete")
     else:
         return
 
@@ -132,43 +132,52 @@ def comment_manager_post(request, preprint):
         preprint__repository=request.repository,
     )
 
-    if 'comment_public' in request.POST:
+    if "comment_public" in request.POST:
         comment.toggle_public()
-    elif 'comment_reviewed' in request.POST:
+    elif "comment_reviewed" in request.POST:
         comment.mark_reviewed()
 
-    if 'comment_delete' in request.POST:
+    if "comment_delete" in request.POST:
         if request.user in request.repository.managers.all():
             comment.delete()
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Comment deleted',
+                "Comment deleted",
             )
         else:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'You do not have permission to delete this comment.',
+                "You do not have permission to delete this comment.",
             )
 
 
 # TODO: Update this implementation
 def handle_author_post(request, preprint):
-    file = request.FILES.get('file')
-    update_type = request.POST.get('upload_type')
-    galley_id = request.POST.get('galley_id')
+    file = request.FILES.get("file")
+    update_type = request.POST.get("upload_type")
+    galley_id = request.POST.get("galley_id")
     galley = get_object_or_404(core_models.Galley, article=preprint, pk=galley_id)
 
-    if request.press.preprint_pdf_only and not files.check_in_memory_mime(in_memory_file=file) == 'application/pdf':
-        messages.add_message(request, messages.WARNING, 'You must upload a PDF file.')
+    if (
+        request.press.preprint_pdf_only
+        and not files.check_in_memory_mime(in_memory_file=file) == "application/pdf"
+    ):
+        messages.add_message(request, messages.WARNING, "You must upload a PDF file.")
         return
     else:
-        file = files.save_file_to_article(file, preprint, request.user, label=galley.label)
+        file = files.save_file_to_article(
+            file, preprint, request.user, label=galley.label
+        )
 
-    models.VersionQueue.objects.create(article=preprint, galley=galley, file=file, update_type=update_type)
+    models.VersionQueue.objects.create(
+        article=preprint, galley=galley, file=file, update_type=update_type
+    )
 
-    messages.add_message(request, messages.INFO, 'This update has been added to the moderation queue.')
+    messages.add_message(
+        request, messages.INFO, "This update has been added to the moderation queue."
+    )
 
 
 # TODO: Update this implementation
@@ -180,10 +189,10 @@ def get_pending_update_from_post(request):
     """
     update_id = None
 
-    if 'approve' in request.POST:
-        update_id = request.POST.get('approve')
-    elif 'decline' in request.POST:
-        update_id = request.POST.get('decline')
+    if "approve" in request.POST:
+        update_id = request.POST.get("approve")
+    elif "decline" in request.POST:
+        update_id = request.POST.get("decline")
 
     if update_id:
         pending_update = get_object_or_404(
@@ -211,12 +220,12 @@ def approve_pending_update(request):
         messages.add_message(
             request,
             messages.INFO,
-            'New version created.',
+            "New version created.",
         )
         kwargs = {
-            'pending_update': pending_update,
-            'request': request,
-            'action': 'accept',
+            "pending_update": pending_update,
+            "request": request,
+            "action": "accept",
         }
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
@@ -226,10 +235,10 @@ def approve_pending_update(request):
         messages.add_message(
             request,
             messages.WARNING,
-            'No valid pending update found.',
+            "No valid pending update found.",
         )
 
-    return redirect(reverse('version_queue'))
+    return redirect(reverse("version_queue"))
 
 
 def decline_pending_update(request):
@@ -240,13 +249,13 @@ def decline_pending_update(request):
         messages.add_message(
             request,
             messages.INFO,
-            'New version declined.',
+            "New version declined.",
         )
         kwargs = {
-            'pending_update': pending_update,
-            'request': request,
-            'action': 'decline',
-            'reason': request.POST.get('reason', 'No reason supplied.')
+            "pending_update": pending_update,
+            "request": request,
+            "action": "decline",
+            "reason": request.POST.get("reason", "No reason supplied."),
         }
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
@@ -256,19 +265,16 @@ def decline_pending_update(request):
         messages.add_message(
             request,
             messages.WARNING,
-            'No valid pending update found.',
+            "No valid pending update found.",
         )
-    return redirect(reverse('version_queue'))
+    return redirect(reverse("version_queue"))
 
 
 def handle_delete_version(request, preprint):
-    version_id = request.POST.get('delete_version')
+    version_id = request.POST.get("delete_version")
 
     if not version_id:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'No version id supplied')
+        messages.add_message(request, messages.WARNING, "No version id supplied")
     else:
         version = get_object_or_404(
             models.PreprintVersion,
@@ -279,7 +285,7 @@ def handle_delete_version(request, preprint):
         messages.add_message(
             request,
             messages.INFO,
-            'Version deleted.',
+            "Version deleted.",
         )
 
 
@@ -291,25 +297,17 @@ def delete_file(request, preprint):
     :param preprint: Preprint object
     :return: None
     """
-    file_id = request.POST.get('delete_file')
+    file_id = request.POST.get("delete_file")
 
     if not file_id:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'No File ID supplied.'
-        )
+        messages.add_message(request, messages.WARNING, "No File ID supplied.")
     try:
         models.PreprintFile.objects.get(
             pk=file_id,
             preprint=preprint,
         ).delete()
     except models.PreprintFile.DoesNotExist:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'No matching File found.'
-        )
+        messages.add_message(request, messages.WARNING, "No matching File found.")
 
 
 def subject_article_pks(user):
@@ -322,23 +320,25 @@ def subject_article_pks(user):
 
 
 def get_unpublished_preprints(request, user_subject_pks):
-    author_name_subq = models.PreprintAuthor.objects.filter(
-        preprint=OuterRef('pk')
-    ).annotate(
-        full_name=Concat(
-            "account__first_name", Value(" "), "account__last_name",
-            output_field=CharField(),
+    author_name_subq = (
+        models.PreprintAuthor.objects.filter(preprint=OuterRef("pk"))
+        .annotate(
+            full_name=Concat(
+                "account__first_name",
+                Value(" "),
+                "account__last_name",
+                output_field=CharField(),
+            )
         )
-    ).values('full_name')
+        .values("full_name")
+    )
     unpublished_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=False,
         date_declined__isnull=True,
         date_accepted__isnull=True,
         repository=request.repository,
-    ).annotate(
-        author_full_name=Subquery(author_name_subq[:1])
-    )
+    ).annotate(author_full_name=Subquery(author_name_subq[:1]))
 
     if request.user.is_staff or request.user.is_repository_manager(request.repository):
         return unpublished_preprints
@@ -347,21 +347,23 @@ def get_unpublished_preprints(request, user_subject_pks):
 
 
 def get_published_preprints(request, user_subject_pks):
-    author_name_subq = models.PreprintAuthor.objects.filter(
-        preprint=OuterRef('pk')
-    ).annotate(
-        full_name=Concat(
-            "account__first_name", Value(" "), "account__last_name",
-            output_field=CharField(),
+    author_name_subq = (
+        models.PreprintAuthor.objects.filter(preprint=OuterRef("pk"))
+        .annotate(
+            full_name=Concat(
+                "account__first_name",
+                Value(" "),
+                "account__last_name",
+                output_field=CharField(),
+            )
         )
-    ).values('full_name')
+        .values("full_name")
+    )
     published_preprints = models.Preprint.objects.filter(
         date_published__isnull=False,
         date_submitted__isnull=False,
         repository=request.repository,
-    ).annotate(
-        author_full_name=Subquery(author_name_subq[:1])
-    )
+    ).annotate(author_full_name=Subquery(author_name_subq[:1]))
 
     if request.user.is_staff or request.user.is_repository_manager(request.repository):
         return published_preprints
@@ -397,8 +399,8 @@ def get_doi(request, preprint):
     else:
         doi = render_template.get_message_content(
             request,
-            {'preprint': preprint},
-            request.press.get_setting_value('Crossref Pattern'),
+            {"preprint": preprint},
+            request.press.get_setting_value("Crossref Pattern"),
             template_is_setting=True,
         )
         return doi
@@ -410,13 +412,14 @@ def get_list_of_preprint_journals():
     :return: Queryset of Journal objects
     """
     from journal import models as journal_models
+
     journals = journal_models.Journal.objects.all()
     journals_accepting_preprints = list()
 
     for journal in journals:
         setting = journal.get_setting(
-            'general',
-            'accepts_preprint_submissions',
+            "general",
+            "accepts_preprint_submissions",
         )
         if setting:
             journals_accepting_preprints.append(journal)
@@ -426,11 +429,11 @@ def get_list_of_preprint_journals():
 
 def check_duplicates(version_queue):
     preprints = [version_request.preprint for version_request in version_queue]
-    return [k for k,v in Counter(preprints).items() if v > 1]
+    return [k for k, v in Counter(preprints).items() if v > 1]
 
 
 def search_for_authors(request, preprint):
-    search_term = request.POST.get('search')
+    search_term = request.POST.get("search")
     try:
         search_author = core_models.Account.objects.get(
             Q(email=search_term) | Q(orcid=search_term)
@@ -438,34 +441,30 @@ def search_for_authors(request, preprint):
         pa, created = models.PreprintAuthor.objects.get_or_create(
             account=search_author,
             preprint=preprint,
-            defaults={'order': preprint.next_author_order()},
+            defaults={"order": preprint.next_author_order()},
         )
 
         if not created:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'This author is already associated with this {}'.format(
+                "This author is already associated with this {}".format(
                     request.repository.object_name,
-                )
+                ),
             )
 
         return pa
     except core_models.Account.DoesNotExist:
-        messages.add_message(
-            request,
-            messages.INFO,
-            'No author found.'
-        )
+        messages.add_message(request, messages.INFO, "No author found.")
 
 
 def raise_event(event_type, request, preprint):
     kwargs = {
-        'request': request,
-        'preprint': preprint,
+        "request": request,
+        "preprint": preprint,
     }
 
-    if event_type == 'accept':
+    if event_type == "accept":
         event_logic.Events.raise_event(
             event_logic.Events.ON_PREPRINT_PUBLICATION,
             **kwargs,
@@ -474,16 +473,15 @@ def raise_event(event_type, request, preprint):
 
 def store_preprint_access(request, preprint, file=None):
     try:
-        user_agent = parse_ua_string(request.META.get('HTTP_USER_AGENT', None))
+        user_agent = parse_ua_string(request.META.get("HTTP_USER_AGENT", None))
     except TypeError:
         user_agent = None
 
     if user_agent and not user_agent.is_bot:
-
         ip = shared.get_ip_address(request)
         iso_country_code = get_iso_country_code(ip)
         country = iso_to_country_object(iso_country_code)
-        counter_tracking_id = request.session.get('counter_tracking')
+        counter_tracking_id = request.session.get("counter_tracking")
         identifier = counter_tracking_id if counter_tracking_id else hash(ip)
 
         # Check if someone with this identifier has accessed the same file
@@ -496,7 +494,6 @@ def store_preprint_access(request, preprint, file=None):
             identifier=identifier,
             accessed__gte=time_to_check,
         ).exists():
-
             models.PreprintAccess.objects.create(
                 preprint=preprint,
                 file=file,
@@ -508,18 +505,18 @@ def store_preprint_access(request, preprint, file=None):
 def get_review_notification(request, preprint, review):
     url = request.repository.site_url(
         path=reverse(
-            'repository_submit_review',
+            "repository_submit_review",
             kwargs={
-                'review_id': review.pk,
-                'access_code': review.access_code,
-            }
+                "review_id": review.pk,
+                "access_code": review.access_code,
+            },
         )
     )
     context = {
-        'preprint': preprint,
-        'request': request,
-        'review': review,
-        'url': url,
+        "preprint": preprint,
+        "request": request,
+        "review": review,
+        "url": url,
     }
     template = request.repository.review_invitation
     email_content = render_template.get_message_content(

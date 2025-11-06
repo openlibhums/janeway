@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('typesetting', '0012_auto_20210121_1729'),
-        ('typesetting', '0012_auto_20210126_1203'),
+        ("typesetting", "0012_auto_20210121_1729"),
+        ("typesetting", "0012_auto_20210126_1203"),
     ]
 
-    operations = [
-    ]
+    operations = []

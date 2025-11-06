@@ -22,9 +22,8 @@ def reset_typesetting_workflow_element(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0102_contact_ip_address_null'),
+        ("core", "0102_contact_ip_address_null"),
     ]
 
     operations = [

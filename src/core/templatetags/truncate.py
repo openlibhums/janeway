@@ -15,7 +15,7 @@ def truncatesmart(value, limit=80):
     {{ string|truncatesmart:100 }}
     """
     if not value:
-        return ''
+        return ""
 
     try:
         limit = int(limit)
@@ -26,6 +26,6 @@ def truncatesmart(value, limit=80):
         return mark_safe(value)
 
     value = value[:limit]
-    words = value.split(' ')[:-1]
+    words = value.split(" ")[:-1]
 
-    return mark_safe(' '.join(words) + ' [...]')
+    return mark_safe(" ".join(words) + " [...]")

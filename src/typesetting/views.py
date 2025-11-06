@@ -24,7 +24,7 @@ logger = get_logger(__name__)
 @decorators.has_journal
 @decorators.editor_user_required
 def typesetting_manager(request):
-    template = 'typesetting/index.html'
+    template = "typesetting/index.html"
     context = {}
     return render(request, template, context)
 
@@ -37,22 +37,22 @@ def typesetting_articles(request):
     :param request: HttpRequest
     :return: HttpResponse
     """
-    article_filter = request.GET.get('filter', None)
+    article_filter = request.GET.get("filter", None)
 
     articles_in_typesetting = submission_models.Article.objects.filter(
         journal=request.journal,
         stage=submission_models.STAGE_TYPESETTING_PLUGIN,
     )
 
-    if article_filter and article_filter == 'me':
+    if article_filter and article_filter == "me":
         articles_in_typesetting = articles_in_typesetting.filter(
             typesettingclaim__editor=request.user,
         )
 
-    template = 'typesetting/typesetting_articles.html'
+    template = "typesetting/typesetting_articles.html"
     context = {
-        'articles_in_typesetting': articles_in_typesetting,
-        'filter': article_filter,
+        "articles_in_typesetting": articles_in_typesetting,
+        "filter": article_filter,
     }
 
     return render(request, template, context)
@@ -79,13 +79,13 @@ def typesetting_article(request, article_id):
         messages.add_message(
             request,
             messages.INFO,
-            'New typesetting round created.',
+            "New typesetting round created.",
         )
 
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
     if request.POST and "new-round" in request.POST:
@@ -93,21 +93,21 @@ def typesetting_article(request, article_id):
         messages.add_message(
             request,
             messages.INFO,
-            'New typesetting round created.',
+            "New typesetting round created.",
         )
 
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
 
     elif request.POST and "complete-typesetting" in request.POST:
         return logic.complete_typesetting(request, article)
 
-    elif request.POST and 'source' in request.POST:
-        for uploaded_file in request.FILES.getlist('source-file'):
+    elif request.POST and "source" in request.POST:
+        for uploaded_file in request.FILES.getlist("source-file"):
             production_logic.save_source_file(
                 article,
                 request,
@@ -116,36 +116,35 @@ def typesetting_article(request, article_id):
             messages.add_message(
                 request,
                 messages.INFO,
-                'Source files uploaded',
+                "Source files uploaded",
             )
-    elif request.POST and 'supp' in request.POST:
-        for uploaded_file in request.FILES.getlist('supp-file'):
-            label = request.POST.get('label', 'Supplementary File')
-            production_logic.save_supp_file(
-                article, request, uploaded_file, label)
+    elif request.POST and "supp" in request.POST:
+        for uploaded_file in request.FILES.getlist("supp-file"):
+            label = request.POST.get("label", "Supplementary File")
+            production_logic.save_supp_file(article, request, uploaded_file, label)
             messages.add_message(
                 request,
                 messages.INFO,
-                'Supplementary file uploaded: %s' % label,
+                "Supplementary file uploaded: %s" % label,
             )
 
-    elif request.POST and 'choice-supp' in request.POST:
+    elif request.POST and "choice-supp" in request.POST:
         form = forms.SupplementaryFileChoiceForm(request.POST, article=article)
         if form.is_valid():
             supp = form.save()
             messages.add_message(
                 request,
                 messages.INFO,
-                'Supplementary file created',
+                "Supplementary file created",
             )
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
-    elif request.POST and 'edit-label' in request.POST:
-        label = request.POST.get('edit-label', 'Supplementary File')
+    elif request.POST and "edit-label" in request.POST:
+        label = request.POST.get("edit-label", "Supplementary File")
         supp_file = get_object_or_404(
             core_models.SupplementaryFile,
             id=int(request.POST.get("supp-id", 0)),
@@ -160,19 +159,19 @@ def typesetting_article(request, article_id):
         messages.add_message(
             request,
             messages.INFO,
-            'Label updated: %s' % label,
+            "Label updated: %s" % label,
         )
 
-    template = 'typesetting/typesetting_article.html'
+    template = "typesetting/typesetting_article.html"
     context = {
-        'article': article,
-        'rounds': rounds,
-        'galleys': galleys,
-        'files': files,
-        'pending_tasks': logic.typesetting_pending_tasks(rounds[0]),
-        'next_element': logic.get_next_element('typesetting_articles', request),
-        'supp_choice_form': supp_choice_form,
-        'galley_form': galley_form,
+        "article": article,
+        "rounds": rounds,
+        "galleys": galleys,
+        "files": files,
+        "pending_tasks": logic.typesetting_pending_tasks(rounds[0]),
+        "next_element": logic.get_next_element("typesetting_articles", request),
+        "supp_choice_form": supp_choice_form,
+        "galley_form": galley_form,
     }
 
     return render(request, template, context)
@@ -194,40 +193,35 @@ def typesetting_claim_article(request, article_id, action):
         journal=request.journal,
     )
 
-    if not hasattr(article, 'typesettingclaim'):
-
+    if not hasattr(article, "typesettingclaim"):
         models.TypesettingClaim.objects.get_or_create(
             editor=request.user,
             article=article,
         )
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Article claim successful.'
-        )
+        messages.add_message(request, messages.SUCCESS, "Article claim successful.")
 
-    elif action == 'unclaim' and article.typesettingclaim.editor == request.user:
+    elif action == "unclaim" and article.typesettingclaim.editor == request.user:
         article.typesettingclaim.delete()
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Article successfully released.',
+            "Article successfully released.",
         )
 
     else:
         messages.add_message(
             request,
             messages.ERROR,
-            'This article is already being managed by {}.'.format(
+            "This article is already being managed by {}.".format(
                 article.typesettingclaim.editor.full_name(),
-            )
+            ),
         )
 
     return redirect(
         reverse(
-            'typesetting_article',
-            kwargs={'article_id': article.pk},
+            "typesetting_article",
+            kwargs={"article_id": article.pk},
         )
     )
 
@@ -253,10 +247,10 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         )
 
     try:
-        if 'file' in request.FILES and form.is_valid():
-            label = form.cleaned_data.get('label')
-            public = form.cleaned_data.get('public')
-            for uploaded_file in request.FILES.getlist('file'):
+        if "file" in request.FILES and form.is_valid():
+            label = form.cleaned_data.get("label")
+            public = form.cleaned_data.get("public")
+            for uploaded_file in request.FILES.getlist("file"):
                 galley = production_logic.save_galley(
                     article,
                     request,
@@ -268,11 +262,13 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
     except TypeError as exc:
         messages.add_message(request, messages.ERROR, str(exc))
     except UnicodeDecodeError:
-        messages.add_message(request, messages.ERROR,
-                             "Uploaded file is not UTF-8 encoded")
+        messages.add_message(
+            request, messages.ERROR, "Uploaded file is not UTF-8 encoded"
+        )
     except production_logic.ZippedGalleyError:
         messages.add_message(
-            request, messages.ERROR,
+            request,
+            messages.ERROR,
             "You tried to upload a compressed file. "
             "Please upload each Typeset File separately",
         )
@@ -284,28 +280,25 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         messages.add_message(
             request,
             messages.WARNING,
-            'No typeset file uploaded',
+            "No typeset file uploaded",
         )
 
     if not form.is_valid():
         messages.add_message(
             request,
             messages.WARNING,
-            'Galley form not valid.',
+            "Galley form not valid.",
         )
 
     if assignment:
         return redirect(
-            reverse(
-                'typesetting_assignment',
-                kwargs={'assignment_id': assignment.pk}
-            )
+            reverse("typesetting_assignment", kwargs={"assignment_id": assignment.pk})
         )
 
     return redirect(
         reverse(
-            'typesetting_article',
-            kwargs={'article_id': article.pk},
+            "typesetting_article",
+            kwargs={"article_id": article.pk},
         )
     )
 
@@ -320,7 +313,7 @@ def typesetting_edit_galley(request, galley_id, article_id):
     :param article_id: Article PK, optional
     :return: HttpRedirect or HttpResponse
     """
-    return_url = request.GET.get('return', None)
+    return_url = request.GET.get("return", None)
 
     article = get_object_or_404(
         submission_models.Article,
@@ -336,15 +329,13 @@ def typesetting_edit_galley(request, galley_id, article_id):
         instance=galley,
         include_file=False,
     )
-    if galley.label == 'XML':
+    if galley.label == "XML":
         xsl_files = core_models.XSLFile.objects.all()
     else:
         xsl_files = None
 
     if request.POST:
-
-        if 'delete' in request.POST:
-
+        if "delete" in request.POST:
             production_logic.handle_delete_request(
                 request,
                 galley,
@@ -354,23 +345,23 @@ def typesetting_edit_galley(request, galley_id, article_id):
             if not return_url:
                 return redirect(
                     reverse(
-                        'typesetting_article',
-                        kwargs={'article_id': article.pk},
+                        "typesetting_article",
+                        kwargs={"article_id": article.pk},
                     )
                 )
             else:
                 return redirect(return_url)
 
-        label = request.POST.get('label')
+        label = request.POST.get("label")
 
-        if 'fixed-image-upload' in request.POST:
-            if request.POST.get('datafile') is not None:
+        if "fixed-image-upload" in request.POST:
+            if request.POST.get("datafile") is not None:
                 production_logic.use_data_file_as_galley_image(
                     galley,
                     request,
                     label,
                 )
-            for uploaded_file in request.FILES.getlist('image'):
+            for uploaded_file in request.FILES.getlist("image"):
                 production_logic.save_galley_image(
                     galley,
                     request,
@@ -380,8 +371,8 @@ def typesetting_edit_galley(request, galley_id, article_id):
                     check_for_existing_images=True,
                 )
 
-        if 'image-upload' in request.POST:
-            for uploaded_file in request.FILES.getlist('image'):
+        if "image-upload" in request.POST:
+            for uploaded_file in request.FILES.getlist("image"):
                 production_logic.save_galley_image(
                     galley,
                     request,
@@ -391,17 +382,17 @@ def typesetting_edit_galley(request, galley_id, article_id):
                     check_for_existing_images=True,
                 )
 
-        elif 'css-upload' in request.POST:
-            for uploaded_file in request.FILES.getlist('css'):
+        elif "css-upload" in request.POST:
+            for uploaded_file in request.FILES.getlist("css"):
                 production_logic.save_galley_css(
                     galley,
                     request,
                     uploaded_file,
-                    'galley-{0}.css'.format(galley.id),
+                    "galley-{0}.css".format(galley.id),
                     label,
                 )
 
-        if 'galley-update' in request.POST:
+        if "galley-update" in request.POST:
             galley_form = forms.GalleyForm(
                 request.POST,
                 instance=galley,
@@ -410,42 +401,48 @@ def typesetting_edit_galley(request, galley_id, article_id):
             if galley_form.is_valid():
                 galley_form.save()
 
-        if 'replace-galley' in request.POST:
+        if "replace-galley" in request.POST:
             production_logic.replace_galley_file(
-                article, request,
+                article,
+                request,
                 galley,
-                request.FILES.get('galley'),
+                request.FILES.get("galley"),
             )
 
-        if 'xsl_file' in request.POST:
-            xsl_file = get_object_or_404(core_models.XSLFile,
-                                         pk=request.POST["xsl_file"])
+        if "xsl_file" in request.POST:
+            xsl_file = get_object_or_404(
+                core_models.XSLFile, pk=request.POST["xsl_file"]
+            )
             galley.xsl_file = xsl_file
             galley.save()
 
-        return_path = '?return={return_url}'.format(
-            return_url=return_url,
-        ) if return_url else ''
-        url = reverse(
-            'typesetting_edit_galley',
-            kwargs={'article_id': article.pk, 'galley_id': galley_id},
+        return_path = (
+            "?return={return_url}".format(
+                return_url=return_url,
+            )
+            if return_url
+            else ""
         )
-        redirect_url = '{url}{return_path}'.format(
+        url = reverse(
+            "typesetting_edit_galley",
+            kwargs={"article_id": article.pk, "galley_id": galley_id},
+        )
+        redirect_url = "{url}{return_path}".format(
             url=url,
             return_path=return_path,
         )
         return redirect(redirect_url)
 
-    template = 'typesetting/edit_galley.html'
+    template = "typesetting/edit_galley.html"
     context = {
-        'galley': galley,
-        'article': galley.article,
-        'image_names': production_logic.get_image_names(galley),
-        'return_url': return_url,
-        'data_files': article.data_figure_files.all(),
-        'galley_images': galley.images.all(),
-        'xsl_files': xsl_files,
-        'galley_form': galley_form,
+        "galley": galley,
+        "article": galley.article,
+        "image_names": production_logic.get_image_names(galley),
+        "return_url": return_url,
+        "data_files": article.data_figure_files.all(),
+        "galley_images": galley.images.all(),
+        "xsl_files": xsl_files,
+        "galley_form": galley_form,
     }
 
     return render(request, template, context)
@@ -500,31 +497,24 @@ def typesetting_assign_typesetter(request, article_id):
             assignment.manager = request.user
             assignment.save()
 
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Assignment created.'
-            )
+            messages.add_message(request, messages.SUCCESS, "Assignment created.")
 
             return redirect(
                 reverse(
-                    'typesetting_notify_typesetter',
-                    kwargs={
-                        'article_id': article.pk,
-                        'assignment_id': assignment.pk
-                    }
+                    "typesetting_notify_typesetter",
+                    kwargs={"article_id": article.pk, "assignment_id": assignment.pk},
                 )
             )
 
-    template = 'typesetting/assign_typesetter.html'
+    template = "typesetting/assign_typesetter.html"
     context = {
-        'article': article,
-        'typesetters': typesetters,
-        'files': files,
-        'galleys': galleys,
-        'form': form,
-        'round': current_round,
-        'proofing_assignments': proofing_assignments,
+        "article": article,
+        "typesetters": typesetters,
+        "files": files,
+        "galleys": galleys,
+        "form": form,
+        "round": current_round,
+        "proofing_assignments": proofing_assignments,
     }
 
     return render(request, template, context)
@@ -555,35 +545,32 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'A notification has already been sent for this assignment.'
+            "A notification has already been sent for this assignment.",
         )
 
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
 
     if request.POST:
-        message = request.POST.get('message')
+        message = request.POST.get("message")
         notify.event_typesetting_assignment(
             request,
             assignment,
             message,
-            skip=True if 'skip' in request.POST else False,
+            skip=True if "skip" in request.POST else False,
         )
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Assignment created.',
+            "Assignment created.",
         )
 
         return redirect(
-            reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk}
-            )
+            reverse("typesetting_article", kwargs={"article_id": article.pk})
         )
 
     message = logic.get_typesetter_notification(
@@ -592,11 +579,11 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
         request,
     )
 
-    template = 'typesetting/notify_typesetter.html'
+    template = "typesetting/notify_typesetter.html"
     context = {
-        'article': article,
-        'assignment': assignment,
-        'message': message,
+        "article": article,
+        "assignment": assignment,
+        "message": message,
     }
 
     return render(request, template, context)
@@ -657,11 +644,7 @@ def typesetting_review_assignment(request, article_id, assignment_id):
             assignment.manager = request.user
             assignment.save()
 
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Assignment updated.'
-            )
+            messages.add_message(request, messages.SUCCESS, "Assignment updated.")
     elif request.POST and "delete" in request.POST:
         assignment.delete(request.user)
         notify.event_typesetting_deleted(
@@ -670,19 +653,16 @@ def typesetting_review_assignment(request, article_id, assignment_id):
         )
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
     elif request.POST and "reopen" in request.POST:
         assignment.reopen(request.user)
         return redirect(
             reverse(
-                'typesetting_notify_typesetter',
-                kwargs={
-                    'article_id': article.pk,
-                    'assignment_id': assignment.pk
-                }
+                "typesetting_notify_typesetter",
+                kwargs={"article_id": article.pk, "assignment_id": assignment.pk},
             )
         )
 
@@ -696,24 +676,25 @@ def typesetting_review_assignment(request, article_id, assignment_id):
             decision_form.save()
             return redirect(
                 reverse(
-                    'typesetting_article',
-                    kwargs={'article_id': article.pk},
+                    "typesetting_article",
+                    kwargs={"article_id": article.pk},
                 )
             )
 
-    template = 'typesetting/typesetting_review_assignment.html'
+    template = "typesetting/typesetting_review_assignment.html"
     context = {
-        'article': article,
-        'assignment': assignment,
-        'galleys': galleys,
-        'form': edit_form,
-        'typesetters': typesetters,
-        'files': files,
-        'galley_form': galley_form,
-        'proofing_assignments': assignment.proofing_assignments_for_corrections,
-        'decision_form': decision_form,
-        'pending_corrections': [
-            correction for correction in assignment.corrections.all()
+        "article": article,
+        "assignment": assignment,
+        "galleys": galleys,
+        "form": edit_form,
+        "typesetters": typesetters,
+        "files": files,
+        "galley_form": galley_form,
+        "proofing_assignments": assignment.proofing_assignments_for_corrections,
+        "decision_form": decision_form,
+        "pending_corrections": [
+            correction
+            for correction in assignment.corrections.all()
             if not correction.corrected
         ],
     }
@@ -724,7 +705,6 @@ def typesetting_review_assignment(request, article_id, assignment_id):
 @decorators.has_journal
 @decorators.typesetter_user_required
 def typesetting_assignments(request):
-
     assignments = models.TypesettingAssignment.active_objects.filter(
         typesetter=request.user,
         round__article__journal=request.journal,
@@ -739,25 +719,28 @@ def typesetting_assignments(request):
         Q(completed__isnull=False) | Q(cancelled__isnull=False),
     )
 
-    template = 'typesetting/typesetting_assignments.html'
+    template = "typesetting/typesetting_assignments.html"
     context = {
-        'active_assignments': active_assignments,
-        'past_assignments': past_assignments,
+        "active_assignments": active_assignments,
+        "past_assignments": past_assignments,
     }
 
     return render(request, template, context)
 
 
 @decorators.has_journal
-@decorators.typesetter_user_required
+@security.can_preview_typesetting_article
 def typesetting_typesetter_download_file(request, assignment_id, file_id):
-    assignment = get_object_or_404(
-        models.TypesettingAssignment,
-        pk=assignment_id,
-        typesetter=request.user,
-        completed__isnull=True,
-        round__article__journal=request.journal,
-    )
+    query = Q(pk=assignment_id)
+    query &= Q(round__article__journal=request.journal)
+
+    if request.user.is_editor(request) or request.user.is_section_editor(request):
+        assignment = get_object_or_404(models.TypesettingAssignment, query)
+    else:
+        # If the user is a typesetter, an open task must be assigned to them
+        query &= Q(completed__isnull=True)
+        query &= Q(typesetter=request.user)
+        assignment = get_object_or_404(models.TypesettingAssignment, query)
 
     file = get_object_or_404(
         core_models.File,
@@ -769,22 +752,27 @@ def typesetting_typesetter_download_file(request, assignment_id, file_id):
         file in assignment.files_to_typeset.all()
         or file in assignment.round.article.data_figure_files.all()
         or assignment.proofing_assignments_for_corrections().filter(
-            annotated_files__id=file_id)
-        or file.pk in assignment.round.article.supplementary_files.values_list(
-            'file__pk', flat=True,
-            )
-        or file.pk in assignment.round.article.galley_set.values_list(
-                'file__pk', flat=True,
-            )
+            annotated_files__id=file_id
+        )
+        or file.pk
+        in assignment.round.article.supplementary_files.values_list(
+            "file__pk",
+            flat=True,
+        )
+        or file.pk
+        in assignment.round.article.galley_set.values_list(
+            "file__pk",
+            flat=True,
+        )
     ):
         return files.serve_any_file(
             request,
             file,
-            path_parts=('articles', assignment.round.article.pk),
+            path_parts=("articles", assignment.round.article.pk),
         )
     else:
         raise PermissionDenied(
-            'You do not have permission to view this file.',
+            "You do not have permission to view this file.",
         )
 
 
@@ -800,11 +788,7 @@ def typesetting_download_file(request, article_id, file_id):
         article_id=article_id,
     )
 
-    return files.serve_any_file(
-        request,
-        file,
-        path_parts=('articles', article_id)
-    )
+    return files.serve_any_file(request, file, path_parts=("articles", article_id))
 
 
 @decorators.has_journal
@@ -826,13 +810,13 @@ def typesetting_delete_galley(request, galley_id):
     messages.add_message(
         request,
         messages.SUCCESS,
-        'Galley deleted.',
+        "Galley deleted.",
     )
 
     return redirect(
         reverse(
-            'typesetting_article',
-            kwargs = {'article_id': article.pk},
+            "typesetting_article",
+            kwargs={"article_id": article.pk},
         )
     )
 
@@ -845,7 +829,7 @@ def typesetting_assignment(request, assignment_id):
         pk=assignment_id,
         typesetter=request.user,
         completed__isnull=True,
-        round__article__journal=request.journal
+        round__article__journal=request.journal,
     )
     article = assignment.round.article
 
@@ -862,12 +846,12 @@ def typesetting_assignment(request, assignment_id):
 
     form = forms.TypesetterDecision()
     galley_form = forms.GalleyForm()
-    complete_form = core_forms.SimpleTinyMCEForm(field_name='note_from_typesetter')
-    complete_form.fields['note_from_typesetter'].required = False
+    complete_form = core_forms.SimpleTinyMCEForm(field_name="note_from_typesetter")
+    complete_form.fields["note_from_typesetter"].required = False
 
     if request.POST:
-        if 'source' in request.POST:
-            for uploaded_file in request.FILES.getlist('source-file'):
+        if "source" in request.POST:
+            for uploaded_file in request.FILES.getlist("source-file"):
                 production_logic.save_source_file(
                     article,
                     request,
@@ -876,34 +860,36 @@ def typesetting_assignment(request, assignment_id):
                 messages.add_message(
                     request,
                     messages.INFO,
-                    'Source files uploaded',
+                    "Source files uploaded",
                 )
 
         if assignment.cancelled:
             messages.add_message(
                 request,
                 messages.WARNING,
-                'The manager for this article has cancelled this typesetting'
-                'task. No further changes are allowed',
+                "The manager for this article has cancelled this typesetting"
+                "task. No further changes are allowed",
             )
-            return redirect(reverse(
-                'typesetting_assignment',
-                kwargs={'assignment_id': assignment.pk},
-            ))
+            return redirect(
+                reverse(
+                    "typesetting_assignment",
+                    kwargs={"assignment_id": assignment.pk},
+                )
+            )
 
-        if 'complete_typesetting' in request.POST:
-            note = request.POST.get('note_from_typesetter', None)
+        if "complete_typesetting" in request.POST:
+            note = request.POST.get("note_from_typesetter", None)
             assignment.complete(note, request.user)
             notify.event_complete_notification(assignment, request)
 
-            return redirect(reverse('typesetting_assignments'))
+            return redirect(reverse("typesetting_assignments"))
 
         form = forms.TypesetterDecision(request.POST)
 
         if form.is_valid():
-            note = form.cleaned_data.get('note', 'No note supplied.')
-            decision = form.cleaned_data.get('decision')
-            if decision == 'accept':
+            note = form.cleaned_data.get("note", "No note supplied.")
+            decision = form.cleaned_data.get("decision")
+            if decision == "accept":
                 assignment.accepted = timezone.now()
                 assignment.save()
                 notify.event_decision_notification(
@@ -912,10 +898,12 @@ def typesetting_assignment(request, assignment_id):
                     note,
                     decision,
                 )
-                return redirect(reverse(
-                    'typesetting_assignment',
-                    kwargs={'assignment_id': assignment.pk},
-                ))
+                return redirect(
+                    reverse(
+                        "typesetting_assignment",
+                        kwargs={"assignment_id": assignment.pk},
+                    )
+                )
             else:
                 assignment.completed = timezone.now()
                 for correction in assignment.corrections.all():
@@ -929,28 +917,27 @@ def typesetting_assignment(request, assignment_id):
                     decision,
                 )
                 messages.add_message(
-                    request,
-                    messages.INFO,
-                    'Thanks, the manager has been informed.'
+                    request, messages.INFO, "Thanks, the manager has been informed."
                 )
 
-                return redirect(reverse('typesetting_assignments'))
+                return redirect(reverse("typesetting_assignments"))
 
-    template = 'typesetting/typesetting_assignment.html'
+    template = "typesetting/typesetting_assignment.html"
     context = {
-        'assignment': assignment,
-        'article': assignment.round.article,
-        'form': form,
-        'galleys': galleys,
-        'pending_corrections': [
-            correction for correction in assignment.corrections.all()
+        "assignment": assignment,
+        "article": assignment.round.article,
+        "form": form,
+        "galleys": galleys,
+        "pending_corrections": [
+            correction
+            for correction in assignment.corrections.all()
             if not correction.corrected
         ],
-        'missing_images': [g for g in galleys if g.has_missing_image_files()],
-        'supplementary_files': supplementary_files,
-        'proofing_assignments': assignment.proofing_assignments_for_corrections,
-        'galley_form': galley_form,
-        'complete_form': complete_form,
+        "missing_images": [g for g in galleys if g.has_missing_image_files()],
+        "supplementary_files": supplementary_files,
+        "proofing_assignments": assignment.proofing_assignments_for_corrections,
+        "galley_form": galley_form,
+        "complete_form": complete_form,
     }
 
     return render(request, template, context)
@@ -967,7 +954,7 @@ def typesetting_delete_correction(request, correction_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'Correction already adressed',
+            "Correction already adressed",
         )
 
     else:
@@ -976,15 +963,15 @@ def typesetting_delete_correction(request, correction_id):
             messages.add_message(
                 request,
                 messages.INFO,
-                'Correction Deleted',
+                "Correction Deleted",
             )
         else:
             messages.add_message(
                 request,
                 messages.INFO,
-                'Confirmed',
+                "Confirmed",
             )
-    return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(request.META.get("HTTP_REFERER"))
 
 
 @decorators.has_journal
@@ -1005,13 +992,15 @@ def typesetting_assign_proofreader(request, article_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'You cannot assign a proofreader without typeset files.',
+            "You cannot assign a proofreader without typeset files.",
         )
 
-        return redirect(reverse(
-            'typesetting_article',
-            kwargs={'article_id': article.pk},
-        ))
+        return redirect(
+            reverse(
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
+            )
+        )
 
     form = forms.AssignProofreader(
         proofreaders=proofreaders,
@@ -1031,27 +1020,25 @@ def typesetting_assign_proofreader(request, article_id):
             assignment = form.save()
 
             messages.add_message(
-                request,
-                messages.SUCCESS,
-                'Proofing Assignment created.'
+                request, messages.SUCCESS, "Proofing Assignment created."
             )
 
             return redirect(
                 reverse(
-                    'typesetting_notify_proofreader',
+                    "typesetting_notify_proofreader",
                     kwargs={
-                        'article_id': article.pk,
-                        'assignment_id': assignment.pk,
-                    }
+                        "article_id": article.pk,
+                        "assignment_id": assignment.pk,
+                    },
                 )
             )
 
-    template = 'typesetting/typesetting_assign_proofreader.html'
+    template = "typesetting/typesetting_assign_proofreader.html"
     context = {
-        'article': article,
-        'proofreaders': proofreaders,
-        'form': form,
-        'galleys': galleys,
+        "article": article,
+        "proofreaders": proofreaders,
+        "form": form,
+        "galleys": galleys,
     }
 
     return render(request, template, context)
@@ -1079,36 +1066,28 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
     )
 
     if request.POST:
-        message = request.POST.get('message')
-        skip = True if 'skip' in request.POST else False
-        assignment.assign(
-            user=request.user,
-            skip=skip
-        )
-        notify.galley_proofing_assignment(
-            request,
-            assignment,
-            message,
-            skip=skip
-        )
+        message = request.POST.get("message")
+        skip = True if "skip" in request.POST else False
+        assignment.assign(user=request.user, skip=skip)
+        notify.galley_proofing_assignment(request, assignment, message, skip=skip)
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Assignment created',
+            "Assignment created",
         )
 
         return redirect(
             reverse(
-                'typesetting_article',
-                kwargs={'article_id': article.pk},
+                "typesetting_article",
+                kwargs={"article_id": article.pk},
             )
         )
 
-    template = 'typesetting/typesetting_notify_proofreader.html'
+    template = "typesetting/typesetting_notify_proofreader.html"
     context = {
-        'article': article,
-        'assignment': assignment,
-        'message': message,
+        "article": article,
+        "assignment": assignment,
+        "message": message,
     }
 
     return render(request, template, context)
@@ -1137,15 +1116,11 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
     )
 
     if request.POST:
+        if "action" in request.POST:
+            action = request.POST.get("action")
 
-        if 'action' in request.POST:
-
-            action = request.POST.get('action')
-
-            if action == 'cancel':
-                assignment.cancel(
-                    user=request.user
-                )
+            if action == "cancel":
+                assignment.cancel(user=request.user)
                 notify.galley_proofing_cancel(
                     request,
                     assignment,
@@ -1153,12 +1128,10 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofing task cancelled.',
+                    "Proofing task cancelled.",
                 )
-            elif action == 'reset':
-                assignment.reset(
-                    user=request.user
-                )
+            elif action == "reset":
+                assignment.reset(user=request.user)
                 notify.galley_proofing_reset(
                     request,
                     assignment,
@@ -1166,9 +1139,9 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofing task reset.',
+                    "Proofing task reset.",
                 )
-            elif action == 'complete':
+            elif action == "complete":
                 assignment.complete(
                     user=request.user,
                 )
@@ -1179,13 +1152,13 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofing task completed.',
+                    "Proofing task completed.",
                 )
 
             return redirect(
                 reverse(
-                    'typesetting_article',
-                    kwargs={'article_id': article.pk},
+                    "typesetting_article",
+                    kwargs={"article_id": article.pk},
                 )
             )
 
@@ -1199,25 +1172,25 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                'Assignment updated.',
+                "Assignment updated.",
             )
 
             return redirect(
                 reverse(
-                    'typesetting_manage_proofing_assignment',
+                    "typesetting_manage_proofing_assignment",
                     kwargs={
-                        'article_id': article.pk,
-                        'assignment_id': assignment.pk,
-                    }
+                        "article_id": article.pk,
+                        "assignment_id": assignment.pk,
+                    },
                 )
             )
 
-    template = 'typesetting/typesetting_manage_proofing_assignment.html'
+    template = "typesetting/typesetting_manage_proofing_assignment.html"
     context = {
-        'article': article,
-        'assignment': assignment,
-        'proofreaders': proofreaders,
-        'form': form,
+        "article": article,
+        "assignment": assignment,
+        "proofreaders": proofreaders,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -1238,10 +1211,10 @@ def typesetting_proofreading_assignments(request):
         completed__isnull=False,
     )
 
-    template = 'typesetting/typesetting_proofing_assignments.html'
+    template = "typesetting/typesetting_proofing_assignments.html"
     context = {
-        'active_assignments': active_assignments,
-        'completed_assignments': completed_assignments,
+        "active_assignments": active_assignments,
+        "completed_assignments": completed_assignments,
     }
 
     return render(request, template, context)
@@ -1275,29 +1248,24 @@ def typesetting_proofreading_assignment(request, assignment_id):
             form.save()
 
             if form.is_confirmed():
-                assignment.complete(
-                    user=request.user
-                )
-                notify.galley_proofing_complete(
-                    request,
-                    assignment
-                )
+                assignment.complete(user=request.user)
+                notify.galley_proofing_complete(request, assignment)
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    'Proofreading Assignment complete.',
+                    "Proofreading Assignment complete.",
                 )
                 return redirect(
                     reverse(
-                        'core_dashboard',
+                        "core_dashboard",
                     )
                 )
 
-    template = 'typesetting/typesetting_proofreading_assignment.html'
+    template = "typesetting/typesetting_proofreading_assignment.html"
     context = {
-        'assignment': assignment,
-        'galleys': galleys,
-        'form': form,
+        "assignment": assignment,
+        "galleys": galleys,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -1305,10 +1273,10 @@ def typesetting_proofreading_assignment(request, assignment_id):
 
 @security.can_preview_typesetting_article
 def typesetting_preview_galley(
-        request,
-        article_id,
-        galley_id,
-        assignment_id=None,
+    request,
+    article_id,
+    galley_id,
+    assignment_id=None,
 ):
     """
     Displays a preview of a galley object
@@ -1344,26 +1312,26 @@ def typesetting_preview_galley(
                 pk=assignment_id,
             )
 
-    if galley.type == 'xml' or galley.type == 'html':
-        template = 'journal/article.html'
-    elif galley.type == 'epub':
-        template = 'proofing/preview/epub.html'
+    if galley.type == "xml" or galley.type == "html":
+        template = "journal/article.html"
+    elif galley.type == "epub":
+        template = "proofing/preview/epub.html"
     else:
-        template = 'typesetting/preview_embedded.html'
+        template = "typesetting/preview_embedded.html"
 
     article_content = galley.file_content()
     galleys = article.galley_set.filter(public=True)
 
     context = {
-        'proofing': True,
-        'proofing_task': proofing_task,
-        'galley': galley,
-        'galleys': galleys,
-        'article': article if article else proofing_task.round.article,
-        'identifier_type': 'id',
-        'identifier': article.pk if article else proofing_task.round.article.pk,
-        'article_content': article_content,
-        'tables_in_galley': journal_logic.get_all_tables_from_html(article_content),
+        "proofing": True,
+        "proofing_task": proofing_task,
+        "galley": galley,
+        "galleys": galleys,
+        "article": article if article else proofing_task.round.article,
+        "identifier_type": "id",
+        "identifier": article.pk if article else proofing_task.round.article.pk,
+        "article_content": article_content,
+        "tables_in_galley": journal_logic.get_all_tables_from_html(article_content),
     }
 
     return render(request, template, context)
@@ -1391,42 +1359,20 @@ def typesetting_proofing_download(request, article_id, assignment_id, file_id):
         messages.add_message(
             request,
             messages.WARNING,
-            'Requested file is not a typeset file for proofing',
+            "Requested file is not a typeset file for proofing",
         )
-        return redirect(request.META.get('HTTP_REFERER'))
+        return redirect(request.META.get("HTTP_REFERER"))
 
 
 @security.can_preview_typesetting_article
 def preview_figure(
-        request,
-        galley_id,
-        file_name,
-        assignment_id=None,
-        article_id=None,
+    request,
+    galley_id,
+    file_name,
+    assignment_id=None,
+    article_id=None,
 ):
-
-    if assignment_id:
-        try:
-            assignment = models.TypesettingAssignment.objects.get(
-                pk=assignment_id,
-                typesetter=request.user,
-            )
-            galley = core_models.Galley.objects.get(
-                pk=galley_id,
-                article_id=assignment.round.article.pk,
-            )
-        except (models.TypesettingAssignment.DoesNotExist, core_models.Galley.DoesNotExist):
-            assignment = get_object_or_404(
-                models.GalleyProofing,
-                pk=assignment_id,
-                proofreader=request.user
-            )
-            galley = get_object_or_404(
-                core_models.Galley,
-                pk=galley_id,
-                article_id=assignment.round.article.pk,
-            )
-    elif article_id and request.user.has_an_editor_role(request):
+    if article_id and request.user.has_an_editor_role(request):
         article = get_object_or_404(
             submission_models.Article,
             pk=article_id,
@@ -1437,6 +1383,28 @@ def preview_figure(
             pk=galley_id,
             article_id=article.pk,
         )
+    elif assignment_id:
+        try:
+            assignment = models.TypesettingAssignment.objects.get(
+                pk=assignment_id,
+                typesetter=request.user,
+            )
+            galley = core_models.Galley.objects.get(
+                pk=galley_id,
+                article_id=assignment.round.article.pk,
+            )
+        except (
+            models.TypesettingAssignment.DoesNotExist,
+            core_models.Galley.DoesNotExist,
+        ):
+            assignment = get_object_or_404(
+                models.GalleyProofing, pk=assignment_id, proofreader=request.user
+            )
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+                article_id=assignment.round.article.pk,
+            )
     else:
         raise PermissionDenied
 
@@ -1445,28 +1413,27 @@ def preview_figure(
 
 @security.user_can_manage_file
 def article_file_make_galley(request, article_id, file_id):
-    """ Copies a file to be a publicly available galley
+    """Copies a file to be a publicly available galley
 
     :param request: the request associated with this call
     :param article_id: the ID of the associated articled
     :param file_id: the file ID for which to view the history
     :return: a redirect to the URL at the GET parameter 'return'
     """
-    article_object = get_object_or_404(
-        submission_models.Article, pk=article_id)
-    janeway_file = get_object_or_404(
-        core_models.File, pk=file_id)
+    article_object = get_object_or_404(submission_models.Article, pk=article_id)
+    janeway_file = get_object_or_404(core_models.File, pk=file_id)
 
     blob = janeway_file.get_file(article_object, as_bytes=True)
     content_file = ContentFile(blob)
     content_file.name = janeway_file.original_filename
     production_logic.save_galley(
-        article_object, request, content_file,
+        article_object,
+        request,
+        content_file,
         is_galley=True,
     )
 
-
-    return redirect(request.GET['return'])
+    return redirect(request.GET["return"])
 
 
 @require_POST
@@ -1485,7 +1452,7 @@ def mint_supp_doi(request, supp_file_id):
         messages.add_message(
             request,
             messages.ERROR,
-            'The DOI field must be filled in',
+            "The DOI field must be filled in",
         )
     else:
         try:
@@ -1495,21 +1462,21 @@ def mint_supp_doi(request, supp_file_id):
             messages.add_message(
                 request,
                 messages.ERROR,
-                'Invalid DOI: %s' % e.message,
+                "Invalid DOI: %s" % e.message,
             )
         except Exception as e:
             messages.add_message(
                 request,
                 messages.ERROR,
-                'There was a problem minting the DOI,'
-                ' the site administrator has been alerted',
+                "There was a problem minting the DOI,"
+                " the site administrator has been alerted",
             )
             logger.exception("Error minting supplementary file DOI %s", e)
         else:
             messages.add_message(
                 request,
                 messages.INFO,
-                'Minted DOI for supplementary file #%d' % supp_file.pk,
+                "Minted DOI for supplementary file #%d" % supp_file.pk,
             )
 
-    return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(request.META.get("HTTP_REFERER"))

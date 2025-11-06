@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from utils import notify_helpers
 
+
 @dataclass(frozen=True)
 class EmailData:
     subject: str
@@ -24,7 +25,7 @@ def send_email(
     preprint=None,
     log_dict=None,
 ):
-    """ A standard way to send email using data from core.forms.EmailForm.
+    """A standard way to send email using data from core.forms.EmailForm.
 
     :param user: The main recipient of the email. Can be None if email_data has recipient
     :type user: Account or NoneType
@@ -41,17 +42,17 @@ def send_email(
     elif email_data.to:
         to = email_data.to
     else:
-        raise ImproperlyConfigured('Pass a user or email_data with a to field')
+        raise ImproperlyConfigured("Pass a user or email_data with a to field")
     subject = email_data.subject
     message = email_data.body
 
     if not log_dict:
         target = article or preprint or None
         log_dict = {
-            'level': 'Info',
-            'action_text': 'Contact User',
-            'types': 'Email',
-            'target': target
+            "level": "Info",
+            "action_text": "Contact User",
+            "types": "Email",
+            "target": target,
         }
 
     notify_helpers.send_email_with_body_from_user(

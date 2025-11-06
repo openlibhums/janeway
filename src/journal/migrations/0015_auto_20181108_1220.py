@@ -8,48 +8,89 @@ import journal.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0014_journal_disable_metrics_display'),
+        ("journal", "0014_journal_disable_metrics_display"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='disable_article_images',
+            model_name="journal",
+            name="disable_article_images",
             field=models.BooleanField(
                 default=False,
-                help_text='This field has been deprecated in v1.4.3',
+                help_text="This field has been deprecated in v1.4.3",
             ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='cover_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.cover_images_upload_path),
+            model_name="issue",
+            name="cover_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='large_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.issue_large_image_path),
+            model_name="issue",
+            name="large_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.issue_large_image_path,
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='default_cover_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="default_cover_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='default_large_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="default_large_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='favicon',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="favicon",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='header_image',
-            field=models.ImageField(blank=True, null=True, storage=django.core.files.storage.FileSystemStorage(location='/vol/janeway/src/media'), upload_to=journal.models.cover_images_upload_path),
+            model_name="journal",
+            name="header_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=django.core.files.storage.FileSystemStorage(
+                    location="/vol/janeway/src/media"
+                ),
+                upload_to=journal.models.cover_images_upload_path,
+            ),
         ),
     ]

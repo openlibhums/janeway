@@ -33,9 +33,7 @@
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
-                        {% if article.is_published or proofing %}
-                          {% include "common/elements/journal/article_authors_br.html" %}
-                        {% endif %}
+                        {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                     </div>
                 </div>
             </div>
@@ -135,19 +133,12 @@
         <div class="col-md-4 offset-md-1 left-bar">
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
-                {% if journal_settings.article.disable_article_large_image %}
-                  <h2>
-                    {% blocktrans count counter=article.frozen_authors.count %}
-                      Author
-                    {% plural %}
-                      Authors
-                    {% endblocktrans %}
-                  </h2>
-                  {% include "common/elements/journal/article_authors_ul.html" %}
-                {% endif %}
-
                 {% if article.is_published or proofing %}
-                    {% include "elements/journal/share.html" %}
+                  {% include "elements/journal/share.html" %}
+                {% endif %}
+                <h2>Author details</h2>
+                {% include "elements/journal/article_authors_full.html" %}
+                {% if article.is_published or proofing %}
                     <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}
                         <ul>
@@ -305,23 +296,9 @@
                         <p> {% trans 'File Checksums are not available for this article.' %}</p>
                     {% endif %}
 
-                    {% if journal_settings.general.use_credit and author.credits.exists %}
-                      <h2>{% trans 'CRediT Roles' %} <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank"> <i class="fa fa-info"></i></a></h2>
-                      <ul>
-                        {% for author, credit_records in article.authors_and_credits.items %}
-                          <li>
-                            {{ author.full_name }}:
-                            <span class="credit">
-                              {% for record in credit_records %}
-                                {{ record }}{% if not forloop.last %}, {% endif %}
-                              {% endfor %}
-                            </span>
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
                 {% endif %}
             </div>
+             {% hook 'article_sidebar' %}
              {% if article_content %}
                 <div class="sticky-top" id="toc-section">
                     <h2>{% trans "Table of Contents" %}</h2>

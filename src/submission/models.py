@@ -40,7 +40,7 @@ from django.utils.html import mark_safe
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
-from core.model_utils import(
+from core.model_utils import (
     AbstractLastModifiedModel,
     DynamicChoiceField,
     BaseSearchManagerMixin,
@@ -73,7 +73,7 @@ fs = JanewayFileSystemStorage()
 
 def article_media_upload(instance, filename):
     try:
-        filename = str(uuid.uuid4()) + '.' + str(filename.split('.')[1])
+        filename = str(uuid.uuid4()) + "." + str(filename.split(".")[1])
     except IndexError:
         filename = str(uuid.uuid4())
 
@@ -95,182 +95,536 @@ CREDIT_ROLE_CHOICES = [
     ("validation", "Validation"),
     ("visualization", "Visualization"),
     ("writing-original-draft", "Writing - Original Draft"),
-    ("writing-review-editing", "Writing - Review & Editing")
+    ("writing-review-editing", "Writing - Review & Editing"),
 ]
 
 SALUTATION_CHOICES = [
-    ('', '---'),
-    ('Dr', 'Dr'),
-    ('Prof', 'Prof'),
-    ('Miss', 'Miss'),
-    ('Ms', 'Ms'),
-    ('Mrs', 'Mrs'),
-    ('Mr', 'Mr'),
+    ("", "---"),
+    ("Dr", "Dr"),
+    ("Prof", "Prof"),
+    ("Miss", "Miss"),
+    ("Ms", "Ms"),
+    ("Mrs", "Mrs"),
+    ("Mr", "Mr"),
 ]
 
 # This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (
-    (u'eng', u'English'), (u'abk', u'Abkhazian'), (u'ace', u'Achinese'), (u'ach', u'Acoli'), (u'ada', u'Adangme'),
-    (u'ady', u'Adyghe; Adygei'), (u'aar', u'Afar'), (u'afh', u'Afrihili'), (u'afr', u'Afrikaans'),
-    (u'afa', u'Afro-Asiatic languages'), (u'ain', u'Ainu'), (u'aka', u'Akan'), (u'akk', u'Akkadian'),
-    (u'sqi', u'Albanian'),
-    (u'ale', u'Aleut'), (u'alg', u'Algonquian languages'), (u'tut', u'Altaic languages'), (u'amh', u'Amharic'),
-    (u'anp', u'Angika'), (u'apa', u'Apache languages'), (u'ara', u'Arabic'), (u'arg', u'Aragonese'),
-    (u'arp', u'Arapaho'),
-    (u'arw', u'Arawak'), (u'hye', u'Armenian'), (u'rup', u'Aromanian; Arumanian; Macedo-Romanian'),
-    (u'art', u'Artificial languages'), (u'asm', u'Assamese'), (u'ast', u'Asturian; Bable; Leonese; Asturleonese'),
-    (u'ath', u'Athapascan languages'), (u'aus', u'Australian languages'), (u'map', u'Austronesian languages'),
-    (u'ava', u'Avaric'), (u'ave', u'Avestan'), (u'awa', u'Awadhi'), (u'aym', u'Aymara'), (u'aze', u'Azerbaijani'),
-    (u'ban', u'Balinese'), (u'bat', u'Baltic languages'), (u'bal', u'Baluchi'), (u'bam', u'Bambara'),
-    (u'bai', u'Bamileke languages'), (u'bad', u'Banda languages'), (u'bnt', u'Bantu languages'), (u'bas', u'Basa'),
-    (u'bak', u'Bashkir'), (u'eus', u'Basque'), (u'btk', u'Batak languages'), (u'bej', u'Beja; Bedawiyet'),
-    (u'bel', u'Belarusian'), (u'bem', u'Bemba'), (u'ben', u'Bengali'), (u'ber', u'Berber languages'),
-    (u'bho', u'Bhojpuri'),
-    (u'bih', u'Bihari languages'), (u'bik', u'Bikol'), (u'bin', u'Bini; Edo'), (u'bis', u'Bislama'),
-    (u'byn', u'Blin; Bilin'), (u'zbl', u'Blissymbols; Blissymbolics; Bliss'),
-    (u'nob', u'Bokm\xe5l, Norwegian; Norwegian Bokm\xe5l'), (u'bos', u'Bosnian'), (u'bra', u'Braj'),
-    (u'bre', u'Breton'),
-    (u'bug', u'Buginese'), (u'bul', u'Bulgarian'), (u'bua', u'Buriat'), (u'mya', u'Burmese'), (u'cad', u'Caddo'),
-    (u'cat', u'Catalan; Valencian'), (u'cau', u'Caucasian languages'), (u'ceb', u'Cebuano'),
-    (u'cel', u'Celtic languages'),
-    (u'cai', u'Central American Indian languages'), (u'khm', u'Central Khmer'), (u'chg', u'Chagatai'),
-    (u'cmc', u'Chamic languages'), (u'cha', u'Chamorro'), (u'che', u'Chechen'), (u'chr', u'Cherokee'),
-    (u'chy', u'Cheyenne'), (u'chb', u'Chibcha'), (u'nya', u'Chichewa; Chewa; Nyanja'), (u'zho', u'Chinese'),
-    (u'chn', u'Chinook jargon'), (u'chp', u'Chipewyan; Dene Suline'), (u'cho', u'Choctaw'),
-    (u'chu', u'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic'),
-    (u'chk', u'Chuukese'),
-    (u'chv', u'Chuvash'), (u'nwc', u'Classical Newari; Old Newari; Classical Nepal Bhasa'),
-    (u'syc', u'Classical Syriac'),
-    (u'cop', u'Coptic'), (u'cor', u'Cornish'), (u'cos', u'Corsican'), (u'cre', u'Cree'), (u'mus', u'Creek'),
-    (u'crp', u'Creoles and pidgins'), (u'cpe', u'Creoles and pidgins, English based'),
-    (u'cpf', u'Creoles and pidgins, French-based'), (u'cpp', u'Creoles and pidgins, Portuguese-based'),
-    (u'crh', u'Crimean Tatar; Crimean Turkish'), (u'hrv', u'Croatian'), (u'cus', u'Cushitic languages'),
-    (u'ces', u'Czech'),
-    (u'dak', u'Dakota'), (u'dan', u'Danish'), (u'dar', u'Dargwa'), (u'del', u'Delaware'), (u'din', u'Dinka'),
-    (u'div', u'Divehi; Dhivehi; Maldivian'), (u'doi', u'Dogri'), (u'dgr', u'Dogrib'), (u'dra', u'Dravidian languages'),
-    (u'dua', u'Duala'), (u'dum', u'Dutch, Middle (ca. 1050-1350)'), (u'nld', u'Dutch; Flemish'), (u'dyu', u'Dyula'),
-    (u'dzo', u'Dzongkha'), (u'frs', u'Eastern Frisian'), (u'efi', u'Efik'), (u'egy', u'Egyptian (Ancient)'),
-    (u'eka', u'Ekajuk'), (u'elx', u'Elamite'), (u'enm', u'English, Middle (1100-1500)'),
-    (u'ang', u'English, Old (ca. 450-1100)'), (u'myv', u'Erzya'), (u'epo', u'Esperanto'), (u'est', u'Estonian'),
-    (u'ewe', u'Ewe'), (u'ewo', u'Ewondo'), (u'fan', u'Fang'), (u'fat', u'Fanti'), (u'fao', u'Faroese'),
-    (u'fij', u'Fijian'),
-    (u'fil', u'Filipino; Pilipino'), (u'fin', u'Finnish'), (u'fiu', u'Finno-Ugrian languages'), (u'fon', u'Fon'),
-    (u'fra', u'French'), (u'frm', u'French, Middle (ca. 1400-1600)'), (u'fro', u'French, Old (842-ca. 1400)'),
-    (u'fur', u'Friulian'), (u'ful', u'Fulah'), (u'gaa', u'Ga'), (u'gla', u'Gaelic; Scottish Gaelic'),
-    (u'car', u'Galibi Carib'), (u'glg', u'Galician'), (u'lug', u'Ganda'), (u'gay', u'Gayo'), (u'gba', u'Gbaya'),
-    (u'gez', u'Geez'), (u'kat', u'Georgian'), (u'deu', u'German'), (u'gmh', u'German, Middle High (ca. 1050-1500)'),
-    (u'goh', u'German, Old High (ca. 750-1050)'), (u'gem', u'Germanic languages'), (u'gil', u'Gilbertese'),
-    (u'gon', u'Gondi'), (u'gor', u'Gorontalo'), (u'got', u'Gothic'), (u'grb', u'Grebo'),
-    (u'grc', u'Greek, Ancient (to 1453)'), (u'ell', u'Greek, Modern (1453-)'), (u'grn', u'Guarani'),
-    (u'guj', u'Gujarati'),
-    (u'gwi', u"Gwich'in"), (u'hai', u'Haida'), (u'hat', u'Haitian; Haitian Creole'), (u'hau', u'Hausa'),
-    (u'haw', u'Hawaiian'), (u'heb', u'Hebrew'), (u'her', u'Herero'), (u'hil', u'Hiligaynon'),
-    (u'him', u'Himachali languages; Western Pahari languages'), (u'hin', u'Hindi'), (u'hmo', u'Hiri Motu'),
-    (u'hit', u'Hittite'), (u'hmn', u'Hmong; Mong'), (u'hun', u'Hungarian'), (u'hup', u'Hupa'), (u'iba', u'Iban'),
-    (u'isl', u'Icelandic'), (u'ido', u'Ido'), (u'ibo', u'Igbo'), (u'ijo', u'Ijo languages'), (u'ilo', u'Iloko'),
-    (u'smn', u'Inari Sami'), (u'inc', u'Indic languages'), (u'ine', u'Indo-European languages'),
-    (u'ind', u'Indonesian'),
-    (u'inh', u'Ingush'), (u'ina', u'Interlingua (International Auxiliary Language Association)'),
-    (u'ile', u'Interlingue; Occidental'), (u'iku', u'Inuktitut'), (u'ipk', u'Inupiaq'), (u'ira', u'Iranian languages'),
-    (u'gle', u'Irish'), (u'mga', u'Irish, Middle (900-1200)'), (u'sga', u'Irish, Old (to 900)'),
-    (u'iro', u'Iroquoian languages'), (u'ita', u'Italian'), (u'jpn', u'Japanese'), (u'jav', u'Javanese'),
-    (u'jrb', u'Judeo-Arabic'), (u'jpr', u'Judeo-Persian'), (u'kbd', u'Kabardian'), (u'kab', u'Kabyle'),
-    (u'kac', u'Kachin; Jingpho'), (u'kal', u'Kalaallisut; Greenlandic'), (u'xal', u'Kalmyk; Oirat'), (u'kam', u'Kamba'),
-    (u'kan', u'Kannada'), (u'kau', u'Kanuri'), (u'kaa', u'Kara-Kalpak'), (u'krc', u'Karachay-Balkar'),
-    (u'krl', u'Karelian'), (u'kar', u'Karen languages'), (u'kas', u'Kashmiri'), (u'csb', u'Kashubian'),
-    (u'kaw', u'Kawi'),
-    (u'kaz', u'Kazakh'), (u'kha', u'Khasi'), (u'khi', u'Khoisan languages'), (u'kho', u'Khotanese;Sakan'),
-    (u'kik', u'Kikuyu; Gikuyu'), (u'kmb', u'Kimbundu'), (u'kin', u'Kinyarwanda'), (u'kir', u'Kirghiz; Kyrgyz'),
-    (u'tlh', u'Klingon; tlhIngan-Hol'), (u'kom', u'Komi'), (u'kon', u'Kongo'), (u'kok', u'Konkani'),
-    (u'kor', u'Korean'),
-    (u'kos', u'Kosraean'), (u'kpe', u'Kpelle'), (u'kro', u'Kru languages'), (u'kua', u'Kuanyama; Kwanyama'),
-    (u'kum', u'Kumyk'), (u'kur', u'Kurdish'), (u'kru', u'Kurukh'), (u'kut', u'Kutenai'), (u'lad', u'Ladino'),
-    (u'lah', u'Lahnda'), (u'lam', u'Lamba'), (u'day', u'Land Dayak languages'), (u'lao', u'Lao'), (u'lat', u'Latin'),
-    (u'lav', u'Latvian'), (u'lez', u'Lezghian'), (u'lim', u'Limburgan; Limburger; Limburgish'), (u'lin', u'Lingala'),
-    (u'lit', u'Lithuanian'), (u'jbo', u'Lojban'), (u'nds', u'Low German; Low Saxon; German, Low; Saxon, Low'),
-    (u'dsb', u'Lower Sorbian'), (u'loz', u'Lozi'), (u'lub', u'Luba-Katanga'), (u'lua', u'Luba-Lulua'),
-    (u'lui', u'Luiseno'),
-    (u'smj', u'Lule Sami'), (u'lun', u'Lunda'), (u'luo', u'Luo (Kenya and Tanzania)'), (u'lus', u'Lushai'),
-    (u'ltz', u'Luxembourgish; Letzeburgesch'), (u'mkd', u'Macedonian'), (u'mad', u'Madurese'), (u'mag', u'Magahi'),
-    (u'mai', u'Maithili'), (u'mak', u'Makasar'), (u'mlg', u'Malagasy'), (u'msa', u'Malay'), (u'mal', u'Malayalam'),
-    (u'mlt', u'Maltese'), (u'mnc', u'Manchu'), (u'mdr', u'Mandar'), (u'man', u'Mandingo'), (u'mni', u'Manipuri'),
-    (u'mno', u'Manobo languages'), (u'glv', u'Manx'), (u'mri', u'Maori'), (u'arn', u'Mapudungun; Mapuche'),
-    (u'mar', u'Marathi'), (u'chm', u'Mari'), (u'mah', u'Marshallese'), (u'mwr', u'Marwari'), (u'mas', u'Masai'),
-    (u'myn', u'Mayan languages'), (u'men', u'Mende'), (u'mic', u"Mi'kmaq; Micmac"), (u'min', u'Minangkabau'),
-    (u'mwl', u'Mirandese'), (u'moh', u'Mohawk'), (u'mdf', u'Moksha'), (u'mol', u'Moldavian; Moldovan'),
-    (u'mkh', u'Mon-Khmer languages'), (u'lol', u'Mongo'), (u'mon', u'Mongolian'), (u'mos', u'Mossi'),
-    (u'mul', u'Multiple languages'), (u'mun', u'Munda languages'), (u'nqo', u"N'Ko"), (u'nah', u'Nahuatl languages'),
-    (u'nau', u'Nauru'), (u'nav', u'Navajo; Navaho'), (u'nde', u'Ndebele, North; North Ndebele'),
-    (u'nbl', u'Ndebele, South; South Ndebele'), (u'ndo', u'Ndonga'), (u'nap', u'Neapolitan'),
-    (u'new', u'Nepal Bhasa; Newari'), (u'nep', u'Nepali'), (u'nia', u'Nias'), (u'nic', u'Niger-Kordofanian languages'),
-    (u'ssa', u'Nilo-Saharan languages'), (u'niu', u'Niuean'), (u'zxx', u'No linguistic content; Not applicable'),
-    (u'nog', u'Nogai'), (u'non', u'Norse, Old'), (u'nai', u'North American Indian languages'),
-    (u'frr', u'Northern Frisian'), (u'sme', u'Northern Sami'), (u'nor', u'Norwegian'),
-    (u'nno', u'Norwegian Nynorsk; Nynorsk, Norwegian'), (u'nub', u'Nubian languages'), (u'nym', u'Nyamwezi'),
-    (u'nyn', u'Nyankole'), (u'nyo', u'Nyoro'), (u'nzi', u'Nzima'), (u'oci', u'Occitan (post 1500)'),
-    (u'arc', u'Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)'), (u'oji', u'Ojibwa'),
-    (u'ori', u'Oriya'),
-    (u'orm', u'Oromo'), (u'osa', u'Osage'), (u'oss', u'Ossetian; Ossetic'), (u'oto', u'Otomian languages'),
-    (u'pal', u'Pahlavi'), (u'pau', u'Palauan'), (u'pli', u'Pali'), (u'pam', u'Pampanga; Kapampangan'),
-    (u'pag', u'Pangasinan'), (u'pan', u'Panjabi; Punjabi'), (u'pap', u'Papiamento'), (u'paa', u'Papuan languages'),
-    (u'nso', u'Pedi; Sepedi; Northern Sotho'), (u'fas', u'Persian'), (u'peo', u'Persian, Old (ca. 600-400 B.C.)'),
-    (u'phi', u'Philippine languages'), (u'phn', u'Phoenician'), (u'pon', u'Pohnpeian'), (u'pol', u'Polish'),
-    (u'por', u'Portuguese'), (u'pra', u'Prakrit languages'),
-    (u'pro', u'Proven\xe7al, Old (to 1500); Occitan, Old (to 1500)'), (u'pus', u'Pushto; Pashto'), (u'que', u'Quechua'),
-    (u'raj', u'Rajasthani'), (u'rap', u'Rapanui'), (u'rar', u'Rarotongan; Cook Islands Maori'),
-    (u'qaa-qtz', u'Reserved for local use'), (u'roa', u'Romance languages'), (u'ron', u'Romanian'),
-    (u'roh', u'Romansh'),
-    (u'rom', u'Romany'), (u'run', u'Rundi'), (u'rus', u'Russian'), (u'sal', u'Salishan languages'),
-    (u'sam', u'Samaritan Aramaic'), (u'smi', u'Sami languages'), (u'smo', u'Samoan'), (u'sad', u'Sandawe'),
-    (u'sag', u'Sango'), (u'san', u'Sanskrit'), (u'sat', u'Santali'), (u'srd', u'Sardinian'), (u'sas', u'Sasak'),
-    (u'sco', u'Scots'), (u'sel', u'Selkup'), (u'sem', u'Semitic languages'), (u'srp', u'Serbian'), (u'srr', u'Serer'),
-    (u'shn', u'Shan'), (u'sna', u'Shona'), (u'iii', u'Sichuan Yi; Nuosu'), (u'scn', u'Sicilian'), (u'sid', u'Sidamo'),
-    (u'sgn', u'Sign Languages'), (u'bla', u'Siksika'), (u'snd', u'Sindhi'), (u'sin', u'Sinhala; Sinhalese'),
-    (u'sit', u'Sino-Tibetan languages'), (u'sio', u'Siouan languages'), (u'sms', u'Skolt Sami'),
-    (u'den', u'Slave (Athapascan)'), (u'sla', u'Slavic languages'), (u'slk', u'Slovak'), (u'slv', u'Slovenian'),
-    (u'sog', u'Sogdian'), (u'som', u'Somali'), (u'son', u'Songhai languages'), (u'snk', u'Soninke'),
-    (u'wen', u'Sorbian languages'), (u'sot', u'Sotho, Southern'), (u'sai', u'South American Indian languages'),
-    (u'alt', u'Southern Altai'), (u'sma', u'Southern Sami'), (u'spa', u'Spanish; Castilian'), (u'srn', u'Sranan Tongo'),
-    (u'zgh', u'Standard Moroccan Tamazight'), (u'suk', u'Sukuma'), (u'sux', u'Sumerian'), (u'sun', u'Sundanese'),
-    (u'sus', u'Susu'), (u'swa', u'Swahili'), (u'ssw', u'Swati'), (u'swe', u'Swedish'),
-    (u'gsw', u'Swiss German; Alemannic; Alsatian'), (u'syr', u'Syriac'), (u'tgl', u'Tagalog'), (u'tah', u'Tahitian'),
-    (u'tai', u'Tai languages'), (u'tgk', u'Tajik'), (u'tmh', u'Tamashek'), (u'tam', u'Tamil'), (u'tat', u'Tatar'),
-    (u'tel', u'Telugu'), (u'ter', u'Tereno'), (u'tet', u'Tetum'), (u'tha', u'Thai'), (u'bod', u'Tibetan'),
-    (u'tig', u'Tigre'), (u'tir', u'Tigrinya'), (u'tem', u'Timne'), (u'tiv', u'Tiv'), (u'tli', u'Tlingit'),
-    (u'tpi', u'Tok Pisin'), (u'tkl', u'Tokelau'), (u'tog', u'Tonga (Nyasa)'), (u'ton', u'Tonga (Tonga Islands)'),
-    (u'tsi', u'Tsimshian'), (u'tso', u'Tsonga'), (u'tsn', u'Tswana'), (u'tum', u'Tumbuka'), (u'tup', u'Tupi languages'),
-    (u'tur', u'Turkish'), (u'ota', u'Turkish, Ottoman (1500-1928)'), (u'tuk', u'Turkmen'), (u'tvl', u'Tuvalu'),
-    (u'tyv', u'Tuvinian'), (u'twi', u'Twi'), (u'udm', u'Udmurt'), (u'uga', u'Ugaritic'), (u'uig', u'Uighur; Uyghur'),
-    (u'ukr', u'Ukrainian'), (u'umb', u'Umbundu'), (u'mis', u'Uncoded languages'), (u'und', u'Undetermined'),
-    (u'hsb', u'Upper Sorbian'), (u'urd', u'Urdu'), (u'uzb', u'Uzbek'), (u'vai', u'Vai'), (u'ven', u'Venda'),
-    (u'vie', u'Vietnamese'), (u'vol', u'Volap\xfck'), (u'vot', u'Votic'), (u'wak', u'Wakashan languages'),
-    (u'wln', u'Walloon'), (u'war', u'Waray'), (u'was', u'Washo'), (u'cym', u'Welsh'), (u'fry', u'Western Frisian'),
-    (u'wal', u'Wolaitta; Wolaytta'), (u'wol', u'Wolof'), (u'xho', u'Xhosa'), (u'sah', u'Yakut'), (u'yao', u'Yao'),
-    (u'yap', u'Yapese'), (u'yid', u'Yiddish'), (u'yor', u'Yoruba'), (u'ypk', u'Yupik languages'),
-    (u'znd', u'Zande languages'), (u'zap', u'Zapotec'), (u'zza', u'Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki'),
-    (u'zen', u'Zenaga'), (u'zha', u'Zhuang; Chuang'), (u'zul', u'Zulu'), (u'zun', u'Zuni'))
+    ("eng", "English"),
+    ("abk", "Abkhazian"),
+    ("ace", "Achinese"),
+    ("ach", "Acoli"),
+    ("ada", "Adangme"),
+    ("ady", "Adyghe; Adygei"),
+    ("aar", "Afar"),
+    ("afh", "Afrihili"),
+    ("afr", "Afrikaans"),
+    ("afa", "Afro-Asiatic languages"),
+    ("ain", "Ainu"),
+    ("aka", "Akan"),
+    ("akk", "Akkadian"),
+    ("sqi", "Albanian"),
+    ("ale", "Aleut"),
+    ("alg", "Algonquian languages"),
+    ("tut", "Altaic languages"),
+    ("amh", "Amharic"),
+    ("anp", "Angika"),
+    ("apa", "Apache languages"),
+    ("ara", "Arabic"),
+    ("arg", "Aragonese"),
+    ("arp", "Arapaho"),
+    ("arw", "Arawak"),
+    ("hye", "Armenian"),
+    ("rup", "Aromanian; Arumanian; Macedo-Romanian"),
+    ("art", "Artificial languages"),
+    ("asm", "Assamese"),
+    ("ast", "Asturian; Bable; Leonese; Asturleonese"),
+    ("ath", "Athapascan languages"),
+    ("aus", "Australian languages"),
+    ("map", "Austronesian languages"),
+    ("ava", "Avaric"),
+    ("ave", "Avestan"),
+    ("awa", "Awadhi"),
+    ("aym", "Aymara"),
+    ("aze", "Azerbaijani"),
+    ("ban", "Balinese"),
+    ("bat", "Baltic languages"),
+    ("bal", "Baluchi"),
+    ("bam", "Bambara"),
+    ("bai", "Bamileke languages"),
+    ("bad", "Banda languages"),
+    ("bnt", "Bantu languages"),
+    ("bas", "Basa"),
+    ("bak", "Bashkir"),
+    ("eus", "Basque"),
+    ("btk", "Batak languages"),
+    ("bej", "Beja; Bedawiyet"),
+    ("bel", "Belarusian"),
+    ("bem", "Bemba"),
+    ("ben", "Bengali"),
+    ("ber", "Berber languages"),
+    ("bho", "Bhojpuri"),
+    ("bih", "Bihari languages"),
+    ("bik", "Bikol"),
+    ("bin", "Bini; Edo"),
+    ("bis", "Bislama"),
+    ("byn", "Blin; Bilin"),
+    ("zbl", "Blissymbols; Blissymbolics; Bliss"),
+    ("nob", "Bokm\xe5l, Norwegian; Norwegian Bokm\xe5l"),
+    ("bos", "Bosnian"),
+    ("bra", "Braj"),
+    ("bre", "Breton"),
+    ("bug", "Buginese"),
+    ("bul", "Bulgarian"),
+    ("bua", "Buriat"),
+    ("mya", "Burmese"),
+    ("cad", "Caddo"),
+    ("cat", "Catalan; Valencian"),
+    ("cau", "Caucasian languages"),
+    ("ceb", "Cebuano"),
+    ("cel", "Celtic languages"),
+    ("cai", "Central American Indian languages"),
+    ("khm", "Central Khmer"),
+    ("chg", "Chagatai"),
+    ("cmc", "Chamic languages"),
+    ("cha", "Chamorro"),
+    ("che", "Chechen"),
+    ("chr", "Cherokee"),
+    ("chy", "Cheyenne"),
+    ("chb", "Chibcha"),
+    ("nya", "Chichewa; Chewa; Nyanja"),
+    ("zho", "Chinese"),
+    ("chn", "Chinook jargon"),
+    ("chp", "Chipewyan; Dene Suline"),
+    ("cho", "Choctaw"),
+    (
+        "chu",
+        "Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic",
+    ),
+    ("chk", "Chuukese"),
+    ("chv", "Chuvash"),
+    ("nwc", "Classical Newari; Old Newari; Classical Nepal Bhasa"),
+    ("syc", "Classical Syriac"),
+    ("cop", "Coptic"),
+    ("cor", "Cornish"),
+    ("cos", "Corsican"),
+    ("cre", "Cree"),
+    ("mus", "Creek"),
+    ("crp", "Creoles and pidgins"),
+    ("cpe", "Creoles and pidgins, English based"),
+    ("cpf", "Creoles and pidgins, French-based"),
+    ("cpp", "Creoles and pidgins, Portuguese-based"),
+    ("crh", "Crimean Tatar; Crimean Turkish"),
+    ("hrv", "Croatian"),
+    ("cus", "Cushitic languages"),
+    ("ces", "Czech"),
+    ("dak", "Dakota"),
+    ("dan", "Danish"),
+    ("dar", "Dargwa"),
+    ("del", "Delaware"),
+    ("din", "Dinka"),
+    ("div", "Divehi; Dhivehi; Maldivian"),
+    ("doi", "Dogri"),
+    ("dgr", "Dogrib"),
+    ("dra", "Dravidian languages"),
+    ("dua", "Duala"),
+    ("dum", "Dutch, Middle (ca. 1050-1350)"),
+    ("nld", "Dutch; Flemish"),
+    ("dyu", "Dyula"),
+    ("dzo", "Dzongkha"),
+    ("frs", "Eastern Frisian"),
+    ("efi", "Efik"),
+    ("egy", "Egyptian (Ancient)"),
+    ("eka", "Ekajuk"),
+    ("elx", "Elamite"),
+    ("enm", "English, Middle (1100-1500)"),
+    ("ang", "English, Old (ca. 450-1100)"),
+    ("myv", "Erzya"),
+    ("epo", "Esperanto"),
+    ("est", "Estonian"),
+    ("ewe", "Ewe"),
+    ("ewo", "Ewondo"),
+    ("fan", "Fang"),
+    ("fat", "Fanti"),
+    ("fao", "Faroese"),
+    ("fij", "Fijian"),
+    ("fil", "Filipino; Pilipino"),
+    ("fin", "Finnish"),
+    ("fiu", "Finno-Ugrian languages"),
+    ("fon", "Fon"),
+    ("fra", "French"),
+    ("frm", "French, Middle (ca. 1400-1600)"),
+    ("fro", "French, Old (842-ca. 1400)"),
+    ("fur", "Friulian"),
+    ("ful", "Fulah"),
+    ("gaa", "Ga"),
+    ("gla", "Gaelic; Scottish Gaelic"),
+    ("car", "Galibi Carib"),
+    ("glg", "Galician"),
+    ("lug", "Ganda"),
+    ("gay", "Gayo"),
+    ("gba", "Gbaya"),
+    ("gez", "Geez"),
+    ("kat", "Georgian"),
+    ("deu", "German"),
+    ("gmh", "German, Middle High (ca. 1050-1500)"),
+    ("goh", "German, Old High (ca. 750-1050)"),
+    ("gem", "Germanic languages"),
+    ("gil", "Gilbertese"),
+    ("gon", "Gondi"),
+    ("gor", "Gorontalo"),
+    ("got", "Gothic"),
+    ("grb", "Grebo"),
+    ("grc", "Greek, Ancient (to 1453)"),
+    ("ell", "Greek, Modern (1453-)"),
+    ("grn", "Guarani"),
+    ("guj", "Gujarati"),
+    ("gwi", "Gwich'in"),
+    ("hai", "Haida"),
+    ("hat", "Haitian; Haitian Creole"),
+    ("hau", "Hausa"),
+    ("haw", "Hawaiian"),
+    ("heb", "Hebrew"),
+    ("her", "Herero"),
+    ("hil", "Hiligaynon"),
+    ("him", "Himachali languages; Western Pahari languages"),
+    ("hin", "Hindi"),
+    ("hmo", "Hiri Motu"),
+    ("hit", "Hittite"),
+    ("hmn", "Hmong; Mong"),
+    ("hun", "Hungarian"),
+    ("hup", "Hupa"),
+    ("iba", "Iban"),
+    ("isl", "Icelandic"),
+    ("ido", "Ido"),
+    ("ibo", "Igbo"),
+    ("ijo", "Ijo languages"),
+    ("ilo", "Iloko"),
+    ("smn", "Inari Sami"),
+    ("inc", "Indic languages"),
+    ("ine", "Indo-European languages"),
+    ("ind", "Indonesian"),
+    ("inh", "Ingush"),
+    ("ina", "Interlingua (International Auxiliary Language Association)"),
+    ("ile", "Interlingue; Occidental"),
+    ("iku", "Inuktitut"),
+    ("ipk", "Inupiaq"),
+    ("ira", "Iranian languages"),
+    ("gle", "Irish"),
+    ("mga", "Irish, Middle (900-1200)"),
+    ("sga", "Irish, Old (to 900)"),
+    ("iro", "Iroquoian languages"),
+    ("ita", "Italian"),
+    ("jpn", "Japanese"),
+    ("jav", "Javanese"),
+    ("jrb", "Judeo-Arabic"),
+    ("jpr", "Judeo-Persian"),
+    ("kbd", "Kabardian"),
+    ("kab", "Kabyle"),
+    ("kac", "Kachin; Jingpho"),
+    ("kal", "Kalaallisut; Greenlandic"),
+    ("xal", "Kalmyk; Oirat"),
+    ("kam", "Kamba"),
+    ("kan", "Kannada"),
+    ("kau", "Kanuri"),
+    ("kaa", "Kara-Kalpak"),
+    ("krc", "Karachay-Balkar"),
+    ("krl", "Karelian"),
+    ("kar", "Karen languages"),
+    ("kas", "Kashmiri"),
+    ("csb", "Kashubian"),
+    ("kaw", "Kawi"),
+    ("kaz", "Kazakh"),
+    ("kha", "Khasi"),
+    ("khi", "Khoisan languages"),
+    ("kho", "Khotanese;Sakan"),
+    ("kik", "Kikuyu; Gikuyu"),
+    ("kmb", "Kimbundu"),
+    ("kin", "Kinyarwanda"),
+    ("kir", "Kirghiz; Kyrgyz"),
+    ("tlh", "Klingon; tlhIngan-Hol"),
+    ("kom", "Komi"),
+    ("kon", "Kongo"),
+    ("kok", "Konkani"),
+    ("kor", "Korean"),
+    ("kos", "Kosraean"),
+    ("kpe", "Kpelle"),
+    ("kro", "Kru languages"),
+    ("kua", "Kuanyama; Kwanyama"),
+    ("kum", "Kumyk"),
+    ("kur", "Kurdish"),
+    ("kru", "Kurukh"),
+    ("kut", "Kutenai"),
+    ("lad", "Ladino"),
+    ("lah", "Lahnda"),
+    ("lam", "Lamba"),
+    ("day", "Land Dayak languages"),
+    ("lao", "Lao"),
+    ("lat", "Latin"),
+    ("lav", "Latvian"),
+    ("lez", "Lezghian"),
+    ("lim", "Limburgan; Limburger; Limburgish"),
+    ("lin", "Lingala"),
+    ("lit", "Lithuanian"),
+    ("jbo", "Lojban"),
+    ("nds", "Low German; Low Saxon; German, Low; Saxon, Low"),
+    ("dsb", "Lower Sorbian"),
+    ("loz", "Lozi"),
+    ("lub", "Luba-Katanga"),
+    ("lua", "Luba-Lulua"),
+    ("lui", "Luiseno"),
+    ("smj", "Lule Sami"),
+    ("lun", "Lunda"),
+    ("luo", "Luo (Kenya and Tanzania)"),
+    ("lus", "Lushai"),
+    ("ltz", "Luxembourgish; Letzeburgesch"),
+    ("mkd", "Macedonian"),
+    ("mad", "Madurese"),
+    ("mag", "Magahi"),
+    ("mai", "Maithili"),
+    ("mak", "Makasar"),
+    ("mlg", "Malagasy"),
+    ("msa", "Malay"),
+    ("mal", "Malayalam"),
+    ("mlt", "Maltese"),
+    ("mnc", "Manchu"),
+    ("mdr", "Mandar"),
+    ("man", "Mandingo"),
+    ("mni", "Manipuri"),
+    ("mno", "Manobo languages"),
+    ("glv", "Manx"),
+    ("mri", "Maori"),
+    ("arn", "Mapudungun; Mapuche"),
+    ("mar", "Marathi"),
+    ("chm", "Mari"),
+    ("mah", "Marshallese"),
+    ("mwr", "Marwari"),
+    ("mas", "Masai"),
+    ("myn", "Mayan languages"),
+    ("men", "Mende"),
+    ("mic", "Mi'kmaq; Micmac"),
+    ("min", "Minangkabau"),
+    ("mwl", "Mirandese"),
+    ("moh", "Mohawk"),
+    ("mdf", "Moksha"),
+    ("mol", "Moldavian; Moldovan"),
+    ("mkh", "Mon-Khmer languages"),
+    ("lol", "Mongo"),
+    ("mon", "Mongolian"),
+    ("mos", "Mossi"),
+    ("mul", "Multiple languages"),
+    ("mun", "Munda languages"),
+    ("nqo", "N'Ko"),
+    ("nah", "Nahuatl languages"),
+    ("nau", "Nauru"),
+    ("nav", "Navajo; Navaho"),
+    ("nde", "Ndebele, North; North Ndebele"),
+    ("nbl", "Ndebele, South; South Ndebele"),
+    ("ndo", "Ndonga"),
+    ("nap", "Neapolitan"),
+    ("new", "Nepal Bhasa; Newari"),
+    ("nep", "Nepali"),
+    ("nia", "Nias"),
+    ("nic", "Niger-Kordofanian languages"),
+    ("ssa", "Nilo-Saharan languages"),
+    ("niu", "Niuean"),
+    ("zxx", "No linguistic content; Not applicable"),
+    ("nog", "Nogai"),
+    ("non", "Norse, Old"),
+    ("nai", "North American Indian languages"),
+    ("frr", "Northern Frisian"),
+    ("sme", "Northern Sami"),
+    ("nor", "Norwegian"),
+    ("nno", "Norwegian Nynorsk; Nynorsk, Norwegian"),
+    ("nub", "Nubian languages"),
+    ("nym", "Nyamwezi"),
+    ("nyn", "Nyankole"),
+    ("nyo", "Nyoro"),
+    ("nzi", "Nzima"),
+    ("oci", "Occitan (post 1500)"),
+    ("arc", "Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)"),
+    ("oji", "Ojibwa"),
+    ("ori", "Oriya"),
+    ("orm", "Oromo"),
+    ("osa", "Osage"),
+    ("oss", "Ossetian; Ossetic"),
+    ("oto", "Otomian languages"),
+    ("pal", "Pahlavi"),
+    ("pau", "Palauan"),
+    ("pli", "Pali"),
+    ("pam", "Pampanga; Kapampangan"),
+    ("pag", "Pangasinan"),
+    ("pan", "Panjabi; Punjabi"),
+    ("pap", "Papiamento"),
+    ("paa", "Papuan languages"),
+    ("nso", "Pedi; Sepedi; Northern Sotho"),
+    ("fas", "Persian"),
+    ("peo", "Persian, Old (ca. 600-400 B.C.)"),
+    ("phi", "Philippine languages"),
+    ("phn", "Phoenician"),
+    ("pon", "Pohnpeian"),
+    ("pol", "Polish"),
+    ("por", "Portuguese"),
+    ("pra", "Prakrit languages"),
+    ("pro", "Proven\xe7al, Old (to 1500); Occitan, Old (to 1500)"),
+    ("pus", "Pushto; Pashto"),
+    ("que", "Quechua"),
+    ("raj", "Rajasthani"),
+    ("rap", "Rapanui"),
+    ("rar", "Rarotongan; Cook Islands Maori"),
+    ("qaa-qtz", "Reserved for local use"),
+    ("roa", "Romance languages"),
+    ("ron", "Romanian"),
+    ("roh", "Romansh"),
+    ("rom", "Romany"),
+    ("run", "Rundi"),
+    ("rus", "Russian"),
+    ("sal", "Salishan languages"),
+    ("sam", "Samaritan Aramaic"),
+    ("smi", "Sami languages"),
+    ("smo", "Samoan"),
+    ("sad", "Sandawe"),
+    ("sag", "Sango"),
+    ("san", "Sanskrit"),
+    ("sat", "Santali"),
+    ("srd", "Sardinian"),
+    ("sas", "Sasak"),
+    ("sco", "Scots"),
+    ("sel", "Selkup"),
+    ("sem", "Semitic languages"),
+    ("srp", "Serbian"),
+    ("srr", "Serer"),
+    ("shn", "Shan"),
+    ("sna", "Shona"),
+    ("iii", "Sichuan Yi; Nuosu"),
+    ("scn", "Sicilian"),
+    ("sid", "Sidamo"),
+    ("sgn", "Sign Languages"),
+    ("bla", "Siksika"),
+    ("snd", "Sindhi"),
+    ("sin", "Sinhala; Sinhalese"),
+    ("sit", "Sino-Tibetan languages"),
+    ("sio", "Siouan languages"),
+    ("sms", "Skolt Sami"),
+    ("den", "Slave (Athapascan)"),
+    ("sla", "Slavic languages"),
+    ("slk", "Slovak"),
+    ("slv", "Slovenian"),
+    ("sog", "Sogdian"),
+    ("som", "Somali"),
+    ("son", "Songhai languages"),
+    ("snk", "Soninke"),
+    ("wen", "Sorbian languages"),
+    ("sot", "Sotho, Southern"),
+    ("sai", "South American Indian languages"),
+    ("alt", "Southern Altai"),
+    ("sma", "Southern Sami"),
+    ("spa", "Spanish"),
+    ("srn", "Sranan Tongo"),
+    ("zgh", "Standard Moroccan Tamazight"),
+    ("suk", "Sukuma"),
+    ("sux", "Sumerian"),
+    ("sun", "Sundanese"),
+    ("sus", "Susu"),
+    ("swa", "Swahili"),
+    ("ssw", "Swati"),
+    ("swe", "Swedish"),
+    ("gsw", "Swiss German; Alemannic; Alsatian"),
+    ("syr", "Syriac"),
+    ("tgl", "Tagalog"),
+    ("tah", "Tahitian"),
+    ("tai", "Tai languages"),
+    ("tgk", "Tajik"),
+    ("tmh", "Tamashek"),
+    ("tam", "Tamil"),
+    ("tat", "Tatar"),
+    ("tel", "Telugu"),
+    ("ter", "Tereno"),
+    ("tet", "Tetum"),
+    ("tha", "Thai"),
+    ("bod", "Tibetan"),
+    ("tig", "Tigre"),
+    ("tir", "Tigrinya"),
+    ("tem", "Timne"),
+    ("tiv", "Tiv"),
+    ("tli", "Tlingit"),
+    ("tpi", "Tok Pisin"),
+    ("tkl", "Tokelau"),
+    ("tog", "Tonga (Nyasa)"),
+    ("ton", "Tonga (Tonga Islands)"),
+    ("tsi", "Tsimshian"),
+    ("tso", "Tsonga"),
+    ("tsn", "Tswana"),
+    ("tum", "Tumbuka"),
+    ("tup", "Tupi languages"),
+    ("tur", "Turkish"),
+    ("ota", "Turkish, Ottoman (1500-1928)"),
+    ("tuk", "Turkmen"),
+    ("tvl", "Tuvalu"),
+    ("tyv", "Tuvinian"),
+    ("twi", "Twi"),
+    ("udm", "Udmurt"),
+    ("uga", "Ugaritic"),
+    ("uig", "Uighur; Uyghur"),
+    ("ukr", "Ukrainian"),
+    ("umb", "Umbundu"),
+    ("mis", "Uncoded languages"),
+    ("und", "Undetermined"),
+    ("hsb", "Upper Sorbian"),
+    ("urd", "Urdu"),
+    ("uzb", "Uzbek"),
+    ("vai", "Vai"),
+    ("ven", "Venda"),
+    ("vie", "Vietnamese"),
+    ("vol", "Volap\xfck"),
+    ("vot", "Votic"),
+    ("wak", "Wakashan languages"),
+    ("wln", "Walloon"),
+    ("war", "Waray"),
+    ("was", "Washo"),
+    ("cym", "Welsh"),
+    ("fry", "Western Frisian"),
+    ("wal", "Wolaitta; Wolaytta"),
+    ("wol", "Wolof"),
+    ("xho", "Xhosa"),
+    ("sah", "Yakut"),
+    ("yao", "Yao"),
+    ("yap", "Yapese"),
+    ("yid", "Yiddish"),
+    ("yor", "Yoruba"),
+    ("ypk", "Yupik languages"),
+    ("znd", "Zande languages"),
+    ("zap", "Zapotec"),
+    ("zza", "Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki"),
+    ("zen", "Zenaga"),
+    ("zha", "Zhuang; Chuang"),
+    ("zul", "Zulu"),
+    ("zun", "Zuni"),
+)
+
 
 def get_jats_article_types():
     return settings.JATS_ARTICLE_TYPES
 
-STAGE_UNSUBMITTED = 'Unsubmitted'
-STAGE_UNASSIGNED = 'Unassigned'
-STAGE_ASSIGNED = 'Assigned'
-STAGE_UNDER_REVIEW = 'Under Review'
-STAGE_UNDER_REVISION = 'Under Revision'
-STAGE_REJECTED = 'Rejected'
-STAGE_ACCEPTED = 'Accepted'
-STAGE_EDITOR_COPYEDITING = 'Editor Copyediting'
-STAGE_AUTHOR_COPYEDITING = 'Author Copyediting'
-STAGE_FINAL_COPYEDITING = 'Final Copyediting'
-STAGE_TYPESETTING = 'Typesetting'
-STAGE_TYPESETTING_PLUGIN = 'typesetting_plugin'
-STAGE_PROOFING = 'Proofing'
-STAGE_READY_FOR_PUBLICATION = 'pre_publication'
-STAGE_PUBLISHED = 'Published'
-STAGE_PREPRINT_REVIEW = 'preprint_review'
-STAGE_PREPRINT_PUBLISHED = 'preprint_published'
-STAGE_ARCHIVED = 'Archived'
+
+STAGE_UNSUBMITTED = "Unsubmitted"
+STAGE_UNASSIGNED = "Unassigned"
+STAGE_ASSIGNED = "Assigned"
+STAGE_UNDER_REVIEW = "Under Review"
+STAGE_UNDER_REVISION = "Under Revision"
+STAGE_REJECTED = "Rejected"
+STAGE_ACCEPTED = "Accepted"
+STAGE_EDITOR_COPYEDITING = "Editor Copyediting"
+STAGE_AUTHOR_COPYEDITING = "Author Copyediting"
+STAGE_FINAL_COPYEDITING = "Final Copyediting"
+STAGE_TYPESETTING = "Typesetting"
+STAGE_TYPESETTING_PLUGIN = "typesetting_plugin"
+STAGE_PROOFING = "Proofing"
+STAGE_READY_FOR_PUBLICATION = "pre_publication"
+STAGE_PUBLISHED = "Published"
+STAGE_PREPRINT_REVIEW = "preprint_review"
+STAGE_PREPRINT_PUBLISHED = "preprint_published"
+STAGE_ARCHIVED = "Archived"
 
 NEW_ARTICLE_STAGES = {
     STAGE_UNSUBMITTED,
@@ -292,11 +646,7 @@ REVIEW_STAGES = {
 }
 
 # Stages used to determine if a review assignment is open
-REVIEW_ACCESSIBLE_STAGES = {
-    STAGE_ASSIGNED,
-    STAGE_UNDER_REVIEW,
-    STAGE_UNDER_REVISION
-}
+REVIEW_ACCESSIBLE_STAGES = {STAGE_ASSIGNED, STAGE_UNDER_REVIEW, STAGE_UNDER_REVISION}
 
 COPYEDITING_STAGES = {
     STAGE_EDITOR_COPYEDITING,
@@ -304,10 +654,7 @@ COPYEDITING_STAGES = {
     STAGE_FINAL_COPYEDITING,
 }
 
-PREPRINT_STAGES = {
-    STAGE_PREPRINT_REVIEW,
-    STAGE_PREPRINT_PUBLISHED
-}
+PREPRINT_STAGES = {STAGE_PREPRINT_REVIEW, STAGE_PREPRINT_PUBLISHED}
 
 PUBLISHED_STAGES = {
     STAGE_PUBLISHED,
@@ -315,24 +662,24 @@ PUBLISHED_STAGES = {
 }
 
 STAGE_CHOICES = [
-    (STAGE_UNSUBMITTED, 'Unsubmitted'),
-    (STAGE_UNASSIGNED, 'Unassigned'),
-    (STAGE_ASSIGNED, 'Assigned to Editor'),
-    (STAGE_UNDER_REVIEW, 'Peer Review'),
-    (STAGE_UNDER_REVISION, 'Revision'),
-    (STAGE_REJECTED, 'Rejected'),
-    (STAGE_ACCEPTED, 'Accepted'),
-    (STAGE_EDITOR_COPYEDITING, 'Editor Copyediting'),
-    (STAGE_AUTHOR_COPYEDITING, 'Author Copyediting'),
-    (STAGE_FINAL_COPYEDITING, 'Final Copyediting'),
-    (STAGE_TYPESETTING, 'Typesetting'),
-    (STAGE_TYPESETTING_PLUGIN, 'typesetting_plugin'),
-    (STAGE_PROOFING, 'Proofing'),
-    (STAGE_READY_FOR_PUBLICATION, 'Pre Publication'),
-    (STAGE_PUBLISHED, 'Published'),
-    (STAGE_PREPRINT_REVIEW, 'Preprint Review'),
-    (STAGE_PREPRINT_PUBLISHED, 'Preprint Published'),
-    (STAGE_ARCHIVED, 'Archived'),
+    (STAGE_UNSUBMITTED, "Unsubmitted"),
+    (STAGE_UNASSIGNED, "Unassigned"),
+    (STAGE_ASSIGNED, "Assigned to Editor"),
+    (STAGE_UNDER_REVIEW, "Peer Review"),
+    (STAGE_UNDER_REVISION, "Revision"),
+    (STAGE_REJECTED, "Rejected"),
+    (STAGE_ACCEPTED, "Accepted"),
+    (STAGE_EDITOR_COPYEDITING, "Editor Copyediting"),
+    (STAGE_AUTHOR_COPYEDITING, "Author Copyediting"),
+    (STAGE_FINAL_COPYEDITING, "Final Copyediting"),
+    (STAGE_TYPESETTING, "Typesetting"),
+    (STAGE_TYPESETTING_PLUGIN, "typesetting_plugin"),
+    (STAGE_PROOFING, "Proofing"),
+    (STAGE_READY_FOR_PUBLICATION, "Pre Publication"),
+    (STAGE_PUBLISHED, "Published"),
+    (STAGE_PREPRINT_REVIEW, "Preprint Review"),
+    (STAGE_PREPRINT_PUBLISHED, "Preprint Published"),
+    (STAGE_ARCHIVED, "Archived"),
 ]
 
 PLUGIN_WORKFLOW_STAGES = []
@@ -340,10 +687,10 @@ PLUGIN_WORKFLOW_STAGES = []
 
 class ArticleFunding(models.Model):
     class Meta:
-        ordering = ('name',)
+        ordering = ("name",)
 
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         on_delete=models.CASCADE,
         null=True,
     )
@@ -351,15 +698,15 @@ class ArticleFunding(models.Model):
         max_length=500,
         blank=False,
         null=False,
-        help_text='Funder name',
+        help_text="Funder name",
     )
     fundref_id = models.CharField(
         max_length=500,
         blank=True,
         null=True,
-        help_text='Funder DOI (optional). Enter as a full Uniform '
-                  'Resource Identifier (URI), such as '
-                  'https://dx.doi.org/10.13039/501100021082',
+        help_text="Funder DOI (optional). Enter as a full Uniform "
+        "Resource Identifier (URI), such as "
+        "https://dx.doi.org/10.13039/501100021082",
     )
     funding_id = models.CharField(
         max_length=500,
@@ -368,8 +715,7 @@ class ArticleFunding(models.Model):
         help_text="The grant ID (optional). Enter the ID by itself",
     )
     funding_statement = models.TextField(
-        blank=True,
-        help_text=_("Additional information regarding this funding entry")
+        blank=True, help_text=_("Additional information regarding this funding entry")
     )
 
     def __str__(self):
@@ -378,7 +724,7 @@ class ArticleFunding(models.Model):
 
 class ArticleStageLog(models.Model):
     article = models.ForeignKey(
-        'Article',
+        "Article",
         on_delete=models.CASCADE,
     )
     stage_from = models.CharField(max_length=200, blank=False, null=False)
@@ -386,20 +732,22 @@ class ArticleStageLog(models.Model):
     date_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ('-date_time',)
+        ordering = ("-date_time",)
 
     def __str__(self):
-        return "Article {article_pk} from {stage_from} to {stage_to} at {date_time}".format(article_pk=self.article.pk,
-                                                                                            stage_from=self.stage_from,
-                                                                                            stage_to=self.stage_to,
-                                                                                            date_time=self.date_time)
+        return "Article {article_pk} from {stage_from} to {stage_to} at {date_time}".format(
+            article_pk=self.article.pk,
+            stage_from=self.stage_from,
+            stage_to=self.stage_to,
+            date_time=self.date_time,
+        )
 
 
 class PublisherNote(AbstractLastModifiedModel):
     text = JanewayBleachField(max_length=4000, blank=False, null=False)
     sequence = models.PositiveIntegerField(default=999)
     creator = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         default=None,
         null=True,
         on_delete=models.SET_NULL,
@@ -407,7 +755,7 @@ class PublisherNote(AbstractLastModifiedModel):
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
         return "{0}: {1}".format(self.creator.full_name(), self.date_time)
@@ -433,7 +781,7 @@ class KeywordArticle(models.Model):
 
     class Meta:
         ordering = ["order"]
-        unique_together = ('keyword', 'article')
+        unique_together = ("keyword", "article")
 
     def __str__(self):
         return self.keyword.word
@@ -451,12 +799,17 @@ class ArticleManager(models.Manager):
 
 class ArticlePrefetchAuthorsManager(ArticleManager):
     def get_queryset(self):
-        FrozenAuthor = apps.get_model('submission', 'FrozenAuthor')
-        return super().get_queryset().all().prefetch_related(
-            models.Prefetch(
-                'frozenauthor_set',
-                queryset=FrozenAuthor.select_related("author"),
-                to_attr="prefetched_author_accounts",
+        FrozenAuthor = apps.get_model("submission", "FrozenAuthor")
+        return (
+            super()
+            .get_queryset()
+            .all()
+            .prefetch_related(
+                models.Prefetch(
+                    "frozenauthor_set",
+                    queryset=FrozenAuthor.select_related("author"),
+                    to_attr="prefetched_author_accounts",
+                )
             )
         )
 
@@ -483,26 +836,29 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
-        if search_filters.get('title'):
+        if search_filters.get("title"):
+            querysets.append(self.get_queryset().filter(title__search=search_term))
+        if search_filters.get("authors"):
             querysets.append(
-                self.get_queryset().filter(title__search=search_term))
-        if search_filters.get('authors'):
-            querysets.append(self.get_queryset().filter(
-                frozenauthor__first_name__search=search_term))
-            querysets.append(self.get_queryset().filter(
-                frozenauthor__last_name__search=search_term))
+                self.get_queryset().filter(frozenauthor__first_name__search=search_term)
+            )
+            querysets.append(
+                self.get_queryset().filter(frozenauthor__last_name__search=search_term)
+            )
         if search_filters.get("abstract"):
+            querysets.append(self.get_queryset().filter(abstract__search=search_term))
+        if search_filters.get("keywords"):
             querysets.append(
-                self.get_queryset().filter(abstract__search=search_term))
-        if search_filters.get('keywords'):
-            querysets.append(self.get_queryset().filter(
-                keywords__word__search=search_term))
+                self.get_queryset().filter(keywords__word__search=search_term)
+            )
         if search_filters.get("full_text"):
-            querysets.append(self.get_queryset().filter(
-                galley__file__text__contents__search=search_term))
+            querysets.append(
+                self.get_queryset().filter(
+                    galley__file__text__contents__search=search_term
+                )
+            )
         for search_queryset in querysets:
             queryset |= search_queryset
-
 
         if sort in self.SORT_KEYS:
             queryset = queryset.order_by(sort)
@@ -519,13 +875,11 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         )
         if site:
             queryset = queryset.filter(journal=site)
-        lookups, annotations = self.build_postgres_lookups(
-            search_term, search_filters)
+        lookups, annotations = self.build_postgres_lookups(search_term, search_filters)
         if annotations:
             queryset = queryset.annotate(**annotations)
         if lookups:
             queryset = queryset.filter(**lookups)
-
 
         if not sort or sort not in self.SORT_KEYS:
             sort = "-relevance"
@@ -542,20 +896,18 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         if "relevance" in sort:
             # Relevance is not a field but an annotation
             return Article.objects.raw(
-                f"SELECT * from ({inner_sql}) AS search "
-                "ORDER BY relevance DESC"
+                f"SELECT * from ({inner_sql}) AS search ORDER BY relevance DESC"
             )
         else:
             order_by_sql = self.build_order_by_sql(sort)
 
             return Article.objects.raw(
-                f"SELECT * from ({inner_sql}) AS search "
-                f"{order_by_sql}"
+                f"SELECT * from ({inner_sql}) AS search {order_by_sql}"
             )
             return queryset.order_by(sort)
 
     def build_order_by_sql(self, sort_key):
-        """ Compiles and returns the ORDER BY statement in sql for the sort_key
+        """Compiles and returns the ORDER BY statement in sql for the sort_key
         It sorts an empty queryset of this model first, delegating the
         translation of the sort_key into the correct column name. Then it
         invokes Django's compiler to generate equivalent ORDER BY statement
@@ -568,11 +920,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         order_strings = []
         for field in order_by:
             order_strings.append("%s %s" % get_order_dir(field, "ASC"))
-        return 'ORDER BY %s' % ', '.join(order_strings)
-
+        return "ORDER BY %s" % ", ".join(order_strings)
 
     def build_postgres_lookups(self, search_term, search_filters):
-        """ Build the necessary lookup expressions based on the provided filters
+        """Build the necessary lookup expressions based on the provided filters
 
         Each Filter is provided an arbitrary weight:
             +---------------+---------+---------+
@@ -592,24 +943,24 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         lookups = {}
         annotations = {"relevance": models.Value(1.0, models.FloatField())}
         vectors = []
-        if search_filters.get('title'):
-            vectors.append(SearchVector('title', weight="A"))
-        if search_filters.get('keywords'):
-            vectors.append(SearchVector('keywords__word', weight="B"))
-        if search_filters.get('authors'):
-            vectors.append(SearchVector('frozenauthor__last_name', weight="B"))
-            vectors.append(SearchVector('frozenauthor__first_name', weight="B"))
+        if search_filters.get("title"):
+            vectors.append(SearchVector("title", weight="A"))
+        if search_filters.get("keywords"):
+            vectors.append(SearchVector("keywords__word", weight="B"))
+        if search_filters.get("authors"):
+            vectors.append(SearchVector("frozenauthor__last_name", weight="B"))
+            vectors.append(SearchVector("frozenauthor__first_name", weight="B"))
         if search_filters.get("abstract"):
-            vectors.append(SearchVector('abstract', weight="C"))
+            vectors.append(SearchVector("abstract", weight="C"))
         if search_filters.get("full_text"):
             FileTextModel = swapper.load_model("core", "FileText")
             field_type = FileTextModel._meta.get_field("contents")
             if isinstance(field_type, SearchVectorField):
-                vectors.append(model_utils.SearchVector(
-                    'galley__file__text__contents', weight="D"))
+                vectors.append(
+                    model_utils.SearchVector("galley__file__text__contents", weight="D")
+                )
             else:
-                vectors.append(SearchVector(
-                    'galley__file__text__contents', weight="D"))
+                vectors.append(SearchVector("galley__file__text__contents", weight="D"))
         if vectors:
             # Combine all vectors
             vector = vectors[0]
@@ -622,9 +973,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             # values can range between .01 and .1
             lookups["relevance__gte"] = 0.01
 
-        if search_filters.get('ORCID'):
-            lookups['frozenauthor__author__orcid'] = search_term
-            lookups['frozenauthor__frozen_orcid'] = search_term
+        if search_filters.get("ORCID"):
+            lookups["frozenauthor__author__orcid"] = search_term
+            lookups["frozenauthor__frozen_orcid"] = search_term
         return lookups, annotations
 
     @staticmethod
@@ -636,108 +987,155 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
 class ActiveArticleManager(models.Manager):
     def get_queryset(self):
-        return super(ActiveArticleManager, self).get_queryset().exclude(
-            stage__in=[STAGE_ARCHIVED, STAGE_REJECTED, STAGE_UNSUBMITTED],
+        return (
+            super(ActiveArticleManager, self)
+            .get_queryset()
+            .exclude(
+                stage__in=[STAGE_ARCHIVED, STAGE_REJECTED, STAGE_UNSUBMITTED],
+            )
         )
 
 
 class Article(AbstractLastModifiedModel):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     # Metadata
     owner = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
     title = JanewayBleachCharField(
         max_length=999,
-        help_text=_('Your article title'),
+        help_text=_("Your article title"),
     )
     subtitle = models.CharField(
         # Note: subtitle is deprecated as of version 1.4.2
         max_length=999,
         blank=True,
         null=True,
-        help_text=_('Do not use--deprecated in version 1.4.1 and later.')
+        help_text=_("Do not use--deprecated in version 1.4.1 and later."),
     )
     abstract = JanewayBleachField(
         blank=True,
         null=True,
     )
     non_specialist_summary = JanewayBleachField(
-        blank=True, null=True,
-        help_text='A summary of the article for non specialists.'
+        blank=True, null=True, help_text="A summary of the article for non specialists."
     )
     keywords = M2MOrderedThroughField(
         Keyword,
-        blank=True, null=True, through='submission.KeywordArticle',
+        blank=True,
+        null=True,
+        through="submission.KeywordArticle",
     )
-    language = models.CharField(max_length=200, blank=True, null=True, choices=LANGUAGE_CHOICES,
-                                help_text=_('The primary language of the article'))
-    section = models.ForeignKey('Section', blank=True, null=True, on_delete=models.SET_NULL)
-    jats_article_type_override = DynamicChoiceField(max_length=255,
-                                                    dynamic_choices=get_jats_article_types(),
-                                                    choices=tuple(),
-                                                    blank=True, null=True,
-                                                    help_text="The type of article as per the JATS standard. This field allows you to override the default for the section.",
-                                                    default=None)
+    language = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        choices=LANGUAGE_CHOICES,
+        help_text=_("The primary language of the article"),
+    )
+    section = models.ForeignKey(
+        "Section", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    jats_article_type_override = DynamicChoiceField(
+        max_length=255,
+        dynamic_choices=get_jats_article_types(),
+        choices=tuple(),
+        blank=True,
+        null=True,
+        help_text="The type of article as per the JATS standard. This field allows you to override the default for the section.",
+        default=None,
+    )
 
     @property
     def jats_article_type(self):
         return self.jats_article_type_override or self.section.jats_article_type
 
-    license = models.ForeignKey('Licence', blank=True, null=True, on_delete=models.SET_NULL)
-    publisher_notes = models.ManyToManyField('PublisherNote', blank=True, null=True, related_name='publisher_notes')
+    license = models.ForeignKey(
+        "Licence", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    publisher_notes = models.ManyToManyField(
+        "PublisherNote", blank=True, null=True, related_name="publisher_notes"
+    )
 
     # Remote: a flag that specifies that this article is actually a _link_ to a remote instance
     # this is useful for overlay journals. The ToC display of an issue uses this flag to link to a DOI rather
     # than an internal URL
-    is_remote = models.BooleanField(default=False, verbose_name="Remote article",
-                                    help_text="Check if this article is remote")
-    remote_url = models.URLField(blank=True, null=True, help_text="If the article is remote, its URL should be added.")
+    is_remote = models.BooleanField(
+        default=False,
+        verbose_name="Remote article",
+        help_text="Check if this article is remote",
+    )
+    remote_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="If the article is remote, its URL should be added.",
+    )
 
     # Author
     # The authors field is deprecated. Use FrozenAuthor or author_accounts instead.
-    authors = models.ManyToManyField('core.Account', blank=True, null=True, related_name='authors')
-    correspondence_author = models.ForeignKey('core.Account', related_name='correspondence_author', blank=True,
-                                              null=True, on_delete=models.SET_NULL)
+    authors = models.ManyToManyField(
+        "core.Account", blank=True, null=True, related_name="authors"
+    )
+    correspondence_author = models.ForeignKey(
+        "core.Account",
+        related_name="correspondence_author",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     competing_interests_bool = models.BooleanField(default=False)
     competing_interests = JanewayBleachField(
-        blank=True, null=True,
+        blank=True,
+        null=True,
         help_text="If you have any conflict "
-            "of interests in the publication of this "
-            "article please state them here.",
+        "of interests in the publication of this "
+        "article please state them here.",
     )
     rights = JanewayBleachField(
-        blank=True, null=True,
+        blank=True,
+        null=True,
         help_text="A custom statement on the usage rights for this article"
-            " and associated materials, to be rendered in the article page"
+        " and associated materials, to be rendered in the article page",
     )
 
     article_number = models.PositiveIntegerField(
-        blank=True, null=True,
-        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID."
+        blank=True,
+        null=True,
+        help_text="Optional article number to be displayed on issue and article pages. Not to be confused with article ID.",
     )
 
     # Files
-    manuscript_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='manuscript_files')
-    data_figure_files = models.ManyToManyField('core.File', null=True, blank=True, related_name='data_figure_files')
-    supplementary_files = models.ManyToManyField('core.SupplementaryFile', null=True, blank=True, related_name='supp')
+    manuscript_files = models.ManyToManyField(
+        "core.File", null=True, blank=True, related_name="manuscript_files"
+    )
+    data_figure_files = models.ManyToManyField(
+        "core.File", null=True, blank=True, related_name="data_figure_files"
+    )
+    supplementary_files = models.ManyToManyField(
+        "core.SupplementaryFile", null=True, blank=True, related_name="supp"
+    )
     source_files = models.ManyToManyField(
-        'core.File',
+        "core.File",
         blank=True,
-        related_name='source_files',
+        related_name="source_files",
     )
 
     # Galley
-    render_galley = models.ForeignKey('core.Galley', related_name='render_galley', blank=True, null=True,
-                                      on_delete=models.SET_NULL)
+    render_galley = models.ForeignKey(
+        "core.Galley",
+        related_name="render_galley",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     # Dates
     date_started = models.DateTimeField(auto_now_add=True)
@@ -753,7 +1151,9 @@ class Article(AbstractLastModifiedModel):
     first_page = models.PositiveIntegerField(blank=True, null=True)
     last_page = models.PositiveIntegerField(blank=True, null=True)
     page_numbers = models.CharField(
-        max_length=32, blank=True, null=True,
+        max_length=32,
+        blank=True,
+        null=True,
         help_text=_("Custom page range. e.g.: 'I-VII' or 1-3,4-8"),
     )
     total_pages = models.PositiveIntegerField(blank=True, null=True)
@@ -776,16 +1176,30 @@ class Article(AbstractLastModifiedModel):
     publication_fees = models.BooleanField(default=False)
     submission_requirements = models.BooleanField(default=False)
     copyright_notice = models.BooleanField(default=False)
-    comments_editor = JanewayBleachField(blank=True, null=True, verbose_name="Comments to the Editor",
-                                       help_text=_("Add any comments you'd like the editor to consider here."))
+    comments_editor = JanewayBleachField(
+        blank=True,
+        null=True,
+        verbose_name="Comments to the Editor",
+        help_text=_("Add any comments you'd like the editor to consider here."),
+    )
 
     # an image of recommended size: 750 x 324
-    large_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='image_file',
-                                         on_delete=models.SET_NULL)
+    large_image_file = models.ForeignKey(
+        "core.File",
+        null=True,
+        blank=True,
+        related_name="image_file",
+        on_delete=models.SET_NULL,
+    )
     exclude_from_slider = models.BooleanField(default=False)
 
-    thumbnail_image_file = models.ForeignKey('core.File', null=True, blank=True, related_name='thumbnail_file',
-                                             on_delete=models.SET_NULL)
+    thumbnail_image_file = models.ForeignKey(
+        "core.File",
+        null=True,
+        blank=True,
+        related_name="thumbnail_file",
+        on_delete=models.SET_NULL,
+    )
 
     # Whether or not we should display that this article has been "peer reviewed"
     peer_reviewed = models.BooleanField(default=True)
@@ -796,32 +1210,44 @@ class Article(AbstractLastModifiedModel):
     metric_stats = None
 
     # Agreement, this field records the submission checklist that was present when this article was submitted.
-    article_agreement = JanewayBleachField(default='')
+    article_agreement = JanewayBleachField(default="")
 
     custom_how_to_cite = JanewayBleachField(
-        blank=True, null=True,
-        help_text=_("Custom 'how to cite' text. To be used only if the block"
-            " generated by Janeway is not suitable."),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Custom 'how to cite' text. To be used only if the block"
+            " generated by Janeway is not suitable."
+        ),
     )
 
     publisher_name = models.CharField(
-        max_length=999, null=True, blank=True,
-        help_text=_("Name of the publisher who published this article"
+        max_length=999,
+        null=True,
+        blank=True,
+        help_text=_(
+            "Name of the publisher who published this article"
             " Only relevant to migrated articles from a different publisher"
-        )
+        ),
     )
 
     publication_title = models.CharField(
-        max_length=999, null=True, blank=True,
-        help_text=_("Name of the publisher who published this article"
+        max_length=999,
+        null=True,
+        blank=True,
+        help_text=_(
+            "Name of the publisher who published this article"
             " Only relevant to migrated articles from a different publisher"
-        )
+        ),
     )
     ISSN_override = models.CharField(
-        max_length=999, null=True, blank=True,
-        help_text=_("Original ISSN of this article's journal when published"
+        max_length=999,
+        null=True,
+        blank=True,
+        help_text=_(
+            "Original ISSN of this article's journal when published"
             " Only relevant for back content published under a different title"
-        )
+        ),
     )
 
     # iThenticate ID
@@ -830,32 +1256,34 @@ class Article(AbstractLastModifiedModel):
 
     # Primary issue, allows the Editor to set the Submission's primary Issue
     primary_issue = models.ForeignKey(
-        'journal.Issue',
+        "journal.Issue",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        help_text='You can only assign an issue '
-                  'that this article is part of. '
-                  'You can add this article to an '
-                  'issue from the Issue Manager.',
+        help_text="You can only assign an issue "
+        "that this article is part of. "
+        "You can add this article to an "
+        "issue from the Issue Manager.",
     )
     projected_issue = models.ForeignKey(
-        'journal.Issue',
+        "journal.Issue",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='projected_issue',
-        help_text='This field is for internal purposes only '
-                  'before publication. You can use it to '
-                  'track likely issue assignment before formally '
-                  'assigning an issue.',
+        related_name="projected_issue",
+        help_text="This field is for internal purposes only "
+        "before publication. You can use it to "
+        "track likely issue assignment before formally "
+        "assigning an issue.",
     )
 
     # Meta
-    meta_image = models.ImageField(blank=True, null=True, upload_to=article_media_upload, storage=fs)
+    meta_image = models.ImageField(
+        blank=True, null=True, upload_to=article_media_upload, storage=fs
+    )
 
     preprint_journal_article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -864,14 +1292,14 @@ class Article(AbstractLastModifiedModel):
     reviews_shared = models.BooleanField(
         default=False,
         help_text="Marked true when an editor manually shares reviews with "
-                  "other reviewers using the decision helper page.",
+        "other reviewers using the decision helper page.",
     )
 
     objects = ArticleSearchManager()
     active_objects = ActiveArticleManager()
 
     class Meta:
-        ordering = ('-date_published', 'title')
+        ordering = ("-date_published", "title")
 
     def __getattribute__(self, name):
         if name == "authors":
@@ -887,9 +1315,9 @@ class Article(AbstractLastModifiedModel):
         """
         Get the accounts connected to the article via a FrozenAuthor record.
         """
-        return core_models.Account.objects.filter(
-            frozenauthor__article=self
-        ).order_by('frozenauthor__order')
+        return core_models.Account.objects.filter(frozenauthor__article=self).order_by(
+            "frozenauthor__order"
+        )
 
     # credits
     def authors_and_credits(self):
@@ -918,7 +1346,7 @@ class Article(AbstractLastModifiedModel):
 
         template = "common/elements/how_to_cite.html"
         authors = self.frozenauthor_set.all()
-        author_str = ''
+        author_str = ""
         for author in authors:
             if author == authors.first():
                 author_str = author.citation_name()
@@ -931,9 +1359,7 @@ class Article(AbstractLastModifiedModel):
         year_str = ""
         if self.date_published:
             year_str = "({:%Y})".format(self.date_published)
-        journal_str = "<i>%s</i>" % (
-            self.publication_title or self.journal.name
-        )
+        journal_str = "<i>%s</i>" % (self.publication_title or self.journal.name)
         issue_str = ""
         issue = self.issue
         if issue:
@@ -943,7 +1369,7 @@ class Article(AbstractLastModifiedModel):
                 else:
                     issue_str = str(issue.volume)
             elif issue.issue and issue.issue != "0":
-                    issue_str = str(issue.issue)
+                issue_str = str(issue.issue)
             if self.article_number:
                 issue_str += ": {}".format(self.article_number)
 
@@ -953,8 +1379,9 @@ class Article(AbstractLastModifiedModel):
             pages_str = " {0}.".format(self.page_range)
         doi = self.get_doi()
         if doi:
-            doi_str = ('doi: <a href="https://doi.org/{0}">'
-            'https://doi.org/{0}</a>'.format(doi))
+            doi_str = (
+                'doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a>'.format(doi)
+            )
 
         context = {
             "author_str": author_str,
@@ -993,19 +1420,21 @@ class Article(AbstractLastModifiedModel):
     @cache(600)
     def publication_detail_settings(journal):
         display_date_accepted = journal.get_setting(
-            group_name='article',
-            setting_name='display_date_accepted',
+            group_name="article",
+            setting_name="display_date_accepted",
         )
         display_date_submitted = journal.get_setting(
-            group_name='article',
-            setting_name='display_date_submitted',
+            group_name="article",
+            setting_name="display_date_submitted",
         )
         return display_date_submitted, display_date_accepted
 
     @property
     def has_publication_details(self):
         """Determines if an article has any publication details"""
-        display_date_submitted, display_date_accepted = self.publication_detail_settings(self.journal)
+        display_date_submitted, display_date_accepted = (
+            self.publication_detail_settings(self.journal)
+        )
         return (
             self.page_range
             or self.article_number
@@ -1027,34 +1456,16 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def publisher(self):
-        return (
-            self.publisher_name
-            or self.journal.publisher
-            or self.journal.press.name
-        )
+        return self.publisher_name or self.journal.publisher or self.journal.press.name
 
     def journal_sections(self):
-        return ((section.id, section.name) for section in self.journal.section_set.all())
+        return (
+            (section.id, section.name) for section in self.journal.section_set.all()
+        )
 
     @property
     def carousel_subtitle(self):
-        carousel_text = ""
-
-        idx = 0
-
-        for author in self.frozenauthor_set.all():
-            if idx > 0:
-                idx = 1
-                carousel_text += ', '
-
-            if author.institution:
-                carousel_text += author.full_name() + " ({0})".format(author.institution)
-            else:
-                carousel_text += author.full_name()
-
-            idx = 1
-
-        return carousel_text
+        return self.author_list
 
     @property
     def carousel_title(self):
@@ -1062,7 +1473,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def carousel_image_resolver(self):
-        return 'article_file_download'
+        return "article_file_download"
 
     @property
     def pdfs(self):
@@ -1088,7 +1499,8 @@ class Article(AbstractLastModifiedModel):
     @property
     def xml_galleys(self):
         ret = self.galley_set.filter(file__mime_type__in=files.XML_MIMETYPES).order_by(
-            "sequence")
+            "sequence"
+        )
 
         return ret
 
@@ -1109,16 +1521,12 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def has_all_supplements(self):
-
         for xml_file in self.xml_galleys:
             xml_file_contents = xml_file.get_file(self)
 
-            souped_xml = BeautifulSoup(xml_file_contents, 'lxml')
+            souped_xml = BeautifulSoup(xml_file_contents, "lxml")
 
-            elements = {
-                'img': 'src',
-                'graphic': 'xlink:href'
-            }
+            elements = {"img": "src", "graphic": "xlink:href"}
 
             # iterate over all found elements
             for element, attribute in elements.items():
@@ -1133,7 +1541,9 @@ class Article(AbstractLastModifiedModel):
                         return False
 
                     try:
-                        named_files = self.data_figure_files.filter(original_filename=url).first()
+                        named_files = self.data_figure_files.filter(
+                            original_filename=url
+                        ).first()
 
                         if not named_files:
                             return False
@@ -1144,7 +1554,7 @@ class Article(AbstractLastModifiedModel):
         return True
 
     def index_full_text(self):
-        """ Indexes the render galley for full text search
+        """Indexes the render galley for full text search
         :return: A boolean indicating if a file has been processed
         """
         indexed = False
@@ -1166,24 +1576,32 @@ class Article(AbstractLastModifiedModel):
                     break
         return indexed
 
-
     @property
     @cache(300)
     def identifier(self):
         from identifiers import models as identifier_models
+
         try:
             type_to_fetch = "doi"
-            return identifier_models.Identifier.objects.filter(id_type=type_to_fetch, article=self)[0]
+            return identifier_models.Identifier.objects.filter(
+                id_type=type_to_fetch, article=self
+            )[0]
         except BaseException:
-            new_id = identifier_models.Identifier(id_type="id", identifier=self.id, article=self)
+            new_id = identifier_models.Identifier(
+                id_type="id", identifier=self.id, article=self
+            )
             return new_id
 
     def get_identifier(self, identifier_type, object=False):
         try:
             try:
-                doi = identifier_models.Identifier.objects.get(id_type=identifier_type, article=self)
+                doi = identifier_models.Identifier.objects.get(
+                    id_type=identifier_type, article=self
+                )
             except identifier_models.Identifier.MultipleObjectsReturned:
-                doi = identifier_models.Identifier.objects.filter(id_type=identifier_type, article=self)[0]
+                doi = identifier_models.Identifier.objects.filter(
+                    id_type=identifier_type, article=self
+                )[0]
             if not object:
                 return doi.identifier
             else:
@@ -1192,17 +1610,17 @@ class Article(AbstractLastModifiedModel):
             return None
 
     def get_doi(self):
-        return self.get_identifier('doi')
+        return self.get_identifier("doi")
 
     def get_doi_url(self):
-        ident = self.get_identifier('doi', object=True)
+        ident = self.get_identifier("doi", object=True)
         if ident:
             return ident.get_doi_url()
         return None
 
     @property
     def get_doi_object(self):
-        return self.get_identifier('doi', object=True)
+        return self.get_identifier("doi", object=True)
 
     @property
     @cache(30)
@@ -1212,10 +1630,11 @@ class Article(AbstractLastModifiedModel):
     @property
     def identifiers(self):
         from identifiers import models as identifier_models
+
         return identifier_models.Identifier.objects.filter(article=self)
 
     def get_pubid(self):
-        return self.get_identifier('pubid')
+        return self.get_identifier("pubid")
 
     def non_correspondence_authors(self):
         if self.correspondence_author:
@@ -1241,7 +1660,10 @@ class Article(AbstractLastModifiedModel):
         if self.stage == STAGE_ACCEPTED:
             return True
 
-        if self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES and self.stage != STAGE_REJECTED:
+        if (
+            self.stage not in NEW_ARTICLE_STAGES | REVIEW_STAGES
+            and self.stage != STAGE_REJECTED
+        ):
             return True
 
         return False
@@ -1261,16 +1683,17 @@ class Article(AbstractLastModifiedModel):
         return ArticleFunding.objects.filter(article=self)
 
     def __str__(self):
-        return u'%s - %s' % (self.pk, truncatesmart(self.title))
+        return "%s - %s" % (self.pk, truncatesmart(self.title))
 
     @staticmethod
     @cache(300)
     def get_article(journal, identifier_type, identifier):
         from identifiers import models as identifier_models
+
         try:
             article = None
             # resolve an article from an identifier type and an identifier
-            if identifier_type.lower() == 'id':
+            if identifier_type.lower() == "id":
                 # this is the hardcoded fallback type: using built-in id
                 article = Article.objects.filter(
                     id=identifier,
@@ -1281,32 +1704,35 @@ class Article(AbstractLastModifiedModel):
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type,
                     identifier=identifier,
+                    article__journal=journal,
                 )[0].article
 
                 if not article.journal == journal:
                     return None
 
             return article
-        except BaseException:            # no article found
+        except BaseException:  # no article found
             # TODO: handle better and log
             return None
 
     @staticmethod
     def get_press_article(press, identifier_type, identifier):
         from identifiers import models as identifier_models
+
         try:
             article = None
             # resolve an article from an identifier type and an identifier
-            if identifier_type.lower() == 'id':
+            if identifier_type.lower() == "id":
                 # this is the hardcoded fallback type: using built-in id
                 article = Article.objects.filter(id=identifier)[0]
             else:
                 # this looks up an article by an ID type and an identifier string
                 article = identifier_models.Identifier.objects.filter(
-                    id_type=identifier_type, identifier=identifier)[0].article
+                    id_type=identifier_type, identifier=identifier
+                )[0].article
 
             return article
-        except BaseException:            # no article found
+        except BaseException:  # no article found
             # TODO: handle better and log
             return None
 
@@ -1318,22 +1744,23 @@ class Article(AbstractLastModifiedModel):
     @property
     def local_url(self):
         from identifiers import models as identifier_models
+
         try:
             identifier = identifier_models.Identifier.objects.get(
-                id_type='pubid',
+                id_type="pubid",
                 article=self,
             )
         except identifier_models.Identifier.DoesNotExist:
             identifier = identifier_models.Identifier(
-                id_type="id",
-                identifier=self.pk,
-                article=self
+                id_type="id", identifier=self.pk, article=self
             )
 
         url = reverse(
-            'article_view',
-            kwargs={'identifier_type': identifier.id_type,
-                    'identifier': identifier.identifier}
+            "article_view",
+            kwargs={
+                "identifier_type": identifier.id_type,
+                "identifier": identifier.identifier,
+            },
         )
 
         return url
@@ -1341,83 +1768,96 @@ class Article(AbstractLastModifiedModel):
     @property
     def pdf_url(self):
         pdfs = self.pdfs
-        path = reverse('article_download_galley', kwargs={
-            'article_id': self.pk,
-            'galley_id': pdfs[0].pk
-        })
+        path = reverse(
+            "article_download_galley",
+            kwargs={"article_id": self.pk, "galley_id": pdfs[0].pk},
+        )
         return self.journal.site_url(path=path)
 
     def get_remote_url(self, request):
-        parsed_uri = urlparse('http' + ('', 's')[request.is_secure()] + '://' + request.META['HTTP_HOST'])
-        domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+        parsed_uri = urlparse(
+            "http" + ("", "s")[request.is_secure()] + "://" + request.META["HTTP_HOST"]
+        )
+        domain = "{uri.scheme}://{uri.netloc}".format(uri=parsed_uri)
         url = domain + self.local_url
 
         return url
 
     def step_to_url(self):
         funding_enabled = False
-        if self.journal and getattr(
-            self.journal, "submissionconfiguration", None
-        ):
+        if self.journal and getattr(self.journal, "submissionconfiguration", None):
             funding_enabled = self.journal.submissionconfiguration.funding
 
         if self.current_step == 1:
-            return reverse('submit_info', kwargs={'article_id': self.id})
+            return reverse("submit_info", kwargs={"article_id": self.id})
         elif self.current_step == 2:
-            return reverse('submit_authors', kwargs={'article_id': self.id})
+            return reverse("submit_authors", kwargs={"article_id": self.id})
         elif self.current_step == 3:
-            return reverse('submit_files', kwargs={'article_id': self.id})
+            return reverse("submit_files", kwargs={"article_id": self.id})
         elif self.current_step == 4 and funding_enabled:
-            return reverse('submit_funding', kwargs={'article_id': self.id})
+            return reverse("submit_funding", kwargs={"article_id": self.id})
         elif self.current_step == 4:
-            return reverse('submit_review', kwargs={'article_id': self.id})
+            return reverse("submit_review", kwargs={"article_id": self.id})
         else:
-            return reverse('submit_review', kwargs={'article_id': self.id})
+            return reverse("submit_review", kwargs={"article_id": self.id})
 
     def step_name(self):
         funding_enabled = False
-        if self.journal and getattr(
-            self.journal, "submissionconfiguration", None
-        ):
+        if self.journal and getattr(self.journal, "submissionconfiguration", None):
             funding_enabled = self.journal.submissionconfiguration.funding
         if self.current_step == 1:
-            return 'Article Information'
+            return "Article Information"
         elif self.current_step == 2:
-            return 'Article Authors'
+            return "Article Authors"
         elif self.current_step == 3:
-            return 'Article Files'
+            return "Article Files"
         elif self.current_step == 4 and funding_enabled:
-            return 'Article Funding'
+            return "Article Funding"
         elif self.current_step == 4:
-            return 'Review Article Submission'
+            return "Review Article Submission"
         elif self.current_step == 5 and funding_enabled:
-            return 'Review Article Submission'
+            return "Review Article Submission"
         else:
-            return 'Submission Complete'
+            return "Submission Complete"
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
             current_object = Article.objects.get(pk=self.pk)
             if current_object.stage != self.stage:
-                ArticleStageLog.objects.create(article=self, stage_from=current_object.stage,
-                                               stage_to=self.stage)
+                ArticleStageLog.objects.create(
+                    article=self, stage_from=current_object.stage, stage_to=self.stage
+                )
         super(Article, self).save(*args, **kwargs)
 
     def folder_path(self):
-        return os.path.join(settings.BASE_DIR, 'files', 'articles', str(self.pk))
+        return os.path.join(settings.BASE_DIR, "files", "articles", str(self.pk))
 
     def production_managers(self):
-        return [assignment.production_manager for assignment in self.productionassignment_set.all()]
+        return [
+            assignment.production_manager
+            for assignment in self.productionassignment_set.all()
+        ]
 
     def editor_list(self):
         return [assignment.editor for assignment in self.editorassignment_set.all()]
 
     def editors(self):
-        return [{'editor': assignment.editor, 'editor_type': assignment.editor_type, 'assignment': assignment} for
-                assignment in self.editorassignment_set.all()]
+        return [
+            {
+                "editor": assignment.editor,
+                "editor_type": assignment.editor_type,
+                "assignment": assignment,
+            }
+            for assignment in self.editorassignment_set.all()
+        ]
 
     def section_editors(self, emails=False):
-        editors = [assignment.editor for assignment in self.editorassignment_set.filter(editor_type='section-editor')]
+        editors = [
+            assignment.editor
+            for assignment in self.editorassignment_set.filter(
+                editor_type="section-editor"
+            )
+        ]
 
         if emails:
             return set([editor.email for editor in editors])
@@ -1426,7 +1866,9 @@ class Article(AbstractLastModifiedModel):
             return editors
 
     def editor_emails(self):
-        return [assignment.editor.email for assignment in self.editorassignment_set.all()]
+        return [
+            assignment.editor.email for assignment in self.editorassignment_set.all()
+        ]
 
     def contact_emails(self):
         emails = [fa.email for fa in self.frozenauthor_set.all() if fa.email]
@@ -1445,18 +1887,21 @@ class Article(AbstractLastModifiedModel):
 
     def issues_list(self):
         from journal import models as journal_models
-        return journal_models.Issue.objects.filter(journal=self.journal, articles__in=[self])
+
+        return journal_models.Issue.objects.filter(
+            journal=self.journal, articles__in=[self]
+        )
 
     @cache(7200)
     def altmetrics(self):
         alm = self.altmetric_set.all()
         return {
-            'twitter': alm.filter(source='twitter'),
-            'wikipedia': alm.filter(source='wikipedia'),
-            'reddit': alm.filter(source='reddit'),
-            'hypothesis': alm.filter(source='hypothesis'),
-            'wordpress': alm.filter(source='wordpress.com'),
-            'crossref': alm.filter(source='crossref'),
+            "twitter": alm.filter(source="twitter"),
+            "wikipedia": alm.filter(source="wikipedia"),
+            "reddit": alm.filter(source="reddit"),
+            "hypothesis": alm.filter(source="hypothesis"),
+            "wordpress": alm.filter(source="wordpress.com"),
+            "crossref": alm.filter(source="crossref"),
         }
 
     @property
@@ -1480,29 +1925,31 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def issue_title(self):
-        """ The issue title in the context of the article
+        """The issue title in the context of the article
 
         When an article renders its issue title, it can include article
         dependant elements such as page ranges or article numbers. For this
         reason, we cannot render database cached issue title.
         """
         if not self.issue:
-            return ''
+            return ""
 
-        if self.issue.issue_type.code != 'issue':
+        if self.issue.issue_type.code != "issue":
             return self.issue.issue_title
         else:
-            template = Template(" • ".join([
-                title_part
-                for title_part in self.issue.issue_title_parts(article=self)
-                if title_part
-            ]))
+            template = Template(
+                " • ".join(
+                    [
+                        title_part
+                        for title_part in self.issue.issue_title_parts(article=self)
+                        if title_part
+                    ]
+                )
+            )
             return mark_safe(template.render(Context()))
 
     def author_list(self):
-        return ", ".join(
-            [author.full_name() for author in self.frozenauthor_set.all()]
-        )
+        return ", ".join([author.full_name() for author in self.frozenauthor_set.all()])
 
     def bibtex_author_list(self):
         return " AND ".join(
@@ -1512,7 +1959,7 @@ class Article(AbstractLastModifiedModel):
     def keyword_list_str(self, separator=","):
         if self.keywords.exists():
             return separator.join(kw.word for kw in self.keywords.all())
-        return ''
+        return ""
 
     def can_edit(self, user):
         """
@@ -1538,26 +1985,29 @@ class Article(AbstractLastModifiedModel):
         else:
             return False
 
-
     def current_review_round(self):
         try:
-            return self.reviewround_set.all().order_by('-round_number')[0].round_number
+            return self.reviewround_set.all().order_by("-round_number")[0].round_number
         except IndexError:
             return 1
 
     def current_review_round_object(self):
         try:
-            return self.reviewround_set.all().order_by('-round_number')[0]
+            return self.reviewround_set.all().order_by("-round_number")[0]
         except IndexError:
             return None
 
     @property
     def active_reviews(self):
-        return self.reviewassignment_set.filter(is_complete=False, date_declined__isnull=True)
+        return self.reviewassignment_set.filter(
+            is_complete=False, date_declined__isnull=True
+        )
 
     @property
     def completed_reviews(self):
-        return self.reviewassignment_set.filter(is_complete=True, date_declined__isnull=True)
+        return self.reviewassignment_set.filter(
+            is_complete=True, date_declined__isnull=True
+        )
 
     @property
     def completed_reviews_with_permission(self):
@@ -1573,7 +2023,7 @@ class Article(AbstractLastModifiedModel):
             is_complete=True,
             date_declined__isnull=True,
             decision__isnull=False,
-        ).exclude(decision='withdrawn')
+        ).exclude(decision="withdrawn")
 
     @property
     def completed_reviews_with_decision_previous_rounds(self):
@@ -1585,18 +2035,16 @@ class Article(AbstractLastModifiedModel):
     def active_review_request_for_user(self, user):
         try:
             return self.reviewassignment_set.filter(
-                is_complete=False,
-                date_declined__isnull=True,
-                reviewer=user
+                is_complete=False, date_declined__isnull=True, reviewer=user
             ).first()
         except review_models.ReviewAssignment.DoesNotExist:
             return None
 
     def reviews_not_withdrawn(self):
-        return self.reviewassignment_set.exclude(decision='withdrawn')
+        return self.reviewassignment_set.exclude(decision="withdrawn")
 
     def number_of_withdrawn_reviews(self):
-        return self.reviewassignment_set.filter(decision='withdrawn').count()
+        return self.reviewassignment_set.filter(decision="withdrawn").count()
 
     def accept_article(self, stage=None):
         self.date_accepted = timezone.now()
@@ -1622,9 +2070,11 @@ class Article(AbstractLastModifiedModel):
         self.date_accepted = None
         self.stage = STAGE_REJECTED
 
-        self.incomplete_reviews().update(decision=RD.DECISION_WITHDRAWN.value,
-                                         date_complete=timezone.now(),
-                                         is_complete=True,)
+        self.incomplete_reviews().update(
+            decision=RD.DECISION_WITHDRAWN.value,
+            date_complete=timezone.now(),
+            is_complete=True,
+        )
         self.save()
 
     def undo_review_decision(self):
@@ -1642,7 +2092,9 @@ class Article(AbstractLastModifiedModel):
         self.date_accepted = timezone.now()
         self.date_declined = None
         self.stage = STAGE_PREPRINT_PUBLISHED
-        self.date_published = dateparser.parse('{date} {time}'.format(date=date, time=time))
+        self.date_published = dateparser.parse(
+            "{date} {time}".format(date=date, time=time)
+        )
         self.save()
 
     def mark_reviews_shared(self):
@@ -1672,8 +2124,11 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def is_published(self):
-        if (self.stage == STAGE_PUBLISHED or self.stage == STAGE_PREPRINT_PUBLISHED) and \
-                self.date_published and self.date_published < timezone.now():
+        if (
+            (self.stage == STAGE_PUBLISHED or self.stage == STAGE_PREPRINT_PUBLISHED)
+            and self.date_published
+            and self.date_published < timezone.now()
+        ):
             return True
         else:
             return False
@@ -1683,14 +2138,16 @@ class Article(AbstractLastModifiedModel):
         return bool(self.stage == STAGE_PUBLISHED and self.date_published)
 
     def snapshot_authors(self, article=None, force_update=True):
-        """ Creates/updates FrozenAuthor records for this article's authors
+        """Creates/updates FrozenAuthor records for this article's authors
         :param article: (deprecated) should not pass this argument
         :param force_update: (bool) Whether or not to update existing records
         """
-        raise DeprecationWarning("Use FrozenAuthor directly instead.")
-        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
-            article=self, author__id=models.OuterRef("id")
-        ).values_list("order"))
+        warnings.warn("Use FrozenAuthor directly instead.")
+        subq = models.Subquery(
+            ArticleAuthorOrder.objects.filter(
+                article=self, author__id=models.OuterRef("id")
+            ).values_list("order")
+        )
         authors = self.authors.annotate(order=subq).order_by("order")
         for author in authors:
             author.snapshot_as_author(self, force_update)
@@ -1708,9 +2165,9 @@ class Article(AbstractLastModifiedModel):
             - affiliations: list of valid affiliation objects (with organisation name)
         """
         authors = self.frozen_authors().prefetch_related(
-            'controlledaffiliation_set__organization__ror_display',
-            'controlledaffiliation_set__organization__custom_label',
-            'controlledaffiliation_set__organization__labels',
+            "controlledaffiliation_set__organization__ror_display",
+            "controlledaffiliation_set__organization__custom_label",
+            "controlledaffiliation_set__organization__labels",
         )
 
         result = []
@@ -1729,10 +2186,12 @@ class Article(AbstractLastModifiedModel):
                     continue
                 valid_affiliations.append(affiliation)
 
-            result.append({
-                'author': author,
-                'affiliations': valid_affiliations,
-            })
+            result.append(
+                {
+                    "author": author,
+                    "affiliations": valid_affiliations,
+                }
+            )
 
         return result
 
@@ -1761,7 +2220,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def custom_fields(self):
-        """ Returns all the FieldAnswers configured for rendering"""
+        """Returns all the FieldAnswers configured for rendering"""
         return self.fieldanswer_set.filter(
             field__display=True,
             answer__isnull=False,
@@ -1772,20 +2231,30 @@ class Article(AbstractLastModifiedModel):
         if self.meta_image and self.meta_image.url:
             path = self.meta_image.url
         elif self.large_image_file and self.large_image_file.id:
-            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
-                                                            'identifier': self.pk,
-                                                            'file_id': self.large_image_file.pk})
+            path = reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
         elif self.thumbnail_image_file and self.thumbnail_image_file.id:
-            path = reverse('article_file_download', kwargs={'identifier_type': 'id',
-                                                            'identifier': self.pk,
-                                                            'file_id': self.thumbnail_image_file.pk})
+            path = reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.thumbnail_image_file.pk,
+                },
+            )
         elif self.journal.default_large_image:
             path = self.journal.default_large_image.url
 
         if path:
             return self.journal.site_url(path=path)
         else:
-            return ''
+            return ""
 
     def unlink_meta_file(self):
         path = os.path.join(self.meta_image.storage.base_location, self.meta_image.name)
@@ -1793,8 +2262,10 @@ class Article(AbstractLastModifiedModel):
             os.unlink(path)
 
     def next_author_sort(self):
-        raise DeprecationWarning("Use FrozenAuthor instead.")
-        current_orders = [order.order for order in ArticleAuthorOrder.objects.filter(article=self)]
+        warnings.warn("Use FrozenAuthor instead.")
+        current_orders = [
+            order.order for order in ArticleAuthorOrder.objects.filter(article=self)
+        ]
         if not current_orders:
             return 0
         else:
@@ -1809,7 +2280,7 @@ class Article(AbstractLastModifiedModel):
 
     def subject_editors(self):
         editors = list()
-        subjects = self.subject_set.all().prefetch_related('editors')
+        subjects = self.subject_set.all().prefetch_related("editors")
 
         for subject in subjects:
             for editor in subject.editors.all():
@@ -1855,19 +2326,19 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def current_workflow_element_url(self):
-        kwargs = {'article_id': self.pk}
+        kwargs = {"article_id": self.pk}
         # STAGE_UNASSIGNED and STAGE_PUBLISHED arent elements so are hardcoded.
         if self.stage == STAGE_UNASSIGNED:
-            path = reverse('review_unassigned_article', kwargs=kwargs)
+            path = reverse("review_unassigned_article", kwargs=kwargs)
         elif self.stage in FINAL_STAGES:
-            path = reverse('manage_archive_article', kwargs=kwargs)
+            path = reverse("manage_archive_article", kwargs=kwargs)
         elif not self.stage:
             logger.error(
-                'Article #{} has no Stage.'.format(
+                "Article #{} has no Stage.".format(
                     self.pk,
                 )
             )
-            return '?workflow_element_url=no_stage'
+            return "?workflow_element_url=no_stage"
         else:
             element = self.current_workflow_element
             if element:
@@ -1876,11 +2347,11 @@ class Article(AbstractLastModifiedModel):
                 # In order to ensure the Dashboard renders we purposefully do
                 # not raise an error message here.
                 logger.error(
-                    'There is no workflow element for stage {}.'.format(
+                    "There is no workflow element for stage {}.".format(
                         self.stage,
                     )
                 )
-                return '?workflow_element_url=no_element'
+                return "?workflow_element_url=no_element"
         return self.journal.site_url(path=path)
 
     def next_workflow_element(self):
@@ -1888,9 +2359,9 @@ class Article(AbstractLastModifiedModel):
             current_workflow_element = self.current_workflow_element
             journal_elements = list(self.journal.workflow().elements.all())
             i = journal_elements.index(current_workflow_element)
-            return journal_elements[i+1]
+            return journal_elements[i + 1]
         except (IndexError, ValueError):
-            return 'No next workflow stage found'
+            return "No next workflow stage found"
 
     @cache(600)
     def render_sample_doi(self):
@@ -1923,13 +2394,13 @@ class Article(AbstractLastModifiedModel):
             copyedit_acknowledged=True,
             copyedit_accepted=timezone.now(),
             date_decided=timezone.now(),
-            decision='cancelled',
+            decision="cancelled",
         )
         copyedit_models.AuthorReview.objects.filter(
             assignment__article=self,
             date_decided__isnull=True,
         ).update(
-            decision='accept',
+            decision="accept",
             date_decided=timezone.now(),
         )
 
@@ -1985,19 +2456,19 @@ class Article(AbstractLastModifiedModel):
             date_complete__isnull=False,
             for_author_consumption=False,
         ).exclude(
-            decision='withdrawn',
+            decision="withdrawn",
         )
 
     def incomplete_reviews(self):
-        return self.reviewassignment_set.filter(is_complete=False,
-                                                date_declined__isnull=True,
-                                                decision__isnull=True)
+        return self.reviewassignment_set.filter(
+            is_complete=False, date_declined__isnull=True, decision__isnull=True
+        )
 
     def ms_and_figure_files(self):
         return chain(self.manuscript_files.all(), self.data_figure_files.all())
 
     def fast_last_modified_date(self):
-        """ A faster way of calculating an approximate last modified date
+        """A faster way of calculating an approximate last modified date
         While not as accurate as `best_last_modified_date` this calculation
         covers most of the relevant relations when determining when an article
         has been last modified. Depending on the numner of related nodes, this
@@ -2008,29 +2479,32 @@ class Article(AbstractLastModifiedModel):
         try:
             latest = self.galley_set.latest("last_modified").last_modified
             if latest > last_mod_date:
-                    last_mod_date = latest
+                last_mod_date = latest
         except core_models.Galley.DoesNotExist:
             pass
 
         try:
             latest = self.frozenauthor_set.latest("last_modified").last_modified
             if latest > last_mod_date:
-                    last_mod_date = latest
+                last_mod_date = latest
         except FrozenAuthor.DoesNotExist:
             pass
 
         try:
-            latest = core_models.File.objects.filter(
-                article_id=self.pk).latest("last_modified").last_modified
+            latest = (
+                core_models.File.objects.filter(article_id=self.pk)
+                .latest("last_modified")
+                .last_modified
+            )
             if latest > last_mod_date:
-                    last_mod_date = latest
+                last_mod_date = latest
         except core_models.File.DoesNotExist:
             pass
 
         try:
             latest = self.issues.latest("last_modified").last_modified
             if latest > last_mod_date:
-                    last_mod_date = latest
+                last_mod_date = latest
         except journal_models.Journal.DoesNotExist:
             pass
 
@@ -2063,7 +2537,7 @@ class Article(AbstractLastModifiedModel):
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
-    AFFILIATION_RELATED_NAME = 'frozen_author'
+    AFFILIATION_RELATED_NAME = "frozen_author"
 
 
 class FrozenAuthor(AbstractLastModifiedModel):
@@ -2073,14 +2547,15 @@ class FrozenAuthor(AbstractLastModifiedModel):
     with Account objects in Article.authors, but FrozenAuthor has
     since superseded Article.authors.
     """
+
     article = models.ForeignKey(
-        'submission.Article',
+        "submission.Article",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -2104,9 +2579,9 @@ class FrozenAuthor(AbstractLastModifiedModel):
         validators=[plain_text_validator],
     )
     middle_name = models.CharField(
-            max_length=300,
-            blank=True,
-            validators=[plain_text_validator],
+        max_length=300,
+        blank=True,
+        validators=[plain_text_validator],
     )
     last_name = models.CharField(
         max_length=300,
@@ -2116,39 +2591,41 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     frozen_biography = JanewayBleachField(
         blank=True,
-        verbose_name=_('Biography'),
+        verbose_name=_("Biography"),
     )
     order = models.PositiveIntegerField(default=1)
 
     is_corporate = models.BooleanField(
-            default=False,
-            help_text="Whether the author is an organization. "
-                      "The display name will be formed from the affiliation."
+        default=False,
+        help_text="Whether the author is an organization. "
+        "The display name will be formed from the affiliation.",
     )
     frozen_email = models.EmailField(
-            blank=True,
-            verbose_name=_("Email"),
+        blank=True,
+        verbose_name=_("Email"),
     )
     frozen_orcid = models.CharField(
         max_length=40,
         blank=True,
         validators=[validate_orcid],
-        verbose_name=_('ORCID'),
-        help_text=_("ORCID to be displayed when no account is"
-                    " associated with this author.")
+        verbose_name=_("ORCID"),
+        help_text=_(
+            "ORCID to be displayed when no account is associated with this author."
+        ),
     )
     display_email = models.BooleanField(
         default=False,
-        help_text=_("Whether to display this author's email "
-                    "address on the published article.")
+        help_text=_(
+            "Whether to display this author's email address on the published article."
+        ),
     )
 
     objects = FrozenAuthorQueryset.as_manager()
 
     class Meta:
-        verbose_name = 'Author'
-        verbose_name_plural = 'Authors'
-        ordering = ('order', 'pk')
+        verbose_name = "Author"
+        verbose_name_plural = "Authors"
+        ordering = ("order", "pk")
 
     def __str__(self):
         return self.full_name()
@@ -2196,7 +2673,8 @@ class FrozenAuthor(AbstractLastModifiedModel):
             try:
                 # Associate with account if one exists
                 account = core_models.Account.objects.get(
-                    username=self.frozen_email.lower())
+                    username=self.frozen_email.lower()
+                )
                 self.author = account
                 self.frozen_email = ""  # linked account, don't store this value
             except core_models.Account.DoesNotExist:
@@ -2205,19 +2683,18 @@ class FrozenAuthor(AbstractLastModifiedModel):
     @property
     def institution(self):
         affil = self.primary_affiliation()
-        return str(affil.organization) if affil else ''
+        return str(affil.organization) if affil else ""
 
     @institution.setter
     def institution(self, value):
         core_models.ControlledAffiliation.get_or_create_without_ror(
-            institution=value,
-            frozen_author=self
+            institution=value, frozen_author=self
         )
 
     @property
     def department(self):
         affil = self.primary_affiliation()
-        return str(affil.department) if affil else ''
+        return str(affil.department) if affil else ""
 
     @department.setter
     def department(self, value):
@@ -2250,11 +2727,9 @@ class FrozenAuthor(AbstractLastModifiedModel):
         """
         Adds a credit role to the article for this frozen author
         """
-        record, _ = (
-            CreditRecord.objects.get_or_create(
-                frozen_author=self,
-                role=credit_role_text,
-            )
+        record, _ = CreditRecord.objects.get_or_create(
+            frozen_author=self,
+            role=credit_role_text,
         )
 
         return record
@@ -2281,7 +2756,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
             self.first_name,
             self.middle_name,
             self.last_name,
-            self.name_suffix
+            self.name_suffix,
         ]
         return " ".join([each for each in name_elements if each])
 
@@ -2295,8 +2770,8 @@ class FrozenAuthor(AbstractLastModifiedModel):
         if self.last_name:
             name_string += "{}{}{} ".format(
                 self.last_name,
-                " {}".format(self.name_suffix) if self.name_suffix else '',
-                "," if self.first_name else '',
+                " {}".format(self.name_suffix) if self.name_suffix else "",
+                "," if self.first_name else "",
             )
         if self.first_name:
             name_string += "{}".format(self.first_name)
@@ -2318,7 +2793,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         if self.email and not self.email.endswith(settings.DUMMY_EMAIL_DOMAIN):
             return self.email
         else:
-            return ''
+            return ""
 
     @property
     def orcid(self):
@@ -2331,12 +2806,12 @@ class FrozenAuthor(AbstractLastModifiedModel):
     @property
     def orcid_uri(self):
         if not self.orcid:
-            return ''
+            return ""
         result = COMPILED_ORCID_REGEX.search(self.orcid)
         if result:
-            return f'https://orcid.org/{result.group(0)}'
+            return f"https://orcid.org/{result.group(0)}"
         else:
-            return ''
+            return ""
 
     @property
     def corporate_name(self):
@@ -2350,26 +2825,28 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.author.biography
         return None
 
-
     def citation_name(self):
         if self.is_corporate:
             return self.corporate_name
-        first_initial, middle_initial = '', ''
+        first_initial, middle_initial = "", ""
 
         if self.middle_name:
-            middle_initial = ' {0}.'.format(self.middle_name[:1])
+            middle_initial = " {0}.".format(self.middle_name[:1])
         if self.first_name:
-            first_initial = '{0}.'.format(self.first_name[:1])
+            first_initial = "{0}.".format(self.first_name[:1])
 
-        citation = '{last}, {first}{middle}'.format(
-            last=self.last_name, first=first_initial, middle=middle_initial)
+        citation = "{last}, {first}{middle}".format(
+            last=self.last_name, first=first_initial, middle=middle_initial
+        )
         if self.name_suffix:
-            citation = '{}, {}'.format(citation, self.name_suffix)
+            citation = "{}, {}".format(citation, self.name_suffix)
         return citation
 
     def given_names(self):
         if self.middle_name:
-            return '{first_name} {middle_name}'.format(first_name=self.first_name, middle_name=self.middle_name)
+            return "{first_name} {middle_name}".format(
+                first_name=self.first_name, middle_name=self.middle_name
+            )
         else:
             return self.first_name
 
@@ -2407,7 +2884,6 @@ class FrozenAuthor(AbstractLastModifiedModel):
         else:
             return True
 
-
     @classmethod
     def get_or_snapshot_if_email_found(cls, email, article):
         """
@@ -2417,9 +2893,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
         created = False
         try:
             author = cls.objects.get(
-                models.Q(article=article) &
-                (models.Q(frozen_email=email) |
-                models.Q(author__username__iexact=email))
+                models.Q(article=article)
+                & (
+                    models.Q(frozen_email=email)
+                    | models.Q(author__username__iexact=email)
+                )
             )
         except cls.DoesNotExist:
             try:
@@ -2441,9 +2919,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
         created = False
         try:
             author = cls.objects.get(
-                models.Q(article=article) &
-                (models.Q(frozen_orcid=orcid) |
-                models.Q(author__orcid__contains=orcid))
+                models.Q(article=article)
+                & (
+                    models.Q(frozen_orcid=orcid)
+                    | models.Q(author__orcid__contains=orcid)
+                )
             )
         except cls.DoesNotExist:
             try:
@@ -2461,29 +2941,30 @@ class CreditRecord(AbstractLastModifiedModel):
     """Represents a CRediT record for an article"""
 
     class Meta:
-        verbose_name = 'CRediT record'
-        verbose_name_plural = 'CRediT records'
+        verbose_name = "CRediT record"
+        verbose_name_plural = "CRediT records"
         constraints = [
             model_utils.check_exclusive_fields_constraint(
-                'credit_record',
-                ['frozen_author', 'preprint_author'],
+                "credit_record",
+                ["frozen_author", "preprint_author"],
             )
         ]
         unique_together = [["frozen_author", "role"]]
         ordering = ["role"]
 
-    frozen_author = models.ForeignKey(FrozenAuthor,
-                                      blank=True,
-                                      null=True,
-                                      on_delete=models.CASCADE)
-    preprint_author = models.ForeignKey(repository_models.PreprintAuthor,
-                                        blank=True,
-                                        null=True,
-                                        on_delete=models.CASCADE)
+    frozen_author = models.ForeignKey(
+        FrozenAuthor, blank=True, null=True, on_delete=models.CASCADE
+    )
+    preprint_author = models.ForeignKey(
+        repository_models.PreprintAuthor,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     role = models.CharField(
         max_length=100,
         choices=CREDIT_ROLE_CHOICES,
-        default='writing-original-draft',
+        default="writing-original-draft",
     )
 
     def __str__(self):
@@ -2500,32 +2981,35 @@ class CreditRecord(AbstractLastModifiedModel):
 
 class Section(AbstractLastModifiedModel):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
     number_of_reviewers = models.IntegerField(default=2)
 
     editors = models.ManyToManyField(
-        'core.Account',
+        "core.Account",
         help_text="Editors assigned will be notified of submissions,"
-                  " overruling the notification settings for the journal.",
+        " overruling the notification settings for the journal.",
     )
     section_editors = models.ManyToManyField(
-        'core.Account',
+        "core.Account",
         help_text="Section editors assigned will be notified of submissions,"
-                  " overruling the notification settings for the journal.",
-        related_name='section_editors',
+        " overruling the notification settings for the journal.",
+        related_name="section_editors",
     )
-    jats_article_type = DynamicChoiceField(max_length=255,
-                                           dynamic_choices=get_jats_article_types(),
-                                           choices=tuple(),
-                                           blank=True, null=True,
-                                           verbose_name="JATS default article type",
-                                           help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis.")
+    jats_article_type = DynamicChoiceField(
+        max_length=255,
+        dynamic_choices=get_jats_article_types(),
+        choices=tuple(),
+        blank=True,
+        null=True,
+        verbose_name="JATS default article type",
+        help_text="The default JATS article type for articles in this section. This can be overridden on a per-article basis.",
+    )
     auto_assign_editors = models.BooleanField(
         default=False,
         help_text="Articles submitted to this section will be automatically"
-                  " assigned to the editors and/or section editors selected above.",
+        " assigned to the editors and/or section editors selected above.",
     )
     is_filterable = models.BooleanField(
         default=True,
@@ -2533,12 +3017,12 @@ class Section(AbstractLastModifiedModel):
     )
     public_submissions = models.BooleanField(default=True)
     indexing = models.BooleanField(
-        default=True,
-        help_text="Whether this section is put forward for indexing")
+        default=True, help_text="Whether this section is put forward for indexing"
+    )
     sequence = models.PositiveIntegerField(
         default=0,
         help_text="Determines the order in which the section is rendered"
-                  " Sections can also be reorder by drag-and-drop",
+        " Sections can also be reorder by drag-and-drop",
     )
     name = models.CharField(
         max_length=200,
@@ -2548,14 +3032,13 @@ class Section(AbstractLastModifiedModel):
         max_length=200,
         null=True,
         blank=True,
-        help_text="Pluralised name for the section"
-                  " (e.g: Article -> Articles)",
+        help_text="Pluralised name for the section (e.g: Article -> Articles)",
     )
 
     objects = model_utils.JanewayMultilingualManager()
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
         if self.name:
@@ -2588,7 +3071,9 @@ class Section(AbstractLastModifiedModel):
         return [editor.email for editor in self.section_editors.all()]
 
     def all_editor_emails(self):
-        return [editor.email for editor in self.section_editors.all() + self.editors.all()]
+        return [
+            editor.email for editor in self.section_editors.all() + self.editors.all()
+        ]
 
     def issue_display(self):
         if self.plural:
@@ -2597,8 +3082,12 @@ class Section(AbstractLastModifiedModel):
 
 
 class Licence(AbstractLastModifiedModel):
-    journal = models.ForeignKey('journal.Journal', null=True, blank=True, on_delete=models.SET_NULL)
-    press = models.ForeignKey('press.Press', null=True, blank=True, on_delete=models.SET_NULL)
+    journal = models.ForeignKey(
+        "journal.Journal", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    press = models.ForeignKey(
+        "press.Press", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     name = models.CharField(max_length=300)
     short_name = models.CharField(max_length=15)
@@ -2609,10 +3098,10 @@ class Licence(AbstractLastModifiedModel):
     available_for_submission = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ('order', 'name')
+        ordering = ("order", "name")
 
     def __str__(self):
-        return '{short_name}'.format(short_name=self.short_name)
+        return "{short_name}".format(short_name=self.short_name)
 
     def object(self):
         if not self.journal:
@@ -2627,7 +3116,7 @@ class Note(models.Model):
         on_delete=models.CASCADE,
     )
     creator = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -2635,56 +3124,59 @@ class Note(models.Model):
     date_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-date_time',)
+        ordering = ("-date_time",)
 
 
 def field_kind_choices():
     return (
-        ('text', 'Text Field'),
-        ('textarea', 'Text Area'),
-        ('check', 'Check Box'),
-        ('select', 'Select'),
-        ('email', 'Email'),
-        ('date', 'Date'),
+        ("text", "Text Field"),
+        ("textarea", "Text Area"),
+        ("check", "Check Box"),
+        ("select", "Select"),
+        ("email", "Email"),
+        ("date", "Date"),
     )
 
 
 def width_choices():
     return (
-        ('third', 'Third'),
-        ('half', 'Half'),
-        ('full,', 'Full'),
+        ("third", "Third"),
+        ("half", "Half"),
+        ("full,", "Full"),
     )
 
 
 class Field(models.Model):
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     press = models.ForeignKey(
-        'press.Press',
+        "press.Press",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=200)
     kind = models.CharField(max_length=50, choices=field_kind_choices())
-    width = models.CharField(max_length=50, choices=width_choices(), default='full')
-    choices = models.CharField(max_length=1000, null=True, blank=True,
-                               help_text='Separate choices with the bar | character.')
+    width = models.CharField(max_length=50, choices=width_choices(), default="full")
+    choices = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+        help_text="Separate choices with the bar | character.",
+    )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     display = models.BooleanField(
-        default=False,
-        help_text='Whether or not display this field in the article page'
+        default=False, help_text="Whether or not display this field in the article page"
     )
     help_text = models.TextField()
 
     class Meta:
-        ordering = ('order', 'name')
+        ordering = ("order", "name")
 
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
@@ -2710,23 +3202,24 @@ class ArticleAuthorOrder(models.Model):
     """
     Deprecated. Use FrozenAuthor instead.
     """
+
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(
-        'core.Account',
+        "core.Account",
         on_delete=models.CASCADE,
     )
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ('order',)
+        ordering = ("order",)
 
 
 class SubmissionConfiguration(models.Model):
     journal = models.OneToOneField(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
 
@@ -2746,14 +3239,14 @@ class SubmissionConfiguration(models.Model):
 
     figures_data = models.BooleanField(
         default=True,
-        verbose_name=_('Figures and Data Files'),
+        verbose_name=_("Figures and Data Files"),
     )
 
     default_license = models.ForeignKey(
         Licence,
         null=True,
         blank=True,
-        help_text=_('The default license applied when no option is presented'),
+        help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
     )
     default_language = models.CharField(
@@ -2761,36 +3254,35 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         choices=LANGUAGE_CHOICES,
-        help_text=_('The default language of articles when lang is hidden'),
+        help_text=_("The default language of articles when lang is hidden"),
     )
     default_section = models.ForeignKey(
         Section,
         null=True,
         blank=True,
-        help_text=_('The default section of '
-                    'articles when no option is presented'),
+        help_text=_("The default section of articles when no option is presented"),
         on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(
         max_length=255,
-        default='Manuscript File',
-        help_text='During submission the author will be asked to upload a file'
-                  'that is considered the main text of the article. You can use'
-                  'this field to change the label for that file in submission.',
+        default="Manuscript File",
+        help_text="During submission the author will be asked to upload a file"
+        "that is considered the main text of the article. You can use"
+        "this field to change the label for that file in submission.",
     )
 
     def __str__(self):
-        return 'SubmissionConfiguration for {0}'.format(self.journal.name)
+        return "SubmissionConfiguration for {0}".format(self.journal.name)
 
     def lang_section_license_width(self):
         if self.language and self.license:
-            return '4'
+            return "4"
         elif not self.language and not self.license:
-            return '12'
+            return "12"
         elif not self.language and self.license:
-            return '6'
+            return "6"
         elif self.language and not self.license:
-            return '6'
+            return "6"
 
     def handle_defaults(self, article):
         if not self.section and self.default_section:
@@ -2807,26 +3299,17 @@ class SubmissionConfiguration(models.Model):
 
 # Signals
 
+
 @receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
     """
+    This signal is triggered before a FrozenAuthor is deleted.
     This signal will remove an author from a paper if the user deletes the
     frozen author record to ensure they are in sync.
     :param sender: FrozenAuthor class
     :param instance: FrozenAuthor instance
     :return: None
     """
-    if (
-        not instance.article.authors.exists()
-    ) and (
-        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
-    ):
-        # Return early so long as deprecated models and fields are not being used.
-        # This avoids triggering the deprecation warning in development.
-        return
-    raise DeprecationWarning(
-        "Authorship is now exclusively handled via FrozenAuthor."
-    )
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,
@@ -2842,20 +3325,23 @@ def remove_author_from_article(sender, instance, **kwargs):
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
-    instance.article.authors.remove(instance.author)
+    if instance.article and instance.author in instance.article.authors.all():
+        instance.article.authors.remove(instance.author)
 
 
 def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
-    if action == 'post_add':
+    if action == "post_add":
         try:
-            latest = KeywordArticle.objects.filter(
-                article=instance).latest("order").order
+            latest = (
+                KeywordArticle.objects.filter(article=instance).latest("order").order
+            )
         except KeywordArticle.DoesNotExist:
             latest = 0
         for pk in pk_set:
             latest += 1
             keyword_article = KeywordArticle.objects.get(
-                keyword__pk=pk, article=instance)
+                keyword__pk=pk, article=instance
+            )
             if keyword_article.order == 1 != latest:
                 keyword_article.order = latest
                 keyword_article.save()
@@ -2863,23 +3349,33 @@ def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 m2m_changed.connect(order_keywords, sender=Article.keywords.through)
 
+
 def backwards_compat_authors(
-        sender, instance, action, reverse, model, pk_set, **kwargs):
-    """ A signal to make the Article.authors backwards compatible
+    sender, instance, action, reverse, model, pk_set, **kwargs
+):
+    """A signal to make the Article.authors backwards compatible
+    This signal is triggered when the Article-Account many-to-many table changes.
     As part of #4755, the dependency of Article on Account for author linking
     was removed. This signal is a backwards compatibility measure to ensure
     FrozenAuthor records are being updated correctly.
     """
-    accounts = core_models.Account.objects.filter(pk__in=pk_set)
     if action == "post_add":
-        subq = models.Subquery(ArticleAuthorOrder.objects.filter(
-            article=instance, author__id=models.OuterRef("id")
-        ).values_list("order"))
+        subq = models.Subquery(
+            ArticleAuthorOrder.objects.filter(
+                article=instance, author__id=models.OuterRef("id")
+            ).values_list("order")
+        )
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
         accounts = accounts.annotate(order=subq).order_by("order")
         for account in accounts:
             account.snapshot_as_author(instance)
-    if action in ["post_remove", "post_clear"]:
-        instance.frozen_authors.filter(author__in=pk_set).delete()
+
+    if action == "post_remove":
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
+        instance.frozen_authors().filter(author__in=pk_set).delete()
+
+    if action == "post_clear":
+        instance.frozen_authors().delete()
 
 
 m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)

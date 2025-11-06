@@ -14,10 +14,8 @@ def delete_blank_interests(apps, schema_editor):
 class Migration(migrations.Migration):
     atomic = False
     dependencies = [
-        ('core', '0100_contacts_name_es_contacts_role_es_and_more'),
+        ("core", "0100_contacts_name_es_contacts_role_es_and_more"),
     ]
     operations = [
-        migrations.RunPython(
-            delete_blank_interests, migrations.RunPython.noop
-        ),
+        migrations.RunPython(delete_blank_interests, migrations.RunPython.noop),
     ]

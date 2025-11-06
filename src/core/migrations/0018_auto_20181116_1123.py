@@ -8,15 +8,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0017_auto_20180417_1254'),
+        ("core", "0017_auto_20180417_1254"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='profile_image',
-            field=models.ImageField(blank=True, null=True, storage=core.file_system.JanewayFileSystemStorage(), upload_to=core.models.profile_images_upload_path),
+            model_name="account",
+            name="profile_image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                storage=core.file_system.JanewayFileSystemStorage(),
+                upload_to=core.models.profile_images_upload_path,
+            ),
         ),
     ]

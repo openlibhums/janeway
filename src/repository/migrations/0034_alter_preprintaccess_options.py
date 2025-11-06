@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0033_auto_20230120_1546'),
+        ("repository", "0033_auto_20230120_1546"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='preprintaccess',
+            name="preprintaccess",
             options={},
         ),
     ]

@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import re
 from urllib.parse import quote, unquote, urlencode, urlparse
+import warnings
 
 from collections import defaultdict
 from django.conf import settings
@@ -23,7 +24,7 @@ logger = get_logger(__name__)
 
 
 def retrieve_tokens(authorization_code, site):
-    """ Retrieves the access token for the given code
+    """Retrieves the access token for the given code
 
     :param authorization_code: (str) code provided by ORCID
     :site: Object implementing the AbstractSiteModel interface
@@ -39,7 +40,7 @@ def retrieve_tokens(authorization_code, site):
     }
 
     content_length = len(urlencode(access_token_req))
-    access_token_req['content-length'] = str(content_length)
+    access_token_req["content-length"] = str(content_length)
     base_url = settings.ORCID_TOKEN_URL
 
     logger.info("Connecting with ORCID on %s" % base_url)
@@ -57,7 +58,7 @@ def retrieve_tokens(authorization_code, site):
 
 
 def build_redirect_uri(site):
-    """ builds the landing page for ORCID requests
+    """builds the landing page for ORCID requests
     :site: Object implementing the AbstractSiteModel interface
     :return: (str) Redirect URI for ORCID requests
     """
@@ -69,7 +70,11 @@ def get_orcid_record(orcid):
         logger.info("Retrieving ORCID profile for %s", orcid)
         api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
-        return api_client.read_record_public(orcid, 'record', search_token,)
+        return api_client.read_record_public(
+            orcid,
+            "record",
+            search_token,
+        )
     except HTTPError as e:
         logger.info("Couldn't retrieve profile with ORCID %s", orcid)
         logger.info(e)
@@ -79,8 +84,9 @@ def get_orcid_record(orcid):
 
     return None
 
+
 def get_affiliation(summary):
-    raise DeprecationWarning('Use get_affiliations instead.')
+    warnings.warn("Use get_affiliations instead.")
     if len(summary["employments"]["employment-summary"]):
         return summary["employments"]["employment-summary"][0]["organization"]
     elif len(summary["educations"]["education-summary"]):
@@ -91,13 +97,9 @@ def get_affiliation(summary):
 
 def get_affiliations(summary):
     affils = []
-    affils.extend(
-        [affil for affil in summary["employments"]["employment-summary"]]
-    )
+    affils.extend([affil for affil in summary["employments"]["employment-summary"]])
     if not affils:
-        affils.extend(
-            [affil for affil in summary["educations"]["education-summary"]]
-        )
+        affils.extend([affil for affil in summary["educations"]["education-summary"]])
     return affils
 
 
@@ -105,15 +107,12 @@ def get_orcid_record_details(orcid):
     details = defaultdict(lambda: None)
     record = get_orcid_record(orcid)
     if record:
-        details["uri"] = record['orcid-identifier']['uri']
-        details["orcid"] = record['orcid-identifier']['path']
+        details["uri"] = record["orcid-identifier"]["uri"]
+        details["orcid"] = record["orcid-identifier"]["path"]
         user_record = record["person"]
         # Order matters here, we want to get emails first in case anything
         # goes wrong with person details below
-        details["emails"] = [
-            email["email"]
-            for email in user_record["emails"]["email"]
-        ]
+        details["emails"] = [email["email"] for email in user_record["emails"]["email"]]
 
         name = user_record.get("name", None)
         if name:
@@ -145,9 +144,9 @@ def encode_state(next_url, orcid_action):
     """
     querydict = QueryDict(mutable=True)
     if next_url:
-        querydict['next'] = next_url
+        querydict["next"] = next_url
     if orcid_action:
-        querydict['action'] = orcid_action
+        querydict["action"] = orcid_action
     encoded_state = querydict.urlencode(safe="/")
     return encoded_state
 
@@ -163,10 +162,10 @@ def decode_state(encoded_state):
 
 
 COMPILED_ORCID_REGEX = re.compile(
-    r'([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})'
+    r"([0]{3})([0,9]{1})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X]{1})"
 )
 
 
 def validate_orcid(orcid):
     if not COMPILED_ORCID_REGEX.match(orcid):
-        raise ValidationError(f'{orcid} is not a valid ORCID')
+        raise ValidationError(f"{orcid} is not a valid ORCID")

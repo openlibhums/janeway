@@ -7,20 +7,29 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0018_article_preprint_journal_article'),
+        ("submission", "0018_article_preprint_journal_article"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='article',
-            name='journal',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='journal.Journal'),
+            model_name="article",
+            name="journal",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journal.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='article',
-            name='preprint_journal_article',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='submission.Article'),
+            model_name="article",
+            name="preprint_journal_article",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="submission.Article",
+            ),
         ),
     ]

@@ -8,36 +8,60 @@ from proofing import models
 
 
 class ProofingAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'article', 'proofing_manager', 'editor', 'assigned', 'completed')
-    list_filter = ('proofing_manager', 'editor')
-    raw_id_fields = ('article', 'proofing_manager', 'editor')
+    list_display = (
+        "pk",
+        "article",
+        "proofing_manager",
+        "editor",
+        "assigned",
+        "completed",
+    )
+    list_filter = ("proofing_manager", "editor")
+    raw_id_fields = ("article", "proofing_manager", "editor")
 
 
 class ProofingRound(admin.ModelAdmin):
-    list_display = ('pk', 'assignment', 'number', 'date_started')
-    list_filter = ('assignment',)
-    raw_id_fields = ('assignment',)
+    list_display = ("pk", "assignment", "number", "date_started")
+    list_filter = ("assignment",)
+    raw_id_fields = ("assignment",)
 
 
 class ProofingTaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'round', 'proofreader', 'assigned', 'due', 'accepted', 'completed', 'cancelled')
-    list_filter = ('round', 'proofreader')
-    raw_id_fields = ('round', 'proofreader')
-    filter_horizontal = ('galleys_for_proofing', 'notes')
+    list_display = (
+        "pk",
+        "round",
+        "proofreader",
+        "assigned",
+        "due",
+        "accepted",
+        "completed",
+        "cancelled",
+    )
+    list_filter = ("round", "proofreader")
+    raw_id_fields = ("round", "proofreader")
+    filter_horizontal = ("galleys_for_proofing", "notes")
 
 
 class CorrectionTaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'proofing_task', 'typesetter', 'assigned', 'due', 'accepted', 'completed')
-    list_filter = ('proofing_task', 'typesetter')
-    raw_id_fields = ('proofing_task', 'typesetter')
-    filter_horizontal = ('galleys',)
+    list_display = (
+        "pk",
+        "proofing_task",
+        "typesetter",
+        "assigned",
+        "due",
+        "accepted",
+        "completed",
+    )
+    list_filter = ("proofing_task", "typesetter")
+    raw_id_fields = ("proofing_task", "typesetter")
+    filter_horizontal = ("galleys",)
 
 
 class NoteAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'galley', 'creator', 'date_time')
-    list_filter = ('galley', 'creator')
-    search_fields = ('text',)
-    raw_id_fields = ('galley', 'creator')
+    list_display = ("pk", "galley", "creator", "date_time")
+    list_filter = ("galley", "creator")
+    search_fields = ("text",)
+    raw_id_fields = ("galley", "creator")
 
 
 admin_list = [

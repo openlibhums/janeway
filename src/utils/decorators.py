@@ -1,6 +1,7 @@
 """
 Utility decorators
 """
+
 __copyright__ = "Copyright 2020 Birkbeck, University of London"
 __author__ = "Birkbeck Centre for Technology and Publishing"
 __license__ = "AGPL v3"
@@ -18,14 +19,16 @@ logger = get_logger(__name__)
 
 
 def retry(attempts=3, throttle=0, exc=Exception):
-    """ Retries calling a function when certain exceptions are raised
+    """Retries calling a function when certain exceptions are raised
     :param attempts: maximum number of times to retry
     :param throttle_ms: optional throttling between calls in seconds
     :param exc: An exception (or tuple of exceptions) on which to retry
     """
+
     def wrapper(f):
         f_name = f.__name__
         msg = "%s failed with %s: %s, Retrying in %d s..."
+
         @wraps(f)
         def decorator(*args, **kwargs):
             tries = 1
@@ -38,10 +41,11 @@ def retry(attempts=3, throttle=0, exc=Exception):
                         logger.debug("Sleeping thread for %s" % throttle)
                         time.sleep(throttle)
                 finally:
-                    tries +=1
+                    tries += 1
             return f(*args, **kwargs)
 
         return decorator
+
     return wrapper
 
 
@@ -51,12 +55,10 @@ def GET_language_override(func):
     templates/admin/elements/translations/form_tabs.html
     Usage: adding ?language=code eg language=es will override the language for the view.
     """
+
     def language_override_wrapper(request, *args, **kwargs):
-        language = request.GET.get('language', None)
+        language = request.GET.get("language", None)
         request.override_language = language if language else translation.get_language()
         return func(request, *args, **kwargs)
 
     return language_override_wrapper
-
-
-

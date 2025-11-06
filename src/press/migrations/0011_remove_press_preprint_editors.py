@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0010_presssetting'),
+        ("press", "0010_presssetting"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='press',
-            name='preprint_editors',
+            model_name="press",
+            name="preprint_editors",
         ),
     ]

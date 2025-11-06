@@ -5,18 +5,19 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 updates = [
-    {'from': 'typesetting_article', 'to': 'typesetting_articles'},
+    {"from": "typesetting_article", "to": "typesetting_articles"},
 ]
+
 
 def update_handshake_urls(apps, schema_editor):
     WorkflowElement = apps.get_model("core", "WorkflowElement")
 
     for update in updates:
         elements_to_update = WorkflowElement.objects.filter(
-            handshake_url=update.get('from')
+            handshake_url=update.get("from")
         )
         for element_to_update in elements_to_update:
-            element_to_update.handshake_url = update.get('to')
+            element_to_update.handshake_url = update.get("to")
             element_to_update.save()
 
 
@@ -25,16 +26,16 @@ def reverse_handshake_urls(apps, schema_editor):
 
     for update in updates:
         elements_to_update = WorkflowElement.objects.filter(
-            handshake_url=update.get('to')
+            handshake_url=update.get("to")
         )
         for element_to_update in elements_to_update:
-            element_to_update.handshake_url = update.get('from')
+            element_to_update.handshake_url = update.get("from")
             element_to_update.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('typesetting', '0009_typesettingcorrection'),
+        ("typesetting", "0009_typesettingcorrection"),
     ]
 
     operations = [

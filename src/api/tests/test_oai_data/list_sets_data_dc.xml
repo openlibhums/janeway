@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
+>
+  <responseDate>2012-01-14T00:00:00Z</responseDate>
+  <request verb="ListSets" metadataPrefix="oai_dc">http://testserver/api/oai/</request>
+
+  <ListSets>
+    <set>
+      <setSpec>{journal_code}</setSpec>
+      <setName>{journal_name}</setName>
+    </set>
+
+    <set>
+      <setSpec>{journal_code}:issue:{issue_one_id}</setSpec>
+      <setName>{issue_one_title}</setName>
+    </set>
+
+    <set>
+      <setSpec>{journal_code}:issue:{issue_two_id}</setSpec>
+      <setName>{issue_two_title}</setName>
+    </set>
+
+    <set>
+      <setSpec>{journal_code}:section:{section_id}</setSpec>
+      <setName>{section_name}</setName>
+    </set>
+  </ListSets>
+</OAI-PMH>

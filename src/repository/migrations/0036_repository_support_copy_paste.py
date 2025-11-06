@@ -5,9 +5,8 @@ import django_bleach
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0036_merge_20230518_1127'),
+        ("repository", "0036_merge_20230518_1127"),
     ]
 
     # Why two operations with support_copy_paste?
@@ -19,34 +18,33 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='support_copy_paste',
+            model_name="repository",
+            name="support_copy_paste",
             field=models.BooleanField(
                 default=False,
             ),
         ),
         migrations.AlterField(
-            model_name='repository',
-            name='support_copy_paste',
+            model_name="repository",
+            name="support_copy_paste",
             field=models.BooleanField(
                 default=True,
-                help_text='Turn this on if copy-pasting content '
-                          'from a word processor, '
-                          'or using the toolbar to format text. '
-                          'It tells Janeway to clear out formatting '
-                          'that does not play nice. '
-                          'Turn it off and leave it off if anyone has '
-                          'added custom HTML or CSS using the code view, '
-                          'since it might remove custom code.',
+                help_text="Turn this on if copy-pasting content "
+                "from a word processor, "
+                "or using the toolbar to format text. "
+                "It tells Janeway to clear out formatting "
+                "that does not play nice. "
+                "Turn it off and leave it off if anyone has "
+                "added custom HTML or CSS using the code view, "
+                "since it might remove custom code.",
             ),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='abstract',
+            model_name="preprint",
+            name="abstract",
             field=django_bleach.models.BleachField(
                 blank=True,
-                help_text='Copying and pasting from word processors '
-                          'is supported.',
+                help_text="Copying and pasting from word processors is supported.",
                 null=True,
             ),
         ),

@@ -25,91 +25,93 @@ class PreprintInfo(utils_forms.KeywordModelForm):
     subject = forms.ModelMultipleChoiceField(
         required=True,
         queryset=models.Subject.objects.none(),
-        widget=forms.SelectMultiple(attrs={'multiple': ''}),
+        widget=forms.SelectMultiple(attrs={"multiple": ""}),
     )
 
     class Meta:
         model = models.Preprint
         fields = (
-            'title',
-            'abstract',
-            'license',
-            'comments_editor',
-            'subject',
-            'doi',
+            "title",
+            "abstract",
+            "license",
+            "comments_editor",
+            "subject",
+            "doi",
         )
         widgets = {
-            'title': forms.TextInput(attrs={'placeholder': _('Title')}),
-            'abstract': forms.Textarea(
-                attrs={
-                    'placeholder': _('Enter your article\'s abstract here')
-                }
+            "title": forms.TextInput(attrs={"placeholder": _("Title")}),
+            "abstract": forms.Textarea(
+                attrs={"placeholder": _("Enter your article's abstract here")}
             ),
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        self.admin = kwargs.pop('admin', False)
+        self.request = kwargs.pop("request")
+        self.admin = kwargs.pop("admin", False)
         elements = self.request.repository.additional_submission_fields()
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
         if self.admin:
-            self.fields.pop('submission_agreement')
-            self.fields.pop('comments_editor')
+            self.fields.pop("submission_agreement")
+            self.fields.pop("comments_editor")
 
         # If using this form and there is an instance then this has
         # previously been checked as it is required.
-        if self.instance.id and 'submission_agreement' in self._meta.fields:
-            self.fields['submission_agreement'].initial = True
+        if self.instance.id and "submission_agreement" in self._meta.fields:
+            self.fields["submission_agreement"].initial = True
 
-        self.fields['subject'].queryset = models.Subject.objects.filter(
+        self.fields["subject"].queryset = models.Subject.objects.filter(
             enabled=True,
             repository=self.request.repository,
         )
         if self.admin:
-            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+            self.fields["license"].queryset = submission_models.Licence.objects.filter(
                 journal__isnull=True,
             )
         else:
-            self.fields['license'].queryset = self.request.repository.active_licenses.all()
-        self.fields['license'].required = True
+            self.fields[
+                "license"
+            ].queryset = self.request.repository.active_licenses.all()
+        self.fields["license"].required = True
 
         if elements:
             for element in elements:
-                if element.input_type == 'text':
+                if element.input_type == "text":
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(),
-                        required=element.required)
-                elif element.input_type == 'textarea':
+                        widget=forms.TextInput(), required=element.required
+                    )
+                elif element.input_type == "textarea":
                     self.fields[element.name] = forms.CharField(
                         widget=forms.Textarea,
                         required=element.required,
                     )
-                elif element.input_type == 'date':
+                elif element.input_type == "date":
                     self.fields[element.name] = forms.CharField(
                         widget=forms.DateInput(
                             attrs={
-                                'class': 'datepicker',
+                                "class": "datepicker",
                             }
                         ),
-                        required=element.required)
-                elif element.input_type == 'select':
+                        required=element.required,
+                    )
+                elif element.input_type == "select":
                     choices = render_choices(element.choices)
                     self.fields[element.name] = forms.ChoiceField(
                         widget=forms.Select(),
                         choices=choices,
                         required=element.required,
                     )
-                elif element.input_type == 'email':
+                elif element.input_type == "email":
                     self.fields[element.name] = forms.EmailField(
                         widget=forms.TextInput(),
                         required=element.required,
                     )
-                elif element.input_type == 'checkbox':
+                elif element.input_type == "checkbox":
                     self.fields[element.name] = forms.BooleanField(
-                        widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
-                        required=element.required)
-                elif element.input_type == 'number':
+                        widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
+                        required=element.required,
+                    )
+                elif element.input_type == "number":
                     self.fields[element.name] = forms.IntegerField(
                         required=element.required,
                     )
@@ -119,13 +121,17 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                         required=element.required,
                     )
 
-                if element.input_type == 'date':
-                    self.fields[element.name].help_text = 'Use ISO 8601 Date Format YYYY-MM-DD. {}'.format(element.help_text)
+                if element.input_type == "date":
+                    self.fields[
+                        element.name
+                    ].help_text = "Use ISO 8601 Date Format YYYY-MM-DD. {}".format(
+                        element.help_text
+                    )
                 else:
                     self.fields[element.name].help_text = element.help_text
                 self.fields[element.name].label = element.name
 
-                preprint = kwargs['instance']
+                preprint = kwargs["instance"]
                 if preprint:
                     try:
                         check_for_answer = models.RepositoryFieldAnswer.objects.get(
@@ -173,12 +179,12 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         return preprint
 
     def clean_doi(self):
-        doi_string = self.cleaned_data.get('doi')
+        doi_string = self.cleaned_data.get("doi")
 
         if doi_string and not URL_DOI_RE.match(doi_string):
             self.add_error(
-                'doi',
-                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+                "doi",
+                "DOIs should be in the following format: https://doi.org/10.XXX/XXXXX",
             )
 
         return doi_string
@@ -187,10 +193,13 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 class PreprintSupplementaryFileForm(forms.ModelForm):
     class Meta:
         model = models.PreprintSupplementaryFile
-        fields = ('label', 'url',)
+        fields = (
+            "label",
+            "url",
+        )
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint')
+        self.preprint = kwargs.pop("preprint")
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -211,60 +220,62 @@ class AuthorForm(forms.Form):
     affiliation = forms.CharField(max_length=200, required=False)
 
     def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance')
-        self.request = kwargs.pop('request')
-        self.preprint = kwargs.pop('preprint')
+        self.instance = kwargs.pop("instance")
+        self.request = kwargs.pop("request")
+        self.preprint = kwargs.pop("preprint")
         super(AuthorForm, self).__init__(*args, **kwargs)
 
         if self.instance:
-            self.fields['email_address'].initial = self.instance.account.email
-            self.fields['first_name'].initial = self.instance.account.first_name
-            self.fields['middle_name'].initial = self.instance.account.middle_name
-            self.fields['last_name'].initial = self.instance.account.last_name
-            self.fields['affiliation'].initial = self.instance.affiliation or self.instance.account.institution
+            self.fields["email_address"].initial = self.instance.account.email
+            self.fields["first_name"].initial = self.instance.account.first_name
+            self.fields["middle_name"].initial = self.instance.account.middle_name
+            self.fields["last_name"].initial = self.instance.account.last_name
+            self.fields["affiliation"].initial = (
+                self.instance.affiliation or self.instance.account.institution
+            )
 
     def save(self):
         cleaned_data = self.cleaned_data
         if self.instance:
             account = self.instance.account
-            account.email = cleaned_data.get('email_address')
-            account.first_name = cleaned_data.get('first_name')
-            account.middle_name = cleaned_data.get('middle_name')
-            account.last_name = cleaned_data.get('last_name')
-            self.instance.affiliation = cleaned_data.get('affiliation')
+            account.email = cleaned_data.get("email_address")
+            account.first_name = cleaned_data.get("first_name")
+            account.middle_name = cleaned_data.get("middle_name")
+            account.last_name = cleaned_data.get("last_name")
+            self.instance.affiliation = cleaned_data.get("affiliation")
 
             account.save()
             self.instance.save()
             return self.instance
         else:
             account, ac = core_models.Account.objects.get_or_create(
-                email=cleaned_data.get('email_address'),
+                email=cleaned_data.get("email_address"),
                 defaults={
-                    'first_name': cleaned_data.get('first_name'),
-                    'middle_name': cleaned_data.get('middle_name'),
-                    'last_name': cleaned_data.get('last_name'),
-                }
+                    "first_name": cleaned_data.get("first_name"),
+                    "middle_name": cleaned_data.get("middle_name"),
+                    "last_name": cleaned_data.get("last_name"),
+                },
             )
             preprint_author, pc = models.PreprintAuthor.objects.get_or_create(
                 account=account,
                 preprint=self.preprint,
                 defaults={
-                    'affiliation': cleaned_data.get('affiliation'),
-                    'order': self.preprint.next_author_order()
-                }
+                    "affiliation": cleaned_data.get("affiliation"),
+                    "order": self.preprint.next_author_order(),
+                },
             )
 
             if not ac:
                 messages.add_message(
                     self.request,
                     messages.WARNING,
-                    'A user with this email address was found. They have been added.'
+                    "A user with this email address was found. They have been added.",
                 )
             else:
                 messages.add_message(
                     self.request,
                     messages.SUCCESS,
-                    'User added as Author.',
+                    "User added as Author.",
                 )
 
             return preprint_author
@@ -273,11 +284,11 @@ class AuthorForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = models.Comment
-        fields = ('body',)
+        fields = ("body",)
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint', None)
-        self.author = kwargs.pop('author', None)
+        self.preprint = kwargs.pop("preprint", None)
+        self.author = kwargs.pop("author", None)
         super(CommentForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -295,25 +306,25 @@ class SettingsForm(forms.ModelForm):
     class Meta:
         model = press_models.Press
         fields = (
-            'preprints_about',
-            'preprint_start',
-            'preprint_submission',
-            'preprint_publication',
-            'preprint_decline',
-            'preprint_pdf_only',
+            "preprints_about",
+            "preprint_start",
+            "preprint_submission",
+            "preprint_publication",
+            "preprint_decline",
+            "preprint_pdf_only",
         )
         widgets = {
-            'preprints_about': TinyMCE,
-            'preprint_start': TinyMCE,
-            'preprint_submission': TinyMCE,
-            'preprint_publication': TinyMCE,
-            'preprint_decline': TinyMCE,
+            "preprints_about": TinyMCE,
+            "preprint_start": TinyMCE,
+            "preprint_submission": TinyMCE,
+            "preprint_publication": TinyMCE,
+            "preprint_decline": TinyMCE,
         }
 
     def __init__(self, *args, **kwargs):
         super(SettingsForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs:
-            press = kwargs['instance']
+        if "instance" in kwargs:
+            press = kwargs["instance"]
             settings = press_models.PressSetting.objects.filter(press=press)
 
             for setting in settings:
@@ -335,7 +346,7 @@ class SettingsForm(forms.ModelForm):
 
         for setting in settings:
             if setting.is_boolean:
-                setting.value = 'On' if self.cleaned_data[setting.name] else ''
+                setting.value = "On" if self.cleaned_data[setting.name] else ""
             else:
                 setting.value = self.cleaned_data[setting.name]
             setting.save()
@@ -344,12 +355,12 @@ class SettingsForm(forms.ModelForm):
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = models.Subject
-        exclude = ('repository', 'slug')
+        exclude = ("repository", "slug")
 
     def __init__(self, *args, **kwargs):
-        self.repository = kwargs.pop('repository')
+        self.repository = kwargs.pop("repository")
         super(SubjectForm, self).__init__(*args, **kwargs)
-        self.fields['parent'].queryset = models.Subject.objects.filter(
+        self.fields["parent"].queryset = models.Subject.objects.filter(
             repository=self.repository,
         )
 
@@ -367,20 +378,20 @@ class SubjectForm(forms.ModelForm):
 class ActiveLicenseForm(forms.ModelForm):
     class Meta:
         model = models.Repository
-        fields = ('active_licenses',)
+        fields = ("active_licenses",)
         widgets = {
-            'active_licenses': forms.CheckboxSelectMultiple,
+            "active_licenses": forms.CheckboxSelectMultiple,
         }
         labels = {
-            'active_licenses': 'Select the licenses that authors can pick from during submission',
+            "active_licenses": "Select the licenses that authors can pick from during submission",
         }
 
     def __init__(self, *args, **kwargs):
         super(ActiveLicenseForm, self).__init__(*args, **kwargs)
-        self.fields['active_licenses'].queryset = submission_models.Licence.objects.filter(
-            journal=None
-        )
-        self.fields['active_licenses'].label_from_instance = self.label_from_instance
+        self.fields[
+            "active_licenses"
+        ].queryset = submission_models.Licence.objects.filter(journal=None)
+        self.fields["active_licenses"].label_from_instance = self.label_from_instance
 
     @staticmethod
     def label_from_instance(obj):
@@ -390,10 +401,10 @@ class ActiveLicenseForm(forms.ModelForm):
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.PreprintFile
-        fields = ('file',)
+        fields = ("file",)
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint')
+        self.preprint = kwargs.pop("preprint")
         super(FileForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -412,14 +423,14 @@ class FileForm(forms.ModelForm):
 class VersionForm(forms.ModelForm):
     class Meta:
         model = models.VersionQueue
-        fields = ('title', 'abstract', 'published_doi')
+        fields = ("title", "abstract", "published_doi")
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint')
+        self.preprint = kwargs.pop("preprint")
         super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields['title'].initial = self.preprint.title
-        self.fields['abstract'].initial = self.preprint.abstract
-        self.fields['published_doi'].initial = self.preprint.doi
+        self.fields["title"].initial = self.preprint.title
+        self.fields["abstract"].initial = self.preprint.abstract
+        self.fields["published_doi"].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
@@ -431,12 +442,12 @@ class VersionForm(forms.ModelForm):
         return version
 
     def clean_published_doi(self):
-        doi_string = self.cleaned_data.get('published_doi')
+        doi_string = self.cleaned_data.get("published_doi")
 
         if doi_string and not URL_DOI_RE.match(doi_string):
             self.add_error(
-                'published_doi',
-                'DOIs should be in the following format: https://doi.org/10.XXX/XXXXX'
+                "published_doi",
+                "DOIs should be in the following format: https://doi.org/10.XXX/XXXXX",
             )
 
         return doi_string
@@ -445,10 +456,10 @@ class VersionForm(forms.ModelForm):
 class RepositoryBase(forms.ModelForm):
     class Meta:
         model = models.Repository
-        fields = '__all__'
+        fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.press = kwargs.pop('press')
+        self.press = kwargs.pop("press")
         super(RepositoryBase, self).__init__(*args, **kwargs)
 
 
@@ -456,20 +467,20 @@ class RepositoryInitial(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
-            'name',
-            'short_name',
-            'domain',
-            'object_name',
-            'object_name_plural',
-            'theme',
-            'display_public_metrics',
-            'publisher',
-            'enable_comments',
-            'enable_invited_comments',
+            "name",
+            "short_name",
+            "domain",
+            "object_name",
+            "object_name_plural",
+            "theme",
+            "display_public_metrics",
+            "publisher",
+            "enable_comments",
+            "enable_invited_comments",
         )
         help_texts = {
-            'domain': 'Using a custom domain requires configuring DNS. '
-                'The repository will always be available under the /code path',
+            "domain": "Using a custom domain requires configuring DNS. "
+            "The repository will always be available under the /code path",
         }
 
     def save(self, commit=True):
@@ -483,29 +494,28 @@ class RepositoryInitial(RepositoryBase):
 
 
 class RepositorySite(RepositoryBase):
-
     class Meta:
         model = models.Repository
         fields = (
-            'about',
-            'logo',
-            'hero_background',
-            'favicon',
-            'footer',
-            'login_text',
-            'limit_access_to_submission',
-            'submission_access_request_text',
-            'submission_access_contact',
-            'review_submission_text',
-            'custom_js_code',
-            'review_helper',
+            "about",
+            "logo",
+            "hero_background",
+            "favicon",
+            "footer",
+            "login_text",
+            "limit_access_to_submission",
+            "submission_access_request_text",
+            "submission_access_contact",
+            "review_submission_text",
+            "custom_js_code",
+            "review_helper",
         )
         widgets = {
-            'about': TinyMCE,
-            'footer': TinyMCE,
-            'login_text': TinyMCE,
-            'submission_access_request_text': TinyMCE,
-            'review_helper': TinyMCE,
+            "about": TinyMCE,
+            "footer": TinyMCE,
+            "login_text": TinyMCE,
+            "submission_access_request_text": TinyMCE,
+            "review_helper": TinyMCE,
         }
 
 
@@ -513,25 +523,25 @@ class RepositorySubmission(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
-            'start',
-            'file_upload_help',
-            'submission_agreement',
-            'limit_upload_to_pdf',
-            'require_pdf_help',
-            'additional_version_help',
-            'managers',
+            "start",
+            "file_upload_help",
+            "submission_agreement",
+            "limit_upload_to_pdf",
+            "require_pdf_help",
+            "additional_version_help",
+            "managers",
         )
 
         widgets = {
-            'start': TinyMCE,
-            'submission_agreement': TinyMCE,
-            'file_upload_help': TinyMCE,
-            'additional_version_help': TinyMCE,
-            'managers': FilteredSelectMultiple(
+            "start": TinyMCE,
+            "submission_agreement": TinyMCE,
+            "file_upload_help": TinyMCE,
+            "additional_version_help": TinyMCE,
+            "managers": FilteredSelectMultiple(
                 "Accounts",
                 False,
-                attrs={'rows': '2'},
-            )
+                attrs={"rows": "2"},
+            ),
         }
 
 
@@ -539,61 +549,62 @@ class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
-            'submission',
-            'publication',
-            'decline',
-            'accept_version',
-            'decline_version',
-            'new_comment',
-            'review_invitation',
-            'manager_review_status_change',
-            'reviewer_review_status_change',
-            'submission_notification_recipients',
+            "submission",
+            "publication",
+            "decline",
+            "accept_version",
+            "decline_version",
+            "new_comment",
+            "review_invitation",
+            "manager_review_status_change",
+            "reviewer_review_status_change",
+            "submission_notification_recipients",
         )
 
         widgets = {
-            'submission': TinyMCE,
-            'publication': TinyMCE,
-            'decline': TinyMCE,
-            'accept_version': TinyMCE,
-            'decline_version': TinyMCE,
-            'new_comment': TinyMCE,
-            'review_invitation': TinyMCE,
-            'manager_review_status_change': TinyMCE,
-            'reviewer_review_status_change': TinyMCE,
-            'submission_notification_recipients': TableMultiSelectUser()
+            "submission": TinyMCE,
+            "publication": TinyMCE,
+            "decline": TinyMCE,
+            "accept_version": TinyMCE,
+            "decline_version": TinyMCE,
+            "new_comment": TinyMCE,
+            "review_invitation": TinyMCE,
+            "manager_review_status_change": TinyMCE,
+            "reviewer_review_status_change": TinyMCE,
+            "submission_notification_recipients": TableMultiSelectUser(),
         }
 
     def __init__(self, *args, **kwargs):
         super(RepositoryEmails, self).__init__(*args, **kwargs)
-        repo_managers = kwargs['instance'].managers.all()
-        self.fields['submission_notification_recipients'].queryset = repo_managers
-        self.fields['submission_notification_recipients'].choices = [(m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers]
+        repo_managers = kwargs["instance"].managers.all()
+        self.fields["submission_notification_recipients"].queryset = repo_managers
+        self.fields["submission_notification_recipients"].choices = [
+            (m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers
+        ]
+
 
 class RepositoryLiveForm(RepositoryBase):
     class Meta:
         model = models.Repository
-        fields = (
-            'live',
-        )
+        fields = ("live",)
 
 
 class RepositoryFieldForm(forms.ModelForm):
     class Meta:
         model = models.RepositoryField
         fields = (
-            'name',
-            'input_type',
-            'choices',
-            'required',
-            'order',
-            'help_text',
-            'display',
-            'dc_metadata_type',
+            "name",
+            "input_type",
+            "choices",
+            "required",
+            "order",
+            "help_text",
+            "display",
+            "dc_metadata_type",
         )
 
     def __init__(self, *args, **kwargs):
-        self.repository = kwargs.pop('repository')
+        self.repository = kwargs.pop("repository")
         super(RepositoryFieldForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -609,51 +620,51 @@ class RepositoryFieldForm(forms.ModelForm):
 class PreprinttoArticleForm(forms.Form):
     license = forms.ModelChoiceField(queryset=submission_models.Licence.objects.none())
     section = forms.ModelChoiceField(queryset=submission_models.Section.objects.none())
-    stage = forms.ChoiceField(
-        choices=()
-    )
+    stage = forms.ChoiceField(choices=())
     force = forms.BooleanField(
         required=False,
-        help_text='If you want to force the creation of a new article object even if one exists, check this box. '
-                  'The old article will be orphaned and no longer linked to this object.',
+        help_text="If you want to force the creation of a new article object even if one exists, check this box. "
+        "The old article will be orphaned and no longer linked to this object.",
     )
 
     def __init__(self, *args, **kwargs):
-        self.journal = kwargs.pop('journal', None)
+        self.journal = kwargs.pop("journal", None)
         super(PreprinttoArticleForm, self).__init__(*args, **kwargs)
 
         if self.journal:
-            self.fields['license'].queryset = submission_models.Licence.objects.filter(
+            self.fields["license"].queryset = submission_models.Licence.objects.filter(
                 journal=self.journal,
             )
-            self.fields['section'].queryset = submission_models.Section.objects.filter(
+            self.fields["section"].queryset = submission_models.Section.objects.filter(
                 journal=self.journal,
             )
-            self.fields['stage'].choices = workflow.workflow_journal_choices(self.journal)
+            self.fields["stage"].choices = workflow.workflow_journal_choices(
+                self.journal
+            )
 
 
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = models.Review
         fields = (
-            'reviewer',
-            'date_due',
+            "reviewer",
+            "date_due",
         )
         widgets = {
-            'date_due': utils_forms.HTMLDateInput(),
+            "date_due": utils_forms.HTMLDateInput(),
         }
 
     def __init__(self, *args, **kwargs):
-        self.preprint = kwargs.pop('preprint')
-        self.manager = kwargs.pop('manager')
+        self.preprint = kwargs.pop("preprint")
+        self.manager = kwargs.pop("manager")
         super(ReviewForm, self).__init__(*args, **kwargs)
-        self.fields['reviewer'].queryset = self.preprint.repository.reviewer_accounts()
+        self.fields["reviewer"].queryset = self.preprint.repository.reviewer_accounts()
 
     def save(self, commit=True):
         review = super(ReviewForm, self).save(commit=False)
         review.preprint = self.preprint
         review.manager = self.manager
-        review.status = 'new'
+        review.status = "new"
 
         if commit:
             review.save()
@@ -664,9 +675,9 @@ class ReviewForm(forms.ModelForm):
 class ReviewDueDateForm(forms.ModelForm):
     class Meta:
         model = models.Review
-        fields = ('date_due',)
+        fields = ("date_due",)
         widgets = {
-            'date_due': utils_forms.HTMLDateInput(),
+            "date_due": utils_forms.HTMLDateInput(),
         }
 
 
@@ -679,20 +690,22 @@ class ReviewCommentForm(forms.Form):
         queryset=models.ReviewRecommendation.objects.none(),
     )
     anonymous = forms.BooleanField(
-        help_text='Check if you want your comments to be displayed anonymously.',
+        help_text="Check if you want your comments to be displayed anonymously.",
         label="Comment Anonymously",
         required=False,
     )
 
     def __init__(self, *args, **kwargs):
-        self.review = kwargs.pop('review')
+        self.review = kwargs.pop("review")
         super(ReviewCommentForm, self).__init__(*args, **kwargs)
         if self.review.comment:
-            self.fields['body'].initial = self.review.comment.body
-            self.fields['anonymous'].initial = self.review.anonymous
-            self.fields['recommendation'].initial = self.review.recommendation.pk
+            self.fields["body"].initial = self.review.comment.body
+            self.fields["anonymous"].initial = self.review.anonymous
+            self.fields["recommendation"].initial = self.review.recommendation.pk
 
-        self.fields['recommendation'].queryset = models.ReviewRecommendation.objects.filter(
+        self.fields[
+            "recommendation"
+        ].queryset = models.ReviewRecommendation.objects.filter(
             repository=self.review.preprint.repository,
             active=True,
         )
@@ -706,12 +719,12 @@ class ReviewCommentForm(forms.Form):
 
             comment.author = self.review.reviewer
             comment.preprint = self.review.preprint
-            comment.body = self.cleaned_data.get('body')
+            comment.body = self.cleaned_data.get("body")
             comment.save()
 
-            self.review.anonymous = self.cleaned_data.get('anonymous', False)
+            self.review.anonymous = self.cleaned_data.get("anonymous", False)
             self.review.comment = comment
-            self.review.recommendation = self.cleaned_data.get('recommendation')
+            self.review.recommendation = self.cleaned_data.get("recommendation")
             self.review.save()
 
 
@@ -719,12 +732,12 @@ class RecommendationForm(forms.ModelForm):
     class Meta:
         model = models.ReviewRecommendation
         fields = (
-            'name',
-            'active',
+            "name",
+            "active",
         )
 
     def __init__(self, *args, **kwargs):
-        self.repository = kwargs.pop('repository')
+        self.repository = kwargs.pop("repository")
         super(RecommendationForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):

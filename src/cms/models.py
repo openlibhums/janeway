@@ -18,100 +18,104 @@ from utils.logic import build_url_for_request
 
 
 class Page(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='page_content', null=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, related_name="page_content", null=True
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     name = models.CharField(
         max_length=300,
-        help_text='The relative URL path to the page, using lowercase '
-                  'letters and hyphens. For example, a page about '
-                  'research integrity might be “research-integrity”.',
-        verbose_name='Link',
+        help_text="The relative URL path to the page, using lowercase "
+        "letters and hyphens. For example, a page about "
+        "research integrity might be “research-integrity”.",
+        verbose_name="Link",
     )
     display_name = models.CharField(
         max_length=100,
-        help_text='Name of the page, in 100 characters or fewer, '
-                  'displayed in the nav and in the top-level heading '
-                  'on the page (e.g. “Research Integrity”).',
+        help_text="Name of the page, in 100 characters or fewer, "
+        "displayed in the nav and in the top-level heading "
+        "on the page (e.g. “Research Integrity”).",
     )
     template = models.CharField(
         blank=True,
         max_length=100,
-        help_text='The custom template to use instead of the content field.',
+        help_text="The custom template to use instead of the content field.",
     )
     content = JanewayBleachField(
         null=True,
         blank=True,
-        help_text='The content of the page. For headings, we recommend '
-                  'using the Style dropdown (looks like a wand) and '
-                  'selecting a heading level from 2 to 6, as the display '
-                  'name field occupies the place of heading level 1. '
-                  'Note that copying and pasting from a word processor '
-                  'can produce unwanted results, but you can use Remove '
-                  'Font Style (looks like an eraser) to remove some '
-                  'unwanted formatting. To edit the page as HTML, '
-                  'turn on the Code View (<>).',
+        help_text="The content of the page. For headings, we recommend "
+        "using the Style dropdown (looks like a wand) and "
+        "selecting a heading level from 2 to 6, as the display "
+        "name field occupies the place of heading level 1. "
+        "Note that copying and pasting from a word processor "
+        "can produce unwanted results, but you can use Remove "
+        "Font Style (looks like an eraser) to remove some "
+        "unwanted formatting. To edit the page as HTML, "
+        "turn on the Code View (<>).",
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
     display_toc = models.BooleanField(
         default=False,
-        help_text='When enabled this page will display a thinner reading pane '
-                  'with a table of contents side bar.',
-        verbose_name='Display table of contents',
+        help_text="When enabled this page will display a thinner reading pane "
+        "with a table of contents side bar.",
+        verbose_name="Display table of contents",
     )
 
     # history = HistoricalRecords() is defined in cms.translation
     # for compatibility with django-modeltranslation
 
     def __str__(self):
-        return u'{0} - {1}'.format(self.content_type, self.display_name)
+        return "{0} - {1}".format(self.content_type, self.display_name)
 
 
 class NavigationItem(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='nav_content', null=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, related_name="nav_content", null=True
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    object = GenericForeignKey('content_type', 'object_id')
+    object = GenericForeignKey("content_type", "object_id")
 
     link_name = models.CharField(
         max_length=100,
-        help_text='The text that will appear in the nav bar '
-                  '(e.g. “About” or “Research Integrity”)',
-        verbose_name='Display name',
+        help_text="The text that will appear in the nav bar "
+        "(e.g. “About” or “Research Integrity”)",
+        verbose_name="Display name",
     )
     link = models.CharField(
         max_length=100,
         blank=True,
         null=True,
-        help_text='In most cases, this should be the the '
-                  'relative URL path to the page. The '
-                  'relative path is formed from 1) the '
-                  'journal code (acronym or abbreviation) '
-                  'if your journal homepage URL ends with '
-                  'the journal code, 2) the word “site”, and '
-                  '3) whatever you put into the Link field for '
-                  'the corresponding page. For example, '
-                  'to link to a custom page you created, '
-                  'if the journal homepage URL is “example.com/abc”, '
-                  'and you put “research-integrity” in the Link field '
-                  'for the page, then the Link field for the nav item '
-                  'should be “abc/site/research-integrity”. For top-level '
-                  'nav items that should not also appear as sub-nav '
-                  'items (under themselves), leave the Link field empty. '
-                  'For external links, it should be an absolute URL.',
+        help_text="In most cases, this should be the the "
+        "relative URL path to the page. The "
+        "relative path is formed from 1) the "
+        "journal code (acronym or abbreviation) "
+        "if your journal homepage URL ends with "
+        "the journal code, 2) the word “site”, and "
+        "3) whatever you put into the Link field for "
+        "the corresponding page. For example, "
+        "to link to a custom page you created, "
+        "if the journal homepage URL is “example.com/abc”, "
+        "and you put “research-integrity” in the Link field "
+        "for the page, then the Link field for the nav item "
+        "should be “abc/site/research-integrity”. For top-level "
+        "nav items that should not also appear as sub-nav "
+        "items (under themselves), leave the Link field empty. "
+        "For external links, it should be an absolute URL.",
     )
     is_external = models.BooleanField(
         default=False,
-        help_text='Whether the link is to an external website.',
+        help_text="Whether the link is to an external website.",
     )
     sequence = models.IntegerField(
         default=99,
-        help_text='The order in which custom nav items appear relative '
-                  'to other custom nav items. Note that fixed (default) '
-                  'nav items do not have a sequence field, so you have '
-                  'to replace them with custom elements to change their '
-                  'order.',
+        help_text="The order in which custom nav items appear relative "
+        "to other custom nav items. Note that fixed (default) "
+        "nav items do not have a sequence field, so you have "
+        "to replace them with custom elements to change their "
+        "order.",
     )
     page = models.ForeignKey(
         Page,
@@ -122,31 +126,30 @@ class NavigationItem(models.Model):
     has_sub_nav = models.BooleanField(
         default=False,
         verbose_name="Has sub navigation",
-        help_text='Whether this item has sub-nav items under it.',
+        help_text="Whether this item has sub-nav items under it.",
     )
     top_level_nav = models.ForeignKey(
         "self",
         blank=True,
         null=True,
         verbose_name="Top-level nav item",
-        help_text='If this is a sub-nav item, which top-level '
-                  'item should it go under?',
+        help_text="If this is a sub-nav item, which top-level item should it go under?",
         on_delete=models.CASCADE,
     )
     for_footer = models.BooleanField(
         default=False,
-        help_text='Whether this item should appear in the footer. '
-                  'Not implemented for all themes.',
+        help_text="Whether this item should appear in the footer. "
+        "Not implemented for all themes.",
     )
     extend_to_journals = models.BooleanField(
         default=False,
-        help_text='Whether this item should be '
-                  'extended to journal websites. '
-                  'Only implemented for footer links.',
+        help_text="Whether this item should be "
+        "extended to journal websites. "
+        "Only implemented for footer links.",
     )
 
     class Meta:
-        ordering = ('sequence',)
+        ordering = ("sequence",)
 
     def __str__(self):
         return self.link_name
@@ -166,7 +169,7 @@ class NavigationItem(models.Model):
         # alias for backwards compatibility with templates
         if self.link:
             return self.build_url_for_request
-        return ''
+        return ""
 
     @classmethod
     def toggle_collection_nav(cls, issue_type):
@@ -192,10 +195,9 @@ class NavigationItem(models.Model):
     @classmethod
     def get_issue_types_for_nav(cls, journal):
         for issue_type in journal.issuetype_set.filter(
-            ~Q(code="issue") # Issues have their own navigation
+            ~Q(code="issue")  # Issues have their own navigation
         ):
-            content_type = ContentType.objects.get_for_model(
-                issue_type.journal)
+            content_type = ContentType.objects.get_for_model(issue_type.journal)
             if not cls.objects.filter(
                 content_type=content_type,
                 object_id=issue_type.journal.pk,
@@ -209,23 +211,24 @@ class SubmissionItem(models.Model):
     Model containing information to render the Submission page.
     SubmissionItems is registered for translation in cms.translation.
     """
+
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=255)
     text = JanewayBleachField(blank=True, null=True)
     order = models.IntegerField(default=99)
     existing_setting = models.ForeignKey(
-        'core.Setting',
+        "core.Setting",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
     )
 
     class Meta:
-        ordering = ('order', 'title')
-        unique_together = (('journal', 'existing_setting'), ('journal', 'title'))
+        ordering = ("order", "title")
+        unique_together = (("journal", "existing_setting"), ("journal", "title"))
 
     def get_display_text(self):
         if self.existing_setting:
@@ -254,10 +257,10 @@ def upload_to_media_files(instance, filename):
 class MediaFile(models.Model):
     label = models.CharField(max_length=255)
     file = models.FileField(
-        upload_to=upload_to_media_files,
-        storage=JanewayFileSystemStorage())
+        upload_to=upload_to_media_files, storage=JanewayFileSystemStorage()
+    )
     journal = models.ForeignKey(
-        'journal.Journal',
+        "journal.Journal",
         null=True,
         blank=True,
         on_delete=models.CASCADE,

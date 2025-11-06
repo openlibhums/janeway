@@ -8,5 +8,5 @@ from core.homepage_elements.journals import views
 
 urlpatterns = [
     # Featured Articles
-    re_path(r'^$', views.featured_journals, name='featured_journals'),
+    re_path(r"^$", views.featured_journals, name="featured_journals"),
 ]

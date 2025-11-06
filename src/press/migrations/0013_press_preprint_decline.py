@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('press', '0012_presssetting_is_boolean'),
+        ("press", "0012_presssetting_is_boolean"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='press',
-            name='preprint_decline',
-            field=models.TextField(blank=True, default='<p>Dear {{ article.owner.full_name }},</p><p>Unfortunately we have decided to decline to publish your preprint</p><p>Regards,</p><p>{{ request.press.name }} Team</p>', null=True),
+            model_name="press",
+            name="preprint_decline",
+            field=models.TextField(
+                blank=True,
+                default="<p>Dear {{ article.owner.full_name }},</p><p>Unfortunately we have decided to decline to publish your preprint</p><p>Regards,</p><p>{{ request.press.name }} Team</p>",
+                null=True,
+            ),
         ),
     ]

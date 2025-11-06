@@ -23,27 +23,26 @@ class Command(ProfiledCommand):
         """
         super().add_arguments(parser)
         parser.add_argument(
-            '--site_type',
-            choices=['journals', 'repositories'],
-            help='The type of site, either journals or repositories',
-
+            "--site_type",
+            choices=["journals", "repositories"],
+            help="The type of site, either journals or repositories",
         )
         parser.add_argument(
-            '--codes',
-            nargs='+',
-            help='The codes of the sites (empty for all sites)',
+            "--codes",
+            nargs="+",
+            help="The codes of the sites (empty for all sites)",
         )
 
     def handle(self, *args, **options):
-        site_type = options.get('site_type')
-        codes = options.get('codes')
+        site_type = options.get("site_type")
+        codes = options.get("codes")
 
         journals = journal_models.Journal.objects.none()
         repositories = repository_models.Repository.objects.none()
 
-        if site_type == 'journals' or not site_type:
+        if site_type == "journals" or not site_type:
             journals = journal_models.Journal.objects.all()
-        if site_type == 'repositories' or not site_type:
+        if site_type == "repositories" or not site_type:
             repositories = repository_models.Repository.objects.all()
 
         if codes:
@@ -76,4 +75,3 @@ class Command(ProfiledCommand):
 
                     for subject in tqdm(repo.subject_set.all()):
                         logic.write_subject_sitemap(subject)
-

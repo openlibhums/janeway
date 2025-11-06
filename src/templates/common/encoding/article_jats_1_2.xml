@@ -55,9 +55,8 @@
                                             vocab="credit"
                                             vocab-identifier="https://credit.niso.org/"
                                             vocab-term="{{ credit_record.get_role_display }}"
-                                            vocab-term-identifier="{{ credit_record.uri }}">
-                                        {{ credit_record.get_role_display }}
-                                    </role>
+                                            vocab-term-identifier="{{ credit_record.uri }}"
+                                          >{{ credit_record.get_role_display }}</role>
                                 {% endfor %}
                             {% endif %}
                             {% for affiliation in affiliations %}
@@ -85,15 +84,12 @@
                         </fn>
                     {% endif %}
                     {% if article.correspondence_author %}
-                        <corresp id="cor1">Corresponding Author:
-                            <email xlink:href="mailto:{{ article.correspondence_author.email }}">
-                                {{ article.correspondence_author.email }}
-                            </email>
-                        </corresp>
+                        <corresp id="cor1">Corresponding Author: <email
+                          xlink:href="mailto:{{ article.correspondence_author.email }}"
+                        >{{ article.correspondence_author.email }}</email></corresp>
                     {% endif %}
                 </author-notes>
             {% endif %}
-
             {% if article.date_published %}
             <pub-date date-type="pub" iso-8601-date="{{ article.date_published|date:"Y-m-d" }}" publication-format="electronic">
                 <day>{{ article.date_published|date:"d" }}</day>
@@ -108,8 +104,6 @@
             {% if article.issue.issue_title %}
             <issue-title xml:lang="en">{{ article.issue.issue_title }}</issue-title>
             {% endif %}
-
-
             {% if article.first_page %}
                 <fpage>{{ article.first_page }}</fpage>
             {% endif %}

@@ -1,0 +1,27 @@
+# Checks for unformatted changes against any staged python files for commit
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+
+cd "$PROJECT_ROOT" || exit 1
+
+STAGED_PYTHON_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
+
+if [ -z "$STAGED_PYTHON_FILES" ]; then
+  echo "No staged Python files to check. Skipping Ruff."
+  exit 0
+fi
+
+echo "Checking formatting for staged Python files..."
+ruff format --check $STAGED_PYTHON_FILES
+FORMAT_EXIT_CODE=$?
+
+if [ $FORMAT_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "ERROR: Python formatting issues found. Please run 'ruff format .' and re-stage your changes."
+  echo "Commit aborted."
+  exit 1
+fi
+
+echo "Formatting checks passed."
+exit 0
+

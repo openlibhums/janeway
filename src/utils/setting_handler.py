@@ -20,13 +20,13 @@ logger = get_logger(__name__)
 
 
 def create_setting(
-        setting_group_name,
-        setting_name,
-        type,
-        pretty_name,
-        description,
-        is_translatable=True,
-        default_value=None,
+    setting_group_name,
+    setting_name,
+    type,
+    pretty_name,
+    description,
+    is_translatable=True,
+    default_value=None,
 ):
     # If the setting is translatable use current lang, else use the default.
     lang = translation.get_language() if is_translatable else settings.LANGUAGE_CODE
@@ -39,11 +39,11 @@ def create_setting(
             group=group,
             name=setting_name,
             defaults={
-                'types': type,
-                'pretty_name': pretty_name,
-                'description': description,
-                'is_translatable': is_translatable,
-            }
+                "types": type,
+                "pretty_name": pretty_name,
+                "description": description,
+                "is_translatable": is_translatable,
+            },
         )
 
         if created and default_value:
@@ -64,19 +64,19 @@ def get_or_create_default_setting(setting, default_value):
         setting=setting,
         journal=None,
         defaults={
-            'value': default_value,
-        }
+            "value": default_value,
+        },
     )
 
     return setting
 
 
 def get_setting(
-        setting_group_name,
-        setting_name,
-        journal,
-        create=False,
-        default=True,
+    setting_group_name,
+    setting_name,
+    journal,
+    create=False,
+    default=True,
 ):
     """
     Returns a matching SettingValue for the current language.
@@ -111,7 +111,11 @@ def get_setting(
     except ObjectDoesNotExist as e:
         e.args += (setting_name, setting_group_name)
         raise e
-    lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
+    lang = (
+        translation.get_language()
+        if setting.is_translatable
+        else settings.LANGUAGE_CODE
+    )
 
     with translation.override(lang):
         try:
@@ -160,26 +164,27 @@ def save_setting(setting_group_name, setting_name, journal, value):
         name=setting_name,
         group__name=setting_group_name,
     )
-    lang = translation.get_language() if setting.is_translatable else settings.LANGUAGE_CODE
+    lang = (
+        translation.get_language()
+        if setting.is_translatable
+        else settings.LANGUAGE_CODE
+    )
 
     with translation.override(lang):
-        setting_value, created = core_models.SettingValue.objects \
-            .get_or_create(
-                setting__group=setting.group,
-                setting=setting,
-                journal=journal
+        setting_value, created = core_models.SettingValue.objects.get_or_create(
+            setting__group=setting.group, setting=setting, journal=journal
         )
 
         if created:
             # Ensure that a value exists for settings.LANGUAGE_CODE
-            setattr(setting, 'value_{0}'.format(settings.LANGUAGE_CODE), '')
+            setattr(setting, "value_{0}".format(settings.LANGUAGE_CODE), "")
             setting_value.save()
 
-        if setting.types == 'json' and isinstance(value, (list, dict)):
+        if setting.types == "json" and isinstance(value, (list, dict)):
             value = json.dumps(value)
 
-        if setting.types == 'boolean':
-            value = 'on' if value else ''
+        if setting.types == "boolean":
+            value = "on" if value else ""
 
         setting_value.value = value
         setting_value.save()
@@ -188,7 +193,7 @@ def save_setting(setting_group_name, setting_name, journal, value):
 
 
 def save_plugin_setting(plugin, setting_name, value, journal):
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    plugin_group_name = "plugin:{plugin_name}".format(plugin_name=plugin.name)
     setting = save_setting(
         setting_group_name=plugin_group_name,
         setting_name=setting_name,
@@ -199,14 +204,9 @@ def save_plugin_setting(plugin, setting_name, value, journal):
 
 
 def get_plugin_setting(
-        plugin,
-        setting_name,
-        journal,
-        create=False,
-        pretty='',
-        types='Text,'
+    plugin, setting_name, journal, create=False, pretty="", types="Text,"
 ):
-    plugin_group_name = 'plugin:{plugin_name}'.format(plugin_name=plugin.name)
+    plugin_group_name = "plugin:{plugin_name}".format(plugin_name=plugin.name)
     try:
         return get_setting(
             setting_group_name=plugin_group_name,
@@ -222,7 +222,7 @@ def get_plugin_setting(
                 setting_name=setting_name,
                 type=types,
                 pretty_name=pretty,
-                description='',
+                description="",
                 is_translatable=False,
             )
 
@@ -235,14 +235,16 @@ def get_plugin_setting(
 
 
 def get_email_subject_setting(
-        setting_group="email_subject",
-        setting_name=None,
-        journal=None,
-        default=True,
+    setting_group="email_subject",
+    setting_name=None,
+    journal=None,
+    default=True,
 ):
     try:
         setting = core_models.Setting.objects.get(name=setting_name)
-        return get_setting(setting_group, setting.name, journal, create=False, default=True).value
+        return get_setting(
+            setting_group, setting.name, journal, create=False, default=True
+        ).value
     except (core_models.Setting.DoesNotExist, AttributeError):
         return setting_name
 
@@ -264,29 +266,37 @@ def toggle_boolean_setting(setting_name, setting_group_name, journal):
 
 
 def fetch_defaults_value(setting):
-    with codecs.open(os.path.join(settings.BASE_DIR, 'utils/install/journal_defaults.json'), 'r+', encoding='utf-8') as json_data:
+    with codecs.open(
+        os.path.join(settings.BASE_DIR, "utils/install/journal_defaults.json"),
+        "r+",
+        encoding="utf-8",
+    ) as json_data:
         default_data = json.load(json_data)
         for item in default_data:
-            if item['setting']['name'] == setting.get('name'):
-                return item['value']['default']
+            if item["setting"]["name"] == setting.get("name"):
+                return item["value"]["default"]
 
 
 def update_settings(settings_to_change, journal):
-    print('Updating {journal} settings... '.format(journal=journal.code))
+    print("Updating {journal} settings... ".format(journal=journal.code))
     for setting in settings_to_change:
-
         try:
-            setting_object = get_setting(setting.get('group'), setting.get('name'), journal)
+            setting_object = get_setting(
+                setting.get("group"), setting.get("name"), journal
+            )
 
-            if setting.get('action', None) == 'update':
-                print('Updating {setting}, action: {action}'.format(setting=setting.get('name'),
-                                                                    action=setting.get('action')))
-                check = input('If you want to update this setting, respond with y: ')
-                if check == 'y':
+            if setting.get("action", None) == "update":
+                print(
+                    "Updating {setting}, action: {action}".format(
+                        setting=setting.get("name"), action=setting.get("action")
+                    )
+                )
+                check = input("If you want to update this setting, respond with y: ")
+                if check == "y":
                     defaults_value = fetch_defaults_value(setting)
                     setting_object.value = defaults_value
                     setting_object.save()
-            elif setting.get('action', None) == 'drop':
+            elif setting.get("action", None) == "drop":
                 setting_object.delete()
         except BaseException as e:
             print(e)

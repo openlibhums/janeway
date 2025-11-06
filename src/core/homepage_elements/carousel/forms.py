@@ -16,24 +16,24 @@ class CarouselForm(forms.ModelForm):
 
     carousel_article_limit = forms.IntegerField(
         required=True,
-        label='Maximum number of articles to show',
+        label="Maximum number of articles to show",
     )
     carousel_news_limit = forms.IntegerField(
         required=True,
-        label='Maximum number of news items to show',
+        label="Maximum number of news items to show",
     )
     carousel_latest_articles = forms.BooleanField(
         required=False,
-        label='Display the latest published articles',
+        label="Display the latest published articles",
     )
     carousel_articles = forms.ModelMultipleChoiceField(
         queryset=submission_models.Article.objects.none(),
         required=False,
-        widget=FilteredSelectMultiple("Article", False, attrs={'rows': '2'})
+        widget=FilteredSelectMultiple("Article", False, attrs={"rows": "2"}),
     )
     carousel_latest_news = forms.BooleanField(
         required=False,
-        label='Display the latest news items',
+        label="Display the latest news items",
     )
     carousel_news = forms.ModelMultipleChoiceField(
         queryset=comms_models.NewsItem.objects.none(),
@@ -41,57 +41,55 @@ class CarouselForm(forms.ModelForm):
         widget=FilteredSelectMultiple(
             "News Article",
             False,
-            attrs={'rows': '2'},
-        )
+            attrs={"rows": "2"},
+        ),
     )
     carousel_current_issue = forms.BooleanField(
         required=False,
-        label='Display the current issue',
+        label="Display the current issue",
     )
     carousel_issues = forms.ModelMultipleChoiceField(
         queryset=journal_models.Issue.objects.none(),
         required=False,
-        widget=FilteredSelectMultiple("Issue", False, attrs={'rows': '2'})
+        widget=FilteredSelectMultiple("Issue", False, attrs={"rows": "2"}),
     )
 
     class Meta:
         model = models.Carousel
-        fields = ('latest_articles', 'latest_news', 'exclude', 'current_issue')
-
+        fields = ("latest_articles", "latest_news", "exclude", "current_issue")
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request', None)
+        request = kwargs.pop("request", None)
 
         article_list, news_list, issues_list = self.load(request)
 
         super(CarouselForm, self).__init__(*args, **kwargs)
 
         if request.site_type and request.site_type.carousel is not None:
-            self.initial['carousel_articles'] = article_list
-            self.initial['carousel_article_limit'] = request.site_type.carousel.article_limit
-            self.initial['carousel_news_limit'] = request.site_type.carousel.news_limit
-            self.initial['carousel_news'] = news_list
-            self.initial['carousel_issues'] = issues_list
+            self.initial["carousel_articles"] = article_list
+            self.initial["carousel_article_limit"] = (
+                request.site_type.carousel.article_limit
+            )
+            self.initial["carousel_news_limit"] = request.site_type.carousel.news_limit
+            self.initial["carousel_news"] = news_list
+            self.initial["carousel_issues"] = issues_list
 
         published_articles = submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_PUBLISHED,
-            date_published__lte=timezone.now()
+            stage=submission_models.STAGE_PUBLISHED, date_published__lte=timezone.now()
         )
 
         if request.journal:
-            published_articles = published_articles.filter(
-                journal=request.journal
-            )
+            published_articles = published_articles.filter(journal=request.journal)
 
-        self.fields['carousel_articles'].queryset = published_articles
+        self.fields["carousel_articles"].queryset = published_articles
 
         news_items = comms_models.NewsItem.objects.filter(
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
 
-        self.fields['carousel_news'].queryset = news_items
-        self.fields['carousel_issues'].queryset = request.site_type.issues
+        self.fields["carousel_news"].queryset = news_items
+        self.fields["carousel_issues"].queryset = request.site_type.issues
 
     def load(self, request):
         # if no carousel set, create one
@@ -153,6 +151,5 @@ class CarouselForm(forms.ModelForm):
         messages.add_message(
             request,
             messages.SUCCESS,
-            'Journal carousel settings saved',
+            "Journal carousel settings saved",
         )
-

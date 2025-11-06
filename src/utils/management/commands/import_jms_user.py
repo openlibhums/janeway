@@ -18,11 +18,11 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('journal_code', default=None)
-        parser.add_argument('base_url', default=None)
-        parser.add_argument('user_id', default=None)
-        parser.add_argument('auth_file', default=None)
-        parser.add_argument('--nuke', action='store_true', dest='nuke')
+        parser.add_argument("journal_code", default=None)
+        parser.add_argument("base_url", default=None)
+        parser.add_argument("user_id", default=None)
+        parser.add_argument("auth_file", default=None)
+        parser.add_argument("--nuke", action="store_true", dest="nuke")
 
     def handle(self, *args, **options):
         """Fetches a backend article from UP.
@@ -31,17 +31,20 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
-        if options.get('nuke'):
-            management.call_command('nuke_import_cache')
+        if options.get("nuke"):
+            management.call_command("nuke_import_cache")
 
-        url = '{base_url}/jms/manager/userProfile/{user_id}'.format(base_url=options.get('base_url'),
-                                                                    user_id=options.get('user_id'))
+        url = "{base_url}/jms/manager/userProfile/{user_id}".format(
+            base_url=options.get("base_url"), user_id=options.get("user_id")
+        )
         try:
-            journal = models.Journal.objects.get(code=options.get('journal_code'))
-            import_jms_user(url,
-                            journal,
-                            auth_file=options.get('auth_file'),
-                            base_url=options.get('base_url'),
-                            user_id=options.get('user_id'))
+            journal = models.Journal.objects.get(code=options.get("journal_code"))
+            import_jms_user(
+                url,
+                journal,
+                auth_file=options.get("auth_file"),
+                base_url=options.get("base_url"),
+                user_id=options.get("user_id"),
+            )
         except models.Journal.DoesNotExist:
-            print('Journal not found.')
+            print("Journal not found.")

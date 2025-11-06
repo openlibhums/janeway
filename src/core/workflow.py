@@ -18,29 +18,26 @@ logger = get_logger(__name__)
 
 
 ELEMENT_STAGES = {
-    'review': submission_models.REVIEW_STAGES,
-    'copyediting': submission_models.COPYEDITING_STAGES,
-    'production': [submission_models.STAGE_TYPESETTING],
-    'proofing': [submission_models.STAGE_PROOFING],
-    'prepublication': [submission_models.STAGE_READY_FOR_PUBLICATION],
-    'typesetting': [submission_models.STAGE_TYPESETTING_PLUGIN],
+    "review": submission_models.REVIEW_STAGES,
+    "copyediting": submission_models.COPYEDITING_STAGES,
+    "production": [submission_models.STAGE_TYPESETTING],
+    "proofing": [submission_models.STAGE_PROOFING],
+    "prepublication": [submission_models.STAGE_READY_FOR_PUBLICATION],
+    "typesetting": [submission_models.STAGE_TYPESETTING_PLUGIN],
 }
 
 STAGES_ELEMENTS = {
-    submission_models.STAGE_ASSIGNED: 'review',
-    submission_models.STAGE_UNDER_REVIEW: 'review',
-    submission_models.STAGE_UNDER_REVISION: 'review',
-    submission_models.STAGE_ACCEPTED: 'review',
-
-    submission_models.STAGE_EDITOR_COPYEDITING: 'copyediting',
-    submission_models.STAGE_AUTHOR_COPYEDITING: 'copyediting',
-    submission_models.STAGE_FINAL_COPYEDITING: 'copyediting',
-
-    submission_models.STAGE_TYPESETTING: 'production',
-    submission_models.STAGE_PROOFING: 'proofing',
-    submission_models.STAGE_READY_FOR_PUBLICATION: 'prepublication',
-
-    submission_models.STAGE_TYPESETTING_PLUGIN: 'typesetting'
+    submission_models.STAGE_ASSIGNED: "review",
+    submission_models.STAGE_UNDER_REVIEW: "review",
+    submission_models.STAGE_UNDER_REVISION: "review",
+    submission_models.STAGE_ACCEPTED: "review",
+    submission_models.STAGE_EDITOR_COPYEDITING: "copyediting",
+    submission_models.STAGE_AUTHOR_COPYEDITING: "copyediting",
+    submission_models.STAGE_FINAL_COPYEDITING: "copyediting",
+    submission_models.STAGE_TYPESETTING: "production",
+    submission_models.STAGE_PROOFING: "proofing",
+    submission_models.STAGE_READY_FOR_PUBLICATION: "prepublication",
+    submission_models.STAGE_TYPESETTING_PLUGIN: "typesetting",
 }
 
 
@@ -51,10 +48,10 @@ def workflow_element_complete(**kwargs):
     :return: HttpRedirect
     """
 
-    handshake_url = kwargs.get('handshake_url')
-    request = kwargs.get('request')
-    article = kwargs.get('article')
-    switch_stage = kwargs.get('switch_stage')
+    handshake_url = kwargs.get("handshake_url")
+    request = kwargs.get("request")
+    article = kwargs.get("article")
+    switch_stage = kwargs.get("switch_stage")
 
     if not handshake_url or not request or not article:
         raise Http404
@@ -75,10 +72,10 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
     workflow = models.Workflow.objects.get(journal=request.journal)
     workflow_elements = workflow.elements.all()
 
-    if handshake_url == 'submit_review':
+    if handshake_url == "submit_review":
         set_stage(article)
         clear_cache()
-        return redirect(reverse('core_dashboard'))
+        return redirect(reverse("core_dashboard"))
 
     current_element = workflow.elements.get(handshake_url=handshake_url)
 
@@ -88,55 +85,68 @@ def workflow_next(handshake_url, request, article, switch_stage=False):
             next_element = workflow_elements[index]
         except IndexError:
             # An index error will occur here when the workflow is complete
-            return redirect(reverse('manage_archive_article', kwargs={'article_id': article.pk}))
+            return redirect(
+                reverse("manage_archive_article", kwargs={"article_id": article.pk})
+            )
 
         if switch_stage:
-            log_stage_change(article, next_element)
+            log_stage_change(
+                article,
+                next_element,
+                user=request.user,
+            )
             clear_cache()
             article.stage = next_element.stage
             article.save()
 
         if (
-                request.user.is_staff or
-                request.user.is_editor(request=request) or
-                request.user in article.editor_list()
+            request.user.is_staff
+            or request.user.is_editor(request=request)
+            or request.user in article.editor_list()
         ):
             try:
-                response = redirect(reverse(
-                    next_element.jump_url,
-                    kwargs={'article_id': article.pk},
-                ))
+                response = redirect(
+                    reverse(
+                        next_element.jump_url,
+                        kwargs={"article_id": article.pk},
+                    )
+                )
             except NoReverseMatch:
                 try:
                     response = redirect(reverse(next_element.handshake_url))
                 except NoReverseMatch:
-                    response = redirect(reverse('core_dashboard'))
+                    response = redirect(reverse("core_dashboard"))
 
     except Exception as e:
         logger.exception(e)
 
     # Fallback here.
     if not response:
-        response = redirect(reverse('core_dashboard'))
+        response = redirect(reverse("core_dashboard"))
 
     messages.add_message(
         request,
         messages.SUCCESS,
-        '%s stage completed for article: %d'
-        '' % (capfirst(current_element.element_name), article.pk),
+        "%s stage completed for article: %d"
+        "" % (capfirst(current_element.element_name), article.pk),
     )
 
     return response
 
 
-def log_stage_change(article, next_element):
+def log_stage_change(article, next_element, user=None):
     """
     Crates a WorkflowLog entry for this change.
     :param article: Article object
     :param next_element: WorkflowElement object
+    :param user: An Account object, optional
     :return: None
     """
-    models.WorkflowLog.objects.create(article=article, element=next_element)
+    models.WorkflowLog.objects.create(
+        article=article,
+        element=next_element,
+        user=user,
+    )
 
 
 def set_stage(article):
@@ -165,12 +175,12 @@ def create_default_workflow(journal):
     for index, element in enumerate(models.BASE_ELEMENTS[0:4]):
         e, c = models.WorkflowElement.objects.get_or_create(
             journal=journal,
-            element_name=element.get('name'),
-            handshake_url=element['handshake_url'],
-            stage=element['stage'],
-            jump_url=element['jump_url'],
-            article_url=element['article_url'],
-            defaults={'order': index}
+            element_name=element.get("name"),
+            handshake_url=element["handshake_url"],
+            stage=element["stage"],
+            jump_url=element["jump_url"],
+            article_url=element["article_url"],
+            defaults={"order": index},
         )
 
         workflow.elements.add(e)
@@ -191,15 +201,17 @@ def articles_in_workflow_plugins(request):
     for element in workflow.elements.all():
         if element.element_name in settings.WORKFLOW_PLUGINS:
             try:
-                settings_module = import_module(settings.WORKFLOW_PLUGINS[element.element_name])
+                settings_module = import_module(
+                    settings.WORKFLOW_PLUGINS[element.element_name]
+                )
 
                 element_dict = {
-                    'articles': submission_models.Article.objects.filter(
+                    "articles": submission_models.Article.objects.filter(
                         stage=element.stage,
                         journal=request.journal,
                     ),
-                    'name': element.element_name,
-                    'template': settings_module.KANBAN_CARD,
+                    "name": element.element_name,
+                    "template": settings_module.KANBAN_CARD,
                 }
 
                 workflow_list[element.element_name] = element_dict
@@ -210,7 +222,7 @@ def articles_in_workflow_plugins(request):
 
 
 def core_workflow_element_names():
-    return [element.get('name') for element in models.BASE_ELEMENTS]
+    return [element.get("name") for element in models.BASE_ELEMENTS]
 
 
 def element_names(elements):
@@ -237,15 +249,14 @@ def remove_element(request, journal_workflow, element):
         messages.add_message(
             request,
             messages.WARNING,
-            'Element cannot be removed as there are {0}'
-            ' articles in this stage.'.format(articles.count())
+            "Element cannot be removed as there are {0} articles in this stage.".format(
+                articles.count()
+            ),
         )
     else:
         journal_workflow.elements.remove(element)
         messages.add_message(
-            request,
-            messages.SUCCESS,
-            'Element removed from workflow.'
+            request, messages.SUCCESS, "Element removed from workflow."
         )
 
 
@@ -261,12 +272,10 @@ def workflow_plugin_settings(element):
         )
 
         return {
-            'display_name': getattr(settings_module, 'DISPLAY_NAME', ''),
-            'description': getattr(settings_module, 'DESCRIPTION', ''),
-            'kanban_card': getattr(settings_module, 'KANBAN_CARD', ''),
-            'dashboard_template': getattr(
-                settings_module, 'DASHBOARD_TEMPLATE', ''
-            )
+            "display_name": getattr(settings_module, "DISPLAY_NAME", ""),
+            "description": getattr(settings_module, "DESCRIPTION", ""),
+            "kanban_card": getattr(settings_module, "KANBAN_CARD", ""),
+            "dashboard_template": getattr(settings_module, "DASHBOARD_TEMPLATE", ""),
         }
 
     except (ImportError, KeyError) as e:
@@ -280,9 +289,9 @@ def workflow_auto_assign_editors(**kwargs):
     Handler for auto assignment of editors
     :param kwargs: A dict containing three keys handshake_url, request, article and optionally switch_stage
     """
-    article = kwargs.get('article')
-    request = kwargs.get('request')
-    skip = kwargs.get('skip', False)
+    article = kwargs.get("article")
+    request = kwargs.get("request")
+    skip = kwargs.get("skip", False)
 
     if article and article.section and article.section.auto_assign_editors:
         section = article.section
@@ -316,7 +325,5 @@ def workflow_journal_choices(journal):
 
     for element in workflow.elements.all():
         for element_stage in ELEMENT_STAGES[element.element_name]:
-            choices.append(
-                [element.stage, element_stage]
-            )
+            choices.append([element.stage, element_stage])
     return choices

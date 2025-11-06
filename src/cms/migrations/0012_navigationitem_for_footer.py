@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cms', '0011_auto_20230317_1534'),
+        ("cms", "0011_auto_20230317_1534"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='navigationitem',
-            name='for_footer',
+            model_name="navigationitem",
+            name="for_footer",
             field=models.BooleanField(
                 default=False,
-                help_text='Whether this item should appear in the footer. '
-                          'Not implemented for all themes.',
+                help_text="Whether this item should appear in the footer. "
+                "Not implemented for all themes.",
             ),
         ),
     ]

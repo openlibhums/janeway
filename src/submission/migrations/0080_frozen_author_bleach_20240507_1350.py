@@ -6,61 +6,101 @@ import utils.forms
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0079_merge_20240602_1739'),
-        ('submission', '0079_frozen_author_null_to_string'),
+        ("submission", "0079_merge_20240602_1739"),
+        ("submission", "0079_frozen_author_null_to_string"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='department',
-            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="department",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='first_name',
-            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="first_name",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='frozen_biography',
-            field=core.model_utils.JanewayBleachField(blank=True, help_text="The author's biography at the time they published the linked article. For this article only, it overrides any main biography attached to the author's account. If Frozen Biography is left blank, any main biography for the account will be populated instead.", verbose_name='Frozen Biography'),
+            model_name="frozenauthor",
+            name="frozen_biography",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                help_text="The author's biography at the time they published the linked article. For this article only, it overrides any main biography attached to the author's account. If Frozen Biography is left blank, any main biography for the account will be populated instead.",
+                verbose_name="Frozen Biography",
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='frozen_email',
-            field=models.EmailField(blank=True, max_length=254, verbose_name='Author Email'),
+            model_name="frozenauthor",
+            name="frozen_email",
+            field=models.EmailField(
+                blank=True, max_length=254, verbose_name="Author Email"
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='frozen_orcid',
-            field=models.CharField(blank=True, help_text='ORCiD to be displayed when no account is associated with this author. It should be introduced in code format (e.g: 0000-0000-0000-000X)', max_length=40, verbose_name='ORCiD'),
+            model_name="frozenauthor",
+            name="frozen_orcid",
+            field=models.CharField(
+                blank=True,
+                help_text="ORCiD to be displayed when no account is associated with this author. It should be introduced in code format (e.g: 0000-0000-0000-000X)",
+                max_length=40,
+                verbose_name="ORCiD",
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='institution',
-            field=models.CharField(blank=True, max_length=1000, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="institution",
+            field=models.CharField(
+                blank=True,
+                max_length=1000,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='last_name',
-            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="last_name",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='middle_name',
-            field=models.CharField(blank=True, max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="middle_name",
+            field=models.CharField(
+                blank=True,
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='name_prefix',
-            field=models.CharField(blank=True, help_text='Optional name prefix (e.g: Prof or Dr)', max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="name_prefix",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional name prefix (e.g: Prof or Dr)",
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
         migrations.AlterField(
-            model_name='frozenauthor',
-            name='name_suffix',
-            field=models.CharField(blank=True, help_text='Optional name suffix (e.g.: Jr or III)', max_length=300, validators=[utils.forms.plain_text_validator]),
+            model_name="frozenauthor",
+            name="name_suffix",
+            field=models.CharField(
+                blank=True,
+                help_text="Optional name suffix (e.g.: Jr or III)",
+                max_length=300,
+                validators=[utils.forms.plain_text_validator],
+            ),
         ),
     ]

@@ -6,7 +6,7 @@ from django.db import migrations
 
 
 def update_version_queues(apps, schema_editor):
-    VersionQueue = apps.get_model('repository', 'VersionQueue')
+    VersionQueue = apps.get_model("repository", "VersionQueue")
 
     for queue in VersionQueue.objects.all():
         queue.title = queue.preprint.title
@@ -15,9 +15,8 @@ def update_version_queues(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0019_auto_20201030_1423'),
+        ("repository", "0019_auto_20201030_1423"),
     ]
 
     operations = [

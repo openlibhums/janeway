@@ -76,7 +76,7 @@ def stages_in_between(from_stage, to_stage, article):
     stages = [log.element.stage for log in article.workflow_stages().reverse()]
     stage_index = stages.index(to_stage)
 
-    return stages[:stage_index+1]
+    return stages[: stage_index + 1]
 
 
 def move_to_stage(from_stage, to_stage, article):
