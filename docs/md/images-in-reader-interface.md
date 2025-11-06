@@ -47,7 +47,7 @@ These are the fields or setting values that are accessed for large images in var
 
 ### How do the fallbacks work for large images?
 
-Fallbacks or defaults can be set at the journal, issue, repository, press, and file-system levels, though not all fallbacks come into play at all site levels, and in some cases there is no image displayed.
+Fallbacks or defaults can be set at the journal, issue, repository, press, and file-system levels, though not all fallbacks come into play at all site levels.
 
 Here is how they play out for each page:
 
@@ -113,9 +113,9 @@ Featured and popular article homepage elements have the same behavior as article
 
 ### Is the large image cropped?
 
-The large image is cropped to a maximum of 1500px wide by 648px tall, in preparation for display at up to 1100px wide (Clean), 1200px wide (OLH), or 1477px wide (Material). The middle of the image is kept. 
+The large image is cropped to a maximum of 1500px wide by 648px tall, in preparation for display at up to 1100px wide (Clean), 1200px wide (OLH), or 1477px wide (Material). The top of the image is kept if it is taller than 648px.
 
-The user is warned if they upload an image that is smaller than these dimensions. In the past, the image was cropped to 750px x 324px, so many databases will have smaller images. However, these images have always been forced into a display of up to 1100px to 1477px, so legacy images will not be any less clear than they have been from the beginning. Users can replace their legacy images with higher-resolution versions to get make the display sharper.
+The user is warned if they upload an image that is smaller than these dimensions. In the past, the image was cropped to 750px x 324px, so many databases will have smaller images. However, these images have always been forced into a display of up to 1100px to 1477px, so legacy images will not be any less clear than they have been from the beginning. Users can replace their legacy images with higher-resolution versions to get sharper display.
 
 Whatever the original image’s dimensions, aspect ratios are preserved so that images do not appear skewed or stretched. The image height is adjusted depending on the viewport size, and the width is left alone, with the image centered and the vertical overflow hidden. As a result, smaller screens will generally get a narrower slice of the image (as long as the block is full-width).
 
