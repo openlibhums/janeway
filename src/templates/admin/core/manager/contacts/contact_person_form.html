@@ -26,7 +26,7 @@
 {% endblock breadcrumbs %}
 
 {% block nitty %}
-  {% include "admin/core/manager/contacts/related_info.html" %}
+  {% include "admin/core/manager/contacts/related_info.html" with contact_people=contact_people %}
 {% endblock nitty %}
 
 {% block gritty_h2 %}
