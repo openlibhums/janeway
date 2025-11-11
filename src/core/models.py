@@ -1101,12 +1101,6 @@ class Setting(models.Model):
 
     is_translatable = models.BooleanField(default=False)
 
-    depends_on_press_field = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text="If set, this setting is only available when the specified press setting is enabled.",
-    )
-
     editable_by = models.ManyToManyField(
         Role,
         blank=True,
