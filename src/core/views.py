@@ -1091,24 +1091,6 @@ def settings_index(request):
             editable_by__in=request.user.roles_for_journal(request.journal)
         )
 
-    if request.journal:
-        press = request.journal.press
-        # Filter out press-dependent settings where the press setting is False
-        press_dependent_settings = settings.filter(
-            depends_on_press_field__isnull=False
-        ).exclude(depends_on_press_field="")
-
-        # Get the press setting values for these settings
-        excluded_settings = []
-        for setting in press_dependent_settings:
-            press_setting_value = getattr(press, setting.depends_on_press_field, False)
-            if not press_setting_value:
-                excluded_settings.append(setting.id)
-
-        # Exclude settings where press setting is False
-        if excluded_settings:
-            settings = settings.exclude(id__in=excluded_settings)
-
     template = "core/manager/settings/index.html"
     context = {
         "settings": settings,

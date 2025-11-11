@@ -48,7 +48,6 @@ def update_settings(
                 "pretty_name": item["setting"].get("pretty_name"),
                 "description": item["setting"].get("description"),
                 "is_translatable": item["setting"].get("is_translatable"),
-                "depends_on_press_field": item["setting"].get("depends_on_press_field"),
             }
 
             setting, created = core_models.Setting.objects.get_or_create(
