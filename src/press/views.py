@@ -125,10 +125,10 @@ def journals(request):
     template = "press/press_journals.html"
 
     context = {
-        "active_journals": request.press.public_active_journals,
-        "archived_journals": request.press.public_archived_journals,
-        "coming_soon_journals": request.press.public_coming_soon_journals,
-        "journals": request.press.public_journals,  # Backwards compatibility
+        "active_journals": journal_models.Journal.objects.public_active_journals,
+        "archived_journals": journal_models.Journal.objects.public_archived_journals,
+        "coming_soon_journals": journal_models.Journal.objects.public_coming_soon_journals,
+        "journals": journal_models.Journal.objects.public_journals,  # Backwards compatibility
     }
 
     return render(request, template, context)
