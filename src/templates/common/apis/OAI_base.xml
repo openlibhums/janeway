@@ -3,6 +3,14 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
  <responseDate>{% now "Y-m-d\TH:i:s\Z" %}</responseDate>
-  <request verb="{{ verb }}" metadataPrefix="{{ metadataPrefix }}">{% if request.repository %}{% repository_url 'OAI_list_records' %}{% else %}{% journal_url 'OAI_list_records' %}{% endif %}</request>
+    <request verb="{{ verb }}" metadataPrefix="{{ metadataPrefix }}">{% spaceless %}
+      {% if request.repository %}
+        {% repository_url 'OAI_list_records' %}
+      {% elif request.journal %}
+        {% journal_url 'OAI_list_records' %}
+      {% else %}
+        {% stateless_site_url request.press url_name='OAI_list_records' %}
+      {% endif %}
+    {% endspaceless %}</request>
     {% block body %}{% endblock body %}
 </OAI-PMH>

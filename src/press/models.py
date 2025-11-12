@@ -7,12 +7,13 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import os
 import uuid
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
-from modeltranslation.utils import build_localized_fieldname
+from django.utils import timezone
 from django.apps import apps
 
 from core import models as core_models
@@ -184,6 +185,13 @@ class Press(AbstractSiteModel):
     disable_journals = models.BooleanField(
         default=False, help_text="If enabled, the journals page will no longer render."
     )
+    order_journals_az = models.BooleanField(
+        default=False,
+        verbose_name="Order journals A-Z",
+        help_text="Whether to order journals A-Z by journal name "
+        "and ignore manually set sequence. Does not work "
+        "for translated journal names.",
+    )
 
     def __str__(self):
         return "%s" % self.name
@@ -199,36 +207,10 @@ class Press(AbstractSiteModel):
         except BaseException:
             return None
 
-    @staticmethod
-    def journals(**filters):
-        from journal import models as journal_models
-
-        if filters:
-            return journal_models.Journal.objects.filter(**filters)
-        return journal_models.Journal.objects.all()
-
-    @property
-    def journals_az(self):
-        """
-        Get the a queryset of journals, ordered A-Z by journal name.
-        Note that this does not support multilingual journal names:
-        more work is needed on django-modeltranslation to
-        support Django subqueries.
-        """
+    def journals(self, **filters):
         Journal = apps.get_model("journal", "Journal")
-        localized_column = build_localized_fieldname("value", settings.LANGUAGE_CODE)
-        name = core_models.SettingValue.objects.filter(
-            journal=models.OuterRef("pk"),
-            setting__name="journal_name",
-        )
-        journals = Journal.objects.all().annotate(
-            journal_name=models.Subquery(
-                name.values_list(localized_column, flat=True)[:1],
-                output_field=models.CharField(),
-            )
-        )
-        ordered = journals.order_by("journal_name")
-        return ordered
+        journals = Journal.objects.filter(**filters)
+        return Journal.objects._apply_ordering(journals)
 
     @property
     def active_news_items(self):
@@ -251,7 +233,7 @@ class Press(AbstractSiteModel):
     def issues(self, **filters):
         if not filters:
             filters = {}
-        filters["journal__press"] = self
+        filters["journal__hide_from_press"] = False
         from journal import models as journal_models
 
         if filters:
@@ -382,11 +364,16 @@ class Press(AbstractSiteModel):
 
     @property
     def publishes_conferences(self):
-        return self.journals(is_conference=True).count() > 0
+        conferences = self.journals(
+            hide_from_press=False,
+            is_conference=True,
+        )
+        return conferences.count() > 0
 
     @property
     def publishes_journals(self):
-        return self.journals(is_conference=False).count() > 0
+        Journal = apps.get_model("journal", "Journal")
+        return Journal.objects.public_journals.count() > 0
 
     @cache(600)
     def live_repositories(self):
@@ -442,12 +429,16 @@ class Press(AbstractSiteModel):
         return "press"
 
     @property
-    def public_journals(self):
-        Journal = apps.get_model("journal.Journal")
-        return Journal.objects.filter(
-            hide_from_press=False,
-            is_conference=False,
-        ).order_by("sequence")
+    def journals_az(self):
+        """
+        Deprecated. Use `journals` with Press.order_journals_az turned on.
+        """
+        warnings.warn(
+            "`Press.journals_az` is deprecated. "
+            "Use `Press.journals` with Press.order_journals_az turned on."
+        )
+        Journal = apps.get_model("journal", "Journal")
+        return Journal.objects._apply_ordering_az(Journal.objects.filter())
 
     @property
     def published_articles(self):
@@ -455,6 +446,7 @@ class Press(AbstractSiteModel):
         return Article.objects.filter(
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
+            journal__hide_from_press=False,
         )
 
     def next_group_order(self):

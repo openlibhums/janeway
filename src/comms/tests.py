@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -13,18 +13,19 @@ class NewsViewsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one, cls.hidden_journal = helpers.create_journals()
+        cls.hidden_journal.hide_from_press = True
+        cls.hidden_journal.save()
         cls.content_type = ContentType.objects.get_for_model(cls.journal_one)
 
         cls.editor = helpers.create_editor(cls.journal_one)
         cls.author = helpers.create_author(cls.journal_one)
-
-        cls.news_item = models.NewsItem.objects.create(
+        cls.news_item = helpers.create_news_item(
             content_type=cls.content_type,
             object_id=cls.journal_one.pk,
             posted_by=cls.editor,
             title="Test News",
-            body="Some content",  # Corrected from 'content' to 'body'
+            body="Some content",
         )
 
         cls.news_url = reverse("core_manager_news")
@@ -33,6 +34,13 @@ class NewsViewsTest(TestCase):
             kwargs={"news_pk": cls.news_item.pk},
         )
         cls.create_url = reverse("core_manager_create_news")
+        cls.hidden_news_item = helpers.create_news_item(
+            content_type=cls.content_type,
+            object_id=cls.hidden_journal.pk,
+            posted_by=cls.editor,
+            title="Hidden news item",
+            body="Secrets known only to those who can find the journal website",
+        )
 
     def setUp(self):
         self.client.force_login(self.editor)
@@ -116,3 +124,12 @@ class NewsViewsTest(TestCase):
             core_models.File.objects.filter(pk=image_file.pk).exists(),
             msg="File was not deleted as expected.",
         )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_presswide_list_excludes_journals_hidden_from_press(self):
+        url = reverse("core_news_list_presswide", kwargs={"presswide": "all"})
+        response = self.client.get(
+            url,
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertNotIn(self.hidden_news_item, response.context["news_items"])

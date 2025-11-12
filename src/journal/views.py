@@ -2959,7 +2959,8 @@ class FacetedArticlesListView(core_views.GenericFacetedListView):
 class PublishedArticlesListView(FacetedArticlesListView):
     """
     A list of published articles that can be searched,
-    sorted, and filtered
+    sorted, and filtered.
+    Not for use at the press level.
     """
 
     template_name = "journal/article_list.html"

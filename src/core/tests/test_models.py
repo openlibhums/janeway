@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+from uuid import uuid4
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.db.transaction import TransactionManagementError
@@ -30,8 +32,47 @@ class TestAccount(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one, cls.hidden_journal = helpers.create_journals()
+        cls.hidden_journal.hide_from_press = True
+        cls.hidden_journal.save()
+        cls.test_journal = helpers.create_journal_with_test_status()
+        cls.author_user = helpers.create_user(
+            "{}{}".format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            roles=["author"],
+            journal=cls.journal_one,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.hidden_journal,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.test_journal,
+        )
         cls.article_one = helpers.create_article(cls.journal_one)
+        cls.published_article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Published article",
+        )
+        cls.author_user.snapshot_as_author(cls.published_article)
+        cls.hidden_article = helpers.create_article(
+            cls.hidden_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in hidden journal",
+        )
+        cls.author_user.snapshot_as_author(cls.hidden_article)
+        cls.test_article = helpers.create_article(
+            cls.test_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in test journal",
+        )
+        cls.author_user.snapshot_as_author(cls.test_article)
 
     def test_creation(self):
         data = {
@@ -270,6 +311,13 @@ class TestAccount(TestCase):
             author.credits.first().get_role_display(),
             "Conceptualization",
         )
+
+    @patch("utils.logic.get_current_request")
+    def test_published_articles(self, get_request):
+        get_request.return_value = helpers.Request(press=self.press)
+        expected = set([self.published_article])
+        published_articles = set(self.author_user.published_articles())
+        self.assertSetEqual(expected, published_articles)
 
 
 class TestSVGImageFormField(TestCase):

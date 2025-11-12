@@ -27,7 +27,7 @@ from utils.shared import clear_cache
 from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
-from submission import models as submission_models
+from journal import models as journal_models
 
 logger = get_logger(__name__)
 
@@ -49,6 +49,9 @@ def register_batch_of_crossref_dois(articles, **kwargs):
         journal = journals.pop()
 
     use_crossref, test_mode, missing_settings = check_crossref_settings(journal)
+
+    if journal.status == journal_models.Journal.PublishingStatus.TEST:
+        test_mode = True
 
     if use_crossref and not missing_settings:
         mode = "test" if test_mode else "live"

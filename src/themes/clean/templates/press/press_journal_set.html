@@ -1,0 +1,56 @@
+{% load static %}
+{% load settings i18n %}
+
+<div class="col-lg-8 col-md-10 journal-container">
+  {% for journal in journals %}
+    {% setting_var journal 'disable_journal_submission' as submission_disabled %}
+    <div class="row journal-div">
+        <div class="col-lg-3 col-md-4">
+            <img class="img-fluid"
+                 src="{% if journal.default_cover_image %}{{ journal.default_cover_image.url }}{% endif %}"
+                 alt="{% if journal.name != " " and journal.name != "" %}{{ journal.name }}{% else %}Unnamed Journal{% endif %}">
+        </div>
+        <div class="col-lg-9 col-md-8 journal-description-box">
+            <span class="d-none">{{ journal.name|lower }}</span>
+            {% if level == "deep" %}
+              <h3 class="journal-name">{{ journal.name }}</h3>
+            {% else %}
+              <h2 class="journal-name">{{ journal.name }}</h2>
+            {% endif %}
+            <span>{{ journal.description_for_press|safe }}</span>
+            <div class="journal-button-block">
+                {% if journal.is_remote %}
+                    {% if not submission_disabled %}
+                        <a href="{{ journal.remote_submit_url }}"
+                           class="btn btn-primary" target="_blank">
+                           <span>{% trans 'Submit' %}</span>
+                            {% include "elements/icons/link_external.html" %} </a>
+                        </a>
+                    {% endif %}
+                    <a href="{{ journal.remote_view_url }}"
+                       class="btn btn-primary" target="_blank">
+                       <span>{% trans 'View' %}</span>
+                       {% include "elements/icons/link_external.html" %} 
+                    </a>
+                {% else %}
+                    {% if not submission_disabled %}
+                        <a href="{% journal_base_url journal %}{% url 'submission_start' %}"
+                           class="btn btn-primary"><span>{% trans 'Submit' %}</span></a>
+                    {% endif %}
+                    <a href="{% journal_base_url journal %}"
+                       class="btn btn-primary"><span>{% trans 'View' %}</span></a>
+                    {% if journal.current_issue %}
+                        <a href="{% journal_base_url journal %}{% url 'current_issue' %}"
+                           class="btn btn-primary"><span>{% trans 'Current Issue' %}</span></a>
+                        {% elif journal.serial_issues.count > 0 %}
+                        <a href="{% journal_base_url journal %}{% url 'journal_issues' %}"
+                           class="btn btn-primary"><span>{{ journal.issue_type_plural_name }}</span></a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+  {% empty %}
+    <p>{% trans 'No journals to list' %}.</p>
+  {% endfor %}
+</div>
