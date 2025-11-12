@@ -1,0 +1,22 @@
+<form method="GET" id={{ facet_form.id }}>
+  <div class="input-group">
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <label
+      for="{{ facet_form.q.id_for_label }}"
+      class="input-group-label">
+      {{ facet_form.q.label }}</label>
+    <input
+      id="{{ facet_form.q.id_for_label }}"
+      name="{{ facet_form.q.name }}"
+      class="input-group-field"
+      value="{{ facet_form.q.value|default:'' }}"
+      placeholder="{{ placeholder|default:'e.g. birkbeck' }}"
+      type="search">
+    <div class="input-group-button">
+      <button type="submit" class="button">
+        <span class="fa fa-search"></span>
+        Search
+      </button>
+    </div>
+  </div>
+</form>
