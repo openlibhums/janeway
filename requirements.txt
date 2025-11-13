@@ -9,7 +9,7 @@ Django==4.2.26
 django-bleach==3.1.0
 django-bootstrap4==23.2
 -e git+https://github.com/openlibhums/django-foundation-form.git@674616f5388fe44c63088671ddea38ed9161a4fd#egg=foundationform
-django-countries[pyuca]==7.5.1
+django-countries[pyuca]==7.6.1
 -e git+https://github.com/openlibhums/django-materializecss-form.git@be094ec283299ee8fd0a1dfe33e73a609fb2f680#egg=django-materializecss-form
 django-debug-toolbar==5.1.0
 django-hCaptcha==0.2.0
