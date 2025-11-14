@@ -1180,3 +1180,7 @@ p + .btn-background {
       display: inline-block;
       white-space: normal;
   }
+
+  .nav-wrapper a:focus {
+    display: block;
+  }
