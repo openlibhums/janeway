@@ -95,8 +95,7 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
 
     # TODO swap the below subqueries with filtered annotations on Django 2.0+
     reviewers = (
-        candidate_queryset.filter(is_active=True)
-        .exclude(
+        candidate_queryset.exclude(
             pk__in=exclude_pks,
         )
         .prefetch_related(
