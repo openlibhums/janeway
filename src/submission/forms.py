@@ -325,8 +325,8 @@ class AuthorForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        return DeprecationWarning("Use frozen authors instead.")
-        super(FileDetails, self).__init__(*args, **kwargs)
+        warnings.warn("Use frozen authors instead")
+        super().__init__(*args, **kwargs)
 
 
 class SubmissionCommentsForm(forms.ModelForm):
