@@ -1,5 +1,16 @@
 <td><input type="radio" name="reviewer" value="{{ reviewer.id }}" {% if reviewer.id == form.cleaned_data.reviewer.pk %}checked=True{% endif %}></td>
-<td>{{ reviewer.full_name }}</td>
+<td>
+  {{ reviewer.full_name }}
+  {% if not reviewer.is_active and not journal_settings.general.enable_one_click_access %}
+  <div class="label alert">
+    <span class="fa fa-warning"></span>
+    <span data-tooltip aria-haspopup="true" class="has-tip"
+      title="User cannot log in. Enable one-click access to allow inactive users to review without logging in.">
+      Inactive
+    </span>
+  </div>
+  {% endif %}
+</td>
 <td>{{ reviewer.email }}</td>
 <td>{{ reviewer.active_reviews_count|default_if_none:0 }}</td>
 <td>{% for interest in reviewer.interest.all %}{{ interest.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
