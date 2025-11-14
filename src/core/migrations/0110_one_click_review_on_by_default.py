@@ -8,7 +8,7 @@ def update_default_setting(apps, schema_editor):
     SettingValue = apps.get_model("core", "SettingValue")
     setting_values = SettingValue.objects.filter(
         setting__name="enable_one_click_access",
-        journal__isnull=False,
+        journal__isnull=True,
     )
     setting_values.update(value="on")
 
