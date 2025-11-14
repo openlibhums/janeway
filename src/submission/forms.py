@@ -326,7 +326,7 @@ class AuthorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         warnings.warn("Use frozen authors instead")
-        super(FileDetails, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class SubmissionCommentsForm(forms.ModelForm):
