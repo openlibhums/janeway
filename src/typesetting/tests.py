@@ -243,6 +243,31 @@ class TestTypesetting(TestCase):
             200,
         )
 
+    def test_editor_can_use_typesetter_galley_download_link(self):
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_typesetter_download_file",
+            kwargs={
+                "assignment_id": self.typesetting_assignment.pk,
+                "file_id": self.galley.file.pk,
+            },
+        )
+        response = self.client.get(url)
+        self.assertTrue(response.status_code, 200)
+
+    def test_editor_can_see_images_on_typesetter_galley_preview(self):
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetter_preview_figure",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "galley_id": self.galley.pk,
+                "file_name": self.test_figure_name,
+            },
+        )
+        response = self.client.get(url)
+        self.assertTrue(response.status_code, 200)
+
     def build_proofing_comparison_dict(self, published, theme):
         setting_handler.save_setting(
             "general",
@@ -443,16 +468,16 @@ class TestTypesetting(TestCase):
             due=timezone.now(),
         )
 
-        self.test_file_name = "test_galley.xml"
-        self.test_file_path = os.path.join(
+        self.test_galley_name = "test_galley.xml"
+        self.test_galley_path = os.path.join(
             settings.BASE_DIR,
             "typesetting",
-            self.test_file_name,
+            self.test_galley_name,
         )
 
-        with open(self.test_file_path, "rb") as test_file:
+        with open(self.test_galley_path, "rb") as test_file:
             content_file = ContentFile(test_file.read())
-            content_file.name = self.test_file_name
+            content_file.name = self.test_galley_name
             self.galley_file = core_files.save_file_to_article(
                 content_file, self.article_in_typesetting, self.typesetter
             )
@@ -463,6 +488,26 @@ class TestTypesetting(TestCase):
             type="xml",
             defaults={"file": self.galley_file},
         )
+
+        self.test_figure_name = "test_figure.png"
+        self.test_figure_path = os.path.join(
+            settings.BASE_DIR,
+            "typesetting",
+            self.test_figure_name,
+        )
+
+        with open(self.test_figure_path, "rb") as test_file:
+            content_file = ContentFile(test_file.read())
+            content_file.name = self.test_figure_name
+            self.figure_file = core_files.save_file_to_article(
+                content_file, self.article_in_typesetting, self.typesetter
+            )
+            self.figure_file.is_galley = False
+            self.figure_file.label = "Galley Image"
+            self.figure_file.original_filename = self.test_figure_name
+            self.figure_file.save()
+
+            self.galley.images.add(self.figure_file)
 
         self.galley_proofing = models.GalleyProofing.objects.create(
             round=self.typesetting_round,

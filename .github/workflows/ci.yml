@@ -3,10 +3,12 @@ on:
     branches:
       - master
       - main
+      - r-v**
   pull_request:
     branches:
       - master
       - main
+      - r-v**
 
 jobs:
   build_and_test:

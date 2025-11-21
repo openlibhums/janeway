@@ -20,10 +20,14 @@
                                 alt="{{ item.title|striptags|unescape }}"/></a>
                         </div>
                         <div class="large-7 columns">
-                            <h2>{{ item.title }}</h2>
-                            <p class="byline">Posted by {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human}}</p>
+                            <h2 id="news-{{ item.pk }}">{{ item.title }}</h2>
+                            <p class="byline">{% trans 'Posted by' %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human}}</p>
                             <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                            <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                            <a class="button" href="{% url 'core_news_item' item.pk %}"
+                                aria-describedby="news-{{ item.pk }}"
+                                >
+                                {% trans "Read More" %}
+                            </a>
                         </div>
                     </div>
 
@@ -36,7 +40,9 @@
         <div class="pagination-block">
             <ul class="pagination">
                 {% if news_items.has_previous %}
-                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">&laquo;</a>
+                    <li class="arrow"><a href="?page={{ news_items.previous_page_number }}">
+                        {% include "elements/icons/page_previous.html" %}
+                    </a>
                     </li>{% endif %}
                 {{ news_items.page.page_range }}
                 {% for page in news_items.paginator.page_range %}
@@ -44,7 +50,9 @@
                             href="?page={{ page }}">{{ page }}</a></li>
                 {% endfor %}
                 {% if news_items.has_next %}
-                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">&raquo;</a>
+                    <li class="arrow"><a href="?page={{ news_items.next_page_number }}">
+                        {% include "elements/icons/page_next.html" %}
+                    </a>
                     </li>{% endif %}
             </ul>
         </div>

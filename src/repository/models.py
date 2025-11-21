@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.http.request import split_domain_port
+from django.templatetags.static import static
 from simple_history.models import HistoricalRecords
 
 from core.file_system import JanewayFileSystemStorage
@@ -325,6 +326,13 @@ class Repository(model_utils.AbstractSiteModel):
         return core_models.Account.objects.filter(
             pk__in=reviewer_ids,
         )
+
+    @property
+    def best_large_image_url(self):
+        if self.hero_background:
+            return self.hero_background.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
 
 
 class RepositoryRole(models.Model):

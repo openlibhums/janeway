@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load dates %}
+{% load pages %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
@@ -12,30 +13,60 @@
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h2>{{ item.title|safe }}</h2>
+                <h2 id="news-item-{{ item.pk }}">{{ item.title|safe }}</h2>
                 <p class="byline">{{ item.byline }} on {{ item.posted|date_human }}</p>
                 <p>{{ item.body|truncatewords_html:50|safe }}</p>
-                <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
+                <p><a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-item-{{ item.pk }}">{% trans 'Read More' %}</a></p>
                 <hr aria-hidden="true" />
             </div>
         {% empty %}
             <h2> {% trans 'This journal currently has no {{ journal_settings.news.news_title }} items to display.' %}</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
-        <ul class="d-flex justify-content-center">
-            {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
-                &nbsp;{% endif %}
-            {{ news_items.page.page_range }}
-            {% for page in news_items.paginator.page_range %}
-                <a href="?page={{ page }}"
-                   class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
-                &nbsp;
-            {% endfor %}
-            {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
-            {% endif %}
-        </ul>
-    </div>
+    <section aria-label="pagination">
+        <div class="pagination-block site-pagination">
+            <ul class="d-flex justify-content-center list-inline">
+                {% if news_items.has_previous %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.previous_page_number }}" 
+                            class="btn btn-outline-primary"
+                            >
+                            {% include "elements/icons/page_previous.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for page in news_items|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
+                        <li class="list-inline-item">
+                            <span class="btn btn-outline-secondary" disabled>...</span>
+                        </li>
+                    {% elif news_items.number == page.number %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                                class="btn btn-primary"
+                                >
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                                class="btn btn-outline-primary"
+                                >
+                                <span class="sr-only">{% trans 'page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if news_items.has_next %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                            {% include "elements/icons/page_next.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
 {% endblock body %}

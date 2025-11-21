@@ -12,6 +12,7 @@ from repository import models
 from press import models as press_models
 from review.logic import render_choices
 from core import models as core_models, workflow
+from core.logic import resize_and_crop
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -461,6 +462,18 @@ class RepositoryBase(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.press = kwargs.pop("press")
         super(RepositoryBase, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        try:
+            if "hero_background" in self.cleaned_data:
+                resize_and_crop(
+                    instance.hero_background.path,
+                    field_name="Hero background",
+                )
+        except ValueError:
+            pass
+        return instance
 
 
 class RepositoryInitial(RepositoryBase):

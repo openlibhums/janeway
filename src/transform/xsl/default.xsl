@@ -429,7 +429,7 @@
   <xsl:template name="body-footnotes">
     <!-- Handle footnotes scattered around the body inside p tags, rather than fn-group -->
     <xsl:if test="//article/body/p/fn">
-      <h2>Footnotes</h2>
+      <h2 id="footnotes-header">Footnotes</h2>
         <ol class="footnotes">
           <xsl:for-each select="//article/body/p/fn">
 	    <xsl:call-template name="referenced-footnote" />
@@ -443,7 +443,7 @@
          <!-- Adds a header for footnotes when there the first child is not a title tag
            *( See 'back/fn-group/title[1]' for heading implementation)
          -->
-        <h2>Notes</h2>
+        <h2 id="footnotes-header">Notes</h2>
       </xsl:if>
       <xsl:apply-templates select="title" />
         <ol class="footnotes">
@@ -1092,6 +1092,7 @@
                   <xsl:text>nm</xsl:text>
                   <xsl:number level="any" count="xref[@rid=$rid]"/>
               </xsl:attribute>
+              <xsl:attribute name="aria-describedby">footnotes-header</xsl:attribute>
               <sup><xsl:apply-templates/></sup>
             </xsl:when>
             <xsl:otherwise>
@@ -1119,7 +1120,7 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/label" mode="captionLabel">
-        <span class="table-label">
+        <span class="table-label" id="tab{count(preceding::table-wrap)+1}-label">
             <xsl:apply-templates/>
         </span>
         <xsl:text> </xsl:text>
@@ -1763,7 +1764,7 @@
     <xsl:template match="ref-list">
         <!-- We inject the references heading only when there is no title block -->
         <xsl:if test="name(*[1]) != 'title'">
-          <h2>References</h2>
+          <h2 id="reference-header">References</h2>
         </xsl:if>
         <div id="reflist">
           <ul>
@@ -1774,6 +1775,7 @@
     <xsl:template match="ref-list/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h2">
+                <xsl:attribute name="id">reference-header</xsl:attribute>
                 <xsl:apply-templates/>
             </xsl:element>
         </xsl:if>
@@ -2623,7 +2625,7 @@
       <xsl:when test="$pub-id-type='doi'">
         <xsl:text>&#160;</xsl:text>
         <a href="https://doi.org/{current()}" target="_blank">
-          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:text>https://doi.org/</xsl:text>
           <xsl:apply-templates/>
         </a>
       </xsl:when>

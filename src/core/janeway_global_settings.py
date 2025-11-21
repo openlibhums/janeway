@@ -46,8 +46,6 @@ COMMAND = sys.argv[1:]
 IN_TEST_RUNNER = COMMAND[:1] == ["test"]
 ALLOWED_HOSTS = ["*"]
 
-ENABLE_TEXTURE = False
-
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Application definition
@@ -191,6 +189,7 @@ SETTINGS_EXPORT = [
     "HIJACK_USERS_ENABLED",
     "ENABLE_OIDC",
     "OIDC_SERVICE_NAME",
+    "HERO_IMAGE_FALLBACK",
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -278,9 +277,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 STATIC_URL = "/static/"
-
-if ENABLE_TEXTURE:
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, "texture"))
 
 # Django bleach settings
 BLEACH_ALLOWED_TAGS = get_allowed_html_tags()
@@ -525,6 +521,12 @@ HTTP_TIMEOUT_SECONDS = 5
 # are first uploaded
 DEFAULT_XSL_FILE_LABEL = "Janeway default (1.6.0)"
 
+# When this setting is enabled, Janeway will ignore the preserved XSLT
+# associated with a galley and will instead rely on src/xsl/default.xsl
+# useful for XSLT development
+FORCE_BUILTIN_XSL = False
+BUILTIN_XSL_PATH = os.path.join(BASE_DIR, "transform/xsl/default.xsl")
+
 # Skip migrations by default on sqlite for faster execution
 if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
     from collections.abc import Mapping
@@ -713,3 +715,10 @@ JATS_ARTICLE_TYPES = (
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
+
+# Last-resort hero image (a.k.a. large image), loadable as a static file
+HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
+# The default crop size, used mainly for hero / large images.
+# Note that the provided theme CSS expects a default crop size of (1500, 648)
+# and may not work properly with a different size.
+DEFAULT_CROP_SIZE = (1500, 648)

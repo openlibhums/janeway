@@ -1,4 +1,7 @@
-{% load i18n alt_text %}
+{% load i18n %}
+{% load static %}
+{% load settings %}
+
 {% if carousel.enabled %}
         <section aria-labelledby="carousel-title" class="no-padding" id="orbitsection">
             <h2 id="carousel-title" class="sr-only">{% trans 'Carousel' %}</h2>
@@ -6,31 +9,21 @@
                 <div class="orbit" data-orbit>
                     <ul class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
-                            <li class="orbit-slide overlay">
+                          <li class="orbit-slide ">
                             <a href="{{ carousel_item.url }}" class="box-link"></a>
-                                <img class="orbit-image"
-                                     {% if carousel_item.large_image_file.id %}
-                                     src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
-                                     alt="{% get_alt_text obj=carousel_item.large_image_file %}"
-                                     {% elif carousel_item.hero_image_url %}
-                                        src="{{ carousel_item.hero_image_url }}"
-                                        alt="{% get_alt_text file_path=carousel_item.hero_image_url context_phrase="hero_image" %}"
-                                     {% elif journal.default_large_image %}
-                                        src="{{ journal.default_large_image.url }}"
-                                        alt="{% get_alt_text file_path=journal.default_large_image.url context_phrase="hero_image" %}"
-                                     {% elif request.press.default_carousel_image %}
-                                         src="{{ request.press.default_carousel_image.url }}"
-                                         alt="{% get_alt_text file_path=request.press.default_carousel_image.url context_phrase="hero_image" %}"
-                                     {% else %}
-                                        src=""
-                                     {% endif %}>
-                                <figcaption class="orbit-caption">
+                              <div class="olh-banner">
+                                <img class="olh-banner-image"
+                                  src="{{ carousel_item.best_large_image_url }}"
+                                  alt="{{ carousel_item.best_large_image_alt_text|striptags }}">
+                                <div class="overlay"></div>
+                                <figcaption class="olh-banner-heading">
                                     <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                                     <h3>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
                                     {% if request.site_type.code == 'press' and carousel_item.stage %}
                                         <p>{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
                                     {% endif %}
                                 </figcaption>
+                              </div>
                             </li>
                         {% endfor %}
                     </ul>

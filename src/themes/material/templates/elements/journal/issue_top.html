@@ -1,26 +1,20 @@
 {% load i18n %}
 
-{% if issue.large_image %}
+{% if issue.hero_image_url %}
     {% if level == "issuepage" %}
         <h1 class="sr-only">{{ issue.display_title }}</h1>
     {% else %}
         <h2 class="sr-only">{{ issue.display_title }}</h2>
     {% endif %}
     <div class="card">
-        <div class="card-image">
-            <a href="{{ issue.url }}">
-                <img class="activator" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} hero image.">
-            </a>
-            <span class="card-title">
-            <div class="carousel-text-wrapper ">
-                <a href="{{ issue.url }}"
-                    aria-label='{{ issue.display_title_a11y }}'
-                    >
-                    {{ issue.display_title }}
-                </a>
-            </div>
-            </span>
+      <div class="material-banner">
+        <img class="activator material-banner-image" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} hero image.">
+        <div class="material-banner-heading">
+          <div class="carousel-text-wrapper ">
+            {{ issue.display_title }}
+          </div>
         </div>
+      </div>
         {% if issue.issue_description %}
             <div class="card-content">
                 {{ issue.issue_description|safe }}
@@ -37,7 +31,10 @@
 {% endif %}
 
 {% if issue.journal.display_issue_doi and issue.doi_url %}
-<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
+
+<p>
+    {% include "elements/doi_display.html" with doi=issue.doi_url title=issue.display_title %}
+</p>
 {% endif %}
 
 {% include "common/elements/guest_editors.html" with level=level %}

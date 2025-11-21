@@ -1,18 +1,24 @@
 {% load i18n %}
 
-{% if issue.large_image %}
-    <div class="card">
-        <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} Cover Image">
-        <div class="card-img-overlay white-text">
-            <div class="card-text">
-                {% if level == "deep" %}
-                    <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h2>
-                {% else %}
-                    <h1 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h1>
-                {% endif %}
-            </div>
-        </div>
+{% if issue.hero_image_url %}
+  <div class="card">
+    <div class="clean-banner">
+      <img class="clean-banner-image"
+         src="{{ issue.hero_image_url }}"
+         alt="{{ issue.display_title_a11y }} Cover Image">
     </div>
+    <div class="card-text padding-inline-1 padding-block-1">
+      {% if level == "deep" %}
+        <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+          {{ issue.display_title }}
+        </h2>
+      {% else %}
+        <h1 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+          {{ issue.display_title }}
+        </h1>
+      {% endif %}
+    </div>
+  </div>
 {% else %}
     {% if level == "deep" %}
         <h2 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
@@ -23,6 +29,8 @@
 {% endif %}
 
 {% if issue.journal.display_issue_doi and issue.doi_url %}
-<p><b>DOI: </b><a href="{{issue.doi_url}}">{{ issue.doi_url }}</a></p>
+    <p>
+        {% include "elements/doi_display.html" with doi=issue.doi_url title=issue.display_title %}
+    </p>
 {% endif %}
 <br/>

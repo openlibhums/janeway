@@ -77,7 +77,7 @@ class Events:
     # raised when an editor accepts or accepts an article
     ON_ARTICLE_ACCEPTED = "on_article_accepted"
 
-    # kwargs: article, revision, request, user_message_content, skip (boolean)
+    # kwargs: article, revision, request
     # raised when a revision request is created
     ON_REVISIONS_REQUESTED = "on_revisions_requested"
 

@@ -32,11 +32,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -51,6 +53,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
+from core.templatetags import alt_text
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -510,7 +513,7 @@ LANGUAGE_CHOICES = (
     ("sai", "South American Indian languages"),
     ("alt", "Southern Altai"),
     ("sma", "Southern Sami"),
-    ("spa", "Spanish; Castilian"),
+    ("spa", "Spanish"),
     ("srn", "Sranan Tongo"),
     ("zgh", "Standard Moroccan Tamazight"),
     ("suk", "Sukuma"),
@@ -1174,7 +1177,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -1364,15 +1367,10 @@ class Article(AbstractLastModifiedModel):
             if self.article_number:
                 issue_str += ": {}".format(self.article_number)
 
-        doi_str = ""
         pages_str = ""
         if self.page_range:
             pages_str = " {0}.".format(self.page_range)
-        doi = self.get_doi()
-        if doi:
-            doi_str = (
-                'doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a>'.format(doi)
-            )
+        doi_id = self.get_doi()
 
         context = {
             "author_str": author_str,
@@ -1380,7 +1378,7 @@ class Article(AbstractLastModifiedModel):
             "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
-            "doi_str": doi_str,
+            "doi_id": doi_id,
             "pages_str": pages_str,
         }
         return render_to_string(template, context)
@@ -1713,6 +1711,7 @@ class Article(AbstractLastModifiedModel):
                 article = identifier_models.Identifier.objects.filter(
                     id_type=identifier_type,
                     identifier=identifier,
+                    article__journal=journal,
                 )[0].article
 
                 if not article.journal == journal:
@@ -2564,6 +2563,59 @@ class Article(AbstractLastModifiedModel):
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        1. article large image
+        2. issue large image
+        3. journal default large image
+        4. press default carousel image
+        5. static hero image fallback
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                context_phrase='hero_image',
+                default=default_text,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.best_large_image_alt_text
+        elif self.journal.default_large_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.default_large_image.url,
+                context_phrase="hero_image",
+                default=default_text,
+            )
+        elif self.journal.press.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.press.default_carousel_image.url,
+                context_phrase="hero_image",
+                default=default_text,
+            )
+        return default_text
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):

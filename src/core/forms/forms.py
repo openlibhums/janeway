@@ -19,6 +19,7 @@ from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
+from core.logic import resize_and_crop
 from core.model_utils import JanewayBleachFormField, MiniHTMLFormField
 from utils.logic import get_current_request
 from journal import models as journal_models
@@ -510,6 +511,18 @@ class JournalImageForm(forms.ModelForm):
             "press_image_override",
             "default_profile_image",
         )
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        try:
+            if "default_large_image" in self.cleaned_data:
+                resize_and_crop(
+                    instance.default_large_image.path,
+                    field_name="Default large image",
+                )
+        except ValueError:
+            pass
+        return instance
 
 
 class JournalStylingForm(forms.ModelForm):

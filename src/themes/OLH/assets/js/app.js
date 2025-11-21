@@ -16,14 +16,20 @@ $(function() {
   }
 });
 
-$(".search-toggle").click(function() {
-  $(".global-search input").focus();
+// Accessibility: Toggle aria-expanded for any button with data-toggle
+$(document).on('click', '[data-toggle]', function() {
+    var $button = $(this);
+    var currentExpanded = $button.attr('aria-expanded') === 'true';
+    $button.attr('aria-expanded', !currentExpanded);
 });
 
-$("#dyslexia-mode").click(function(e) {
-    e.preventDefault();
-    return $('#article').toggleClass('dyslexia-friendly');
+$(".search-toggle").click(function() {
+    var $searchMenu = $("#search-menu");
+    if ($searchMenu.is(':visible')) {
+        $(".global-search input").focus();
+    }
 });
+
 
 
 function kanbanInit() {

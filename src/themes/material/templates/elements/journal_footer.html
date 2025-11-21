@@ -1,6 +1,6 @@
 <div class="row expanded">
     <div class="col m10">
-        <ul class="list-inline-bar">
+        <ul class="list-inline bar-sep">
             {% if request.journal.issn %}<li>ISSN: {{ request.journal.issn }}</li>{% endif %}
             {% if request.journal.print_issn %} <li>Print ISSN: {{ request.journal.print_issn }}</li>{% endif %}
             {% if journal_settings.general.publisher_name %} 
@@ -16,13 +16,18 @@
             {% endif %}
             {% for item in request.journal.press.navigation_items %}
                 {% if item.for_footer and item.extend_to_journals %}
-                   <li> <a
-                        href="{{ item.link }}"
+                   <li> 
                         {% if item.is_external %}
-                            target="_blank"
-                        {% endif %}>
-                        {{ item.link_name }}
-                    </a> </li>
+                            <a href="{{ item.link }}" target="_blank">
+                                {{ item.link_name }}
+                                {% include "elements/icons/link_external.html" %} 
+                            </a>
+                        {% else %}
+                            <a href="{{ item.link }}">
+                                {{ item.link_name }}
+                            </a>
+                        {% endif %}
+                    </li>
                 {% endif %}
             {% endfor %}
             <li> <a

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 
 <div class="row">
     <div class="col-md-12">
@@ -6,20 +7,12 @@
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
-                        <img class="d-block img-fluid article-img carousel-min"
-                                {% if carousel_item.large_image_file.id %}
-                                {# Article or News Item #}
-                             src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
-                                {% elif carousel_item.hero_image_url %}
-                                {# Issue or Collection #}
-                             src="{{ carousel_item.hero_image_url }}"
-                                {% elif journal.default_large_image %}
-                             src="{{ journal.default_large_image.url }}"
-                                {% else %}
-                             src=""
-                                {% endif %}
-                             alt="{{ carousel_item.carousel_title|striptags }}">
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
+                      <div class="clean-banner explicit-image-height">
+                        <img class="d-block clean-banner-image"
+                          src="{{ carousel_item.best_large_image_url }}"
+                          alt="{{ carousel_item.carousel_title|striptags }}">
+                      </div>
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                           <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                           <h3><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
@@ -27,14 +20,14 @@
                     </div>
                 {% endfor %}
             </div>
-            <a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
+            <button class="carousel-control-prev background-button" href="#carousel" role="button" data-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="sr-only">{% trans 'Previous' %}</span>
-            </a>
-            <a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
+            </button>
+            <button class="carousel-control-next background-button" href="#carousel" role="button" data-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="sr-only">{% trans 'Next' %}</span>
-            </a>
+            </button>
               <div id="carousel-buttons">
                 <button id="carousel-play" type="button" class="btn btn-secondary btn-sm">
                   <i aria-hidden="true" class="fa fa-play" ></i>

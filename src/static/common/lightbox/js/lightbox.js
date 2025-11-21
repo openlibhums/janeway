@@ -31,6 +31,7 @@
   function Lightbox(options) {
     this.album = [];
     this.currentImageIndex = void 0;
+    this.triggeringElement = null; // Store reference to element that opened lightbox
     this.init();
 
     // options
@@ -213,6 +214,9 @@
   Lightbox.prototype.start = function($link) {
     var self    = this;
     var $window = $(window);
+
+    // Store reference to the element that triggered the lightbox for focus restoration
+    this.triggeringElement = $link[0];
 
     $window.on('resize', $.proxy(this.sizeOverlay, this));
 
@@ -564,6 +568,18 @@
 
     if (this.options.disableScrolling) {
       $('body').removeClass('lb-disable-scrolling');
+    }
+
+    // Restore focus to the element that triggered the lightbox
+    if (this.triggeringElement) {
+      // Use setTimeout to ensure the fadeOut animation completes before focusing
+      var self = this;
+      setTimeout(function() {
+        if (self.triggeringElement && typeof self.triggeringElement.focus === 'function') {
+          self.triggeringElement.focus();
+        }
+        self.triggeringElement = null; // Clear the reference
+      }, this.options.fadeDuration);
     }
   };
 

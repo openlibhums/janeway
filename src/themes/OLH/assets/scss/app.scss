@@ -252,7 +252,7 @@ header {
       right: 20px;
       padding: 0;
 
-      a {
+      button {
         padding: rem-calc(10px);
       }
     }
@@ -1247,8 +1247,21 @@ button.list-group-item-danger.active:focus {
 
 .reveal {
   user-select: text;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
@@ -1399,4 +1412,139 @@ button.list-group-item-danger.active:focus {
 
 .no-pad{
   padding: 0;
+}
+
+.tags-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.tags-list li{
+  display: inline-block;
+}
+.tags-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.icon-recede{
+    opacity: 70%;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    margin-left: 0.5rem;
+    background-color: var(--menu-alternative-background-color);
+    color: var(--menu-foreground-color);
+    border: 1px solid var(--menu-foreground-color);
+    padding: 0 10px;
+    min-width: 7rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + div .btn-background {
+    height: 2.77778rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+/* Banner for hero / large image */
+.olh-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.olh-banner .olh-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+.olh-banner-heading {
+  color: #fefefe;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+}
+.olh-banner-heading h1 {
+  font-size: 1.75rem;
+}
+.olh-banner-heading p {
+  margin: 0;
+}
+.olh-banner-heading a {
+  color: #fefefe;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #fefefe;
+}
+.olh-banner-heading .uppercase {
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (min-width: 640px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 432px;
+  }
+}
+@media (min-width: 1024px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+.medium-4 .olh-banner,
+.large-4 .olh-banner {
+  max-height: 216px;
+}
+.medium-6 .olh-banner,
+.medium-8 .olh-banner,
+.large-6 .olh-banner,
+.large-8 .olh-banner {
+  max-height: 288px;
 }

@@ -5,37 +5,11 @@
     <div class="row column text-center">
         <h2 class="title" id="featured-articles-title">{% trans 'Featured Articles' %}</h2>
     </div>
-    <div class="row" data-equalizer data-equalize-on="medium">
+    <div class="row column">
+      <div class="grid auto-fit">
         {% for fa in featured_articles %}
-            <div class="large-4 columns" >
-                <div class="box" data-equalizer-watch>
-                    <a href="{% if fa.article.is_remote %}{{ fa.article.remote_url }}{% else %}{{ fa.article.url }}{% endif %}"
-                       class="box-link"></a>
-
-                    {% if not journal_settings.article.disable_article_large_image %}
-                        {% if fa.article.large_image_file %}
-                            <img src="{% url 'article_file_download' 'id' fa.article.id fa.article.large_image_file.id %}"
-                                 alt="{% get_alt_text obj=fa.article.large_image_file context_phrase="hero_image" default=fa.article.title|striptags %}" class="feature-article-image">
-                        {% elif fa.article.issue.large_image %}
-                            <img src="{{ fa.article.issue.large_image.url }}"
-                                 alt="{% get_alt_text file_path=fa.article.issue.large_image.url context_phrase="hero_image" default=fa.article.title|striptags %}" class="feature-article-image">
-                        {% elif fa.article.journal.default_large_image %}
-                            <img src="{{ fa.article.journal.default_large_image.url }}"
-                                 alt="{% get_alt_text file_path=fa.article.journal.default_large_image.url context_phrase="hero_image" default=fa.article.title|striptags %}" class="feature-article-image">
-                        {% else  %}
-                            <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                                 alt="{{ fa.article.title|striptags }}" class="feature-article-image">
-                        {% endif %}
-                    {% endif %}
-
-                    <div class="content">
-                        <p class="byline">{{ fa.article.author_list }}</p>
-                        <h3>{{ fa.article.title|safe|truncatechars:200 }}</h3>
-                    </div>
-                </div>
-            </div>
-            {% if forloop.counter|divisibleby:3 %}</div>
-                <div class="row" data-equalizer data-equalize-on="medium">{% endif %}
+          {% include "journal/homepage_elements/article_list_item.html" with article=fa.article %}
         {% endfor %}
-        </div>
+      </div>
+    </div>
 </section>

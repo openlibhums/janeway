@@ -27,13 +27,13 @@
                     {% endif %}
                     <div class="card-content">
                         {% if not item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
-                            <h2 class="no-top-margin">{{ item.title|safe }}</h2>
+                            <h2 id="news-{{ item.id }}" class="no-top-margin">{{ item.title|safe }}</h2>
                         {% endif %}
                         <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                         <p>{{ item.body|truncatewords_html:50|safe }}</p>
                     </div>
                     <div class="card-action">
-                        <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                        <a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-{{ item.id }}">{% trans "Read More" %}</a>
                     </div>
                 </div>
             </div>
@@ -41,10 +41,12 @@
             <h2>{% trans "This journal currently has no items to display." %}</h2>
         {% endfor %}
     </div>
-    <div class="pagination-block">{{ page }}
+    <div class="pagination-block">
         <ul class="d-flex justify-content-center">
             {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_previous.html" %}
+                </a>
                 &nbsp;{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
@@ -53,7 +55,9 @@
                 &nbsp;
             {% endfor %}
             {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                    {% include "elements/icons/page_next.html" %}
+                </a>
             {% endif %}
         </ul>
     </div>

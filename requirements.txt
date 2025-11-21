@@ -5,7 +5,7 @@ bs4==0.0.1
 colorlog==3.1.4
 chardet==3.0.4
 crossrefapi==1.5.0
-Django==4.2.22
+Django==4.2.26
 django-bleach==3.1.0
 django-bootstrap4==23.2
 -e git+https://github.com/openlibhums/django-foundation-form.git@674616f5388fe44c63088671ddea38ed9161a4fd#egg=foundationform
@@ -54,7 +54,7 @@ Pillow==10.2.0
 python-crontab==2.2.3
 python-dateutil==2.8.1
 python-docx==0.8.11
-python-magic==0.4.13
+python-magic==0.4.27
 pytz==2024.1
 requests==2.32.4
 six==1.16.0

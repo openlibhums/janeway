@@ -389,7 +389,11 @@ def set_article_image(request, article):
             article.fixedpubcheckitems.select_article_image = True
             article.fixedpubcheckitems.save()
 
-        core_logic.resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+        core_logic.resize_and_crop(
+            new_file.self_article_path(),
+            field_name="Large image",
+            original_filename=new_file.name,
+        )
 
 
 def send_contact_message(new_contact, request):
@@ -649,15 +653,30 @@ def get_all_tables_from_html(content):
 
     for table in soup.findAll("div", attrs={"class": "table-expansion"}):
         original_id = table.get("id")
+        transformed_ids = {}
+
         if original_id:
             table["id"] = "copy-of-" + original_id
+            transformed_ids[original_id] = "copy-of-" + original_id
+
         for child in table.descendants:
             # try / except because .decendants sometimes returns a string, sometimes an object
             try:
                 if child.get("id"):
-                    child["id"] = "copy-of-" + child["id"]
+                    original_child_id = child["id"]
+                    child["id"] = "copy-of-" + original_child_id
+                    transformed_ids[original_child_id] = "copy-of-" + original_child_id
             except AttributeError:
                 pass
+
+        # internal table links, to keep that internal relationship, not point to original table.
+        for link in table.find_all("a", href=True):
+            href = link["href"]
+            if href.startswith("#"):
+                target_id = href[1:]
+                if target_id in transformed_ids:
+                    link["href"] = "#" + transformed_ids[target_id]
+
         tables.append({"id": original_id, "content": str(table)})
 
     return tables

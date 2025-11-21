@@ -219,6 +219,10 @@ a:hover .article-title {
     opacity: 0.5;
     padding: 10px
 }
+.carousel-text-wrapper h1,
+.carousel-text-wrapper h2 {
+  margin-block: 0;
+}
 
 .no-bottom-padding {
     padding-bottom: 0px !important;
@@ -296,6 +300,7 @@ a:hover .article-title {
 .toc-sticky{
     position: sticky;
     top: 0;
+    z-index: 999;
 }
 
 .wide-button {
@@ -403,6 +408,10 @@ h2 {
 
 h3 {
     font-size: 2.0rem;
+}
+
+.card-content > h3{
+    font-size: 20px;
 }
 
 h4 {
@@ -664,6 +673,23 @@ nav a.sidenav-trigger i {
     max-height: 75%;
 }
 
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
+
 .card-full-height {
     height: 100%;
 }
@@ -838,3 +864,174 @@ a {
   font-weight: 400;
   line-height: 110%;
 }
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+   padding-left: 0.1rem;
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+.icon-recede{
+    opacity: 70%;
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    border: 1px, solid, #00897b;
+    padding: 0 10px;
+    min-width: 7rem;
+    min-height: 2rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.btn-background + .btn-background {
+    margin-left: 0.5rem;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+p + .btn-background {
+    height: auto;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #00897b;
+    border-color: #00897b;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+#reading-options{
+  display: flex;
+  gap: 1rem;
+  padding: 0 .75rem;
+  justify-content: flex-end;
+  min-height: fit-content;
+  box-sizing: border-box;
+}
+
+#reading-sticky{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.btn-opt {
+    border: 1px solid #00897b;
+    background-color: inherit;
+    text-transform: none;
+    color: inherit;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
+
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* Banner for hero / large image */
+.material-banner {
+  position: relative;
+  /* overflow: clip; */
+  overflow: hidden;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.material-banner > *,
+.material-banner .material-banner-image {
+  display: block;
+  flex-grow: 1;
+  max-height: 648px;
+}
+.material-banner-heading {
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width > 600px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(432px, 100%);
+  }
+}
+@media (width > 992px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: 540px;
+  }
+}
+@media (width > 1200px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(648px, 100%);
+  }
+}
+/* Carousel items should display text at the top because Materialize JS
+ * sets the carousel height for reasons of its own,
+ * which can have the effect of hiding the heading. */
+.carousel-item.material-banner .material-banner-heading {
+  bottom: unset;
+  top: 0;
+}
+/* Partial-width banners should be shorter */
+.m4 .material-banner,
+.l4 .material-banner {
+  max-height: 216px;
+}
+.m6 .material-banner,
+.m8 .material-banner,
+.l6 .material-banner,
+.l8 .material-banner {
+  max-height: 288px;
+}
+/* End banner image styles */

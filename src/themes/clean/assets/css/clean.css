@@ -48,10 +48,7 @@ main a {
     text-decoration: underline;
 }
 
-main a:focus {
-    color: #4F637D;
-}
-
+main a:focus,
 main a:hover {
     color: #4F637D;
 }
@@ -98,8 +95,8 @@ main a:hover {
     margin-bottom: 4rem;
 }
 
-.site-pagination > .btn {
-    border-radius: 2rem;
+.site-pagination .btn {
+    text-decoration: none;
 }
 
 .news-post {
@@ -153,7 +150,8 @@ main a:hover {
 
 /* change the color of active or hovered links */
 .navbar-custom .nav-item.active .nav-link,
-.navbar-custom .nav-item:hover .nav-link {
+.navbar-custom .nav-item:hover .nav-link,
+.navbar-custom .nav-item:focus .nav-link {
     color: #ffffff;
     text-decoration: underline;
 }
@@ -172,7 +170,8 @@ main a:hover {
     color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.bn-primary:focus {
     color: white;
     background-color: #1C304A;
     border-color: #1C304A;
@@ -222,7 +221,7 @@ main a:hover {
     min-width: 100%;
 }
 
-.card img {
+.card img:not(.clean-banner-image) {
     max-height: 250px;
     object-fit: cover;
 }
@@ -277,6 +276,13 @@ main a:hover {
 	top: 40px;
 }
 
+.carousel-item .carousel-caption {
+  /* Bootstrap 4.4 hides the caption on small screens by default,
+   * even for active carousel items.
+   * This unhides them for accessibility. */
+  display: block !important;
+}
+
 footer svg {
     height: 100px;
     width: 100%;
@@ -302,7 +308,7 @@ footer svg {
         padding: 10px;
     }
 
-    .card img {
+    .card img:not(.clean-banner-image) {
         min-height: 220px;
         object-fit: cover;
     }
@@ -333,7 +339,8 @@ footer svg {
     color: white;
 }
 
-.white-text a:hover {
+.white-text a:hover,
+.white-text a:focus {
     color: white;
 }
 
@@ -419,16 +426,16 @@ header svg {
 .article-table td {
   padding: 0.75rem;
   vertical-align: top;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid #6c757d;
 }
 
 .article-table thead th {
   vertical-align: bottom;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid #6c757d;
 }
 
 .article-table tbody + tbody {
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid #6c757d;
 }
 
 .article-table-sm th,
@@ -450,7 +457,8 @@ header svg {
 }
 
 .page-link,
-.page-link:hover {
+.page-link:hover,
+.page-link:focus {
   color: #4F637D;
 }
 
@@ -479,9 +487,12 @@ header svg {
     padding-bottom: 8px;
 }
 
-.sticky-top {
+.sticky-toc {
+    position: sticky;
     max-height: 100vh;
-    overflow-y: auto
+    overflow-y: auto;
+    top: 60px;
+    z-index: 999;
 }
 
 .card.no-image {
@@ -503,7 +514,8 @@ header svg {
     color: #4F637D;
 }
 
-.card.no-image .card-img-overlay.white-text a:hover {
+.card.no-image .card-img-overlay.white-text a:hover,
+.card.no-image .card-img-overlay.white-text a:focus {
     color: #1C304A;
 }
 
@@ -563,4 +575,299 @@ a {
 
 .card-title{
     font-size: 1.5rem;
+}
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.dropdown-button{
+    background: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    border: 0;
+}
+        
+.background-button{
+    border: 0;
+    background: transparent;
+}
+
+.icon-recede{
+    opacity: 70%;
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    border: 1px, solid, #1C304A;
+    padding: 0 10px;
+    min-width: 7rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.btn-background:not(:first-child) {
+    margin-left: 0.5rem;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+#reading-options{
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+  min-height: fit-content;
+  box-sizing: border-box;  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: fit-content;
+  margin-left: auto;
+}
+
+.btn-opt {
+    border: 1px solid #1C304A;
+    background: #f1f1f1;
+}
+
+.dyslexia-friendly {
+    font-family: Verdana !important;
+    color: #4c4c4c;
+    background-color: #F5F5DC;
+}
+
+.dyslexia-friendly em,
+.dyslexia-friendly i {
+    background-color: #FAFAC8;
+    font-style: normal;
+}
+
+.dyslexia-friendly a {
+    font-family: inherit;
+    color: inherit;
+    text-decoration: underline;
+}
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+:root {
+    --focus-light: #F9F9F9;
+    --focus-dark: #193146;
+    --focus-ring-size: 4px;
+}
+
+/* Prevent layout shifts */
+    button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
+    .dropdown-menu, .dropdown-item, .nav-link, .nav-link a, .btn {
+        margin: var(--focus-ring-size);
+    }
+
+    /* Inline links override to prevent layout shifts without affecting typography */
+    p a,
+    span a, 
+    li a {
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        box-sizing: border-box;
+    }
+
+    /* Remove margin from elements that shouldn't have it */
+    .dropdown-menu a,
+    .dropdown-menu button,
+    .dropdown-menu .dropdown-item {
+        margin: 0;
+    }
+
+    /*individual workarounds */
+    .article-block a,
+    .site-header a ,
+    .site-footer a,
+    p a ,
+    li a {
+        display: inline-block;
+    }
+
+    .dropdown-item:focus{
+        white-space: nowrap;
+    }
+
+    /* Ensure dropdown containers have enough space */
+    .dropdown-menu {
+        padding: var(--focus-ring-size);
+    }
+  
+/* General */
+*:focus {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* focus bounding boxes */
+a:focus {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: inline-block;
+    white-space: normal;
+}
+
+.form-check:has(input:focus),
+.form-check:has(select:focus),
+.form-check:has(textarea:focus) {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: block;
+    white-space: normal;
+}
+
+/* Alternative approach for browsers that don't support :has() */
+.form-check input:focus{
+    /* Remove individual focus styles when inside form-check */
+    outline: none;
+    box-shadow: none;
+}
+  
+/* Specificity overrides for other elements */
+main a:focus,
+.site-footer a:focus,
+#lightbox a:focus,
+.navbar-custom .nav-link:focus,
+.navbar-custom .navbar-brand:focus,
+.btn:focus,
+.btn-primary:focus,
+.btn-secondary:focus,
+.btn-success:focus,
+.btn-danger:focus,
+.btn-warning:focus,
+.btn-info:focus,
+.btn-light:focus,
+.btn-dark:focus,
+.site-pagination > .btn:focus,
+.pagination button:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="file"]:focus,
+input[type="submit"]:focus,
+.form-control.is-valid:focus,
+.form-control.is-invalid:focus,
+textarea.tinymce:focus,
+.custom-select:focus {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
+
+/* Banner for hero / large image */
+
+.clean-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.clean-banner .clean-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width >= 992px) {
+  :where(.col-md-12, .col-lg-12) .clean-banner:not(.explicit-image-height) {
+    max-height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  :where(.col-md-12, .col-lg-12) .clean-banner:not(.explicit-image-height) {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+:where(.col-md-4, .col-lg-4) .clean-banner:not(.explicit-image-height) {
+  max-height: 216px;
+}
+:where(.col-md-6, .col-md-8, .col-lg-6, .col-lg-8) .clean-banner:not(.explicit-image-height) {
+  max-height: 288px;
+}
+/* Explicit image height option for carousels */
+.clean-banner.explicit-image-height {
+  max-height: unset;
+}
+.clean-banner.explicit-image-height .clean-banner-image {
+  height: 360px;
+}
+@media (width >= 992px) {
+  .clean-banner.explicit-image-height .clean-banner-image {
+    height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  .clean-banner.explicit-image-height .clean-banner-image {
+    height: 540px;
+  }
 }

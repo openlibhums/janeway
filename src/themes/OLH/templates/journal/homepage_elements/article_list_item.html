@@ -1,0 +1,20 @@
+{% load static %}
+{% load i18n %}
+{% load settings %}
+
+{% setting_var request.journal 'disable_article_large_image' as disable_image %}
+
+<div class="olh-banner">
+  <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}"
+           class="box-link"></a>
+  {% if not disable_image %}
+    <img src="{{ article.best_large_image_url }}"
+         alt="{{ article.best_large_image_alt_text }}"
+         class="olh-banner-image">
+    <div class="overlay"></div>
+  {% endif %}
+  <div {% if not disable_image %}class="olh-banner-heading"{% endif %}>
+    <p class="byline">{{ article.author_list }}</p>
+    <h3>{{ article.title|safe|truncatechars:200 }}</h3>
+  </div>
+</div>

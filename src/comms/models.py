@@ -1,14 +1,14 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
+from django.templatetags.static import static
 from django.utils.html import mark_safe
 from django.utils.html import strip_tags
-
-from simple_history.models import HistoricalRecords
 
 from core import files
 from core.model_utils import JanewayBleachField, JanewayBleachCharField
@@ -67,7 +67,7 @@ class NewsItem(models.Model):
         on_delete=models.SET_NULL,
         help_text="An image for the top of the news item page and the "
         "news list page. Note that it will be automatically "
-        "cropped to 750px x 324px, so wide images work best.",
+        "cropped to 1500px x 648px, so wide images work best.",
     )
     tags = models.ManyToManyField("Tag", related_name="tags")
     custom_byline = models.CharField(
@@ -77,7 +77,6 @@ class NewsItem(models.Model):
         help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
         "the news item with whatever text is added here.",
     )
-    history = HistoricalRecords()
 
     pinned = models.BooleanField(
         default=False,
@@ -175,9 +174,16 @@ class NewsItem(models.Model):
         if path:
             return self.object.site_url(path=path)
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
 
-    def best_image_alt_text(self):
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for best_image_url that is used by the carousel templates.
+        """
+        return self.best_image_url
+
+    def best_large_image_alt_text(self):
         default_text = strip_tags(self.title)
         if self.large_image_file:
             return alt_text.get_alt_text(

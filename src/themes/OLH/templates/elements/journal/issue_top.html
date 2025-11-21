@@ -1,25 +1,19 @@
 <div id="issue_top">
-    {% if issue.large_image %}
-        <div class="orbit article-orbit" data-orbit>
-            <ul class="orbit-container article-orbit">
-                <li class="is-active orbit-slide overlay">
-                    <img class="orbit-image"
-                         src="{{ issue.hero_image_url }}"
-                         alt="{% get_alt_text obj=issue file_path=issue.hero_image_url context_phrase="hero_image" %}"
-                        >
-                    <div class="row column">
-                        <figcaption class="orbit-caption">
-                            {% if level == "deep" %}
-                                <h2 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
-                            {% else %}
-                                <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
-                            {% endif %}
-                        </figcaption>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <br/>
+    {% if issue.hero_image_url %}
+      <div class="olh-banner">
+        <img class="olh-banner-image"
+             src="{{ issue.hero_image_url }}"
+             alt="{{ issue.best_large_image_alt_text }}"
+        >
+        <div class="overlay"></div>
+        <figcaption class="olh-banner-heading">
+          {% if level == "deep" %}
+            <h2 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
+          {% else %}
+            <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+          {% endif %}
+        </figcaption>
+      </div>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
         {% if level == "deep" %}
@@ -31,7 +25,7 @@
     {% endif %}
 
     {% if issue.journal.display_issue_doi and issue.doi_url %}
-    <p><b>DOI: </b><a href="{{ issue.doi_url }}">{{ issue.doi_url }}</a></p>
+        <p>{% include "elements/doi_display.html" with doi=issue.doi_url title=issue.display_title %}</p>
     {% endif %}
 
     {% include "common/elements/guest_editors.html" %}

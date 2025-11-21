@@ -27,17 +27,19 @@ class LanguageMiddleware(BaseMiddleware):
             default_language = request.journal.get_setting(
                 group_name="general", setting_name="default_journal_language"
             )
-            if current_language not in available_languages:
-                translation.activate(settings.LANGUAGE_CODE)
-                logger.debug(
-                    "Current Language not in the available languages. Activating {}".format(
-                        settings.LANGUAGE_CODE,
-                    )
-                )
 
+            if not default_language:
+                default_language = settings.LANGUAGE_CODE
+
+            if current_language not in available_languages:
+                translation.activate(default_language)
+                logger.debug(
+                    "Current language not in the available languages."
+                    " Activating default: {}".format(default_language)
+                )
             if not available_languages:
                 # If we have no languages use the defaults from settings.
-                available_languages = [lang[0] for lang in settings.LANGUAGES]
+                _available_languages = [lang[0] for lang in settings.LANGUAGES]
             else:
                 # The default language must always be in available_languages.
                 available_languages.append(settings.LANGUAGE_CODE)

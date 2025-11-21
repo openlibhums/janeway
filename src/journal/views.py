@@ -1477,7 +1477,10 @@ def manage_issues(request, issue_id=None, event=None):
                 save_issue.journal = request.journal
                 save_issue.save()
                 if request.FILES and save_issue.large_image:
-                    resize_and_crop(save_issue.large_image.path, [750, 324])
+                    resize_and_crop(
+                        save_issue.large_image.path,
+                        field_name="Large image",
+                    )
                 if issue:
                     return redirect(
                         reverse("manage_issues_id", kwargs={"issue_id": issue.pk})
@@ -2559,19 +2562,6 @@ def download_supp_file(request, article_id, supp_file_id):
     return files.serve_file(request, supp_file.file, article, public=True)
 
 
-@staff_member_required
-def texture_edit(request, file_id):
-    file = get_object_or_404(core_models.File, pk=file_id)
-
-    template = "admin/journal/texture.html"
-    context = {
-        "file": file,
-        "content": files.get_file(file, file.article).replace("\n", ""),
-    }
-
-    return render(request, template, context)
-
-
 @editor_user_required_and_can_see_pii
 def document_management(request, article_id):
     document_article = get_object_or_404(
@@ -2920,7 +2910,9 @@ def manage_languages(request):
                 messages.ERROR,
                 "{} disabled.".format(lang_to_delete),
             )
-        active_languages.append(settings.LANGUAGE_CODE)
+        if not active_languages:
+            # When no languages are configured, make install default available
+            active_languages.append(settings.LANGUAGE_CODE)
         setting_handler.save_setting(
             setting_group_name="general",
             setting_name="journal_languages",

@@ -1627,7 +1627,8 @@ class Galley(AbstractLastModifiedModel):
         if self.file and self.file.article_id:
             self.file.unlink_file()
         for image_file in self.images.all():
-            if not image_file.images.exclude(galley=self).exists():
+            galleys_related_to_image = image_file.images
+            if not galleys_related_to_image.exclude(images=image_file).exists():
                 image_file.unlink_file()
 
     def __str__(self):
@@ -1643,10 +1644,13 @@ class Galley(AbstractLastModifiedModel):
         )
 
     def render(self, recover=False):
+        xsl_path = self.xsl_file.file.path
+        if settings.FORCE_BUILTIN_XSL:
+            xsl_path = settings.BUILTIN_XSL_PATH
         return files.render_xml(
             self.file,
             self.article,
-            xsl_path=self.xsl_file.file.path,
+            xsl_path=xsl_path,
             recover=recover,
         )
 

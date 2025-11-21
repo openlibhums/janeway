@@ -45,9 +45,11 @@
                         <div class="form-group">
                             <label>{% trans "Keywords" %}
 
-                                {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
+                                <ul class="list-inline comma-sep">
+                                    {% for keyword in all_keywords %}
+                                        <li><a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a></li>
+                                    {% endfor %}
+                                </ul>
 
                             </label>
                         </div>
