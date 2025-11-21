@@ -11,7 +11,7 @@ from django.views.i18n import JavaScriptCatalog
 from django.views.decorators.cache import cache_page
 
 from journal import urls as journal_urls
-from core import views as core_views, plugin_loader
+from core import views as core_views, plugin_loader, partial_views
 from utils import notify
 from press import views as press_views
 from cms import views as cms_views
@@ -431,6 +431,9 @@ urlpatterns = [
         core_views.manage_access_requests,
         name="manage_access_requests",
     ),
+    # Partial views used for HTMX
+    path("alt-text/form/", partial_views.alt_text_form, name="alt_text_form"),
+    path("alt-text/submit/", partial_views.alt_text_submit, name="alt_text_submit"),
 ]
 
 # Journal homepage block loading

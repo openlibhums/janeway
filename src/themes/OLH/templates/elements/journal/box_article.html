@@ -9,13 +9,21 @@
         {% if not journal_settings.article.disable_article_thumbnails %}
          <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
-            <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                 alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
+                <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
+                   alt="{% get_alt_text obj=article.thumbnail_image_file context_phrase="thumbnail" default=article.title|striptags|escape %}"
+                     class="article-thumbnail"
+                >
             {% elif request.journal.thumbnail_image %}
-                <img src="{% url 'journal_cover_download' %}" class="article-thumbnail">
+                <img src="{% url 'journal_cover_download' %}"
+                     alt="{% get_alt_text obj=request.journal.thumbnail_image context_phrase="thumbnail" default=article.title|striptags|escape %}"
+                     class="article-thumbnail"
+                >
             {% else %}
-            <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
-                 class="article-thumbnail"> {% endif %}
+                <img src="{% static 'common/img/icons/article.png' %}"
+                     alt="{{ thumbnail_alt_text }}"
+                     class="article-thumbnail"
+                >
+            {% endif %}
         </div>
         {% endif %}
     <div class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
