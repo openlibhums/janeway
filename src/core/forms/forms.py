@@ -774,7 +774,7 @@ class CBVFacetForm(forms.Form):
                             except:
                                 result = None
 
-                    if result != None:
+                    if result is not None:
                         values_list.append(result)
                     elif result == None and "default" in facet:
                         values_list.append(facet["default"])
@@ -1157,18 +1157,18 @@ class AltTextForm(forms.ModelForm):
     class Meta:
         model = models.AltText
         fields = [
-            'context_phrase',
-            'alt_text',
+            "context_phrase",
+            "alt_text",
         ]
         widgets = {
-            'context_phrase': forms.TextInput(
+            "context_phrase": forms.TextInput(
                 attrs={
-                    'class': 'sr-only',
-                    'aria-hidden': 'true',
+                    "class": "sr-only",
+                    "aria-hidden": "true",
                 },
             ),
-            'alt_text': forms.Textarea(
-                attrs={'rows': 5},
+            "alt_text": forms.Textarea(
+                attrs={"rows": 5},
             ),
         }
 
@@ -1185,14 +1185,18 @@ class AltTextForm(forms.ModelForm):
 
         # Populate initial to help form rendering
         if content_type and object_id:
-            kwargs["initial"].update({
-                "content_type": content_type,
-                "object_id": object_id,
-            })
+            kwargs["initial"].update(
+                {
+                    "content_type": content_type,
+                    "object_id": object_id,
+                }
+            )
         elif file_path:
-            kwargs["initial"].update({
-                "file_path": file_path,
-            })
+            kwargs["initial"].update(
+                {
+                    "file_path": file_path,
+                }
+            )
 
         super().__init__(*args, **kwargs)
 
@@ -1240,4 +1244,3 @@ class AltTextForm(forms.ModelForm):
             instance.save()
 
         return instance
-

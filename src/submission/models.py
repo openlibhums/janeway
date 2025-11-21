@@ -2598,7 +2598,7 @@ class Article(AbstractLastModifiedModel):
         if self.large_image_file:
             return alt_text.get_alt_text(
                 obj=self.large_image_file,
-                context_phrase='hero_image',
+                context_phrase="hero_image",
                 default=default_text,
             )
         elif self.issue and self.issue.large_image:

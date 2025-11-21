@@ -431,11 +431,9 @@ urlpatterns = [
         core_views.manage_access_requests,
         name="manage_access_requests",
     ),
-
     # Partial views used for HTMX
-    path('alt-text/form/', partial_views.alt_text_form, name='alt_text_form'),
-    path('alt-text/submit/', partial_views.alt_text_submit, name='alt_text_submit'),
-
+    path("alt-text/form/", partial_views.alt_text_form, name="alt_text_form"),
+    path("alt-text/submit/", partial_views.alt_text_submit, name="alt_text_submit"),
 ]
 
 # Journal homepage block loading

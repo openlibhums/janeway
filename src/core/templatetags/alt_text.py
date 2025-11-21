@@ -43,7 +43,9 @@ def get_alt_text(obj=None, file_path=None, token=None, context_phrase=None, defa
 
 
 @register.simple_tag
-def get_admin_alt_text_snippet(obj=None, file_path=None, token=None, context_phrase=None):
+def get_admin_alt_text_snippet(
+    obj=None, file_path=None, token=None, context_phrase=None
+):
     """
     Render a block of alt text wrapped in HTML for admin interface with HTMX targeting.
     Priority order for identifier: file_path > token > None.
@@ -88,9 +90,9 @@ def model_string(obj):
     :param obj: Model instance
     :return: String in format 'app_label.modelname' or empty string if obj has no _meta
     """
-    if hasattr(obj, '_meta'):
+    if hasattr(obj, "_meta"):
         return f"{obj._meta.app_label}.{obj._meta.model_name}"
-    return ''
+    return ""
 
 
 @register.filter
@@ -104,7 +106,7 @@ def app_label(obj):
     try:
         return obj._meta.app_label
     except AttributeError:
-        return ''
+        return ""
 
 
 @register.simple_tag
@@ -136,5 +138,5 @@ def encode_file_path(value):
     :return: SHA256 hexadecimal hash of the value, or empty string if value is falsy
     """
     if not value:
-        return ''
+        return ""
     return hashlib.sha256(value.encode()).hexdigest()

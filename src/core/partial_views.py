@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 from django.http import HttpResponseBadRequest
 from django.views.decorators.http import require_GET, require_POST
@@ -8,7 +7,7 @@ from core import forms, models, logic
 
 
 @require_GET
-def alt_text_form(request):#
+def alt_text_form(request):
     try:
         content_type, object_id, file_path, obj = logic.resolve_alt_text_target(
             request,
@@ -16,7 +15,7 @@ def alt_text_form(request):#
     except ValidationError:
         return HttpResponseBadRequest("Invalid model or pk")
 
-    context_phrase = request.GET.get('context_phrase')
+    context_phrase = request.GET.get("context_phrase")
 
     instance = models.AltText.objects.filter(
         content_type=content_type,
@@ -30,18 +29,18 @@ def alt_text_form(request):#
         content_type=content_type,
         object_id=object_id,
         file_path=file_path,
-        initial={'context_phrase': context_phrase},
+        initial={"context_phrase": context_phrase},
     )
 
     return render(
         request,
         "core/partials/alt_text/form.html",
         {
-            'form': form,
-            'object': obj,
-            'file_path': file_path,
-            'token': file_path,
-            'context_phrase': context_phrase,
+            "form": form,
+            "object": obj,
+            "file_path": file_path,
+            "token": file_path,
+            "context_phrase": context_phrase,
         },
     )
 

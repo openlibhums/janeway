@@ -3300,8 +3300,8 @@ class AltText(models.Model):
         blank=True,
     )
     content_object = GenericForeignKey(
-        'content_type',
-        'object_id',
+        "content_type",
+        "object_id",
     )
     file_path = models.CharField(
         max_length=500,
@@ -3326,8 +3326,8 @@ class AltText(models.Model):
 
     class Meta:
         unique_together = [
-            ('content_type', 'object_id', 'context_phrase'),
-            ('file_path', 'context_phrase'),
+            ("content_type", "object_id", "context_phrase"),
+            ("file_path", "context_phrase"),
         ]
         verbose_name = "Alt text"
         verbose_name_plural = "Alt texts"
@@ -3393,4 +3393,3 @@ class AltText(models.Model):
                 return match.alt_text
 
         return ""
-    
