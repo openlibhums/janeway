@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="press",
-            name="ally_info",
+            name="a11y_info",
             field=core.model_utils.JanewayBleachField(
                 blank=True,
                 help_text="This is information about the accessiblity of user-content.  It will appear on the accessibility page under the press name.",

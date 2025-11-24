@@ -184,7 +184,7 @@ class Press(AbstractSiteModel):
     disable_journals = models.BooleanField(
         default=False, help_text="If enabled, the journals page will no longer render."
     )
-    ally_info = JanewayBleachField(
+    a11y_info = JanewayBleachField(
         blank=True,
         verbose_name="Press Accessibility Information",
         help_text="This is information about the accessiblity of user-content.  It will appear on the accessibility page under the press name.",
