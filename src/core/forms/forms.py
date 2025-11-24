@@ -1076,6 +1076,7 @@ class OrcidAffiliationForm(forms.ModelForm):
         orcid_affiliation,
         tzinfo=timezone.get_current_timezone(),
         data=None,
+        journal=None,
         *args,
         **kwargs,
     ):
@@ -1129,6 +1130,14 @@ class OrcidAffiliationForm(forms.ModelForm):
             )
 
         super().__init__(data=data, *args, **kwargs)
+        if journal:
+            if not journal.get_setting("general", "author_job_title"):
+                self.fields.pop("title")
+            if not journal.get_setting("general", "author_department"):
+                self.fields.pop("department")
+            if not journal.get_setting("general", "author_affiliation_dates"):
+                self.fields.pop("start")
+                self.fields.pop("end")
 
 
 class ConfirmDeleteForm(forms.Form):

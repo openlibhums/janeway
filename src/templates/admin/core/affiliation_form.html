@@ -96,14 +96,20 @@
     {% endif %}
   </div>
   <div class="grid auto row-gap-0">
-    {% include "admin/elements/forms/field.html" with field=form.title %}
-    {% include "admin/elements/forms/field.html" with field=form.department %}
+    {% if not author or journal_settings.general.author_job_title %}
+      {% include "admin/elements/forms/field.html" with field=form.title %}
+    {% endif %}
+    {% if not author or journal_settings.general.author_department %}
+      {% include "admin/elements/forms/field.html" with field=form.department %}
+    {% endif %}
     {% include "admin/elements/forms/field.html" with field=form.is_primary %}
   </div>
-  <div class="grid auto row-gap-0">
-    {% include "admin/elements/forms/field.html" with field=form.start %}
-    {% include "admin/elements/forms/field.html" with field=form.end %}
-  </div>
+  {% if not author or journal_settings.general.author_affiliation_dates %}
+    <div class="grid auto row-gap-0">
+      {% include "admin/elements/forms/field.html" with field=form.start %}
+      {% include "admin/elements/forms/field.html" with field=form.end %}
+    </div>
+  {% endif %}
   <div class="button-group no-bottom-margin">
     {% include "elements/button_save.html" %}
     {% include "elements/a_cancel.html" with href=request.GET.next %}

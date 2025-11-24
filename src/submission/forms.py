@@ -546,13 +546,23 @@ class AuthorAffiliationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.journal = kwargs.pop("journal", None)
         self.frozen_author = kwargs.pop("frozen_author", None)
         self.organization = kwargs.pop("organization", None)
         super().__init__(*args, **kwargs)
+        if self.journal:
+            if not self.journal.get_setting("general", "author_job_title"):
+                self.fields.pop("title")
+            if not self.journal.get_setting("general", "author_department"):
+                self.fields.pop("department")
+            if not self.journal.get_setting("general", "author_affiliation_dates"):
+                self.fields.pop("start")
+                self.fields.pop("end")
 
     def clean(self):
         cleaned_data = super().clean()
         if not self.instance:
+            # Todo: Does this ever run? Q is undefined.
             query = Q(account=self.frozen_author, organization=self.organization)
             for key, value in cleaned_data.items():
                 query &= Q((key, value))

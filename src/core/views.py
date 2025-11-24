@@ -436,11 +436,13 @@ def register(request, orcid_token=None):
                 new_user = form.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-                    for orcid_affil in orcid_details.get("affiliations", []):
+                    orcid_affils = orcid_details.get("affiliations", [])
+                    if orcid_affils:
                         orcid_affil_form = forms.OrcidAffiliationForm(
-                            orcid_affiliation=orcid_affil,
+                            orcid_affiliation=orcid_affils[0],
                             tzinfo=new_user.preferred_timezone,
                             data={"account": new_user},
+                            journal=request.journal,
                         )
                         if orcid_affil_form.is_valid():
                             orcid_affil_form.save()
@@ -769,6 +771,7 @@ def affiliation_update_from_orcid(request, how_many="primary"):
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"account": request.user},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))
