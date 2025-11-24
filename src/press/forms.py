@@ -41,7 +41,7 @@ class PressForm(forms.ModelForm):
             "tracking_code",
             "disable_journals",
             "privacy_policy_url",
-            "ally_info",
+            "a11y_info",
             "allow_journal_a11y_info",
         )
         widgets = {
@@ -49,7 +49,7 @@ class PressForm(forms.ModelForm):
             "footer_description": TinyMCE(),
             "journal_footer_text": TinyMCE(),
             "description": TinyMCE(),
-            "ally_info": TinyMCE(),
+            "a11y_info": TinyMCE(),
         }
 
     def save(self, commit=True):
