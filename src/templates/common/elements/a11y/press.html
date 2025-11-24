@@ -1,4 +1,4 @@
 {% if press.ally_info%}
-    <h2>{{ press.name }}</h2>
+    <h2>{% trans 'Press:' %} {{ press.name }}</h2>
     {{ press.ally_info|safe }}
 {% endif %}
