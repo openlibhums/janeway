@@ -5599,7 +5599,7 @@
     },
     {
         "group": {
-            "name": "a11y"
+            "name": "general"
         },
         "setting": {
             "description": "This is information about the accessibility of user-content. It will appear on the accessibility page under the journal name.",

@@ -652,6 +652,7 @@ def get_settings_to_edit(display_group, journal, user):
             "from_address",
             "replyto_address",
             "use_credit",
+            "a11y_public_info",
         ]
 
         group_of_settings = process_setting_list(journal_settings, "general", journal)
@@ -668,10 +669,6 @@ def get_settings_to_edit(display_group, journal, user):
                     "choices": [[theme, theme] for theme in settings.CORE_THEMES],
                 },
             )
-
-        a11y_settings = ["a11y_public_info"]
-        a11y_group_of_settings = process_setting_list(a11y_settings, "a11y", journal)
-        group_of_settings.extend(a11y_group_of_settings)
 
     elif display_group == "proofing":
         proofing_settings = ["max_proofreaders"]
