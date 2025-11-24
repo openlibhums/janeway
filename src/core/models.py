@@ -3074,14 +3074,12 @@ class ControlledAffiliation(models.Model):
             "general", "author_affiliation_dates"
         ):
             return ""
+        elif not self.start and not self.end:
+            return ""
         else:
-            elements = [
-                self.start.strftime("%b %Y") if self.start else "",
-                self.end.strftime("%b %Y") if self.end else "",
-            ]
-            return mark_safe(
-                "&ndash;".join([element for element in elements if element])
-            )
+            start = self.start.strftime("%b %Y") if self.start else ""
+            end = self.end.strftime("%b %Y") if self.end else ""
+            return mark_safe(f"{start}&ndash;{end}")
 
     def title_department(self):
         elements = [
