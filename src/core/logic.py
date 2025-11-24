@@ -412,6 +412,24 @@ def get_settings_to_edit(display_group, journal, user):
                     "general", "hide_editors_from_authors", journal
                 ),
             },
+            {
+                "name": "author_job_title",
+                "object": setting_handler.get_setting(
+                    "general", "author_job_title", journal
+                ),
+            },
+            {
+                "name": "author_department",
+                "object": setting_handler.get_setting(
+                    "general", "author_department", journal
+                ),
+            },
+            {
+                "name": "author_affiliation_dates",
+                "object": setting_handler.get_setting(
+                    "general", "author_affiliation_dates", journal
+                ),
+            },
         ]
         setting_group = "general"
 
