@@ -1,5 +1,9 @@
 {% load settings %}
-{% if request.press.allow_journal_a11y_info and request.journal|setting:'a11y_public_info'|safe  %}
-    <h2>{% trans 'Journal:' %} {{ request.journal.name }}</h2>
-    {{ request.journal|setting:'a11y_public_info'|safe }}
+{% if request.press.allow_journal_a11y_info %}
+    {% with a11y_info=request.journal|setting:'a11y_public_info' %}
+        {% if a11y_info %}
+            <h2>{% trans 'Journal:' %} {{ request.journal.name }}</h2>
+            {{ a11y_info|safe }}
+        {% endif %}
+    {% endwith %}
 {% endif %}
