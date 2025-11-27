@@ -24,7 +24,7 @@
       </div>
       <div class="columns">
         <div class="list-group">
-          {% for author, credits, credit_form in authors %}
+          {% for author, credits, credit_form, unlinked_account in authors %}
             {% with "author-"|concat:author.pk as section_id %}
               <section
                 id="{{ section_id }}"
@@ -35,6 +35,18 @@
                   {% endif %}
                   {% if article.correspondence_author and article.correspondence_author == author.author %}
                     {% include "admin/submission/submit_correspondence_author.html" with article=article %}
+                  {% endif %}
+                  {% if unlinked_account %}
+                    <div class="bs-callout bs-callout-info">
+                      <p>
+                        A user account was found that has the same email address as
+                        this author ({{ unlinked_account.email }}), but they are not linked yet.
+                        Would you like to link the author to the account?
+                      </p>
+                      {% url_with_return "submission_link_author_to_account" article.pk author.pk as href %}
+                      {% trans "Link Account" as link_account %}
+                      {% include "elements/a_create.html" with href=href label=link_account %}
+                    </div>
                   {% endif %}
                   <div class="flex gap-2 direction-column-small">
                     {% if authors|length > 1 %}
