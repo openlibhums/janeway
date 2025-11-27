@@ -5612,6 +5612,7 @@
             "default": ""
         },
         "editable_by": [
+            "editor",
             "journal-manager"
         ]
     }
