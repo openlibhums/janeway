@@ -2235,7 +2235,7 @@ def full_text_search(request):
 
     paginate_by = request.GET.get("paginate_by", 25)
     if paginate_by == "all":
-        paginate_by = len(articles) if articles else 25
+        paginate_by = articles.count() if articles else 25
 
     paginator = Paginator(articles, paginate_by)
     page_number = request.GET.get("page")
