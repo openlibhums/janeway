@@ -30,7 +30,7 @@
       {% if journal_settings.general.enable_editorial_display %}
         {% include "common/sitemap_url.xml" with obj=press url_name='editorial_team' label="Editorial team" %}
       {% endif %}
-      {% include "common/sitemap_url.xml" with obj=press url_name='contact' label="Contact" %}
+      {% include "common/sitemap_url.xml" with obj=press url_name='press_contact' label="Contact" %}
       {% include "common/sitemap_url.xml" with obj=press url_name='core_login' label="Log in" %}
       {% include "common/sitemap_url.xml" with obj=press url_name='core_register' label="Register" %}
       {% for news_item in press.active_news_items %}

@@ -1256,3 +1256,58 @@ def create_organization_name(request):
             % {"organization": organization_name},
         )
         return organization_name
+
+
+def get_contact_form(request, recipient_uuid):
+    subject = request.GET.get("subject", "")
+    contact_people = request.site_type.contact_people
+    account = None
+    if recipient_uuid:
+        try:
+            account = models.Account.objects.get(
+                contactperson__in=contact_people,
+                uuid=recipient_uuid,
+            )
+        except models.Account.DoesNotExist:
+            pass
+
+    if request.method == "POST":
+        contact_form = forms.ContactMessageForm(
+            request.POST,
+            contact_people=contact_people,
+        )
+    else:
+        contact_form = forms.ContactMessageForm(
+            subject=subject,
+            contact_people=contact_people,
+            account=account,
+        )
+    return contact_form, contact_people
+
+
+def send_contact_message(contact_form, request):
+    message = contact_form.save(commit=False)
+    message.content_type = request.model_content_type
+    message.object_id = request.site_type.pk
+    message.save()
+    body = message.body.replace("\n", "<br>")
+    notify_helpers.send_email_with_body_from_setting_template(
+        request=request,
+        template="contact_message",
+        subject=message.subject,
+        to=message.account.email,
+        context={
+            "site": request.journal or request.press,
+            "from": message.sender,
+            "to": message.account.email,
+            "subject": message.subject,
+            "body": body,
+            "custom_reply_to": message.sender,
+        },
+    )
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _("Your message has been sent to %(recipient)s.")
+        % {"recipient": message.account.full_name()},
+    )
