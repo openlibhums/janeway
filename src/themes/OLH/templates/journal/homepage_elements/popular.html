@@ -1,14 +1,16 @@
 {% load static %}
 {% load i18n %}
+{% load counter %}
 
-<section aria-labelledby="popular-articles-title">
+{% get_next_id "popular" as popular_title %}
+<section aria-labelledby="{{ popular_title }}">
     <div class="row column text-center">
-        <h2 id="popular-articles-title" class="title">{% trans 'Most Popular Articles' %}</h2>
+        <h2 id="{{ popular_title }}" class="title">{% trans 'Most Popular Articles' %}</h2>
     </div>
     <div class="row column">
       <div class="grid auto-fit">
         {% for article in popular_articles %}
-          {% include "journal/homepage_elements/article_list_item.html" %}
+          {% include "journal/homepage_elements/article_list_item.html" with list_title=popular_title %}
         {% endfor %}
       </div>
     </div>
