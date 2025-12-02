@@ -18,23 +18,26 @@
                 {% for collection in collections %}
                     <div class="large-4 columns {% if forloop.last %}end{% endif %}">
                         <div class="box collection " data-equalizer-watch>
-                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link"></a>
+                            <a href="{% url 'journal_collection' collection.pk %}" class="box-link"
+                                aria-labelledby="{{ collection.pk }}-box-link" 
+                                aria-describedby="{{ collection.pk }}-box-link-details {{ collection.pk }}-box-link-description {{ collection.pk }}-box-link-image">
+                            </a>
                             <div class="olh-banner">
                               <img
                                 src="{{ collection.hero_image_url }}"
-                                alt="{{ collection.issue_title }}"
+                                aria-hidden="true"
                                 class="olh-banner-image"
                               >
                             </div>
-                            <div class="content">
-                                <p>{% trans 'Collection' %}<br/>
+                            <div class="content" aria-hidden="true">
+                                <p id="{{ collection.pk }}-box-link-details">{% trans 'Collection' %}<br/>
                                     <small>{% trans "Published" %}: {{ collection.date|date_human }}</small>
                                 </p>
-                                <h2>{{ collection.issue_title }}</h2>
+                                <h2 id="{{ collection.pk }}-box-link">{{ collection.issue_title }}</h2>
                                 {% if collection.short_description %}
-                                <p>{{ collection.short_description|safe }}</p>
+                                <p id="{{ collection.pk }}-box-link-description">{{ collection.short_description|safe }}</p>
                                 {% else %}
-                                <p>{{ collection.issue_description|safe }}</p>
+                                <p id="{{ collection.pk }}-box-link-description">{{ collection.issue_description|safe }}</p>
                                 {% endif %}
                             </div>
                         </div>
