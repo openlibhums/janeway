@@ -8,7 +8,7 @@
     {% endif %}
     <div class="card">
       <div class="material-banner">
-        <img class="activator material-banner-image" src="{{ issue.hero_image_url }}" alt="{{ issue.display_title_a11y }} hero image.">
+        <img class="activator material-banner-image" src="{{ issue.hero_image_url }}" alt="{% get_alt_text obj=issue file_path=issue.hero_image_url context_phrase="hero_image" default=issue.display_title_a11y %}">
         <div class="material-banner-heading">
           <div class="carousel-text-wrapper ">
             {{ issue.display_title }}
