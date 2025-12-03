@@ -445,7 +445,7 @@ class ConfiguratorForm(forms.ModelForm):
 
     class Meta:
         model = models.SubmissionConfiguration
-        exclude = ("journal",)
+        exclude = ("journal", "subtitle",)
 
 
 class ProjectedIssueForm(forms.ModelForm):
