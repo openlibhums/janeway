@@ -1,8 +1,8 @@
 {% load static %}
 {% load i18n %}
-{% load counter %}
+{% load uuid %}
 
-{% get_next_id "popular" as popular_title %}
+{% get_uuid4 as popular_title %}
 <section aria-labelledby="{{ popular_title }}">
     <div class="row column text-center">
         <h2 id="{{ popular_title }}" class="title">{% trans 'Most Popular Articles' %}</h2>
