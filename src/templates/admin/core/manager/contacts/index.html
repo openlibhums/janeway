@@ -4,8 +4,8 @@
 {% load fqdn %}
 {% load next_url %}
 
-{% block title %}Contact Manager{% endblock title %}
-{% block title-section %}Contact Manager{% endblock %}
+{% block title %}Contact People{% endblock title %}
+{% block title-section %}Contact People{% endblock %}
 
 {% block breadcrumbs %}
   {% include "elements/breadcrumbs/contacts_base.html" %}
@@ -52,9 +52,9 @@
                                 <td>
                                   {% if contact.account %}
                                     {% if request.journal %}
-                                      {% site_url "journal_contact_with_recipient" contact.account.uuid as content %}
+                                      {% site_url "journal_contact_with_recipient" contact.pk as content %}
                                     {% else %}
-                                      {% site_url "press_contact_with_recipient" contact.account.uuid as content %}
+                                      {% site_url "press_contact_with_recipient" contact.pk as content %}
                                     {% endif %}
                                     {% trans "Copy link" as label_copy %}
                                     {% trans "Link copied" as label_copied %}

@@ -40,13 +40,12 @@ class PluginAdmin(admin.ModelAdmin):
 class LogAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
+        "_from",
+        "_to",
+        "email_subject",
         "types",
         "date",
         "level",
-        "actor",
-        "_to",
-        "is_email",
-        "email_subject",
         "target",
     )
     list_filter = (
@@ -59,11 +58,12 @@ class LogAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "types",
-        "email_subject",
+        "subject",
         "actor__email",
         "actor__first_name",
         "actor__last_name",
-        "ip_address",
+        "actor_email",
+        "description",
         "email_subject",
         "addressee__email",
     )
@@ -73,6 +73,10 @@ class LogAdmin(admin.ModelAdmin):
     inlines = [
         admin_utils.AddresseeInline,
     ]
+
+    def _from(self, obj):
+        if obj:
+            return obj.actor.email if obj.actor else obj.actor_email
 
     def _to(self, obj):
         if obj:
