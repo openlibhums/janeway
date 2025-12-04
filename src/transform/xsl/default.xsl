@@ -1862,7 +1862,7 @@
   <xsl:template match="mixed-citation">
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
-      <xsl:apply-templates select="source | node()" mode="nscitation"/>
+      <xsl:apply-templates select="source | node()[not(self::ext-link)]" mode="nscitation"/>
       <xsl:apply-templates select="ext-link"/>
   </xsl:template>
 
