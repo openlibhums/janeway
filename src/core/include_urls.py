@@ -12,7 +12,7 @@ from django.views.decorators.cache import cache_page
 
 from journal import urls as journal_urls
 from core import views as core_views, plugin_loader
-from utils import notify
+from utils import notify, views as utils_views
 from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
@@ -125,8 +125,8 @@ urlpatterns = [
         press_views.contact,
         name="press_contact",
     ),
-    path(
-        "press/contact/recipient/<uuid:recipient>/",
+    re_path(
+        "press/contact/recipient/(?P<contact_person_id>\d+)/?",
         press_views.contact,
         name="press_contact_with_recipient",
     ),
@@ -296,6 +296,22 @@ urlpatterns = [
         r"^manager/contacts/(?P<contact_person_id>\d+)/delete/$",
         core_views.contact_person_delete,
         name="core_contact_person_delete",
+    ),
+    # Contact messages
+    re_path(
+        r"^manager/contact-messages/$",
+        utils_views.ContactMessageListView.as_view(),
+        name="core_contact_messages",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/$",
+        utils_views.contact_message,
+        name="core_contact_message",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/delete/$",
+        utils_views.contact_message_delete,
+        name="core_contact_message_delete",
     ),
     # Editorial Team
     re_path(

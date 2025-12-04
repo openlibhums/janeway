@@ -1,0 +1,40 @@
+{% extends "admin/elements/nitty_gritty.html" %}
+
+{% load next_url %}
+
+{% block contextual_title %}
+  {{ log_entry.email_subject|truncatewords:5 }}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {{ log_entry.email_subject|truncatewords:5 }}
+{% endblock title-section %}
+
+{% block title-sub %}
+  <div class="button-group no-bottom-margin padding-block-start-0-5">
+    {% url "core_contact_messages" as back_url %}
+    {% with label="Back to contact messages" href=back_url %}
+      {% include "elements/a_back.html" %}
+    {% endwith %}
+  </div>
+{% endblock title-sub %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/contact_messages_base.html" with subpage=True %}
+  <li>{{ log_entry.email_subject|truncatewords:5 }}</li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "elements/layout/key_value_above.html" with key="From" value=log_entry.from_email %}
+  {% include "elements/layout/key_value_above.html" with key="Subject" value=log_entry.email_subject %}
+  {% include "elements/layout/key_value_above.html" with key="Date" value=log_entry.date %}
+  {% include "elements/layout/key_value_above.html" with key="Website" value=log_entry.target.name %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Contact message" %}
+{% endblock gritty_h2 %}
+
+{% block gritty %}
+  {{ log_entry.description|safe }}
+{% endblock gritty %}

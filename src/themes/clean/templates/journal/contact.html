@@ -24,7 +24,7 @@
             <form method="POST" novalidate>
                 {% include "elements/forms/errors.html" with form=contact_form %}
                 {% csrf_token %}
-                {% bootstrap_field contact_form.account %}
+                {% bootstrap_field contact_form.contact_person %}
                 {% bootstrap_field contact_form.sender %}
                 {% bootstrap_field contact_form.subject %}
                 {% bootstrap_field contact_form.body %}

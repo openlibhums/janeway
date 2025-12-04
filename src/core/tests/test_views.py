@@ -860,7 +860,7 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         )
 
 
-class ContactManagerTests(CoreViewTestsWithData):
+class ContactSystemTests(CoreViewTestsWithData):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -906,6 +906,16 @@ class ContactManagerTests(CoreViewTestsWithData):
         )
         cls.press_content_type = ContentType.objects.get_for_model(cls.press)
         cls.journal_content_type = ContentType.objects.get_for_model(cls.journal_one)
+
+        # Create some log entries containing contact messages
+        cls.contact_message_one = helpers.send_contact_message(
+            cls.journal_one,
+            cls.contact_one,
+        )
+        cls.contact_message_two = helpers.send_contact_message(
+            cls.press,
+            cls.contact_three,
+        )
 
     @override_settings(URL_CONFIG="domain")
     def test_contact_people_GET(self):
@@ -1053,3 +1063,63 @@ class ContactManagerTests(CoreViewTestsWithData):
         }
         response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
         self.assertTrue(response.context["account_list"][0].is_contact_person)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_journal_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_press_GET(self):
+        self.client.force_login(self.press_manager)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.press.domain)
+        self.assertIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_delete_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message_delete",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
+        )

@@ -2079,11 +2079,11 @@ def become_reviewer(request):
     return render(request, template, context)
 
 
-def contact(request, recipient=""):
+def contact(request, contact_person_id=None):
     """
     Displays a form that allows a user to contact admins or editors.
     :param request: HttpRequest object
-    :param recipient: uuid4
+    :param contact_person_id: pk for the ContactPerson that should be pre-selected
     :return: HttpResponse or HttpRedirect if POST
     """
 
@@ -2093,7 +2093,7 @@ def contact(request, recipient=""):
 
     contact_form, contact_people = core_logic.get_contact_form(
         request,
-        recipient,
+        contact_person_id,
     )
     if request.POST and contact_form.is_valid():
         core_logic.send_contact_message(contact_form, request)

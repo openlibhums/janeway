@@ -2025,19 +2025,20 @@ class ContactPerson(models.Model):
         return self.account.pretty_wrapping_email if self.account else ""
 
 
-class ContactMessage(models.Model):
-    account = models.ForeignKey(
-        Account,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Who would you like to contact?"),
+class Contact(models.Model):
+    """
+    Deprecated. Use LogEntry instead.
+    """
+
+    recipient = models.EmailField(
+        max_length=200, verbose_name=_("Who would you like to contact?")
     )
     sender = models.EmailField(
         max_length=200, verbose_name=_("Your contact email address")
     )
     subject = models.CharField(max_length=300, verbose_name=_("Subject"))
     body = JanewayBleachField(verbose_name=_("Your message"))
+    client_ip = models.GenericIPAddressField(blank=True, null=True)
     date_sent = models.DateField(auto_now_add=True)
 
     content_type = models.ForeignKey(
@@ -2046,37 +2047,19 @@ class ContactMessage(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    # Deprecated fields
-    recipient = models.EmailField(
-        max_length=200,
-        help_text="The 'recipient' field is deprecated. Use 'account'.",
-        blank=True,
-    )
-    client_ip = models.GenericIPAddressField(
-        blank=True,
-        null=True,
-        help_text="The 'client_ip' field is deprecated.",
-    )
+    class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
+        verbose_name_plural = "contact messages"
 
-    def __getattribute__(self, name):
-        if name == "recipient":
-            warnings.warn(
-                "The 'recipient' field is deprecated. Use 'account'.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if name == "client_ip":
-            warnings.warn(
-                "The 'client_ip' field is deprecated.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return super().__getattribute__(name)
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Contact is deprecated. Use LogEntry instead.")
+        super().__init__(*args, **kwargs)
 
 
 # Aliases for backward compatibility
 Contacts = ContactPerson
-Contact = ContactMessage
 
 
 class DomainAlias(AbstractSiteModel):

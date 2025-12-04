@@ -9,6 +9,7 @@ from unittest.mock import Mock
 import datetime
 
 from django.http import HttpRequest
+from django.test import override_settings
 from django.test.client import QueryDict
 from django.utils import translation, timezone
 from django.conf import settings
@@ -18,6 +19,8 @@ from utils import template_override_middleware
 from django.template.engine import Engine
 
 from core import (
+    forms as core_forms,
+    logic as core_logic,
     middleware,
     models as core_models,
     files,
@@ -30,7 +33,7 @@ from review import models as review_models
 from copyediting import models as copyediting_models
 from comms import models as comms_models
 from cms import models as cms_models
-from utils import setting_handler
+from utils import setting_handler, models as utils_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -460,6 +463,7 @@ class Request(HttpRequest):
         self.press = kwargs.get("press", None)
         self.repository = kwargs.get("repository", None)
         self.journal = kwargs.get("journal", None)
+        self._messages = Mock()
         self.site_type = kwargs.get("site_type", None)
         self.port = kwargs.get("port", 8000)
         self.secure = kwargs.get("secure", False)
@@ -775,3 +779,46 @@ def create_licence(journal, name, short_name, **kwargs):
         url="https://example.com",
         **kwargs,
     )
+
+
+def send_contact_message(
+    site,
+    contact_person,
+    sender_email="notloggedin@example.org",
+    subject="Merry Christmas",
+    body="Tis the season\nTo be jolly",
+):
+    """
+    Sends a contact message via core logic so that it is formed and logged
+    in the same way as if a user filled out the contact form.
+    :param site: the Journal or Press to be associated with the contact message
+    :param contact_person: ContactPerson object
+    :param sender_email: email address of unauthenticated user
+    :param subject: email subject line
+    :param body: body of message
+    """
+    if isinstance(site, journal_models.Journal):
+        request = get_request(journal=site, press=site.press)
+    else:
+        request = get_request(press=site)
+    request.POST = {
+        "contact_person": contact_person.pk,
+        "sender": sender_email,
+        "subject": subject,
+        "body": body,
+    }
+
+    create_setting(
+        setting_group_name="general",
+        setting_name="contact_message",
+        pretty_name="Contact Message",
+        description="<p>{{ body|safe }}</p>",
+    )
+    with override_settings(CAPTCHA_TYPE=""):
+        contact_form = core_forms.ContactMessageForm(
+            request.POST,
+            contact_people=site.contact_people,
+        )
+        if contact_form.is_valid():
+            core_logic.send_contact_message(contact_form, request)
+            return utils_models.LogEntry.objects.order_by("-date").first()

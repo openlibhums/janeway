@@ -581,32 +581,6 @@ class ContactPersonAdmin(admin.ModelAdmin):
         return obj.account.email if obj and obj.account else ""
 
 
-class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = (
-        "subject",
-        "sender",
-        "account",
-        "date_sent",
-        "object",
-    )
-    list_filter = (
-        admin_utils.GenericRelationJournalFilter,
-        admin_utils.GenericRelationPressFilter,
-        "date_sent",
-        "account",
-    )
-    search_fields = (
-        "subject",
-        "sender",
-        "account__first_name",
-        "account__middle_name",
-        "account__last_name",
-        "account__email",
-    )
-    raw_id_fields = ("account",)
-    date_hierarchy = "date_sent"
-
-
 class DomainAliasAdmin(admin.ModelAdmin):
     list_display = ("domain", "redirect", "site_object", "redirect_url")
     list_filter = ("journal", "press")
@@ -784,7 +758,6 @@ admin_list = [
     (models.WorkflowLog, WorkflowLogAdmin),
     (models.LoginAttempt, LoginAttemptAdmin),
     (models.ContactPerson, ContactPersonAdmin),
-    (models.ContactMessage, ContactMessageAdmin),
     (models.AccessRequest, AccessRequestAdmin),
     (models.Organization, OrganizationAdmin),
     (models.OrganizationName, OrganizationNameAdmin),

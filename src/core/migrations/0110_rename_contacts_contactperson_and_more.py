@@ -45,10 +45,37 @@ def connect_contact_person_to_account(apps, schema_editor):
         contact_person.save()
 
 
-def connect_contact_message_to_account(apps, schema_editor):
-    ContactMessage = apps.get_model("core", "ContactMessage")
+def infer_contact_message_target(apps, account):
+    Journal = apps.get_model("journal", "Journal")
+    Press = apps.get_model("press", "Press")
+    journals_where_editor = Journal.objects.filter(
+        accountrole__user=account,
+        accountrole__role__slug="editor",
+    )
+    is_staff = account.is_staff
+    if is_staff and journals_where_editor.count() == 0:
+        # This person must have been contacted in their press staff capacity.
+        target = Press.objects.first()
+    elif not is_staff and journals_where_editor.count() == 1:
+        # This person must have been contacted in their journal editor capacity.
+        target = journals_where_editor[0]
+    else:
+        # This person has multiple roles, so we cannot infer the site where the
+        # contact form was submitted.
+        target = None
+    return target
+
+
+def move_contact_message_to_log_entry(apps, schema_editor):
+    Contact = apps.get_model("core", "Contact")
     Account = apps.get_model("core", "Account")
-    for contact_message in ContactMessage.objects.all():
+    LogEntry = apps.get_model("utils", "LogEntry")
+    Addressee = apps.get_model("utils", "Addressee")
+    ContentType = apps.get_model("contenttypes", "ContentType")
+    log_entries_to_create = []
+    addressees_to_link_up = []
+
+    for contact_message in Contact.objects.all():
         email = contact_message.recipient
         matching_accounts = Account.objects.filter(
             models.Q(username__iexact=email) | models.Q(email__iexact=email),
@@ -61,23 +88,60 @@ def connect_contact_message_to_account(apps, schema_editor):
                 email=normalized_email,
                 username=normalized_email,
             )
-        contact_message.account = account
-        contact_message.recipient = ""
-        contact_message.client_ip = ""
-        contact_message.save()
+        new_entry = LogEntry()
+        new_entry.types = "Contact Message"
+        new_entry.date = contact_message.date_sent
+        new_entry.subject = contact_message.subject
+        new_entry.description = contact_message.body
+        new_entry.level = "Info"
+        new_entry.actor = None
+        new_entry.actor_email = contact_message.sender
+        new_entry.request = None
+
+        if contact_message.content_type and contact_message.object_id:
+            # We set LogEntry.target explicitly, so it works with bulk_create.
+            new_entry.content_type = contact_message.content_type
+            new_entry.object_id = contact_message.object_id
+        else:
+            # The Contact was supposed store the journal or press in a field called `object`,
+            # but due to a bug, it was not typically populated before this migration.
+            # So we anticipate that in most cases, LogEntry.target will need to be inferred.
+            target = infer_contact_message_target(apps, account)
+            if target:
+                new_entry.content_type = ContentType.objects.get_for_model(target)
+                new_entry.object_id = target.pk
+
+        new_entry.is_email = True
+        new_entry.email_subject = contact_message.subject
+        log_entries_to_create.append(new_entry)
+
+        addressee = Addressee()
+        addressee.email = account.email
+        addressee.field = "to"
+        addressees_to_link_up.append(addressee)
+
+    batch_size = 500
+    log_entries = LogEntry.objects.bulk_create(log_entries_to_create, batch_size)
+
+    # Link up the addressees with their log entries
+    addressees_to_create = []
+    for i, addressee in enumerate(addressees_to_link_up):
+        addressee.log_entry = log_entries[i]
+        addressees_to_create.append(addressee)
+
+    Addressee.objects.bulk_create(addressees_to_create, batch_size)
+
+    Contact.objects.all().delete()
 
 
 class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("core", "0109_salutation_name_20250707_1420"),
+        ("utils", "0043_logentry_actor_email_alter_logentry_ip_address"),
     ]
 
     operations = [
-        migrations.RenameModel(
-            old_name="Contact",
-            new_name="ContactMessage",
-        ),
         migrations.RenameModel(
             old_name="Contacts",
             new_name="ContactPerson",
@@ -185,37 +249,6 @@ class Migration(migrations.Migration):
             name="sequence",
             field=models.PositiveIntegerField(default=1),
         ),
-        migrations.AddField(
-            model_name="contactmessage",
-            name="account",
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                to=settings.AUTH_USER_MODEL,
-                verbose_name="Who would you like to contact?",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="contactmessage",
-            name="client_ip",
-            field=models.GenericIPAddressField(
-                blank=True, help_text="The 'client_ip' field is deprecated.", null=True
-            ),
-        ),
-        migrations.AlterField(
-            model_name="contactmessage",
-            name="recipient",
-            field=models.EmailField(
-                help_text="The 'recipient' field is deprecated. Use 'account'.",
-                max_length=200,
-                blank=True,
-            ),
-        ),
-        migrations.AlterModelOptions(
-            name="contactmessage",
-            options={},
-        ),
         migrations.AlterModelOptions(
             name="contactperson",
             options={
@@ -228,7 +261,7 @@ class Migration(migrations.Migration):
             reverse_code=migrations.RunPython.noop,
         ),
         migrations.RunPython(
-            connect_contact_message_to_account,
+            move_contact_message_to_log_entry,
             reverse_code=migrations.RunPython.noop,
         ),
     ]

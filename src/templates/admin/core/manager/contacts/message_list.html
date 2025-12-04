@@ -1,0 +1,82 @@
+{% extends "admin/core/base.html" %}
+{% load next_url %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+  <li>Contact Messages</li>
+{% endblock %}
+
+{% block title %}Contact Messages | {{ block.super }}{% endblock %}
+{% block title-section %}Contact Messages{% endblock %}
+
+{% block body %}
+  <div class="rummage-portal wide-table">
+    <div>
+      {% include "admin/elements/list_filters.html" %}
+      <section class="box" aria-label="help">
+        <div class="title-area">
+          <h2 id="help">Help</h2>
+        </div>
+        <ul>
+          {% if contact_person %}
+            <li>This page lists all contact messages sent to you as a
+            contact person for {{ request.site_type.name }}.</li>
+          {% else %}
+            <li>You are not currently a contact person for
+            {{ request.site_type.name }}.</li>
+          {% endif %}
+          <li>To change who can be contacted, go to <strong>Contact
+            People</strong> from the <strong>Manager</strong>.</li>
+          {% if request.journal %}
+          <li>If you are looking for an older contact message not listed here,
+            please contact your press manager.</li>
+          {% endif %}
+        </ul>
+      </section>
+    </div>
+    <div class="box">
+      <div class="title-area">
+        <h2>Contact Messages</h2>
+      </div>
+      <div>
+        {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+      </div>
+      <table class="scroll hover small" id="unassigned">
+        <tr>
+          <th>Log ID</th>
+          <th>From</th>
+          <th>Subject</th>
+          <th>Message</th>
+          <th>Date</th>
+          <th>View</th>
+          <th>Delete</th>
+        </tr>
+        {% for entry in logentry_list %}
+          <tr>
+            <th scope="row">{{ entry.pk }}</th>
+            <td>{{ entry.actor_email }}</td>
+            <td>{{ entry.email_subject }}</td>
+            <td>{{ entry.description|safe|truncatewords:10 }}</td>
+            <td>{{ entry.date }}</td>
+            <td>
+              <a
+                class="button small"
+                href="{% url_with_return 'core_contact_message' entry.pk %}">
+                View
+              </a>
+            </td>
+            <td>
+              <a
+                class="button small alert"
+                href="{% url_with_return 'core_contact_message_delete' entry.pk %}">
+                Delete
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+    </div>
+  </div>
+{% endblock body %}

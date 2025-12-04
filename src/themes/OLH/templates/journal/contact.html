@@ -29,7 +29,7 @@
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}
                     {% include "admin/elements/forms/required_field_info.html" %}
-                    {{ contact_form.account|foundation }}
+                    {{ contact_form.contact_person|foundation }}
                     {{ contact_form.sender|foundation }}
                     {{ contact_form.subject|foundation }}
                     {{ contact_form.body|foundation }}

@@ -5625,10 +5625,10 @@
             "is_translatable": true,
             "name": "contact_message",
             "pretty_name": "Contact Message",
-            "type": "char"
+            "type": "rich-text"
         },
         "value": {
-            "default": "<p>This message is from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a>.</p><br /><p>From: {{ from }}</p><p>To: {{ to }}</p><p>Subject: {{ subject }}</p><p>Body:</p><p>{{ body }}</p>"
+            "default": "<p>{{ body|safe }}</p><hr><p>The above was sent from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a> by {{ from }}.</p>"
         },
         "editable_by": [
             "editor",

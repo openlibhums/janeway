@@ -897,6 +897,11 @@ ul.menu {
   @media (width > 50rem) {
     grid-template-columns: 20rem minmax(auto, 60rem);
   }
+  &.wide-table {
+    @media (width > 50rem) {
+      grid-template-columns: 20rem auto;
+    }
+  }
   h3 {
     font-size: 1.3rem;
   }
