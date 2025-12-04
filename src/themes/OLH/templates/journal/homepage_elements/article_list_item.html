@@ -1,11 +1,11 @@
 {% load static %}
 {% load i18n %}
 {% load settings %}
-{% load counter %}
+{% load uuid %}
 
 {% setting_var request.journal 'disable_article_large_image' as disable_image %}
 
-{% get_next_id "item" as item_id %}
+{% get_uuid4 as item_id %}
 
 <div class="olh-banner">
   <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}"
