@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.test import TestCase, override_settings
 
 from core import models as core_models
+from utils import models as utils_models
 from utils.testing import helpers
 
 
@@ -57,8 +58,8 @@ class PressContactTests(PressViewTestsWithData):
             response.context["contacts"][0].account.email,
         )
         self.assertEqual(
-            [(self.press_manager.pk, self.press_manager.full_name())],
-            response.context["contact_form"].fields["account"].choices,
+            [(self.contact_person.pk, self.contact_person.account.full_name())],
+            response.context["contact_form"].fields["contact_person"].choices,
         )
         self.assertTemplateUsed("press/journal/contact.html")
 
@@ -79,10 +80,10 @@ class PressContactTests(PressViewTestsWithData):
     @override_settings(CAPTCHA_TYPE="")
     def test_press_contact_POST(self):
         post_data = {
-            "account": self.press_manager.pk,
-            "sender": "notloggedin@example.org",
-            "subject": "Idea for a publishing platform",
-            "body": "There is a technology called paper, which...",
+            "contact_person": self.contact_person.pk,
+            "sender": "santa@example.org",
+            "subject": "Merry Christmas",
+            "body": "Tis the season\nTo be jolly",
         }
         self.client.post(
             reverse("press_contact"),
@@ -90,9 +91,9 @@ class PressContactTests(PressViewTestsWithData):
             SERVER_NAME=self.press.domain,
         )
         self.assertTrue(
-            core_models.ContactMessage.objects.filter(
-                sender="notloggedin@example.org",
+            utils_models.LogEntry.objects.filter(
+                actor_email="santa@example.org",
                 content_type=self.press_content_type,
                 object_id=self.press.pk,
-            ).exists(),
+            ).exists()
         )
