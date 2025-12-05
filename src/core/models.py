@@ -2915,26 +2915,28 @@ class Organization(models.Model):
                 # Or maybe a primary affiliation has already been
                 # entered without a ROR for this
                 # account / frozen author / preprint author?
+                # If there is no `institution`, this method is being used to update
+                # the department or country in isolation, so we want the primary
+                # affiliation's org regardless of what its custom label is.
+                query = models.Q(
+                    controlledaffiliation__is_primary=True,
+                    controlledaffiliation__account=account,
+                    controlledaffiliation__frozen_author=frozen_author,
+                    controlledaffiliation__preprint_author=preprint_author,
+                    ror_id__exact="",
+                )
                 try:
-                    # If there is no `institution`, this method is being used to update
-                    # the department or country in isolation, so we want the primary
-                    # affiliation's org regardless of what its custom label is.
-                    query = models.Q(
-                        controlledaffiliation__is_primary=True,
-                        controlledaffiliation__account=account,
-                        controlledaffiliation__frozen_author=frozen_author,
-                        controlledaffiliation__preprint_author=preprint_author,
-                        ror_id__exact="",
-                    )
                     # If there is an institution name, we should only match organizations
                     # with that as a custom label.
                     if institution and institution != " ":
                         query &= models.Q(custom_label__value=institution)
                     organization = cls.objects.get(query)
-                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                except cls.DoesNotExist:
                     # Otherwise, create a new, disconnected record.
                     organization = cls.objects.create()
                     created = True
+                except cls.MultipleObjectsReturned:
+                    organization = cls.objects.filter(query).first()
 
         # Set custom label if organization is not controlled by ROR
         if institution and institution != " " and not organization.ror_id:
