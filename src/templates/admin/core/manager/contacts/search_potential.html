@@ -1,0 +1,74 @@
+{% extends "admin/elements/nitty_gritty.html" %}
+
+{% load i18n static next_url %}
+
+{% block contextual_title %}
+  {% trans "Add Contact Person" %}
+{% endblock contextual_title %}
+
+{% block title-section %}
+  {% trans "Add Contact Person" %}
+{% endblock title-section %}
+
+{% block breadcrumbs %}
+  {% include "elements/breadcrumbs/contacts_base.html" with subpage=True %}
+  <li>{% trans "Add Contact Person" %}</li>
+{% endblock breadcrumbs %}
+
+{% block nitty %}
+  {% include "admin/core/manager/contacts/related_info.html" with contact_people=contact_people %}
+{% endblock nitty %}
+
+{% block gritty_h2 %}
+  {% trans "Search by name or email" %}
+{% endblock gritty_h2 %}
+
+{% block gritty %}
+  {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
+  {% include "admin/elements/list_search.html" with placeholder='e.g. Kathryn Janeway' %}
+  {% if request.journal %}
+    <p>Only accounts with the role of editor, section editor, or press manager are searchable here. Press staff can also be journal contacts.</p>
+  {% else %}
+    <p>Only staff members are searchable here.</p>
+  {% endif %}
+  {% if request.GET.q %}
+    {% for account in account_list %}
+      <div class="callout">
+        <div class="flex space-between">
+          <div class="width-full">
+            <h3>{{ account.full_name }}</h3>
+            <dl class="grid auto">
+              {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
+              {% if account.primary_affiliation %}
+                {% include "admin/elements/layout/key_value_above.html" with key="Affiliation" value=account.primary_affiliation %}
+              {% endif %}
+            </dl>
+          </div>
+          {% if account.is_contact_person %}
+            <div>
+              <div class="callout text-align-center">
+                <span class="fa fa-check"></span>
+                <span>Already a contact person</span>
+              </div>
+            </div>
+          {% else %}
+            <div>
+              {% url_with_next 'core_contact_person_create' account.pk as create_url %}
+              {% trans "Make contact person" as create_label %}
+              {% include "elements/a_create.html" with href=create_url label=create_label %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p><strong>{% trans 'No people to display.' %}</strong></p>
+    {% endfor %}
+    <div class="callout">
+      <h3>{% trans "User account not found?" %}</h3>
+      {% url_with_return 'core_add_user' as create_url %}
+      {% trans "Create user account" as create_label %}
+      {% include "elements/a_create.html" with href=create_url label=create_label %}
+    </div>
+    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+  {% endif %}
+{% endblock gritty %}
