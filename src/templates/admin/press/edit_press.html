@@ -57,6 +57,11 @@
                         {{ form.password_length|foundation }}
                         {{ form.privacy_policy_url|foundation }}
                         {{ form.tracking_code|foundation }}
+                        <div class="title-area">
+                            <h2>Accessibility</h2>
+                        </div>
+                        {{ form.a11y_info|foundation }}
+                        {{ form.allow_journal_a11y_info|foundation }}
                         <button type="submit" name="save_press" class="success button">Save</button>
                     </form>
                 </div>

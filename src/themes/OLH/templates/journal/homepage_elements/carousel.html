@@ -6,27 +6,42 @@
         <section aria-labelledby="carousel-title" class="no-padding" id="orbitsection">
             <h2 id="carousel-title" class="sr-only">{% trans 'Carousel' %}</h2>
             <div class="row column" id="orbiter">
-                <div class="orbit" data-orbit>
+                <div class="orbit" data-orbit data-auto-play="false">
                     <ul class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
                           <li class="orbit-slide ">
-                            <a href="{{ carousel_item.url }}" class="box-link"></a>
+                            <a href="{{ carousel_item.url }}" class="box-link"
+                                aria-labelledby="{{ carousel_item.id }}-title"
+                                aria-describedby="{{ carousel_item.id }}-subtitle {{ carousel_item.id }}-details carousel-title">
+                            </a>
                               <div class="olh-banner">
                                 <img class="olh-banner-image"
                                   src="{{ carousel_item.best_large_image_url }}"
-                                  alt="{{ carousel_item.best_large_image_alt_text|striptags }}">
+                                  alt="{{ carousel_item.best_large_image_alt_text|striptags }}"
+                                  aria-hidden="true">
                                 <div class="overlay"></div>
-                                <figcaption class="olh-banner-heading">
-                                    <p>{{ carousel_item.carousel_subtitle|safe }}</p>
-                                    <h3>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
+                                <figcaption class="olh-banner-heading" aria-hidden="true">
+                                    <p id="{{ carousel_item.id }}-subtitle">{{ carousel_item.carousel_subtitle|safe }}</p>
+                                    <h3 id="{{ carousel_item.id }}-title">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
                                     {% if request.site_type.code == 'press' and carousel_item.stage %}
-                                        <p>{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
+                                        <p id="{{ carousel_item.id }}-details" >{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
                                     {% endif %}
                                 </figcaption>
                               </div>
                             </li>
                         {% endfor %}
                     </ul>
+                    <nav class="orbit-bullets">
+                        {% for carousel_item in carousel_items %}
+                            <button data-slide="{{ forloop.counter0 }}">
+                                <span class="sr-only">
+                                    {% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}
+                                        Slide {{ slide_number }} of {{ total_slides }}
+                                    {% endblocktrans %}
+                                </span>
+                            </button>
+                        {% endfor %}
+                    </nav>
                 </div>
             </div>
         </section>

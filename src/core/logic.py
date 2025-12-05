@@ -653,6 +653,7 @@ def get_settings_to_edit(display_group, journal, user):
             "from_address",
             "replyto_address",
             "use_credit",
+            "a11y_public_info",
         ]
 
         group_of_settings = process_setting_list(journal_settings, "general", journal)

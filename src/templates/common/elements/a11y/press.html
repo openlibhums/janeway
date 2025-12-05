@@ -1,0 +1,6 @@
+{% with a11y_info=press.a11y_info %}
+    {% if a11y_info %}
+        <h2>{% trans 'Press:' %} {{ press.name }}</h2>
+        {{ a11y_info|safe }}
+    {% endif %}
+{% endwith %}

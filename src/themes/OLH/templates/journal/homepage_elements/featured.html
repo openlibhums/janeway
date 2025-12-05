@@ -1,14 +1,16 @@
 {% load static %}
 {% load i18n %}
+{% load uuid %}
 
-<section aria-labelledby="featured-articles-title">
+{% get_uuid4 as featured_title %}
+<section aria-labelledby="{{ featured_title }}">
     <div class="row column text-center">
-        <h2 class="title" id="featured-articles-title">{% trans 'Featured Articles' %}</h2>
+        <h2 class="title" id="{{ featured_title }}">{% trans 'Featured Articles' %}</h2>
     </div>
     <div class="row column">
       <div class="grid auto-fit">
         {% for fa in featured_articles %}
-          {% include "journal/homepage_elements/article_list_item.html" with article=fa.article %}
+            {% include "journal/homepage_elements/article_list_item.html" with article=fa.article list_title=featured_title %}    
         {% endfor %}
       </div>
     </div>

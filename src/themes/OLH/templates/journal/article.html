@@ -73,8 +73,10 @@
             <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
                 <div class="row">
                     <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
-                        <button class="menu-icon" type="button" data-toggle aria-label="{% trans 'Options' %}"></button>
-                        <div class="title-bar-title">{% trans 'Options' %}</div>
+                        <button class="title-bar-title" type="button" data-toggle>
+                            <span class="menu-icon"> </span>
+                            {% trans 'Article Options' %}
+                        </button>
                     </div>
                     <div id="options-menu">
                         <div class="small-12s medium-9 medium-offset-3 large-10 large-offset-2 columns">
@@ -88,8 +90,8 @@
                                             <span class="sr-only">{% trans 'Print article' %}</span>
                                         </a>
                                     </li>
-                                    <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
-                                    <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
+                                    <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}">A-</button></li>
+                                    <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}">A+</button></li>
                                     {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
@@ -98,12 +100,12 @@
                                             </a>
                                         </li>
                                     {% endif %}
-                                    <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
+                                    <li><button onclick="toggleDyslexia();" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</button></li>
                                     <li>
-                                        <a href="#">
+                                        <button type="button" data-toggle aria-expanded="false" aria-haspopup="true">
                                             <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
                                             <span class="sr-only">{% trans 'Cite article' %}</span>
-                                        </a>
+                                        </button>
                                         <ul class="menu vertical">
                                             <li><a href="#" data-open="HarvardModal">{% trans "Harvard Citation Style" %}</a></li>
                                             <li><a href="#" data-open="VancouverModal">{% trans "Vancouver Citation Style" %}</a></li>

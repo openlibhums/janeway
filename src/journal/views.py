@@ -2125,6 +2125,24 @@ def contact(request):
 
 
 @decorators.frontend_enabled
+def accessibility(request):
+    """
+    Displays the accessibility information page.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    if request.journal and request.journal.disable_front_end:
+        template = "admin/core/a11y.html"
+    elif request.journal:
+        template = "core/a11y.html"
+    else:
+        template = "press/a11y.html"
+
+    context = {}
+    return render(request, template, context)
+
+
+@decorators.frontend_enabled
 def editorial_team(request, group_id=None):
     """
     Displays a list of editorial team members at the journal level,
@@ -2223,6 +2241,7 @@ def full_text_search(request):
     search_term, keyword, sort, form, redir = logic.handle_search_controls(
         request,
     )
+
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
@@ -2232,10 +2251,25 @@ def full_text_search(request):
             site=request.site_object,
         )
 
+    paginate_by = request.GET.get("paginate_by", 25)
+    if paginate_by == "all":
+        paginate_by = articles.count() if articles else 25
+
+    paginator = Paginator(articles, paginate_by)
+    page_number = request.GET.get("page")
+
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
     template = "journal/full-text-search.html"
     context = {
-        "articles": articles,
-        "article_search": search_term,
+        "articles": page_obj,
+        "page_obj": page_obj,
+        "is_paginated": page_obj.has_other_pages(),
+        "paginate_by": paginate_by,
+        "search_term": search_term,
         "keyword": keyword,
         "form": form,
     }
