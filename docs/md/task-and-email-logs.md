@@ -21,8 +21,6 @@ TODO
 
 -->
 
-## Exceptions to action logging
+## Non-workflow log entries
 
-There are exceptions to logging that are worth noting:
-
-- Contact messages are not logged. Instead they are simply stored as objects.
+There are email messages stored as log entries that are unrelated to the workflow. Contact messages are the first case of this kind of non-workflow log entry.
