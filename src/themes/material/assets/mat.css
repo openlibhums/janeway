@@ -1184,3 +1184,49 @@ p + .btn-background {
   .nav-wrapper a:focus {
     display: block;
   }
+
+/* navbar overrides */
+:root {
+  --nav-height-px: 120px;
+  --nav-border-style: 4px solid;
+}
+
+@media only screen and (min-width: 993px) {
+  .header-overrides {
+    height: var(--nav-height-px);
+  }
+
+  .dropdown-content {
+    top: var(--nav-height-px) !important;
+  }
+
+  .header-overrides ul.hide-on-med-and-down a:not(.dropdown-item) {
+    height: var(--nav-height-px);
+    padding: calc(var(--nav-height-px) - 75px) 10px 0px;
+  }
+
+  nav ul:not(.dropdown-content) a {
+    border-bottom: var(--nav-border-style) transparent
+  }
+
+  nav ul:not(.dropdown-content) a:hover {
+    border-bottom: var(--nav-border-style) var(--accent-color);
+  }
+
+  #logo-container {
+    top: 50%;
+    display: flex;
+    transform: translateY(-50%);
+  }
+
+  @media only screen and (min-width: 993px) and (max-width: 1330px) {
+    :root {
+        --nav-height-px: 160px;
+    }
+    #logo-container {
+      top: 40%;
+      display: flex;
+      transform: translateY(-50%);
+    }
+  }
+}
