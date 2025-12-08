@@ -71,15 +71,29 @@
             </div>
             {% include "admin/elements/forms/field.html" with field=form.frozen_biography %}
             <div class="grid auto">
-              {% if author.author and author.author == request.user %}
+              {% if author.author  %}
                 <dl class="no-bottom-margin">
                   <dt><strong>Email</strong></dt>
                   <dd>
                     <div>{{ author.email|default:"No email" }}</div>
-                    <p class="help-text no-top-margin">
-                      If the email is incorrect, edit the
-                      email on your user profile.
-                    </p>
+                    {% if author.author == request.user %}
+                      <p class="help-text no-top-margin">
+                        If the email is incorrect, edit the
+                        email on your user profile.
+                      </p>
+                    {% else %}
+                      <p class="help-text no-top-margin">
+                        If the email is incorrect, edit the email on the author's
+                        {% spaceless %}
+                          <a
+                            target="_blank"
+                            href="{% url 'core_user_edit' author.author.pk %}">
+                            <span>user account</span>
+                            <span class="show-for-sr">(opens in new tab)</span>
+                          </a>.
+                        {% endspaceless %}
+                      </p>
+                    {% endif %}
                   </dd>
                 </dl>
               {% else %}

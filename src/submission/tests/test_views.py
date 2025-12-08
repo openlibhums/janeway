@@ -349,3 +349,31 @@ class TestEditAuthor(TestSubmitViewsBase):
             self.kathleen_author.first_name,
             "K.",
         )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_link_author_to_account(self):
+        self.client.force_login(self.kathleen)
+
+        email = "cwexmgdydil9hbgiw99l@example.org"
+        # Create an unlinked author record
+        frozen_author, _created = models.FrozenAuthor.objects.get_or_create(
+            article=self.article,
+            frozen_email=email,
+        )
+        # Create an account with the same email
+        account = helpers.create_user(email, ["author"], self.journal_one)
+        self.client.post(
+            reverse(
+                "submission_link_author_to_account",
+                kwargs={
+                    "article_id": self.article.pk,
+                    "author_id": frozen_author.pk,
+                },
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        frozen_author.refresh_from_db()
+        self.assertEqual(
+            frozen_author.author,
+            account,
+        )
