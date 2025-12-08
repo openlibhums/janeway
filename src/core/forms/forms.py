@@ -1131,11 +1131,11 @@ class OrcidAffiliationForm(forms.ModelForm):
 
         super().__init__(data=data, *args, **kwargs)
         if journal:
-            if not journal.get_setting("general", "author_job_title"):
+            if not journal.get_setting("metadata", "author_job_title"):
                 self.fields.pop("title")
-            if not journal.get_setting("general", "author_department"):
+            if not journal.get_setting("metadata", "author_department"):
                 self.fields.pop("department")
-            if not journal.get_setting("general", "author_affiliation_dates"):
+            if not journal.get_setting("metadata", "author_affiliation_dates"):
                 self.fields.pop("start")
                 self.fields.pop("end")
 

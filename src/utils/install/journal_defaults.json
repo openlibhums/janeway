@@ -5599,7 +5599,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "metadata"
         },
         "setting": {
             "description": "Should author affiliations include job titles?",
@@ -5618,7 +5618,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "metadata"
         },
         "setting": {
             "description": "Should author affiliations include department names?",
@@ -5637,7 +5637,7 @@
     },
     {
         "group": {
-            "name": "general"
+            "name": "metadata"
         },
         "setting": {
             "description": "Should author affiliations include start and end dates?",

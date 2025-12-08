@@ -96,15 +96,15 @@
     {% endif %}
   </div>
   <div class="grid auto row-gap-0">
-    {% if not author or journal_settings.general.author_job_title %}
+    {% if not author or journal_settings.metadata.author_job_title %}
       {% include "admin/elements/forms/field.html" with field=form.title %}
     {% endif %}
-    {% if not author or journal_settings.general.author_department %}
+    {% if not author or journal_settings.metadata.author_department %}
       {% include "admin/elements/forms/field.html" with field=form.department %}
     {% endif %}
     {% include "admin/elements/forms/field.html" with field=form.is_primary %}
   </div>
-  {% if not author or journal_settings.general.author_affiliation_dates %}
+  {% if not author or journal_settings.metadata.author_affiliation_dates %}
     <div class="grid auto row-gap-0">
       {% include "admin/elements/forms/field.html" with field=form.start %}
       {% include "admin/elements/forms/field.html" with field=form.end %}

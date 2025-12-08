@@ -22,28 +22,28 @@
     </div>
     <ul>
       <li>Job titles are turned
-        {{ journal_settings.general.author_job_title|yesno:"on,off" }}.
+        {{ journal_settings.metadata.author_job_title|yesno:"on,off" }}.
         <a
           target="_blank"
-          href="{% url 'core_edit_setting' 'general' 'author_job_title' %}">
+          href="{% url 'core_edit_setting' 'metadata' 'author_job_title' %}">
           [change]
         </a>
       </li>
       <li>
         Department names are turned
-        {{ journal_settings.general.author_department|yesno:"on,off" }}.
+        {{ journal_settings.metadata.author_department|yesno:"on,off" }}.
         <a
           target="_blank"
-          href="{% url 'core_edit_setting' 'general' 'author_department' %}">
+          href="{% url 'core_edit_setting' 'metadata' 'author_department' %}">
           [change]
         </a>
       </li>
       <li>
         Affiliation dates are turned
-        {{ journal_settings.general.author_affiliation_dates|yesno:"on,off" }}.
+        {{ journal_settings.metadata.author_affiliation_dates|yesno:"on,off" }}.
         <a
           target="_blank"
-          href="{% url 'core_edit_setting' 'general' 'author_affiliation_dates' %}">
+          href="{% url 'core_edit_setting' 'metadata' 'author_affiliation_dates' %}">
           [change]
         </a>
       </li>
