@@ -3054,7 +3054,9 @@ class ControlledAffiliation(models.Model):
 
     @property
     def title_display(self):
-        if self.journal and not self.journal.get_setting("general", "author_job_title"):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_job_title"
+        ):
             return ""
         else:
             return self.title
@@ -3062,7 +3064,7 @@ class ControlledAffiliation(models.Model):
     @property
     def department_display(self):
         if self.journal and not self.journal.get_setting(
-            "general", "author_department"
+            "metadata", "author_department"
         ):
             return ""
         else:
@@ -3071,7 +3073,7 @@ class ControlledAffiliation(models.Model):
     @property
     def date_display(self):
         if self.journal and not self.journal.get_setting(
-            "general", "author_affiliation_dates"
+            "metadata", "author_affiliation_dates"
         ):
             return ""
         elif not self.start and not self.end:

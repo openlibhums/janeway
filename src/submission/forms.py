@@ -551,11 +551,11 @@ class AuthorAffiliationForm(forms.ModelForm):
         self.organization = kwargs.pop("organization", None)
         super().__init__(*args, **kwargs)
         if self.journal:
-            if not self.journal.get_setting("general", "author_job_title"):
+            if not self.journal.get_setting("metadata", "author_job_title"):
                 self.fields.pop("title")
-            if not self.journal.get_setting("general", "author_department"):
+            if not self.journal.get_setting("metadata", "author_department"):
                 self.fields.pop("department")
-            if not self.journal.get_setting("general", "author_affiliation_dates"):
+            if not self.journal.get_setting("metadata", "author_affiliation_dates"):
                 self.fields.pop("start")
                 self.fields.pop("end")
 
