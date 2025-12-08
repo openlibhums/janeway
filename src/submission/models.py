@@ -203,7 +203,7 @@ LANGUAGE_CHOICES = (
     ("cre", "Cree"),
     ("mus", "Creek"),
     ("crp", "Creoles and pidgins"),
-    ("cpe", "Creoles and pidgins, English based"),
+    ("cpe", "Creoles and pidgins, English-based"),
     ("cpf", "Creoles and pidgins, French-based"),
     ("cpp", "Creoles and pidgins, Portuguese-based"),
     ("crh", "Crimean Tatar; Crimean Turkish"),
@@ -698,16 +698,16 @@ class ArticleFunding(models.Model):
         null=True,
         help_text="Funder DOI (optional). Enter as a full Uniform "
         "Resource Identifier (URI), such as "
-        "https://dx.doi.org/10.13039/501100021082",
+        "https://dx.doi.org/10.13039/501100021082.",
     )
     funding_id = models.CharField(
         max_length=500,
         blank=True,
         null=True,
-        help_text="The grant ID (optional). Enter the ID by itself",
+        help_text="The grant ID (optional). Enter the ID by itself.",
     )
     funding_statement = models.TextField(
-        blank=True, help_text=_("Additional information regarding this funding entry")
+        blank=True, help_text=_("Additional information regarding this funding entry.")
     )
 
     def __str__(self):
@@ -1017,7 +1017,7 @@ class Article(AbstractLastModifiedModel):
         null=True,
     )
     non_specialist_summary = JanewayBleachField(
-        blank=True, null=True, help_text="A summary of the article for non specialists."
+        blank=True, null=True, help_text="A summary of the article for non-specialists."
     )
     keywords = M2MOrderedThroughField(
         Keyword,
@@ -1030,10 +1030,14 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         null=True,
         choices=LANGUAGE_CHOICES,
-        help_text=_("The primary language of the article"),
+        help_text=_("The primary language of the article."),
     )
     section = models.ForeignKey(
-        "Section", blank=True, null=True, on_delete=models.SET_NULL
+        "Section",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The section the article is part of (article type).",
     )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
@@ -1062,7 +1066,7 @@ class Article(AbstractLastModifiedModel):
     is_remote = models.BooleanField(
         default=False,
         verbose_name="Remote article",
-        help_text="Check if this article is remote",
+        help_text="Check if this article is remote.",
     )
     remote_url = models.URLField(
         blank=True,
@@ -1089,13 +1093,13 @@ class Article(AbstractLastModifiedModel):
         null=True,
         help_text="If you have any conflict "
         "of interests in the publication of this "
-        "article please state them here.",
+        "article, please state them here.",
     )
     rights = JanewayBleachField(
         blank=True,
         null=True,
         help_text="A custom statement on the usage rights for this article"
-        " and associated materials, to be rendered in the article page",
+        " and associated materials, to be rendered on the article page.",
     )
 
     article_number = models.PositiveIntegerField(
@@ -1146,7 +1150,7 @@ class Article(AbstractLastModifiedModel):
         max_length=32,
         blank=True,
         null=True,
-        help_text=_("Custom page range. e.g.: 'I-VII' or 1-3,4-8"),
+        help_text=_("Custom page range, e.g. 'I-VII' or 1-3,4-8."),
     )
     total_pages = models.PositiveIntegerField(blank=True, null=True)
 
@@ -1160,7 +1164,7 @@ class Article(AbstractLastModifiedModel):
         dynamic_choices=PLUGIN_WORKFLOW_STAGES,
         help_text="<strong>WARNING</strong>: Manually changing the stage of a submission\
              overrides Janeway's workflow. It should only be changed to a value\
-             which is know to be safe such as a stage an article has already\
+             which is known to be safe, such as a stage an article has already\
              been a part of before.",
     )
 
@@ -1171,7 +1175,7 @@ class Article(AbstractLastModifiedModel):
     comments_editor = JanewayBleachField(
         blank=True,
         null=True,
-        verbose_name="Comments to the Editor",
+        verbose_name="Comments to the editor",
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
@@ -1182,6 +1186,7 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         related_name="image_file",
         on_delete=models.SET_NULL,
+        help_text="A large, landscape image to be displayed at the top of the article page. Recommended size: 750 x 324 pixels.",
     )
     exclude_from_slider = models.BooleanField(default=False)
 
@@ -1191,6 +1196,7 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         related_name="thumbnail_file",
         on_delete=models.SET_NULL,
+        help_text="A small, square image to be used as a thumbnail for the article. Recommended size: 128 x 128 pixels.",
     )
 
     # Whether or not we should display that this article has been "peer reviewed"
@@ -1208,7 +1214,7 @@ class Article(AbstractLastModifiedModel):
         blank=True,
         null=True,
         help_text=_(
-            "Custom 'how to cite' text. To be used only if the block"
+            "Custom 'how-to-cite' text. To be used only if the block"
             " generated by Janeway is not suitable."
         ),
     )
@@ -1218,8 +1224,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         blank=True,
         help_text=_(
-            "Name of the publisher who published this article"
-            " Only relevant to migrated articles from a different publisher"
+            "Name of the publisher who published this article."
+            " Only relevant for migrated articles from a different publisher."
         ),
     )
 
@@ -1228,8 +1234,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         blank=True,
         help_text=_(
-            "Name of the publisher who published this article"
-            " Only relevant to migrated articles from a different publisher"
+            "Name of the original journal title when published."
+            " Only relevant for articles published under a different title."
         ),
     )
     ISSN_override = models.CharField(
@@ -1237,8 +1243,8 @@ class Article(AbstractLastModifiedModel):
         null=True,
         blank=True,
         help_text=_(
-            "Original ISSN of this article's journal when published"
-            " Only relevant for back content published under a different title"
+            "Original ISSN of this article's journal when published."
+            "Only relevant for back content published under a different title."
         ),
     )
 
@@ -1271,7 +1277,11 @@ class Article(AbstractLastModifiedModel):
 
     # Meta
     meta_image = models.ImageField(
-        blank=True, null=True, upload_to=article_media_upload, storage=fs
+        blank=True,
+        null=True,
+        upload_to=article_media_upload,
+        storage=fs,
+        help_text="The image that will be used when sharing the article on social media.",
     )
 
     preprint_journal_article = models.ForeignKey(
@@ -2619,13 +2629,13 @@ class FrozenAuthor(AbstractLastModifiedModel):
     name_prefix = models.CharField(
         max_length=300,
         blank=True,
-        help_text=_("Optional name prefix (e.g: Prof or Dr)"),
+        help_text=_("Optional name prefix, e.g. Prof or Dr."),
         validators=[plain_text_validator],
     )
     name_suffix = models.CharField(
         max_length=300,
         blank=True,
-        help_text=_("Optional name suffix (e.g.: Jr or III)"),
+        help_text=_("Optional name suffix, e.g. Jr or III."),
         validators=[plain_text_validator],
     )
     first_name = models.CharField(
@@ -2652,7 +2662,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     is_corporate = models.BooleanField(
         default=False,
-        help_text="Whether the author is an organization. "
+        help_text="Is this author an organization?"
         "The display name will be formed from the affiliation.",
     )
     frozen_email = models.EmailField(
@@ -2671,7 +2681,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     display_email = models.BooleanField(
         default=False,
         help_text=_(
-            "Whether to display this author's email address on the published article."
+            "Should the author's email address be displayed on the article page?"
         ),
     )
 
@@ -3043,13 +3053,11 @@ class Section(AbstractLastModifiedModel):
 
     editors = models.ManyToManyField(
         "core.Account",
-        help_text="Editors assigned will be notified of submissions,"
-        " overruling the notification settings for the journal.",
+        help_text="Editors selected here will be notified when submissions are made to this section. Hold <kbd>Shift</kbd> while clicking if you want multiple editors to be notified, and hold <kbd>Control</kbd> while clicking to unselect a editor.",
     )
     section_editors = models.ManyToManyField(
         "core.Account",
-        help_text="Section editors assigned will be notified of submissions,"
-        " overruling the notification settings for the journal.",
+        help_text="Section editors selected here will be notified when submissions are made to this section. Hold <kbd>Shift</kbd> while clicking if you want multiple section editors to be notified, and hold <kbd>Control</kbd> while clicking to unselect a section editor.",
         related_name="section_editors",
     )
     jats_article_type = DynamicChoiceField(
@@ -3070,14 +3078,17 @@ class Section(AbstractLastModifiedModel):
         default=True,
         help_text="Allows filtering article search results by this section.",
     )
-    public_submissions = models.BooleanField(default=True)
+    public_submissions = models.BooleanField(
+        default=True,
+        help_text="Tick this box to allow authors to submit to this section.",
+    )
     indexing = models.BooleanField(
-        default=True, help_text="Whether this section is put forward for indexing"
+        default=True,
+        help_text="Tick this box to put this section forward for indexing.",
     )
     sequence = models.PositiveIntegerField(
         default=0,
-        help_text="Determines the order in which the section is rendered"
-        " Sections can also be reorder by drag-and-drop",
+        help_text="This controls the order of sections in relation to one another. The order can also be adjusted by dragging and dropping sections on the main sections page.",
     )
     name = models.CharField(
         max_length=200,
@@ -3087,7 +3098,7 @@ class Section(AbstractLastModifiedModel):
         max_length=200,
         null=True,
         blank=True,
-        help_text="Pluralised name for the section (e.g: Article -> Articles)",
+        help_text="The pluralised form of the section name. For example, if your section is named 'Article', the plural should be 'Articles'.",
     )
 
     objects = model_utils.JanewayMultilingualManager()
@@ -3215,20 +3226,27 @@ class Field(models.Model):
         on_delete=models.SET_NULL,
     )
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=field_kind_choices())
+    kind = models.CharField(
+        max_length=50,
+        choices=field_kind_choices(),
+        help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.",
+    )
     width = models.CharField(max_length=50, choices=width_choices(), default="full")
     choices = models.CharField(
         max_length=1000,
         null=True,
         blank=True,
-        help_text="Separate choices with the bar | character.",
+        help_text="If you are creating a multiple choice option, separate these choices with the bar | character. Otherwise, leave this field blank.",
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
     display = models.BooleanField(
-        default=False, help_text="Whether or not display this field in the article page"
+        default=False,
+        help_text="Tick this box to display authors' responses to this field on the article page.",
     )
-    help_text = models.TextField()
+    help_text = models.TextField(
+        help_text="This is help text. Use this option to set any help text which you would like to accompany your additional submission field.",
+    )
 
     class Meta:
         ordering = ("order", "name")
@@ -3294,14 +3312,16 @@ class SubmissionConfiguration(models.Model):
 
     figures_data = models.BooleanField(
         default=True,
-        verbose_name=_("Figures and Data Files"),
+        verbose_name=_("Figures and data files"),
     )
 
     default_license = models.ForeignKey(
         Licence,
         null=True,
         blank=True,
-        help_text=_("The default license applied when no option is presented"),
+        help_text=_(
+            "The default licence applied to submissions to this journal. This will apply to all submissions unless users are given the option to select and choose a different licence."
+        ),
         on_delete=models.SET_NULL,
     )
     default_language = models.CharField(
@@ -3309,21 +3329,24 @@ class SubmissionConfiguration(models.Model):
         null=True,
         blank=True,
         choices=LANGUAGE_CHOICES,
-        help_text=_("The default language of articles when lang is hidden"),
+        help_text=_(
+            "The default language for articles in this journal. This will apply to all submissions unless users are given the option to select and choose a different language."
+        ),
     )
     default_section = models.ForeignKey(
         Section,
         null=True,
         blank=True,
-        help_text=_("The default section of articles when no option is presented"),
+        help_text=_(
+            "The default section of your journal which articles are submitted to. This will apply to all submissions unless users are given the option to select and choose a different section."
+        ),
         on_delete=models.SET_NULL,
     )
     submission_file_text = models.CharField(
         max_length=255,
-        default="Manuscript File",
-        help_text="During submission the author will be asked to upload a file"
-        "that is considered the main text of the article. You can use"
-        "this field to change the label for that file in submission.",
+        default="Manuscript file",
+        help_text="During submission, the author will be asked to upload a file"
+        "that is considered the main text of the article. This option allows you to change the label given to this file.",
     )
 
     def __str__(self):

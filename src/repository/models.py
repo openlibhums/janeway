@@ -192,11 +192,11 @@ class Repository(model_utils.AbstractSiteModel):
     decline_version = model_utils.JanewayBleachField(blank=True, null=True)
     enable_comments = models.BooleanField(
         default=True,
-        help_text="Enabling this will turn on the comment feature.",
+        help_text="Tick this box to turn on the comment feature.",
     )
     enable_invited_comments = models.BooleanField(
         default=True,
-        help_text="Enable to display the invited comments interface.",
+        help_text="Tick this box to display the invited comments interface.",
     )
     new_comment = model_utils.JanewayBleachField(blank=True, null=True)
     review_invitation = model_utils.JanewayBleachField(blank=True, null=True)
@@ -232,7 +232,7 @@ class Repository(model_utils.AbstractSiteModel):
     )
     limit_access_to_submission = models.BooleanField(
         default=False,
-        help_text="If enabled, users need to request access to submit preprints.",
+        help_text="If this box is ticked, users need to request access to submit preprints.",
     )
     submission_access_request_text = model_utils.JanewayBleachField(
         blank=True,

@@ -196,7 +196,7 @@ class ManagerDecision(forms.ModelForm):
 class SupplementaryFileChoiceForm(forms.ModelForm):
     label = forms.CharField(
         required=False,
-        help_text=_("Text to show as the download link on the article page"),
+        help_text=_("Text to show as the download link on the article page."),
     )
 
     def __init__(self, *args, **kwargs):
