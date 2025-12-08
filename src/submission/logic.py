@@ -634,7 +634,8 @@ def get_current_authors(article, request):
         if author.email and not author.author:
             try:
                 unlinked_account = core_models.Account.objects.get(
-                    email__iexact=author.email
+                    email__iexact=author.email,
+                    accountrole__role__slug="author",
                 )
             except (
                 core_models.Account.DoesNotExist,

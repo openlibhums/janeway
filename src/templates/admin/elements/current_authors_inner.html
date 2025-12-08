@@ -43,9 +43,17 @@
                         this author ({{ unlinked_account.email }}), but they are not linked yet.
                         Would you like to link the author to the account?
                       </p>
-                      {% url_with_return "submission_link_author_to_account" article.pk author.pk as href %}
-                      {% trans "Link Account" as link_account %}
-                      {% include "elements/a_create.html" with href=href label=link_account %}
+                      <form
+                        method="POST"
+                        action="{% url_with_return "submission_link_author_to_account" article.pk author.pk %}">
+                        {% csrf_token %}
+                        <div class="button-group no-bottom-margin">
+                          <button class="button hollow secondary">
+                            <span class="fa fa-plus"></span>
+                            {% trans "Link Account" %}
+                          </button>
+                        </div>
+                      </form>
                     </div>
                   {% endif %}
                   <div class="flex gap-2 direction-column-small">
