@@ -456,6 +456,7 @@ def add_author_affiliation_from_orcid(author, orcid_details, request):
             orcid_affiliation=orcid_affils[0],
             tzinfo=tzinfo,
             data={"frozen_author": author},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             affiliation = orcid_affil_form.save()
