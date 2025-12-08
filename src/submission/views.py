@@ -1024,21 +1024,32 @@ def order_authors(request, article_id):
     return HttpResponse("Thanks")
 
 
-@login_required
+@require_POST
 @user_can_edit_article
 def link_author_to_account(request, article_id, author_id):
     next_url = request.GET.get("next", "")
+
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
     author = get_object_or_404(models.FrozenAuthor, pk=author_id, article=article)
-    account = get_object_or_404(core_models.Account, email__iexact=author.email)
-    author.author = account
-    author.save()
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "%(author_name)s (%(email)s) is now linked to a user account."
-        % {"author_name": author.full_name(), "email": author.email},
+    account = get_object_or_404(
+        core_models.Account,
+        email__iexact=author.email,
+        accountrole__role__slug="author",
     )
+
+    author_account_form = forms.FrozenAuthorAccountForm(
+        {"author": account.pk},
+        instance=author,
+    )
+    if author_account_form.is_valid():
+        author_account_form.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "%(author_name)s (%(email)s) is now linked to a user account."
+            % {"author_name": author.full_name(), "email": author.email},
+        )
+
     if next_url:
         return redirect(next_url)
     else:
