@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.db import models
 from django.utils import timezone
-from django.db.models import Max, Q, Value
+from django.db.models import Max, Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -628,7 +628,8 @@ class RevisionRequest(models.Model):
         "please add this above'",
     )  # Note from Author to Editor
     actions = models.ManyToManyField(
-        RevisionAction
+        RevisionAction,
+        blank=True, 
     )  # List of actions Author took during Revision Request
     type = models.CharField(
         max_length=20,
