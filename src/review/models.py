@@ -629,7 +629,7 @@ class RevisionRequest(models.Model):
     )  # Note from Author to Editor
     actions = models.ManyToManyField(
         RevisionAction,
-        blank=True, 
+        blank=True,
     )  # List of actions Author took during Revision Request
     type = models.CharField(
         max_length=20,

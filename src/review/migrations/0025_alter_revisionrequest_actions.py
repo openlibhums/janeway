@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0024_remove_frozenreviewformelement_width_and_more'),
+        ("review", "0024_remove_frozenreviewformelement_width_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='revisionrequest',
-            name='actions',
-            field=models.ManyToManyField(blank=True, to='review.revisionaction'),
+            model_name="revisionrequest",
+            name="actions",
+            field=models.ManyToManyField(blank=True, to="review.revisionaction"),
         ),
     ]
