@@ -397,7 +397,7 @@ def set_article_image(request, article):
 
 
 def send_contact_message(new_contact, request):
-    raise DeprecationWarning(
+    warnings.warn(
         "`journal.logic.send_contact_message` is deprecated. "
         "Use `core.logic.send_contact_message` instead."
     )

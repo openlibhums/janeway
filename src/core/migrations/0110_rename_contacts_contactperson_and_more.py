@@ -9,20 +9,6 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def normalize_email(email):
-    """
-    Copied from Django 4.2's AccountManager.
-    """
-    email = email or ""
-    try:
-        email_name, domain_part = email.strip().rsplit("@", 1)
-    except ValueError:
-        pass
-    else:
-        email = email_name + "@" + domain_part.lower()
-    return email
-
-
 def connect_contact_person_to_account(apps, schema_editor):
     ContactPerson = apps.get_model("core", "ContactPerson")
     Account = apps.get_model("core", "Account")
@@ -34,7 +20,7 @@ def connect_contact_person_to_account(apps, schema_editor):
         if matching_accounts.exists():
             account = matching_accounts.first()
         else:
-            normalized_email = normalize_email(email)
+            normalized_email = Account.objects.normalize_email(email)
             account = Account.objects.create(
                 email=normalized_email,
                 username=normalized_email,
@@ -42,18 +28,26 @@ def connect_contact_person_to_account(apps, schema_editor):
                 last_name=contact_person.name.split()[-1],
             )
         contact_person.account = account
+        contact_person.email = ""
         contact_person.save()
 
 
 def infer_contact_message_target(apps, account):
     Journal = apps.get_model("journal", "Journal")
     Press = apps.get_model("press", "Press")
+    ContactPerson = apps.get_model("core", "ContactPerson")
+
+    contact_person_records = ContactPerson.objects.filter(account=account)
+    is_staff = account.is_staff
     journals_where_editor = Journal.objects.filter(
         accountrole__user=account,
         accountrole__role__slug="editor",
     )
-    is_staff = account.is_staff
-    if is_staff and journals_where_editor.count() == 0:
+
+    if contact_person_records.count() == 1:
+        # This person must have been contacted on the same site as their ContactPerson record.
+        target = contact_person_records.first().object
+    elif is_staff and journals_where_editor.count() == 0:
         # This person must have been contacted in their press staff capacity.
         target = Press.objects.first()
     elif not is_staff and journals_where_editor.count() == 1:
@@ -83,7 +77,7 @@ def move_contact_message_to_log_entry(apps, schema_editor):
         if matching_accounts.exists():
             account = matching_accounts.first()
         else:
-            normalized_email = normalize_email(email)
+            normalized_email = Account.objects.normalize_email(email)
             account = Account.objects.create(
                 email=normalized_email,
                 username=normalized_email,
