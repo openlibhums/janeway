@@ -36,6 +36,7 @@ def infer_contact_message_target(apps, account):
     Journal = apps.get_model("journal", "Journal")
     Press = apps.get_model("press", "Press")
     ContactPerson = apps.get_model("core", "ContactPerson")
+    ContentType = apps.get_model("contenttypes", "ContentType")
 
     contact_person_records = ContactPerson.objects.filter(account=account)
     is_staff = account.is_staff
@@ -46,18 +47,21 @@ def infer_contact_message_target(apps, account):
 
     if contact_person_records.count() == 1:
         # This person must have been contacted on the same site as their ContactPerson record.
-        target = contact_person_records.first().object
+        contact_person = contact_person_records.first()
+
+        return (contact_person.content_type, contact_person.object_id)
     elif is_staff and journals_where_editor.count() == 0:
         # This person must have been contacted in their press staff capacity.
-        target = Press.objects.first()
+        press = Press.objects.first()
+        return (ContentType.objects.get_for_model(press), press.pk)
     elif not is_staff and journals_where_editor.count() == 1:
         # This person must have been contacted in their journal editor capacity.
-        target = journals_where_editor[0]
+        journal = journals_where_editor[0]
+        return (ContentType.objects.get_for_model(journal), journal.pk)
     else:
         # This person has multiple roles, so we cannot infer the site where the
         # contact form was submitted.
-        target = None
-    return target
+        return (None, None)
 
 
 def move_contact_message_to_log_entry(apps, schema_editor):
@@ -65,7 +69,6 @@ def move_contact_message_to_log_entry(apps, schema_editor):
     Account = apps.get_model("core", "Account")
     LogEntry = apps.get_model("utils", "LogEntry")
     Addressee = apps.get_model("utils", "Addressee")
-    ContentType = apps.get_model("contenttypes", "ContentType")
     log_entries_to_create = []
     addressees_to_link_up = []
 
@@ -100,10 +103,10 @@ def move_contact_message_to_log_entry(apps, schema_editor):
             # The Contact was supposed store the journal or press in a field called `object`,
             # but due to a bug, it was not typically populated before this migration.
             # So we anticipate that in most cases, LogEntry.target will need to be inferred.
-            target = infer_contact_message_target(apps, account)
-            if target:
-                new_entry.content_type = ContentType.objects.get_for_model(target)
-                new_entry.object_id = target.pk
+            content_type, object_id = infer_contact_message_target(apps, account)
+            if content_type and object_id:
+                new_entry.content_type = content_type
+                new_entry.object_id = object_id
 
         new_entry.is_email = True
         new_entry.email_subject = contact_message.subject
@@ -131,7 +134,7 @@ def move_contact_message_to_log_entry(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
-        ("core", "0109_salutation_name_20250707_1420"),
+        ("core", "0110_alter_account_managers"),
         ("utils", "0043_logentry_actor_email_alter_logentry_ip_address"),
     ]
 
