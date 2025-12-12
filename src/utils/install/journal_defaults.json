@@ -5628,7 +5628,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>{{ body|safe }}</p><hr><p>The above was sent from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a> by {{ from }}.</p>"
+            "default": "<p>{{ body|safe|linebreaksbr }}</p><hr><p>The above was sent from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a> by {{ from }}.</p>"
         },
         "editable_by": [
             "editor",

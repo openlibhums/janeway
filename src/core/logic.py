@@ -1289,8 +1289,6 @@ def get_contact_form(request, contact_person_id):
 
 
 def send_contact_message(contact_form, request):
-    # Todo: do we need this if the field is bleached rich text?
-    body = contact_form.cleaned_data["body"].replace("\n", "<br>")
     sender_email = contact_form.cleaned_data["sender"]
     contact_person = get_object_or_404(
         models.ContactPerson,
@@ -1318,7 +1316,7 @@ def send_contact_message(contact_form, request):
             "from": sender_email,
             "to": recipient_email,
             "subject": contact_form.cleaned_data["subject"],
-            "body": body,
+            "body": contact_form.cleaned_data["body"],
             "custom_reply_to": contact_form.cleaned_data["sender"],
         },
         log_dict=log_dict,

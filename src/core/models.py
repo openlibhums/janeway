@@ -393,6 +393,8 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
 
 
 class AccountManager(BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, username=None, password=None, email=None, **kwargs):
         """Creates a user from the given username or email
         In Janeway, users rely on email addresses to log in. For compatibility

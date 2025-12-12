@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import uuid
 import json
 import os
+import warnings
 
 from django import forms
 from django.db.models import Q
@@ -131,7 +132,7 @@ class ContactMessageForm(CaptchaForm):
 
 class JournalContactForm(ContactPersonForm):
     def __init__(self, *args, **kwargs):
-        return DeprecationWarning("Use ContactPersonForm instead.")
+        warnings.warn("Use ContactPersonForm instead.")
         super().__init__(*args, **kwargs)
 
 
