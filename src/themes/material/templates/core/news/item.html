@@ -17,7 +17,7 @@
                 <div class="material-banner">
                   <img class="material-banner-image"
                       src="{{ news_item.best_image_url }}"
-                        alt="{{ news_item.title|striptags|unescape }}"/>
+                        alt="{{ news_item.best_image_alt_text }}"/>
                     <div class="material-banner-heading">
                       <div class="carousel-text-wrapper">
                         {{ news_item.title|safe }}
