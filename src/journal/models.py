@@ -593,7 +593,7 @@ class Journal(AbstractSiteModel):
         if self.carousel.current_issue and self.current_issue:
             items = chain([self.current_issue], items)
 
-        return self.carousel, items
+        return self.carousel, list(items)
 
     def next_pa_seq(self):
         "Works out what the next pinned article sequence should be."
@@ -1103,7 +1103,7 @@ class Issue(AbstractLastModifiedModel):
             )
 
             for article in articles:
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
 
             section_article_dict[ordered_section.section] = article_list
@@ -1131,7 +1131,7 @@ class Issue(AbstractLastModifiedModel):
         articles = self.articles.all().order_by("section")
 
         for article in articles:
-            if not article.section in ordered_sections:
+            if article.section not in ordered_sections:
                 ordered_sections.append(article.section)
 
         return ordered_sections
@@ -1196,7 +1196,7 @@ class Issue(AbstractLastModifiedModel):
                 article_list.append(order.article)
 
             for article in articles.filter(section=section):
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
             structure[section] = article_list
 
