@@ -1,8 +1,8 @@
 <div class="row expanded">
-    <div class="small-2 columns">
+    <div class="small-1 columns">
         {% include "admin/discussion/avatar.html" with user=post.owner %}
     </div>
-    <div class="small-10 columns">
+    <div class="small-11 columns">
         {% if post.owner == request.user %}
             <div class="post-callout post-user-callout">
                 <p class="subheader">

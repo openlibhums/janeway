@@ -9,6 +9,18 @@
     <link href="{% static "admin/css/discussions.css" %}" rel="stylesheet">
 {% endblock %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object_type == "article" %}
+    <li>
+      <a href="{{ object.current_workflow_element_url }}">{{ object.title }}a</a>
+    </li>
+    <li>
+      Discussions
+    </li>
+  {% endif %}
+{% endblock %}
+
 {% block body %}
 <div class="row expanded">
     <div class="large-3 columns thread-box-left">
@@ -17,7 +29,7 @@
              hx-get="{% url 'discussion_threads_list_partial' object_type object.pk %}"
              hx-trigger="load"
              hx-swap="innerHTML">
-             Thread list loads here
+             <i class="fa fa-spinner fa-spin"></i> Loading threads...
         </div>
     </div>
 
@@ -38,7 +50,6 @@
     </div>
 </div>
 
- Modal for new thread
 <div class="reveal small" id="new_thread_modal" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
 </div>

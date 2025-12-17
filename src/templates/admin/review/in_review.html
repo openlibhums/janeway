@@ -273,12 +273,26 @@
                 </div>
                 <div class="content">{% user_has_role request 'editor' as editor %}
                     <ul class="menu vertical actions">
+                      <li><a data-open="summarymodal"><i
+                              class="fa fa-server action-icon">&nbsp;</i>View
+                        Metadata</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i
+                                class="fa fa-file-archive-o">&nbsp;</i>Document
+                          Management</a></li>
 
-
-                        <li><a data-open="summarymodal"><i class="fa fa-server action-icon">&nbsp;</i>View Metadata</a>
+                      {% with stats=article.discussion_stats %}
+                        <li>
+                          <a href="{% url 'discussion_threads' 'article' article.pk %}">
+                            <i class="fa fa-pencil action-icon">&nbsp;</i>{{ stats.threads }} Discussion{{ stats.threads|pluralize }}
+                             {% if stats.threads %}
+                              ({{ stats.posts }} post{{ stats.posts|pluralize }})
+                            {% endif %}
+                          </a>
                         </li>
-                        <li><a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i class="fa fa-file-archive-o">&nbsp;</i>Document Management</a></li>
-                    {% if article.is_accepted %}
+                      {% endwith %}
+                      {% if article.is_accepted %}
                       {% if article.in_review_stages %}
                         <li>
                             <a href="{% url 'move_to_next_workflow_element' article.pk %}">

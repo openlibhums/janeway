@@ -269,6 +269,19 @@
                 <h2>Actions</h2>
             </div>
             <div class="content">
+              <ul class="menu vertical actions">
+                {% with stats=article.discussion_stats %}
+                  <li>
+                    <a href="{% url 'discussion_threads' 'article' article.pk %}">
+                      <i class="fa fa-pencil action-icon">&nbsp;</i>{{ stats.threads }}
+                      Discussion{{ stats.threads|pluralize }}
+                      {% if stats.threads %}
+                        ({{ stats.posts }} post{{ stats.posts|pluralize }})
+                      {% endif %}
+                    </a>
+                  </li>
+                  </ul>
+                {% endwith %}
                 {% if article.stage == 'Unassigned' and not article.stage == 'Assigned' %}
                     {% if journal_settings.crosscheck.enable and not article.ithenticate_id %}
                         <div class="bs-callout bs-callout-danger">
@@ -287,7 +300,7 @@
                         </ul>
                     {% else %}
                         <div class="bs-callout bs-callout-info">
-                            <small>Before you can perform actions on an article you must assign an Editor.</small>
+                            <small>Before you can perform any other actions on an article you must assign an Editor.</small>
                         </div>
                     {% endif %}
                 {% else %}

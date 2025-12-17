@@ -11,7 +11,12 @@
       <ul class="no-bullet invite-list">
         {% for user in role_users %}
           <li class="invite-list-item">
-            <span class="invite-name">{{ user.full_name|default:"[No Name]" }} - {{ user.email }}</span>
+            <span class="invite-name">
+              {{ user.full_name|default:"[No Name]" }} - {{ user.email }}
+              {% if user.article_roles %}
+                <span class="label secondary">{{ user.article_roles|join:", " }}</span>
+              {% endif %}
+            </span>
             <button class="button tiny success invite-btn"
                     hx-post="{% url 'discussion_add_participant' thread.pk %}"
                     hx-vals='{"user_id":"{{ user.pk }}"}'
