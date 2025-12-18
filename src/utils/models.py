@@ -54,10 +54,12 @@ EMAIL_RECIPIENT_FIELDS = [
     ("bcc", "BCC"),
 ]
 
+ACTOR_EMAIL_MAX_LENGTH = 254
+
 
 class LogEntry(models.Model):
     types = models.CharField(max_length=255, null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)
     subject = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     level = models.CharField(max_length=20, null=True, blank=True, choices=LOG_LEVELS)
@@ -71,6 +73,7 @@ class LogEntry(models.Model):
     actor_email = models.EmailField(
         blank=True,
         help_text="The email address of an unauthenticated actor.",
+        max_length=ACTOR_EMAIL_MAX_LENGTH,
     )
     ip_address = models.GenericIPAddressField(
         null=True, blank=True, help_text="Deprecated field"
