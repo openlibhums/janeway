@@ -4685,6 +4685,26 @@ class TestSecurity(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_user_can_view_contact_message_permission_granted(self):
+        func = Mock()
+        decorated_func = decorators.user_can_view_contact_message(func)
+        kwargs = {"log_entry_id": self.contact_message_one.pk}
+
+        request = self.prepare_request_with_user(self.editor)
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called)
+
+    def test_user_can_view_contact_message_permission_denied(self):
+        func = Mock()
+        decorated_func = decorators.user_can_view_contact_message(func)
+        kwargs = {"log_entry_id": self.contact_message_one.pk}
+
+        request = self.prepare_request_with_user(self.regular_user)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
     # General helper functions
 
     @staticmethod
@@ -5342,6 +5362,15 @@ class TestSecurity(TestCase):
             repository=self.repository,
             author=self.author,
             subject=self.repository_subject,
+        )
+
+        self.contact_one = helpers.create_contact_person(
+            self.editor,
+            self.journal_one,
+        )
+        self.contact_message_one = helpers.send_contact_message(
+            self.journal_one,
+            self.contact_one,
         )
 
         call_command("load_default_settings")
