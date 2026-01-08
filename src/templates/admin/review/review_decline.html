@@ -15,13 +15,15 @@
             <div class="content">
                 <p>Thank you for letting us know that you are unable to review at this time. If you are able to provide
                     a name and email for another suitable reviewer we would be most grateful.</p>
-                {% if access_code != '' %}
-                    <a href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}?access_code={{ access_code }}" class="button success">Suggest
-                    Reviewers</a>
-                {% else %}
-                    <a href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}" class="button success">Suggest
-                    Reviewers</a>
-                {% endif %}
+                  <a
+                    {% if access_code != '' %}
+                      href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}?access_code={{ access_code }}"
+                    {% else %}
+                      href="{% url 'suggest_reviewers' assigned_articles_for_user_review.id %}"
+                    {% endif %}
+                    class="button primary">
+                    Suggest Reviewers
+                  </a>
             </div>
         </div>
     </div>

@@ -29,9 +29,13 @@
                       </div>
                       <div class="row expanded">
                         <div class="large-12 columns">
-                            <button class="button success" name="update" type="submit">Update Review</button>
-                            <a href="{% url 'review_in_review' article.pk %}" class="button alert"
-                               type="submit">Cancel</a>
+                          <div class="button-group">
+                            {% with name="update" %}
+                              {% include "elements/button_save.html" %}
+                            {% endwith %}
+                            {% url 'review_in_review' article.pk as cancel_href %}
+                            {% include "elements/a_cancel.html" with href=cancel_href %}
+                          </div>
                         </div>
                       </div>
                     </form>

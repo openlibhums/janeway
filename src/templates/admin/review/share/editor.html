@@ -29,7 +29,7 @@
                             Reviewers will have the opportunity to see the peer
                             reviews with any editor alterations.</p>
 
-                        <div class="callout primary">
+                        <div class="bs-callout bs-callout-primary">
                             <p><span class="fa fa-info-circle"></span>
                                 The following reviews are complete and have a reviewer recommendation:</p>
                             <ul>
@@ -72,16 +72,10 @@
                                     </div>
                                     <div class="card-divider">
                                         <div class="button-group">
-                                            <button type="submit"
-                                                    class="button success"
-                                                    name="send"><i
-                                                    class="fa fa-envelope-o">&nbsp;</i>Send
-                                            </button>
-                                            <button type="submit"
-                                                    class="button warning"
-                                                    name="skip"><i
-                                                    class="fa fa-step-forward">&nbsp;</i>Skip
-                                            </button>
+                                          {% with name="send" %}
+                                            {% include "elements/button_send.html" %}
+                                          {% endwith %}
+                                          {% include "elements/button_skip.html" %}
                                         </div>
                                     </div>
                                 </form>
@@ -89,7 +83,7 @@
                         </div>
                     {% else %}
                         <div class="content">
-                            <div class="callout info">
+                            <div class="bs-callout bs-callout-info">
                                 <p><span
                                         class="fa fa-exclamation-triangle"></span>
                                     This article has no reviews that are marked

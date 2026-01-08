@@ -27,9 +27,9 @@
                                         href="{% url 'review_unassigned_article' article.pk %}">{% trans 'assign an editor' %}</a>.
                                 </p>
                             {% else %}
-                                <button name="move_to_review" class="small success button no-bottom-margin">Move to
-                                    Review
-                                </button>
+                              {% with name="move_to_review" label="Move to Review" size="small" %}
+                                {% include "elements/button_skip.html" %}
+                              {% endwith %}
                             {% endif %}
                         </form>
                     </div>
@@ -58,7 +58,7 @@
                                         <h2>Files</h2>
                                         {% if round.round_number == article.current_review_round %}<a
                                                 href="{% url 'review_delete_review_round' article.id round.id %}"
-                                                class="small button alert">Delete Round</a>
+                                                class="small button">Delete Round</a>
                                             <a href="{% url 'review_add_files' article.id round.id %}" class="button">Add
                                                 Files</a>{% endif %}
                                     </div>
@@ -71,9 +71,7 @@
                                         {% for file in round.review_files.all %}
                                             <div class="large-3 columns{% if forloop.last %} end{% endif %}">
                                                 <div class="callout breakdown file" data-equalizer-watch>
-                                                    <div class="callout-title">
-                                                        <h4>{{ file.label }}</h4>
-                                                    </div>
+                                                    <h4>{{ file.label }}</h4>
                                                     <p>{{ file.original_filename }}</p>
                                                     <ul class="menu">
                                                         <li>
@@ -97,9 +95,7 @@
                                         {% empty %}
                                             <div class="large-3 columns end">
                                                 <div class="callout breakdown file" data-equalizer-watch>
-                                                    <div class="callout-title">
-                                                        <h4>No Review Files</h4>
-                                                    </div>
+                                                    <h4>No Review Files</h4>
                                                     <p>Click "Add Files" to select files for review.</p>
 
                                                 </div>
@@ -173,15 +169,18 @@
                                         Underway{% endif %}</td>
                                     <td>
                                         {% if revision_request.date_completed %}
-                                            <a class="button"
-                                               href="{% url 'view_revision' article.pk revision_request.pk %}"><b>View</b></a>
+                                          {% url 'view_revision' article.pk revision_request.pk as item_href %}
+                                          {% include "elements/a_menu_item.html" with href=item_href label="View" %}
                                         {% else %}
                                             <div class="button-group">
-                                                <a href="{% url 'view_revision' article.pk revision_request.pk %}"
-                                                   class="button">View</a>
-                                                <a class="dropdown button arrow-only"
-                                                   data-toggle="revision-drop-{{ revision.pk }}"><span
-                                                        class="show-for-sr">Show menu</span></a>
+                                              {% url 'view_revision' article.pk revision_request.pk as item_href %}
+                                              {% include "elements/a_menu_item.html" with href=item_href label="View" %}
+                                              <a class="dropdown button secondary arrow-only"
+                                                 data-toggle="revision-drop-{{ revision.pk }}">
+                                                <span class="show-for-sr">
+                                                  Show menu
+                                                </span>
+                                              </a>
                                             </div>
                                             <div class="dropdown-pane right" id="revision-drop-{{ revision.pk }}"
                                                  data-dropdown data-close-on-click="true">
@@ -250,7 +249,7 @@
                     <h2>Status</h2>
                 </div>
                 <div class="content">
-                    <div class="callout warning">
+                    <div class="bs-callout bs-callout-info">
                         <small>This article is currently in the {{ article.stage }} stage.
                             {% if article.stage == 'Under Review' and article.is_under_revision %} This article also has
                                 active
