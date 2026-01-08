@@ -144,7 +144,7 @@ button.toast-close-button {
   background-color: var(--clr-primary);
 }
 .toast-success {
-  background-color: var(--clr-success);
+  background-color: var(--clr-primary);
 }
 .toast-error {
   background-color: var(--clr-alert);
@@ -153,14 +153,15 @@ button.toast-close-button {
   background-color: var(--clr-primary);
 }
 .toast-warning {
-  background-color: var(--clr-warning);
+  /* Remapped for contrast */
+  background-color: var(--clr-alert);
 }
 .toast:hover,
 .toast-info:hover {
   background-color: var(--clr-primary-alt);
 }
 .toast-success:hover {
-  background-color: var(--clr-success-alt);
+  background-color: var(--clr-primary-alt);
 }
 .toast-error:hover,
 .toast-warning:hover {
@@ -171,7 +172,7 @@ button.toast-close-button {
   left: 0;
   bottom: 0;
   height: 4px;
-  background-color: var(--clr-inky-blue);
+  background-color: var(--clr-dark-graphic-bg);
 }
 /*Responsive Design*/
 @media all and (max-width: 240px) {

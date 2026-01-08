@@ -1,23 +1,77 @@
-/* This file resets some things for accessibility in the back-office UI
- * and can also be expanded to hold other global variables */
+/* This file holds the back-office UI colour system. */
 
 :root {
 
-  /* Back-office named colors */
-  --clr-blue-medium: #305AA3;
-  --clr-navy: #1a2a57;
-  --clr-black: #0a0a0a;
-  --clr-white: #fff;
+  /*********************/
+  /*   Named colours   */
+  /*********************/
 
-  /* Third-party named colors */
+  /* Do not call these named colours in other stylesheets--
+  * use the semantic colours below. */
+
+  /* The hex values are used in production for greater browser compatibility. */
+
+  /* Designer-provided colours. */
+  --clr-black: #262522; /* oklch(0.264 0.006 92) */
+  --clr-white: #fdf3e3; /* oklch(0.968 0.024 80) */
+  --clr-red: #bb4e30; /* oklch(0.561 0.148 36) */
+  --clr-blue: #36565f; /* oklch(0.432 0.04 217) */
+  --clr-yellow: #c08031; /* oklch(0.652 0.122 68) */ /* Insufficient contrast */
+
+  /* Provisional extra colors and color variants. */
+  --clr-black-50: #646360; /* oklch(from var(--clr-black) 0.50 c h) */
+  --clr-black-40: #494844; /* oklch(from var(--clr-black) 0.40 c h) */
+  --clr-black-20: #171613; /* oklch(from var(--clr-black) 0.20 c h) */
+  --clr-black-opaque: rgb(38 37 34 / 0.4); /* oklch(from var(--clr-black) l c h / 0.4) */
+  --clr-black-blue: #2f3d3f; /* color-mix(in srgb, var(--clr-black), var(--clr-blue)); */
+  --clr-white-92: #ede3d3; /* oklch(from var(--clr-white) 0.92 c h) */
+  --clr-white-84: #d3c9ba; /* oklch(from var(--clr-white) 0.84 c h) */
+  --clr-white-76: #b9b0a1; /* oklch(from var(--clr-white) 0.76 c h) */
+  --clr-red-48: #9f3415; /* oklch(from var(--clr-red) 0.48 c h) */
+  --clr-green: #24700c; /* oklch(from var(--clr-red) 0.48 c 140) */
+  --clr-green-36: #154a06; /* oklch(from var(--clr-green) 0.36 0.11 h) */
+
+  /* The yellow colour could not readily be used as a "warning" semantic colour,
+  * and it also lacked sufficient contrast, so warnings are remapped as alerts,
+  * and yellow is not used.
+  * But these variants might work for future modifications. */
+  --clr-yellow-52: #925b0c; /* oklch(from var(--clr-yellow) 0.52 0.11 h) */
+  --clr-yellow-46: #7c4b02; /* oklch(from var(--clr-yellow) 0.46 0.10 h) */
+
+
+  /**********************/
+  /*  Semantic colours  */
+  /**********************/
+
+  /* Always call these variables in other stylesheets, not the ones with colour names above.
+
+  /* Text */
+  --clr-text-on-light: var(--clr-black);
+  --clr-text-on-light-alt: var(--clr-black-40);
+  --clr-link-on-light: var(--clr-blue);
+  --clr-link-on-light-alt: var(--clr-black-blue);
+  --clr-text-on-dark: var(--clr-white);
+
+  /* Main content backgrounds */
+  --clr-bg: var(--clr-white);
+  --clr-bg-alt: var(--clr-white-92);
+  --clr-bg-dark: var(--clr-black);
+  --clr-bg-dark-alt: var(--clr-black-20);
+  --clr-bg-medium: var(--clr-black-50);
+  --clr-bg-overlay: var(--clr-black-opaque);
+
+  /* Button and callout backgrounds */
+  --clr-primary: var(--clr-blue);
+  --clr-primary-alt: var(--clr-black-blue);
+  --clr-secondary: var(--clr-white-84);
+  --clr-secondary-alt: var(--clr-white-76);
+  --clr-alert: var(--clr-red);
+  --clr-alert-alt: var(--clr-red-48);
+  --clr-success: var(--clr-green); /* Do not use success for buttons, only callout borders. */
+  --clr-success-alt: var(--clr-dark-green);
+
+  --clr-dark-graphic-bg: var(--clr-black-blue);
+
+  /* Third-party semantic colors */
   --clr-orcid: rgb(68, 116, 5);
-  --clr-orcid-light: rgb(245, 249, 232);
-
-  /* Alpha theme mapping */
-  --clr-black: #262522;
-  --clr-white: #fdfeff;
-  --clr-tan: #fdf3e3;
-  --clr-orange: #bb4e30;
-  --clr-blue: #36565f;
-  --clr-rust: #c08031;
 }
