@@ -7,7 +7,7 @@
 <a
   href="{{ href }}"
   class="button primary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-check"></span>
+  <span class="fa fa-check" aria-hidden="true"></span>
   {% trans "OK" as default_label %}
   {{ label|default:default_label }}
 </a>

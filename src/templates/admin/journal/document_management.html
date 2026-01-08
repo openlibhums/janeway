@@ -108,7 +108,9 @@
                         copyediting, and typesetting.</small></p>
                 <div class="flex wrap">
                   <input name="manu-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="manu" %}
+                  {% with name="manu" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Figure/Data File</h4>
@@ -118,7 +120,9 @@
                         but that will be included in the published article.</small></p>
                 <div class="flex wrap">
                   <input name="fig-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="fig" %}
+                  {% with name="fig" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Galley File</h4>
@@ -127,7 +131,9 @@
                         so that they are ready for proofing and publication.</small></p>
                 <div class="flex wrap">
                   <input name="galley-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="galley" %}
+                  {% with name="galley" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Proofing File</h4>
@@ -136,7 +142,9 @@
                         made in subsequent rounds of typesetting.</small></p>
                 <div class="flex wrap">
                   <input name="proofing-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="proofing" %}
+                  {% with name="proofing" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Source File</h4>
@@ -146,7 +154,9 @@
                         document layout applications.</small></p>
                 <div class="flex wrap">
                   <input name="source-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="source" %}
+                  {% with name="source" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Supplementary File</h4>
@@ -155,7 +165,9 @@
                         often with their own DOIs.</small></p>
                 <div class="flex wrap">
                   <input name="supp-file" type="file" class="width-min-content grow-1">
-                  {% include "elements/button_upload.html" with name="supp" %}
+                  {% with name="supp" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
             </form>
         </div>

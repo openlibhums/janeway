@@ -13,7 +13,7 @@
   {% endif %}
   class="button primary {{ size|default:'normal' }} no-bottom-margin"
 >
-  <span class="fa fa-envelope-o"></span>
+  <span class="fa fa-envelope-o" aria-hidden="true"></span>
   {% trans "Send" as default_label %}
   {{ label|default:default_label }}
 </button>

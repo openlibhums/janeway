@@ -10,7 +10,7 @@
     value="{{ value }}"
   {% endif %}
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-archive"></span>
+  <span class="fa fa-archive" aria-hidden="true"></span>
   {% trans "Archive" as default_label %}
   {{ label|default:default_label }}
 </button>

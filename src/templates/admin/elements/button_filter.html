@@ -11,7 +11,7 @@
   {% endif %}
   class="button no-bottom-margin {{ size|default:'normal' }}"
   type="submit">
-  <span class="fa fa-filter"></span>
+  <span class="fa fa-filter" aria-hidden="true"></span>
   {% trans "Apply" as default_label %}
   {{ label|default:default_label }}
 </button>

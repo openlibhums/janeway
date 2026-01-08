@@ -12,7 +12,7 @@
     {{ size|default:'normal' }}
   ">
   {% if icon %}
-    <span class="fa {{ icon }}"></span>
+    <span class="fa {{ icon }}" aria-hidden="true"></span>
   {% endif %}
   {{ label }}
 </a>

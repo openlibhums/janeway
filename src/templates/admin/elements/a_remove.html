@@ -9,7 +9,7 @@
 <a
   href="{{ href }}"
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-minus-circle"></span>
+  <span class="fa fa-minus-circle" aria-hidden="true"></span>
   {% trans "Remove" as default_label %}
   {{ label|default:default_label }}
 </a>

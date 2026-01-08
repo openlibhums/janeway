@@ -8,7 +8,7 @@
   name="{{ name|default:'save' }}"
   class="button primary {{ size|default:'normal' }} no-bottom-margin"
   type="submit">
-  <span class="fa fa-plus"></span>
+  <span class="fa fa-plus" aria-hidden="true"></span>
   {% trans "Create" as default_label %}
   {{ label|default:default_label }}
 </button>

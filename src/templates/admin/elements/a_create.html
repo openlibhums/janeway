@@ -10,7 +10,7 @@
     {{ hierarchy|default:'secondary' }}
     {{ size|default:'normal' }}
   ">
-  <span class="fa fa-plus"></span>
+  <span class="fa fa-plus" aria-hidden="true"></span>
   {% trans "Create" as default_label %}
   {{ label|default:default_label }}
 </a>

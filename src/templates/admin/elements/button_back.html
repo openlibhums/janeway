@@ -14,7 +14,7 @@
   {% endif %}
   class="button secondary {{ size|default:'normal' }} no-bottom-margin"
   type="submit">
-  <span class="fa fa-arrow-left"></span>
+  <span class="fa fa-arrow-left" aria-hidden="true"></span>
   {% trans "Back" as default_label %}
   {{ label|default:default_label }}
 </button>

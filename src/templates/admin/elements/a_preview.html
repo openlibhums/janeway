@@ -7,7 +7,7 @@
 <a
   href="{{ href }}"
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-eye"></span>
+  <span class="fa fa-eye" aria-hidden="true"></span>
   {% trans "Preview" as default_label %}
   {{ label|default:default_label }}
 </a>
