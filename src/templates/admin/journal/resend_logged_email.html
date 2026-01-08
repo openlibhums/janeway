@@ -15,19 +15,24 @@
         <form method="POST">
             {% csrf_token %}
             <div class="large-12 columns">
-                {% include "elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
             </div>
             {{ form|foundation }}
             <div class="large-12 columns">
-                <button name="resend" class="success button">Resend Email</button>
-                <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+              {% with name="resend" label="Resend Email" %}
+                {% include "elements/button_send.html" %}
+              {% endwith %}
+              {% with href="javascript:self.close()" %}
+                {% include "elements/a_cancel.html" %}
+              {% endwith %}
             </div>
             <br/>
         </form>
         {% else %}
         <p>This email has been resent.</p>
-        <a class="warning button" href="javascript:self.close()">Close this Window</a>
-
+          {% with href="javascript:self.close()" label="Close this window" %}
+            {% include "elements/a_ok.html" %}
+          {% endwith %}
         {% endif %}
     </div>
 {% endblock %}

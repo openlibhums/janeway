@@ -7,18 +7,16 @@
         </div>
     </div>
     <div class="card-section">
-        {% for error in form.errors %}
-            <div class="alert alert-warning" role="alert">{{ error }}</div>
+        {% include "admin/elements/forms/errors.html" %}
         <button class="close-button" data-close aria-label="Close modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>
-        {% endfor %}
         <form method="POST" enctype="multipart/form-data" action="{% url 'issue_galley' issue.pk%}">
             {% csrf_token %}
             {{ form }}
-            <button type="submit" class="button success float-right" value="galley">
-                <i class="fa fa-upload"> &nbsp;</i>Upload
-            </button>
+          {% with value="galley" %}
+            {% include "elements/button_upload.html" %}
+          {% endwith %}
         </form>
     </div>
 </div>
