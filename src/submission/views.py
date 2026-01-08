@@ -433,8 +433,8 @@ def edit_funder(request, article_id, funder_id):
             )
             # The incoming link _should_ have a return value set to ensure
             # the user gets back to the right place.
-            if request.GET.get("return"):
-                return redirect(request.GET["return"])
+            if request.GET.get("next"):
+                return redirect(request.GET["next"])
 
             # If no return value is set we should try to work out where the
             # user should be sent to.
@@ -486,8 +486,8 @@ def delete_funder(request, article_id, funder_id):
 
     article_funding.delete()
 
-    if request.GET.get("return"):
-        return redirect(request.GET["return"])
+    if request.GET.get("next"):
+        return redirect(request.GET["next"])
 
     return redirect(reverse("submit_funding", kwargs={"article_id": article_id}))
 

@@ -40,10 +40,9 @@
                     type="hidden"
                     name="author_search_text"
                     value="{{ request.user.email }}">
-                  <button class="button" name="search_authors">
-                    <span class="fa fa-plus-circle"></span>
-                    {% trans "Add Self as Author" %}
-                  </button>
+                  {% with name="search_authors" label="Add Self as Author" %}
+                    {% include "elements/button_add.html" %}
+                  {% endwith %}
                 </div>
               </form>
             </div>
@@ -73,10 +72,10 @@
                 placeholder="e.g. 0000-0001-2345-6789"
                 type="search">
               <div class="button-group">
-                <button type="submit" class="button" name="search_authors">
-                  <span class="fa fa-search"></span>
-                  {% trans "Add author from search" %}
-                </button>
+                {% trans "Add author from search" as add_search_label %}
+                {% with name="search_authors" label=add_search_label %}
+                  {% include "elements/button_search.html" %}
+                {% endwith %}
               </div>
             </form>
           </div>
@@ -108,7 +107,7 @@
                   <div class="button-group">
                     <button
                       name="add_author"
-                      class="button">
+                      class="button secondary">
                       <span class="fa fa-user-plus"></span>
                       {% trans "Add author manually" %}
                     </button>
@@ -132,13 +131,10 @@
           <form method="POST">
             <div class="flex">
               {% csrf_token %}
-              <button
-                class="success button"
-                type="submit"
-                name="save_continue">
-                <span class="fa fa-check"></span>
-                {% trans "Save and continue" %}
-              </button>
+              {% trans "Save and continue" as continue_label %}
+              {% with name="save_continue" label=continue_label %}
+                {% include "elements/button_complete.html" %}
+              {% endwith %}
             </div>
           </form>
         </div>

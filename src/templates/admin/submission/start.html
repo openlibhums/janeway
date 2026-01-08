@@ -74,8 +74,10 @@
                         {{ form.competing_interests|foundation }}
                     </div>
                 {% endif %}
-                <button class="success button pull-right" type="submit" name="start_submission"><i class="fa fa-check">&nbsp;</i>{% trans "Start Submission" %}
-                </button>
+                {% trans "Start Submission" as start_label %}
+                {% with name="start_submission" label=start_label %}
+                  {% include "elements/button_complete.html" %}
+                {% endwith %}
                 <br/>
             </div>
         </form>

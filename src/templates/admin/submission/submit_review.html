@@ -26,15 +26,15 @@
                         </div>
                         <p>
                         {% if request.journal.submissionconfiguration.publication_fees %}
-                            <i class="fa fa-check-circle green"></i> {% trans "Agreed to Publication Fees statement" %} .<br />
+                            <i class="fa fa-check-circle"></i> {% trans "Agreed to Publication Fees statement" %} .<br />
                         {% endif %}
 
                         {% if request.journal.submissionconfiguration.submission_check %}
-                            <i class="fa fa-check-circle green"></i> {% trans "Agreed to Submission Checklist" %} .<br />
+                            <i class="fa fa-check-circle"></i> {% trans "Agreed to Submission Checklist" %} .<br />
                         {% endif %}
 
                         {% if request.journal.submissionconfiguration.copyright_notice %}
-                        <i class="fa fa-check-circle green"></i> {% trans "Agreed to Copyright statement" %}.<br />
+                        <i class="fa fa-check-circle"></i> {% trans "Agreed to Copyright statement" %}.<br />
                         {% endif %}
                         </p>
 
@@ -142,8 +142,12 @@
                     {% endif %}
 
                     <div class="large-12 columns">
-                        <button class="success button pull-right" type="submit" name="next_step"><i class="fa fa-check">&nbsp;</i>{% trans "Complete" %} {% trans "Submission" %}
-                        </button>
+                      <div class="flex justify-end">
+                        {% trans "Complete Submission" as complete_label %}
+                        {% with name="next_step" label=complete_label %}
+                          {% include "elements/button_complete.html" %}
+                        {% endwith %}
+                      </div>
                     </div>
                 </div>
             </div>
