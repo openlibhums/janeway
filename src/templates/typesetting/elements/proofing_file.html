@@ -6,9 +6,7 @@
         </div>
     </div>
     <div class="card-section">
-        {% if error %}
-            <div class="alert alert-warning" role="alert">{{ error }}</div>
-        {% endif %}
+      {% include "elements/forms/generic_error.html" %}
         <button class="close-button" data-close aria-label="Close modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>

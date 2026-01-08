@@ -2,7 +2,7 @@
 
 {% if round.typesettingassignment %}
 <div class="callout breakdown file">
-    <div class="callout-title">
+    <div>
         {% if request.user.is_staff %}<small><a class="pull-right" href="{% url 'admin:typesetting_typesettingassignment_change' round.typesettingassignment.pk %}" target="_blank">Edit in Admin</a></small>{% endif %}
         <h4>Typesetter: {{ round.typesettingassignment.typesetter.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' round.typesettingassignment.typesetter.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
     </div>

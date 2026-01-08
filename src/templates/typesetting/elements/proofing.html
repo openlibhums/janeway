@@ -1,7 +1,7 @@
 {% load bool_fa %}
 {% for proofing in round.galleyproofing_set.all %}
     <div class="callout breakdown file">
-        <div class="callout-title">
+        <div>
             <small><a class="pull-right" href="{% url 'admin:typesetting_galleyproofing_change' proofing.pk %}" target="_blank">Edit in Admin</a></small>
             <h4>Proofreader #{{ forloop.counter }}: {{ proofing.proofreader.full_name }} <a onclick="return popitup('{% url 'send_user_email_article' proofing.proofreader.pk article.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></h4>
         </div>

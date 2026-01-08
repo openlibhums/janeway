@@ -12,7 +12,7 @@
             <label for="doi">File Label</label>
             <input type="text" name="edit-label" value="{{ supp_file.label }}" required></input>
             <input type="hidden" name="supp-id" value="{{ supp_file.pk }}"></input>
-            <button class="success button">Save</button>
+            {% include "elements/button_save.html" %}
            </form>
         </div>
     </div>

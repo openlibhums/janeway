@@ -70,14 +70,15 @@
                         {% include "admin/elements/forms/errors.html" with form=form %}
 
                         {{ form|foundation }}
-
-                        <button name="save" class="button">Save</button>
+                        {% with name="save" hierarchy="secondary" %}
+                          {% include "elements/button_save.html" %}
+                        {% endwith %}
+                    </form>
                         {% else %}
                         <p>
                             This assignment has been accepted, completed or cancelled and cannot now be edited.
                         </p>
                         {% endif %}
-                    </form>
                 </div>
                 {% if not assignment.status == 'cancelled' and not assignment.completed %}
                 <div class="title-area">
@@ -89,7 +90,9 @@
                         <p>
                             You can cancel this assignment at any time. A note will be sent to the proofreader.
                         </p>
-                        <button name="action" value="cancel" class="alert button"><span class="fa fa-times-circle"></span> Cancel</button>
+                      {% with name="action" value="cancel" label="Cancel" %}
+                        {% include "elements/button_no.html" %}
+                      {% endwith %}
                     </form>
                 </div>
                 <div class="title-area">
@@ -102,7 +105,9 @@
                             You can mark this task as completed on behalf of the proofreader.
                             <strong>Note: the proofreader will no longer have access to the proofreading interface.</strong>
                         </p>
-                        <button name="action" value="complete" class="success button"><span class="fa fa-check"></span> Complete</button>
+                        {% with name="action" value="complete" hierarchy="secondary" %}
+                          {% include "elements/button_complete.html" %}
+                        {% endwith %}
                     </form>
                 </div>
                 {% endif %}
@@ -118,7 +123,9 @@
                             <p>
                                 You can cancel this assignment at any time. A note will be sent to the proofreader.
                             </p>
-                            <button name="action" value="reset" class="warning button"><span class="fa fa-repeat"></span> Reset</button>
+                          {% with name="action" value="reset" label="Reset" %}
+                            {% include "elements/button_restore.html" %}
+                          {% endwith %}
                         </form>
                     </div>
                 {% endif %}
@@ -177,7 +184,3 @@
         </div>
     </div>
 {% endblock body %}
-
-{% block js %}
-{% include "elements/jqte.html" %}
-{% endblock js %}

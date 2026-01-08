@@ -26,16 +26,25 @@
             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
             <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
             <td>
-                <a class="button small" href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_assignment' assignment.pk %}">Edit</a></td>
-            <td>
-                <a href="{% url 'typesetting_typesetter_download_file' assignment.pk galley.file.pk %}"><i
-                        class="fa fa-download">&nbsp;</i></a>
+              <a
+                class="button small secondary no-bottom-margin"
+                href="{% url 'typesetting_edit_galley' article.pk galley.pk %}?return={% url 'typesetting_assignment' assignment.pk %}"
+              >
+                <span class="fa fa-edit"></span>
+                Edit
+              </a>
             </td>
             <td>
-                <a href="{% url 'typesetting_preview_galley' article_id=article.pk galley_id=galley.pk assignment_id=assignment.pk %}"
-                   target="_blank">
-                    <i class="fa fa-eye">&nbsp;</i>
-                </a>
+              {% url 'typesetting_typesetter_download_file' assignment.pk galley.file.pk as download_href %}
+              {% with href=download_href size="small" %}
+                {% include "elements/a_download.html" %}
+              {% endwith %}
+            </td>
+            <td>
+              {% url 'typesetting_preview_galley' article_id=article.pk galley_id=galley.pk assignment_id=assignment.pk as preview_href %}
+              {% with href=preview_href size="small" %}
+                {% include "elements/a_preview.html" %}
+              {% endwith %}
             </td>
             <td>
                 {% if galley.file.mime_type in galley.mimetypes_with_figures and galley.has_missing_image_files %}
@@ -52,10 +61,9 @@
 </table>
 
 {% if not disable_upload %}
-<div class="button-group">
-    <a class="float-right button success" data-open="uploadbox">
-        <span class="fa fa-cloud-upload"></span>
-        Upload New Typeset File
-    </a>
-</div>
+  <div class="button-group no-bottom-margin flex justify-end">
+    {% with label="Upload New Typeset File" %}
+      {% include "elements/a_upload_modal_trigger.html" %}
+    {% endwith %}
+  </div>
 {% endif %}
