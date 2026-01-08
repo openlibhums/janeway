@@ -44,7 +44,7 @@
                         </h5>
                         {% if setting.description %}<label for="id_value">{{ setting.description|safe }}</label>{% endif %}
 
-                        {% include "elements/forms/errors.html" with form=edit_form %}
+                        {% include "admin/elements/forms/errors.html" with form=edit_form %}
 
                         <form action="" method="POST" enctype="multipart/form-data">
 
@@ -59,19 +59,21 @@
                                     <a href="{% url 'journal_file' value %}">Download File</a>
                                 {% endif %}
                             {% endif %}
-
-                                <button type="submit" class="button success" style="margin-right:5px">
-                                    <span class="fa fa-check"> </span> {% if setting_value == None %} Create Override {% else %}
-                                    Submit {% endif %}
-                                </button>
-                                {% if setting_value != setting.default_setting_value and setting_value != None %}
-                                    <button type="submit" class="button alert float-right"
-                                            onclick="return confirm_function()"
-                                            name="delete" value="delete">
-                                        Reset to Default
-                                    </button>
+                              <div class="button-group">
+                                {% if setting_value == None %}
+                                  {% trans "Create Override" as yes_label %}
+                                {% else %}
+                                  {% trans "Save" as yes_label %}
                                 {% endif %}
-
+                                {% with name="" label=yes_label %}
+                                  {% include "elements/button_yes.html" %}
+                                {% endwith %}
+                                {% if setting_value != setting.default_setting_value and setting_value != None %}
+                                  {% with name="delete" label="Reset to Default" %}
+                                    {% include "elements/button_remove.html" %}
+                                  {% endwith %}
+                                {% endif %}
+                              </div>
                         </form>
                     </div>
                 </div>

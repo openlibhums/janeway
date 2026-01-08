@@ -24,10 +24,10 @@
                 {% csrf_token %}
                 <input type="hidden" name="current_stage" value="{{ article.stage }}">
                 <div class="button-group expanded">
-                    <button class="success button" type="submit">
+                    <button class="button" type="submit">
                         {% trans "Move to" %} {{ article.next_workflow_element|capfirst }}
                     </button>
-                    <button class="alert button" data-close type="button">
+                    <button class="secondary button" data-close type="button">
                         {% trans "Keep in" %} {{ article.current_workflow_element|capfirst }}
                     </button>
                 </div>

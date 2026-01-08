@@ -40,10 +40,8 @@
                 <td>{{ ident.get_id_type_display }}</td>
                 <td>{{ ident.identifier }}</td>
                 <td>
-                    <a href="{% url 'edit_identifier' article.pk ident.pk %}" class="small button">
-                        <i class="fa fa-edit">&nbsp;</i>
-                        Edit
-                    </a>
+                  {% url 'edit_identifier' article.pk ident.pk as href %}
+                  {% include "elements/a_edit.html" with href=href size="small" %}
                 </td>
                 <td>
                     {% if ident.enabled %}
@@ -63,41 +61,41 @@
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <button type="submit" class="small success button" formaction="{% url 'issue_doi' article.pk ident.pk %}">
-                            Register
-                        </button>
+                      {% url 'issue_doi' article.pk ident.pk as register_formaction %}
+                      {% with formaction=register_formaction size="small" label="Register" %}
+                        {% include "elements/button_send.html" %}
+                      {% endwith %}
                     {% endif %}
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <a class="small success button" href="{% url 'show_doi' article.pk ident.pk %}">
-                            {% if ident.crossrefstatus.latest_deposit %}
-                                View XML
-                            {% else %}
-                                Preview XML
-                            {% endif %}
-                        </a>
+                      {% url 'show_doi' article.pk ident.pk as view_href %}
+                      {% with label=ident.crossrefstatus.latest_deposit|yesno:"View XML,Preview XML" %}
+                        {% include "elements/a_menu_item.html" with href=view_href size="small" %}
+                      {% endwith %}
                     {% endif %}
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' and ident.crossrefstatus.latest_deposit %}
-                        <a class="small success button" href="{% url 'poll_doi_output' article.pk ident.pk %}">
-                            View XML
-                        </a>
+                      {% url 'poll_doi_output' article.pk ident.pk as response_href %}
+                      {% with label="View XML" href=response_href size="small"  %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
                     {% endif %}
                 </td>
                 <td>
                     {% if ident.get_id_type_display == 'DOI' %}
-                        <a class="small success button" href="{% url 'poll_doi' article.pk ident.pk %}">
-                            Poll for status
-                        </a>
+                      {% url 'poll_doi' article.pk ident.pk as poll_href %}
+                      {% with label="Poll for status" href=poll_href size="small"  %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
                     {% endif %}
                 </td>
                 <td>
-                    <button class="small button warning" name="delete" formaction="{% url 'delete_identifier' article.pk ident.pk %}">
-                        <i class="fa fa-trash">&nbsp;</i>
-                        Delete
-                    </button>
+                  {% url 'delete_identifier' article.pk ident.pk as delete_formaction %}
+                  {% with formaction=delete_formaction size="small" confirm="confirm" %}
+                    {% include "elements/button_delete.html" %}
+                  {% endwith %}
                 </td>
             </form>
         </tr>

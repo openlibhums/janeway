@@ -1,7 +1,6 @@
 {% if form.errors %}
-    <div class="card card-alert">
-        <div class="card-section">
-            <small>
+    <div class="card" role="alert">
+        <div class="bs-callout bs-callout-warning">
                 <p>Form errors:</p>
                 <ul class="error-list">
                     {% if form.non_field_errors %}
@@ -17,7 +16,6 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-            </small>
         </div>
     </div>
 {% endif %}

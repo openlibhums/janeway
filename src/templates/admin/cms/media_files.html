@@ -39,9 +39,15 @@
                             <td>{{ file.filename }}</td>
                             <td>{{ file.uploaded }}</td>
                             <td>
-                                <button name="delete" value="{{ file.pk }}" class="button alert">Delete</button>
+                              {% with name="delete" value=file.pk confirm="confirm" size="small" %}
+                                {% include "elements/button_delete.html" %}
+                              {% endwith %}
                             </td>
-                            <td><a href="{{ file.file.url }}" class="button">Download</a></td>
+                            <td>
+                              {% with href=file.file.url size="small" %}
+                                {% include "elements/a_download.html" %}
+                              {% endwith %}
+                            </td>
                             <td>{{ file.link }}</td>
                         </tr>
                     {% endfor %}
@@ -66,8 +72,10 @@
 
                 {{ form }}
 
-                <button type="submit" class="button success float-right" value="upload">
-                    <i class="fa fa-upload"> &nbsp;</i>Upload
+                <button type="submit"
+                  class="button float-right" value="upload">
+                  <i class="fa fa-upload"> &nbsp;</i>
+                  Upload
                 </button>
             </form>
         </div>

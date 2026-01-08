@@ -17,12 +17,22 @@
                 <td>{{ note.date_time|date:"Y-m-d" }}</td>
                 <td>{{ note.creator.full_name }}</td>
                 <td>{{ note.text|safe }}</td>
-                <td><a class="tiny warming button" href="#" data-open="notemodaledit-{{ note.id }}"><i class="fa fa-edit">&nbsp;</i>Edit</a></td>
+                <td>
+                  <a
+                    class="button secondary small no-bottom-margin"
+                    href="#"
+                    data-open="notemodaledit-{{ note.id }}">
+                    <i class="fa fa-edit">&nbsp;</i>
+                    Edit
+                  </a>
+                </td>
                 <td>
                     <form method="POST">
                         {% csrf_token %}
-                    <button type="submit" name="delete_note" value="{{ note.pk }}" class="tiny alert button">
-                        <i class="fa fa-trash"></i></button></form>
+                      {% with name="delete_note" value=note.pk size="small" %}
+                        {% include "elements/button_delete.html" %}
+                      {% endwith %}
+                    </form>
                 </td>
             </tr>
         {% endfor %}
@@ -30,7 +40,7 @@
 </table>
 
 <div class="medium reveal" id="notemodaladd" data-reveal>
-        <small>{% include "elements/forms/errors.html" with form=newnote_form %}</small>
+        <small>{% include "admin/elements/forms/errors.html" with form=newnote_form %}</small>
         <h3>{% trans "Add A Publisher Note" %}</h3>
         <form method="POST">
             {% csrf_token %}
@@ -40,8 +50,9 @@
                 </div>
             </div>
 
-            <button class="success button pull-right" type="submit" name="add_publisher_note"><i class="fa fa-user">&nbsp;</i>{% trans "Add Publisher Note" %}
-            </button>
+          {% with name="add_publisher_note" %}
+            {% include "elements/button_save.html" %}
+          {% endwith %}
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -50,7 +61,7 @@
 
 {% for note_form in note_forms %}
     <div class="medium reveal" id="notemodaledit-{{ note_form.instance.id }}" data-reveal>
-        <small>{% include "elements/forms/errors.html" with form=note_form %}</small>
+        <small>{% include "admin/elements/forms/errors.html" with form=note_form %}</small>
         <h3>{% trans "Edit A Publisher Note" %}</h3>
         <form method="POST">
             {% csrf_token %}
@@ -60,12 +71,12 @@
                 </div>
             </div>
 
-            <button class="success button pull-right" type="submit" name="save_publisher_note" value="{{ note_form.instance.id }}"><i class="fa fa-user">&nbsp;</i>{% trans "Save Publisher Note" %}
-            </button>
+          {% with name="save_publisher_note" value=note_form.instance.pk %}
+            {% include "elements/button_save.html" %}
+          {% endwith %}
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>
         </form>
 </div>
 {% endfor %}
-

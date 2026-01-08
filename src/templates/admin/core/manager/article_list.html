@@ -101,7 +101,11 @@
                                 <input type="hidden" name="params_string" value="{{ params_string }}"/>
                             <div class="button-group">
                                 {% for action in actions %}
-                                    <button action="" class="success button" type="submit" name="{{ action.name }}">
+                                  <button
+                                    action=""
+                                    class="secondary button"
+                                    type="submit"
+                                    name="{{ action.name }}">
                                         {{ action.value }}
                                     </button>
                                 {% endfor %}

@@ -1,0 +1,14 @@
+{% load fqdn %}
+
+{% if request.user.is_staff %}
+  <a
+    class="janeway-logo-wrapper press-link"
+    href="{% stateless_site_url request.press url_name='core_manager_index' %}"
+  >
+    {% include "elements/janeway_logo.html" %}
+  </a>
+{% else %}
+  <div class="janeway-logo-wrapper">
+    {% include "elements/janeway_logo.html" %}
+  </div>
+{% endif %}

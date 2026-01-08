@@ -2493,6 +2493,7 @@ def pinned_articles(request):
     Allows an Editor to pin articles to the top of the article page.
     :param request: HttpRequest object
     """
+    warnings.warn("The pinned articles feature is deprecated.")
     pinned_articles = journal_models.PinnedArticle.objects.filter(
         journal=request.journal
     )

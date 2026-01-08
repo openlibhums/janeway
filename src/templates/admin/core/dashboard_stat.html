@@ -1,0 +1,16 @@
+<div class="summary">
+  <span
+    class="stat
+    {% if item_count > 0 %}
+       primary
+    {% else %}
+      secondary
+    {% endif %}
+    ">
+    {{ item_count }}
+  </span>
+  <span class="title">{{ label }}</span>
+  {% if href %}
+    <a href="{{ href }}" class="box-link"></a>
+  {% endif %}
+</div>

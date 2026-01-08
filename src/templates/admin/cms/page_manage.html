@@ -34,16 +34,21 @@
                         <div class="large-12 columns">
                             <p>If you want to upload and link to a file, use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
                                 Files</a> system.</p>
-                            <button type="submit" class="button success">Save</button>
-                            {% if page.history %}
-                                <a class="button" data-open="history_modal">
-                                    <i class="fa fa-history" aria-hidden="True"></i>
-                                    View History
-                                </a>
-                            {% endif %}
-                            <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"
-                                    class="alert button pull-right">Delete
-                            </button>
+                          <div class="flex space-between">
+                            <div class="button-group no-bottom-margin flex">
+                              <button type="submit" class="button">Save</button>
+                              {% if page.history %}
+                              <a class="button secondary" data-open="history_modal">
+                                  <i class="fa fa-history" aria-hidden="True"></i>
+                                  View History
+                              </a>
+                              {% endif %}
+                            </div>
+                            {% url 'cms_index' as delete_formaction %}
+                            {% with formaction=delete_formaction value=page.pk confirm="confirm" %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
+                          </div>
                         </div>
                     </div>
                 </form>

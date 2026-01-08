@@ -37,10 +37,7 @@
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form|foundation }}
-
-                        <button class="success button" type="submit">{% if not reminder %}Add Item{% else %}
-                            Update
-                            Item{% endif %}</button>
+                      {% include "elements/button_save.html" %}
                     </form>
                 </div>
             </div>

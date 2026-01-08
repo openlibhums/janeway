@@ -26,7 +26,7 @@
     <p>Example DOI based on pattern for this article: {{ article.render_sample_doi }}</p>
     <form method="POST">
         {% csrf_token %}
-        {% include "elements/forms/errors.html" %}
+        {% include "admin/elements/forms/errors.html" %}
         {{ form|foundation }}
         {% include "elements/button_save.html" %}
     </form>

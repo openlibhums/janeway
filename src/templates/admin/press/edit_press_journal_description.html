@@ -21,8 +21,10 @@
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="success button">{% trans "Save" %}</button>
-            <button type="submit" class="alert button" name="clear">{% trans "Clear Description" %}</button>
+          {% include "elements/button_save.html" %}
+          {% with name="clear" label="Clear Description" %}
+            {% include "elements/button_remove.html" %}
+          {% endwith %}
         </form>
     </div>
 {% endblock body %}

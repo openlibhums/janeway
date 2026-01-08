@@ -29,18 +29,27 @@
                     <tbody>
                     {% for page in pages %}
                         <tr>
-                            <td>{{ page.display_name }} (/site/{{ page.name }})</td>
-                            <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
-                            </td>
-                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
-                            <td>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
+                          <td>{{ page.display_name }} (/site/{{ page.name }})</td>
+                          <td>
+                            {% url 'cms_page' page.name as item_href %}
+                            {% with href=item_href label="View" size="small" %}
+                              {% include "elements/a_menu_item.html" %}
+                            {% endwith %}
+                          </td>
+                          <td>
+                            {% url 'cms_page_edit' page.pk as edit_href %}
+                            {% with href=edit_href size="small" %}
+                              {% include "elements/a_edit.html" %}
+                            {% endwith %}
+                          </td>
+                          <td>
+                            <form method="POST">
+                              {% csrf_token %}
+                              {% with name="delete" value=page.pk size="small" confirm="confirm" %}
+                                {% include "elements/button_delete.html" %}
+                              {% endwith %}
+                            </form>
+                          </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -67,12 +76,15 @@
             <div class="title-area">
                 <h2>XSLT</h2>
             </div>
-            <p><i class="fa fa-warning"> Changing the Current XSL will only  affect future uploads </i></p>
+            <p class="bs-callout bs-callout-warning">
+              <span class="fa fa-warning"></span>
+              Changing the Current XSL will only  affect future uploads.
+            </p>
             <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
                 {% for xsl in xsl_files %}
                     <li class="accordion-item" data-accordion-item>
                         <a href="#" class="accordion-title">
-                            {% if journal.xsl == xsl %}<i class="fa fa-check-circle" style="color: green;"></i>{% endif %}
+                            {% if journal.xsl == xsl %}<i class="fa fa-check-circle"></i>{% endif %}
                             {{ xsl.label }}
                             {% if journal.xsl == xsl %}<i>(current)</i>{% endif %}
                         </a>
@@ -86,7 +98,9 @@
                             {% if journal.xsl != xsl %}
                             <form method="POST">
                                 {% csrf_token %}
-                                <button name="change_xsl" value="{{ xsl.pk }}" type="submit" class="alert button">Make current</button>
+                                {% with label="Make current" name="change_xsl" value=xsl.pk %}
+                                  {% include "elements/button_restore.html" %}
+                                {% endwith %}
                             </form>
                             {% endif %}
                         </div>
@@ -107,7 +121,9 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ xsl_form}}
-                    <button name="new_xsl" type="submit" class="success button">Upload</button>
+                    {% with name="new_xsl" hierarchy="secondary" %}
+                      {% include "elements/button_upload.html" %}
+                    {% endwith %}
                 </form>
             </div>
             </div>

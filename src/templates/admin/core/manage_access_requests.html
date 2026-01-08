@@ -27,7 +27,14 @@
                             <td>{{ access_request.user.full_name }}</td>
                             <td>{{ access_request.role.name }}</td>
                             <td>{{ access_request.requested }}</td>
-                            <td><button class="small info button" data-open="request-{{ access_request.pk }}">View Information</button></td>
+                            <td>
+                              <button
+                                class="small secondary button"
+                                data-open="request-{{ access_request.pk }}"
+                              >
+                                View Information
+                              </button>
+                            </td>
                         </tr>
                     {% empty %}
                     {% endfor %}
@@ -52,8 +59,12 @@
                             {% csrf_token %}
                             <label for="eval_note">Note for Requester</label>
                             <textarea name="eval_note" id="eval_note" rows="4"></textarea>
-                            <button class="success button" name="approve" value="{{ access_request.pk }}">Approve</button>
-                            <button class="alert button" name="reject" value="{{ access_request.pk }}">Reject</button>
+                            {% with label="Approve" name="approve" value=access_request.pk %}
+                              {% include "elements/button_yes.html" %}
+                            {% endwith %}
+                            {% with label="Reject" name="reject" value=access_request.pk %}
+                              {% include "elements/button_no.html" %}
+                            {% endwith %}
                         </form>
                     </div>
                 </div>

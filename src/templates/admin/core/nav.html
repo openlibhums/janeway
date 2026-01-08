@@ -11,10 +11,8 @@
         <span aria-hidden="true">&times;</span>
     </button>
     <ul class="vertical menu">
-        <li class="title">
-            <a href="#">
-                <i class="fa fa-chevron-circle-down action-icon">&nbsp;</i> Janeway
-            </a>
+        <li>
+          {% include "elements/janeway_logo_wrapper.html" %}
         </li>
         {% if journal_settings.general.switch_language %}
         <li class="subtitle">

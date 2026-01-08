@@ -53,7 +53,7 @@
     </div>
   </form>
   {% for organization in organization_list %}
-    <div class="callout">
+    <div class="box">
       <div class="flex space-between">
         <div>
           <h3>{{ organization.ror_display }}</h3>
@@ -80,7 +80,7 @@
   {% empty %}
     <p><strong>{% trans 'No organizations to display.' %}</strong></p>
   {% endfor %}
-  <div class="callout">
+  <div class="box">
     <h3>{% trans "Organization not found?" %}</h3>
     {% if account %}
       {% url_with_next 'core_organization_name_create' as create_url %}

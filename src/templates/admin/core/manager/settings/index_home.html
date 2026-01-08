@@ -27,8 +27,9 @@
                         {% for item in active_elements %}
                             <li class="list-group-item" id="element-{{ item.pk }}">
                                 <div class="float-right">
-                                    <button type="submit" name="delete" value="{{ item.id }}" class="tiny alert button"><i
-                                            class="fa fa-trash"></i></button>
+                                  {% with name="delete" value=item.id size="tiny" %}
+                                    {% include "elements/button_remove.html" %}
+                                  {% endwith %}
                                 </div>
                                 <small><i class="fa fa-sort">&nbsp;</i>{{ item.name }} {% if item.has_config %}[
                                     <a href="{% url item.configure_url %}">configure</a>]{% endif %}</small>
@@ -57,9 +58,9 @@
                             <tr>
                                 <td>{{ item.name }}</td>
                                 <td>
-                                    <button class="tiny success button float-right" type="submit" name="add"
-                                            value="{{ item.id }}">Add
-                                    </button>
+                                  {% with size="tiny" name="add" value=item.id %}
+                                    {% include "elements/button_add.html" %}
+                                  {% endwith %}
                                 </td>
                             </tr>
                         {% endfor %}

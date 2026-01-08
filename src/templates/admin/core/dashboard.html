@@ -1,5 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load roles securitytags %}
+{% load role_count %}
+
 
 {% block title %}Dashboard{% endblock title %}
 {% block title-section %}Dashboard{% endblock %}
@@ -11,6 +13,7 @@
 {% endblock breadcrumbs %}
 
 {% block body %}
+
     <section>
        {% include "admin/elements/no_stage.html" %}
 
@@ -25,18 +28,15 @@
                         <a href="{% url 'review_requests' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ assigned_articles_for_user_review_count }}</span>
-                            <span class="title">Review Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ assigned_articles_for_user_review_accepted_count }}</span>
-                            <span class="title">Accepted Reviews</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ assigned_articles_for_user_review_completed_count }}</span>
-                            <span class="title">Completed Reviews</span>
-                        </div>
+                      {% with label="Review Requests" item_count=assigned_articles_for_user_review_count href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Accepted Reviews" item_count=assigned_articles_for_user_review_accepted_count href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Completed Reviews" item_count=assigned_articles_for_user_review_completed_count href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
@@ -50,18 +50,15 @@
                         <a href="{% url 'copyedit_requests' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ copyeditor_requests }}</span>
-                            <span class="title">Copyedit Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ copyeditor_accepted_requests }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ copyeditor_completed_requests }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
+                      {% with label="Copyedit Requests" item_count=copyeditor_requests href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Accepted Requests" item_count=copyeditor_accepted_requests href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Completed Requests" item_count=copyeditor_completed_requests href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
@@ -75,18 +72,15 @@
                         <a href="{% url 'typesetter_requests' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ typeset_tasks }}</span>
-                            <span class="title">Production Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ typeset_in_progress_tasks }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ typeset_completed_tasks }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
+                      {% with label="Production Requests" item_count=typeset_tasks href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Accepted Requests" item_count=typeset_in_progress_tasks href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Completed Requests" item_count=typeset_completed_tasks href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
@@ -100,10 +94,9 @@
                         <a href="{% url 'production_list' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ production_articles_count }}</span>
-                            <span class="title">Articles in Production</span>
-                        </div>
+                      {% with label="Articles in Production" item_count=production_articles_count href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
@@ -118,18 +111,15 @@
                         <a href="{% url 'proofing_requests' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ new_proofing }}</span>
-                            <span class="title">Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ active_proofing }}</span>
-                            <span class="title">Accepted</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ completed_proofing }}</span>
-                            <span class="title">Completed</span>
-                        </div>
+                      {% with label="Requests" item_count=new_proofing href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Accepted" item_count=active_proofing href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Completed" item_count=completed_proofing href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
@@ -144,24 +134,25 @@
                         <a href="{% url 'proofing_correction_requests' %}" class="button">View Requests</a>
                     </div>
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat alert">{{ new_proofing_typesetting }}</span>
-                            <span class="title">Production Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat">{{ active_proofing_typesetting }}</span>
-                            <span class="title">Accepted Requests</span>
-                        </div>
-                        <div class="summary">
-                            <span class="stat success">{{ completed_proofing_typesetting }}</span>
-                            <span class="title">Completed Requests</span>
-                        </div>
+                      {% with label="Production Requests" item_count=new_proofing_typesetting href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Accepted Requests" item_count=active_proofing_typesetting href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
+                      {% with label="Completed Requests" item_count=completed_proofing_typesetting href="" %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </div>
         {% endif %}
 
-        {% include "typesetting/elements/dashboard.html" %}
+        {% if typesetter or proofreader or is_author %}
+          {% if 'typesetting' in workflow_elements %}
+            {% include "typesetting/elements/dashboard.html" %}
+          {% endif %}
+        {% endif %}
 
         {% for element in request.journal.workflow_plugin_elements %}
             {% if element.settings.dashboard_template %}
