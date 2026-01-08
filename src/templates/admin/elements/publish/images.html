@@ -11,15 +11,19 @@
                 <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}" class="thumbnail">
                 <form method="POST">
                     {% csrf_token %}
-                    <button type="submit" name="delete_image" value="{{ article.large_image_file.id }}" class="tiny alert button">
-                        Delete File
-                    </button>
+                  <div class="button-group">
+                    {% with name="delete_image" value=article.large_image_file.id label="Delete File" size="small" %}
+                      {% include "elements/button_delete.html" %}
+                    {% endwith %}
+                  </div>
                 </form>
             {% endif %}
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="image_file">
-                <button name="image" type="submit" class="success button">Upload</button>
+              {% with name="image" %}
+                {% include "elements/button_upload.html" %}
+              {% endwith %}
             </form>
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>
