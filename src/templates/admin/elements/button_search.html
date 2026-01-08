@@ -1,0 +1,14 @@
+{% comment %}
+  A primary-color search button with a magnifying glass icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'search' }}"
+  class="button primary {{ size|default:'normal' }} no-bottom-margin"
+  type="submit">
+  <span class="fa fa-search"></span>
+  {% trans "Search" as default_label %}
+  {{ label|default:default_label }}
+</button>

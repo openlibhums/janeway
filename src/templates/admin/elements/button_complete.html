@@ -1,6 +1,6 @@
 {% comment %}
-  A primary-color save button with floppy disk icon.
-  Can be made secondary with the 'hierarchy' argument.
+  A primary-color create button with a check icon.
+  Can be made secondary with the 'hierarchy' argument
 {% endcomment %}
 
 {% load i18n %}
@@ -15,7 +15,7 @@
     {{ size|default:'normal' }}
   "
   type="submit">
-  <span class="fa fa-save"></span>
-  {% trans "Save" as default_label %}
+  <span class="fa fa-check"></span>
+  {% trans "Complete" as default_label %}
   {{ label|default:default_label }}
 </button>

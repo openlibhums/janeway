@@ -1,15 +1,18 @@
 {% comment %}
   A secondary-color remove button with a minus icon.
-  Use this rather than a_delete.html when the user will still be able to
+  Use this rather than button_delete.html when the user will still be able to
   go find the thing somewhere and put it back here.
 {% endcomment %}
 
 {% load i18n %}
 
-<a
-  href="{{ href }}"
+<button
+  name="{{ name|default:'delete' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
   <span class="fa fa-minus-circle"></span>
   {% trans "Remove" as default_label %}
   {{ label|default:default_label }}
-</a>
+</button>

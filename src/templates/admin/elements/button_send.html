@@ -1,0 +1,19 @@
+{% comment %}
+  A primary-color send button with an envelope icon
+{% endcomment %}
+{% load i18n %}
+
+<button
+  name="{{ name|default:'send' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  {% if formaction %}
+    formaction="{{ formaction }}"
+  {% endif %}
+  class="button primary {{ size|default:'normal' }} no-bottom-margin"
+>
+  <span class="fa fa-envelope-o"></span>
+  {% trans "Send" as default_label %}
+  {{ label|default:default_label }}
+</button>

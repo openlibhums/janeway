@@ -1,0 +1,22 @@
+{% comment %}
+  A secondary-color restore button with a backwards-turning clock face icon.
+  Can be made primary by passing hierarchy.
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'restore' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button no-bottom-margin
+    {{ hierarchy|default:"secondary" }}
+    {{ size|default:"normal" }}
+  ">
+  <div class="flex gap-0-25 items-center">
+    <span class="fa fa-history"></span>
+    {% trans "Restore" as default_label %}
+    {{ label|default:default_label }}
+  </div>
+</button>

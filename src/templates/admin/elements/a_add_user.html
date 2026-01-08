@@ -1,5 +1,5 @@
 {% comment %}
-  A secondary-color create button with a plus icon
+  A primary-color add button with a user-plus icon
 {% endcomment %}
 
 {% load i18n %}
@@ -7,10 +7,10 @@
 <a
   href="{{ href }}"
   class="button no-bottom-margin
-    {{ hierarchy|default:'secondary' }}
+    {{ hierarchy|default:'primary' }}
     {{ size|default:'normal' }}
   ">
-  <span class="fa fa-plus"></span>
-  {% trans "Create" as default_label %}
+  <span class="fa fa-user-plus"></span>
+  {% trans "Add User" as default_label %}
   {{ label|default:default_label }}
 </a>

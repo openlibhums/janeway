@@ -1,13 +1,14 @@
 {% comment %}
-  A secondary-color edit button with a pencil icon
+  A secondary-color Django admin button with cog icon.
 {% endcomment %}
 
 {% load i18n %}
 
 <a
   href="{{ href }}"
+  target="_blank"
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-edit"></span>
-  {% trans "Edit" as default_label %}
+  <span class="fa fa-cogs"></span>
+  {% trans "Admin" as default_label %}
   {{ label|default:default_label }}
 </a>

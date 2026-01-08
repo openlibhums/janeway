@@ -1,0 +1,16 @@
+{% comment %}
+  A secondary-color add button with a plus icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'add' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-plus"></span>
+  {% trans "Add" as default_label %}
+  {{ label|default:default_label }}
+</button>

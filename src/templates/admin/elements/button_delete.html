@@ -1,0 +1,51 @@
+{% comment %}
+  A warning-colored delete button with a trash icon.
+  Use this rather than button_remove.html when the thing is really gone,
+  and the user cannot easily find it and put it back.
+
+  A JS-powered confirm dialog can be added by passing confirm="confirm".
+{% endcomment %}
+
+{% load i18n %}
+{% load uuid %}
+
+{% if confirm %}
+  {% get_uuid4 as confirm_target %}
+{% endif %}
+
+<button
+  name="{{ name|default:'delete' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  {% if formaction %}
+    formaction="{{ formaction }}"
+  {% endif %}
+  {% if disabled %}
+    disabled
+  {% endif %}
+  {% if confirm %}
+    data-confirm-target-{{ confirm_target }}
+  {% endif %}
+  class="
+    button warning no-bottom-margin flex gap-0-25
+    {{ size|default:'normal' }}
+    {% if disabled %}
+      disabled
+    {% endif %}
+  ">
+  <span class="fa fa-trash"></span>
+  {% trans "Delete" as default_label %}
+  {{ label|default:default_label }}
+</button>
+{% if confirm %}
+  <script type="module">
+    const button = document.querySelector("[data-confirm-target-{{ confirm_target }}]")
+    button.addEventListener("click", event => {
+      const confirmed = confirm(
+        "Are you sure you want to delete this? You will not be able to recover any deleted data or files."
+      )
+      if (!confirmed) event.preventDefault()
+    })
+  </script>
+{% endif %}

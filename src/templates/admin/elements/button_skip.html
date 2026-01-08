@@ -1,0 +1,16 @@
+{% comment %}
+  A secondary-color skip button with a step-forward icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'skip' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-step-forward"></span>
+  {% trans "Skip and continue" as default_label %}
+  {{ label|default:default_label }}
+</button>

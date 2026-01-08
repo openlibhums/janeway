@@ -1,5 +1,6 @@
 {% comment %}
-  A secondary-color create button with a plus icon
+  A secondary-color menu item button with an optional icon.
+  NOTE: A label is required.
 {% endcomment %}
 
 {% load i18n %}
@@ -10,7 +11,8 @@
     {{ hierarchy|default:'secondary' }}
     {{ size|default:'normal' }}
   ">
-  <span class="fa fa-plus"></span>
-  {% trans "Create" as default_label %}
-  {{ label|default:default_label }}
+  {% if icon %}
+    <span class="fa {{ icon }}"></span>
+  {% endif %}
+  {{ label }}
 </a>

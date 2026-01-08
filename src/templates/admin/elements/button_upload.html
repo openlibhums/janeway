@@ -1,0 +1,19 @@
+{% comment %}
+  A primary-color upload button with an upload icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  {% if id %}
+    id="{{ id }}"
+  {% endif %}
+  name="{{ name|default:'upload' }}"
+  class="button no-bottom-margin
+    {{ hierarchy|default:"primary" }}
+    {{ size|default:"normal" }}
+  ">
+  <span class="fa fa-upload"></span>
+  {% trans "Upload" as default_label %}
+  {{ label|default:default_label }}
+</button>

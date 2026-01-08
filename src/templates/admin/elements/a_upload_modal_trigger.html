@@ -1,0 +1,21 @@
+{% comment %}
+  A secondary-color upload anchor with an upload icon,
+  and data and aria attributes for the "uploadbox" modal.
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="#"
+  class="button no-bottom-margin
+    {{ hierarchy|default:'secondary' }}
+    {{ size|default:'normal' }}
+  "
+  data-open="uploadbox"
+  aria-controls="uploadbox"
+  aria-haspopup="true"
+>
+  <span class="fa fa-upload"></span>
+  {% trans "Upload" as default_label %}
+  {{ label|default:default_label }}
+</a>

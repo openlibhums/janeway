@@ -1,0 +1,25 @@
+{% comment %}
+  A primary-color yes button with a check icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  {% if id %}
+    id="{{ id }}"
+  {% endif %}
+  {% if form_id %}
+    form="{{ form_id }}"
+  {% endif %}
+  {% if formaction %}
+    formaction="{{ formaction }}"
+  {% endif %}
+  name="{{ name|default:'yes' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button primary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-check"></span>
+  {% trans "Yes" as default_label %}
+  {{ label|default:default_label }}
+</button>
