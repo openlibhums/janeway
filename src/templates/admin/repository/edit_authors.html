@@ -55,7 +55,7 @@
                     </div>
 
                         <form method="POST">
-                            {% include "elements/forms/errors.html" with form=form %}
+                            {% include "admin/elements/forms/errors.html" with form=form %}
                             {% csrf_token %}
                             {{ form|foundation }}
                             <div class="row expanded">

@@ -34,8 +34,10 @@
                         <tr>
                             <td>{{ journal.name }}</td>
                             <td>{{ journal.code }}</td>
-                            <td><a href="{% url 'repository_send_to_journal' preprint.pk journal.pk %}"
-                                   class="small button success">Select</a></td>
+                            <td>
+                              {% url 'repository_send_to_journal' preprint.pk journal.pk as item_href %}
+                              {% include "elements/a_menu_item.html" with href=item_href label="Select" %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

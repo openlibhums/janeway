@@ -34,7 +34,9 @@
                     <p>{% trans 'By default, your account is the owner of this submission, but is not an Author on record. You can add yourself using the button below.' %}</p>
                     <form method="POST">
                         {% csrf_token %}
-                        <button class="button" name="self">Add Self as Author</button>
+                        {% with name="self" label="Add Self as Author" %}
+                          {% include "elements/button_add.html" %}
+                        {% endwith %}
                     </form>
                 </div>
                 {% endif %}
@@ -49,7 +51,9 @@
                             <span class="input-group-label">Search</span>
                             <input class="input-group-field" type="text" name="search">
                             <div class="input-group-button">
-                                <button type="submit" class="button" value="Submit"><span class="fa fa-search"></span></button>
+                              <button type="submit" class="button secondary" value="Submit">
+                                <span class="fa fa-search"></span>
+                              </button>
                             </div>
                         </div>
                     </form>
@@ -59,7 +63,16 @@
                 </div>
                 <div class="content">
                     <p>{% trans 'If you cannot find the author record by searching, and you are not the only author, you can add one by clicking the button below. This will open a popup modal for you to complete their details.' %}</p>
-                    <a href="#" data-open="newauthor" class="button" aria-controls="new-author" aria-haspopup="true" tabindex="0">{% trans 'Add New Author' %}</a>
+                    <a
+                      href="#"
+                      data-open="newauthor"
+                      class="button secondary"
+                      aria-controls="new-author"
+                      aria-haspopup="true"
+                      tabindex="0"
+                    >
+                      {% trans 'Add New Author' %}
+                    </a>
                 </div>
             </div>
             <div class="large-6 columns">

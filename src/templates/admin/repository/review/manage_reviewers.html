@@ -38,7 +38,9 @@
                                        {% if email %}value="{{ email }}"{% endif %}>
                             </div>
                             <div class="medium-2 columns end">
-                                <button class="success button">Search Users</button>
+                              {% with name="" label="Search Users" %}
+                                {% include "elements/button_search.html" %}
+                              {% endwith %}
                             </div>
                         </form>
                     </div>
@@ -61,7 +63,14 @@
                                 <td>{{ user.full_name }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{% for interest in user.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-                                <td><form method="POST">{% csrf_token %}<button name="add_reviewer" value="{{ user.pk }}" class="button small">Add Role</button></form></td>
+                                <td>
+                                  <form method="POST">
+                                    {% csrf_token %}
+                                    {% with name="add_reviewer" value=user.pk label="Add Role" size="small" %}
+                                      {% include "elements/button_add.html" %}
+                                    {% endwith %}
+                                  </form>
+                                </td>
                             </tr>
                         {% empty %}
                             <tr>
@@ -94,7 +103,12 @@
                                 <td>{{ reviewer.email }}</td>
                                 <td>{% for interest in reviewer.interest.all %}{{ interest }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
                                 <td>
-                                    <form method="POST">{% csrf_token %}<button name="remove_reviewer" value="{{ reviewer.pk }}" class="small alert button">Remove Role</button></form>
+                                  <form method="POST">
+                                    {% csrf_token %}
+                                    {% with name="remove_reviewer" value=reviewer.pk label="Remove Role" size="small" %}
+                                      {% include "elements/button_remove.html" %}
+                                    {% endwith %}
+                                  </form>
                                 </td>
                             </tr>
                             {% empty %}
