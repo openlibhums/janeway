@@ -1,3 +1,7 @@
+{% comment %}
+  This template is deprecated. Preprint settings are handled by admin/repository/wizard.html.
+{% endcomment %}
+
 {% load foundation %}
 
 <div class="reveal small" id="identifier" data-reveal
@@ -13,9 +17,9 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ form|foundation }}
-                <button type="submit" name="ident_button"
-                        class="small success button">Save Identifier
-                </button>
+                {% with label="Save Identifier" name="button_ident" size="small" %}
+                  {% include "elements/button_save.html" %}
+                {% endwith %}
             </form>
         </div>
     </div>

@@ -13,10 +13,10 @@
             <p class="strong small">Article DOI: {{ supp_file.file.article.get_doi }}</p>
             <label for="doi">DOI for this supplemetary file</label>
             <input type="text" name="doi" value="{% if supp_file.doi %}{{ supp_file.doi }}{% else %}{{ supp_file.file.article.get_doi }}.s{{ supp_file.pk }}{% endif %}" required></input>
-            <button class="success button">Mint DOI</button>
+            <button class="primary button">Mint DOI</button>
            </form>
            {% else %}
-           <div class="callout bs-callout-warning">
+           <div class="bs-callout bs-callout-warning">
              This article doesn't have a DOI. It must have a DOI before you can register a DOI for supplementary files
            </div>
            {% endif %}

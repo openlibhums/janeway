@@ -1,0 +1,11 @@
+<a
+  href="{% url 'repository_wizard_with_id' repository.short_name target_step %}"
+  class="button
+    {% if not step == target_step %}
+      secondary
+    {% else %}
+      primary
+    {% endif %}
+  ">
+  {{ label }}
+</a>

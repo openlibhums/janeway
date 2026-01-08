@@ -182,7 +182,14 @@
                     </li>
                 </ul>
 
-                <div class="callout {% if not preprint.has_galley %}alert{% else %}info{% endif %}">
+                <div class="
+                  bs-callout
+                  {% if not preprint.has_galley %}
+                    bs-callout-warning
+                  {% else %}
+                    bs-callout-info
+                  {% endif %}
+                ">
                     {% if preprint.date_accepted %}
                         <small>This {{ request.repository.object_name }} was accepted
                             on {{ preprint.date_accepted }}</small>
@@ -375,9 +382,13 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button name="make_version" value="{{ file.pk }}" class="small button">
-                                        Create Version with this File
-                                    </button>
+                                  <button
+                                    name="make_version"
+                                    value="{{ file.pk }}"
+                                    class="button secondary small no-bottom-margin"
+                                  >
+                                    Create Version with this File
+                                  </button>
                                 </td>
                             </tr>
                         {% endfor %}

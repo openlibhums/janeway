@@ -16,7 +16,7 @@
             <div class="shell-of-a-button no-bottom-margin flex items-center">
               {{ credit.get_role_display }}
               <button
-                class="button secondary hollow"
+                class="button hollow"
                 name="credit_pk"
                 value="{{ credit.pk }}"
                 type="submit">
@@ -48,7 +48,7 @@
     <div class="button-group no-bottom-margin">
       <button
         data-give-me
-        class="button hollow secondary"
+        class="button secondary"
         type="button"
         {% if last_changed_credit_author == author %}
           aria-expanded="true"
@@ -73,7 +73,7 @@
               <div class="button-group no-bottom-margin">
                 <button
                   id="{{ radio.id_for_label }}-{{ pid }}"
-                  class="button hollow secondary"
+                  class="button secondary"
                   name="role"
                   value="{{ radio.data.value }}">
                   <span class="fa fa-plus"></span>

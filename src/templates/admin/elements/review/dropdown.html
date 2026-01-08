@@ -1,8 +1,17 @@
 <div class="button-group">
-    {% if not small %}<a href="{% url 'review_view_review' article.pk review.pk %}"
-       class="button">View</a>{% endif %}
-    <a class="button {% if not small %}dropdown arrow-only{% endif %}"
-       data-toggle="review-dropdown-{{ review.pk }}">{% if small %}<i class="fa fa-cog"></i>{% endif %}</a>
+  {% if small %}
+    <a class="button secondary" data-toggle="review-dropdown-{{ review.pk }}">
+      <span class="fa fa-cog"></span>
+    </a>
+  {% else %}
+    {% url 'review_view_review' article.pk review.pk as item_href %}
+    {% include "elements/a_menu_item.html" with href=item_href label="View" %}
+    <a
+      class="button secondary dropdown arrow-only"
+      data-toggle="review-dropdown-{{ review.pk }}"
+    >
+    </a>
+  {% endif %}
 </div>
 <div class="dropdown-pane {{ dropdown }}"
      id="review-dropdown-{{ review.pk }}"

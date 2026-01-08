@@ -6,7 +6,7 @@
             <h4>{% if issue %}Edit Issue{% else %}Create Issue{% endif %}</h4>
         </div>
         <div class="card-section">
-            {% include "elements/forms/errors.html" with form=form %}
+            {% include "admin/elements/forms/errors.html" with form=form %}
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
@@ -57,7 +57,9 @@
                         {{ form.isbn|foundation }}
                     </div>
                     <div class="large-12 columns">
-                        <button name="save_issue" type="submit" class="button success">{% if issue %}Edit{% else %}Add{% endif %} Issue</button>
+                      {% with name="save_issue" %}
+                        {% include "elements/button_save.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </form>

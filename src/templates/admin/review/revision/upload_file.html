@@ -2,14 +2,14 @@
 {% load static %}
 
 
-{% block title %}Revisions for {{ revision_request.article.title }}{% endblock title %}
-{% block title-section %}Revisions for {{ revision_request.article.safe_title }}{% endblock %}
+{% block title %}Upload New File for {{ revision_request.article.title }}{% endblock title %}
+{% block title-section %}Upload New File for {{ revision_request.article.safe_title }}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
 {% include "elements/breadcrumbs/review_base.html" with subpage="yes" %}
 <li><a href="{% url 'do_revisions' revision_request.article.pk revision_request.pk %}">Revisions for {{ revision_request.article.safe_title }}</a></li>
-<li>Replace File</li>
+<li>Upload New File</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -26,10 +26,7 @@
             <h2>New File</h2>
         </div>
         <div class="content">
-            {% if error %}
-                <div class="alert alert-warning" role="alert">{{ error }}</div>
-            {% endif %}
-
+            {% include "elements/forms/generic_error.html" %}
             <p>Please upload your new file.</p>
             <div class="row expanded">
                 <div class="large-5 columns end">
@@ -48,8 +45,7 @@
                         <input name="file" type="file" id="file" class="filestyle" data-placeholder="No file"
                                data-buttonName="btn-primary" required>
                         <br/>
-                        <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">&nbsp;</i>Upload
-                        </button>
+                      {% include "elements/button_upload.html" %}
                     </form>
                 </div>
             </div>

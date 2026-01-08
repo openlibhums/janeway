@@ -51,15 +51,21 @@
                                 <td>{{ assignment.last_completed_review|default_if_none:'--' }}</td>
                                 <td>{{ assignment.average_score|default_if_none:'--' }}</td>
                             {% endif %}
-                            <td><a class="tiny success button" href="{% url 'core_user_history' assignment.user.pk %}">View History</a></td>
-                            <td><a class="tiny alert button"
-                                               href="{% url 'core_manager_role_action' role.slug assignment.user.id 'remove' %}">Remove Role</a></td>
                             <td>
-                              <a
-                                href="{% url_with_return 'core_user_edit' assignment.user.pk %}"
-                                class="tiny warning button">
-                                Edit User
-                              </a>
+                              {% url 'core_user_history'  assignment.user.pk as href %}
+                              {% with href=href size="small" label="View History" %}
+                                {% include "elements/a_menu_item.html" %}
+                              {% endwith %}
+                            </td>
+                            <td>
+                              {% url 'core_manager_role_action' role.slug assignment.user.id 'remove' as href %}
+                              {% with href=href size="small" label="Remove Role" %}
+                                {% include "elements/a_remove.html" %}
+                              {% endwith %}
+                            </td>
+                            <td>
+                              {% url_with_return 'core_user_edit'  assignment.user.pk as href %}
+                              {% include "elements/a_edit.html" with size="small" label="Edit User" %}
                             </td>
                         </tr>
                     {% endfor %}</tbody>

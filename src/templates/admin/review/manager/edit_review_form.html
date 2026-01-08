@@ -28,15 +28,19 @@
                     <ul class="list-group" id="sortable">
                         {% for element in edit_form.elements.all %}
                             <li class="list-group-item" id="element-{{ element.pk }}">
+                              <div class="flex space-between items-center">
+                                <div>
                                 <span class="fa fa-sort">&nbsp;</span>
                                 {{ element.name }}
-                                <div class="float-right">
-                                    <a class="tiny warning button"
-                                       href="{% url 'edit_review_form_element' edit_form.pk element.pk %}"><i
-                                            class="fa fa-edit"></i></a>
-                                    <button type="submit" name="delete" value="{{ element.pk }}"
-                                            class="tiny alert button"><i class="fa fa-trash"></i></button>
                                 </div>
+                                <div class="button-group no-bottom-margin">
+                                  {% url 'edit_review_form_element' edit_form.pk element.pk as edit_url %}
+                                  {% include "elements/a_edit.html" with href=edit_url size="small" %}
+                                  {% with name="delete" value=element.pk %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
+                                </div>
+                              </div>
                             </li>
                         {% endfor %}
                     </ul>
@@ -56,7 +60,9 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button type="submit" name="review_form" class="success button">Edit Form</button>
+                    {% with name="review_form" %}
+                      {% include "elements/button_save.html" %}
+                    {% endwith %}
                 </form>
             </div>
         </div>

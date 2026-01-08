@@ -24,7 +24,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button class="success button" type="submit">{% if contact %}Edit Contact{% else %}Add New Contact{% endif %}</button>
+                    {% include "elements/button_save.html" %}
                 </form>
             </div>
         </div>

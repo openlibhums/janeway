@@ -315,7 +315,17 @@
 
                     <td>DOI</td>
                     <td><span class="fa fa-exclamation-triangle"> Article has no DOI</span></td>
-                    <td>{% if user_is_editor %}<a href="{% url 'add_new_identifier' article.pk %}" class="button">Add DOI</a>{% else %}---{% endif %}</td>
+                  <td>
+                    {% if user_is_editor %}
+                      {% trans "Add DOI" as add_doi %}
+                      {% url 'add_new_identifier' article.pk as add_doi_href %}
+                      {% with href=add_doi_href label=add_doi size="small" %}
+                        {% include "elements/a_create.html" %}
+                      {% endwith %}
+                    {% else %}
+                      ---
+                    {% endif %}
+                  </td>
                 {% endif %}
                 {% endwith %}
             </tr>

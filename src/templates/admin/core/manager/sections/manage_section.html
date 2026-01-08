@@ -28,10 +28,12 @@
                     </div>
                 </div>
                 <form method="POST">
-                    {% include "elements/forms/errors.html" with form=form %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button type="submit" class="success button">{% if section %}Edit{% else %}Add{% endif %} Section</button>
+                    <button type="submit" class="button">
+                      {% if section %}Edit{% else %}Add{% endif %} Section
+                    </button>
                 </form>
             </div>
         </div>

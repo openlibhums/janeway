@@ -30,9 +30,9 @@
                     {% csrf_token %}
                     {{ form|foundation }}
                     <div class="large-12 columns">
-                        <button class="success button">
-                            <span class="fa fa-cloud-upload"></span> Save & Upload
-                        </button>
+                      {% with label="Save and Upload" %}
+                        {% include "elements/button_upload.html" %}
+                      {% endwith %}
                     </div>
                 </form>
             </div>

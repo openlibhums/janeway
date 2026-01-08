@@ -171,11 +171,16 @@
                     <h2>Comments</h2>
                 </div>
                 <div class="content">
-                    <a href="{% url 'repository_comments' preprint.pk %}" class="success button"><i
-                            class="fa fa-comment"></i> Manage Comments</a>
-                    <a class="button" href="#" data-open="uploadbox">
-                        <span class="fa fa-upload">&nbsp;</span>Update {{ request.repository.object_name }}
-                    </a>
+                  <a
+                    href="{% url 'repository_comments' preprint.pk %}"
+                    class="button secondary">
+                    <span class="fa fa-comment"></span>
+                    Manage Comments
+                  </a>
+                  <a class="button secondary" href="#" data-open="uploadbox">
+                    <span class="fa fa-upload"></span>
+                    Update {{ request.repository.object_name }}
+                  </a>
                 </div>
             </div>
         </div>
@@ -270,7 +275,7 @@
                                 <option value="{{ journal.pk }}">{{ journal.name }}</option>
                             {% endfor %}
                         </select>
-                        <button name="submit" class="success button">Submit</button>
+                        <button name="submit" class="button secondary">Submit</button>
                         </form>
                     {% else %}
                         <p>No journals currently accept preprints for full submission.</p>
@@ -290,9 +295,7 @@
             </div>
         </div>
         <div class="card-section">
-            {% if error %}
-                <div class="alert alert-warning" role="alert">{{ error }}</div>
-            {% endif %}
+            {% include "elements/forms/generic_error.html" %}
             <button class="close-button" data-close aria-label="Close modal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>

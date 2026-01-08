@@ -1,0 +1,16 @@
+{% comment %}
+  A primary-color add button with a user-plus icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button no-bottom-margin
+    {{ hierarchy|default:'primary' }}
+    {{ size|default:'normal' }}
+  ">
+  <span class="fa fa-user-plus" aria-hidden="true"></span>
+  {% trans "Add User" as default_label %}
+  {{ label|default:default_label }}
+</a>

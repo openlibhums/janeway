@@ -131,7 +131,12 @@
                         </tr>
                     {% endfor %}
                 </table>
-                <a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i>Upload a new galley</a>
+                <div class="button-group">
+                  <a class="button secondary" data-open="uploadbox">
+                    <i class="fa fa-cloud-upload">&nbsp;</i>
+                    Upload a new galley
+                  </a>
+                </div>
 
             </div>
         </div>
@@ -175,9 +180,11 @@
                 <h2>Actions</h2>
             </div>
             <div class="button-group">
-                <a href="{% url 'review_decision' article.id 'undecline' %}" class="button success">
-                    <i class="fa fa-undo action-icon">&nbsp;</i> {% trans 'Undo Article Rejection' %}
-                </a>
+              {% url 'review_decision' article.id 'undecline' as undo_href %}
+              {% trans 'Undo Article Rejection' as undo_label %}
+              {% with href=undo_href label=undo_label %}
+                {% include "elements/a_undo.html" %}
+              {% endwith %}
             </div>
             {% if assigned_editors %}
                 {% trans 'Review' as stage %}

@@ -18,10 +18,19 @@
         {%  endif %}
         <div class="button-group">
             {% if type == "new" %}
-                <a class="tiny success button" href="{% url 'copyedit_request_decision' request.id 'accept' %}">Accept</a>
-                <a class="tiny alert button" href="{% url 'copyedit_request_decision' request.id 'decline' %}">Decline</a>
+              {% url 'copyedit_request_decision' request.id 'accept' as accept_href %}
+              {% with href=accept_href label="Accept" %}
+                {% include "elements/a_ok.html" %}
+              {% endwith %}
+              {% url 'copyedit_request_decision' request.id 'decline' as decline_href %}
+              {% with href=decline_href label="Decline" %}
+                {% include "elements/a_cancel.html" %}
+              {% endwith %}
             {% elif type == 'active' %}
-                <a class="tiny success button" href="{% url 'do_copyedit' request.id %}">View</a>
+              {% url 'do_copyedit' request.id as view_href %}
+              {% with href=view_href label="View" %}
+                {% include "elements/a_menu_item.html" %}
+              {% endwith %}
             {% endif %}
         </div>
     </div>

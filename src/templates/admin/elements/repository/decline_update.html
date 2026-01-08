@@ -18,7 +18,9 @@
                             <textarea rows="10" name="reason" placeholder="You can add an optional not to let the author know the reason you declined this update." name="reason"></textarea>
                         </div>
                         <div class="large-12 columns">
-                            <button class="button alert" name="decline" value="{{ version.pk }}"><i class="fa fa-times"> </i> Decline Update</button>
+                          {% with label="Decline Update" name="decline" value=version.pk %}
+                            {% include "elements/button_send.html" %}
+                          {% endwith %}
                         </div>
                     </div>
             <small></small>

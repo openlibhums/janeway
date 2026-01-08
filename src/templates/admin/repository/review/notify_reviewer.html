@@ -40,11 +40,8 @@
                     </div>
                     <div class="card-divider">
                         <div class="button-group">
-                            <button type="submit" class="button success" name="send"><i
-                                    class="fa fa-envelope-o">&nbsp;</i>Send
-                            </button>
-                            <button type="submit" class="button warning" name="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip
-                            </button>
+                          {% include "elements/button_send.html" %}
+                          {% include "elements/button_skip.html" %}
                         </div>
                     </div>
                 </form>

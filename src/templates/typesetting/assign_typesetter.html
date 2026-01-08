@@ -20,7 +20,7 @@
         </div>
         <div class="content">
             {% if not article.issue and not article.projected_issue %}
-            <div class="callout alert" data-closable style="background-color: #f7e4e1; color: #0a0a0a">
+            <div class="bs-callout bs-callout-warning" data-closable>
                 <h5>Article missing primary or projected issue</h5>
                 <p>
                     This article doesn't have a primary or projected issue, so the typesetter won't know what issue it belongs to. You can
@@ -42,12 +42,14 @@
         </div>
     </div>
     <form id="assign_typesetter" method="POST">
-        {% include "elements/forms/errors.html" %}
+        {% include "admin/elements/forms/errors.html" %}
         {% csrf_token %}
         <div class="box">
             <div class="content">
                 {% include 'typesetting/elements/typesetting_assignment_fields.html' %}
-                <button name="{{ form.CONFIRMABLE_BUTTON_NAME }}" class="button">Save Step 1</button>
+              {% with name=form.CONFIRMABLE_BUTTON_NAME label="Save Step 1" %}
+                {% include "elements/button_save.html" %}
+              {% endwith %}
             </div>
         </div>
 

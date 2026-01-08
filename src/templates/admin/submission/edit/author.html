@@ -46,7 +46,7 @@
                 type="submit"
                 name="edit_author"
                 value="{{ author.pk }}"
-                class="button secondary hollow">
+                class="button secondary">
                 <span class="fa fa-edit"></span>
                 {% trans "Edit name, bio, identifiers" %}
               </button>
@@ -180,7 +180,7 @@
         {% endif %}
       {% else %}
         <p>{% blocktrans with journal_title=journal.name %}
-          This author has not registerd for a user account with <i>{{ journal_title }}</i>.
+          This author has not registered for a user account with <i>{{ journal_title }}</i>.
         {% endblocktrans %}</p>
       {% endif %}
     </section>

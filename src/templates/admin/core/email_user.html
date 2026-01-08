@@ -1,4 +1,8 @@
 {% extends "admin/core/base.html" %}
+{% comment %}
+  This template is deprecated. See admin/journal/send_user_email.html.
+{% endcomment %}
+
 {% load foundation %}
 
 {% block title %}Resend Logged Email{% endblock %}
@@ -15,18 +19,18 @@
         <form method="POST">
             {% csrf_token %}
             <div class="large-12 columns">
-                {% include "elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
             </div>
             {{ form|foundation }}
             <div class="large-12 columns">
-                <button name="resend" class="success button">Resend Email</button>
-                <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+                <button name="resend" class="hollow button">Resend Email</button>
+                <a class="hollow button pull-right" href="javascript:self.close()">Close this Window</a>
             </div>
             <br/>
         </form>
         {% else %}
         <p>This email has been resent.</p>
-        <a class="warning button" href="javascript:self.close()">Close this Window</a>
+        <a class="hollow button" href="javascript:self.close()">Close this Window</a>
 
         {% endif %}
     </div>

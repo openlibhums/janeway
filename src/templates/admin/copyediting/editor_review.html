@@ -99,7 +99,8 @@
                                     {% if review.decision %}
                                         <small>Cannot delete a completed author review.</small>
                                     {% else %}
-                                        <a href="{% url 'delete_author_review' article.id copyedit.id review.pk %}" class="small alert button delete">Delete Author Review</a>
+                                      {% url 'delete_author_review' article.id copyedit.id review.pk as delete_href %}
+                                      {% include "elements/a_delete.html" with label="Delete Author Review" href=delete_href size="small" %}
                                     {% endif %}
                                 </td>
                                 {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}
@@ -215,8 +216,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     <textarea name="accept_note">{{ accept_message|safe|linebreaksbr }}</textarea>
-                    <button name="accept" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
+                    {% include "elements/button_send.html" with name="accept" %}
                 </form>
             </div>
         </div>
@@ -239,8 +239,7 @@
                     <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
                     <label for="due">Due Date</label>
                     <input type="date" name="due" id="due" required="required">
-                    <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
+                    {% include "elements/button_send.html" with name="review" %}
                 </form>
             </div>
         </div>

@@ -22,9 +22,12 @@
 <div>
     <div class="content">
         <div class="row expanded"> 
-            <a href="https://janeway.readthedocs.io/en/latest/manager/identifiers/index.html" class="button small float-right">
-                Documentation <span class="fa fa-info-circle"></span>
-            </a>
+          <a
+            href="https://janeway.readthedocs.io/en/latest/manager/identifiers/index.html"
+            class="button secondary float-right"
+          >
+            Documentation <span class="fa fa-info-circle"></span>
+          </a>
         </div>
         {% if facet_form.fields %}
             <div class="box">
@@ -106,29 +109,26 @@
                                 {% else %}
                                     {{ article.doi_pattern_preview }} (pattern preview)
                                 {% endif %}
-                                <a class="tiny secondary button" href="{% external_journal_url article_journal 'article_identifiers' article.pk %}">
-                                    <span class="fa fa-edit"></span>
-                                </a>
+                                {% external_journal_url article_journal 'article_identifiers' article.pk as href %}
+                                {% include "elements/a_edit.html" with href=href size="small" %}
                             </td>
                             <td>
                                 {{ doi.crossrefstatus.get_message_display }}
                             </td>
                             <td>
                                 {% if doi %}
-                                    <a class="small button" href="{% external_journal_url article_journal 'show_doi' article.pk doi.pk %}">
-                                        {% if doi.crossrefstatus.latest_deposit.document %}
-                                            View XML
-                                        {% elif doi %}
-                                            Preview XML
-                                        {% endif %}
-                                    </a>
+                                  {% external_journal_url article_journal 'show_doi' article.pk doi.pk as view_href %}
+                                  {% with label=doi.crossrefstatus.latest_deposit.document|yesno:"View XML,Preview XML" %}
+                                    {% include "elements/a_menu_item.html" with href=view_href size="small" %}
+                                  {% endwith %}
                                 {% endif %}
                             </td>
                             <td>
                                 {% if doi.crossrefstatus.latest_deposit.result_text %}
-                                    <a class="small button" href="{% external_journal_url article_journal 'poll_doi_output' article.pk doi.pk %}">
-                                        View XML
-                                    </a>
+                                  {% external_journal_url article_journal 'poll_doi_output' article.pk doi.pk as response_href %}
+                                  {% with label="View XML" href=response_href size="small"  %}
+                                    {% include "elements/a_menu_item.html" %}
+                                  {% endwith %}
                                 {% endif %}
                             </td>
                             <td>
@@ -169,9 +169,15 @@
                         <input type="hidden" name="params_string" value="{{ params_string }}"/>
                         <div class="button-group">
                             {% for action in actions %}
-                                <button action="" class="success button" type="submit" name="{{ action.name }}" {% if page_obj.paginator.count > action_maximum_size %}disabled{% endif %}>
-                                    {{ action.value|safe }}
-                                </button>
+                              <button
+                                action=""
+                                class="button secondary"
+                                type="submit"
+                                name="{{ action.name }}"
+                                {% if page_obj.paginator.count > action_maximum_size %}disabled{% endif %}
+                              >
+                                {{ action.value|safe }}
+                              </button>
                             {% endfor %}
                         </div>
                     </form>

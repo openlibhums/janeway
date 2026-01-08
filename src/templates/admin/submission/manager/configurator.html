@@ -21,10 +21,10 @@
                     can be configured when the fields are not being used.</p>
                 <form method="POST">
                     {% include "elements/translations/form_tabs.html" with object=configuration %}
-                    {% include "elements/forms/errors.html" %}
+                    {% include "admin/elements/forms/errors.html" %}
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button class="success button">Save Configuration</button>
+                  {% include "elements/button_save.html" %}
                 </form>
             </div>
         </div>

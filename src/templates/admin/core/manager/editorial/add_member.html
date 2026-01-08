@@ -29,12 +29,15 @@
                     <ul class="list-group" id="sortable">
                         {% for member in group.editorialgroupmember_set.all %}
                         <li class="list-group-item" id="member-{{ member.pk }}">
-                            <div class="float-right">
-                                <button type="submit" name="delete" value="{{ member.pk }}" class="tiny alert button"><i class="fa fa-trash"></i></button>
-                            </div>
+                          <div class="flex space-between items-center">
+                            <div>
                                 <i class="fa fa-sort">&nbsp;</i>
                                 {{ member.user.full_name }}<br />
-                            </small>
+                            </div>
+                            {% with name="delete" value=member.pk size="small" %}
+                              {% include "elements/button_remove.html" %}
+                            {% endwith %}
+                          </div>
                         </li>
                         {% endfor %}
                     </ul>
@@ -68,7 +71,12 @@
                         <tr>
                             <td>{{ user.full_name }}</td>
                             <td>{{ user.email }}</td>
-                            <td><a href="{% url 'core_editorial_member_to_group_user' group.pk user.pk %}">Add</a></td>
+                            <td>
+                              {% url 'core_editorial_member_to_group_user' group.pk user.pk as add_href %}
+                              {% with label="Add" href=add_href size="small" %}
+                                {% include "elements/a_create.html" %}
+                              {% endwith %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

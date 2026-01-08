@@ -10,7 +10,7 @@
             <p>{{ modal.question }}</p>
             {% if modal.potential_errors %}
                 {% for error in modal.potential_errors %}
-                    <div class="callout bs-callout-warning">
+                    <div class="bs-callout bs-callout-warning">
                         <p><span class="fa fa-warning">&nbsp;</span>{{ error }}</p>
                     </div>
                 {% endfor %}
@@ -18,12 +18,12 @@
         </div>
         <div class="card-section">
             <div class="button-group expanded">
-                <button class="success button" form="{{ form_id }}" type="submit" name="{{ modal.confirmed_button_name }}">
-                    {% trans "Yes" %}
-                </button>
-                <button class="alert button" data-close type="button">
-                    {% trans "No, go back" %}
-                </button>
+              {% with name=modal.confirmed_button_name value=version.pk form_id=form_id %}
+                {% include "elements/button_yes.html" %}
+              {% endwith %}
+              {% with label="No, go back" data_attrs="data-close" %}
+                {% include "elements/button_no.html" %}
+              {% endwith %}
             </div>
         </div>
     </div>

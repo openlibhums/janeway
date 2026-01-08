@@ -23,14 +23,11 @@
               {{ field }}
             {% endif %}
           {% endfor %}
-          <button class="button" type="submit">
-            <span class="fa fa-filter"></span>
-            {% trans 'Apply' %}
-          </button>
-          <a href="{{ request.path }}" class="button warning">
-            <span class="fa fa-times"></span>
-            {% trans 'Clear all' %}
-          </a>
+          {% include "elements/button_filter.html" %}
+          {% trans "Clear all" as clear_label %}
+          {% with label=clear_label href=request.path %}
+            {% include "elements/a_cancel.html" %}
+          {% endwith %}
         </div>
       </form>
     </div>

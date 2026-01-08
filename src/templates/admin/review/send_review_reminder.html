@@ -23,9 +23,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button name="request_reminder" class="success button">
-                        Send Request Reminder
-                    </button>
+                  {% include "elements/button_send.html" with name="request_reminder" %}
                 </form>
             </div>
             {% endif %}
