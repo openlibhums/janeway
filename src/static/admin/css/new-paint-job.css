@@ -1,0 +1,120 @@
+/* Together with legacy-colors.css, this file updates and
+ * simplifies the color scheme for the back-office UI
+ * as a stop-gap measure for color accessibility
+ * until we can migrate the UI to a new CSS codebase
+ * The prefix --f means it was a Foundation CSS color in the app.css file.
+ * The prefix --admin means it was introduced by us in admin.css.
+ * */
+
+:root {
+
+  /* Mapping legacy Foundation colors to new */
+  --f-000   : var(--clr-text-on-light);
+  --f-0d152c: var(--clr-text-on-light);
+  --f-333   : var(--clr-text-on-light);
+  --f-5b5e61: var(--clr-text-on-light);
+  --admin-000   : var(--clr-text-on-light);
+  --admin-31708f: var(--clr-text-on-light);
+  --admin-333333: var(--clr-text-on-light);
+  --admin-555555: var(--clr-text-on-light);
+  --admin-666666: var(--clr-text-on-light);
+  --admin-696969: var(--clr-text-on-light);
+  --admin-777   : var(--clr-text-on-light);
+  --admin-777777: var(--clr-text-on-light);
+  --admin-5bc0de: var(--clr-text-on-light);
+  --admin-f0ad4e: var(--clr-text-on-light);
+  --admin-3c763d: var(--clr-text-on-light);
+  --admin-428bca: var(--clr-text-on-light);
+  --admin-8a6d3b: var(--clr-text-on-light);
+  --admin-5cb85c: var(--clr-text-on-light);
+
+  --f-16498a: var(--clr-text-on-light-alt);
+
+  --f-ebb553: var(--clr-text-on-dark);
+  --f-d16984: var(--clr-text-on-dark);
+  --f-69d17f: var(--clr-text-on-dark);
+  --admin-fff   : var(--clr-text-on-dark);
+  --admin-ffffff: var(--clr-text-on-dark);
+
+  --f-fefefe: var(--clr-bg);
+  --f-admin-white: var(--clr-bg);
+  --admin-134-187-113: var(--clr-bg);
+  --admin-ffe761: var(--clr-bg);
+  --admin-d9edf7: var(--clr-bg);
+  --admin-dff0d8: var(--clr-bg);
+  --admin-eee   : var(--clr-bg);
+  --admin-eeeeee: var(--clr-bg);
+  --admin-f2dede: var(--clr-bg);
+  --admin-fcf8e3: var(--clr-bg);
+  --admin-148-194-237: var(--clr-bg);
+
+  --f-90dda1: var(--clr-bg-alt);
+  --f-b7e9c2: var(--clr-bg-alt);
+  --f-fbf0dc: var(--clr-bg-alt);
+  --f-def5e3: var(--clr-bg-alt);
+  --f-f5f6f9: var(--clr-bg-alt);
+  --f-f1f1f1: var(--clr-bg-alt);
+  --f-999   : var(--clr-bg-alt);
+  --f-aaa   : var(--clr-bg-alt);
+  --f-c0c0c0: var(--clr-bg-alt);
+  --f-ccc   : var(--clr-bg-alt);
+  --f-d1daf1: var(--clr-bg-alt);
+  --f-e6f0fb: var(--clr-bg-alt);
+  --f-ececec: var(--clr-bg-alt);
+  --f-eee   : var(--clr-bg-alt);
+  --f-f3f3f3: var(--clr-bg-alt);
+  --f-f8f8f8: var(--clr-bg-alt);
+  --f-f9f9f9: var(--clr-bg-alt);
+  --f-fafefb: var(--clr-bg-alt);
+  --f-fdfbfb: var(--clr-bg-alt);
+  --f-fefafb: var(--clr-bg-alt);
+  --f-fefdfa: var(--clr-bg-alt);
+  --admin-c4e3f3: var(--clr-bg-alt);
+  --admin-c7ddef: var(--clr-bg-alt);
+  --admin-d0e9c6: var(--clr-bg-alt);
+  --admin-dcdcdc: var(--clr-bg-alt);
+  --admin-dddddd: var(--clr-bg-alt);
+  --admin-ebcccc: var(--clr-bg-alt);
+  --admin-f0f0f0: var(--clr-bg-alt);
+  --admin-f5f5f5: var(--clr-bg-alt);
+  --admin-f6f6f6: var(--clr-bg-alt);
+  --admin-faf2cc: var(--clr-bg-alt);
+
+  --f-0a0a0a: var(--clr-text-on-light);
+  --f-2a2d37: var(--clr-bg-dark);
+  --f-404554: var(--clr-bg-dark);
+
+  --f-353946: var(--clr-bg-dark-alt);
+
+  --f-2e7cde: var(--clr-primary);
+  --admin-64-69-84: var(--clr-link-on-light);
+  --admin-64-69-84: var(--clr-link-on-light);
+
+  --f-3380df: var(--clr-link-on-light-alt);
+  --f-4c8fe3: var(--clr-link-on-light-alt);
+
+  --f-5a98e5: var(--clr-primary);
+  --f-b7bac0: var(--clr-primary);
+  --f-1a2a57: var(--clr-primary);
+
+  --f-152246: var(--clr-primary-alt);
+  --f-1e64bb: var(--clr-primary-alt);
+  --f-2376dc: var(--clr-primary-alt);
+  --f-317ede: var(--clr-primary-alt);
+  --admin-337ab7: var(--clr-primary-alt);
+
+  --f-96dfa6: var(--clr-success-alt);
+
+  --admin-ae9e49: var(--clr-warning);
+
+  --f-f1cc87: var(--clr-warning-alt);
+
+  --f-f5dee4: var(--clr-alert);
+  --admin-d9534f: var(--clr-alert);
+
+  --f-df96a9: var(--clr-alert-alt);
+  --f-b33657: var(--clr-alert-alt);
+  --admin-a94442: var(--clr-alert-alt);
+
+  --admin-68-71-83: var(--clr-dark-graphic-bg);
+}
