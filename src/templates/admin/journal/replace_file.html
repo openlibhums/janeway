@@ -28,11 +28,9 @@
                            data-buttonName="btn-primary" required>
                     <br/>
                   <div class="button-group">
-                    <button type="submit"
-                      class="button" name="replacement">
-                      <i class="fa fa-upload">&nbsp;</i>
-                      Upload
-                    </button>
+                    {% with name="replacement" %}
+                      {% include "elements/button_upload.html" %}
+                    {% endwith %}
                   </div>
                 </form>
             </div>

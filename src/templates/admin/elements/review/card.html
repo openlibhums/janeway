@@ -14,14 +14,19 @@
                 <button class="button secondary" data-open="request-{{ request.pk }}">
                   View Detail
                 </button>
-                <a class="button primary" href="{% url 'accept_review' request.pk %}">
-                  Accept Task
-                </a>
-                <a class="button secondary" href="{% url 'decline_review' request.pk %}">
-                  Decline Task
-                </a>
+              {% url 'accept_review' request.pk as accept_href %}
+              {% with href=accept_href label="Accept Task" %}
+                {% include "elements/a_ok.html" %}
+              {% endwith %}
+              {% url 'decline_review' request.pk as decline_href %}
+              {% with href=decline_href label="Decline Task" %}
+                {% include "elements/a_cancel.html" %}
+              {% endwith %}
             {% elif type == 'active' %}
-                <a class="button" href="{% url 'do_review' request.pk %}">View Task</a>
+              {% url 'do_review' request.pk as view_href %}
+              {% with href=view_href label="View Task" %}
+                {% include "elements/a_menu_item.html" %}
+              {% endwith %}
             {% endif %}
         </div>
     </div>

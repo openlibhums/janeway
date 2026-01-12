@@ -1,12 +1,12 @@
 {% comment %}
-  A primary-color create button with a check icon.
+  A primary-color complete button with a check icon.
   Can be made secondary with the 'hierarchy' argument
 {% endcomment %}
 
 {% load i18n %}
 
 <button
-  name="{{ name|default:'save' }}"
+  name="{{ name|default:'complete' }}"
   {% if value %}
     value="{{ value }}"
   {% endif %}

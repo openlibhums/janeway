@@ -26,7 +26,7 @@
                         <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}" class="thumbnail">
                         <form method="POST">
                             {% csrf_token %}
-                            {% with value=article.large_image_file.id %}
+                            {% with name="delete" value=article.large_image_file.id %}
                               {% include "elements/button_delete.html" %}
                             {% endwith %}
                         </form>
@@ -64,7 +64,7 @@
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}" class="thumbnail">
                         <form method="POST">
                             {% csrf_token %}
-                            {% with value=article.thumbnail_image_file.id %}
+                            {% with name="delete" value=article.thumbnail_image_file.id %}
                               {% include "elements/button_delete.html" %}
                             {% endwith %}
                         </form>

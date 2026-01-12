@@ -18,14 +18,14 @@
                     value="{{ galley.pk }}"
                   />
                   <label for="{{ galley.pk }}">
-                    &nbsp;#{{ galley.pk }} - {{ galley.label }},
+                    #{{ galley.pk }} - {{ galley.label }},
                     {{ galley.file.original_filename }} ({{ galley.file.mime_type }})
                   </label>
                 {% endfor %}
               </div>
-                <button type="submit" name="galley" class="button">
-                  Set Galley
-                </button>
+              {% with name="galley" label="Set Galley" %}
+                {% include "elements/button_complete.html" %}
+              {% endwith %}
             </form>
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>

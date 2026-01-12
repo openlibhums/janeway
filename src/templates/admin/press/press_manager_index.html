@@ -18,52 +18,54 @@
                     <h2>Settings</h2>
                 </div>
                 <div class="content">
-                  <div class="button-group stacked">
-                    <a class="button secondary"
-                      href="{% url 'cms_index' %}">
-                      Content Manager
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'cms_file_list' %}">
-                      Media Manager
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'core_manager_news' %}">
-                      News Manager
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'press_all_users' %}">
-                      All Users (New)
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'core_journal_contacts' %}">
-                      Contact Manager
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'press_edit_press' %}">
-                      Edit Press Details
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'core_default_settings_index' %}">
-                      Edit journal default settings
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'home_settings_index' %}">
-                      Homepage Elements
-                    </a>
-                    <a class="button secondary"
-                      href="{% url 'merge_users' %}"> Merge Users </a>
-                    <a class="button secondary"
-                      href="{% url 'press_identifier_manager' %}">
-                      DOI Manager
-                    </a>
-                    {% if request.user.is_superuser %}
-                      <a class="button secondary"
-                      href="{% url 'core_flush_cache' %}">
-                        Clear Cache
-                      </a>
-                    {% endif %}
-                  </div>
+                    <div class="button-group stacked">
+                      {% url 'cms_index' as href %}
+                      {% with href=href label="Content Manager" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'cms_file_list' as href %}
+                      {% with href=href label="Media Manager" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'core_manager_news' as href %}
+                      {% with href=href label="News Manager" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'press_all_users' as href %}
+                      {% with href=href label="All Users (New)" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'core_journal_contacts' as href %}
+                      {% with href=href label="Contact Manager" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'press_edit_press' as href %}
+                      {% with href=href label="Edit Press Details" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'core_default_settings_index' as href %}
+                      {% with href=href label="Edit journal default settings" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'home_settings_index' as href %}
+                      {% with href=href label="Homepage Elements" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'merge_users' as href %}
+                      {% with href=href label="Merge Users" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% url 'press_identifier_manager' as href %}
+                      {% with href=href label="DOI Manager" %}
+                        {% include "elements/a_menu_item.html" %}
+                      {% endwith %}
+                      {% if request.user.is_superuser %}
+                        {% url 'core_flush_cache' as href %}
+                        {% with href=href label="Clear Cache" %}
+                          {% include "elements/a_menu_item.html" %}
+                        {% endwith %}
+                      {% endif %}
+                    </div>
                 </div>
 
             </div>
@@ -90,12 +92,7 @@
                                 <td><i class="fa fa-sort"></i></td>
                                 <td><a href="{{ journal.site_url }}">{{ journal.name }}</a></td>
                                 <td>{{ journal.code }}</td>
-                                <td>
-                                  <a href="{% url 'press_journal_domain' journal.pk %}">
-                                    <span class="fa fa-edit"></span>
-                                    {{ journal.domain|default:"None" }}
-                                  </a>
-                                </td>
+                                <td><a href="{% url 'press_journal_domain' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> {{ journal.domain }}</a></td>
                                 <td><a href="{% url 'edit_press_journal_description' journal.pk %}"><i class="fa fa-edit">&nbsp;</i> Edit Description</a></td>
                                 <td><a class="" href="{% journal_base_url journal %}{% url 'core_manager_index' %}">Edit Settings</a></td>
                             </tr>

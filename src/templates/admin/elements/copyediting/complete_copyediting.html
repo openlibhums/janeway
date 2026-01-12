@@ -10,9 +10,7 @@
             <p>Complete copyediting and move this article to the next stage, {{ article.next_workflow_element }}.</p>
             <form method="POST">
                 {% csrf_token %}
-              {% with label="Complete" name="complete" %}
-                {% include "elements/button_yes.html" %}
-              {% endwith %}
+              {% include "elements/button_complete.html" %}
             </form>
         </div>
     </div>

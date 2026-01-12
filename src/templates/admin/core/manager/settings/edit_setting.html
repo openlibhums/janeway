@@ -69,7 +69,7 @@
                                   {% include "elements/button_yes.html" %}
                                 {% endwith %}
                                 {% if setting_value != setting.default_setting_value and setting_value != None %}
-                                  {% with name="delete" label="Reset to Default" %}
+                                  {% with name="delete" value="delete" label="Reset to Default" %}
                                     {% include "elements/button_remove.html" %}
                                   {% endwith %}
                                 {% endif %}

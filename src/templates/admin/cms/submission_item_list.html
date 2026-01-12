@@ -58,7 +58,7 @@
                         <td>
                           <form method="POST">
                             {% csrf_token %}
-                            {% with name="delete" value=item.pk %}
+                            {% with name="delete" value=item.pk confirm="confirm" size="small" %}
                               {% include "elements/button_delete.html" %}
                             {% endwith %}
                           </form>
@@ -94,12 +94,5 @@
         });
         $("#sortable").disableSelection();
 
-        $(document).ready(function () {
-            $(".button.warning").click(function () {
-                if (!confirm("Are you sure you want to delete this section?")) {
-                    return false;
-                }
-            });
-        });
     </script>
 {% endblock js %}

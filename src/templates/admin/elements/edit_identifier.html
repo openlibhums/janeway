@@ -17,9 +17,9 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ form|foundation }}
-                {% with label="Save Identifier" name="button_ident" size="small" %}
-                  {% include "elements/button_save.html" %}
-                {% endwith %}
+                <button type="submit" name="ident_button"
+                        class="small success button">Save Identifier
+                </button>
             </form>
         </div>
     </div>

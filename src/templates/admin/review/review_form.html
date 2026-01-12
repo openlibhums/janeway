@@ -167,9 +167,9 @@
                     </div>
                 <div class="button-group no-bottom-margin">
                   {% if allow_save_review %}
-                    <button class="button secondary" type="submit" name="save_progress">
-                      Save progress and continue later
-                    </button>
+                    {% with name="save_progress" label="Save progress and continue later" hierarchy="secondary" %}
+                      {% include "elements/button_save.html" %}
+                    {% endwith %}
                   {% endif %}
                   {% with name="complete" label="Complete Review" %}
                     {% include "elements/button_complete.html" %}

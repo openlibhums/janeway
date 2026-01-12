@@ -100,7 +100,9 @@
                                         <small>Cannot delete a completed author review.</small>
                                     {% else %}
                                       {% url 'delete_author_review' article.id copyedit.id review.pk as delete_href %}
-                                      {% include "elements/a_delete.html" with label="Delete Author Review" href=delete_href size="small" %}
+                                      {% with label="Delete Author Review" href=delete_href size="small" %}
+                                        {% include "elements/a_delete.html" %}
+                                      {% endwith %}
                                     {% endif %}
                                 </td>
                                 {% if request.user.is_admin %}<td><a class="" target="_blank" href="{% url 'admin:copyediting_authorreview_change' review.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit in Admin</a></td>{% endif %}

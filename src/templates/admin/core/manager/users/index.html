@@ -63,9 +63,9 @@
                                 <td>{{ user.last_name }}</td>
                                 <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
                                 <td>
-                                  {% url 'core_user_history' user.id as href %}
-                                  {% with href=href size="small" label="History" %}
-                                    {% include "elements/a_menu_item.html" %}
+                                  {% url 'core_user_history' user.id as history_href %}
+                                  {% with href=history_href size="small" %}
+                                    {% include "elements/a_history.html" %}
                                   {% endwith %}
                                 </td>
                                 <td>

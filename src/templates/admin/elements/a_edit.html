@@ -7,7 +7,9 @@
 <a
   href="{{ href }}"
   class="button secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-edit" aria-hidden="true"></span>
-  {% trans "Edit" as default_label %}
-  {{ label|default:default_label }}
+  <div class="flex gap-0-25">
+    <span class="fa fa-edit" aria-hidden="true"></span>
+    {% trans "Edit" as default_label %}
+    {{ label|default:default_label }}
+  </div>
 </a>

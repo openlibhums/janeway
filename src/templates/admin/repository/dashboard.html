@@ -77,7 +77,7 @@
                         <td>
                             <form method="POST">
                                 {% csrf_token %}
-                              {% with name="delete" value=preprint.pk size="small" %}
+                              {% with name="delete" value=preprint.pk size="small" confirm="confirm" %}
                                 {% include "elements/button_delete.html" %}
                               {% endwith %}
                             </form>
@@ -90,16 +90,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% block js %}
-    <script>
-    $(document).ready(function () {
-        $(".button.warning").click(function () {
-            var preprint_id = $(this).val()
-            if (!confirm("Warning: Deleted data cannot be recovered. If you are sure you want to delete {{request.repository.object_name}} with ID " + preprint_id +" press OK.")) {
-                return false;
-            }
-        });
-    });
-</script>
-{% endblock js %}

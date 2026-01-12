@@ -109,8 +109,10 @@
                                 {% else %}
                                     {{ article.doi_pattern_preview }} (pattern preview)
                                 {% endif %}
-                                {% external_journal_url article_journal 'article_identifiers' article.pk as href %}
-                                {% include "elements/a_edit.html" with href=href size="small" %}
+                                {% external_journal_url article_journal 'article_identifiers' article.pk as edit_href %}
+                                {% with href=edit_href size="small" %}
+                                  {% include "elements/a_edit.html"  %}
+                                {% endwith %}
                             </td>
                             <td>
                                 {{ doi.crossrefstatus.get_message_display }}
@@ -126,7 +128,7 @@
                             <td>
                                 {% if doi.crossrefstatus.latest_deposit.result_text %}
                                   {% external_journal_url article_journal 'poll_doi_output' article.pk doi.pk as response_href %}
-                                  {% with label="View XML" href=response_href size="small"  %}
+                                  {% with label="View XML" href=response_href size="small" %}
                                     {% include "elements/a_menu_item.html" %}
                                   {% endwith %}
                                 {% endif %}

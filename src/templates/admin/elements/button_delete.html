@@ -34,18 +34,20 @@
       disabled
     {% endif %}
   ">
-  <span class="fa fa-trash" aria-hidden="true"></span>
-  {% trans "Delete" as default_label %}
-  {{ label|default:default_label }}
+  <div class="flex gap-0-25">
+    <span class="fa fa-trash" aria-hidden="true"></span>
+    {% trans "Delete" as default_label %}
+    {{ label|default:default_label }}
+  </div>
 </button>
 {% if confirm %}
   <script type="module">
-    const button = document.querySelector("[data-confirm-target-{{ confirm_target }}]")
+    const button = document.querySelector("[data-confirm-target-{{ confirm_target }}]");
     button.addEventListener("click", event => {
       const confirmed = confirm(
         "Are you sure you want to delete this? You will not be able to recover any deleted data or files."
-      )
-      if (!confirmed) event.preventDefault()
-    })
+      );
+      if (!confirmed) event.preventDefault();
+    });
   </script>
 {% endif %}

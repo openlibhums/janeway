@@ -55,7 +55,7 @@
                                       {% endwith %}
                                     </td>
                                     <td>
-                                      {% with value=group.pk size="small" label="Delete Group" %}
+                                      {% with name="delete" value=group.pk size="small" label="Delete Group" %}
                                         {% include "elements/button_delete.html" %}
                                       {% endwith %}
                                     </td>

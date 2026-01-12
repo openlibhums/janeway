@@ -46,11 +46,7 @@
                             <td>{{ pin.article.doi }}</td>
                             <td>{{ pin.article.correspondence_author.full_name }}</td>
                             <td>{{ pin.article.date_published }}</td>
-                            <td>
-                              {% with name="unpin" value=pin.pk label="Unpin" size="small" %}
-                                {% include "elements/button_remove.html" %}
-                              {% endwith %}
-                            </td>
+                            <td><button type="submit" value="{{ pin.pk }}" class="tiny alert button" name="unpin">Unpin</button></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -85,11 +81,7 @@
                                 <td>{{ article.doi }}</td>
                                 <td>{{ article.correspondence_author.full_name }}</td>
                                 <td>{{ article.date_published }}</td>
-                                <td>
-                                  {% with name="assign_issue" value=article.pk label="Pin" size="small" %}
-                                    {% include "elements/button_add.html" %}
-                                  {% endwith %}
-                                </td>
+                                <td><button type="submit" value="{{ article.pk }}" class="tiny success button" name="pin">Pin</button></td>
                             </tr>
                             {% endif %}
                         {% endfor %}

@@ -10,12 +10,29 @@
                 <span class="title">Reviews that can be displayed:</span>
                 <form method="POST">
                 {% csrf_token %}
+                  <ul>
                     {% for review in article.completed_reviews_with_permission %}
                         {% if review.permission_to_make_public %}
-                            <input type="checkbox" {% if review.display_public %}checked="checked"{% endif %} name="open-review-{{ review.pk }}" id="open-review-{{ review.pk }}"><label for="open-review-{{ review.pk }}" class="toggle">Review by {{ review.reviewer.full_name }} ({% if 'accept' in review.decision %}<span>{% elif 'revision' in review.decision %}<span>{% elif 'reject' in review.decision %}<span>{% else %}<span>{% endif %}{{ review.decision|title }}</span>) [Round {{ review.review_round.round_number }}] [<a href="{% url 'review_view_review' article.pk review.pk %}">View review</a>]</label>
-                            <br />
+                          <li>
+                            <input
+                              type="checkbox"
+                              {% if review.display_public %}checked="checked"{% endif %}
+                              name="open-review-{{ review.pk }}"
+                              id="open-review-{{ review.pk }}"
+                            />
+                            <label for="open-review-{{ review.pk }}" class="toggle">
+                              Review by {{ review.reviewer.full_name }} ({{ review.decision|title }})
+                              [Round {{ review.review_round.round_number }}] [<a
+                                href="{% url 'review_view_review' article.pk review.pk %}">
+                                View review
+                              </a>]
+                            </label>
+                          </li>
                         {% endif %}
+                    {% empty %}
+                      <li>No reviews to display.</li>
                     {% endfor %}
+                  </ul>
                     {% with name="open_reviews" label="Save list of public reviews" %}
                       {% include "elements/button_save.html" %}
                     {% endwith %}
