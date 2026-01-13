@@ -1184,3 +1184,8 @@ p + .btn-background {
   .nav-wrapper a:focus {
     display: block;
   }
+
+  /* Search input group styling */
+.input-group {
+  display: flex;
+}
