@@ -50,13 +50,18 @@
                             <form class="form-horizontal" method="POST" action="{% url 'repository_search' %}">
                                 {% csrf_token %}
                                 <div class="form-group">
-
-                                    <div class="input-field">
-                                        <i aria-hidden="true" class="fa fa-search prefix" ></i>
-                                        <input id="icon_prefix" type="text" class="validate"
-                                            {% if search_term %}value="{{ search_term }}"{% endif %} name="search_term">
-                                        <label for="icon_prefix" class="">{% trans "Search Preprints" %}</label>
-                                    </div>
+                                    <div class="input-group">
+                                        <label for="search_input" class="sr-only">
+                                            {% trans 'Search term' %}
+                                        </label>
+                                        <input id="search_input" class="input-group-field" type="search" name="search_term"
+                                            placeholder='{% trans 'Search preprints' %}'
+                                            {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                        <button class="btn input-go-button">
+                                            <i aria-hidden="true" class="fa fa-search"></i>
+                                            <span class="sr-only">{% trans 'Search' %}</span>
+                                        </button>
+                                    </div>                                    
                                     <p>
                                         <small>{% trans "You can search by:" %}</small>
                                     </p>
