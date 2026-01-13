@@ -392,7 +392,7 @@ def set_article_image(request, article):
         core_logic.resize_and_crop(
             new_file.self_article_path(),
             field_name="Large image",
-            original_filename=new_file.name,
+            original_filename=uploaded_file.name,
         )
 
 
