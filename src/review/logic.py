@@ -127,7 +127,7 @@ def get_reviewers(article, candidate_queryset, exclude_pks):
                 default=Value(False),
                 output_field=BooleanField(),
             )
-        )
+        ).distinct()
 
     return reviewers
 
