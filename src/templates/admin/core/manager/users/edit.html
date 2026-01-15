@@ -51,11 +51,13 @@
             {% include "elements/forms/field.html" with field=registration_form.is_staff %}
             {% include "elements/forms/field.html" with field=registration_form.is_admin %}
             {% include "elements/forms/field.html" with field=registration_form.is_superuser %}
-            {% if active == 'add' %}
+          </div>
+          {% if active == 'add' %}
+            <div class="flex wrap column-gap-2">
               {% include "elements/forms/field.html" with field=registration_form.password_1 %}
               {% include "elements/forms/field.html" with field=registration_form.password_2 %}
-            {% endif %}
-          </div>
+            </div>
+          {% endif %}
         </div>
         <div class="title-area">
           <h2>{% trans "Profile details" %}</h2>

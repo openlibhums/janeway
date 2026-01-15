@@ -1,0 +1,9 @@
+{% if contact_person %}
+  {% blocktrans with person_name=account.full_name %}
+    Update contact details for {{ person_name }}
+  {% endblocktrans %}
+{% else %}
+  {% blocktrans with person_name=account.full_name %}
+    Make {{ person_name }} a contact person
+  {% endblocktrans %}
+{% endif %}
