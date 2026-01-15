@@ -33,18 +33,27 @@
                     {{ request.repository.file_upload_help|safe }}
                     {% endif %}
                 </div>
-                {% include "elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.file }}
-                    <button class="button"><span class="fa fa-cloud-upload"> </span> Upload File</button>
+                    {% include "elements/button_upload.html" with label="Upload File"%}
                 </form>
                 <div class="title-area">
                     <h2>{% trans 'Supplementary files' %}</h2>
                 </div>
                 <div class="content">
                     <p>{% trans 'Optional links to externaly hosted supplementary files.' %}</p>
-                    <a href="#" data-open="newsupplementaryfile" class="button" aria-controls="new-supplementary-file" aria-haspopup="true" tabindex="0">{% trans 'Add New Supplementary File' %}</a>
+                  <a
+                    href="#"
+                    data-open="newsupplementaryfile"
+                    class="button secondary"
+                    aria-controls="new-supplementary-file"
+                    aria-haspopup="true"
+                    tabindex="0"
+                  >
+                    {% trans 'Add New Supplementary File' %}
+                  </a>
                 </div>
             </div>
             <div class="large-6 columns">

@@ -1,13 +1,15 @@
 {% comment %}
-  A generic hollow edit button with a pencil icon
+  A secondary-color edit button with a pencil icon
 {% endcomment %}
 
 {% load i18n %}
 
 <a
   href="{{ href }}"
-  class="button hollow secondary {{ size|default:'normal' }} no-bottom-margin">
-  <span class="fa fa-edit"></span>
-  {% trans "Edit" as default_label %}
-  {{ label|default:default_label }}
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <div class="flex gap-0-25">
+    <span class="fa fa-edit" aria-hidden="true"></span>
+    {% trans "Edit" as default_label %}
+    {{ label|default:default_label }}
+  </div>
 </a>

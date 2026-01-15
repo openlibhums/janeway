@@ -29,8 +29,9 @@
                             <td>
                                 <form method="POST"
                                       action="{% url 'repository_delete_supplementary_files' preprint.pk %}">{% csrf_token %}
-                                    <button name="delete" value="{{ file.pk }}" class="tiny alert button del"><i
-                                            class="fa fa-trash"></i></button>
+                                  {% with name="delete" value=file.pk size="small" %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
                                 </form>
                             </td>
                         </tr>{% endfor %}

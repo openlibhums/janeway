@@ -16,7 +16,7 @@
     <div class="large-12 columns">
         <div class="box">
             <div class="content float-right">
-                <a href="#" class="success button" data-open="upload_file">
+                <a href="#" data-open="upload_file">
                     <span class="fa fa-upload" aria-hidden="true"> Upload File</span>
                 </a>
             </div>
@@ -40,9 +40,9 @@
                             <th>Replace</th>
                         </tr>
                         </thead>
+                        <tbody>
                         {% for file in article.manuscript_files.all %}
                         {% can_view_file_history file article as can_view_file_history_flag %}
-                            <tbody>
                             <tr>
                                 <td><input type="checkbox" name="file" value="{{ file.id }}"
                                            {% if file in round.review_files.all %}checked="checked"{% endif %}></td>
@@ -98,8 +98,11 @@
                     <br />
                     {% endif %}
 
-                    <button class="button success" type="submit">Select Files for Review</button>
-                    <a href="{% url 'review_in_review' article.pk %}" class="button alert" type="submit">Cancel</a>
+                    {% with label="Select Files for Review" name="pubdate" %}
+                      {% include "elements/button_yes.html" %}
+                    {% endwith %}
+                    {% url 'review_in_review' article.pk as cancel_href %}
+                    {% include "admin/elements/a_cancel.html" with href=cancel_href %}
                 </form>
             </div>
         </div>
@@ -117,7 +120,9 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="file" name="review_file">
-                    <button name="upload" class="success button"><i class="fa fa-upload">&nbsp;</i>Upload File</button>
+                  {% with name="upload" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </form>
             </div>
         </div>

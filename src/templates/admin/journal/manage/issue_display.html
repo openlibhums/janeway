@@ -29,10 +29,9 @@
                     each issue.
                 </p>
                 {{ issue_display_form|foundation }}
-                <button class="success button">
-                    <i class="fa fa-save">&nbsp;</i>
-                    Save Settings
-                </button>
+              {% with label="Save Settings" %}
+                {% include "elements/button_save.html" %}
+              {% endwith %}
             </form>
         </div>
     </div>

@@ -103,12 +103,14 @@
             <h2>Complete Task</h2>
         </div>
         <div class="content">
-            {% include "elements/forms/errors.html" with form=form %}
+            {% include "admin/elements/forms/errors.html" with form=form %}
             <p>You can add a note to the editor, they can pass any requests on to the Author for review.</p>
             <form method="POST">
             {% csrf_token %}
             {{ form.copyeditor_note|foundation }}
-            <button type="submit" class="button success" name="send"><i class="fa fa-check">&nbsp;</i>Complete Copyedit Task</button>
+            {% with name="send" label="Complete Copyedit Task" %}
+              {% include "elements/button_complete.html" %}
+            {% endwith %}
             </form>
         </div>
 

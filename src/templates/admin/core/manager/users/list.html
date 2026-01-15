@@ -62,7 +62,7 @@
         {% include "common/elements/sorting.html" with form_id=facet_form.id %}
       </div>
       {% for account in account_list %}
-        <div class="callout">
+        <div class="box">
           <h3>
             <strong>{{ account.full_name|default:"[No name]" }}</strong>
           </h3>

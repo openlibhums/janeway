@@ -1,7 +1,8 @@
 {% comment %}
-  A hollow secondary-color button that lets users copy
+  A secondary-color button that lets users copy
   some plain text (like a link) to their clipboard.
   The icon and label change to show the text was copied.
+  Requires JS to work.
   content - plain text to copy
   label_copy - label in original state
   label_copied - label in copied state
@@ -13,9 +14,9 @@
       data-copy-button
       data-copy-content="{{ content }}"
       data-label-copied="{{ label_copied }}"
-      class="button secondary hollow"
+      class="button secondary"
       type="button">
-      <span class="fa fa-copy"></span>
+      <span class="fa fa-copy" aria-hidden="true"></span>
       {{ label_copy }}
     </button>
   </div>

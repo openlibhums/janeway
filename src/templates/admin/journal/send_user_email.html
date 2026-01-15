@@ -16,11 +16,12 @@
 
 {% block body %}
     <div class="box">
+        {% trans "Close this Window" as close_this_window %}
         {% if not close %}
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="large-12 columns">
-                {% include "elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
             </div>
             <div class="row expanded">
                 <div class="large-12 columns">
@@ -30,15 +31,21 @@
             {{ form|foundation }}
             <div class="row expanded">
                 <div class="large-12 columns">
-                    <button name="send" class="success button">Send Email</button>
-                    <a class="warning button pull-right" href="javascript:self.close()">Close this Window</a>
+                  <div class="flex space-between">
+                    {% include "elements/button_send.html" %}
+                    {% with href="javascript:self.close()" label=close_this_window %}
+                      {% include "admin/elements/a_cancel.html" %}
+                    {% endwith %}
+                  </div>
                 </div>
             </div>
             <br/>
         </form>
         {% else %}
         <p>This email has been sent.</p>
-        <a class="warning button" href="javascript:self.close()">Close this Window</a>
+        {% with href="javascript:self.close()" label=close_this_window %}
+          {% include "admin/elements/a_cancel.html" %}
+        {% endwith %}
 
         {% endif %}
     </div>

@@ -14,9 +14,9 @@
                 {% endif  %}
                 <p><strong>In an Issue: </strong>
                     {% if article.issues_list %}
-                    <i class="fa fa-check-circle-o" style="color: green;"></i>
+                    <i class="fa fa-check-circle-o"></i>
                     {% else %}
-                    <i class="fa fa-times-circle-o" style="color: red;"></i>
+                    <i class="fa fa-times-circle-o"></i>
                     {% endif %}</p>
 
                 <h6>Issues</h6>
@@ -28,22 +28,22 @@
                         <th></th>
                     </tr>
                 {% for issue in issues %}
-                    <tr{% if issue.pk == article.projected_issue.pk %} style="background-color: darkseagreen;"{% endif %}>
+                    <tr{% if issue.pk == article.projected_issue.pk %}{% endif %}>
                         <td>{{ issue.display_title }}</td>
                         <td>{{ issue.date|date:"Y-m-d" }}</td>
                         <td>
                             {% if article.primary_issue == issue %}
-                                <i class="fa fa-check-circle-o" style="color: green;"></i> Primary
+                                <i class="fa fa-check-circle-o"></i> Primary
                             {% endif %}
                         <td>
                             {% if issue in article.issues_list %}
-                            <button name="unassign_issue" value="{{ issue.pk }}", type="submit" class="tiny alert button">
-                                <i class="fa fa-minus">&nbsp;</i>Unassign
-                            </button>
+                              {% with name="unassign_issue" value=issue.pk label="Unassign" size="small" %}
+                                {% include "elements/button_remove.html" %}
+                              {% endwith %}
                             {% else %}
-                            <button name="assign_issue" value="{{ issue.pk }}", type="submit" class="tiny success button">
-                                <i class="fa fa-plus">&nbsp;</i>Add to Issue
-                            </button>
+                              {% with name="assign_issue" value=issue.pk label="Add to Issue" size="small" %}
+                                {% include "elements/button_add.html" %}
+                              {% endwith %}
                             {% endif %}
                         </td>
                     </tr>
@@ -55,7 +55,7 @@
             </div>
             <div class="card-section">
                 <div class="callout">
-                    {% include "elements/forms/errors.html" with form=new_issue_form %}
+                    {% include "admin/elements/forms/errors.html" with form=new_issue_form %}
                     <form method="POST">
                     {% csrf_token %}
                     <div class="row">
@@ -81,7 +81,9 @@
                             {{ new_issue_form.issue_description|foundation }}
                         </div>
                         <div class="large-12 columns">
-                            <button name="new_issue" type="submit" class="button success">Add Issue</button>
+                          {% with name="new_issue" label="Save New Issue" %}
+                            {% include "elements/button_save.html" %}
+                          {% endwith %}
                         </div>
                     </div>
                     </form>

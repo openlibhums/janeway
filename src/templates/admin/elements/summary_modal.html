@@ -26,7 +26,13 @@
                     <h2>Notes</h2>
                 </div>
                 <textarea id='{{ article.pk }}_new_note' class="form-control" rows="5" placeholder="Write a note..."></textarea>
-                <button type="submit" onclick="submit_note({{ article.pk }})" class="button success">Save Note</button>
+                <button
+                  type="submit"
+                  onclick="submit_note({{ article.pk }})"
+                  class="button secondary"
+                >
+                  Save Note
+                </button>
                 <hr />
                 {% include "elements/notes/notes.html" %}
             {% endif %}

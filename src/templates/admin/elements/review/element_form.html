@@ -7,11 +7,13 @@
             <h4>{% if modal %}<i class="fa fa-edit">&nbsp;</i>Edit Element{% else %}<i class="fa fa-plus">&nbsp;</i>Add New Element{% endif %}</h4>
         </div>
         <div class="card-section">
-            {% include "elements/forms/errors.html" with form=element_form %}
+            {% include "admin/elements/forms/errors.html" with form=element_form %}
             <form method="POST">
                 {% csrf_token %}
                 {{ element_form|foundation }}
-                 <button type="submit" name="element" class="button success">{% if modal %}<i class="fa fa-edit">&nbsp;</i>Edit Element{% else %}<i class="fa fa-plus">&nbsp;</i>Save New Element{% endif %}</button>
+                {% with name="element" %}
+                  {% include "elements/button_save.html" %}
+                {% endwith %}
             </form>
         </div>
     </div>

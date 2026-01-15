@@ -42,9 +42,23 @@
                                 <tr id="group-{{ group.pk }}">
                                     <td><i class="fa fa-sort"></i></td>
                                     <td>{{ group.name }}</td>
-                                    <td><a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i> Manage Group Members</a></td>
-                                    <td><a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i> Edit Group Details</a></td>
-                                    <td><button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Group</button></td>
+                                    <td>
+                                      {% url 'core_editorial_member_to_group' group.pk as href %}
+                                      {% with href=href size="small" icon="fa-users" label="Manage Group Members" %}
+                                        {% include "elements/a_menu_item.html" %}
+                                      {% endwith %}
+                                    </td>
+                                    <td>
+                                      {% url 'core_edit_editorial_team' group.pk as href %}
+                                      {% with href=href size="small" label="Edit Group Details" %}
+                                        {% include "elements/a_edit.html" %}
+                                      {% endwith %}
+                                    </td>
+                                    <td>
+                                      {% with name="delete" value=group.pk size="small" label="Delete Group" %}
+                                        {% include "elements/button_delete.html" %}
+                                      {% endwith %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -58,7 +72,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {% include "admin/elements/forms/group_editorial.html" with edit_form=edit_form %}
-                    <button name="save" class="success button">Save Settings</button>
+                  {% include "elements/button_save.html" with label="Save Settings" %}
                 </form>
             </div>
         </div>

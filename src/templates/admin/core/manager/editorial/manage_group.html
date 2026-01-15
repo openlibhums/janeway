@@ -26,7 +26,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button class="success button" type="submit">{% if group %}Edit Group{% else %}Add New Group{% endif %}</button>
+                  {% include "elements/button_save.html" %}
                 </form>
             </div>
         </div>

@@ -10,6 +10,8 @@
     {{ field }}
     {% endif %}
     {% for error in field.errors %}
-        <small{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+      <small{% if field.errors %} class="field-error"{% endif %}>
+        {{ error|escape }}
+      </small>
     {% endfor %}
 </div>

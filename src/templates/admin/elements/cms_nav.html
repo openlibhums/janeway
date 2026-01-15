@@ -2,47 +2,45 @@
     {% csrf_token %}
     <ul class="list-group">
         {% if request.journal %}
-            <li class="list-group-item">Home
-                <button name="nav" value="nav_home"
-                    class="tiny button float-right
-                  {% if request.journal.nav_home %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
+          {% with item_label="Home" item_value="nav_home" added=request.journal.nav_home %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
         {% endif %}
         {% for nav in top_nav_items %}
         <li class="list-group-item">
+          <div class="flex space-between items-center">
             {{ nav.link_name }}
             {% if nav.link %}
                 ({{ nav.link }})
             {% endif %}
             (sequence {{ nav.sequence }})
-              <span class="float-right">
-                <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"> Edit</i></a>
-                <button class="tiny button alert" name="delete_nav" value="{{ nav.pk }}"><i class="fa fa-trash"></i> Delete</button>
-              </span>
+            <div class="button-group no-bottom-margin small flex">
+              {% url 'cms_nav_edit' nav.pk as edit_nav_href %}
+              {% include "elements/a_edit.html" with href=edit_nav_href %}
+              {% with name="delete_nav" value=nav.pk confirm="confirm" %}
+                {% include "elements/button_delete.html" %}
+              {% endwith %}
+            </div>
+          </div>
             {% if nav.sub_nav_items %}
-            <br />
                 <ul>
                     {% for sub_nav in nav.sub_nav_items %}
-                        <li class="padded-group-item">
+                      <li class="list-group-item">
+                        <div class="flex space-between items-center">
                             {{ sub_nav.link_name }}
                             {% if sub_nav.link %}
                                 ({{ sub_nav.link }})
                             {% endif %}
                             (sequence {{ sub_nav.sequence }})
-                            <span class="float-right">
-                            <a class="tiny button" href="{% url 'cms_nav_edit' sub_nav.pk %}"><i class="fa fa-edit"></i> Edit</a>
-                            <button class="tiny button alert" name="delete_nav" value="{{ sub_nav.pk }}">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                            </span>
-                        </li>
+                          <div class="button-group no-bottom-margin small flex">
+                            {% url 'cms_nav_edit' sub_nav.pk as edit_sub_nav_href %}
+                            {% include "elements/a_edit.html" with href=edit_sub_nav_href %}
+                            {% with name="delete_nav" value=sub_nav.pk confirm="confirm" %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
+                          </div>
+                        </div>
+                      </li>
                     {% endfor %}
                 </ul>
             </li>
@@ -50,121 +48,43 @@
         {% endfor %}
         {#Custom Issue types navigation#}
         {% for issue_type in collection_nav_items %}
-        <li class="list-group-item">{{ issue_type.plural_name }}
-            <button name="toggle_collection_nav" value="{{ issue_type.pk }}" class="tiny button float-right success">
-                <i class="fa fa-check"></i> Enable
-            </button>
-        </li>
+          <li class="list-group-item">
+            <div class="flex space-between items-center">
+              {{ issue_type.plural_name }}
+              {% with name="toggle_collection_nav" value=issue_type.pk size="small" %}
+                {% include "elements/button_add.html" %}
+              {% endwith %}
+            </div>
+          </li>
         {% endfor %}
         {% if request.journal %}
-            <li class="list-group-item">News
-                <button name="nav" value="nav_news"
-                    class="tiny button float-right
-                  {% if request.journal.nav_news %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Articles
-                <button name="nav" value="nav_articles"
-                    class="tiny button float-right
-                  {% if request.journal.nav_articles %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Issues
-                <button name="nav" value="nav_issues"
-                    class="tiny button float-right
-                  {% if request.journal.nav_issues %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">{{ journal_settings.styling.editorial_group_page_name }}
-                <button name="editorial_team" value="editorial_team"
-                    class="tiny button float-right
-                  {% if enable_editorial_display %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Keyword List
-                <button name="keyword_list_page" value="keyword_list_page"
-                    class="tiny button float-right
-                  {% if keyword_list_page %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Submissions
-                <button name="nav" value="nav_sub"
-                    class="tiny button float-right
-                  {% if request.journal.nav_sub %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Contact
-                <button name="nav" value="nav_contact"
-                    class="tiny button float-right
-                  {% if request.journal.nav_contact %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Start Submission
-                <button name="nav" value="nav_start"
-                    class="tiny button float-right
-                  {% if request.journal.nav_start %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
-            <li class="list-group-item">Become a Reviewer
-                <button name="nav" value="nav_review"
-                    class="tiny button float-right
-                  {% if request.journal.nav_review %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
-            </li>
+          {% with item_label="News" item_value="nav_news" added=request.journal.nav_news %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Articles" item_value="nav_articles" added=request.journal.nav_articles %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Issues" item_value="nav_issues" added=request.journal.nav_issues %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label=journal_settings.styling.editorial_group_page_name item_name="editorial_team" item_value="editorial_team" added=enable_editorial_display %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Keyword List" item_name="keyword_list_page" item_value="keyword_list_page" added=keyword_list_page %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Submissions" item_value="nav_sub" added=request.journal.nav_sub %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Contact" item_value="nav_contact" added=request.journal.nav_contact %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Start Submission" item_value="nav_start" added=request.journal.nav_start %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
+          {% with item_label="Become a Reviewer" item_value="nav_review" added=request.journal.nav_review %}
+            {% include "admin/elements/cms_nav_builtin_item.html" %}
+          {% endwith %}
         {% endif %}
     </ul>
 </form>

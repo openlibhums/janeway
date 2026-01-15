@@ -1,0 +1,42 @@
+<div
+  class="reveal"
+  id="sourceupload"
+  data-reveal
+  data-animation-in="slide-in-up"
+  data-animation-out="slide-out-down"
+>
+  <div class="card">
+    <div class="card-divider">
+      <h4><i class="fa fa-upload">&nbsp;</i>Upload Source File</h4>
+    </div>
+  </div>
+  <div class="card-section">
+    {% include "elements/forms/generic_error.html" %}
+    <button
+      class="close-button"
+      data-close
+      aria-label="Close modal"
+      type="button"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input
+        name="source-file"
+        type="file"
+        class="float-left"
+        style="width:50%;"
+        data-placeholder="No file"
+        data-buttonName="btn-primary"
+      />
+      <div class="flex justify-end">
+        {% with name="source" %}
+          {% include "elements/button_upload.html" %}
+        {% endwith %}
+      </div>
+    </form>
+  </div>
+</div>
+

@@ -23,10 +23,24 @@
                 <ul class="list-group">
                     {% for form_obj in form_list %}
                         <li class="list-group-item">
+                          <div class="flex space-between items-center">
+                            <div>
                             {{ form_obj.name }} {% if default_form == form_obj.pk %} <a href="{% url 'core_edit_settings_group' 'review' %}#id_default_review_form"><i>(Default)</i></a>{% endif %}
-                            <div class="float-right">
-                                <a href="{% url 'edit_review_form' form_obj.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
-                                <a class="tiny alert button{% if form_obj.pk == default_form %} disabled"{% else%}"data-open="delete-{{ form_obj.pk }}{% endif %}"><i class="fa fa-trash"></i></a>
+                            </div>
+                            <div class="button-group no-bottom-margin">
+                              {% url 'edit_review_form' form_obj.pk as edit_url %}
+                              {% include "elements/a_edit.html" with href=edit_url size="small" %}
+                              <a
+                                {% if form_obj.pk == default_form %}
+                                  class="alert button disabled"
+                                {% else %}
+                                  class="alert button"
+                                  data-open="delete-{{ form_obj.pk }}"
+                                {% endif %}
+                              >
+                                <span class="fa fa-trash"></span>
+                                Delete
+                              </a>
                             </div>
                             <div class="reveal small" id="delete-{{ form_obj.pk }}" data-reveal data-animation-in="slide-in-up"
                                  data-animation-out="slide-out-down">
@@ -41,7 +55,9 @@
                                         <p> Proceed?</p>
                                         <form method="POST">
                                         {% csrf_token %}
-                                        <button type="submit" name="delete" value="{{ form_obj.pk }}" class="alert button">Delete <i class="fa fa-trash"></i></button>
+                                          {% with name="delete" value=form_obj.pk %}
+                                            {% include "elements/button_delete.html" %}
+                                          {% endwith %}
                                         </form>
                                     </div>
                                 </div>
@@ -49,6 +65,7 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
+                          </div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -65,7 +82,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{ form|foundation }}
-                    <button type="submit" name="review_form" class="success button">Add Form</button>
+                  {% include "elements/button_save.html" with name="review_form" %}
                 </form>
             </div>
         </div>

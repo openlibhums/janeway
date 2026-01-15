@@ -6,7 +6,9 @@
 
 {% block title %}Submit Review{% endblock %}
 {% block title-section %}Submit Review{% endblock %}
-{% block title-sub %}Submit a an invited review for {{ request.repository.object_name }} {{ review.preprint.title }}{% endblock %}
+{% block title-sub %}
+  Submit an invited review for {{ request.repository.object_name }} {{ review.preprint.title }}
+{% endblock %}
 
 {% block breadcrumbs %}
     <li>Review #{{ review.pk }} - {{ review.preprint.title }}</li>
@@ -28,9 +30,13 @@
                 <form method="POST">
                     {% csrf_token %}
                     {% if not review.date_accepted %}
-                    <button class="button success" name="accept">Agree</button>
+                      {% with label="Agree" name="accept" %}
+                        {% include "elements/button_yes.html" %}
+                      {% endwith %}
                     {% endif %}
-                    <button class="button alert" name="decline">Decline</button>
+                    {% with label="Decline" name="decline" %}
+                      {% include "elements/button_no.html" %}
+                    {% endwith %}
                 </form>
 
             </div>
@@ -38,7 +44,10 @@
                 <h2>Files</h2>
             </div>
             <div class="content">
-                <a href="{% url 'repository_download_review_file' review.pk review.access_code %}" class="button"><i class="fa fa-download"></i> Download File</a>
+              {% url 'repository_download_review_file' review.pk review.access_code as download_href %}
+              {% with href=file.file.url %}
+                {% include "elements/a_download.html" with href=download_href label="Download File" %}
+              {% endwith %}
             </div>
             <div class="title-area">
                 <h2>Add Your Review</h2>
@@ -50,7 +59,9 @@
                     {{ form|foundation }}
                     <div class="row expanded">
                         <div class="large-12 columns">
-                            <button class="button">Submit and Complete Review</button>
+                          {% with label="Submit and Complete Review" %}
+                            {% include "elements/button_complete.html" %}
+                          {% endwith %}
                         </div>
                     </div>
                 </form>

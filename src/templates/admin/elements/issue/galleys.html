@@ -1,6 +1,6 @@
 {% load roles %}
 {% user_has_role request 'editor' as user_is_editor %}
-<div class="large-6 columns">
+<div class="large-12 columns">
     <div class="box">
             <div class="title-area">
                 <h2>Galleys</h2>
@@ -26,10 +26,7 @@
                             <td>
                             <form id="delete-galley" method="POST" enctype="multipart/form-data" action="{% url 'issue_galley' issue.pk%}">
                                 {% csrf_token %}
-                                <input type="hidden" name="delete" value="true" />
-                                <a onclick="document.getElementById('delete-galley').submit()" >
-                                    <i class="fa fa-trash">&nbsp;</i>
-                                </button>
+                              {% include "elements/button_delete.html" %}
                             </form>
                             </td>
                         </tr>
@@ -40,7 +37,9 @@
                     {% endif %}
                 </table>
                 {% if not issue.galley %}
-                 <a class="button success" data-open="uploadbox"><i class="fa fa-cloud-upload">&nbsp;</i>Upload a new galley</a>
+                  {% with label="Upload a new galley" %}
+                    {% include "elements/a_upload_modal_trigger.html" %}
+                  {% endwith %}
                 {% endif %}
             </div>
     </div>

@@ -21,14 +21,9 @@
                 from undoing their action or adding another role.
               {% endcomment %}
             {% else %}
-              <button
-                class="tiny warning button flex gap-0-25"
-                name="remove_accountrole"
-                value="{{ accountrole.pk }}"
-                type="submit">
-                <span class="fa fa-trash"></span>
-                Remove
-              </button>
+              {% with name="remove_accountrole" value=accountrole.pk label="Remove" size="small" %}
+                {% include "elements/button_remove.html" %}
+              {% endwith %}
             {% endif %}
           </div>
         </div>

@@ -51,8 +51,16 @@
                 <form method="POST">
                     {% csrf_token %}
                     <p>You can approve or decline this update. Declining will give you the opportunity to explain why to the Authors.</p>
-                    <button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i> Approve</button>
-                    <a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> Decline</a>
+                  <div class="button-group no-bottom-margin">
+                    {% with label="Approve" name="approve" value=version.pk %}
+                      {% include "elements/button_yes.html" %}
+                    {% endwith %}
+                    <a href="#" class="button secondary"
+                      data-open="decline-{{ version.pk }}">
+                      <span class="fa fa-times-circle"></span>
+                      Decline
+                    </a>
+                  </div>
                 </form>
             </div>
         </div>
