@@ -18,12 +18,12 @@
             {% include "admin/elements/translations/form_tabs.html" with object=request.journal %}
             <div class="title-area">
                 <h2>Editorial Groups</h2>
-                <a class="button" href="{% url 'core_add_editorial_team' %}"><i class="fa fa-plus">&nbsp;</i>Add New Group</a>
-                 <a class="button" href="{% url 'editorial_team' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Editorial Team Page</a>
+                <a class="button" href="{% url 'core_add_editorial_team' %}"><i class="fa fa-plus">&nbsp;</i>Add new group</a>
+                 <a class="button" href="{% url 'editorial_team' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View editorial team page</a>
             </div>
             <div class="content">
                 <p>
-                    Editorial team groups are listed below. You can change the order by dragging and dropping table rows into the order you want them to appear.
+                    Your editorial team groups are listed below. You can change the order of these groups by dragging and dropping them. New groups can be added by clicking <b>Add new group</b>.
                 </p>
                 <form method="POST">
                     {% csrf_token %}
@@ -31,8 +31,8 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Group Name</th>
-                                <th>Manage Members</th>
+                                <th>Group name</th>
+                                <th>Manage members</th>
                                 <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
@@ -42,9 +42,9 @@
                                 <tr id="group-{{ group.pk }}">
                                     <td><i class="fa fa-sort"></i></td>
                                     <td>{{ group.name }}</td>
-                                    <td><a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i> Manage Group Members</a></td>
-                                    <td><a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i> Edit Group Details</a></td>
-                                    <td><button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Group</button></td>
+                                    <td><a href="{% url 'core_editorial_member_to_group' group.pk %}" class="tiny success button"><i class="fa fa-users" ></i> Manage group members</a></td>
+                                    <td><a href="{% url 'core_edit_editorial_team' group.pk %}" class="tiny warning button"><i class="fa fa-edit"></i> Edit group details</a></td>
+                                    <td><button type="submit" name="delete" value="{{ group.pk }}" class="tiny alert button delete"><i class="fa fa-trash"></i> Delete group</button></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -58,7 +58,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {% include "admin/elements/forms/group_editorial.html" with edit_form=edit_form %}
-                    <button name="save" class="success button">Save Settings</button>
+                    <button name="save" class="success button">Save settings</button>
                 </form>
             </div>
         </div>

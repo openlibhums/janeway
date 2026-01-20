@@ -123,7 +123,7 @@ class TypesettingAssignment(models.Model):
     reviewed = models.BooleanField(default=False)
     display_proof_comments = models.BooleanField(
         default=True,
-        help_text="Allow the typesetter to see the proofreading comments",
+        help_text="Tick this box to give the typesetter access to the proofreading comments.",
     )
     review_decision = models.CharField(
         choices=review_choices(),
@@ -133,8 +133,8 @@ class TypesettingAssignment(models.Model):
 
     task = JanewayBleachField(
         blank=True,
-        verbose_name="Typesetting Task",
-        help_text="The task description if not explained in the typesetting guidelines.",
+        verbose_name="Typesetting task",
+        help_text="The task description, if not explained in the typesetting guidelines.",
     )
     files_to_typeset = models.ManyToManyField(
         "core.File",
@@ -147,7 +147,7 @@ class TypesettingAssignment(models.Model):
     )
     typesetter_note = JanewayBleachField(
         blank=True,
-        verbose_name="Note to Editor",
+        verbose_name="Note to editor",
     )
 
     objects = models.Manager()
@@ -319,13 +319,13 @@ class GalleyProofing(models.Model):
     )
     assigned = models.DateTimeField(default=timezone.now)
     notified = models.BooleanField(default=False)
-    due = models.DateTimeField(default=None, verbose_name="Date Due")
+    due = models.DateTimeField(default=None, verbose_name="Date due")
     accepted = models.DateTimeField(blank=True, null=True)
     completed = models.DateTimeField(blank=True, null=True)
     cancelled = models.BooleanField(default=False)
 
     task = JanewayBleachField(
-        verbose_name="Proofing Task",
+        verbose_name="Proofing task",
         help_text="Add any additional information or instructions "
         "for the proofreader here.",
     )

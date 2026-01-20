@@ -6,29 +6,30 @@
 {% block title-section %}Contact Manager{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li>Contact Manager</li>
+{{ block.super }}
+<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+<li>Contact Manager</li>
 {% endblock %}
 
 {% block body %}
-    <div class="large-12 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Current Contacts</h2>
-                <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
-                        class="fa fa-plus">&nbsp;</i>Add New Contact</a>
-                <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts Page</a>
-            </div>
-            <div class="content">
-                <p>
-                    Journal Contacts are listed below. You can alter their order by dragging and dropping them into the
-                    order you require.
-                </p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <table class="table scroll">
-                        <thead>
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Current Contacts</h2>
+            <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
+                    class="fa fa-plus">&nbsp;</i>Add New Contact</a>
+            <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts
+                Page</a>
+        </div>
+        <div class="content">
+            <p>
+                This section allows you to set up named contacts for your journal. You can change the order of these
+                contacts by dragging and dropping them. New contacts can be added by clicking <b>Add new contact</b>.
+            </p>
+            <form method="POST">
+                {% csrf_token %}
+                <table class="table scroll">
+                    <thead>
                         <tr>
                             <th></th>
                             <th>Contact Name</th>
@@ -37,56 +38,57 @@
                             <th>Edit</th>
                             <th>Delete</th>
                         </tr>
-                        </thead>
-                        <tbody id="sortable">
+                    </thead>
+                    <tbody id="sortable">
                         {% for contact in contacts %}
-                            <tr id="contact-{{ contact.pk }}">
-                                <td><i class="fa fa-sort"></i></td>
-                                <td>{{ contact.name }}</td>
-                                <td>{{ contact.email }}</td>
-                                <td>{{ contact.role }}</td>
-                                <td>
-                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit Contact</a>
-                                </td>
-                                <td>
-                                    <button type="submit" name="delete" value="{{ contact.pk }}"
-                                            class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5">
-                                    This journal has no contacts. <a href="{% url 'core_new_journal_contact' %}">Add a new contact.</a>
-                                </td>
-                            </tr>
+                        <tr id="contact-{{ contact.pk }}">
+                            <td><i class="fa fa-sort"></i></td>
+                            <td>{{ contact.name }}</td>
+                            <td>{{ contact.email }}</td>
+                            <td>{{ contact.role }}</td>
+                            <td>
+                                <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
+                                        class="fa fa-edit">&nbsp;</i>Edit Contact</a>
+                            </td>
+                            <td>
+                                <button type="submit" name="delete" value="{{ contact.pk }}"
+                                    class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                This journal has no contacts. <a href="{% url 'core_new_journal_contact' %}">Add a new
+                                    contact.</a>
+                            </td>
+                        </tr>
                         {% endfor %}
 
-                        </tbody>
-                    </table>
-                </form>
-            </div>
+                    </tbody>
+                </table>
+            </form>
         </div>
     </div>
+</div>
 {% endblock body %}
 
 {% block js %}
-    <script src="{% static "admin/js/csrf.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script>
-        $("#sortable").sortable({
-            update: function (event, ui) {
-                var data = $(this).sortable('serialize');
-                console.log(data);
-                // POST to server using $.post or $.ajax
-                $.ajax({
-                    data: data,
-                    type: 'POST',
-                    url: '{% url 'core_journal_contacts_order' %}'
+<script src="{% static " admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static " common/js/jq-ui.min.js" %}"></script>
+<script>
+    $("#sortable").sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% url 'core_journal_contacts_order' %}'
                 });
-            }
-        });
-        $("#sortable").disableSelection();
-    </script>
-    {% include "admin/elements/post_check.html" %}
+        }
+    });
+    $("#sortable").disableSelection();
+</script>
+{% include "admin/elements/post_check.html" %}
 {% endblock js %}

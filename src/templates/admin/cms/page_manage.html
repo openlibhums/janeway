@@ -5,51 +5,57 @@
 {% block admin-header %}{% if edit %}Edit Page {{ page.display_name }}{% else %}Add New Page{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'cms_index' %}">Content Manager</a></li>
-    <li>{% if edit %}Edit Page {{ page.display_name }}{% else %}Add New Page{% endif %}</li>
+{{ block.super }}
+<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+<li><a href="{% url 'cms_index' %}">Content Manager</a></li>
+<li>{% if edit %}Edit page {{ page.display_name }}{% else %}Add new page{% endif %}</li>
 {% endblock %}
 
 {% get_current_language as LANGUAGE_CODE %}
 {% get_language_info for LANGUAGE_CODE as language_info %}
 
 {% block body %}
-    <div class="large-12 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Edit Page</h2>
-                <a href="{% url 'cms_index' %}" class="button">< Back</a>
-            </div>
-            <div class="content">
-                {% include "admin/elements/translations/form_tabs.html" with object=page %}
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ form.display_name|foundation }}
-                    {{ form.name|foundation }}
-                    {{ form.template|foundation }}
-                    {{ form.content|foundation }}
-                    {{ form.display_toc|foundation }}
-                    <div class="row expanded">
-                        <div class="large-12 columns">
-                            <p>If you want to upload and link to a file, use the <a target="_blank" href="{% url 'cms_file_list' %}">Media
-                                Files</a> system.</p>
-                            <button type="submit" class="button success">Save</button>
-                            {% if page.history %}
-                                <a class="button" data-open="history_modal">
-                                    <i class="fa fa-history" aria-hidden="True"></i>
-                                    View History
-                                </a>
-                            {% endif %}
-                            <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"
-                                    class="alert button pull-right">Delete
-                            </button>
-                        </div>
+<div class="large-12 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Edit Page</h2>
+            <a href="{% url 'cms_index' %}" class="button">
+                < Back</a>
+        </div>
+        <div class="content">
+            {% include "admin/elements/translations/form_tabs.html" with object=page %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.display_name|foundation }}
+                {{ form.name|foundation }}
+                {{ form.template|foundation }}
+                {{ form.content|foundation }}
+                {{ form.display_toc|foundation }}
+                <div class="row expanded">
+                    <div class="large-12 columns">
+                        <p>To include an image or other file on your page, go to <a target="_blank"
+                                href="{% url 'cms_file_list' %}">Media
+                                files</a>, upload your file and copy the link created. Return to this page, and click
+                            the <b>Insert/edit image</b> or <b>Insert/edit media</b> buttons and paste that link as the
+                            source. Alternatively, click on <b>Insert</b> in the text editor and then select
+                            <b>Image</b> or <b>Media</b>, and paste the link from the media file.
+                        </p>
+                        <button type="submit" class="button success">Save</button>
+                        {% if page.history %}
+                        <a class="button" data-open="history_modal">
+                            <i class="fa fa-history" aria-hidden="True"></i>
+                            View history
+                        </a>
+                        {% endif %}
+                        <button name="delete" value="{{ page.pk }}" type="submit" formaction="{% url 'cms_index' %}"
+                            class="alert button pull-right">Delete
+                        </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    {% include 'admin/elements/history_modal.html' with obj=page view_url="admin:cms_page_history" %}
+{% include 'admin/elements/history_modal.html' with obj=page view_url="admin:cms_page_history" %}
 {% endblock body %}

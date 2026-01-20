@@ -290,9 +290,9 @@ class EditorArticleInfoSubmit(ArticleInfo):
                 lambda obj: obj.display_name_public_submission
             )
             self.fields["section"].help_text = (
-                "As an editor you will see all "
+                "As an editor, you will see all "
                 "sections even if they are  "
-                "closed for public submission"
+                "closed for public submission."
             )
 
 

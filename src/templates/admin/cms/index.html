@@ -4,118 +4,119 @@
 {% block admin-header %}Content Manager{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li>Content Manager</li>
+{{ block.super }}
+<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+<li>Content Manager</li>
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Pages</h2>
-                <a class="button" href="{% url 'cms_page_new' %}"><i class="fa fa-plus">&nbsp;</i>Add New Page</a>
-            </div>
-            <div class="content">
-                <table class="table small" id="pages">
-                    <thead>
+<div class="large-6 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Pages</h2>
+            <a class="button" href="{% url 'cms_page_new' %}"><i class="fa fa-plus">&nbsp;</i>Add new page</a>
+        </div>
+        <div class="content">
+            <table class="table small" id="pages">
+                <thead>
                     <tr>
                         <th>Name</th>
                         <th>View</th>
                         <th>Edit</th>
                         <td>Delete</td>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     {% for page in pages %}
-                        <tr>
-                            <td>{{ page.display_name }} (/site/{{ page.name }})</td>
-                            <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
-                            </td>
-                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
-                            <td>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>Navigation</h2>
-                <a class="button" href="{% url 'cms_nav' %}"><i class="fa fa-pencil">&nbsp;</i>Modify Nav</a>
-            </div>
-            <div class="content">
-                <p>Your custom navigation currently looks like this: </p>
-                {% include "admin/elements/cms_nav.html" %}
-            </div>
-        </div>
-    </div>
-    {% if request.journal %}
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>XSLT</h2>
-            </div>
-            <p><i class="fa fa-warning"> Changing the Current XSL will only  affect future uploads </i></p>
-            <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
-                {% for xsl in xsl_files %}
-                    <li class="accordion-item" data-accordion-item>
-                        <a href="#" class="accordion-title">
-                            {% if journal.xsl == xsl %}<i class="fa fa-check-circle" style="color: green;"></i>{% endif %}
-                            {{ xsl.label }}
-                            {% if journal.xsl == xsl %}<i>(current)</i>{% endif %}
-                        </a>
-                        <div class="accordion-content" data-tab-content>
-                            <ul>
-                                <li>Date Uploaded: {{ xsl.date_uploaded|date:"Y-m-d" }}</li>
-                                {% if xsl.comments %}
-                                <li>Comments: {{ xsl.comments|linebreaksbr }}</li>
-                                {% endif %}
-                            </ul>
-                            {% if journal.xsl != xsl %}
+                    <tr>
+                        <td>{{ page.display_name }} (/site/{{ page.name }})</td>
+                        <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
+                        </td>
+                        <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
+                        <td>
                             <form method="POST">
                                 {% csrf_token %}
-                                <button name="change_xsl" value="{{ xsl.pk }}" type="submit" class="alert button">Make current</button>
+                                <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
+                                    Delete
+                                </button>
                             </form>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="large-6 columns">
-        <div class="box">
-            <div class="title-area">
-                <h2>XSLT</h2>
-            </div>
-            <div class="title-area card-divider">
-                <h5>Upload new stylesheet</h5>
-            </div>
-            <div class="content">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ xsl_form}}
-                    <button name="new_xsl" type="submit" class="success button">Upload</button>
-                </form>
-            </div>
-            </div>
+</div>
+
+<div class="large-6 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>Navigation</h2>
+            <a class="button" href="{% url 'cms_nav' %}"><i class="fa fa-pencil">&nbsp;</i>Modify nav</a>
+        </div>
+        <div class="content">
+            <p>This is where you can customise your navigation. To hide a default page, click <b>Disable</b>. To show a
+                page which is currently hidden, click <b>Enable</b>. </p>
+            {% include "admin/elements/cms_nav.html" %}
+        </div>
     </div>
-    {% endif %}
+</div>
+{% if request.journal %}
+<div class="large-6 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>XSLT</h2>
+        </div>
+        <p><i class="fa fa-warning"> Changing the Current XSL will only affect future uploads </i></p>
+        <ul class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+            {% for xsl in xsl_files %}
+            <li class="accordion-item" data-accordion-item>
+                <a href="#" class="accordion-title">
+                    {% if journal.xsl == xsl %}<i class="fa fa-check-circle" style="color: green;"></i>{% endif %}
+                    {{ xsl.label }}
+                    {% if journal.xsl == xsl %}<i>(current)</i>{% endif %}
+                </a>
+                <div class="accordion-content" data-tab-content>
+                    <ul>
+                        <li>Date Uploaded: {{ xsl.date_uploaded|date:"Y-m-d" }}</li>
+                        {% if xsl.comments %}
+                        <li>Comments: {{ xsl.comments|linebreaksbr }}</li>
+                        {% endif %}
+                    </ul>
+                    {% if journal.xsl != xsl %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button name="change_xsl" value="{{ xsl.pk }}" type="submit" class="alert button">Make
+                            current</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div class="large-6 columns">
+    <div class="box">
+        <div class="title-area">
+            <h2>XSLT</h2>
+        </div>
+        <div class="title-area card-divider">
+            <h5>Upload new stylesheet</h5>
+        </div>
+        <div class="content">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ xsl_form}}
+                <button name="new_xsl" type="submit" class="success button">Upload</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock body %}
 
 {% block js %}
-    {% include "admin/elements/datatables.html" with target="#pages" %}
+{% include "admin/elements/datatables.html" with target="#pages" %}
 {% endblock js %}
-

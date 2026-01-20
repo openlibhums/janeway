@@ -8,37 +8,39 @@
 {% block admin-header %}Edit Navigation{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li><a href="{% url 'cms_index' %}">Content Manager</a></li>
-    <li>Edit Navigation</li>
+{{ block.super }}
+<li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+<li><a href="{% url 'cms_index' %}">Content Manager</a></li>
+<li>Edit Navigation</li>
 {% endblock %}
 
 {% block body %}
-    <div class="large-6 columns">
-        <div class="box">
-            {% include "admin/elements/translations/form_tabs.html" with object=form.instance %}
-            <form method="POST">
-                {% csrf_token %}
-                <div class="title-area">
-                    <h2>{% if form.instance.pk %}Currently Editing {{ form.instance.link_name }}{% else %}Create New Nav Item{% endif %}</h2>
-                    {% if form.instance %}<a href="{% url 'cms_nav' %}" class="button"><span class="fa fa-plus"></span> Add a New Nav Item</a>{% endif %}
-                </div>
-                <div class="content">
-                    {% include "admin/elements/forms/errors.html" %}
-                    {{ form|foundation }}
-                    <button type="submit" name="edit_nav" class="success button">
-                        {% if form.instance.pk  %}Update{% else %}Create{% endif %}
-                    </button>
-                </div>
-            </form>
-        </div>
+<div class="large-6 columns">
+    <div class="box">
+        {% include "admin/elements/translations/form_tabs.html" with object=form.instance %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="title-area">
+                <h2>{% if form.instance.pk %}Currently editing {{ form.instance.link_name }}{% else %}Create new nav
+                    item{% endif %}</h2>
+                {% if form.instance %}<a href="{% url 'cms_nav' %}" class="button"><span class="fa fa-plus"></span> Add
+                    a new nav item</a>{% endif %}
+            </div>
+            <div class="content">
+                {% include "admin/elements/forms/errors.html" %}
+                {{ form|foundation }}
+                <button type="submit" name="edit_nav" class="success button">
+                    {% if form.instance.pk %}Update{% else %}Create{% endif %}
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="large-6 columns">
-        <div class="box">
-            <p>Your custom navigation currently looks like this: </p>
-            {% include "elements/cms_nav.html" %}
-        </div>
+<div class="large-6 columns">
+    <div class="box">
+        <p>Your custom navigation currently looks like this: </p>
+        {% include "elements/cms_nav.html" %}
     </div>
+</div>
 {% endblock body %}

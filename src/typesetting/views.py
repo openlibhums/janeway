@@ -135,7 +135,7 @@ def typesetting_article(request, article_id):
             messages.add_message(
                 request,
                 messages.INFO,
-                "Supplementary file created",
+                "Supplementary file created.",
             )
         return redirect(
             reverse(
@@ -263,14 +263,14 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         messages.add_message(request, messages.ERROR, str(exc))
     except UnicodeDecodeError:
         messages.add_message(
-            request, messages.ERROR, "Uploaded file is not UTF-8 encoded"
+            request, messages.ERROR, "Uploaded file is not UTF-8 encoded."
         )
     except production_logic.ZippedGalleyError:
         messages.add_message(
             request,
             messages.ERROR,
             "You tried to upload a compressed file. "
-            "Please upload each Typeset File separately",
+            "Please upload each typeset file separately.",
         )
 
     if assignment and galley:
@@ -280,7 +280,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
         messages.add_message(
             request,
             messages.WARNING,
-            "No typeset file uploaded",
+            "No typeset file uploaded.",
         )
 
     if not form.is_valid():
@@ -868,7 +868,7 @@ def typesetting_assignment(request, assignment_id):
                 request,
                 messages.WARNING,
                 "The manager for this article has cancelled this typesetting"
-                "task. No further changes are allowed",
+                "task. No further changes are allowed.",
             )
             return redirect(
                 reverse(
@@ -1020,7 +1020,7 @@ def typesetting_assign_proofreader(request, article_id):
             assignment = form.save()
 
             messages.add_message(
-                request, messages.SUCCESS, "Proofing Assignment created."
+                request, messages.SUCCESS, "Proofing assignment created."
             )
 
             return redirect(
@@ -1253,7 +1253,7 @@ def typesetting_proofreading_assignment(request, assignment_id):
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    "Proofreading Assignment complete.",
+                    "Proofreading assignment complete.",
                 )
                 return redirect(
                     reverse(
@@ -1359,7 +1359,7 @@ def typesetting_proofing_download(request, article_id, assignment_id, file_id):
         messages.add_message(
             request,
             messages.WARNING,
-            "Requested file is not a typeset file for proofing",
+            "Requested file is not a typeset file for proofing.",
         )
         return redirect(request.META.get("HTTP_REFERER"))
 
@@ -1452,7 +1452,7 @@ def mint_supp_doi(request, supp_file_id):
         messages.add_message(
             request,
             messages.ERROR,
-            "The DOI field must be filled in",
+            "The DOI field must be filled in.",
         )
     else:
         try:
@@ -1469,7 +1469,7 @@ def mint_supp_doi(request, supp_file_id):
                 request,
                 messages.ERROR,
                 "There was a problem minting the DOI,"
-                " the site administrator has been alerted",
+                " the site administrator has been alerted.",
             )
             logger.exception("Error minting supplementary file DOI %s", e)
         else:

@@ -26,16 +26,12 @@ class Page(models.Model):
 
     name = models.CharField(
         max_length=300,
-        help_text="The relative URL path to the page, using lowercase "
-        "letters and hyphens. For example, a page about "
-        "research integrity might be “research-integrity”.",
+        help_text="The relative URL path to the page. This will appear after the slash (/) at the end of your journal's main URL in the link to this page. It cannot contain any capital letters, spaces or special characters.",
         verbose_name="Link",
     )
     display_name = models.CharField(
         max_length=100,
-        help_text="Name of the page, in 100 characters or fewer, "
-        "displayed in the nav and in the top-level heading "
-        "on the page (e.g. “Research Integrity”).",
+        help_text="The page title. This will display in the navigation bar and as the heading on your page. 100 characters maximum.",
     )
     template = models.CharField(
         blank=True,
@@ -45,22 +41,14 @@ class Page(models.Model):
     content = JanewayBleachField(
         null=True,
         blank=True,
-        help_text="The content of the page. For headings, we recommend "
-        "using the Style dropdown (looks like a wand) and "
-        "selecting a heading level from 2 to 6, as the display "
-        "name field occupies the place of heading level 1. "
-        "Note that copying and pasting from a word processor "
-        "can produce unwanted results, but you can use Remove "
-        "Font Style (looks like an eraser) to remove some "
-        "unwanted formatting. To edit the page as HTML, "
-        "turn on the Code View (<>).",
+        help_text="The content of your page. If you are copying and pasting this content from a word processor, you may need to use the 'remove formatting' tool or paste without formatting and then format as needed using this editor. For any headings, we recommend using heading level 2 or below, as the page display name will be classed as heading 1. You can access different heading levels by clicking 'Format' and going to 'Blocks'. To edit the page as HTML, "
+        "turn on the code view (<>).",
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
     display_toc = models.BooleanField(
         default=False,
-        help_text="When enabled this page will display a thinner reading pane "
-        "with a table of contents side bar.",
+        help_text="Tick this box to enable a sidebar showing a table of contents for your page based on the headers you have used.",
         verbose_name="Display table of contents",
     )
 
@@ -80,8 +68,7 @@ class NavigationItem(models.Model):
 
     link_name = models.CharField(
         max_length=100,
-        help_text="The text that will appear in the nav bar "
-        "(e.g. “About” or “Research Integrity”)",
+        help_text="The page title as it will display in the navigation bar.",
         verbose_name="Display name",
     )
     link = models.CharField(
@@ -107,7 +94,7 @@ class NavigationItem(models.Model):
     )
     is_external = models.BooleanField(
         default=False,
-        help_text="Whether the link is to an external website.",
+        help_text="Tick this box if you are linking to an external web page.",
     )
     sequence = models.IntegerField(
         default=99,
@@ -126,14 +113,14 @@ class NavigationItem(models.Model):
     has_sub_nav = models.BooleanField(
         default=False,
         verbose_name="Has sub navigation",
-        help_text="Whether this item has sub-nav items under it.",
+        help_text="Tick this box if you want to create a drop-down in your navigation bar from this item.",
     )
     top_level_nav = models.ForeignKey(
         "self",
         blank=True,
         null=True,
         verbose_name="Top-level nav item",
-        help_text="If this is a sub-nav item, which top-level item should it go under?",
+        help_text="If you want this to fall under an existing drop-down in your navigation bar, select which one it should fall under.",
         on_delete=models.CASCADE,
     )
     for_footer = models.BooleanField(

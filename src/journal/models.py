@@ -106,7 +106,7 @@ class Journal(AbstractSiteModel):
         unique=True,
         help_text=gettext(
             "Short acronym for the journal. Used as part of the journal URL"
-            "in path mode and to uniquely identify the journal"
+            "in path mode and to uniquely identify the journal."
         ),
     )
     current_issue = models.ForeignKey(
@@ -177,7 +177,7 @@ class Journal(AbstractSiteModel):
         storage=fs,
         help_text=gettext(
             "The tiny round or square image appearing in browser "
-            "tabs before the webpage title"
+            "tabs before the webpage title."
         ),
     )
     default_profile_image = SVGImageField(
@@ -187,16 +187,16 @@ class Journal(AbstractSiteModel):
         storage=fs,
         help_text=gettext(
             "A default image displayed on the profile and "
-            "editorial team pages when the user has no set "
-            "profile image."
+            "editorial team pages when the user has not set "
+            "a profile image."
         ),
     )
     # DEPRECATED "description" in favour of "journal_description" setting
     description = JanewayBleachField(
-        null=True, blank=True, verbose_name="Journal Description"
+        null=True, blank=True, verbose_name="Journal description"
     )
     contact_info = JanewayBleachField(
-        null=True, blank=True, verbose_name="Contact Information"
+        null=True, blank=True, verbose_name="Contact information"
     )
     keywords = models.ManyToManyField(
         "submission.Keyword",
@@ -205,7 +205,10 @@ class Journal(AbstractSiteModel):
         verbose_name="Discipline",
     )
 
-    disable_metrics_display = models.BooleanField(default=False)
+    disable_metrics_display = models.BooleanField(
+        default=False,
+        help_text="Tick this box to hide all metrics from article pages.",
+    )
     disable_article_images = models.BooleanField(
         default=False,
         help_text=gettext("This field has been deprecated in v1.4.3"),
@@ -213,14 +216,12 @@ class Journal(AbstractSiteModel):
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(
         default=False,
-        help_text="Used to disable download links for HTML files on the Article page.",
+        help_text="Tick this box to disable download links for HTML files on the Article page.",
     )
     full_width_navbar = models.BooleanField(default=False)
     is_remote = models.BooleanField(
         default=False,
-        help_text=gettext(
-            "When enabled, the journal is marked as not hosted in Janeway."
-        ),
+        help_text=gettext("Tick this box if this journal is not hosted on Janeway."),
     )
     is_conference = models.BooleanField(default=False)
     is_archived = models.BooleanField(
@@ -231,18 +232,18 @@ class Journal(AbstractSiteModel):
     remote_submit_url = models.URLField(
         blank=True,
         null=True,
-        help_text=gettext(
-            "If the journal is remote you can link to its submission page."
-        ),
+        help_text=gettext("Link to your remote journal's submissions page."),
     )
     remote_view_url = models.URLField(
         blank=True,
         null=True,
-        help_text=gettext("If the journal is remote you can link to its home page."),
+        help_text=gettext("Link to your remote journal's home page."),
     )
     view_pdf_button = models.BooleanField(
         default=False,
-        help_text=gettext('Enables a "View PDF" link on article pages.'),
+        help_text=gettext(
+            "Tick this box to enable a 'View PDF' link on article pages."
+        ),
     )
 
     # Nav Items
@@ -285,16 +286,14 @@ class Journal(AbstractSiteModel):
     display_article_number = models.BooleanField(
         default=False,
         help_text=gettext(
-            "Whether to display article numbers. Article numbers are distinct "
-            "from article ID and can be set in Edit Metadata.",
+            "Tick this box to display article numbers. Note: article numbers are distinct from article IDs. The article number can be set using <b>Edit metadata</b>.",
         ),
     )
     display_article_page_numbers = models.BooleanField(default=True)
     display_issue_doi = models.BooleanField(default=True)
     display_issues_grouped_by_decade = models.BooleanField(
         default=False,
-        help_text="When enabled the issue page will group and display issues "
-        "by decade.",
+        help_text="Tick this box to group and display issues by decade on the issue page.",
     )
 
     disable_front_end = models.BooleanField(default=False)
@@ -883,7 +882,7 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         storage=fs,
         help_text=gettext(
-            "Image representing the cover of a printed issue or volume",
+            "Image representing the cover of a printed issue or volume.",
         ),
     )
     large_image = SVGImageField(
@@ -891,7 +890,9 @@ class Issue(AbstractLastModifiedModel):
         null=True,
         blank=True,
         storage=fs,
-        help_text=gettext("landscape hero image used in the carousel and issue page"),
+        help_text=gettext(
+            "Large, landscape image used in the carousel on the homepage and on the top of the issue page."
+        ),
     )
 
     # issue articles
@@ -923,10 +924,9 @@ class Issue(AbstractLastModifiedModel):
         blank=True,
         null=True,
         verbose_name="DOI",
-        help_text="The DOI (not URL) to be registered for the issue when registering "
+        help_text="The DOI (not in URL format, e.g. 10.001/my-journal) to be registered for the issue when registering "
         "articles that are part of this issue. If you have enabled issue "
-        "autoregistration in your settings, this field should not be "
-        "entered manually.",
+        "auto-registration in your settings, leave this field blank.",
     )
 
     isbn = models.CharField(
@@ -935,8 +935,7 @@ class Issue(AbstractLastModifiedModel):
         null=True,
         verbose_name="ISBN",
         help_text=gettext(
-            "An ISBN is relevant for non-serial collections such as"
-            " conference proceedings"
+            "This field only needs to be completed if this issue is a non-serial collection which requires an ISBN, such as conference proceedings."
         ),
     )
 
