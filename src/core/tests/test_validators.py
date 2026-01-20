@@ -50,7 +50,7 @@ class TestValidators(TestCase):
         try:
             validators.validate_email_setting(test_value)
         except ValidationError as e:
-            error = error
+            error = e
         else:
             error = None
         self.assertIsNone(error)

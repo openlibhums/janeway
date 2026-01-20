@@ -11,7 +11,7 @@ from django.forms import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.utils.safestring import mark_safe
 
 from modeltranslation import forms as mt_forms, translator
