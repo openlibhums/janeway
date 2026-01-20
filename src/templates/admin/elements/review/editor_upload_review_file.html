@@ -1,0 +1,16 @@
+{% load foundation %}
+
+<form
+        method="POST"
+        enctype="multipart/form-data"
+        action="{% url 'review_editor_upload_review_file' article.pk review.pk %}"
+>
+  {% csrf_token %}
+  {{ editor_review_file_form|foundation }}
+  <div class="row expanded">
+    <div class="large-12 columns">
+      <button name="upload" class="info button">Upload File</button>
+    </div>
+  </div>
+
+</form>
