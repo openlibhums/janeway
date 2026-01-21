@@ -215,7 +215,7 @@ def user_login_orcid(request):
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
     # Make another request to orcid.org to verify it.
-    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+    access_token, expiration, orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
 
     # If verification did not work, send them to the regular login page.
     if not orcid_id:
@@ -261,7 +261,11 @@ def user_login_orcid(request):
         # Then send the user to a decision page that tells them
         # the ORCID login did not work and they will need to register.
         models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        new_token = models.OrcidToken.objects.create(
+            orcid=orcid_id,
+            access_token=access_token,
+            access_token_expiration=expiration
+        )
         return redirect(
             logic.reverse_with_next(
                 "core_orcid_registration",
@@ -434,6 +438,9 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                new_user.orcid_token = token_obj.access_token
+                new_user.orcid_expiration = token_obj.access_token_expiration
+                new_user.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
                     for orcid_affil in orcid_details.get("affiliations", []):
