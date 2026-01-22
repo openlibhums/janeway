@@ -66,7 +66,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 |                      | 3.3.3 Error Suggestion                                       | AA    |                    |         |                      |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
-|                      | 3.3.7 Redundant Entry                                        | A     |                    |         |                      |
+| :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 |                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
@@ -126,7 +126,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 |                      | 3.3.3 Error Suggestion                                       | AA    |                    |         |                      |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
-|                      | 3.3.7 Redundant Entry                                        | A     |                    |         |                      |
+| :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 |                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
@@ -186,7 +186,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 3.3.2 Labels or Instructions                                 | A     | Partially Supports |         | June 2024 VPAT       |
 | :x:                  | 3.3.3 Error Suggestion                                       | AA    | Does not support   |         | June 2024 VPAT       |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
-| :white_check_mark:   | 3.3.7 Redundant Entry                                        | A     | Supports           |         | June 2024 VPAT       |
+| :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 | :x:                  | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Does not support   |         | June 2024 VPAT       |
 | :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | June 2024 VPAT       |
@@ -248,7 +248,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 |                      | 3.3.3 Error Suggestion                                       | AA    |                    |         |                      |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
-|                      | 3.3.7 Redundant Entry                                        | A     |                    |         |                      |
+| :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 |                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
