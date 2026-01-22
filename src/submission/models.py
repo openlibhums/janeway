@@ -1055,7 +1055,12 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def jats_article_type(self):
-        return self.jats_article_type_override or self.section.jats_article_type
+        if self.jats_article_type_override:
+            return self.jats_article_type_override
+        elif self.section:
+            return self.section.jats_article_type
+        else:
+            return None
 
     license = models.ForeignKey(
         "Licence", blank=True, null=True, on_delete=models.SET_NULL
