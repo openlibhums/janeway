@@ -52,7 +52,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |
-|                      | 2.5.4 Motion Actuation                                       | A     |                    |         |                      |
+| :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 |                      | 2.5.7 Dragging Movements                                     | AA    |                    |         |                      |
 |                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |
 |                      | 3.1.1 Language of Page                                       | A     |                    |         |                      |
@@ -112,7 +112,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |
-|                      | 2.5.4 Motion Actuation                                       | A     |                    |         |                      |
+| :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 |                      | 2.5.7 Dragging Movements                                     | AA    |                    |         |                      |
 |                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |
 |                      | 3.1.1 Language of Page                                       | A     |                    |         |                      |
@@ -172,7 +172,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.5.1 Pointer Gestures                                       | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 | :white_check_mark:   | 2.5.3 Label in Name                                          | A     | Supports           |         | June 2024 VPAT       |
-| :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not-applicable     |         | June 2024 VPAT       |
 | :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.1.1 Language of Page                                       | A     | Supports           |         | June 2024 VPAT       |
@@ -234,7 +234,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |
-|                      | 2.5.4 Motion Actuation                                       | A     |                    |         |                      |
+| :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 |                      | 2.5.7 Dragging Movements                                     | AA    |                    |         |                      |
 |                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |
 |                      | 3.1.1 Language of Page                                       | A     |                    |         |                      |
