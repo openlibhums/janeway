@@ -34,7 +34,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
-|                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
+| :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5099) |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
@@ -94,7 +94,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
-|                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
+| :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5099) |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
@@ -154,7 +154,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 | :brown_square:       | 1.4.3 Contrast (Minimum)                                     | AA    | Not-applicable     | Colour themes are defined by users. | June 2024 VPAT       |
 | :orange_circle:      | 1.4.4 Resize Text                                            | AA    | Partially Supports |         | June 2024 VPAT       |
-| :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | June 2024 VPAT       |
+| :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5099) |
 | :white_check_mark:   | 2.1.1 Keyboard                                               | A     | Supports           |         | June 2024 VPAT       |
 | :orange_circle:      | 2.1.2 No Keyboard Trap                                       | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
@@ -216,7 +216,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
-|                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
+| :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5099) |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
