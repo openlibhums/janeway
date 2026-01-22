@@ -8,6 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
+from django.conf import settings
 
 from utils import admin_utils
 from core import models, forms
@@ -133,6 +134,12 @@ class AccountAdmin(UserAdmin):
         admin_utils.StaffGroupMemberInline,
         admin_utils.PasswordResetInline,
     ]
+
+    def get_readonly_fields(self, request, obj=None):
+        if settings.ENABLE_ORCID:
+            return ['orcid']
+        else:
+            return []
 
     def _roles_in(self, obj):
         if obj:

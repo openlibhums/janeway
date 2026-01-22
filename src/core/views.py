@@ -286,6 +286,26 @@ def user_login_orcid(request):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
+    elif action == "add_profile_orcid":
+        if not request.user.is_authenticated:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    "You must be logged in to connect an ORCID to your account."
+                ),
+            )
+            return redirect(logic.reverse_with_next("core_login", next_url))
+        request.user.orcid = orcid_id
+        request.user.orcid_token = access_token
+        request.user.orcid_expiration = expiration
+        request.user.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("Your ORCID has been connected to your account."),
+        )
+        return redirect(logic.reverse_with_next("core_edit_profile", next_url))
 
 
 @login_required
@@ -552,6 +572,12 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
+    if 'remove_orcid' in request.GET:
+        if orcid.revoke_token(user.orcid_token):
+            user.orcid = None
+            user.orcid_token = None
+            user.save()
+
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
     next_url = request.GET.get("next", "")
