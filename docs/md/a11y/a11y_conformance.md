@@ -69,7 +69,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
-|                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
+| :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
 ## Front of House - Material Theme
 
@@ -129,7 +129,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
-|                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
+| :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
 ## Front of House - Clean Theme
 
@@ -189,7 +189,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 | :x:                  | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Does not support   |         | June 2024 VPAT       |
 | :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially Supports |         | June 2024 VPAT       |
-| :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
 ## Front of House - Accessibility Mode
 
@@ -251,7 +251,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
 |                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
-|                      | 4.1.3 Status Messages                                        | AA    |                    |         |                      |
+| :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
 ## Back office
 
