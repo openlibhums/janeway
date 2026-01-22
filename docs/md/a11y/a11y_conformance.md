@@ -37,7 +37,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
-|                      | 2.1.4 Character Key Shortcuts                                | A     |                    |         |                      |
+| :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
@@ -97,7 +97,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
-|                      | 2.1.4 Character Key Shortcuts                                | A     |                    |         |                      |
+| :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
@@ -157,7 +157,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.1.1 Keyboard                                               | A     | Supports           |         | June 2024 VPAT       |
 | :orange_circle:      | 2.1.2 No Keyboard Trap                                       | A     | Partially Supports |         | June 2024 VPAT       |
-| :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 | :white_check_mark:   | 2.2.1 Timing Adjustable                                      | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.2.2 Pause, Stop, Hide                                      | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | June 2024 VPAT       |
@@ -219,7 +219,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
 |                      | 2.1.1 Keyboard                                               | A     |                    |         |                      |
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
-|                      | 2.1.4 Character Key Shortcuts                                | A     |                    |         |                      |
+| :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
