@@ -17,7 +17,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |---|---|---|---|---|---|
 |                      | 1.1.1 Non-text Content                                       | A     |                    |         |                      |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5085) |
-|                      | 1.2.2 Captions (Prerecorded)                                 | A     |                    |         |                      |
+| :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 |                      | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     |                    |         |                      |
 |                      | 1.2.4 Captions (Live)                                        | AA    |                    |         |                      |
 |                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
@@ -77,7 +77,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |---|---|---|---|---|---|
 |                      | 1.1.1 Non-text Content                                       | A     |                    |         |                      |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5085) |
-|                      | 1.2.2 Captions (Prerecorded)                                 | A     |                    |         |                      |
+| :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 |                      | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     |                    |         |                      |
 |                      | 1.2.4 Captions (Live)                                        | AA    |                    |         |                      |
 |                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
@@ -137,7 +137,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |---|---|---|---|---|---|
 | :orange_circle:      | 1.1.1 Non-text Content                                       | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5085) |
-| :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not-applicable     |         | June 2024 VPAT       |
 | :brown_square:       | 1.2.4 Captions (Live)                                        | AA    | Not-applicable     |         | June 2024 VPAT       |
 | :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | June 2024 VPAT       |
@@ -199,7 +199,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |---|---|---|---|---|---|
 |                      | 1.1.1 Non-text Content                                       | A     |                    |         |                      |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5085) |
-|                      | 1.2.2 Captions (Prerecorded)                                 | A     |                    |         |                      |
+| :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 |                      | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     |                    |         |                      |
 |                      | 1.2.4 Captions (Live)                                        | AA    |                    |         |                      |
 |                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
