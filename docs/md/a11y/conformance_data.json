@@ -230,14 +230,16 @@
       "name": "Front of House - OLH Theme",
       "audit_results": {
         "1.2.1": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
-        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" }
+        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5087)" }
       }
     },
     "material": {
       "name": "Front of House - Material Theme",
       "audit_results": {
         "1.2.1": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
-        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" }
+        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5087)" }
       }
     },
     "clean": {
@@ -246,7 +248,7 @@
         "1.1.1": { "conformance": "Partially Supports", "remarks": null, "audit": "June 2024 VPAT" },
         "1.2.1": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
-        "1.2.3": { "conformance": "Not-applicable", "remarks": null, "audit": "June 2024 VPAT" },
+        "1.2.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
         "1.2.4": { "conformance": "Not-applicable", "remarks": null, "audit": "June 2024 VPAT"},
         "1.2.5": { "conformance": "Not-applicable", "remarks": null, "audit": "June 2024 VPAT" },
         "1.3.1": { "conformance": "Partially Supports", "remarks": null, "audit": "June 2024 VPAT" },
@@ -305,7 +307,8 @@
       "notes": ["Accessibility Mode is provided as an user-selectable alternative from all three themes."],
       "audit_results": {
         "1.2.1": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
-        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" }
+        "1.2.2": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5087)" }
      }
     },
     "back_office": {
