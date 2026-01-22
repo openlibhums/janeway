@@ -20,7 +20,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5087) |
 | :brown_square:       | 1.2.4 Captions (Live)                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5088) |
-|                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
+| :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5089) |
 |                      | 1.3.1 Info and Relationships                                 | A     |                    |         |                      |
 |                      | 1.3.2 Meaningful Sequence                                    | A     |                    |         |                      |
 |                      | 1.3.3 Sensory Characteristics                                | A     |                    |         |                      |
@@ -80,7 +80,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5087) |
 | :brown_square:       | 1.2.4 Captions (Live)                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5088) |
-|                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
+| :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5089) |
 |                      | 1.3.1 Info and Relationships                                 | A     |                    |         |                      |
 |                      | 1.3.2 Meaningful Sequence                                    | A     |                    |         |                      |
 |                      | 1.3.3 Sensory Characteristics                                | A     |                    |         |                      |
@@ -140,7 +140,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5087) |
 | :brown_square:       | 1.2.4 Captions (Live)                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5088) |
-| :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5089) |
 | :orange_circle:      | 1.3.1 Info and Relationships                                 | A     | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 1.3.2 Meaningful Sequence                                    | A     | Supports           |         | June 2024 VPAT       |
 | :orange_circle:      | 1.3.3 Sensory Characteristics                                | A     | Partially Supports |         | June 2024 VPAT       |
@@ -202,7 +202,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5086) |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5087) |
 | :brown_square:       | 1.2.4 Captions (Live)                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5088) |
-|                      | 1.2.5 Audio Description (Prerecorded)                        | AA    |                    |         |                      |
+| :brown_square:       | 1.2.5 Audio Description (Prerecorded)                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5089) |
 |                      | 1.3.1 Info and Relationships                                 | A     |                    |         |                      |
 |                      | 1.3.2 Meaningful Sequence                                    | A     |                    |         |                      |
 |                      | 1.3.3 Sensory Characteristics                                | A     |                    |         |                      |
