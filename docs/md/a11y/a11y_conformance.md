@@ -31,7 +31,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |
 |                      | 1.4.12 Text Spacing                                          | AA    |                    |         |                      |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |
-|                      | 1.4.2 Audio Control                                          | A     |                    |         |                      |
+| :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
@@ -91,7 +91,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |
 |                      | 1.4.12 Text Spacing                                          | AA    |                    |         |                      |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |
-|                      | 1.4.2 Audio Control                                          | A     |                    |         |                      |
+| :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
@@ -151,7 +151,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 1.4.11 Non-text Contrast                                     | AA    | Not-applicable     | Colour themes are defined by users. | June 2024 VPAT       |
 | :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 1.4.13 Content on Hover or Focus                             | AA    | Partially Supports |         | June 2024 VPAT       |
-| :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | June 2024 VPAT       |
+| :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 | :brown_square:       | 1.4.3 Contrast (Minimum)                                     | AA    | Not-applicable     | Colour themes are defined by users. | June 2024 VPAT       |
 | :orange_circle:      | 1.4.4 Resize Text                                            | AA    | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 1.4.5 Images of Text                                         | AA    | Supports           |         | June 2024 VPAT       |
@@ -213,7 +213,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |
 |                      | 1.4.12 Text Spacing                                          | AA    |                    |         |                      |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |
-|                      | 1.4.2 Audio Control                                          | A     |                    |         |                      |
+| :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
 |                      | 1.4.4 Resize Text                                            | AA    |                    |         |                      |
 |                      | 1.4.5 Images of Text                                         | AA    |                    |         |                      |
