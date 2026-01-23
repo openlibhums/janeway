@@ -572,11 +572,6 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
-    if 'remove_orcid' in request.GET:
-        if orcid.revoke_token(user.orcid_token):
-            user.orcid = None
-            user.orcid_token = None
-            user.save()
 
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
@@ -692,6 +687,12 @@ def edit_profile(request):
 
         elif "export" in request.POST:
             return logic.export_gdpr_user_profile(user)
+        elif "remove_orcid" in request.POST:
+            if orcid.revoke_token(user.orcid_token):
+                user.orcid = None
+                user.orcid_token = None
+                user.save()
+                form = forms.EditAccountForm(instance=user)
 
     template = "admin/core/accounts/edit_profile.html"
     context = {
@@ -1567,24 +1568,32 @@ def user_edit(request, user_id):
     next_url = request.GET.get("next", "")
 
     if request.POST:
-        form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
-        registration_form = forms.AdminUserForm(
-            request.POST, instance=user, request=request
-        )
-
-        if form.is_valid() and registration_form.is_valid():
-            registration_form.save()
-            form.save()
+        if "request_orcid" in request.POST:
+            logic.send_orcid_request(request, user)
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                "User account updated.",
+                _("Successfully requested ORCiD from user."),
+            )
+        else:
+            form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+            registration_form = forms.AdminUserForm(
+                request.POST, instance=user, request=request
             )
 
-            if next_url:
-                return redirect(next_url)
-            else:
-                return redirect(reverse("core_manager_users"))
+            if form.is_valid() and registration_form.is_valid():
+                registration_form.save()
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "User account updated.",
+                )
+
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_manager_users"))
 
     template = "core/manager/users/edit.html"
     context = {

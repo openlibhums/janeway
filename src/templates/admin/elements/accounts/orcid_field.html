@@ -15,10 +15,18 @@
   {% endfor %}
   {% if form.orcid.value %}
     <input type="hidden" name="{{ form.orcid.name }}" value="{{ form.orcid.value }}"/>
-    <p><a href="{{ form.instance.get_orcid_url }}"><img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">&nbsp;{{ form.instance.get_orcid_url }}</a></p>
+    <p>
+        <a href="{{ form.instance.get_orcid_url }}">
+            <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">&nbsp;{{ form.instance.get_orcid_url }}
+        </a>
+    </p>
     {% if form.instance.is_orcid_token_valid %}
         {% if form.instance == request.user or request.user.is_admin %}
-            <p><a class="tiny button" href="{{ request.get_full_path }}?remove_orcid=True">Remove</a></p>
+            <p>
+                <button class="tiny success button" type="submit" name="remove_orcid">
+                    Remove
+                </button>
+            </p>
         {% endif %}
     {% else %}
         <p class="callout warning">ORCiD could not be validated.</p>
@@ -30,6 +38,10 @@
             class="button expanded orcid-button">
             Connect your ORCiD
         </a>
+    {% else %}
+        <button class="success button" type="submit" name="request_orcid">
+            Request ORCiD
+        </button>
     {% endif %}
   {% endif %}
   {% if field.help_text %}

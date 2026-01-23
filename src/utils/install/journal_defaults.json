@@ -1671,6 +1671,25 @@
     },
     {
         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when user requests co-authors add ORCiD.",
+            "is_translatable": true,
+            "name": "orcid_request",
+            "pretty_name": "ORCiD Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCiD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3598,6 +3617,25 @@
             "is_translatable": true,
             "description": "Subject for Email when Editor cancels or deletes a correction task.",
             "name": "subject_notify_correction_cancelled"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "ORCiD Request"
+        },
+        "setting": {
+            "type": "char",
+            "pretty_name": "ORCiD Request",
+            "is_translatable": true,
+            "description": "Subject for when a submitter requests a co-author's ORCiD",
+            "name": "subject_orcid_request"
         },
         "group": {
             "name": "email_subject"
