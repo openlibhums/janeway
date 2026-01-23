@@ -41,7 +41,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
-|                      | 2.4.1 Bypass Blocks                                          | A     |                    |         |                      |
+| :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
@@ -101,7 +101,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
-|                      | 2.4.1 Bypass Blocks                                          | A     |                    |         |                      |
+| :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
@@ -161,7 +161,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.2.1 Timing Adjustable                                      | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.2.2 Pause, Stop, Hide                                      | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | June 2024 VPAT       |
-| :x:                  | 2.4.1 Bypass Blocks                                          | A     | Does not support   |         | June 2024 VPAT       |
+| :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.4.2 Page Titled                                            | A     | Supports           |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.3 Focus Order                                            | A     | Partially Supports |         | June 2024 VPAT       |
@@ -223,7 +223,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
 |                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
-|                      | 2.4.1 Bypass Blocks                                          | A     |                    |         |                      |
+| :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
