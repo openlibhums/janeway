@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.urls.base import clear_script_prefix
 from django.utils import timezone
 from django.core import mail
+from journal.tests.utils import make_test_journal
 
 from utils.testing import helpers
 from utils import setting_handler, install
@@ -582,3 +583,68 @@ class CoreTests(TestCase):
         )
 
         clear_script_prefix()
+
+    @override_settings(ENABLE_ORCID=False)
+    def test_profile_orcid_disabled(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('core_edit_profile'))
+        self.assertContains(response, '<input type="text" name="orcid" maxlength="40" id="id_orcid">')
+
+    def test_profile_orcid_enabled_no_orcid(self):
+        # Profile should offer to connect orcid
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('core_edit_profile'))
+        self.assertNotContains(response, "ORCiD could not be validated.")
+        self.assertContains(response, "Connect your ORCiD")
+
+    @override_settings(ORCID_URL='https://sandbox.orcid.org/oauth/authorize')
+    def test_profile_orcid_unverified(self):
+        self.admin_user.orcid = "0000-0000-0000-0000"
+        self.admin_user.save()
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('core_edit_profile'))
+        self.assertContains(response, "ORCiD could not be validated.")
+        self.assertContains(response, "Connect your ORCiD")
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+
+    @patch.object(models.Account, 'is_orcid_token_valid')
+    @override_settings(ORCID_URL='https://sandbox.orcid.org/oauth/authorize')
+    def test_profile_orcid(self, mock_method):
+        # override is_orcid_token valid make if valid
+        mock_method.return_value = True
+        self.admin_user.orcid = "0000-0000-0000-0000"
+        self.admin_user.orcid_token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        self.admin_user.save()
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('core_edit_profile'))
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertContains(response, "remove_orcid")
+        self.assertContains(response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>')
+        self.assertNotContains(response, "ORCiD could not be validated.")
+
+    @patch.object(models.Account, 'is_orcid_token_valid')
+    @override_settings(URL_CONFIG="domain", ORCID_URL='https://sandbox.orcid.org/oauth/authorize')
+    def test_profile_orcid_not_admin(self, mock_method):
+        mock_method.return_value = True
+
+        journal_kwargs = {'code': "fetests",
+                         'domain': "fetests.janeway.systems",}
+        journal = make_test_journal(**journal_kwargs)
+
+        journal_manager = helpers.create_user("jmanager@mailinator.com", ["journal-manager"], journal=journal)
+        journal_manager.is_active = True
+        journal_manager.save()
+
+        self.regular_user.orcid = "0000-0000-0000-0000"
+        self.regular_user.orcid_token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        self.regular_user.save()
+
+        self.client.force_login(journal_manager)
+
+        url = reverse('core_user_edit', kwargs={'user_id': self.regular_user.pk})
+        response = self.client.get(url, SERVER_NAME=journal.domain)
+
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertContains(response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>')
+        self.assertNotContains(response, "ORCiD could not be validated.")
+        self.assertNotContains(response, "remove_orcid")
