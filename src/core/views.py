@@ -215,7 +215,9 @@ def user_login_orcid(request):
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
     # Make another request to orcid.org to verify it.
-    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+    access_token, expiration, orcid_id = orcid.retrieve_tokens(
+        orcid_code, request.site_type
+    )
 
     # If verification did not work, send them to the regular login page.
     if not orcid_id:
@@ -261,7 +263,11 @@ def user_login_orcid(request):
         # Then send the user to a decision page that tells them
         # the ORCID login did not work and they will need to register.
         models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        new_token = models.OrcidToken.objects.create(
+            orcid=orcid_id,
+            access_token=access_token,
+            access_token_expiration=expiration,
+        )
         return redirect(
             logic.reverse_with_next(
                 "core_orcid_registration",
@@ -282,6 +288,24 @@ def user_login_orcid(request):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
+    elif action == "add_profile_orcid":
+        if not request.user.is_authenticated:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _("You must be logged in to connect an ORCID to your account."),
+            )
+            return redirect(logic.reverse_with_next("core_login", next_url))
+        request.user.orcid = orcid_id
+        request.user.orcid_token = access_token
+        request.user.orcid_expiration = expiration
+        request.user.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("Your ORCID has been connected to your account."),
+        )
+        return redirect(logic.reverse_with_next("core_edit_profile", next_url))
 
 
 @login_required
@@ -434,6 +458,9 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                new_user.orcid_token = token_obj.access_token
+                new_user.orcid_expiration = token_obj.access_token_expiration
+                new_user.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
                     for orcid_affil in orcid_details.get("affiliations", []):
@@ -545,6 +572,7 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
+
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
     next_url = request.GET.get("next", "")
@@ -659,6 +687,12 @@ def edit_profile(request):
 
         elif "export" in request.POST:
             return logic.export_gdpr_user_profile(user)
+        elif "remove_orcid" in request.POST:
+            if orcid.revoke_token(user.orcid_token):
+                user.orcid = None
+                user.orcid_token = None
+                user.save()
+                form = forms.EditAccountForm(instance=user)
 
     template = "admin/core/accounts/edit_profile.html"
     context = {
@@ -1534,24 +1568,32 @@ def user_edit(request, user_id):
     next_url = request.GET.get("next", "")
 
     if request.POST:
-        form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
-        registration_form = forms.AdminUserForm(
-            request.POST, instance=user, request=request
-        )
-
-        if form.is_valid() and registration_form.is_valid():
-            registration_form.save()
-            form.save()
+        if "request_orcid" in request.POST:
+            logic.send_orcid_request(request, user)
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                "User account updated.",
+                _("Successfully requested ORCiD from user."),
+            )
+        else:
+            form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+            registration_form = forms.AdminUserForm(
+                request.POST, instance=user, request=request
             )
 
-            if next_url:
-                return redirect(next_url)
-            else:
-                return redirect(reverse("core_manager_users"))
+            if form.is_valid() and registration_form.is_valid():
+                registration_form.save()
+                form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "User account updated.",
+                )
+
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_manager_users"))
 
     template = "core/manager/users/edit.html"
     context = {
