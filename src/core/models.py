@@ -957,6 +957,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_orcid_token_valid(self):
         return is_token_valid(self.orcid, self.orcid_token)
 
+
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
 

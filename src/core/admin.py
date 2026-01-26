@@ -137,7 +137,7 @@ class AccountAdmin(UserAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if settings.ENABLE_ORCID:
-            return ['orcid']
+            return ["orcid"]
         else:
             return []
 

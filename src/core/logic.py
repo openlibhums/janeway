@@ -147,6 +147,7 @@ def send_confirmation_link(request, new_user):
         log_dict=log_dict,
     )
 
+
 def send_orcid_request(request, user):
     context = {
         "user": user,
@@ -163,6 +164,7 @@ def send_orcid_request(request, user):
         context,
         log_dict=log_dict,
     )
+
 
 def resize_and_crop(
     img_path,

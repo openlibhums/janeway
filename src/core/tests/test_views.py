@@ -422,7 +422,11 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details,
     ):
         # Change ORCID so it doesn't work
-        retrieve_tokens.return_value = None, None, "https://orcid.org/0000-0001-2312-3123"
+        retrieve_tokens.return_value = (
+            None,
+            None,
+            "https://orcid.org/0000-0001-2312-3123",
+        )
 
         # Return an email that will work
         orcid_details.return_value = {"emails": [self.user_email]}
@@ -449,7 +453,11 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details,
     ):
         # Change ORCID so it doesn't work
-        retrieve_tokens.return_value = None, None, "https://orcid.org/0000-0001-2312-3123"
+        retrieve_tokens.return_value = (
+            None,
+            None,
+            "https://orcid.org/0000-0001-2312-3123",
+        )
 
         orcid_details.return_value = {"emails": []}
         get_data = {
