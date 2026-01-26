@@ -215,7 +215,9 @@ def user_login_orcid(request):
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
     # Make another request to orcid.org to verify it.
-    access_token, expiration, orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+    access_token, expiration, orcid_id = orcid.retrieve_tokens(
+        orcid_code, request.site_type
+    )
 
     # If verification did not work, send them to the regular login page.
     if not orcid_id:
@@ -264,7 +266,7 @@ def user_login_orcid(request):
         new_token = models.OrcidToken.objects.create(
             orcid=orcid_id,
             access_token=access_token,
-            access_token_expiration=expiration
+            access_token_expiration=expiration,
         )
         return redirect(
             logic.reverse_with_next(
@@ -291,9 +293,7 @@ def user_login_orcid(request):
             messages.add_message(
                 request,
                 messages.WARNING,
-                _(
-                    "You must be logged in to connect an ORCID to your account."
-                ),
+                _("You must be logged in to connect an ORCID to your account."),
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
         request.user.orcid = orcid_id

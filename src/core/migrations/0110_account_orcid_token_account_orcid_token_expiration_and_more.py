@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0109_salutation_name_20250707_1420'),
+        ("core", "0109_salutation_name_20250707_1420"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='orcid_token',
+            model_name="account",
+            name="orcid_token",
             field=models.CharField(blank=True, max_length=40, null=True),
         ),
         migrations.AddField(
-            model_name='account',
-            name='orcid_token_expiration',
+            model_name="account",
+            name="orcid_token_expiration",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='orcidtoken',
-            name='access_token',
+            model_name="orcidtoken",
+            name="access_token",
             field=models.CharField(blank=True, max_length=40, null=True),
         ),
         migrations.AddField(
-            model_name='orcidtoken',
-            name='access_token_expiration',
+            model_name="orcidtoken",
+            name="access_token_expiration",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]
