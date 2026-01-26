@@ -379,7 +379,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_no_orcid_id_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = None
+        retrieve_tokens.return_value = None, None, None
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,
@@ -399,7 +399,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         self,
         retrieve_tokens,
     ):
-        retrieve_tokens.return_value = self.user_orcid_uri
+        retrieve_tokens.return_value = None, None, self.user_orcid_uri
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,
@@ -422,7 +422,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details,
     ):
         # Change ORCID so it doesn't work
-        retrieve_tokens.return_value = "https://orcid.org/0000-0001-2312-3123"
+        retrieve_tokens.return_value = None, None, "https://orcid.org/0000-0001-2312-3123"
 
         # Return an email that will work
         orcid_details.return_value = {"emails": [self.user_email]}
@@ -449,7 +449,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details,
     ):
         # Change ORCID so it doesn't work
-        retrieve_tokens.return_value = "https://orcid.org/0000-0001-2312-3123"
+        retrieve_tokens.return_value = None, None, "https://orcid.org/0000-0001-2312-3123"
 
         orcid_details.return_value = {"emails": []}
         get_data = {
@@ -471,7 +471,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_register_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = self.user_orcid_uri
+        retrieve_tokens.return_value = None, None, self.user_orcid_uri
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,
