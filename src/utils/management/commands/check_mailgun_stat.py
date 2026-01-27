@@ -15,20 +15,28 @@ def get_logs(message_id):
     except AttributeError:
         api_url = "https://api.mailgun.net/v3/"
 
-    return requests.get(
+    logs = requests.get(
         f"{api_url}{settings.MAILGUN_SERVER_NAME}/events",
         auth=("api", settings.MAILGUN_ACCESS_KEY),
         params={"message-id": message_id},
     )
+    return logs.json()
 
 
-def check_for_perm_failure(event_dict, log):
-    for event in event_dict.get("items"):
+def check_for_perm_failure(event_dict):
+    for event in event_dict.get("items", []):
         severity = event.get("severity", None)
         if severity == "permanent":
             return True
 
     return False
+
+
+def get_events(event_dict):
+    events = []
+    for event in event_dict.get("items", []):
+        events.append(event["event"])
+    return events
 
 
 class Command(BaseCommand):
@@ -66,19 +74,15 @@ class Command(BaseCommand):
                 email_logs.filter(pk=email_log_id)
 
             for log in email_logs:
-                logs = get_logs(log.message_id.replace("<", "").replace(">", ""))
-                event_dict = logs.json()
+                event_dict = get_logs(log.message_id.replace("<", "").replace(">", ""))
                 print("Processing ", log.message_id, "...", end="")
-
-                events = []
-                for event in event_dict.get("items"):
-                    events.append(event["event"])
+                events = get_events(event_dict)
 
                 if "delivered" in events:
                     log.message_status = "delivered"
                     log.status_checks_complete = True
                 elif "failed" in events or "bounced" in events:
-                    if check_for_perm_failure(event_dict, log):
+                    if check_for_perm_failure(event_dict):
                         log.message_status = "failed"
                         log.status_checks_complete = True
                         logic.send_bounce_notification_to_event_actor(log)

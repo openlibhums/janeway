@@ -45,6 +45,7 @@ from utils.logic import generate_sitemap
 from utils.testing import helpers
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
+from utils.management.commands import check_mailgun_stat
 
 from journal import (
     models as journal_models,
@@ -1390,3 +1391,178 @@ class TestRORImport(TestCase):
             [os.path.split(record.get("id"))[-1] for record in updated_records],
             ["00j1xwp39", "013yz9b19"],
         )
+
+
+class CheckMailgunStatCommandTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.log_entry = models.LogEntry.add_entry(
+            "Test Log Entry",
+            "This is a fake log entry",
+            level="Info",
+            is_email=True,
+            subject="This is all just a test",
+            message_id="12345",
+        )
+
+    @override_settings(ENABLE_ENHANCED_MAILGUN_FEATURES=True)
+    @mock.patch("utils.management.commands.check_mailgun_stat.get_logs")
+    def test_status_delivered(self, get_logs):
+        get_logs.return_value = {
+            "items": [
+                {
+                    "event": "delivered",
+                    "id": "hK7mQVt1QtqRiOfQXta4sw",
+                    "timestamp": 1529692199.626182,
+                    "log-level": "info",
+                    "envelope": {
+                        "transport": "smtp",
+                        "sender": "sender@example.org",
+                        "sending-ip": "123.123.123.123",
+                        "targets": "john@example.com",
+                    },
+                    "flags": {
+                        "is-routed": False,
+                        "is-authenticated": False,
+                        "is-system-test": False,
+                        "is-test-mode": False,
+                    },
+                    "delivery-status": {
+                        "tls": True,
+                        "mx-host": "aspmx.l.example.com",
+                        "code": 250,
+                        "description": "",
+                        "session-seconds": 0.4367079734802246,
+                        "utf8": True,
+                        "attempt-no": 1,
+                        "message": "OK",
+                        "certificate-verified": True,
+                    },
+                    "message": {
+                        "headers": {
+                            "to": "team@example.org",
+                            "message-id": "20180622182958.1.48906CB188F1A454@exmple.org",
+                            "from": "sender@exmple.org",
+                            "subject": "Test Subject",
+                        },
+                        "attachments": [],
+                        "size": 586,
+                    },
+                    "storage": {
+                        "url": "https://storage-us-west1.api.mailgun.net/v3/domains/...",
+                        "region": "us-west1",
+                        "key": "AwABB...",
+                        "env": "production",
+                    },
+                    "recipient": "john@example.com",
+                    "recipient-domain": "example.com",
+                    "recipient-provider": "Gmail",
+                    "tags": [],
+                    "user-variables": {},
+                }
+            ],
+            "paging": {
+                "next": "https://api.mailgun.net/v3/samples.mailgun.org/events/W3siY...",
+                "previous": "https://api.mailgun.net/v3/samples.mailgun.org/events/Lkawm...",
+            },
+        }
+        call_command("check_mailgun_stat")
+        self.log_entry.refresh_from_db()
+        self.assertEqual(self.log_entry.message_status, "delivered")
+        self.assertTrue(self.log_entry.status_checks_complete)
+
+    @override_settings(ENABLE_ENHANCED_MAILGUN_FEATURES=True)
+    @mock.patch("utils.logic.send_bounce_notification_to_event_actor")
+    @mock.patch("utils.management.commands.check_mailgun_stat.get_logs")
+    def test_status_failed(self, get_logs, send_bounce_notification):
+        get_logs.return_value = {
+            "items": [
+                {
+                    "event": "failed",
+                    "id": "pl271FzxTTmGRW8Uj3dUWw",
+                    "timestamp": 1529701969.818328,
+                    "log-level": "error",
+                    "severity": "permanent",
+                    "reason": "suppress-bounce",
+                    "envelope": {},
+                    "flags": {
+                        "is-routed": False,
+                        "is-authenticated": True,
+                        "is-system-test": False,
+                        "is-test-mode": False,
+                    },
+                    "delivery-status": {},
+                    "message": {
+                        "headers": {
+                            "to": "joan@example.com",
+                            "message-id": "20180622211249.1.2A6098970A380E12@example.org",
+                            "from": "john@example.org",
+                            "subject": "Test Subject",
+                        },
+                        "attachments": [],
+                        "size": 867,
+                    },
+                    "storage": {},
+                    "recipient": "slava@mailgun.com",
+                    "recipient-domain": "mailgun.com",
+                    "recipient-provider": "Gmail",
+                    "tags": [],
+                    "user-variables": {},
+                }
+            ],
+            "paging": {
+                "next": "https://api.mailgun.net/v3/samples.mailgun.org/events/W3siY...",
+                "previous": "https://api.mailgun.net/v3/samples.mailgun.org/events/Lkawm...",
+            },
+        }
+        call_command("check_mailgun_stat")
+        self.log_entry.refresh_from_db()
+        self.assertEqual(self.log_entry.message_status, "failed")
+        self.assertTrue(self.log_entry.status_checks_complete)
+
+    @override_settings(ENABLE_ENHANCED_MAILGUN_FEATURES=True)
+    @mock.patch("utils.management.commands.check_mailgun_stat.get_logs")
+    def test_status_accepted(self, get_logs):
+        get_logs.return_value = {
+            "items": [
+                {
+                    "event": "accepted",
+                    "id": "jxVuhYlhReaK3QsggHfFRA",
+                    "timestamp": 1529692198.641821,
+                    "log-level": "info",
+                    "method": "smtp",
+                    "envelope": {
+                        "targets": "team@example.org",
+                        "transport": "smtp",
+                        "sender": "sender@example.org",
+                    },
+                    "flags": {"is-authenticated": False},
+                    "message": {
+                        "headers": {
+                            "to": "team@example.org",
+                            "message-id": "20180622182958.1.48906CB188F1A454@exmple.org",
+                            "from": "sender@example.org",
+                            "subject": "Test Subject",
+                        },
+                        "attachments": [],
+                        "recipients": ["team@example.org"],
+                        "size": 586,
+                    },
+                    "storage": {
+                        "url": "https://se.api.mailgun.net/v3/domains/example.org/messages/eyJwI...",
+                        "key": "eyJwI...",
+                    },
+                    "recipient": "team@example.org",
+                    "recipient-domain": "example.org",
+                    "tags": [],
+                    "user-variables": {},
+                }
+            ],
+            "paging": {
+                "next": "https://api.mailgun.net/v3/samples.mailgun.org/events/W3siY...",
+                "previous": "https://api.mailgun.net/v3/samples.mailgun.org/events/Lkawm...",
+            },
+        }
+        call_command("check_mailgun_stat")
+        self.log_entry.refresh_from_db()
+        self.assertEqual(self.log_entry.message_status, "accepted")
