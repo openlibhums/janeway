@@ -569,3 +569,15 @@ class AuthorAffiliationForm(forms.ModelForm):
         if commit:
             affiliation.save()
         return affiliation
+
+
+class FrozenAuthorAccountForm(forms.ModelForm):
+    """
+    A form to power the view that lets users link an existing
+    author record to an existing account record.
+    Not intended for use entering a new author record.
+    """
+
+    class Meta:
+        model = models.FrozenAuthor
+        fields = ("author",)
