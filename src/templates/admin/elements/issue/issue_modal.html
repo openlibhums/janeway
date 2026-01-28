@@ -30,7 +30,8 @@
                     </div>
                     <div class="large-4 columns">
                         {% if issue.cover_image %}
-                        <img src="{{ issue.cover_image.url }}" class="thumbnail float-right">
+                        <img src="{{ issue.cover_image.url }}" class="thumbnail">
+                        {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=issue.cover_image.url %}
                         {% endif %}
                     </div>
                     <div class="large-8 columns">
@@ -39,6 +40,7 @@
                     <div class="large-4 columns">
                         {% if issue.large_image %}
                         <img src="{{ issue.large_image.url }}" class="thumbnail float-right">
+                          {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=issue.large_image.url %}
                         {% endif %}
                     </div>
                     <div class="large-12 columns">

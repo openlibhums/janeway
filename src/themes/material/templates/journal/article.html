@@ -24,7 +24,7 @@
             <div class="material-banner">
               <img class="material-banner-image"
                 src="{{ article.best_large_image_url }}"
-                alt="{{ article.title|striptags }}">
+                alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image.url default=article.title|striptags %}">
               <div class="material-banner-heading">
                 <div class="carousel-text-wrapper">
                   <small>{{ article.section.name }}</small>

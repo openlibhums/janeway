@@ -7,11 +7,12 @@ from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
 from django.templatetags.static import static
-from simple_history.models import HistoricalRecords
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 
 from core import files
 from core.model_utils import JanewayBleachField, JanewayBleachCharField
+from core.templatetags import alt_text
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -181,6 +182,32 @@ class NewsItem(models.Model):
         An alias for best_image_url that is used by the carousel templates.
         """
         return self.best_image_url
+
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.content_type.name == "press" and self.object.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.object.default_carousel_image.url,
+                default=default_text,
+            )
+        elif self.content_type.name == "journal":
+            if self.object.default_large_image:
+                return alt_text.get_alt_text(
+                    file_path=self.object.default_large_image.url,
+                    default=default_text,
+                )
+            elif self.object.press.default_carousel_image:
+                return alt_text.get_alt_text(
+                    file_path=self.object.press.default_carousel_image.url,
+                    default=default_text,
+                )
+
+        return default_text
 
     def __str__(self):
         if self.posted_by:

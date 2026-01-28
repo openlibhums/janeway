@@ -11,18 +11,19 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
-from urllib.parse import unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.template.loader import get_template
 from django.db.models import Q
-from django.http import JsonResponse, QueryDict
+from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from core import forms, models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -1257,3 +1258,39 @@ def create_organization_name(request):
             % {"organization": organization_name},
         )
         return organization_name
+
+
+def resolve_alt_text_target(request):
+    """
+    Resolve the content_type, object_id, file_path, and object instance
+    from the request data (POST or GET). Expects 'model', 'pk', and/or 'file_path'.
+
+    Returns:
+        (content_type, object_id, file_path, obj)
+
+    Raises:
+        ValidationError if model or pk is invalid.
+    """
+    data = request.POST or request.GET
+
+    model = data.get("model")
+    pk = data.get("pk")
+    file_path = data.get("file_path")
+
+    content_type = None
+    object_id = None
+    obj = None
+
+    if model and pk:
+        if "." not in model:
+            raise ValidationError("Model should be in the form 'app_label.model_name'.")
+
+        app_label, model_name = model.split(".")
+        content_type = ContentType.objects.get(
+            app_label=app_label,
+            model=model_name,
+        )
+        object_id = int(pk)
+        obj = content_type.get_object_for_this_type(pk=object_id)
+
+    return content_type, object_id, file_path, obj

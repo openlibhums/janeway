@@ -37,4 +37,5 @@ from core.forms.forms import (
     SimpleTinyMCEForm,
     UserCreationFormExtended,
     XSLFileForm,
+    AltTextForm,
 )
