@@ -17,7 +17,7 @@
                     <img
                         class="material-banner-image"
                         src="{{ collection.hero_image_url }}"
-                        alt="{% get_alt_text obj=collection file_path=collection.hero_image_url context_phrase="hero_image" default=collection.issue_title|striptags %}"
+                        alt="{% get_alt_text obj=collection file_path=collection.hero_image_url default=collection.issue_title|striptags %}"
                     >
                     <div class="material-banner-heading">
                       <h2 id="collection-{{ collection.id }}" class="carousel-text-wrapper">

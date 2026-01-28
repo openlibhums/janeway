@@ -970,7 +970,6 @@ class Issue(AbstractLastModifiedModel):
     def best_large_image_alt_text(self):
         return alt_text.get_alt_text(
             file_path=self.best_large_image_url,
-            context_phrase="hero_image",
             default=strip_tags(self.display_title),
         )
 

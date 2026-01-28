@@ -8,10 +8,10 @@
                 aria-describedby="{{ issue.id }}-box-details" >
             </a>
             {% if issue.cover_image %}
-                {% get_alt_text obj=issue file_path=issue.cover_image.url context_phrase="cover_image" default=issue.display_title_a11y as cover_alt %}
+                {% get_alt_text obj=issue file_path=issue.cover_image.url default=issue.display_title_a11y as cover_alt %}
                 {% svg_or_image issue.cover_image alt_text=cover_alt %}
             {% elif journal.default_cover_image %}
-                {% get_alt_text obj=journal file_path=journal.default_cover_image.url context_phrase="cover_image" default=issue.display_title_a11y as cover_alt %}
+                {% get_alt_text obj=journal file_path=journal.default_cover_image.url default=issue.display_title_a11y as cover_alt %}
                 {% svg_or_image journal.default_cover_image alt_text=cover_alt %}
             {% else %}
                 <img src="{% static 'common/img/sample/issue_cover.png' %}" alt="Default issue cover" />

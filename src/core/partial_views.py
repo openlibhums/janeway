@@ -15,13 +15,10 @@ def alt_text_form(request):
     except ValidationError:
         return HttpResponseBadRequest("Invalid model or pk")
 
-    context_phrase = request.GET.get("context_phrase")
-
     instance = models.AltText.objects.filter(
         content_type=content_type,
         object_id=object_id,
         file_path=file_path,
-        context_phrase=context_phrase,
     ).first()
 
     form = forms.AltTextForm(
@@ -29,7 +26,6 @@ def alt_text_form(request):
         content_type=content_type,
         object_id=object_id,
         file_path=file_path,
-        initial={"context_phrase": context_phrase},
     )
 
     return render(
@@ -40,8 +36,7 @@ def alt_text_form(request):
             "object": obj,
             "file_path": file_path,
             "token": file_path,
-            "context_phrase": context_phrase,
-        },
+                    },
     )
 
 
@@ -52,13 +47,12 @@ def alt_text_submit(request):
     except ValidationError:
         return HttpResponseBadRequest("Invalid model or pk")
 
-    context_phrase = request.POST.get("context_phrase")
+    print('hi')
 
     instance = models.AltText.objects.filter(
         content_type=content_type,
         object_id=object_id,
         file_path=file_path,
-        context_phrase=context_phrase,
     ).first()
 
     form = forms.AltTextForm(
@@ -69,6 +63,8 @@ def alt_text_submit(request):
         file_path=file_path,
     )
 
+    print(form.errors)
+
     if form.is_valid():
         form.save()
         return render(
@@ -77,8 +73,7 @@ def alt_text_submit(request):
             {
                 "object": obj,
                 "token": file_path,
-                "context_phrase": context_phrase,
-            },
+                            },
         )
 
     return render(
@@ -88,6 +83,5 @@ def alt_text_submit(request):
             "form": form,
             "object": obj,
             "file_path": file_path,
-            "context_phrase": context_phrase,
-        },
+                    },
     )

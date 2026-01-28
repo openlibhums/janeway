@@ -6,11 +6,11 @@
     {% if not journal_settings.article.disable_article_large_image %}
       <div class="clean-banner">
         {% if article.large_image_file %}
-          {% get_alt_text obj=article.large_image_file context_phrase="hero_image" default=article.title|striptags as image_alt %}
+          {% get_alt_text obj=article.large_image_file default=article.title|striptags as image_alt %}
         {% elif article.issue.large_image %}
-          {% get_alt_text file_path=article.issue.large_image.url context_phrase="hero_image" default=article.title|striptags as image_alt %}
+          {% get_alt_text file_path=article.issue.large_image.url default=article.title|striptags as image_alt %}
         {% else %}
-          {% get_alt_text file_path=journal.default_large_image.url context_phrase="hero_image" default=article.title|striptags as image_alt %}
+          {% get_alt_text file_path=journal.default_large_image.url default=article.title|striptags as image_alt %}
         {% endif %}
         <img
           src="{{ article.best_large_image_url }}"

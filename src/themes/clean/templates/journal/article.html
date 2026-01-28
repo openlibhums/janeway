@@ -21,7 +21,7 @@
             <div class="clean-banner">
               <img class="clean-banner-image"
                 src="{{ article.best_large_image_url }}"
-                alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image.url context_phrase="hero_image" default=article.title|striptags %}">
+                alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image.url default=article.title|striptags %}">
             </div>
             <div class="card-text padding-block-1 padding-inline-1">
                         <p class="text-uppercase">{{ article.section.name }}</p>

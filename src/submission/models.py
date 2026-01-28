@@ -2598,7 +2598,6 @@ class Article(AbstractLastModifiedModel):
         if self.large_image_file:
             return alt_text.get_alt_text(
                 obj=self.large_image_file,
-                context_phrase="hero_image",
                 default=default_text,
             )
         elif self.issue and self.issue.large_image:
@@ -2606,13 +2605,11 @@ class Article(AbstractLastModifiedModel):
         elif self.journal.default_large_image:
             return alt_text.get_alt_text(
                 file_path=self.journal.default_large_image.url,
-                context_phrase="hero_image",
                 default=default_text,
             )
         elif self.journal.press.default_carousel_image:
             return alt_text.get_alt_text(
                 file_path=self.journal.press.default_carousel_image.url,
-                context_phrase="hero_image",
                 default=default_text,
             )
         return default_text

@@ -1157,16 +1157,9 @@ class AltTextForm(forms.ModelForm):
     class Meta:
         model = models.AltText
         fields = [
-            "context_phrase",
             "alt_text",
         ]
         widgets = {
-            "context_phrase": forms.TextInput(
-                attrs={
-                    "class": "sr-only",
-                    "aria-hidden": "true",
-                },
-            ),
             "alt_text": forms.Textarea(
                 attrs={"rows": 5},
             ),
@@ -1220,13 +1213,11 @@ class AltTextForm(forms.ModelForm):
             existing = models.AltText.objects.filter(
                 content_type=self.content_type,
                 object_id=self.object_id,
-                context_phrase=self.cleaned_data["context_phrase"],
             ).first()
 
         elif self.file_path:
             existing = models.AltText.objects.filter(
                 file_path=self.file_path,
-                context_phrase=self.cleaned_data["context_phrase"],
             ).first()
 
         # If existing, update its fields

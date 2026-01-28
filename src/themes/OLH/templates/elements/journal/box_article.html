@@ -12,12 +12,12 @@
          <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                   alt="{% get_alt_text obj=article.thumbnail_image_file context_phrase="thumbnail" default=article.title|striptags|escape %}"
+                   alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}"
                      class="article-thumbnail"
                 >
             {% elif request.journal.thumbnail_image %}
                 <img src="{% url 'journal_cover_download' %}"
-                     alt="{% get_alt_text obj=request.journal.thumbnail_image context_phrase="thumbnail" default=article.title|striptags|escape %}"
+                     alt="{% get_alt_text obj=request.journal.thumbnail_image default=article.title|striptags|escape %}"
                      class="article-thumbnail"
                 >
             {% else %}

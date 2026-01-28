@@ -3308,12 +3308,8 @@ class AltText(models.Model):
         blank=True,
         null=True,
         help_text="Path to a file for alt text fallback (e.g., /media/image.jpg).",
+        unique=True,
     )
-    context_phrase = models.SlugField(
-        max_length=255,
-        help_text="Slug describing the image context (e.g., 'cover-image', 'homepage-banner').",
-    )
-
     alt_text = models.TextField(
         help_text="Descriptive alternative text for screen readers.",
     )
@@ -3326,8 +3322,7 @@ class AltText(models.Model):
 
     class Meta:
         unique_together = [
-            ("content_type", "object_id", "context_phrase"),
-            ("file_path", "context_phrase"),
+            ("content_type", "object_id"),
         ]
         verbose_name = "Alt text"
         verbose_name_plural = "Alt texts"
@@ -3362,22 +3357,22 @@ class AltText(models.Model):
         cls,
         obj=None,
         path=None,
-        context_phrase=None,
     ):
         """
-        Retrieve alt text for a model instance or file path, optionally filtered by
-        context_phrase. If context_phrase is omitted, returns the first match.
+        Retrieve alt text for a model instance or file path.
         """
         if obj is not None:
             try:
                 content_type = ContentType.objects.get_for_model(obj)
                 object_id = obj.pk
                 qs = cls.objects.filter(
+
                     content_type=content_type,
+
                     object_id=object_id,
+
                 )
-                if context_phrase:
-                    qs = qs.filter(context_phrase=context_phrase)
+
                 match = qs.first()
                 if match:
                     return match.alt_text
@@ -3386,8 +3381,7 @@ class AltText(models.Model):
 
         if path:
             qs = cls.objects.filter(file_path=path)
-            if context_phrase:
-                qs = qs.filter(context_phrase=context_phrase)
+
             match = qs.first()
             if match:
                 return match.alt_text

@@ -742,19 +742,16 @@ class AltTextAdmin(admin.ModelAdmin):
         "content_type",
         "object_id",
         "file_path",
-        "context_phrase",
         "alt_text",
         "created",
         "updated",
     )
     search_fields = (
         "alt_text",
-        "context_phrase",
         "file_path",
     )
     list_filter = (
         "content_type",
-        "context_phrase",
     )
 
 

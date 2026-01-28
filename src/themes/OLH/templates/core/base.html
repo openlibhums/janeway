@@ -55,7 +55,8 @@
                 {% if request.journal %}
                     <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
                         {% if request.journal.header_image %}
-                            {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                            {% get_alt_text file_path=request.journal.header_image.url default=request.journal.name as header_alt_text %}
+                            {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' alt_text=header_alt_text %}
                         {% else %}
                                 <img src="{% static "common/img/sample/janeway.png" %}">
                         {% endif %}

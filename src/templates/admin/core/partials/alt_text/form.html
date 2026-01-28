@@ -19,7 +19,7 @@
   <form
       method="post"
       hx-post="{% url 'alt_text_submit' %}"
-      hx-target="#alt-text-wrapper-{{ id_token }}-{{ context_phrase }}"
+      hx-target="#alt-text-wrapper-{{ id_token }}"
       hx-swap="outerHTML"
       class="alt-text-form"
   >
@@ -42,9 +42,6 @@
       {% if file_path %}
           <input type="hidden" name="file_path" value="{{ file_path }}">
       {% endif %}
-
-      <input type="hidden" name="context_phrase" value="{{ context_phrase }}">
-
       <div class="form-actions">
           <button type="submit" class="success button">Save alt text</button>
       </div>
