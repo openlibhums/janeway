@@ -5,28 +5,57 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('core', '0109_salutation_name_20250707_1420'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("core", "0109_salutation_name_20250707_1420"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AltText',
+            name="AltText",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('file_path', models.CharField(blank=True, help_text='Path to a file for alt text fallback (e.g., /media/image.jpg).', max_length=500, null=True, unique=True)),
-                ('alt_text', models.TextField(help_text='Descriptive alternative text for screen readers.')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('content_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "file_path",
+                    models.CharField(
+                        blank=True,
+                        help_text="Path to a file for alt text fallback (e.g., /media/image.jpg).",
+                        max_length=500,
+                        null=True,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "alt_text",
+                    models.TextField(
+                        help_text="Descriptive alternative text for screen readers."
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Alt text',
-                'verbose_name_plural': 'Alt texts',
-                'unique_together': {('content_type', 'object_id')},
+                "verbose_name": "Alt text",
+                "verbose_name_plural": "Alt texts",
+                "unique_together": {("content_type", "object_id")},
             },
         ),
     ]
