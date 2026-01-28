@@ -4,9 +4,11 @@ from django.views.decorators.http import require_GET, require_POST
 from django.core.exceptions import ValidationError
 
 from core import forms, models, logic
+from security.decorators import editor_or_journal_manager_required
 
 
 @require_GET
+@editor_or_journal_manager_required
 def alt_text_form(request):
     try:
         content_type, object_id, file_path, obj = logic.resolve_alt_text_target(
@@ -41,13 +43,12 @@ def alt_text_form(request):
 
 
 @require_POST
+@editor_or_journal_manager_required
 def alt_text_submit(request):
     try:
         content_type, object_id, file_path, obj = logic.resolve_alt_text_target(request)
     except ValidationError:
         return HttpResponseBadRequest("Invalid model or pk")
-
-    print('hi')
 
     instance = models.AltText.objects.filter(
         content_type=content_type,
@@ -62,8 +63,6 @@ def alt_text_submit(request):
         object_id=object_id,
         file_path=file_path,
     )
-
-    print(form.errors)
 
     if form.is_valid():
         form.save()
