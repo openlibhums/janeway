@@ -3366,11 +3366,8 @@ class AltText(models.Model):
                 content_type = ContentType.objects.get_for_model(obj)
                 object_id = obj.pk
                 qs = cls.objects.filter(
-
                     content_type=content_type,
-
                     object_id=object_id,
-
                 )
 
                 match = qs.first()

@@ -750,9 +750,7 @@ class AltTextAdmin(admin.ModelAdmin):
         "alt_text",
         "file_path",
     )
-    list_filter = (
-        "content_type",
-    )
+    list_filter = ("content_type",)
 
 
 admin_list = [

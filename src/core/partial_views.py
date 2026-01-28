@@ -38,7 +38,7 @@ def alt_text_form(request):
             "object": obj,
             "file_path": file_path,
             "token": file_path,
-                    },
+        },
     )
 
 
@@ -72,7 +72,7 @@ def alt_text_submit(request):
             {
                 "object": obj,
                 "token": file_path,
-                            },
+            },
         )
 
     return render(
@@ -82,5 +82,5 @@ def alt_text_submit(request):
             "form": form,
             "object": obj,
             "file_path": file_path,
-                    },
+        },
     )

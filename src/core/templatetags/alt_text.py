@@ -54,9 +54,7 @@ def get_alt_text(obj=None, file_path=None, token=None, default=""):
 
 
 @register.simple_tag
-def get_admin_alt_text_snippet(
-    obj=None, file_path=None, token=None
-):
+def get_admin_alt_text_snippet(obj=None, file_path=None, token=None):
     """
     Render a block of alt text wrapped in HTML for admin interface with HTMX targeting.
     Priority order for identifier: file_path > token > None.
