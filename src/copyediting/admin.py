@@ -39,8 +39,13 @@ class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
         "editor_note",
         "copyeditor_note",
     )
-    raw_id_fields = ("article", "copyeditor", "editor")
-    filter_horizontal = ("files_for_copyediting", "copyeditor_files")
+    raw_id_fields = (
+        "article",
+        "copyeditor",
+        "editor",
+        "files_for_copyediting",
+        "copyeditor_files",
+    )
 
     inlines = [admin_utils.AuthorReviewInline]
 
