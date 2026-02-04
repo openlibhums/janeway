@@ -7,4 +7,4 @@ freezegun
 snakeviz
 django-browser-reload
 tox
-ruff
+ruff==0.14.14
