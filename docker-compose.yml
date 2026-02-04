@@ -65,6 +65,8 @@ services:
   janeway-web:
     build:
       context: .
+      args:
+        JANEWAY_SETTINGS_FILE: ${JANEWAY_SETTINGS_FILE}
       dockerfile: dockerfiles/Dockerfile
     volumes:
       - ./src:/vol/janeway/src
@@ -81,7 +83,8 @@ services:
       - DB_USER
       - DB_NAME
       - PYTHONDONTWRITEBYTECODE=yes
-      - JANEWAY_SETTINGS_MODULE=core.dev_settings
+      - JANEWAY_SETTINGS_MODULE
+      - JANEWAY_SETTINGS_FILE
       - NOSE_INCLUDE_EXE=1
       - JANEWAY_EMAIL_BACKEND
       - JANEWAY_EMAIL_HOST
