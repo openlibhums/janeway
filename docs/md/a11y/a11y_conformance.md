@@ -29,7 +29,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.1 Use of Color                                           | A     |                    |         |                      |
 |                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |
-|                      | 1.4.12 Text Spacing                                          | AA    |                    |         |                      |
+| :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially Supports | a few isolated bugs | [January 2026](https://github.com/openlibhums/janeway/issues/5120) |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
@@ -89,7 +89,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 1.4.1 Use of Color                                           | A     |                    |         |                      |
 |                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |
-|                      | 1.4.12 Text Spacing                                          | AA    |                    |         |                      |
+| :x:                  | 1.4.12 Text Spacing                                          | AA    | Does not support   | Desktop navigation is unusable at increased spacing. | [January 2026](https://github.com/openlibhums/janeway/issues/5120) |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 |                      | 1.4.3 Contrast (Minimum)                                     | AA    |                    |         |                      |
@@ -149,7 +149,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 1.4.10 Reflow                                                | AA    | Supports           |         | June 2024 VPAT       |
 | :brown_square:       | 1.4.11 Non-text Contrast                                     | AA    | Not-applicable     | Colour themes are defined by users. | June 2024 VPAT       |
-| :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially Supports |         | June 2024 VPAT       |
+| :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially Supports | a few isolated bugs | [January 2026](https://github.com/openlibhums/janeway/issues/5120) |
 | :orange_circle:      | 1.4.13 Content on Hover or Focus                             | AA    | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 1.4.2 Audio Control                                          | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5090) |
 | :brown_square:       | 1.4.3 Contrast (Minimum)                                     | AA    | Not-applicable     | Colour themes are defined by users. | June 2024 VPAT       |
