@@ -220,7 +220,7 @@ class CoreTests(TestCase):
         self.assertContains(response, "Campbell")
         self.assertContains(response, "Kasey")
         self.assertContains(response, "campbell@evu.edu")
-        self.assertNotContains(response, "Register with ORCiD")
+        self.assertNotContains(response, "Register with ORCID")
         self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(
             response,
@@ -253,13 +253,13 @@ class CoreTests(TestCase):
     def test_registration(self):
         response = self.client.get(reverse("core_register"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Register with ORCiD")
+        self.assertContains(response, "Register with ORCID")
 
     @override_settings(ENABLE_ORCID=False)
     def test_registration(self):
         response = self.client.get(reverse("core_register"))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Register with ORCiD")
+        self.assertNotContains(response, "Register with ORCID")
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_login_different_case(self):
@@ -596,8 +596,8 @@ class CoreTests(TestCase):
         # Profile should offer to connect orcid
         self.client.force_login(self.admin_user)
         response = self.client.get(reverse("core_edit_profile"))
-        self.assertNotContains(response, "ORCiD could not be validated.")
-        self.assertContains(response, "Connect your ORCiD")
+        self.assertNotContains(response, "ORCID could not be validated.")
+        self.assertContains(response, "Connect your ORCID")
 
     @override_settings(ORCID_URL="https://sandbox.orcid.org/oauth/authorize")
     def test_profile_orcid_unverified(self):
@@ -605,8 +605,8 @@ class CoreTests(TestCase):
         self.admin_user.save()
         self.client.force_login(self.admin_user)
         response = self.client.get(reverse("core_edit_profile"))
-        self.assertContains(response, "ORCiD could not be validated.")
-        self.assertContains(response, "Connect your ORCiD")
+        self.assertContains(response, "ORCID could not be validated.")
+        self.assertContains(response, "Connect your ORCID")
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
 
     @patch.object(models.Account, "is_orcid_token_valid")
@@ -624,7 +624,7 @@ class CoreTests(TestCase):
         self.assertContains(
             response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>'
         )
-        self.assertNotContains(response, "ORCiD could not be validated.")
+        self.assertNotContains(response, "ORCID could not be validated.")
 
     @patch.object(models.Account, "is_orcid_token_valid")
     @override_settings(
@@ -658,5 +658,5 @@ class CoreTests(TestCase):
         self.assertContains(
             response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>'
         )
-        self.assertNotContains(response, "ORCiD could not be validated.")
+        self.assertNotContains(response, "ORCID could not be validated.")
         self.assertNotContains(response, "remove_orcid")
