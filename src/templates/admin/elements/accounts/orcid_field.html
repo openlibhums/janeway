@@ -17,7 +17,7 @@
     <input type="hidden" name="{{ form.orcid.name }}" value="{{ form.orcid.value }}"/>
     <p>
         <a href="{{ form.instance.get_orcid_url }}">
-            <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.gif' %}">&nbsp;{{ form.instance.get_orcid_url }}
+            <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}">&nbsp;{{ form.instance.get_orcid_url }}
         </a>
     </p>
     {% if form.instance.is_orcid_token_valid %}
@@ -29,18 +29,18 @@
             </p>
         {% endif %}
     {% else %}
-        <p class="callout warning">ORCiD could not be validated.</p>
+        <p class="callout warning">ORCID could not be validated.</p>
     {% endif %}
   {% endif %}
   {% if not form.orcid.value or not form.instance.is_orcid_token_valid %}
     {% if form.instance == request.user %}
         <a href="{% url_with_next_and_orcid_action 'core_login_orcid' action='add_profile_orcid' %}"
             class="button expanded orcid-button">
-            Connect your ORCiD
+            Connect your ORCID
         </a>
     {% else %}
         <button class="success button" type="submit" name="request_orcid">
-            Request ORCiD
+            Request ORCID
         </button>
     {% endif %}
   {% endif %}
