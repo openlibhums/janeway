@@ -39,7 +39,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
-|                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
+| :brown_square:       | 2.2.2 Pause, Stop, Hide                                      | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5145) |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
@@ -99,7 +99,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.1.2 No Keyboard Trap                                       | A     |                    |         |                      |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 |                      | 2.2.1 Timing Adjustable                                      | A     |                    |         |                      |
-|                      | 2.2.2 Pause, Stop, Hide                                      | A     |                    |         |                      |
+| :orange_circle:      | 2.2.2 Pause, Stop, Hide                                      | A     | Partially Supports | Carousel autoplays and cannot be paused. | [January 2026](https://github.com/openlibhums/janeway/issues/5145) |
 |                      | 2.3.1 Three Flashes or Below Threshold                       | A     |                    |         |                      |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
@@ -159,7 +159,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.1.2 No Keyboard Trap                                       | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 2.1.4 Character Key Shortcuts                                | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5091) |
 | :white_check_mark:   | 2.2.1 Timing Adjustable                                      | A     | Supports           |         | June 2024 VPAT       |
-| :white_check_mark:   | 2.2.2 Pause, Stop, Hide                                      | A     | Supports           |         | June 2024 VPAT       |
+| :white_check_mark:   | 2.2.2 Pause, Stop, Hide                                      | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5145) |
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | June 2024 VPAT       |
