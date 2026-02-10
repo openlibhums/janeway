@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -7,6 +8,7 @@ from repository import models as repository_models
 from submission import models as submission_models
 
 
+@login_required
 def threads(request, object_type, object_id, thread_id=None):
     if object_type == "article":
         obj = get_object_or_404(

@@ -1,3 +1,13 @@
+{% load discussion_tags %}
+{% if post.is_system_message %}
+  <div class="row expanded">
+    <div class="small-12 columns">
+      <div class="system-message">
+        <p><small>{{ post.body }} &middot; {{ post.posted|date:"H:i" }} {{ post.display_date }}</small></p>
+      </div>
+    </div>
+  </div>
+{% else %}
 <div class="row expanded">
     <div class="small-1 columns">
         {% include "admin/discussion/avatar.html" with user=post.owner %}
@@ -6,17 +16,60 @@
         {% if post.owner == request.user %}
             <div class="post-callout post-user-callout">
                 <p class="subheader">
-                    <small>{{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}</small>
+                    <small>
+                        {{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}
+                        {% if post.edited %}
+                            <span class="post-edited-tag" title="Edited {{ post.edited|date:'Y-m-d H:i' }}">(edited)</span>
+                        {% endif %}
+                    </small>
+                    <button class="post-edit-btn" onclick="togglePostEdit({{ post.pk }})" title="Edit">
+                        <span class="fa fa-pencil" aria-hidden="true"></span>
+                    </button>
                 </p>
-                <p>{{ post.body|safe }}</p>
+                <div id="post-display-{{ post.pk }}">
+                    {% if post.body %}<div class="post-body">{{ post.body_html }}</div>{% endif %}
+                    {% if post.file %}
+                    <div class="post-attachment">
+                        <a href="{% discussion_file_url post.thread.pk post.file.pk %}">
+                            <span class="fa fa-paperclip" aria-hidden="true"></span>
+                            {{ post.file.original_filename }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <form id="post-edit-{{ post.pk }}" style="display:none;"
+                      hx-post="{% url 'discussion_edit_post' post.thread.pk post.pk %}"
+                      hx-target="#thread-detail-container"
+                      hx-swap="innerHTML"
+                      hx-encoding="multipart/form-data"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <textarea name="body">{{ post.body }}</textarea>
+                    <button type="submit" class="button tiny">Save</button>
+                    <button type="button" class="button tiny secondary" onclick="togglePostEdit({{ post.pk }})">Cancel</button>
+                </form>
             </div>
         {% else %}
             <div class="post-callout post-other-callout">
                 <p class="subheader">
-                    <small>{{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}</small>
+                    <small>
+                        {{ post.owner.full_name }} {{ post.posted|date:"H:i" }} {{ post.display_date }}
+                        {% if post.edited %}
+                            <span class="post-edited-tag" title="Edited {{ post.edited|date:'Y-m-d H:i' }}">(edited)</span>
+                        {% endif %}
+                    </small>
                 </p>
-                <p>{{ post.body|safe }}</p>
+                {% if post.body %}<div class="post-body">{{ post.body_html }}</div>{% endif %}
+                {% if post.file %}
+                <div class="post-attachment">
+                    <a href="{% discussion_file_url post.thread.pk post.file.pk %}">
+                        <span class="fa fa-paperclip" aria-hidden="true"></span>
+                        {{ post.file.original_filename }}
+                    </a>
+                </div>
+                {% endif %}
             </div>
         {% endif %}
     </div>
 </div>
+{% endif %}

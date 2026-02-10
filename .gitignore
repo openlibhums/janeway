@@ -82,6 +82,7 @@ mydatabase
 node_modules/
 src/plugins/*
 src/media/profile_images/*
+src/files/discussions
 
 # PyCharm
 .idea

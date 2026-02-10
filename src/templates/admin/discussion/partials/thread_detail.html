@@ -1,7 +1,24 @@
 {% load foundation %}
+{% load roles %}
+
+{% user_has_role request 'editor' as user_is_editor %}
 
 <div class="thread-detail-header">
-  <h2>{{ thread.subject }}</h2>
+  <div id="subject-display" class="thread-subject-display">
+    <h2>{{ thread.subject }}</h2>
+    <button type="button" class="subject-edit-btn" onclick="document.getElementById('subject-display').style.display='none'; document.getElementById('subject-edit-form').style.display='flex';" title="Edit subject">
+      <span class="fa fa-pencil" aria-hidden="true"></span>
+    </button>
+  </div>
+  <form id="subject-edit-form" style="display:none; align-items:center; gap:0.5rem;"
+        hx-post="{% url 'discussion_edit_subject' thread.pk %}"
+        hx-target="#thread-detail-container"
+        hx-swap="innerHTML">
+    {% csrf_token %}
+    <input type="text" name="subject" value="{{ thread.subject }}" maxlength="300" required style="margin:0; flex:1;">
+    <button type="submit" class="button tiny" style="margin:0;">Save</button>
+    <button type="button" class="button tiny secondary" style="margin:0;" onclick="document.getElementById('subject-edit-form').style.display='none'; document.getElementById('subject-display').style.display='flex';">Cancel</button>
+  </form>
   <p class="subheader">
     Started on {{ thread.started|date:"F d, Y \\a\\t g:i A" }}
   </p>
@@ -18,15 +35,29 @@
         <div class="participant-item has-tip"
              data-tooltip
              aria-haspopup="true"
-             title="{{ participant.full_name }}">
+             title="{{ participant.full_name }}"
+             style="display: inline-flex; align-items: center;">
           {% include "admin/discussion/avatar.html" with user=participant avatar_class="participant-avatar" %}
+          {% if participant != thread.owner and user_is_editor %}
+            <button class="participant-remove-btn"
+                    hx-post="{% url 'discussion_remove_participant' thread.pk %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-vals='{"user_id": "{{ participant.pk }}"}'
+                    hx-target="#thread-detail-container"
+                    hx-swap="innerHTML"
+                    hx-confirm="Remove {{ participant.full_name }} from this discussion?"
+                    title="Remove {{ participant.full_name }}">
+              <span class="fa fa-times" aria-hidden="true"></span>
+            </button>
+          {% endif %}
         </div>
       {% empty %}
         <span class="no-participants">No participants yet</span>
       {% endfor %}
     </div>
 
-    <!-- Invite button trigger -->
+    <!-- Invite button trigger (editors only) -->
+    {% if user_is_editor %}
     <div class="participants-actions">
       <button class="button tiny hollow"
               hx-get="{% url 'discussion_invite_search' thread.pk %}"
@@ -37,6 +68,7 @@
         <span class="fa fa-user-plus" aria-hidden="true"></span> Invite
       </button>
     </div>
+    {% endif %}
   </div>
 </div>
 
@@ -54,18 +86,29 @@
   <form method="POST"
         hx-post="{% url 'discussion_add_post' thread.pk %}"
         hx-target="#thread-detail-container"
-        hx-swap="innerHTML">
+        hx-swap="innerHTML"
+        hx-encoding="multipart/form-data"
+        hx-disabled-elt="find button[type='submit']"
+        enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row expanded">
       <div class="small-9 columns">
         <textarea name="new_post"
                   rows="3"
-                  placeholder="Write your message..."
-                  required></textarea>
+                  placeholder="Write your message..."></textarea>
+        <div class="post-form-extras">
+          <small class="markdown-hint"><span class="fa fa-markdown" aria-hidden="true"></span> Markdown supported</small>
+          <label class="file-attach-btn" title="Attach a file (max 10 MB)">
+            <span class="fa fa-paperclip" aria-hidden="true"></span> Attach file
+            <input type="file" name="file" class="file-attach-input" onchange="this.closest('.post-form-extras').querySelector('.file-attach-name').textContent = this.files[0] ? this.files[0].name : ''">
+          </label>
+          <span class="file-attach-name"></span>
+        </div>
       </div>
       <div class="small-3 columns">
-        <button class="button expanded" type="submit">
-          <span class="fa fa-send-o" aria-hidden="true"></span> Send
+        <button class="button expanded send-btn" type="submit">
+          <span class="send-btn-label"><span class="fa fa-send-o" aria-hidden="true"></span> Send</span>
+          <span class="send-btn-loading"><span class="fa fa-spinner fa-spin" aria-hidden="true"></span> Sending...</span>
         </button>
       </div>
     </div>
@@ -91,6 +134,19 @@
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
   <script>
+    // === Post editing toggle ===
+    function togglePostEdit(postId) {
+      var display = document.getElementById('post-display-' + postId);
+      var form = document.getElementById('post-edit-' + postId);
+      if (form.style.display === 'none') {
+        form.style.display = 'block';
+        display.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        display.style.display = 'block';
+      }
+    }
+
     // === Modal & Spinner handling ===
 
     function openInviteModalSpinner() {

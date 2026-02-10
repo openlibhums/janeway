@@ -255,6 +255,20 @@ event_logic.Events.register_for_event(
     transactional_emails.preprint_review_status_change,
 )
 
+# Discussion
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_DISCUSSION_PARTICIPANT_ADDED,
+    transactional_emails.send_discussion_participant_added,
+)
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_DISCUSSION_PARTICIPANT_REMOVED,
+    transactional_emails.send_discussion_participant_removed,
+)
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_DISCUSSION_POST_CREATED,
+    transactional_emails.send_discussion_new_post,
+)
+
 # wire up task-creation events
 event_logic.Events.register_for_event(
     event_logic.Events.ON_ARTICLE_SUBMITTED, workflow_tasks.assign_editors

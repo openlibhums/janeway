@@ -1,8 +1,25 @@
+import bleach
+import markdown as markdown_lib
+
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.utils.timesince import timesince
+
+MARKDOWN_ALLOWED_TAGS = [
+    "p", "br", "strong", "em", "a", "code", "pre",
+    "ul", "ol", "li", "blockquote",
+    "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img",
+    "del", "sub", "sup",
+]
+
+MARKDOWN_ALLOWED_ATTRIBUTES = {
+    "a": ["href", "title"],
+    "img": ["src", "alt"],
+    "code": ["class"],
+}
 
 
 class Thread(models.Model):
@@ -79,6 +96,17 @@ class Thread(models.Model):
     def posts(self):
         return self.posts_related.all()
 
+    def user_posts(self):
+        return self.posts_related.filter(is_system_message=False)
+
+    def create_system_post(self, actor, body):
+        """Create a system message in this thread."""
+        return self.posts_related.create(
+            owner=actor,
+            body=body,
+            is_system_message=True,
+        )
+
     def create_post(
         self,
         owner,
@@ -92,12 +120,16 @@ class Thread(models.Model):
         # 🧭 Ensure the user is a participant if they're allowed to post
         if owner not in self.participants.all():
             self.participants.add(owner)
-
-        # 🕒 Update the last_updated timestamp so threads sort correctly
-        self.last_updated = timezone.now()
-        self.save(update_fields=["last_updated"])
+            self.posts_related.create(
+                owner=owner,
+                body=f"{owner.full_name()} joined the discussion",
+                is_system_message=True,
+            )
 
         return post
+
+    def unread_count_for(self, user):
+        return self.user_posts().exclude(read_by=user).count()
 
     def user_can_access(self, user):
         """
@@ -147,9 +179,25 @@ class Post(models.Model):
         default=timezone.now,
     )
     body = models.TextField()
+    is_system_message = models.BooleanField(
+        default=False,
+        help_text=_("System-generated message, e.g. title change or participant added."),
+    )
+    file = models.ForeignKey(
+        "core.File",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text=_("Optional file attachment."),
+    )
     read_by = models.ManyToManyField(
         "core.Account",
         blank=True,
+    )
+    edited = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_("Timestamp of the last edit, if any."),
     )
 
     class Meta:
@@ -164,8 +212,9 @@ class Post(models.Model):
         *args,
         **kwargs,
     ):
+        is_new = self._state.adding
         super().save(*args, **kwargs)
-        if self.thread:
+        if is_new and self.thread:
             self.thread.last_updated = timezone.now()
             self.thread.save(
                 update_fields=["last_updated"],
@@ -178,6 +227,22 @@ class Post(models.Model):
         return self.read_by.filter(
             pk=user.pk,
         ).exists()
+
+    @property
+    def body_html(self):
+        """Return the post body as sanitized HTML, converting markdown."""
+        raw_html = markdown_lib.markdown(
+            self.body,
+            extensions=["nl2br", "fenced_code", "sane_lists"],
+        )
+        return mark_safe(
+            bleach.clean(
+                raw_html,
+                tags=MARKDOWN_ALLOWED_TAGS,
+                attributes=MARKDOWN_ALLOWED_ATTRIBUTES,
+                strip=True,
+            )
+        )
 
     def display_date(self):
         now = timezone.now()

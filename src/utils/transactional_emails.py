@@ -2017,6 +2017,100 @@ def preprint_review_notification(**kwargs):
         )
 
 
+def _get_discussion_thread_url(request, thread):
+    """Build the full URL for a discussion thread."""
+    path = reverse(
+        "discussion_thread",
+        kwargs={
+            "object_type": thread.object_string(),
+            "object_id": thread.object_id(),
+            "thread_id": thread.pk,
+        },
+    )
+    if request.journal:
+        return request.journal.site_url(path=path)
+    elif request.repository:
+        return request.repository.site_url(path)
+    return path
+
+
+def send_discussion_participant_added(**kwargs):
+    request = kwargs["request"]
+    thread = kwargs["thread"]
+    participant = kwargs["participant"]
+    added_by = kwargs["added_by"]
+
+    context = {
+        "participant": participant,
+        "thread": thread,
+        "added_by": added_by,
+        "object_type": thread.object_string(),
+        "object_title": thread.object_title(),
+        "thread_url": _get_discussion_thread_url(request, thread),
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        "discussion_participant_added",
+        "subject_discussion_participant_added",
+        participant.email,
+        context,
+    )
+
+
+def send_discussion_participant_removed(**kwargs):
+    request = kwargs["request"]
+    thread = kwargs["thread"]
+    participant = kwargs["participant"]
+    removed_by = kwargs["removed_by"]
+
+    context = {
+        "participant": participant,
+        "thread": thread,
+        "removed_by": removed_by,
+        "object_type": thread.object_string(),
+        "object_title": thread.object_title(),
+    }
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        "discussion_participant_removed",
+        "subject_discussion_participant_removed",
+        participant.email,
+        context,
+    )
+
+
+def send_discussion_new_post(**kwargs):
+    request = kwargs["request"]
+    thread = kwargs["thread"]
+    post = kwargs["post"]
+
+    thread_url = _get_discussion_thread_url(request, thread)
+
+    # All participants except the post author
+    recipients = set(thread.participants.exclude(pk=post.owner.pk))
+
+    # Include thread owner if not already a participant and not the author
+    if thread.owner and thread.owner != post.owner:
+        recipients.add(thread.owner)
+
+    for recipient in recipients:
+        context = {
+            "recipient": recipient,
+            "post": post,
+            "thread": thread,
+            "object_type": thread.object_string(),
+            "object_title": thread.object_title(),
+            "thread_url": thread_url,
+        }
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            "discussion_new_post",
+            "subject_discussion_new_post",
+            recipient.email,
+            context,
+        )
+
+
 def preprint_review_status_change(**kwargs):
     request = kwargs.get("request")
     review = kwargs.get("review")

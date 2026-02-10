@@ -1,4 +1,5 @@
-<span class="avatar thread-avatar" {% if tooltip != "off" %}data-tooltip aria-haspopup="true" class="has-tip"
+<span class="avatar thread-avatar{% if tooltip != 'off' %} has-tip{% endif %}"
+      {% if tooltip != "off" %}data-tooltip aria-haspopup="true"
       tabindex="1"
       title="{{ user.full_name }}"{% endif %}>
                 {% if user.profile_image %}

@@ -20,7 +20,7 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
         "owner__first_name",
         "owner__last_name",
         "owner__email",
-        "post__body",
+        "posts_related__body",
     )
     raw_id_fields = ("owner", "article", "preprint")
     filter_horizontal = ("participants",)
@@ -29,8 +29,8 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("_post", "thread", "owner", "posted", "_journal")
-    list_filter = ("thread__article__journal", "posted")
+    list_display = ("_post", "thread", "owner", "posted", "edited", "is_system_message", "_journal")
+    list_filter = ("thread__article__journal", "posted", "is_system_message")
     search_fields = (
         "pk",
         "body",
@@ -51,7 +51,9 @@ class PostAdmin(admin.ModelAdmin):
         return truncatewords_html(obj.body, 10) if obj else ""
 
     def _journal(self, obj):
-        return obj.thread.article.journal if obj else ""
+        if obj and obj.thread and obj.thread.article:
+            return obj.thread.article.journal
+        return ""
 
 
 admin_list = [

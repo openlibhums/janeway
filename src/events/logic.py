@@ -297,6 +297,20 @@ class Events:
     ON_PROOFREADER_ASSIGN_RESET = "on_proofreader_assign_reset"
     ON_PROOFREADER_ASSIGN_COMPLETE = "on_proofreader_assign_complete"
 
+    # Discussion Events
+
+    # kwargs: thread, participant, added_by, request
+    # raised when a user is added as a participant to a discussion thread
+    ON_DISCUSSION_PARTICIPANT_ADDED = "on_discussion_participant_added"
+
+    # kwargs: thread, participant, removed_by, request
+    # raised when a user is removed from a discussion thread
+    ON_DISCUSSION_PARTICIPANT_REMOVED = "on_discussion_participant_removed"
+
+    # kwargs: thread, post, request
+    # raised when a new post is made in a discussion thread
+    ON_DISCUSSION_POST_CREATED = "on_discussion_post_created"
+
     DEPRECATED_EVENTS = {
         ON_AUTHOR_PUBLICATION,
     }

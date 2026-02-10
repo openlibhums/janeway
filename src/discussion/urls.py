@@ -48,6 +48,21 @@ urlpatterns = [
         name="discussion_create_thread",
     ),
     re_path(
+        r"^thread/(?P<thread_id>\d+)/post/(?P<post_id>\d+)/edit/$",
+        partial_views.edit_post,
+        name="discussion_edit_post",
+    ),
+    re_path(
+        r"^thread/(?P<thread_id>\d+)/edit-subject/$",
+        partial_views.edit_subject,
+        name="discussion_edit_subject",
+    ),
+    re_path(
+        r"^thread/(?P<thread_id>\d+)/file/(?P<file_id>\d+)/$",
+        partial_views.serve_discussion_file,
+        name="discussion_serve_file",
+    ),
+    re_path(
         r"^threads/(?P<thread_id>\d+)/invite/search/$",
         partial_views.ThreadInviteUserListView.as_view(),
         name="discussion_invite_search",
@@ -56,6 +71,11 @@ urlpatterns = [
         r"^threads/(?P<thread_id>\d+)/invite/add/$",
         partial_views.add_participant,
         name="discussion_add_participant",
+    ),
+    re_path(
+        r"^threads/(?P<thread_id>\d+)/invite/remove/$",
+        partial_views.remove_participant,
+        name="discussion_remove_participant",
     ),
 ]
 
