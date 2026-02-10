@@ -49,7 +49,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.5 Multiple Ways                                          | AA    |                    |         |                      |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |
-|                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
+| :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
@@ -109,7 +109,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.5 Multiple Ways                                          | AA    |                    |         |                      |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |
-|                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
+| :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
@@ -169,7 +169,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.4.7 Focus Visible                                          | AA    | Supports           |         | June 2024 VPAT       |
-| :orange_circle:      | 2.5.1 Pointer Gestures                                       | A     | Partially Supports |         | June 2024 VPAT       |
+| :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5092) |
 | :white_check_mark:   | 2.5.3 Label in Name                                          | A     | Supports           |         | June 2024 VPAT       |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
