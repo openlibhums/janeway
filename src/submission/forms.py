@@ -7,6 +7,7 @@ import re
 import warnings
 
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext, gettext_lazy as _
 
 from submission import models
@@ -561,11 +562,11 @@ class AuthorAffiliationForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not self.instance:
-            # Todo: Does this ever run? Q is undefined.
-            query = Q(account=self.frozen_author, organization=self.organization)
+        if not self.instance.pk:
+            query = Q(frozen_author=self.frozen_author, organization=self.organization)
             for key, value in cleaned_data.items():
-                query &= Q((key, value))
+                if key not in ["is_primary", "start", "end"]:
+                    query &= Q((key, value))
             if self._meta.model.objects.filter(query).exists():
                 self.add_error(
                     None, "An affiliation with matching details already exists."
