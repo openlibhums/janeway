@@ -1045,7 +1045,8 @@ class AccountAffiliationForm(forms.ModelForm):
         if not self.instance.pk:
             query = Q(account=self.account, organization=self.organization)
             for key, value in cleaned_data.items():
-                query &= Q((key, value))
+                if key not in ["is_primary", "start", "end"]:
+                    query &= Q((key, value))
             if self._meta.model.objects.filter(query).exists():
                 self.add_error(
                     None, "An affiliation with matching details already exists."
