@@ -5596,5 +5596,62 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include job titles?",
+            "is_translatable": false,
+            "name": "author_job_title",
+            "pretty_name": "Author Job Title",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include department names?",
+            "is_translatable": false,
+            "name": "author_department",
+            "pretty_name": "Author Department",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include start and end dates?",
+            "is_translatable": false,
+            "name": "author_affiliation_dates",
+            "pretty_name": "Author Affiliation Dates",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

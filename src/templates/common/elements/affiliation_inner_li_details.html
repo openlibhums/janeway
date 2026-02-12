@@ -1,11 +1,11 @@
 {% load static %}
 {% load i18n %}
 
-{% if affiliation.title %}
-  <li>{{ affiliation.title }}</li>
+{% if affiliation.title_display %}
+  <li>{{ affiliation.title_display }}</li>
 {% endif %}
-{% if affiliation.department %}
-  <li>{{ affiliation.department }}</li>
+{% if affiliation.department_display %}
+  <li>{{ affiliation.department_display }}</li>
 {% endif %}
 {% if affiliation.organization %}
   {% if affiliation.organization.name %}
@@ -38,8 +38,6 @@
     {% endif  %}
   {% endif  %}
 {% endif %}
-{% if include_dates %}
-  {% if affiliation.start or affiliation.end %}
-    <li>{{ affiliation.start|date:"M Y" }}&ndash;{{ affiliation.end|date:"M Y" }}</li>
-  {% endif  %}
+{% if include_dates and affiliation.date_display %}
+  <li>{{ affiliation.date_display }}</li>
 {% endif  %}

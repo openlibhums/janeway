@@ -1374,6 +1374,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
         frozen_author=author,
     ).exists()
     form = forms.AuthorAffiliationForm(
+        journal=request.journal,
         frozen_author=author,
         organization=organization,
         initial={
@@ -1384,6 +1385,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
     if request.method == "POST":
         form = forms.AuthorAffiliationForm(
             request.POST,
+            journal=request.journal,
             frozen_author=author,
             organization=organization,
         )
@@ -1438,6 +1440,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
     )
     form = forms.AuthorAffiliationForm(
         instance=affiliation,
+        journal=request.journal,
         frozen_author=author,
         organization=affiliation.organization,
     )
@@ -1446,6 +1449,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
         form = forms.AuthorAffiliationForm(
             request.POST,
             instance=affiliation,
+            journal=request.journal,
             frozen_author=author,
             organization=affiliation.organization,
         )
@@ -1607,6 +1611,7 @@ def affiliation_update_from_orcid(
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"frozen_author": author},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))

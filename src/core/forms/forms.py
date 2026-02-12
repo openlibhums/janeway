@@ -1045,7 +1045,8 @@ class AccountAffiliationForm(forms.ModelForm):
         if not self.instance.pk:
             query = Q(account=self.account, organization=self.organization)
             for key, value in cleaned_data.items():
-                query &= Q((key, value))
+                if key not in ["is_primary", "start", "end"]:
+                    query &= Q((key, value))
             if self._meta.model.objects.filter(query).exists():
                 self.add_error(
                     None, "An affiliation with matching details already exists."
@@ -1076,6 +1077,7 @@ class OrcidAffiliationForm(forms.ModelForm):
         orcid_affiliation,
         tzinfo=timezone.get_current_timezone(),
         data=None,
+        journal=None,
         *args,
         **kwargs,
     ):
@@ -1129,6 +1131,14 @@ class OrcidAffiliationForm(forms.ModelForm):
             )
 
         super().__init__(data=data, *args, **kwargs)
+        if journal:
+            if not journal.get_setting("metadata", "author_job_title"):
+                self.fields.pop("title")
+            if not journal.get_setting("metadata", "author_department"):
+                self.fields.pop("department")
+            if not journal.get_setting("metadata", "author_affiliation_dates"):
+                self.fields.pop("start")
+                self.fields.pop("end")
 
 
 class ConfirmDeleteForm(forms.Form):

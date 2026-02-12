@@ -233,7 +233,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ["general", "crosscheck", "article", "news", "styling"]
+    setting_groups = ["general", "metadata", "crosscheck", "article", "news", "styling"]
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
@@ -410,6 +410,24 @@ def get_settings_to_edit(display_group, journal, user):
                 "name": "hide_editors_from_authors",
                 "object": setting_handler.get_setting(
                     "general", "hide_editors_from_authors", journal
+                ),
+            },
+            {
+                "name": "author_job_title",
+                "object": setting_handler.get_setting(
+                    "metadata", "author_job_title", journal
+                ),
+            },
+            {
+                "name": "author_department",
+                "object": setting_handler.get_setting(
+                    "metadata", "author_department", journal
+                ),
+            },
+            {
+                "name": "author_affiliation_dates",
+                "object": setting_handler.get_setting(
+                    "metadata", "author_affiliation_dates", journal
                 ),
             },
         ]
