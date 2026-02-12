@@ -46,7 +46,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
 |                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |
-|                      | 2.4.5 Multiple Ways                                          | AA    |                    |         |                      |
+| :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
@@ -106,7 +106,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
 |                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |
-|                      | 2.4.5 Multiple Ways                                          | AA    |                    |         |                      |
+| :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
@@ -166,7 +166,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.4.2 Page Titled                                            | A     | Supports           |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.3 Focus Order                                            | A     | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially Supports |         | June 2024 VPAT       |
-| :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | June 2024 VPAT       |
+| :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.4.7 Focus Visible                                          | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) |
@@ -228,7 +228,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
 |                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |
-|                      | 2.4.5 Multiple Ways                                          | AA    |                    |         |                      |
+| :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |
 |                      | 2.5.1 Pointer Gestures                                       | A     |                    |         |                      |
