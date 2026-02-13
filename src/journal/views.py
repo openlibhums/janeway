@@ -496,6 +496,10 @@ def article(request, identifier_type, identifier):
             file__mime_type="text/html",
         )
 
+    credit_records_exist = submission_models.CreditRecord.objects.filter(
+        frozen_author__article=article_object
+    ).exists()
+
     template = "journal/article.html"
     context = {
         "article": article_object,
@@ -504,6 +508,7 @@ def article(request, identifier_type, identifier):
         "identifier": identifier,
         "article_content": content,
         "tables_in_galley": tables_in_galley,
+        "credit_records_exist": credit_records_exist,
     }
 
     return render(request, template, context)
