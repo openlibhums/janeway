@@ -605,7 +605,7 @@ class CoreTests(TestCase):
         self.admin_user.save()
         self.client.force_login(self.admin_user)
         response = self.client.get(reverse("core_edit_profile"))
-        self.assertContains(response, "ORCID could not be validated.")
+        self.assertContains(response, "ORCID iD could not be validated.")
         self.assertContains(response, "Connect your ORCID")
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
 
