@@ -29,18 +29,18 @@
             </p>
         {% endif %}
     {% else %}
-        <p class="callout warning">ORCID could not be validated.</p>
+        <p class="callout warning">ORCID iD could not be validated.</p>
     {% endif %}
   {% endif %}
   {% if not form.orcid.value or not form.instance.is_orcid_token_valid %}
     {% if form.instance == request.user %}
         <a href="{% url_with_next_and_orcid_action 'core_login_orcid' action='add_profile_orcid' %}"
             class="button expanded orcid-button">
-            Connect your ORCID
+            Connect your ORCID iD
         </a>
     {% else %}
         <button class="success button" type="submit" name="request_orcid">
-            Request ORCID
+            Request ORCID iD
         </button>
     {% endif %}
   {% endif %}
