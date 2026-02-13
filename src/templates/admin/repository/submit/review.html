@@ -55,12 +55,22 @@
               <th>Email Address</th>
               <th>First Name</th>
               <th>Last Name</th>
+              <th>ORCID</th>
             </tr>
             {% for author in preprint.preprintauthor_set.all %}
               <tr>
                 <td>{{ author.account.email }}</td>
                 <td>{{ author.account.first_name }}</td>
                 <td>{{ author.account.last_name }}</td>
+                <td>
+                    {% if author.account.orcid %}
+                        {{ author.account.orcid }}
+                    {% else %}
+                      <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_review' %}">
+                          Request
+                      </a>
+                    {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </table>
