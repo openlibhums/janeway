@@ -27,6 +27,7 @@ from core import (
     models as core_models,
     forms as core_forms,
     views as core_views,
+    logic as core_logic,
 )
 from journal import models as journal_models
 from utils import (
@@ -1465,6 +1466,28 @@ def preprints_author_order(request, preprint_id):
             author_order.save()
 
     return HttpResponse("Complete")
+
+@login_required
+def repository_request_orcid(request, preprint_id, account_id, redirect_path):
+    user = get_object_or_404(
+            core_models.Account,
+            pk=account_id,
+    )
+    core_logic.send_orcid_request(request, user)
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        f"Successfully requested ORCID from {user.full_name()}",
+    )
+
+    return redirect(
+        reverse(
+            redirect_path,
+            kwargs={
+                "preprint_id": preprint_id,
+            },
+        )
+    )
 
 
 @login_required

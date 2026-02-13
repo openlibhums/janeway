@@ -69,6 +69,12 @@ urlpatterns = [
         name="repository_delete_author",
     ),
     re_path(
+        r"^manager/(?P<preprint_id>\d+)/author/(?P<account_id>\d+)/request_orcid/(?P<redirect_path>[-\w]+)/$",
+        views.repository_request_orcid,
+        name="repository_request_orcid",
+    ),
+
+    re_path(
         r"^submit/(?P<preprint_id>\d+)/authors/order/$",
         views.preprints_author_order,
         name="preprints_author_order",

@@ -227,6 +227,7 @@
                         <tr>
                             <th>{% trans 'Name' %}</th>
                             <th>{% trans 'Email' %}</th>
+                            <th>{% trans 'ORCID' %}</th>
                             <th>{% trans 'Affiliation' %}</th>
                             <th>{% trans 'Edit' %}</th>
                             <th>{% trans 'Delete' %}</th>
@@ -237,6 +238,15 @@
                             <tr id="authors-{{ author.pk }}">
                                 <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
                                 <td>{{ author.account.email }}</td>
+                                <td>
+                                    {% if author.account.orcid %}
+                                        {{ author.account.orcid }}
+                                    {% else %}
+                                        <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_manager_article' %}">
+                                            Request
+                                        </a>
+                                    {% endif %}
+                                </td>
                                 <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
                                     {{ author.account.institution }}{% endif %}</td>
                                 <td>
