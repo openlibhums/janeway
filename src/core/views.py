@@ -1573,7 +1573,7 @@ def user_edit(request, user_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Successfully requested ORCiD from user."),
+                _("Successfully requested ORCID iD from user."),
             )
         else:
             form = forms.EditAccountForm(request.POST, request.FILES, instance=user)

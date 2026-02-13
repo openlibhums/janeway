@@ -157,6 +157,9 @@ def send_orcid_request(request, user):
     }
     log_dict = {"level": "Info", "types": "ORCID Request", "target": None}
 
+    user.date_orcid_requested = timezone.now()
+    user.save()
+
     if user.is_active:
         template = "orcid_request"
         subject = "subject_orcid_request"

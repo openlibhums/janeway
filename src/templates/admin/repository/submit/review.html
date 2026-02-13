@@ -63,13 +63,7 @@
                 <td>{{ author.account.first_name }}</td>
                 <td>{{ author.account.last_name }}</td>
                 <td>
-                    {% if author.account.orcid %}
-                        {{ author.account.orcid }}
-                    {% else %}
-                      <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_review' %}">
-                          Request
-                      </a>
-                    {% endif %}
+                    {% include "admin/elements/repository/orcid.html" %}
                 </td>
               </tr>
             {% endfor %}

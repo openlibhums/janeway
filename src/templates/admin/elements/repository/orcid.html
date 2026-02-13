@@ -1,0 +1,10 @@
+{% if author.account.orcid %}
+    {{ author.account.orcid }}
+{% else %}
+    {% if author.account.date_orcid_requested %}
+        <p>Request sent: {{ author.account.date_orcid_requested|date:"m/d/Y" }}</p>
+    {% endif %}
+    <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_manager_article' %}">
+        Request
+    </a>
+{% endif %}

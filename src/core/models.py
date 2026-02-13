@@ -488,6 +488,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
     orcid_token = models.CharField(max_length=40, null=True, blank=True)
     orcid_token_expiration = models.DateTimeField(null=True, blank=True)
+    date_orcid_requested = models.DateTimeField(blank=True, null=True)
     twitter = models.CharField(
         max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
     )

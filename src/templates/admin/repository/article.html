@@ -239,13 +239,7 @@
                                 <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
                                 <td>{{ author.account.email }}</td>
                                 <td>
-                                    {% if author.account.orcid %}
-                                        {{ author.account.orcid }}
-                                    {% else %}
-                                        <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_manager_article' %}">
-                                            Request
-                                        </a>
-                                    {% endif %}
+                                    {% include "admin/elements/repository/orcid.html" %}
                                 </td>
                                 <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
                                     {{ author.account.institution }}{% endif %}</td>
