@@ -1674,14 +1674,33 @@
             "name": "email"
         },
         "setting": {
-            "description": "Email sent when user requests co-authors add ORCiD.",
+            "description": "Email sent when user requests co-authors add ORCID iD.",
             "is_translatable": true,
             "name": "orcid_request",
-            "pretty_name": "ORCiD Request",
+            "pretty_name": "ORCID iD Request",
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCiD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to co-authors that do not have accounts to create an account and add ORCID iD.",
+            "is_translatable": true,
+            "name": "orcid_create_request",
+            "pretty_name": "ORCID iD Create Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
         },
         "editable_by": [
             "editor",
@@ -3628,13 +3647,13 @@
     },
     {
         "value": {
-            "default": "ORCiD Request"
+            "default": "ORCID iD Request"
         },
         "setting": {
             "type": "char",
-            "pretty_name": "ORCiD Request",
+            "pretty_name": "ORCID iD Request",
             "is_translatable": true,
-            "description": "Subject for when a submitter requests a co-author's ORCiD",
+            "description": "Subject for when a submitter requests a co-author's ORCID iD",
             "name": "subject_orcid_request"
         },
         "group": {
