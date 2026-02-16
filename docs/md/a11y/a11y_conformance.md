@@ -55,7 +55,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5094) |
 |                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |
-|                      | 3.1.1 Language of Page                                       | A     |                    |         |                      |
+| :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially Supports | Single bug in article print page. | [February 2026](https://github.com/openlibhums/janeway/issues/5157) |
 |                      | 3.1.2 Language of Parts                                      | AA    |                    |         |                      |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
@@ -115,7 +115,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5094) |
 |                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |
-|                      | 3.1.1 Language of Page                                       | A     |                    |         |                      |
+| :white_check_mark:   | 3.1.1 Language of Page                                       | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5157) |
 |                      | 3.1.2 Language of Parts                                      | AA    |                    |         |                      |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
@@ -175,7 +175,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5093) |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5094) |
 | :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially Supports |         | June 2024 VPAT       |
-| :white_check_mark:   | 3.1.1 Language of Page                                       | A     | Supports           |         | June 2024 VPAT       |
+| :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially Supports | Single bug in article print page. | [February 2026](https://github.com/openlibhums/janeway/issues/5157) |
 | :brown_square:       | 3.1.2 Language of Parts                                      | AA    | Not-applicable     |         | June 2024 VPAT       |
 | :orange_circle:      | 3.2.1 On Focus                                               | A     | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially Supports |         | June 2024 VPAT       |
