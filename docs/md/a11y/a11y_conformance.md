@@ -67,7 +67,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
-|                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
+| :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not-applicable     |         | [February 2026](https://github.com/openlibhums/janeway/issues/5167) |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
@@ -127,7 +127,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
-|                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
+| :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not-applicable     |         | [February 2026](https://github.com/openlibhums/janeway/issues/5167) |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
@@ -187,7 +187,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
-| :x:                  | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Does not support   |         | June 2024 VPAT       |
+| :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not-applicable     |         | [February 2026](https://github.com/openlibhums/janeway/issues/5167) |
 | :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially Supports |         | June 2024 VPAT       |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
@@ -249,7 +249,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 3.3.3 Error Suggestion                                       | AA    |                    |         |                      |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5096) |
-|                      | 3.3.8 Accessible Authentication (Minimum)                    | AA    |                    |         |                      |
+| :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not-applicable     |         | [February 2026](https://github.com/openlibhums/janeway/issues/5167) |
 |                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5097) |
 
