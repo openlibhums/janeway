@@ -251,6 +251,7 @@
         "3.3.3": { "conformance": "Supports",       "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
         "3.3.4": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
         "3.3.7": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "conformance": "Not-applicable", "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
         "4.1.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
       }
     },
@@ -279,6 +280,7 @@
         "3.3.3": { "conformance": "Supports",       "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
         "3.3.4": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
         "3.3.7": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "conformance": "Not-applicable", "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
         "4.1.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
       }
     },
@@ -337,7 +339,7 @@
         "3.3.3": { "conformance": "Supports",       "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
         "3.3.4": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
         "3.3.7": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
-        "3.3.8": { "conformance": "Does not support", "remarks": null, "audit": "June 2024 VPAT" },
+        "3.3.8": { "conformance": "Not-applicable", "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
         "4.1.2": { "conformance": "Partially Supports", "remarks": null, "audit": "June 2024 VPAT" },
         "4.1.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
       }
@@ -364,6 +366,7 @@
         "2.5.7": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5094)" },
         "3.3.4": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
         "3.3.7": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "conformance": "Not-applicable", "remarks": null, "audit": "[February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
         "4.1.3": { "conformance": "Not-applicable", "remarks": null, "audit": "[January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
      }
     },
