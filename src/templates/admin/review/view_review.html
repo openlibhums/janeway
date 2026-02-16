@@ -82,16 +82,16 @@
                         {% if review.decision == 'withdrawn' or review.date_declined %}
                             <p>{% trans 'No review was undertaken.' %}</p>
                         {% elif review.is_complete %}
+                          <div class="callout">
+                            <strong>{% trans 'Review File' %}</strong>
                             {% if review.review_file %}
-                                <div class="row expanded">
-                                    <div class="large-12 columns">
-                                        <div class="callout">
-                                            <strong>{% trans 'Review File' %}</strong>
-                                            {% include "admin/elements/review/review_file_table_modal.html" with review=review %}
-                                        </div>
-                                    </div>
-                                </div>
+                              {% include "admin/elements/review/review_file_table_modal.html" with review=review %}
+                            {% else %}
+                              <p>No review file provided. You may upload one here.</p>
+                              {% include "admin/elements/review/editor_upload_review_file.html" %}
+
                             {% endif %}
+                          </div>
                             {% for answer in review.review_form_answers %}
                                 <div class="{{ answer.element.width }}">
                                     <div class="callout" style="padding-bottom:0px;">
@@ -127,20 +127,17 @@
                             {% endfor %}
 
                             {% if review.comments_for_editor %}
-                                <div class="large-12 columns">
-                                    <div class="callout" style="padding-bottom:0px;">
-                                        <div class="title-area">
-                                            <h2>{% trans 'Comments for the Editor' %}</h2>
-                                        </div>
-                                        <div class="content">
-                                            <p>{{ review.comments_for_editor|safe|linebreaksbr }}</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                  <div class="callout" style="padding-bottom:0px;">
+                                      <div class="title-area">
+                                          <h2>{% trans 'Comments for the Editor' %}</h2>
+                                      </div>
+                                      <div class="content">
+                                          <p>{{ review.comments_for_editor|safe|linebreaksbr }}</p>
+                                      </div>
+                                  </div>
                             {% endif %}
-                            </div>
                         {% endif %}
-
+                  </div>
                 </div>
 
 
@@ -195,17 +192,17 @@
                 </div>
             {% endif %}
         </div>
+        {% if review.date_declined %}
+          <div class="title-area">
+            <h2>{% trans 'Suggested Reviewers' %}</h2>
+          </div>
+          <div class="content">
+            {{ review.suggested_reviewers|safe }}
+          </div>
+        {% endif %}
     </div>
 
-    {% if review.date_declined %}
-        <div class="title-area">
-            <h2>{% trans 'Suggested Reviewers' %}</h2>
-        </div>
-        <div class="content">
-            {{ review.suggested_reviewers|safe }}
-        </div>
-    {% endif %}
-    </div>
+
 {% endblock %}
 
 {% block js %}

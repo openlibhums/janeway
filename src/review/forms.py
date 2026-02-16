@@ -13,8 +13,7 @@ from django.template.defaultfilters import linebreaksbr
 from tinymce.widgets import TinyMCE
 
 from review import models, logic
-from core import models as core_models, forms as core_forms
-from core.widgets import JanewayFileInput
+from core import models as core_models, forms as core_forms, files
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
@@ -483,3 +482,25 @@ class ShareReviewsForm(forms.Form):
                 label=f"Email for {review.reviewer.full_name()}",
                 initial=review.email_content,
             )
+
+
+class EditorReviewFileUpload(forms.Form):
+    review_file = forms.FileField(
+        label=_("Review file"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.article = kwargs.pop("article", None)
+        self.review = kwargs.pop("review", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        review_file = files.save_file_to_article(
+            self.cleaned_data.get("review_file"),
+            self.article,
+            self.review.reviewer,
+        )
+        self.review.review_file = review_file
+        
+        if commit:
+            self.review.save()
