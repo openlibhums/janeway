@@ -43,7 +43,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5147) |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
-|                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
+| :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially Supports | All have titles, but they are not fully descriptive. | [February 2026](https://github.com/openlibhums/janeway/issues/5146) |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
 |                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
@@ -103,7 +103,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5147) |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |
-|                      | 2.4.2 Page Titled                                            | A     |                    |         |                      |
+| :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially Supports | All have titles, but they are not fully descriptive. | [February 2026](https://github.com/openlibhums/janeway/issues/5146) |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |
 |                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
@@ -163,7 +163,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.3.1 Three Flashes or Below Threshold                       | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5147) |
 | :white_check_mark:   | 2.4.1 Bypass Blocks                                          | A     | Supports           |         | [January 2026](https://github.com/openlibhums/janeway/issues/5101) |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | June 2024 VPAT       |
-| :white_check_mark:   | 2.4.2 Page Titled                                            | A     | Supports           |         | June 2024 VPAT       |
+| :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially Supports | All have titles, but they are not fully descriptive. | [February 2026](https://github.com/openlibhums/janeway/issues/5146) |
 | :orange_circle:      | 2.4.3 Focus Order                                            | A     | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially Supports |         | [Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) |
