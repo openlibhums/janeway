@@ -61,7 +61,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
 |                      | 3.2.3 Consistent Navigation                                  | AA    |                    |         |                      |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
-|                      | 3.2.6 Consistent Help                                        | A     |                    |         |                      |
+| :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 |                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
@@ -121,7 +121,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
 |                      | 3.2.3 Consistent Navigation                                  | AA    |                    |         |                      |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
-|                      | 3.2.6 Consistent Help                                        | A     |                    |         |                      |
+| :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 |                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
@@ -181,7 +181,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | June 2024 VPAT       |
-| :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | June 2024 VPAT       |
+| :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 | :x:                  | 3.3.1 Error Identification                                   | A     | Does not support   |         | June 2024 VPAT       |
 | :orange_circle:      | 3.3.2 Labels or Instructions                                 | A     | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
@@ -243,7 +243,7 @@ Accessibility Mode is provided as an user-selectable alternative from all three 
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
 |                      | 3.2.3 Consistent Navigation                                  | AA    |                    |         |                      |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
-|                      | 3.2.6 Consistent Help                                        | A     |                    |         |                      |
+| :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 |                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 |                      | 3.3.3 Error Suggestion                                       | AA    |                    |         |                      |
