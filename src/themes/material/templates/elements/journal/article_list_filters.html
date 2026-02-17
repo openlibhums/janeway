@@ -1,6 +1,7 @@
 {% load classname %}
 {% load foundation %}
 {% load materializecss %}
+{% load static %}
 
 {% if facet_form.fields %}
     <section aria-labelledby="filter-title">
@@ -13,9 +14,14 @@
                     {{ facet_form|materializecss }}
                     <div class="col s12">
                         <button action="" class="btn" type="submit">{% trans 'Apply' %}</button>
-                        <button class="btn" name="clear_all">{% trans 'Clear all' %}</button>
+                        <button type="button" class="btn" id="select-all-btn">{% trans 'Select all' %}</button>
+                        <button type="button" class="btn" id="clear-all-btn">{% trans 'Clear all' %}</button>
                     </div>
                 </form>
+                <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
+                <script>
+                    initFormToggleButtons('select-all-btn', 'clear-all-btn', '{{ facet_form.id }}');
+                </script>
             </div>
         </div>
     </section>

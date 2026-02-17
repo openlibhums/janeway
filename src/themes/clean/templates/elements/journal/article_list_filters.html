@@ -1,5 +1,6 @@
 {% load classname %}
 {% load bootstrap4 %}
+{% load static %}
 
 {% if facet_form.fields %}
     <div class="card">
@@ -9,8 +10,13 @@
                 <form method="GET" id={{ facet_form.id }}>
                     {% bootstrap_form facet_form %}
                     <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ request.path }}'">{% trans 'Clear all' %}</button>
+                    <button type="button" class="btn btn-secondary" id="select-all-btn">{% trans 'Select all' %}</button>
+                    <button type="button" class="btn btn-secondary" id="clear-all-btn">{% trans 'Clear all' %}</button>
                 </form>
+                <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
+                <script>
+                    initFormToggleButtons('select-all-btn', 'clear-all-btn', '{{ facet_form.id }}');
+                </script>
             </section>
         </div>
     </div>
