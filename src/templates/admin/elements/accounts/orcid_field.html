@@ -21,7 +21,7 @@
         </a>
     </p>
     {% if form.instance.is_orcid_token_valid %}
-        {% if form.instance == request.user or request.user.is_admin %}
+        {% if form.instance == request.user or request.user.is_staff %}
             <p>
                 <button class="tiny success button" type="submit" name="remove_orcid">
                     Remove
