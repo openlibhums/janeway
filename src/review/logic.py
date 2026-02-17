@@ -8,6 +8,7 @@ from datetime import timedelta
 from uuid import uuid4
 import os
 import re
+from dataclasses import replace
 
 from django.conf import settings
 from django.contrib import messages
@@ -22,7 +23,6 @@ from django.db.models import (
     When,
     BooleanField,
     Value,
-    Q,
 )
 from django.shortcuts import redirect, reverse
 from django.utils import timezone
@@ -578,10 +578,13 @@ def handle_decision_action(article, draft, request):
             user_message,
             template_is_setting=True,
         )
+
+        email_data = replace(email_data, body=revision_rendered_template)
+        kwargs["email_data"] = email_data
+
         article.stage = submission_models.STAGE_UNDER_REVISION
         article.save()
 
-        kwargs["user_message_content"] = revision_rendered_template
         kwargs["revision"] = revision
         event_logic.Events.raise_event(
             event_logic.Events.ON_REVISIONS_REQUESTED_NOTIFY,
