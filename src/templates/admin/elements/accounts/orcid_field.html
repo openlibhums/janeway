@@ -40,7 +40,7 @@
         </a>
     {% else %}
         {% if form.instance.date_orcid_requested %}
-            <p>Request sent: {{ form.instance.date_orcid_requested|date:"m/d/Y" }}</p>
+            <p>Request sent: {{ form.instance.date_orcid_requested|date:"d M Y" }}</p>
         {% endif %}
         <button class="success button" type="submit" name="request_orcid">
             Request ORCID iD
