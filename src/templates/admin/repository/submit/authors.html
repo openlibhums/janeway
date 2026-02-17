@@ -42,7 +42,7 @@
                     <h2>{% trans 'Search for an Author' %}</h2>
                 </div>
                 <div class="content">
-                    <p>{% trans 'You can search by email or ORCiD. eg. person@example.com or 0000-0003-2126-266X.' %}</p>
+                    <p>{% trans 'You can search by email or ORCID iD. eg. person@example.com or 0000-0003-2126-266X.' %}</p>
                     <form method="POST">
                         {% csrf_token %}
                         <div class="input-group">
@@ -75,7 +75,7 @@
                                 <tr>
                                     <th>{% trans 'Name' %}</th>
                                     <th>{% trans 'Email' %}</th>
-                                    <th>{% trans 'ORCID' %}</th>
+                                    <th>{% trans 'ORCID iD' %}</th>
                                     <th>{% trans 'Affiliation' %}</th>
                                     <th>{% trans 'Delete' %}</th>
                                 </tr>
