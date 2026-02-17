@@ -191,7 +191,7 @@ def user_login_orcid(request):
         messages.add_message(
             request,
             messages.WARNING,
-            _("ORCID is not enabled.Please log in with your username and password."),
+            _("ORCID is not enabled. Please log in with your username and password."),
         )
         return redirect(logic.reverse_with_next("core_login", next_url))
 
@@ -288,14 +288,19 @@ def user_login_orcid(request):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
-    elif action == "add_profile_orcid":
+    elif action == "add_profile_orcid": # user is adding orcid through their profile
         if not request.user.is_authenticated:
+            # this case is very unlikely but since this view
+            # doesn't require a login check to ensure they are
+            # already logged in, if not just redirect to
+            # non-orcid login
             messages.add_message(
                 request,
                 messages.WARNING,
-                _("You must be logged in to connect an ORCID to your account."),
+                _("You must be logged in to connect an ORCID iD to your account."),
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
+        # user is adding orcid so save it to logged in user's profile
         request.user.orcid = orcid_id
         request.user.orcid_token = access_token
         request.user.orcid_expiration = expiration
@@ -303,8 +308,9 @@ def user_login_orcid(request):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _("Your ORCID has been connected to your account."),
+            _("Your ORCID iD has been connected to your account."),
         )
+        # return to profile page
         return redirect(logic.reverse_with_next("core_edit_profile", next_url))
 
 
