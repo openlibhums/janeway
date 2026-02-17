@@ -9,9 +9,13 @@
  * @param {string} formId - ID of the form
  */
 function initFormToggleButtons(selectAllButtonId, clearAllButtonId, formId) {
+    console.log("init")
     const selectAllButton = document.getElementById(selectAllButtonId);
     const clearAllButton = document.getElementById(clearAllButtonId);
     const form = document.getElementById(formId);
+    console.log(selectAllButton);
+    console.log(clearAllButton);
+    console.log(form);
     
     if (!selectAllButton || !clearAllButton || !form) {
         console.warn('FormToggleButtons: Button or form not found', { 
@@ -23,6 +27,7 @@ function initFormToggleButtons(selectAllButtonId, clearAllButtonId, formId) {
     }
     
     function enableButtons() {
+        console.log("enable")
         selectAllButton.disabled = false;
         clearAllButton.disabled = false;
     }
@@ -36,6 +41,7 @@ function initFormToggleButtons(selectAllButtonId, clearAllButtonId, formId) {
     
     // Select all button click handler
     selectAllButton.addEventListener('click', function() {
+        console.log("select");
         // Select all checkboxes
         const checkboxes = form.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(function(checkbox) {
@@ -49,6 +55,7 @@ function initFormToggleButtons(selectAllButtonId, clearAllButtonId, formId) {
     
     // Clear all button click handler
     clearAllButton.addEventListener('click', function() {
+        console.log("clear")
         // Clear all checkboxes
         const checkboxes = form.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(function(checkbox) {

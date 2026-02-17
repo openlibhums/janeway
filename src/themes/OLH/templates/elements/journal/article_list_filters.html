@@ -1,13 +1,19 @@
 {% load classname %}
 {% load foundation %}
+{% load static %}
 
 {% if facet_form.fields %}
     <section aria-labelledby="filter-title" class="section">
         <h2 id="filter-title">{% trans 'Filter' %}</h2>
-        <form method="GET" id={{ facet_form.id }}>
+        <form method="GET" id="{{ facet_form.id }}">
             {{ facet_form|foundation }}
             <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
-            <button class="button warning" name="clear_all">{% trans 'Clear all' %}</button>
         </form>
+                    <button type="button" class="button secondary" id="select-all-btn">{% trans 'Select all' %}</button>
+            <button type="button" class="button secondary" id="clear-all-btn">{% trans 'Clear all' %}</button>
+        <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
+        <script>
+            initFormToggleButtons('select-all-btn', 'clear-all-btn', '{{ facet_form.id }}');
+        </script>
     </section>
 {% endif %}
