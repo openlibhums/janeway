@@ -1477,7 +1477,7 @@ def repository_request_orcid(request, preprint_id, account_id, redirect_path):
     messages.add_message(
         request,
         messages.SUCCESS,
-        f"Successfully requested ORCID from {user.full_name()}",
+        f"Successfully requested ORCID iD from {user.full_name()}",
     )
 
     return redirect(

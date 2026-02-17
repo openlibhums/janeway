@@ -1700,7 +1700,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it through your profile {{ user_profile_url }}.<br/></p>"
         },
         "editable_by": [
             "editor",
