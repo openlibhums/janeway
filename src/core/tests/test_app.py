@@ -592,6 +592,7 @@ class CoreTests(TestCase):
             response, '<input type="text" name="orcid" maxlength="40" id="id_orcid">'
         )
 
+    @override_settings(ENABLE_ORCID=True)
     def test_profile_orcid_enabled_no_orcid(self):
         # Profile should offer to connect orcid
         self.client.force_login(self.admin_user)
@@ -599,7 +600,7 @@ class CoreTests(TestCase):
         self.assertNotContains(response, "ORCID could not be validated.")
         self.assertContains(response, "Connect your ORCID")
 
-    @override_settings(ORCID_URL="https://sandbox.orcid.org/oauth/authorize")
+    @override_settings(ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize")
     def test_profile_orcid_unverified(self):
         self.admin_user.orcid = "0000-0000-0000-0000"
         self.admin_user.save()
@@ -610,7 +611,7 @@ class CoreTests(TestCase):
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
 
     @patch.object(models.Account, "is_orcid_token_valid")
-    @override_settings(ORCID_URL="https://sandbox.orcid.org/oauth/authorize")
+    @override_settings(ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize")
     def test_profile_orcid(self, mock_method):
         # override is_orcid_token valid make if valid
         mock_method.return_value = True
@@ -628,6 +629,7 @@ class CoreTests(TestCase):
 
     @patch.object(models.Account, "is_orcid_token_valid")
     @override_settings(
+        ENABLE_ORCID=True,
         URL_CONFIG="domain", ORCID_URL="https://sandbox.orcid.org/oauth/authorize"
     )
     def test_profile_orcid_not_admin(self, mock_method):
