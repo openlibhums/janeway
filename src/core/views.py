@@ -288,7 +288,7 @@ def user_login_orcid(request):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
-    elif action == "add_profile_orcid": # user is adding orcid through their profile
+    elif action == "add_profile_orcid":  # user is adding orcid through their profile
         if not request.user.is_authenticated:
             # this case is very unlikely but since this view
             # doesn't require a login check to ensure they are

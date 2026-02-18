@@ -1467,12 +1467,13 @@ def preprints_author_order(request, preprint_id):
 
     return HttpResponse("Complete")
 
+
 @login_required
 @require_POST
 def repository_request_orcid(request, account_id):
     user = get_object_or_404(
-            core_models.Account,
-            pk=account_id,
+        core_models.Account,
+        pk=account_id,
     )
     core_logic.send_orcid_request(request, user)
     messages.add_message(

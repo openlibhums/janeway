@@ -69,10 +69,7 @@ def retrieve_tokens(authorization_code, site):
 
 
 def is_token_valid(orcid_id, token):
-    api_client = OrcidAPI(
-        settings.ORCID_CLIENT_ID,
-        settings.ORCID_CLIENT_SECRET
-    )
+    api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
     r = api_client._get_public_info(
         orcid_id, "record", token, None, "application/orcid+json"
     )
@@ -101,10 +98,7 @@ def build_redirect_uri(site):
 def get_orcid_record(orcid):
     try:
         logger.info("Retrieving ORCID profile for %s", orcid)
-        api_client = OrcidAPI(
-            settings.ORCID_CLIENT_ID,
-            settings.ORCID_CLIENT_SECRET
-        )
+        api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
         search_token = api_client.get_search_token_from_orcid()
         return api_client.read_record_public(
             orcid,
