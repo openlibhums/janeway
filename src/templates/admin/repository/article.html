@@ -220,48 +220,48 @@
                     Author</a>
             </div>
             <div class="content">
-                <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
-                    {% csrf_token %}
-                    <table class="small">
-                        <thead>
-                        <tr>
-                            <th>{% trans 'Name' %}</th>
-                            <th>{% trans 'Email' %}</th>
-                            <th>{% trans 'ORCID iD' %}</th>
-                            <th>{% trans 'Affiliation' %}</th>
-                            <th>{% trans 'Edit' %}</th>
-                            <th>{% trans 'Delete' %}</th>
-                        </tr>
-                        </thead>
-                        <tbody id="sortable">
-                        {% for author in preprint.preprintauthor_set.all %}
-                            <tr id="authors-{{ author.pk }}">
-                                <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
-                                <td>{{ author.account.email }}</td>
-                                <td>
-                                    {% include "admin/elements/repository/orcid.html" %}
-                                </td>
-                                <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
-                                    {{ author.account.institution }}{% endif %}</td>
-                                <td>
-                                    <a href="{% url 'repository_edit_authors' preprint.pk author.pk %}">
-                                        Edit
-                                    </a>
-                                </td>
-                                <td>
+                <table class="small">
+                    <thead>
+                    <tr>
+                        <th>{% trans 'Name' %}</th>
+                        <th>{% trans 'Email' %}</th>
+                        <th>{% trans 'ORCID iD' %}</th>
+                        <th>{% trans 'Affiliation' %}</th>
+                        <th>{% trans 'Edit' %}</th>
+                        <th>{% trans 'Delete' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
+                    {% for author in preprint.preprintauthor_set.all %}
+                        <tr id="authors-{{ author.pk }}">
+                            <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
+                            <td>{{ author.account.email }}</td>
+                            <td>
+                                {% include "admin/elements/repository/orcid.html" %}
+                            </td>
+                            <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
+                                {{ author.account.institution }}{% endif %}</td>
+                            <td>
+                                <a href="{% url 'repository_edit_authors' preprint.pk author.pk %}">
+                                    Edit
+                                </a>
+                            </td>
+                            <td>
+                                <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
+                                    {% csrf_token %}
                                     <button class="del" name="author_id" value="{{ author.pk }}"><span
                                             class="fa fa-trash"></span> Delete
                                     </button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3">{% trans 'No authors added.' %}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </form>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">{% trans 'No authors added.' %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 

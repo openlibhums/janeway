@@ -1,10 +1,13 @@
+{% load next_url %}
+
 {% if author.account.orcid %}
     {{ author.account.orcid }}
 {% else %}
     {% if author.account.date_orcid_requested %}
         <p>Request sent: {{ author.account.date_orcid_requested|date:"d M Y" }}</p>
     {% endif %}
-    <a class="button success" href="{% url 'repository_request_orcid' preprint.pk author.account.pk 'repository_manager_article' %}">
-        Request
-    </a>
+    <form method="POST" action="{% url_with_return 'repository_request_orcid' author.account.pk %}">
+        {% csrf_token %}
+        <input type="submit" value="Request" class="button success">
+    </form>
 {% endif %}
