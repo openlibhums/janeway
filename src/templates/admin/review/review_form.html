@@ -17,12 +17,14 @@
     <div class="row expanded">
         <div class="large-12 columns">
             <div class="box">
+                {% if not journal_settings.general.reviewer_guidelines_hidden %}
                 <div class="title-area">
                     <h2>General Review Guidelines</h2>
                 </div>
                 <div class="content">
                     <small>{{ journal_settings.general.reviewer_guidelines|safe }}</small>
                 </div>
+                {% endif %}
                 <div class="title-area">
                     <h2>Information for this Form</h2>
                 </div>
@@ -83,6 +85,7 @@
                 {% hook 'review_form_guidelines' %}
 
             </div>
+            {% if not journal_settings.general.review_form_hidden_pre_accept or assignment.date_accepted %}
             <div class="box">
                 <div class="title-area">
                     <h2>Review Files</h2>
@@ -171,6 +174,7 @@
                 <button class="button success" type="submit" name="complete">Complete Review</button>
               </form>
             </div>
+          {% endif %}
         </div>
 
 {% endblock %}

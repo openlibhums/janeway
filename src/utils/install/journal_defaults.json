@@ -5710,5 +5710,43 @@
             "editor",
             "journal-manager"
         ]
-    }
+    },
+{
+    "group": {
+        "name": "general"
+    },
+    "setting": {
+        "description": "Hides the reviewer guidelines from reviewers.",
+        "is_translatable": true,
+        "name": "reviewer_guidelines_hidden",
+        "pretty_name": "Reviewer guidelines hidden",
+        "type": "boolean"
+    },
+    "value": {
+        "default": ""
+    },
+    "editable_by": [
+        "editor",
+        "journal-manager"
+    ]
+},
+{
+    "group": {
+        "name": "general"
+    },
+    "setting": {
+        "description": "Hides the reviewer form until reviewers have agreed to undertake review.",
+        "is_translatable": true,
+        "name": "review_form_hidden_pre_accept",
+        "pretty_name": "Review form hidden until reviewers have agreed",
+        "type": "boolean"
+    },
+    "value": {
+        "default": ""
+    },
+    "editable_by": [
+        "editor",
+        "journal-manager"
+    ]
+}
 ]
