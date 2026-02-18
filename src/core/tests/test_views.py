@@ -5,9 +5,11 @@ __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
 from uuid import uuid4
+from datetime import datetime
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
+from django.utils import timezone
 
 from core import models as core_models
 from core import views as core_views
@@ -34,6 +36,7 @@ class CoreViewTestsWithData(TestCase):
         cls.user_orcid_uri = f"https://orcid.org/{cls.user_orcid}/"
         cls.user.orcid = cls.user_orcid_uri
         cls.orcid_token_uuid = uuid4()
+        cls.orcid_access_token_uuid = uuid4()
         cls.orcid_token = core_models.OrcidToken.objects.create(
             token=cls.orcid_token_uuid,
             orcid=cls.user_orcid_uri,
@@ -379,7 +382,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_no_orcid_id_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = None, None, None
+        retrieve_tokens.return_value = "", "", None
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,
@@ -399,7 +402,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         self,
         retrieve_tokens,
     ):
-        retrieve_tokens.return_value = None, None, self.user_orcid_uri
+        retrieve_tokens.return_value = "", "", self.user_orcid_uri
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,
@@ -423,8 +426,8 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     ):
         # Change ORCID so it doesn't work
         retrieve_tokens.return_value = (
-            None,
-            None,
+            "",
+            "",
             "https://orcid.org/0000-0001-2312-3123",
         )
 
@@ -454,8 +457,8 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     ):
         # Change ORCID so it doesn't work
         retrieve_tokens.return_value = (
-            None,
-            None,
+            self.orcid_access_token_uuid,
+            datetime(2050, 5, 17, 10, 30, 0, tzinfo=timezone.get_current_timezone()),
             "https://orcid.org/0000-0001-2312-3123",
         )
 
@@ -479,7 +482,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_register_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = None, None, self.user_orcid_uri
+        retrieve_tokens.return_value = "", "", self.user_orcid_uri
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,

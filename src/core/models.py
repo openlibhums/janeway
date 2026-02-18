@@ -486,7 +486,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     orcid = models.CharField(
         max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
     )
-    orcid_token = models.CharField(max_length=40, null=True, blank=True)
+    orcid_token = models.CharField(max_length=40, blank=True, default="")
     orcid_token_expiration = models.DateTimeField(null=True, blank=True)
     date_orcid_requested = models.DateTimeField(blank=True, null=True)
     twitter = models.CharField(
@@ -969,11 +969,11 @@ class OrcidToken(models.Model):
     expiry = models.DateTimeField(
         default=generate_expiry_date, verbose_name=_("Expires on")
     )
-    access_token = models.CharField(max_length=40, null=True, blank=True)
+    access_token = models.CharField(max_length=40, blank=True, default="")
     access_token_expiration = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
+        return "ORCID iD Token [{0}] - {1}".format(self.orcid, self.token)
 
 
 class PasswordResetToken(models.Model):
