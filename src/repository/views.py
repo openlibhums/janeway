@@ -1577,7 +1577,8 @@ def preprints_author_order(request, preprint_id):
     return HttpResponse("Complete")
 
 @login_required
-def repository_request_orcid(request, preprint_id, account_id, redirect_path):
+@require_POST
+def repository_request_orcid(request, account_id):
     user = get_object_or_404(
             core_models.Account,
             pk=account_id,
@@ -1589,14 +1590,8 @@ def repository_request_orcid(request, preprint_id, account_id, redirect_path):
         f"Successfully requested ORCID iD from {user.full_name()}",
     )
 
-    return redirect(
-        reverse(
-            redirect_path,
-            kwargs={
-                "preprint_id": preprint_id,
-            },
-        )
-    )
+    next_url = request.GET.get("next", "")
+    return redirect(next_url)
 
 
 @login_required

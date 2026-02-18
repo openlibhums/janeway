@@ -68,39 +68,39 @@
                 </div>
                 <div class="content">
                     <p>{% trans 'You can reorder the authors by dragging and dropping rows in the table below.' %}</p>
-                    <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'submission'  %}">
-                        {% csrf_token %}
-                        <table class="small">
-                            <thead>
-                                <tr>
-                                    <th>{% trans 'Name' %}</th>
-                                    <th>{% trans 'Email' %}</th>
-                                    <th>{% trans 'ORCID iD' %}</th>
-                                    <th>{% trans 'Affiliation' %}</th>
-                                    <th>{% trans 'Delete' %}</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sortable">
-                                {% for author in preprint.preprintauthor_set.all %}
-                                <tr id="authors-{{ author.pk }}">
-                                    <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
-                                    <td>{{ author.account.email }}</td>
-                                    <td>
-                                        {% include "admin/elements/repository/orcid.html" %}
-                                    </td>
-                                    <td>{{ author.display_affiliation }}</td>
-                                    <td>
+                    <table class="small">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Name' %}</th>
+                                <th>{% trans 'Email' %}</th>
+                                <th>{% trans 'ORCID iD' %}</th>
+                                <th>{% trans 'Affiliation' %}</th>
+                                <th>{% trans 'Delete' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sortable">
+                            {% for author in preprint.preprintauthor_set.all %}
+                            <tr id="authors-{{ author.pk }}">
+                                <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
+                                <td>{{ author.account.email }}</td>
+                                <td>
+                                    {% include "admin/elements/repository/orcid.html" %}
+                                </td>
+                                <td>{{ author.display_affiliation }}</td>
+                                <td>
+                                    <form method="POST" action="{% url 'repository_delete_author' preprint.pk 'submission'  %}">
+                                        {% csrf_token %}
                                         <button name="author_id" value="{{ author.pk }}"><span class="fa fa-trash"></span></button>
-                                    </td>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">{% trans 'No authors added.' %}</td>
                                 </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="3">{% trans 'No authors added.' %}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </form>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                     <p>{% trans 'Once you have added all of your authors you can complete this stage.' %}</p>
                     <form method="POST">
                         {% csrf_token %}
