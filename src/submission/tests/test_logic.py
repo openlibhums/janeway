@@ -8,6 +8,7 @@ from django.test import TestCase, client
 from mock import patch
 
 from utils.testing import helpers
+from submission import models as submission_models
 
 
 class TestSubmitAuthorsLogic(TestCase):
@@ -215,4 +216,26 @@ class TestSubmitAuthorsLogic(TestCase):
         self.assertEqual(
             last_author.primary_affiliation().__str__(),
             "Birkbeck",
+        )
+
+    def test_get_current_authors_detects_unlinked_authors(self):
+        self.client.force_login(self.kathleen)
+
+        # Create unlinked author record with same email as existing user
+        frozen_author, _created = submission_models.FrozenAuthor.objects.get_or_create(
+            article=self.article,
+            first_name="T.",
+            middle_name="S.",
+            last_name="Eliot",
+            frozen_email=self.eliot.email,
+        )
+        response = self.client.get(
+            reverse("submit_authors", kwargs={"article_id": self.article.pk}),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        _kathleen_author_tup, eliot_author_tup = response.context["authors"]
+        _eliot_author, _credits, _credit_form, unlinked_account = eliot_author_tup
+        self.assertEqual(
+            unlinked_account,
+            self.eliot,
         )
