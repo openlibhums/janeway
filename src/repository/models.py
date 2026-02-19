@@ -609,7 +609,8 @@ class Preprint(models.Model):
                 preprint_author=preprint_author,
                 title=affiliation.title,
                 department=affiliation.department,
-                organization=affiliation.is_primary,
+                organization=affiliation.organization,
+                is_primary=affiliation.is_primary,
                 start=affiliation.start,
                 end=affiliation.end,
             )
