@@ -11,7 +11,7 @@
                 <h1 class="sr-only">{% trans 'Contact us' %}</h1>
                 <h2>{% trans "Press Representatives" %}</h2>
                 {% for contact in contacts %}
-                <h3>{{ contact.name }}</h3>
+                <h3>{{ contact.display_name }}</h3>
                 <p>{{ contact.role }}</p>
                 {% endfor %}
             </div>
@@ -20,11 +20,8 @@
                 <form method="POST" novalidate>
                     {% include "elements/forms/errors.html" with form=contact_form %}
                     {% csrf_token %}
-                    <label for="id_recipient">{% trans "Who would you like to contact?" %}</label>
-                    <select id="id_recipient" name="recipient">
-                        {% for contact in contacts %}<option value="{{ contact.email }}">{{ contact.name }}, {{ contact.role }}</option>{% endfor %}
-                    </select>
                     {% include "admin/elements/forms/required_field_info.html" %}
+                    {{ contact_form.contact_person|foundation }}
                     {{ contact_form.sender|foundation }}
                     {{ contact_form.subject|foundation }}
                     {{ contact_form.body|foundation }}

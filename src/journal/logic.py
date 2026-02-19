@@ -397,6 +397,10 @@ def set_article_image(request, article):
 
 
 def send_contact_message(new_contact, request):
+    warnings.warn(
+        "`journal.logic.send_contact_message` is deprecated. "
+        "Use `core.logic.send_contact_message` instead."
+    )
     body = new_contact.body.replace("\n", "<br>")
     message = """
     <p>This message is from {0}'s contact form.</p>

@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.urls import re_path
+from django.urls import path, re_path
 
 from journal import views
 from identifiers.models import NON_DOI_IDENTIFIER_TYPES, DOI_REGEX_PATTERN
@@ -287,6 +287,11 @@ urlpatterns = [
     re_path(r"^reviewer/$", views.become_reviewer, name="become_reviewer"),
     # Contact
     re_path(r"^contact/$", views.contact, name="contact"),
+    re_path(
+        "contact/recipient/(?P<contact_person_id>\d+)/$",
+        views.contact,
+        name="journal_contact_with_recipient",
+    ),
     # Accessibility
     re_path(r"^accessibility/$", views.accessibility, name="accessibility"),
     # Editorial team

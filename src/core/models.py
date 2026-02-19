@@ -33,6 +33,7 @@ from django.db import (
     transaction,
 )
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.search import SearchVector, SearchVectorField
@@ -392,6 +393,8 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
 
 
 class AccountManager(BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, username=None, password=None, email=None, **kwargs):
         """Creates a user from the given username or email
         In Janeway, users rely on email addresses to log in. For compatibility
@@ -611,6 +614,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return self.email
         else:
             return ""
+
+    @property
+    def pretty_wrapping_email(self):
+        return mark_safe(self.email.replace("@", "<wbr>@").replace(".", "<wbr>."))
 
     def get_full_name(self):
         """Deprecated in 1.5.2"""
@@ -1960,7 +1967,7 @@ class EditorialGroupMember(models.Model):
         return f"{self.user} in {self.group}"
 
 
-class Contacts(models.Model):
+class ContactPerson(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -1970,23 +1977,61 @@ class Contacts(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    name = models.CharField(max_length=300)
-    email = models.EmailField()
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     role = models.CharField(max_length=200)
-    sequence = models.PositiveIntegerField(default=999)
+    sequence = models.PositiveIntegerField(default=1)
+
+    name = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="The 'name' field is deprecated. Use 'account.full_name'.",
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text="The 'email' field is deprecated. Use 'account.email'.",
+    )
 
     class Meta:
-        # This verbose name will hopefully more clearly
-        # distinguish this model from the below model `Contact`
-        # in the admin area.
-        verbose_name_plural = "contacts"
-        ordering = ("sequence", "name")
+        ordering = ("sequence",)
+        verbose_name_plural = "contact people"
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
+        return f"{self.display_name}, {self.object} - {self.role}"
+
+    def __getattribute__(self, name):
+        if name == "name":
+            warnings.warn(
+                "The 'name' field is deprecated. Use 'account.full_name'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        elif name == "email":
+            warnings.warn(
+                "The 'email' field is deprecated. Use 'account.email'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
+
+    @property
+    def display_name(self):
+        return self.account.full_name() if self.account else ""
+
+    @property
+    def display_email(self):
+        return self.account.pretty_wrapping_email if self.account else ""
 
 
 class Contact(models.Model):
+    """
+    Deprecated. Use LogEntry instead.
+    """
+
     recipient = models.EmailField(
         max_length=200, verbose_name=_("Who would you like to contact?")
     )
@@ -2009,6 +2054,14 @@ class Contact(models.Model):
         # distinguish this model from the above model `Contacts`
         # in the admin area.
         verbose_name_plural = "contact messages"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Contact is deprecated. Use LogEntry instead.")
+        super().__init__(*args, **kwargs)
+
+
+# Aliases for backward compatibility
+Contacts = ContactPerson
 
 
 class DomainAlias(AbstractSiteModel):

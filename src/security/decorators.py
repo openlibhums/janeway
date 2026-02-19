@@ -25,7 +25,7 @@ from security.logic import (
     can_view_file_history,
     is_data_figure_file,
 )
-from utils import setting_handler
+from utils import setting_handler, models as utils_models
 from utils.logger import get_logger
 from repository import models as preprint_models
 
@@ -1571,3 +1571,23 @@ def repository_setting_enabled(attr_name, error_message="Setting disabled"):
         return inner
 
     return decorator
+
+
+def user_can_view_contact_message(func):
+    """This checks permissions for a user to view a specific contact message.
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        log_entry_id = kwargs["log_entry_id"]
+
+        log_entry = utils_models.LogEntry.objects.get(pk=log_entry_id)
+
+        if log_entry.viewable_as_contact_message_by(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper

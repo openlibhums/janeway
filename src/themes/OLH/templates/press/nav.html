@@ -38,7 +38,11 @@
             {% endif %}
             {% if journal_settings.general.enable_editorial_display %}
                 <li><a href="{% url 'editorial_team' %}">{% trans 'Editorial Team' %}</a></li>{% endif %}
-            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+                <li>
+                  <a href="{% url 'press_contact' %}">
+                    {% trans 'Contact' %}
+                  </a>
+                </li>
             {% hook 'nav_block' %}
             <li class=".is-dropdown-submenu-parent show-for-small-only">
                 <a href="#" data-options="is_hover:true; hover_timeout:5000">{% trans 'Account' %}</a>

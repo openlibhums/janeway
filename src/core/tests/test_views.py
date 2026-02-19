@@ -5,12 +5,13 @@ __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
 from uuid import uuid4
+from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
 
 from core import models as core_models
-from core import views as core_views
 from utils import orcid
 from utils.testing import helpers
 
@@ -856,4 +857,269 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.user.refresh_from_db()
         self.assertEqual(
             self.user.primary_affiliation(as_object=False), "California Digital Library"
+        )
+
+
+class ContactSystemTests(CoreViewTestsWithData):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.editor_one = helpers.create_editor(
+            cls.journal_one,
+            email="editor_awydh5q7z0q0hpfallko@example.org",
+            first_name="Editor",
+            last_name="One",
+        )
+        cls.editor_two = helpers.create_editor(
+            cls.journal_one,
+            email="editor_f0nexsowxw3tcz27td5q@example.org",
+            first_name="Editor",
+            last_name="Two",
+        )
+        cls.tech_person = helpers.create_user(
+            "tech_person_npavexim0doaqr9w9cqz@example.org",
+            roles=["author"],
+            journal=cls.journal_one,
+            is_staff=True,
+            is_active=True,
+            first_name="Tech",
+            last_name="Person",
+        )
+        cls.press_manager = helpers.create_user(
+            "press_manager_lpnp50waqhk5wwlcbyie@example.org",
+            roles=["author"],
+            journal=cls.journal_one,
+            is_staff=True,
+            is_active=True,
+            first_name="Press",
+            last_name="Manager",
+        )
+        cls.contact_one = helpers.create_contact_person(cls.editor_one, cls.journal_one)
+        cls.contact_two = helpers.create_contact_person(
+            cls.tech_person,
+            cls.journal_one,
+        )
+        cls.contact_three = helpers.create_contact_person(
+            cls.press_manager,
+            cls.press,
+        )
+        cls.press_content_type = ContentType.objects.get_for_model(cls.press)
+        cls.journal_content_type = ContentType.objects.get_for_model(cls.journal_one)
+
+        # Create some log entries containing contact messages
+        cls.contact_message_one = helpers.send_contact_message(
+            cls.journal_one,
+            cls.contact_one,
+        )
+        cls.contact_message_two = helpers.send_contact_message(
+            cls.press,
+            cls.contact_three,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_people_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(self.contact_one, response.context["contacts"])
+        self.assertNotIn(self.contact_three, response.context["contacts"])
+        self.assertTemplateUsed(
+            "core/manager/contacts/index.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_people_delete_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people")
+        post_data = {
+            "delete": self.contact_two.pk,
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.assertFalse(
+            self.journal_one.contact_people.filter(
+                account=self.tech_person,
+            ).exists(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_create_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_create",
+            kwargs={"account_id": self.editor_two.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            response.context["account"],
+            self.editor_two,
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/contact_person_form.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_create_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_create",
+            kwargs={"account_id": self.editor_two.pk},
+        )
+        post_data = {
+            "role": "Managing editor",
+            "sequence": "2",
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.assertTrue(
+            self.journal_one.contact_people.filter(
+                account=self.editor_two,
+            ).exists(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_update_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_update",
+            kwargs={"contact_person_id": self.contact_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            response.context["contact_person"],
+            self.contact_one,
+        )
+        self.assertListEqual(
+            [cp.pk for cp in response.context["contact_people"]],
+            [cp.pk for cp in self.journal_one.contact_people],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/contact_person_form.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(LANGUAGE_CODE="en")
+    def test_contact_person_update_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_update",
+            kwargs={"contact_person_id": self.contact_one.pk},
+        )
+        post_data = {
+            "role": "Keeper of the issue numbers",
+            "sequence": self.contact_one.sequence,
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.contact_one.refresh_from_db()
+        self.assertEqual(
+            self.contact_one.role,
+            "Keeper of the issue numbers",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_reorder(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people_reorder")
+        post_data = {
+            "contact[]": [self.contact_two.pk, self.contact_one.pk],
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.contact_one.refresh_from_db()
+        self.contact_two.refresh_from_db()
+        self.assertEqual(self.contact_two.sequence, 1)
+        self.assertEqual(self.contact_one.sequence, 2)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertListEqual(
+            [cp.pk for cp in response.context["contact_people"]],
+            [cp.pk for cp in self.journal_one.contact_people],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/search_potential.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET_with_q(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        get_data = {
+            "q": self.editor_two.last_name,
+        }
+        response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(
+            self.editor_two,
+            response.context["account_list"],
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET_marks_existing_contacts(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        get_data = {
+            "q": self.editor_one.first_name,
+        }
+        response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
+        self.assertTrue(response.context["account_list"][0].is_contact_person)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_journal_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_press_GET(self):
+        self.client.force_login(self.press_manager)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.press.domain)
+        self.assertIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_delete_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message_delete",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
         )

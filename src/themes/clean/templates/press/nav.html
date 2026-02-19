@@ -51,7 +51,11 @@
                 </li>
                 <li class="nav-item"></li>
             {% endif %}
-            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">{% trans 'Contact' %}</a></li>
+            <li class="nav-item">
+              <a href="{% url 'press_contact' %}" class="nav-link">
+                {% trans 'Contact' %}
+              </a>
+            </li>
             {% hook 'nav_block' %}
         </ul>
         <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">

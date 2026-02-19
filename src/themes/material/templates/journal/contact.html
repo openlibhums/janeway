@@ -18,7 +18,7 @@
                         {% endif %}
                     </h2>
                     {% for contact in contacts %}
-                        <h3>{{ contact.name }}</h3>
+                        <h3>{{ contact.display_name }}</h3>
                         <p>{{ contact.role }}</p>
                     {% endfor %}
                     {% if journal_settings.general.contact_info %}

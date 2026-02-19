@@ -7,7 +7,7 @@ import json
 import os
 from uuid import uuid4
 import requests
-import tqdm
+import warnings
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -20,12 +20,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from utils.logger import get_logger
-from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
-from utils.shared import get_ip_address
-
-logger = get_logger(__name__)
-
 
 logger = get_logger(__name__)
 
@@ -59,10 +54,12 @@ EMAIL_RECIPIENT_FIELDS = [
     ("bcc", "BCC"),
 ]
 
+ACTOR_EMAIL_MAX_LENGTH = 254
+
 
 class LogEntry(models.Model):
     types = models.CharField(max_length=255, null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now)
     subject = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     level = models.CharField(max_length=20, null=True, blank=True, choices=LOG_LEVELS)
@@ -73,7 +70,14 @@ class LogEntry(models.Model):
         related_name="actor",
         on_delete=models.SET_NULL,
     )
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    actor_email = models.EmailField(
+        blank=True,
+        help_text="The email address of an unauthenticated actor.",
+        max_length=ACTOR_EMAIL_MAX_LENGTH,
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True, blank=True, help_text="Deprecated field"
+    )
 
     content_type = models.ForeignKey(
         ContentType, on_delete=models.SET_NULL, related_name="content_type", null=True
@@ -103,6 +107,15 @@ class LogEntry(models.Model):
             self.types, self.date, self.subject, self.message_id
         )
 
+    def __getattribute__(self, name):
+        if name == "ip_address":
+            warnings.warn(
+                "The 'ip_address' field is deprecated.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
+
     def message_status_class(self):
         if self.message_status == "delivered":
             return "green"
@@ -119,6 +132,10 @@ class LogEntry(models.Model):
         return self.addressee_emails
 
     @property
+    def from_email(self):
+        return self.actor.email if self.actor else self.actor_email
+
+    @property
     def addressees(self):
         return self.addressee_set.all()
 
@@ -132,6 +149,7 @@ class LogEntry(models.Model):
         description,
         level,
         actor=None,
+        actor_email="",
         request=None,
         target=None,
         is_email=False,
@@ -153,7 +171,7 @@ class LogEntry(models.Model):
             "level": level,
             # if no actor is supplied, assume anonymous
             "actor": actor if actor else None,
-            "ip_address": get_ip_address(request),
+            "actor_email": actor_email,
             "target": target,
             "is_email": is_email,
             "message_id": message_id,
@@ -188,6 +206,20 @@ class LogEntry(models.Model):
             new_entries.append(new_entry)
         batch_size = 500
         return LogEntry.objects.bulk_create(new_entries, batch_size)
+
+    def viewable_as_contact_message_by(self, account):
+        """
+        Determines whether a user can view the log entry,
+        if it is categorized as a "Contact Message".
+        Denies access for other log entries of other types,
+        so it should not be used in those cases.
+        """
+        if self.types == "Contact Message":
+            if Addressee.objects.filter(
+                email__iexact=account.__class__.objects.normalize_email(account.email),
+            ).exists():
+                return True
+        return False
 
 
 class Addressee(models.Model):
