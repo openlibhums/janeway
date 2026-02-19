@@ -1671,6 +1671,44 @@
     },
     {
         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent when user requests co-authors add ORCID iD.",
+            "is_translatable": true,
+            "name": "orcid_request",
+            "pretty_name": "ORCID iD Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it by through your profile {{ user_profile_url }}.<br/></p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to co-authors that do not have accounts to create an account and add ORCID iD.",
+            "is_translatable": true,
+            "name": "orcid_activate_request",
+            "pretty_name": "ORCID iD Create Request",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Dear {{ user.full_name }}<br/><br/>Your co-author has requested your ORCID iD. You can add it through your profile {{ user_profile_url }}.<br/></p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -3598,6 +3636,44 @@
             "is_translatable": true,
             "description": "Subject for Email when Editor cancels or deletes a correction task.",
             "name": "subject_notify_correction_cancelled"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "ORCID iD Request"
+        },
+        "setting": {
+            "type": "char",
+            "pretty_name": "ORCID iD Request",
+            "is_translatable": true,
+            "description": "Subject for when a submitter requests a co-author's ORCID iD",
+            "name": "subject_orcid_request"
+        },
+        "group": {
+            "name": "email_subject"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "value": {
+            "default": "ORCID iD Request"
+        },
+        "setting": {
+            "type": "char",
+            "pretty_name": "ORCID iD Request",
+            "is_translatable": true,
+            "description": "Subject for when a submitter requests a co-author's ORCID iD and their account is inactive",
+            "name": "subject_orcid_activate_request"
         },
         "group": {
             "name": "email_subject"

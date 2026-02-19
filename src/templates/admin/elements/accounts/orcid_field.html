@@ -1,0 +1,53 @@
+{% load orcid %}
+{% load static %}
+
+<div>
+  <label for="{{ form.orcid.id_for_label }}">
+    <strong>
+      {{ form.orcid.label }}
+    </strong>
+  </label>
+  {% for error in form.orcid.errors %}
+    <div {% if form.orcid.errors %}class="error"{% endif %}>
+      <span class="fa fa-warning"></span>
+      {{ error|escape }}
+    </div>
+  {% endfor %}
+  {% if form.orcid.value %}
+    <input type="hidden" name="{{ form.orcid.name }}" value="{{ form.orcid.value }}"/>
+    <p>
+        <a href="{{ form.instance.get_orcid_url }}">
+            <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}">&nbsp;{{ form.instance.get_orcid_url }}
+        </a>
+    </p>
+    {% if form.instance.is_orcid_token_valid %}
+        {% if form.instance == request.user or request.user.is_staff %}
+            <p>
+                <button class="tiny success button" type="submit" name="remove_orcid">
+                    Remove
+                </button>
+            </p>
+        {% endif %}
+    {% else %}
+        <p class="callout warning">ORCID iD could not be validated.</p>
+    {% endif %}
+  {% endif %}
+  {% if not form.orcid.value or not form.instance.is_orcid_token_valid %}
+    {% if form.instance == request.user %}
+        <a href="{% url_with_next_and_orcid_action 'core_login_orcid' action='add_profile_orcid' %}"
+            class="button expanded orcid-button">
+            Connect your ORCID iD
+        </a>
+    {% else %}
+        {% if form.instance.date_orcid_requested %}
+            <p>Request sent: {{ form.instance.date_orcid_requested|date:"d M Y" }}</p>
+        {% endif %}
+        <button class="success button" type="submit" name="request_orcid">
+            Request ORCID iD
+        </button>
+    {% endif %}
+  {% endif %}
+  {% if field.help_text %}
+    <p class="help-text">{{ field.help_text|safe }}</p>
+  {% endif %}
+</div>

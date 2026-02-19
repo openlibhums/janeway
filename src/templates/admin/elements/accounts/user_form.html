@@ -14,11 +14,18 @@
 <div class="flex wrap column-gap-2">
   {% include "admin/elements/forms/field.html" with field=form.twitter %}
   {% include "admin/elements/forms/field.html" with field=form.facebook %}
-  {% include "admin/elements/forms/field.html" with field=form.orcid %}
   {% include "admin/elements/forms/field.html" with field=form.github %}
   {% include "admin/elements/forms/field.html" with field=form.linkedin %}
   {% include "admin/elements/forms/field.html" with field=form.website %}
+  {% if not settings.ENABLE_ORCID %}
+      {% include "admin/elements/forms/field.html" with field=form.orcid %}
+  {% endif %}
 </div>
+{% if settings.ENABLE_ORCID %}
+  <div class="flex wrap column-gap-2">
+      {% include 'admin/elements/accounts/orcid_field.html' with form=form %}
+  </div>
+{% endif %}
 <hr />
 <h3 class="fs-3">{% trans "Biography and Signature" %}</h3>
 <div class="flex wrap column-gap-2">

@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.http import QueryDict
 import requests
 from requests.exceptions import HTTPError
+import datetime
 
 from utils import logic
 from utils.logger import get_logger
@@ -48,12 +49,42 @@ def retrieve_tokens(authorization_code, site):
         r.raise_for_status()
     except HTTPError as e:
         logger.error("ORCID request failed: %s" % str(e))
-        orcid_id = None
+        # after logging failure continue with an empty response
+        # to avoid additional errors
+        orcid_response = {}
     else:
         logger.info("OK response from ORCID")
-        orcid_id = json.loads(r.text).get("orcid")
+        orcid_response = json.loads(r.text)
 
-    return orcid_id
+    access_token = orcid_response.get("access_token", None)
+    orcid_id = orcid_response.get("orcid", None)
+
+    if "expires_in" in orcid_response:
+        expires = orcid_response.get("expires_in")
+        expiration_date = datetime.datetime.now() + datetime.timedelta(seconds=expires)
+    else:
+        expiration_date = None
+
+    return access_token, expiration_date, orcid_id
+
+
+def is_token_valid(orcid_id, token):
+    api_client = OrcidAPI(settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET)
+    r = api_client._get_public_info(
+        orcid_id, "record", token, None, "application/orcid+json"
+    )
+    return r.status_code == 200
+
+
+def revoke_token(token):
+    url = settings.ORCID_TOKEN_URL.replace("token", "revoke")
+    data = {
+        "client_id": settings.ORCID_CLIENT_ID,
+        "client_secret": settings.ORCID_CLIENT_SECRET,
+        "token": token,
+    }
+    r = requests.post(url, data=data)
+    return r.status_code == 200
 
 
 def build_redirect_uri(site):

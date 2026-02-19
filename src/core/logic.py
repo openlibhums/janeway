@@ -148,6 +148,35 @@ def send_confirmation_link(request, new_user):
     )
 
 
+def send_orcid_request(request, user):
+    context = {
+        "user": user,
+        "user_profile_url": request.site_type.site_url(
+            reverse("core_edit_profile"),
+        ),
+    }
+    log_dict = {"level": "Info", "types": "ORCID Request", "target": None}
+
+    user.date_orcid_requested = timezone.now()
+    user.save()
+
+    if user.is_active:
+        template = "orcid_request"
+        subject = "subject_orcid_request"
+    else:
+        template = "orcid_activate_request"
+        subject = "subject_orcid_activate_request"
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        template,
+        subject,
+        user.email,
+        context,
+        log_dict=log_dict,
+    )
+
+
 def resize_and_crop(
     img_path,
     size=settings.DEFAULT_CROP_SIZE,
