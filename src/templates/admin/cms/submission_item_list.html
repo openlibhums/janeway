@@ -49,8 +49,20 @@
                             Special Display
                             {% endif %}
                         </td>
-                        <td><a href="{% url 'cms_edit_submission_item' item.pk %}" class="tiny success button">Edit</a></td>
-                        <td><form method="POST">{% csrf_token %}<button name="delete" value="{{ item.pk }}" class="tiny alert delete button">Delete</button></form></td>
+                        <td>
+                          {% url 'cms_edit_submission_item' item.pk as href %}
+                          {% with href=href size="small" %}
+                            {% include "elements/a_edit.html" %}
+                          {% endwith %}
+                        </td>
+                        <td>
+                          <form method="POST">
+                            {% csrf_token %}
+                            {% with name="delete" value=item.pk confirm="confirm" size="small" %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
+                          </form>
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
@@ -82,12 +94,5 @@
         });
         $("#sortable").disableSelection();
 
-        $(document).ready(function () {
-            $(".delete").click(function () {
-                if (!confirm("Are you sure you want to delete this section?")) {
-                    return false;
-                }
-            });
-        });
     </script>
 {% endblock js %}

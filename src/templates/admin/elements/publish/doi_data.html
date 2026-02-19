@@ -18,11 +18,11 @@
             <div class="line-item">
                 <span class="title">Status:
                     {% if doi_data.history|length > 1 %}
-                        <i class="fa fa-exclamation-triangle" style="color: orange;">&nbsp;</i>More than 1 hop detected.
+                        <i class="fa fa-exclamation-triangle">&nbsp;</i>More than 1 hop detected.
                     {% elif doi_data.status_code == 200 %}
-                        <i class="fa fa-check-square" style="color: green;"></i>
+                        <i class="fa fa-check-square"></i>
                     {% else %}
-                        <i class="fa fa-times-circle-o" style="color: red;"></i>
+                        <i class="fa fa-times-circle-o"></i>
                     {% endif %}
                 </span>
             </div>

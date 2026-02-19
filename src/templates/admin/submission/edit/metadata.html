@@ -26,7 +26,7 @@
                 </div>
                 <div class="content">
                     {% include "elements/translations/form_tabs.html" with object=article %}
-                    {% include "elements/forms/errors.html" with form=info_form %}
+                    {% include "admin/elements/forms/errors.html" with form=info_form %}
                     {% csrf_token %}
                     <div class="row expanded">
                         <div class="large-12 columns">
@@ -120,7 +120,9 @@
                     {% include "admin/elements/submission/additional_fields.html" with form=info_form additional_fields=additional_fields %}
 
                     <div class="large-12 columns">
-                        <button type="submit" name="metadata" class="small success button">Update Metadata</button>
+                      {% with name="metadata" label="Save Metadata" %}
+                        {% include "elements/button_save.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </form>
@@ -146,20 +148,20 @@
                             onkeypress="javascript:onFunderTextEnterPress(event);"
                         />
                     </div>
-                    <div class="large-2 columns">
+                    <div class="large-4 columns">
+                      <div class="button-group">
                         <button type="button"
-                            class="button pull-right"
+                            class="button primary"
                             onclick="javascript:search_fundref($('#funder_text').val())"
                         >Search for funder</button>
-                    </div>
-                    <div class="large-2 columns">
                         <input id="funder_name" type="hidden" value="use_raw"/>
                         <input id="funder_doi" type="hidden" value=""/>
                         <button
                             type="button"
-                            class="warning button pull-right"
+                            class="button secondary"
                             data-open="add_funder"
                         ><i class="fa fa-plus">&nbsp;</i>Add funder manually</button>
+                      </div>
                     </div>
                 </form>
             </div>
@@ -174,45 +176,7 @@
             <h2 id="edit-metadata-current-funders">Current Funders</h2>
         </div>
 
-        <div class="row expanded">
-            <div class="large-12 columns">
-                <table class="scroll">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>FundRef ID</th>
-                        <th>Grant Number</th>
-                        <th>{% trans "Funding Statement" %}</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody id="sortable">
-                    {% for funder in article.funders.all %}
-                        <tr id="funder-{{ funder.pk }}">
-                            <td>{{ funder.name|default_if_none:"" }}</td>
-                            <td>{{ funder.fundref_id|default_if_none:"" }}</td>
-                            <td>{{ funder.funding_id|default_if_none:"" }}</td>
-                            <td>{{ funder.funding_statement|safe }}</td>
-                            <td>
-                                <a href="{% url 'edit_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
-                                    <span class="fa fa-edit" aria-hidden="true">&nbsp;</span>Edit
-                                </a>
-                            </td>
-                            <td>
-                                <a href="{% url 'delete_funder' article.pk funder.pk %}?return={{ request.path|urlencode }}">
-                                    <span class="fa fa-trash" aria-hidden="true">&nbsp;</span>Delete
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="2">No funders added.</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
+        {% include "submission/current_funders_table.html" %}
 
         <div class="small reveal" id="add_funder" data-reveal>
             <div class="card">
@@ -223,7 +187,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{ funder_form|foundation }}
-                        <button type="submit" name="add_funder" class="success button">Add funder</button>
+                        {% include "elements/button_save.html" with name="add_funder" %}
                         <button type="button" data-close="" class="close-button">&times;</button>
                     </form>
                 </div>

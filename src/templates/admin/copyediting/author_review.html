@@ -82,15 +82,16 @@
             <h2>Complete Task</h2>
         </div>
         <div class="content">
-            {% include "elements/forms/errors.html" with form=form %}
+            {% include "admin/elements/forms/errors.html" with form=form %}
             <p>{% trans "You can add a note to the editor. They can pass any requests on to the copyeditor." %}</p>
             <form method="POST" id="author_copyediting_review">
                 <div class="row expanded">
                     <div class="large-6 columns">
                         {{ form.author_note|foundation }}
-                        <button type="submit" class="button success" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
-                            <i class="fa fa-check">&nbsp;</i>{% trans "Complete Copyedit Task" %}
-                        </button>
+                      {% trans "Complete Copyedit Task" as complete_label %}
+                      {% with name=form.CONFIRMABLE_BUTTON_NAME label=complete_label %}
+                        {% include "elements/button_complete.html" %}
+                      {% endwith %}
                     </div>
                     <div class="large-6 columns">
                         {{ form.decision|foundation }}

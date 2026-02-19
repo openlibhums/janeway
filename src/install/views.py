@@ -3,6 +3,8 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import warnings
+
 from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse
@@ -18,6 +20,7 @@ def index(request):
     :param request: HttpRequest object
     :return: HttpResponse or if request.POST: HttpRedirect
     """
+    warnings.warn("The GUI install process is deprecated.")
     if request.POST:
         file = request.FILES.get("press_logo")
         file = files.save_file_to_press(request, file, "Press Logo", "")
@@ -39,6 +42,7 @@ def journal(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    warnings.warn("The GUI install process is deprecated.")
     settings_to_get = [
         "journal_name",
         "journal_issn",
@@ -75,6 +79,7 @@ def next(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
+    warnings.warn("The GUI install process is deprecated.")
     template = "install/next.html"
     context = {}
 

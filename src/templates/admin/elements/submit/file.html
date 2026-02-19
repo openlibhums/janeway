@@ -26,12 +26,10 @@
                     </div>
                 </div>
                 {{ form|foundation }}
-                <button
-                    type="submit"
-                    name="{{ modaltype }}"
-                    class="success button">
-                    {% trans 'Add File' %}
-                </button>
+                {% trans 'Add File' as add_file %}
+                {% with label=add_file name=modaltype %}
+                  {% include "elements/button_yes.html" %}
+                {% endwith %}
                 <button
                     class="close-button"
                     data-close=""

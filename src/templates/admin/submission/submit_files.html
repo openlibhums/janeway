@@ -14,9 +14,7 @@
 
     <article class="box">
         <div class="row expanded">
-            {% if error %}
-                <p>**{{ error }}**</p>
-            {% endif %}
+          {% include "elements/forms/generic_error.html" %}
             {% csrf_token %}
         </div>
 
@@ -32,9 +30,14 @@
                     <div class="large-3 columns">
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <a href="#" data-open="manuscript" class="button success" name="data">
-                              <i class="fa fa-upload">&nbsp;</i>{% trans "Upload" %}
-                            </a>
+                          <a
+                            href="#"
+                            data-open="manuscript"
+                            class="button primary"
+                            name="data">
+                            <span class="fa fa-upload">&nbsp;</span>
+                            {% trans "Upload" %}
+                          </a>
                         </form>
                     </div>
                     <div class="large-9 columns col-md-offset-1">
@@ -73,9 +76,14 @@
                     </div>
                     <div class="row expanded">
                         <div class="large-3 columns">
-                            <a href="#" data-open="data" class="button success" name="data"><i class="fa fa-upload">
-                                &nbsp;</i>{% trans "Upload" %}
-                            </a>
+                          <a
+                            href="#"
+                            data-open="data"
+                            class="button secondary"
+                            name="data">
+                            <span class="fa fa-upload"></span>
+                            {% trans "Upload" %}
+                          </a>
                         </div>
                         <div class="large-9 columns col-md-offset-1">
                             <table class="scroll small">
@@ -111,9 +119,12 @@
             <div class="large-12 columns">
                 <form method="POST">
                     {% csrf_token %}
-                    <button class="button success pull-right" type="submit" name="next_step"><i class="fa fa-check">
-                        &nbsp;</i>{% trans "Save and Continue" %}
-                    </button>
+                  <div class="flex justify-end">
+                    {% trans "Save and Continue" as continue_label %}
+                    {% with name="next_step" label=continue_label %}
+                      {% include "elements/button_complete.html" %}
+                    {% endwith %}
+                  </div>
                 </form>
             </div>
         </div>

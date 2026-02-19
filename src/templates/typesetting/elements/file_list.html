@@ -56,15 +56,14 @@
                     <td>{{ file.last_modified }}</td>
                     <td>{{ file.owner }}<br>{{ file.owner.email }}</td>
                     <td>
-                        <a
-                            {% if assignment %}
-                                href="{% url 'typesetting_typesetter_download_file' assignment.pk file.pk %}"
-                            {% else %}
-                                href="{% url 'typesetting_download_file' article.pk file.pk %}"
-                            {% endif %}
-                            aria-label="download">
-                            <i class="fa fa-download">&nbsp;</i>
-                        </a>
+                      {% if assignment %}
+                        {% url 'typesetting_typesetter_download_file' assignment.pk file.pk as download_href %}
+                      {% else %}
+                        {% url 'typesetting_download_file' article.pk file.pk as download_href %}
+                      {% endif %}
+                      {% with href=download_href size="small" %}
+                        {% include "elements/a_download.html" %}
+                      {% endwith %}
                     </td>
                     {% if options %}
                         {% if request.user.is_staff or user_is_editor %}

@@ -1,0 +1,14 @@
+{% comment %}
+  A secondary-color Django admin button with cog icon.
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  target="_blank"
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-cogs" aria-hidden="true"></span>
+  {% trans "Admin" as default_label %}
+  {{ label|default:default_label }}
+</a>

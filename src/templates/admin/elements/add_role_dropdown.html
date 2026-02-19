@@ -16,7 +16,7 @@
     {% endif %}
     <div class="flex gap-0-5">
       <a
-        class="small button dropdown"
+        class="small button secondary dropdown"
         data-toggle="create-accountrole-{{ account.pk }}">
         <span class="fa fa-plus"></span>
         Add role
@@ -34,14 +34,9 @@
       {% endif %}
       <div class="flex wrap gap-0-5">
         {% for role in roles %}
-          <button
-            class="small button"
-            name="role"
-            value="{{ role.pk }}"
-            type="submit">
-            <span class="fa fa-plus"></span>
-            {{ role.name }}
-          </button>
+          {% with name="role" value=role.pk label=role.name size="small" %}
+            {% include "elements/button_add.html" %}
+          {% endwith %}
         {% endfor %}
       </div>
     </div>

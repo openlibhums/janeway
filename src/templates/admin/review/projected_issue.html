@@ -24,7 +24,7 @@
 				<form method="POST">
 					{% csrf_token %}
 					{{ form|foundation }}
-					<button name="add_projected_issue" class="success button">{% trans "Save Projected Issue" %}</button>
+          {% include "elements/button_save.html" with name="add_projected_issue" %}
 				</form>
 			</div>
 		</div>

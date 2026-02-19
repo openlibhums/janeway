@@ -20,7 +20,7 @@
                     <h2>Revision Request Information</h2>
                 </div>
                     {% if pending_approval.exists or incomplete.exists %}
-                    <div class="callout bs-callout-warning">
+                    <div class="bs-callout bs-callout-warning">
                         <h4><strong><span class="fa fa-warning"></span> Potential problems detected</strong></h4>
                         <p>Please, make sure you look over and address the following warnings where necessary</p>
                         <ul>
@@ -48,13 +48,12 @@
                                 have the option to send an email, with
                                 attachments, on the next page.
                             </p>
-                            {% include "elements/forms/errors.html" with form=form %}
+                            {% include "admin/elements/forms/errors.html" with form=form %}
                             {{ form|foundation }}
 
-                            <button class="button success"
-                                    name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
-                                Next
-                            </button>
+                          {% with name=form.CONFIRMABLE_BUTTON_NAME label="Next" %}
+                            {% include "elements/button_complete.html" %}
+                          {% endwith %}
                         </div>
                     </div>
                 </div>

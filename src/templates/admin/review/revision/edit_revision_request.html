@@ -22,7 +22,9 @@
                 <div class="content">
                     <p>You can edit the due date of the revision request below, mark it as complete, delete it.</p>
                     {{ form.date_due }}
-                    <button name="update_due" class="button success">Update Due Date</button>
+                  {% with name="update_due" hierarchy="secondary" %}
+                    {% include "elements/button_save.html" %}
+                  {% endwith %}
                 </div>
             </div>
         </div>
@@ -35,7 +37,9 @@
                     <textarea name="delete_rationale"></textarea>
                     <p>If you want to delete the revision request, complete the box above, this info will be
                         logged.</p>
-                    <button name="delete_revision" class="button alert">Delete Revision Request</button>
+                    {% with name="delete_revision" label="Delete Revision Request" %}
+                      {% include "elements/button_delete.html" %}
+                    {% endwith %}
                 </div>
             </div>
         </div>
@@ -45,8 +49,9 @@
                     <h2>Mark Complete</h2>
                 </div>
                 <div class="content">
-                    <input type="checkbox" name="mark_as_complete"> Check to mark as complete<br/>
-                    <button name="mark_complete" class="button warning">Mark Revision as Complete</button>
+                  {% with name="mark_as_complete" label="Mark Revision as Complete" hierarchy="secondary" %}
+                    {% include "elements/button_complete.html" %}
+                  {% endwith %}
                 </div>
             </div>
         </div>

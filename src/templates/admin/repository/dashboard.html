@@ -68,11 +68,18 @@
                     <tr>
                         <td>{{ preprint.pk }}</td>
                         <td>{{ preprint.title|safe }}</td>
-                        <td><a class="small button" href="{% url 'repository_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
+                        <td>
+                          {% url 'repository_submit_with_id' preprint.pk as edit_href %}
+                          {% with href=edit_href size="small" label="Complete this Submission" %}
+                            {% include "elements/a_edit.html" %}
+                          {% endwith %}
+                        </td>
                         <td>
                             <form method="POST">
                                 {% csrf_token %}
-                                <button class="small alert button delete" name="delete" value="{{ preprint.pk }}">Delete</button>
+                              {% with name="delete" value=preprint.pk size="small" confirm="confirm" %}
+                                {% include "elements/button_delete.html" %}
+                              {% endwith %}
                             </form>
                         </td>
                     </tr>
@@ -83,16 +90,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% block js %}
-    <script>
-    $(document).ready(function () {
-        $(".delete").click(function () {
-            var preprint_id = $(this).val()
-            if (!confirm("Warning: Deleted data cannot be recovered. If you are sure you want to delete {{request.repository.object_name}} with ID " + preprint_id +" press OK.")) {
-                return false;
-            }
-        });
-    });
-</script>
-{% endblock js %}

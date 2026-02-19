@@ -1574,7 +1574,7 @@ def repository_wizard(request, short_name=None, step="1"):
         if form.is_valid():
             updated_repository = form.save()
 
-            # If we reach step 4, redirect to the Repo home page.
+            # If we reach step 5, redirect to the Repo home page.
             if step == "5":
                 messages.add_message(
                     request,

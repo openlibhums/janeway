@@ -59,18 +59,29 @@
                     {% if draft %}</div>{% endif %}
 
                     {{ form.email_message|foundation }}
-                    <button type="submit" class="success button">{% if not draft %}Submit Draft for Review{% else %}
-                        Save{% endif %}</button>
-
+                    {% if not draft %}
+                      {% with name="" label="Submit Draft for Review" %}
+                        {% include "elements/button_send.html" %}
+                      {% endwith %}
+                    {% else %}
+                      {% with name="" %}
+                        {% include "elements/button_save.html" %}
+                      {% endwith %}
+                    {% endif %}
                     {% if draft and user_is_editor %}
                         <div class="title-area">
                             <h2>Complete Reviews</h2>
                         </div>
                         {% include "admin/elements/review/view_reviews.html" with reviews=article.completed_reviews_with_decision reviewer_names=True %}
-                            <button name="accept_draft" type="submit" class="success button"
-                                    formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Accept Draft
-                            </button>
-                            <a href="#" data-open="declinemodal" class="alert button">Decline Draft</a>
+                      <div class="button-group no-bottom-margin flex">
+                        {% url 'review_manage_draft' article.pk draft.pk as accept_url %}
+                        {% with name="accept_draft" formaction=accept_url label="Accept Draft" %}
+                          {% include "elements/button_yes.html" %}
+                        {% endwith %}
+                        <a href="#" data-open="declinemodal" class="alert button">
+                          Decline Draft
+                        </a>
+                      </div>
                     {% endif %}
                 </form>
             </div>
@@ -97,13 +108,13 @@
                     {% if not draft.editor_decision %}
                         <form method="POST" action="{% url 'review_draft_decision' article.pk %}">
                             {% csrf_token %}
-                            <div class="float-left">
-                                <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}"
-                                   class="tiny warning button"><i class="fa fa-edit"></i> Edit</a>
-                                <button type="submit" name="delete" value="{{ draft.pk }}"
-                                        class="tiny alert button"><i class="fa fa-trash"></i> Delete
-                                </button>
-                            </div>
+                          <div class="button-group no-bottom-margin flex">
+                            {% url 'review_edit_draft_decision' article.pk draft.pk as edit_url %}
+                            {% include "elements/a_edit.html" with href=edit_url %}
+                            {% with value=draft.pk %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
+                          </div>
                         </form>
                     {% endif %}
                     <hr/>
@@ -128,10 +139,10 @@
                 <form method="POST">
                     {% csrf_token %}
                     <textarea name="editor_decline_rationale" placeholder="Add rationale here"></textarea>
-                    <button name="decline_draft" type="submit"
-                            class="alert button"
-                            formaction="{% url 'review_manage_draft' article.pk draft.pk %}">Decline Draft
-                    </button>
+                  {% url 'review_manage_draft' article.pk draft.pk as send_url %}
+                  {% with name="decline_draft" formaction=send_url label="Send Decision" %}
+                    {% include "elements/button_send.html" %}
+                  {% endwith %}
                 </form>
             </div>
         </div>

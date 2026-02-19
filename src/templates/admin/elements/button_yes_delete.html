@@ -1,13 +1,16 @@
 {% comment %}
-  A generic confirm delete button with a rubbish icon
+  A warning-color confirm-delete button with a rubbish icon.
+  Use this rather than button_yes_remove.html when the thing will really be gone,
+  and the user cannot easily find it and put it back.
 {% endcomment %}
 
 {% load i18n %}
 
 <button
   name="{{ name|default:'yes_delete' }}"
-  class="button {{ size|default:'normal' }} no-bottom-margin"
+  class="button warning {{ size|default:'normal' }} no-bottom-margin"
   type="submit">
-  <span class="fa fa-trash"></span>
-  {% trans "Yes, delete" %}
+  <span class="fa fa-trash" aria-hidden="true"></span>
+  {% trans "Yes, delete" as default_label %}
+  {{ label|default:default_label }}
 </button>

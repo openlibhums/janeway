@@ -19,7 +19,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     <textarea rows="10" name="template">{{ text }}</textarea>
-                    <button class="success button">Save Template</button>
+                  {% include "elements/button_save.html" %}
                 </form>
             </div>
             <div class="large-6 columns">

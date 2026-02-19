@@ -3,7 +3,6 @@
 
 {% block title %}Manager{% endblock title %}
 {% block title-section %}Manager{% endblock %}
-{% block title-sub %}Account{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -21,11 +20,16 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "journal" %}">General</a>
-                        <a class="button" href="{% url 'home_settings_index' %}">Home Page</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling</a>
-                        <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
+                      {% url 'core_edit_settings_group' "journal" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="General" %}
+                      {% url 'home_settings_index' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Home Page" %}
+                      {% url 'core_edit_settings_group' "images" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Images" %}
+                      {% url 'core_edit_settings_group' "styling" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Styling" %}
+                      {% url 'core_settings_index' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="All Settings" %}
                     </div>
                 </div>
 
@@ -34,8 +38,10 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "review" %}">Review Settings</a>
-                        <a class="button" href="{% url 'review_review_forms' %}">Review Forms</a>
+                      {% url 'core_edit_settings_group' "review" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Review Settings" %}
+                      {% url 'review_review_forms' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Review Forms" %}
                     </div>
                 </div>
 
@@ -45,9 +51,12 @@
 
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
-                        <a class="button" href="{% url 'submission_configurator' %}">Submission Fields Configurator</a>
-                        <a class="button" href="{% url 'submission_fields' %}">Additional Submission Fields</a>
+                      {% url 'core_edit_settings_group' "submission" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Submission Settings" %}
+                      {% url 'submission_configurator' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Submission Fields Configurator" %}
+                      {% url 'submission_fields' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Additional Submission Fields" %}
                     </div>
                 </div>
 
@@ -61,7 +70,8 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "proofing" %}">Proofing Settings</a>
+                      {% url 'core_edit_settings_group' "proofing" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Proofing Settings" %}
                     </div>
                 </div>
                 <div class="title-area">
@@ -69,11 +79,16 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
-                        <a class="button" href="{% url 'cms_file_list' %}">Media Files</a>
-                        <a class="button" href="{% url 'cms_submission_items' %}">Submission Page Items</a>
-                        <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
-                        <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
+                      {% url 'cms_index' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Content Manager" %}
+                      {% url 'cms_file_list' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Media Files" %}
+                      {% url 'cms_submission_items' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Submission Page Items" %}
+                      {% url 'core_journal_contacts' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Journal Contacts" %}
+                      {% url 'core_editorial_team' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Editorial Team" %}
                     </div>
                 </div>
 
@@ -82,8 +97,10 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "news" %}">News Settings</a>
-                        <a class="button" href="{% url 'core_manager_news' %}">News Manager</a>
+                      {% url 'core_edit_settings_group' "news" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="News Settings" %}
+                      {% url 'core_manager_news' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="News Manager" %}
                     </div>
                 </div>
             </div>
@@ -97,11 +114,16 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' 'article' %}">Article Display</a>
-                        <a class="button" href="{% url 'core_article_images' %}">Article Images Manager</a>
-                        <a class="button" href="{% url 'manage_issues' %}">Issue Manager</a>
-                        <a class="button" href="{% url 'core_manager_sections' %}">Sections (Article Types)</a>
-                        <a class="button" href="{% url 'submission_licenses' %}">Licence Manager</a>
+                      {% url 'core_edit_settings_group' 'article' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Article Display" %}
+                      {% url 'core_article_images' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Article Images Manager" %}
+                      {% url 'manage_issues' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Issue Manager" %}
+                      {% url 'core_manager_sections' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Sections (Article Types)" %}
+                      {% url 'submission_licenses' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Licence Manager" %}
                     </div>
                 </div>
                 <div class="title-area">
@@ -109,9 +131,12 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'journal_identifier_manager' %}">DOI Manager (Beta)</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "crossref" %}">Crossref Settings</a>
-                        <a class="button" href="{% url 'core_edit_settings_group' "crosscheck" %}">Crosscheck Settings</a>
+                      {% url 'journal_identifier_manager' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="DOI Manager (Beta)" %}
+                      {% url 'core_edit_settings_group' "crossref" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Crossref Settings" %}
+                      {% url 'core_edit_settings_group' "crosscheck" as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Crosscheck Settings" %}
                     </div>
                 </div>
 
@@ -120,12 +145,22 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'journal_users' %}">Journal Users (New)</a>
-                        <a class="button" href="{% url 'core_manager_users' %}">Enrolled Users</a>
-                        <a class="button" href="{% url 'core_manager_enrol_users' %}">Enrol Users</a>
-                        <a class="button" href="{% url 'core_manager_roles' %}">Roles</a>
-                        {% if request.user.is_staff %}<a class="button" href="{% url 'core_manager_inactive_users' %}">Inactive Users</a>{% endif %}
-                        {% if request.user.is_staff %}<a class="button" href="{% url 'core_logged_in_users' %}">Authenticated Users</a>{% endif %}
+                      {% url 'journal_users' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Journal Users (New)" %}
+                      {% url 'core_manager_users' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Enrolled Users" %}
+                      {% url 'core_manager_enrol_users' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Enrol Users" %}
+                      {% url 'core_manager_roles' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Roles" %}
+                      {% if request.user.is_staff %}
+                        {% url 'core_manager_inactive_users' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Inactive Users" %}
+                      {% endif %}
+                      {% if request.user.is_staff %}
+                        {% url 'core_logged_in_users' as href %}
+                        {% include "elements/a_menu_item.html" with href=href label="Authenticated Users" %}
+                      {% endif %}
                     </div>
                 </div>
             </div>
@@ -137,10 +172,14 @@
                 </div>
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_flush_cache' %}">Clear Cache</a>
-                        <a class="button" href="{% url 'cron_reminders' %}">Scheduled Reminders</a>
-                        <a class="button" href="{% url 'core_email_templates' %}">Email Templates</a>
-                        <a class="button" href="{% url 'cron_readers' %}">Publication Notifications (Readers)</a>
+                      {% url 'core_flush_cache' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Clear Cache" %}
+                      {% url 'cron_reminders' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Scheduled Reminders" %}
+                      {% url 'core_email_templates' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Email Templates" %}
+                      {% url 'cron_readers' as href %}
+                      {% include "elements/a_menu_item.html" with href=href label="Publication Notifications (Readers)" %}
                     </div>
                 </div>
             </div>

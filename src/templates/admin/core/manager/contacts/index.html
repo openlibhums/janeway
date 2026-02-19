@@ -16,7 +16,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Current Contacts</h2>
-                <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
+                <a class="float-right small button" href="{% url 'core_new_journal_contact' %}"><i
                         class="fa fa-plus">&nbsp;</i>Add New Contact</a>
                 <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts Page</a>
             </div>
@@ -46,12 +46,15 @@
                                 <td>{{ contact.email }}</td>
                                 <td>{{ contact.role }}</td>
                                 <td>
-                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit Contact</a>
+                                  {% url 'core_journal_contact' contact.pk as href %}
+                                  {% with href=href size="small" %}
+                                    {% include "elements/a_edit.html" %}
+                                  {% endwith %}
                                 </td>
                                 <td>
-                                    <button type="submit" name="delete" value="{{ contact.pk }}"
-                                            class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
+                                  {% with name="delete" value=contact.pk size="small" %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
                                 </td>
                             </tr>
                             {% empty %}

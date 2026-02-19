@@ -20,7 +20,7 @@
     <div>
       <a
         href="{% url_with_next_and_orcid_action 'core_login_orcid' action='login' %}"
-        class="button expanded orcid-button">
+        class="button primary expanded orcid-button">
         <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}">
         {% trans "Log in with ORCiD" %}
       </a>
@@ -30,7 +30,7 @@
     <div>
       <a
         href="{% url_with_next 'oidc_authentication_init' %}"
-        class="button secondary hollow expanded">
+        class="button primary expanded">
         {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
       </a>
     </div>
@@ -42,7 +42,7 @@
   {% include "admin/elements/forms/field.html" with field=form.user_pass %}
   {{ form.captcha }}
   <div>
-    <button type="submit" class="button secondary expanded">
+    <button type="submit" class="button primary expanded">
       {% trans "Log in with your account" %}
     </button>
   </div>

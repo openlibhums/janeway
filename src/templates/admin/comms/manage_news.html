@@ -53,7 +53,7 @@
                         {% include "admin/elements/translations/form_tabs.html" with object=news_item %}
                     </div>
                 </div>
-                {% include "elements/forms/errors.html" with form=form %}
+                {% include "admin/elements/forms/errors.html" with form=form %}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.title|foundation }}
@@ -66,11 +66,10 @@
                     {% if not action == 'new' and news_item.large_image_file %}
                         <div class="row expanded">
                             <div class="large-12 columns">
-                                <p>Existing image: {{ news_item.large_image_file }} -
-                                    <button type="submit" name="delete_image"
-                                            value="{{ news_item.large_image_file.id }}"
-                                            class="tiny alert button">Delete
-                                    </button>
+                                <p>Existing image: {{ news_item.large_image_file }}
+                                  {% with name="delete_image" value=news_item.large_image_file.id %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
                                 </p>
                             </div>
                         </div>
@@ -84,16 +83,15 @@
                             <label for="id_tags">Tags</label>
                             <input type="text" id="id_tags" name="tags" value="{% if form.cleaned_data.tags %}{{ form.cleaned_data.tags }}{% else %}{% for tag in news_item.tags.all %}{{ tag.text }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"/>
                             <p>Hit Enter to add a new keyword.</p>
-                            <button class="success button" type="submit">
-                                {% if action == 'new' %}Add Item{% else %}
-                                    Update
-                                    Item{% endif %}</button>
+                          <div class="button-group">
+                            {% include "elements/button_save.html" %}
                             {% if news_item.history %}
-                                <a class="button" data-open="history_modal">
+                                <a class="button secondary" data-open="history_modal">
                                     <i class="fa fa-history" aria-hidden="True"></i>
                                     View History
                                 </a>
                             {% endif %}
+                          </div>
                         </div>
                     </div>
                 </form>

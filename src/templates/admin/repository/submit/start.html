@@ -23,7 +23,7 @@
                         <div class="title-area">
                             <h2>{% trans "Submission Agreement" %}</h2>
                         </div>
-                        {% include "elements/forms/errors.html" with form=form %}
+                        {% include "admin/elements/forms/errors.html" with form=form %}
                         <div class="large-12 columns">
                             <div class="row expanded">
                                 <div class="large-12 columns">
@@ -42,17 +42,17 @@
                             {{ form.abstract|foundation }}
 
                         </div>
-                        <div class="large-12 columns error">
+                        <div class="large-12 columns">
                             {{ form.license|foundation }}
                         </div>
-                        <div class="large-12 columns error">
+                        <div class="large-12 columns">
                             {{ form.doi|foundation }}
                         </div>
 
                         <div class="large-12 columns">
                             <div class="row expanded">
                                 <div class="large-12 columns">
-                                    <label for="id_subject">{{ form.subject.label }}<span class="red">*</span></label>
+                                    <label for="id_subject">{{ form.subject.label }}<span>*</span></label>
                                     <ul class="tree">
                                         {% include "admin/elements/repository/tree.html" with subjects=request.repository.top_level_subjects %}
                                     </ul>

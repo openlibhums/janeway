@@ -1,0 +1,18 @@
+{% comment %}
+  A secondary-color menu item button with an optional icon.
+  NOTE: A label is required.
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button no-bottom-margin
+    {{ hierarchy|default:'secondary' }}
+    {{ size|default:'normal' }}
+  ">
+  {% if icon %}
+    <span class="fa {{ icon }}" aria-hidden="true"></span>
+  {% endif %}
+  {{ label }}
+</a>

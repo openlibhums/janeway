@@ -8,17 +8,15 @@
             <div class="row expanded">
                 <div class="large-4 columns">
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat">{{ unassigned_articles_count }}</span>
-                            <span class="title">Unassigned</span>
-                            <a href="{% url 'review_unassigned' %}" class="box-link"></a>
-                        </div>
+                      {% url 'review_unassigned' as unassigned_href %}
+                      {% with label="Unassigned" item_count=unassigned_articles_count href=unassigned_href %}
+                        {% include "admin/core/dashboard_stat.html" %}
+                      {% endwith %}
                         {% for element in request.journal.workflow.elements.all %}
-                            <div class="summary">
-                                <span class="stat">{{ element.articles.count }}</span>
-                                <span class="title">{{ element|capfirst }}</span>
-                                <a href="{% url element.handshake_url %}" class="box-link"></a>
-                            </div>
+                          {% url element.handshake_url as handshake_href %}
+                          {% with label=element|capfirst item_count=element.articles.count href=handshake_href %}
+                            {% include "admin/core/dashboard_stat.html" %}
+                          {% endwith %}
                             {% if forloop.counter == 1 or forloop.counter|divisibleby:3 and not forloop.last %}
                                 </div>
                                 </div>
@@ -33,9 +31,11 @@
 
             <div class="row expanded">
                 <div class="large-12 columns">
-                    <br/>
-                    <a class="success button pull-right" href="{% url 'core_active_submissions' %}">Search all
-                        submissions</a>
+                  <br>
+                  <div class="button-group no-bottom-margin pull-right">
+                    {% url 'core_active_submissions' as search_href %}
+                    {% include "elements/a_menu_item.html" with href=search_href label="Search all submissions" %}
+                  </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,20 @@
+{% comment %}
+  A secondary-color back button with a left arrow
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  {% if id %}
+    id="{{ id }}"
+  {% endif %}
+  name="{{ name|default:'back' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin"
+  type="submit">
+  <span class="fa fa-arrow-left" aria-hidden="true"></span>
+  {% trans "Back" as default_label %}
+  {{ label|default:default_label }}
+</button>

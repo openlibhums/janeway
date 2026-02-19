@@ -346,7 +346,6 @@ class ReviewAssignment(models.Model):
             return {
                 "code": "withdrawn",
                 "display": "Withdrawn",
-                "span_class": "red",
                 "date": "",
                 "reminder": None,
             }
@@ -354,7 +353,6 @@ class ReviewAssignment(models.Model):
             return {
                 "code": "complete",
                 "display": "Complete",
-                "span_class": "light-green",
                 "date": shared.day_month(self.date_complete),
                 "reminder": None,
             }
@@ -362,7 +360,6 @@ class ReviewAssignment(models.Model):
             return {
                 "code": "accept",
                 "display": "Yes",
-                "span_class": "green",
                 "date": shared.day_month(self.date_accepted),
                 "reminder": "accepted",
             }
@@ -370,7 +367,6 @@ class ReviewAssignment(models.Model):
             return {
                 "code": "declined",
                 "display": "No",
-                "span_class": "red",
                 "date": shared.day_month(self.date_declined),
                 "reminder": None,
             }
@@ -378,7 +374,6 @@ class ReviewAssignment(models.Model):
             return {
                 "code": "wait",
                 "display": "Wait",
-                "span_class": "amber",
                 "date": "",
                 "reminder": "request",
             }

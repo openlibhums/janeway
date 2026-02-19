@@ -32,10 +32,11 @@
                         {{ form|foundation }}
                     </div>
                     <div class="card-divider">
-                        <div class="button-group">
-                            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-                            <a href="{% url 'review_in_review' article.pk %}" class="button warning">Skip Notification</a>
-                        </div>
+                      <div class="button-group">
+                        {% include "elements/button_send.html" %}
+                        {% url 'review_in_review' article.pk as skip_href %}
+                        {% include "elements/a_skip.html" with href=skip_href label="Skip Notification" %}
+                      </div>
                     </div>
                 </form>
             </div>

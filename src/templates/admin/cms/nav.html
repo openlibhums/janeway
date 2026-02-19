@@ -27,7 +27,7 @@
                 <div class="content">
                     {% include "admin/elements/forms/errors.html" %}
                     {{ form|foundation }}
-                    <button type="submit" name="edit_nav" class="success button">
+                    <button type="submit" name="edit_nav" class="button">
                         {% if form.instance.pk  %}Update{% else %}Create{% endif %}
                     </button>
                 </div>

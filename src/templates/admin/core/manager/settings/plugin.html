@@ -17,15 +17,12 @@
         <div class="row expanded">
             <div class="large-12 columns">
                 <div class="box">
-                    {% include "elements/forms/errors.html" with form=edit_form %}
+                    {% include "admin/elements/forms/errors.html" with form=edit_form %}
                     <form action="" method="POST" enctype="multipart/form-data">
 
                         {% csrf_token %}
                         {% include "elements/forms/submission.html" with form=edit_form %}
-
-                        <button type="submit" class="button success">
-                            Submit
-                        </button>
+                      {% include "elements/button_save.html" %}
                     </form>
                 </div>
             </div>

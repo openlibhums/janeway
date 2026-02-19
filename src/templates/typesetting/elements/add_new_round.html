@@ -9,7 +9,7 @@
           <form method="POST">
             {% csrf_token %}
             {% if pending_tasks %}
-            <div class="callout bs-callout-warning">
+            <div class="bs-callout bs-callout-warning">
               <span class="fa fa-alert-circle"></span> Problems detected: <br/><br/>
               <ul>
                 {% for pending_task in pending_tasks %}
@@ -19,7 +19,9 @@
               <p> Creating a new round will automatically cancel any open tasks. Assignees will be notified accordingly.</p>
           </div>
           {% endif %}
-        <button type="submit" name="new-round" class="button success">Confirm</button>
+        {% with label="Confirm" name="new-round" %}
+          {% include "elements/button_yes.html" %}
+        {% endwith %}
     </form>
         </div>
     </div>

@@ -10,11 +10,11 @@
       {% endif %}
     </strong>
     {% if languages|length > 1 and field.name in edit_form.translatable_field_names %}
-      <small class="green">[{% trans 'translatable' %}]</small>
+      <small>[{% trans 'translatable' %}]</small>
     {% endif %}
   </label>
   {% for error in field.errors %}
-    <div {% if field.errors %}class="error"{% endif %}>
+    <div {% if field.errors %}class="field-error"{% endif %}>
       <span class="fa fa-warning"></span>
       {{ error|escape }}
     </div>

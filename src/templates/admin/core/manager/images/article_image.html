@@ -26,9 +26,9 @@
                         <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}" class="thumbnail">
                         <form method="POST">
                             {% csrf_token %}
-                            <button type="submit" name="delete" value="{{ article.large_image_file.id }}" class="tiny alert button">
-                                Delete File
-                            </button>
+                            {% with name="delete" value=article.large_image_file.id %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
                         </form>
                     {% endif %}
                 </div>
@@ -44,7 +44,7 @@
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="file" name="image_file">
-                        <button name="large" type="submit" class="success button">Upload</button>
+                        {% include "elements/button_upload.html" with name="large" %}
                     </form>
                 </div>
             </div>
@@ -64,9 +64,9 @@
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}" class="thumbnail">
                         <form method="POST">
                             {% csrf_token %}
-                            <button type="submit" name="delete" value="{{ article.thumbnail_image_file.id }}" class="tiny alert button">
-                                Delete File
-                            </button>
+                            {% with name="delete" value=article.thumbnail_image_file.id %}
+                              {% include "elements/button_delete.html" %}
+                            {% endwith %}
                         </form>
                     {% endif %}
                 </div>
@@ -82,7 +82,7 @@
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="file" name="image_file">
-                        <button name="thumb" type="submit" class="success button">Upload</button>
+                        {% include "elements/button_upload.html" with name="thumb" %}
                     </form>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ article_meta_image_form.as_p }}
-                            <button name="meta" type="submit" class="success button">Upload</button>
+                            {% include "elements/button_upload.html" with name="meta" %}
                         </form>
                     </div>
                 </div>

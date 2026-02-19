@@ -40,10 +40,15 @@
                                 <td>{{ r.active|bool_fa }}</td>
                                 <td>{{ r.review_set.count }}</td>
                                 <td>
-                                    <a href="{% url 'repository_edit_review_recommendation' r.pk %}" class="tiny warning button">Edit</a>
+                                  {% url 'repository_edit_review_recommendation' r.pk as edit_href %}
+                                  {% with href=edit_href size="small" %}
+                                    {% include "elements/a_edit.html" %}
+                                  {% endwith %}
                                 </td>
                                 <td>
-                                    <button class="tiny alert button del{% if r.review_set.count > 0 %} disabled{% endif %}" name="delete" value="{{ r.pk }}">Delete</button>
+                                  {% with disabled=r.review_set.count value=r.pk size="small" confirm="confirm" %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
                                 </td>
                             </tr>
                         {% empty %}

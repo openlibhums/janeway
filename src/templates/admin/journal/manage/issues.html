@@ -36,12 +36,14 @@
                         {% csrf_token %}
                         {% if not issue %}
                              <p class="small">You can drag and drop Issues into the desired order or use the order by buttons below. Ordering Issues from this interface changes the public display order of Issues, changes will take effect immediately.</p>
-                            <button name="sort" value="date_sort_desc" class="button">
-                                <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
-                            </button>
-                            <button name="sort" value="date_sort_asc" class="button">
-                                <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
-                            </button>
+                          <button name="sort" value="date_sort_desc" class="button secondary">
+                            <span class="fa fa-sort-amount-desc"></span>
+                            Sort by Date Descending
+                          </button>
+                          <button name="sort" value="date_sort_asc" class="button secondary">
+                            <span class="fa fa-sort-amount-asc"></span>
+                            Sort by Date Ascending
+                          </button>
                         {% endif %}
                     </form>
                     <table class="scroll">
@@ -78,9 +80,15 @@
                                     {% if request.journal.current_issue != i and i.is_published %}
                                         <form method="POST">
                                             {% csrf_token %}
-                                            <button name="make_current" type="submit" class="button" value="{{ i.pk }}"
-                                                    style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current
-                                            </button>
+                                          <button
+                                            name="make_current"
+                                            type="submit"
+                                            class="button secondary no-bottom-margin"
+                                            value="{{ i.pk }}"
+                                          >
+                                            <span class="fa fa-clock-o"></span>
+                                            Make Current
+                                          </button>
                                         </form>
                                     {% elif not i.is_published %}
                                         <small>{% trans 'Issue date is in the future.' %}</small>

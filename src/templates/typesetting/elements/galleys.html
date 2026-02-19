@@ -78,11 +78,10 @@
 </table>
 
 {% if not disable_upload %}
-    <div class="button-group">
-        <a class="float-right button success" data-open="uploadbox">
-            <span class="fa fa-cloud-upload"></span>
-            Upload New Typeset File
-        </a>
+    <div class="button-group no-bottom-margin flex justify-end">
+      {% with label="Upload New Typeset File" %}
+        {% include "elements/a_upload_modal_trigger.html" %}
+      {% endwith %}
     </div>
     {% include "typesetting/elements/new_galley.html" %}
 {% endif %}

@@ -59,7 +59,7 @@
                         </div>
 
                         {% if request.journal.submissionconfiguration.license %}
-                            <div class="large-{{ request.journal.submissionconfiguration.lang_section_license_width }} columns error">
+                            <div class="large-{{ request.journal.submissionconfiguration.lang_section_license_width }} columns">
                                 {{ form.license|foundation }}
                                 <p class="help-text"><a href="#" data-open="license">{% trans 'View license information' %}</a></p>
                             </div>
@@ -85,9 +85,12 @@
                     {% include "admin/elements/submission/additional_fields.html" with form=form additional_fields=additional_fields %}
 
                     <div class="large-12 columns">
-                        <button class="success button pull-right" type="submit" name="start_submission"><i
-                                class="fa fa-check">&nbsp;</i>{% trans "Save and Continue" %}
-                        </button>
+                      <div class="flex justify-end">
+                        {% trans "Save and Continue" as continue_label %}
+                        {% with name="next_step" label=continue_label %}
+                          {% include "elements/button_complete.html" %}
+                        {% endwith %}
+                      </div>
                     </div>
                 </div>
             </form>

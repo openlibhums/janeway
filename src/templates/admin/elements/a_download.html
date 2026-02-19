@@ -1,0 +1,13 @@
+{% comment %}
+  A secondary-color download button with a download icon
+{% endcomment %}
+
+{% load i18n %}
+
+<a
+  href="{{ href }}"
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin">
+  <span class="fa fa-download" aria-hidden="true"></span>
+  {% trans "Download" as default_label %}
+  {{ label|default:default_label }}
+</a>

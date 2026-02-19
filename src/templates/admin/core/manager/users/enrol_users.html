@@ -39,7 +39,9 @@
                                    {% if email %}value="{{ email }}"{% endif %}>
                         </div>
                         <div class="medium-2 columns end">
-                            <button class="success button">Search Users</button>
+                          {% with name="" label="Search Users" %}
+                            {% include "elements/button_search.html" %}
+                          {% endwith %}
                         </div>
                         {% if return %}<input type="hidden" name="return" value="{{ return }}">{% endif %}
                     </form>
@@ -82,7 +84,7 @@
                     }
                     var del_button = $('<button/>').attr({
                         id: `delete-role-${role_id}-user-${user_id}`,
-                        class: "button alert",
+                        class: "button secondary",
                         value: $(button_name).attr("value"),
                         onClick: `delete_role(${user_id}, ${role_id}, ${journal_id}, ${response.pk})`
                     }).html(`<span class=\"fa fa-minus-circle\"></span> ${old_text}`)
@@ -117,7 +119,7 @@
                     $(button_name).remove();
                     var add_button = $('<button/>').attr({
                         id: `role-${role_id}-user-${user_id}`,
-                        class: "button",
+                        class: "button secondary",
                         value: $(button_name).attr("value"),
                         onClick: `add_role(${user_id}, ${role_id}, ${journal_id})`
                     }).html(`<span class=\"fa fa-plus-circle\"></span> ${old_text}`)

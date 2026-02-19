@@ -2,7 +2,7 @@
 
 <div class="flex direction-column gap-0-5 no-bottom-margin">
   {% for affiliation in interface.affiliations %}
-    <div class="flex wrap space-between column-gap-4">
+    <div class="flex wrap space-between items-center column-gap-4">
       <div class="max-w-28">
         {% if interface.affiliations|length > 1 %}
           {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=True %}
@@ -10,7 +10,7 @@
           {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=False %}
         {% endif %}
       </div>
-      <div class="button-group small stacked no-bottom-margin">
+      <div class="button-group small no-bottom-margin">
         {% if article %}
           {% url_with_return "submission_affiliation_update" article.pk author.pk affiliation.pk as edit_url %}
           {% url_with_return "submission_affiliation_delete" article.pk author.pk affiliation.pk as remove_url %}
@@ -37,30 +37,24 @@
           {% url_with_return 'core_affiliation_update_from_orcid' 'primary' as primary_url %}
           {% url_with_return 'core_affiliation_update_from_orcid' 'all' as all_url %}
         {% endif %}
-        <a
-          href="{{ primary_url }}"
-          class="button secondary small hollow">
-          <span class="fa fa-star"></span>
-          {% trans "Get primary affiliation from ORCID" %}
-        </a>
-        <a
-          href="{{ all_url }}"
-          class="button secondary small hollow">
-          <span class="fa fa-refresh"></span>
-          {% trans "Update all affiliations from ORCID" %}
-        </a>
+
+        {% trans "Get primary affiliation from ORCID" as primary_label %}
+        {% with href=primary_url label=primary_label icon="fa-star" %}
+          {% include "elements/a_menu_item.html" %}
+        {% endwith %}
+        {% trans "Update all affiliations from ORCID" as all_label %}
+        {% with href=all_url label=all_label icon="fa-refresh" %}
+          {% include "elements/a_menu_item.html" %}
+        {% endwith %}
       {% endif %}
       {% if article %}
         {% url_with_return 'submission_organization_search' article.pk author.pk as create_url %}
       {% else %}
         {% url_with_return 'core_organization_search' as create_url %}
       {% endif %}
-      <a
-        href="{{ create_url }}"
-        class="button secondary hollow no-bottom-margin">
-        <span class="fa fa-plus"></span>
-        {% trans "Add affiliation" %}
-      </a>
+      {% with label="Add affiliation" href=create_url %}
+        {% include "elements/a_create.html" %}
+      {% endwith %}
     </div>
   </div>
 </div>

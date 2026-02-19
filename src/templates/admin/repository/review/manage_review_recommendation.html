@@ -28,7 +28,7 @@
                     {% csrf_token %}
                     {{ form|foundation }}
                     <div class="large-12 columns">
-                        <button class="success button">Save</button>
+                      {% include "elements/button_save.html" %}
                     </div>
                 </form>
             </div>

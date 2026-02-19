@@ -23,12 +23,10 @@
         {% endif %}
       </div>
       <div class="columns">
-        <div class="list-group">
+        <div class="flex direction-column gap-2">
           {% for author, credits, credit_form in authors %}
             {% with "author-"|concat:author.pk as section_id %}
-              <section
-                id="{{ section_id }}"
-                class="list-group-item static-bg">
+              <section id="{{ section_id }}" class="">
                 <div class="flex direction-column">
                   {% if last_changed_author == author %}
                     {% include "admin/elements/forms/messages_in_callout.html" %}
@@ -41,7 +39,7 @@
                       <div class="stat">{{ forloop.counter }}</div>
                     {% endif %}
                     <div class="grow-1">
-                      <div class="list-group-item-heading flex wrap column-gap-2 space-between">
+                      <div class="flex wrap column-gap-2 space-between">
                         <h3>
                           {{ author.full_name|default:"[No name]" }}
                         </h3>
@@ -49,7 +47,7 @@
                           {% if author.owner == request.user or any_editor %}
                             <a
                               href="{% url_with_return 'submission_edit_author' article.pk author.pk %}"
-                              class="button hollow secondary no-bottom-margin">
+                              class="button secondary no-bottom-margin">
                               <span class="fa fa-edit"></span>
                               {% trans "Edit author details" %}
                             </a>

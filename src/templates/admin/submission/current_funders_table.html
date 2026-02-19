@@ -1,0 +1,40 @@
+{% load next_url %}
+
+<div class="row expanded">
+  <div class="large-12 columns">
+    <table class="scroll">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "FundRef ID" %}</th>
+          <th>{% trans "Grant Number" %}</th>
+          <th>{% trans "Funding Statement" %}</th>
+          <th>{% trans "Edit" %}</th>
+          <th>{% trans "Delete" %}</th>
+        </tr>
+      </thead>
+      <tbody id="sortable">
+        {% for funder in article.funders.all %}
+          <tr id="funder-{{ funder.pk }}">
+            <td>{{ funder.name|default:"" }}</td>
+            <td>{{ funder.fundref_id|default:"" }}</td>
+            <td>{{ funder.funding_id|default:"" }}</td>
+            <td>{{ funder.funding_statement|safe }}</td>
+            <td>
+              {% url_with_return 'edit_funder' article.pk funder.pk as edit_href %}
+              {% include "elements/a_edit.html" with href=edit_href size="small" %}
+            </td>
+            <td>
+              {% url_with_return 'delete_funder' article.pk funder.pk as delete_href %}
+              {% include "elements/a_delete.html" with href=delete_href size="small" %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">{% trans "No funders added." %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

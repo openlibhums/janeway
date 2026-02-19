@@ -7,10 +7,25 @@
         <div class="card-section">
             <form method="POST">
                 {% csrf_token %}
+              <div class="padding-block-1">
                 {% for galley in article.galley_set.all %}
-                <input {% if article.render_galley == galley %}checked="checked"{% endif %} required="required" type="radio" name="render_galley" id="{{ galley.pk }}" value="{{ galley.pk }}">&nbsp;#{{ galley.pk}} - {{ galley.label }}, {{ galley.file.original_filename }} ({{ galley.file.mime_type }})<br />
+                  <input
+                    {% if article.render_galley == galley %}checked="checked"{% endif %}
+                    required="required"
+                    type="radio"
+                    name="render_galley"
+                    id="{{ galley.pk }}"
+                    value="{{ galley.pk }}"
+                  />
+                  <label for="{{ galley.pk }}">
+                    #{{ galley.pk }} - {{ galley.label }},
+                    {{ galley.file.original_filename }} ({{ galley.file.mime_type }})
+                  </label>
                 {% endfor %}
-                <button type="submit" name="galley" class="small success button">Set Galley</button>
+              </div>
+              {% with name="galley" label="Set Galley" %}
+                {% include "elements/button_complete.html" %}
+              {% endwith %}
             </form>
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>

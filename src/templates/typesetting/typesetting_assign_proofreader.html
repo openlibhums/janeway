@@ -20,7 +20,7 @@
             <a class="button" href="{% url 'core_manager_role' 'proofreader' %}" target="_blank">Enrol a Proofreader</a>
         </div>
         <div class="content">
-            {% include "elements/forms/errors.html" %}
+            {% include "admin/elements/forms/errors.html" %}
             <p>Select a proofreader below. They will have access to the following typeset files:</p>
             <ul>
                 {% for galley in galleys %}
@@ -54,7 +54,9 @@
                 {{ form.task|foundation }}
             </div>
 
-            <button name="{{ form.CONFIRMABLE_BUTTON_NAME }}" class="button">Save</button>
+          {% with name=form.CONFIRMABLE_BUTTON_NAME %}
+            {% include "elements/button_save.html" %}
+          {% endwith %}
 
         </div>
     </form>

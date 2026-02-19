@@ -666,6 +666,8 @@ TINYMCE_DEFAULT_CONFIG = {
     "branding": False,
     "convert_urls": False,
     "menubar": "edit view insert format tools table help",
+    "skin": "tinymce-alpha",
+    "skin_url": STATIC_URL + "/common/css/tinymce-alpha",
     "content_css": STATIC_URL + "/admin/css/admin.css",
     "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code"
     " fullscreen insertdatetime media table code help wordcount spellchecker help",
