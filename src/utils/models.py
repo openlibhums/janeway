@@ -469,6 +469,8 @@ class RORImport(models.Model):
         temp_dir = os.path.join(settings.BASE_DIR, "files", "temp")
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
+        if not self.records:
+            return ""
         try:
             file_id = self.records["hits"]["hits"][0]["files"][-1]["id"]
         except (KeyError, AttributeError) as error:
@@ -526,7 +528,7 @@ class RORImport(models.Model):
             self.fail(error)
 
     def delete_previous_download(self):
-        if not self.previous_import:
+        if not self.previous_import or not self.previous_import.zip_path:
             return
         try:
             os.unlink(self.previous_import.zip_path)

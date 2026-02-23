@@ -2701,7 +2701,7 @@ class OrganizationManager(models.Manager):
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode="r") as zip_ref:
             for file_info in zip_ref.infolist():
-                if file_info.filename.endswith("v2.json"):
+                if file_info.filename.endswith(".json"):
                     string = zip_ref.read(file_info).decode()
                     if limit:
                         records = json.loads(string)[:limit]
