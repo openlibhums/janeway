@@ -1,13 +1,20 @@
 {% load classname %}
 {% load foundation %}
+{% load static %}
 
 {% if facet_form.fields %}
-    <section aria-labelledby="filter-title" class="section">
-        <h2 id="filter-title">{% trans 'Filter' %}</h2>
-        <form method="GET" id={{ facet_form.id }}>
+    <section aria-labelledby="filter-title{% if filter_context %}-{{ filter_context }}{% endif %}" class="section">
+        <h2 id="filter-title{% if filter_context %}-{{ filter_context }}{% endif %}">{% trans 'Filter' %}</h2>
+        <form method="GET" id="{% if filter_context %}{{ facet_form.id }}-{{ filter_context }}{% else %}{{ facet_form.id }}{% endif %}">
             {{ facet_form|foundation }}
             <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
-            <button class="button warning" name="clear_all">{% trans 'Clear all' %}</button>
+            <button type="button" class="button secondary" id="select-all-btn{% if filter_context %}-{{ filter_context }}{% endif %}">{% trans 'Select all' %}</button>
+            <button type="button" class="button secondary" id="clear-all-btn{% if filter_context %}-{{ filter_context }}{% endif %}">{% trans 'Clear all' %}</button>
         </form>
+
+        <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
+        <script>
+            initFormToggleButtons('select-all-btn{% if filter_context %}-{{ filter_context }}{% endif %}', 'clear-all-btn{% if filter_context %}-{{ filter_context }}{% endif %}', '{% if filter_context %}{{ facet_form.id }}-{{ filter_context }}{% else %}{{ facet_form.id }}{% endif %}');
+        </script>
     </section>
 {% endif %}
