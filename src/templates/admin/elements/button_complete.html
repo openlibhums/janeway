@@ -1,0 +1,21 @@
+{% comment %}
+  A primary-color complete button with a check icon.
+  Can be made secondary with the 'hierarchy' argument
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'complete' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button no-bottom-margin
+    {{ hierarchy|default:"primary" }}
+    {{ size|default:'normal' }}
+  "
+  type="submit">
+  <span class="fa fa-check" aria-hidden="true"></span>
+  {% trans "Complete" as default_label %}
+  {{ label|default:default_label }}
+</button>

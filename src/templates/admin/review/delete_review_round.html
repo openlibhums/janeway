@@ -29,9 +29,11 @@
                 <br/>
                 <form method="POST">
                     {% csrf_token %}
-                    <button class="button alert" name="delete" type="submit">Delete</button>
-                    <a href="{% url 'review_in_review' article.pk %}" class="button warning" name="cancel"
-                       type="submit">Cancel</a>
+                  {% with name="delete"  %}
+                    {% include "elements/button_yes_delete.html" %}
+                  {% endwith %}
+                  {% url 'review_in_review' article.pk as cancel_href %}
+                  {% include "elements/a_cancel.html" with href=cancel_href %}
                 </form>
             </div>
         </div>

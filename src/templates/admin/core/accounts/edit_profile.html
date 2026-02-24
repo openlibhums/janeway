@@ -131,12 +131,9 @@
         {% csrf_token %}
         {% include "admin/elements/accounts/user_form.html" %}
         <div>
-          <button
-            type="submit"
-            name="edit_profile"
-            class="button secondary">
-            {% trans "Save" %}
-          </button>
+          {% with name="edit_profile" %}
+            {% include "elements/button_save.html" %}
+          {% endwith %}
         </div>
         {% include "admin/elements/forms/denotes_required.html" %}
       </form>

@@ -6,11 +6,13 @@
             <h4>Delete Issue</h4>
         </div>
         <div class="card-section">
-            {% include "elements/forms/errors.html" with form=form %}
+            {% include "admin/elements/forms/errors.html" with form=form %}
             <form method="POST">
                 {% csrf_token %}
                 <p><strong>Warning: </strong> deleting this issue will unlink all articles from this issue.</p>
-                <button name="delete_issue" type="submit" class="button alert">Delete Issue</button>
+              {% with name="delete_issue" %}
+                {% include "elements/button_delete.html" %}
+              {% endwith %}
             </form>
         </div>
     </div>

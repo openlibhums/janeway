@@ -72,21 +72,15 @@
             </table>
 
             <p>If required, you can upload new files to various sections of the workflow.</p>
-            <a class="button success" data-open="uploadbox" aria-controls="uploadbox" aria-haspopup="true" tabindex="0"><i
-                    class="fa fa-cloud-upload">
-                &nbsp;</i>Upload File</a>
-
+            <div class="flex space-between">
+              {% with label="Upload File" %}
+                {% include "elements/a_upload_modal_trigger.html" %}
+              {% endwith %}
+              {% with href=return_url label="Return" %}
+                {% include "elements/a_back.html" %}
+              {% endwith %}
+            </div>
         </div>
-    </div>
-
-
-
-    <div class="large-12 columns">
-        <form method="POST">
-            {% csrf_token %}
-            <a class="button success float-right" href="{{ return_url }}"><i class="fa fa-check">&nbsp;</i>Return
-            </a>
-        </form>
     </div>
 
     <div class="reveal" id="uploadbox" data-reveal data-animation-in="slide-in-up"
@@ -98,9 +92,7 @@
         </div>
         <div class="card-section">
             <p>Add a label and then upload a file. You can only upload one file type at a time.</p>
-            {% if error %}
-                <div class="alert alert-warning" role="alert">{{ error }}</div>
-            {% endif %}
+            {% include "elements/forms/generic_error.html" %}
             <button class="close-button" data-close aria-label="Close modal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -111,101 +103,71 @@
                 <input type="text" maxlength="200" id="label" name="label" placeholder="Add file label here." required="required" />
                 <input type="hidden" name="upload" value="upload">
                 <h4>Manuscript File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Manuscript files hold the main text content of the
                         article while it is being finalized. They are used across review,
                         copyediting, and typesetting.</small></p>
-                        <input name="manu-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="manu"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="manu-file" type="file" class="width-min-content grow-1">
+                  {% with name="manu" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Figure/Data File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Figure files hold images that will be included
                         in the article. Data files hold any other other content
                         that is not an image or main text content
                         but that will be included in the published article.</small></p>
-                        <input name="fig-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="fig"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="fig-file" type="file" class="width-min-content grow-1">
+                  {% with name="fig" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Galley File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Galleys are files that have been typeset
                         or encoded, most often in XML, HTML, or PDF format,
                         so that they are ready for proofing and publication.</small></p>
-                        <input name="galley-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="galley"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="galley-file" type="file" class="width-min-content grow-1">
+                  {% with name="galley" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Proofing File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Proofing files are copies of galleys
                         that have been marked up to indicate corrections to be
                         made in subsequent rounds of typesetting.</small></p>
-                        <input name="proofing-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="proofing"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="proofing-file" type="file" class="width-min-content grow-1">
+                  {% with name="proofing" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Source File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Source files are files created in typesetting
                         while generating a galley. They are often in
                         specialized file formats used by graphic design and
                         document layout applications.</small></p>
-                        <input name="source-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="source"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="source-file" type="file" class="width-min-content grow-1">
+                  {% with name="source" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
 
                 <h4>Supplementary File</h4>
-                <div class="clearfix">
-                    <div>
                         <p><small>Supplementary files are publication-ready
                         pieces of content to be published alongside the article,
                         often with their own DOIs.</small></p>
-                        <input name="supp-file" type="file" class="float-left" style="width:50%;"
-                               data-placeholder="No file"
-                               data-buttonName="btn-primary">
-                        <button type="submit" class="button success float-right" name="supp"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-                    </div>
+                <div class="flex wrap">
+                  <input name="supp-file" type="file" class="width-min-content grow-1">
+                  {% with name="supp" hierarchy="secondary" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
             </form>
         </div>

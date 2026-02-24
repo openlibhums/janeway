@@ -68,11 +68,9 @@
                                data-buttonName="btn-primary">
                 </div>
                 <div class="large-2 columns end">
-                    <button type="submit" class="button success small"
-                            name="replace-galley"><i
-                            class="fa fa-upload">
-                        &nbsp;</i>Upload
-                    </button>
+                  {% with name="replace-galley" %}
+                    {% include "elements/button_upload.html" %}
+                  {% endwith %}
                 </div>
                 </form>
             </div>
@@ -91,7 +89,9 @@
                         {{ galley_form|foundation }}
                         <div class="row expanded">
                             <div class="large-12 columns">
-                                <button name="galley-update" type="submit" class="button small success">Save</button>
+                              {% with name="galley-update" hierarchy="secondary" %}
+                                {% include "elements/button_save.html" %}
+                              {% endwith %}
                             </div>
                         </div>
                     </form>
@@ -172,7 +172,8 @@
                                         <form method="POST" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             <div class="row">
-                                                <div class="large-8 columns">
+                                              <div class="flex space-between">
+                                                <div>
                                                     <h6>{{ element }}</h6>
                                                     <label for="label">File Label</label>
                                                     <input name="label" id="label" placeholder="eg. Figure 1"><br/><br/>
@@ -193,13 +194,12 @@
                                                         </select>
                                                     {% endif %}
                                                 </div>
-                                                <div class="large-4 columns">
-                                                    <button type="submit" class="button success small float-right"
-                                                            name="fixed-image-upload"><i
-                                                            class="fa fa-upload">
-                                                        &nbsp;</i>Upload/Select
-                                                    </button>
+                                                <div>
+                                                  {% with name="fixed-image-upload" size="small" label="Upload/Select" %}
+                                                    {% include "elements/button_upload.html" %}
+                                                  {% endwith %}
                                                 </div>
+                                              </div>
                                             </div>
                                         </form>
                                     </small>
@@ -214,7 +214,8 @@
                             <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="large-8 columns">
+                                  <div class="flex space-between">
+                                    <div>
                                         <h6>Additional File Images</h6>
                                         <label for="label">File Label</label>
                                         <input name="label" id="label" placeholder="eg. Figure 1"><br/><br/>
@@ -222,14 +223,12 @@
                                                data-placeholder="No file"
                                                data-buttonName="btn-primary">
                                     </div>
-                                    <div class="large-4 columns">
-                                        <button type="submit" class="button success small float-right"
-                                                name="image-upload">
-                                            <i
-                                                    class="fa fa-upload">
-                                                &nbsp;</i>Upload
-                                        </button>
+                                    <div>
+                                      {% with name="image-upload" hierarchy="secondary" size="small" %}
+                                        {% include "elements/button_upload.html" %}
+                                      {% endwith %}
                                     </div>
+                                  </div>
                                 </div>
                             </form>
                         </small>
@@ -321,7 +320,8 @@
                                 <form method="POST" enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <div class="row">
-                                        <div class="large-8 columns">
+                                      <div class="flex space-between">
+                                        <div>
                                             <h6>Upload CSS File</h6>
                                             <label for="labelcss">File Label</label>
                                             <input name="label" id="labelcss" placeholder="eg. Figure 1"><br/><br/>
@@ -329,13 +329,12 @@
                                                    data-placeholder="No file"
                                                    data-buttonName="btn-primary">
                                         </div>
-                                        <div class="large-4 columns">
-                                            <button type="submit" class="button success small float-right"
-                                                    name="css-upload"><i
-                                                    class="fa fa-upload">
-                                                &nbsp;</i>Upload
-                                            </button>
+                                        <div>
+                                          {% with name="css-upload" hierarchy="secondary" size="small" %}
+                                            {% include "elements/button_upload.html" %}
+                                          {% endwith %}
                                         </div>
+                                      </div>
                                     </div>
                                 </form>
                             </small>
@@ -359,7 +358,9 @@
                         <option value={{ xsl.pk }}{% if xsl == galley.xsl_file %} selected{% endif %}>{{ xsl.label }}</option>
                     {% endfor %}
                     </select>
-                    <button type="submit" class="button small success">Update XSL</button>
+                    {% with label="Save XSL File" hierarchy="secondary" size="small" %}
+                      {% include "elements/button_save.html" %}
+                    {% endwith %}
                 </form>
             </div>
         </div>

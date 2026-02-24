@@ -43,8 +43,18 @@
                             <td>{{ version.date_submitted }}</td>
                             <td>{{ version.get_update_type_display }}</td>
                             <td><a href="#" data-open="detail-{{ version.pk }}">View Detail</a></td>
-                            <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
-                            <td><a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> </a></td>
+                            <td>
+                              {% with label="Approve" name="approve" value=version.pk size="small" %}
+                                {% include "elements/button_yes.html" %}
+                              {% endwith %}
+                            </td>
+                            <td>
+                              <a href="#" class="button secondary small no-bottom-margin"
+                                data-open="decline-{{ version.pk }}">
+                                <span class="fa fa-times-circle"></span>
+                                Decline
+                              </a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -46,7 +46,9 @@
                 {% endif %}
                 <div class="card-divider">
                     <div class="button-group">
-                        <button type="submit" class="button success" name="notifications"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
+                      {% with name="notifications" %}
+                        {% include "elements/button_send.html" %}
+                      {% endwith %}
                     </div>
                 </div>
             </form>

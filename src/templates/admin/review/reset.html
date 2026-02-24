@@ -19,7 +19,13 @@
             <p>You are resetting a review by {{ review.reviewer.full_name }} for {{ article.safe_title }}. It was due on {{ review.date_due }}.</p>
             <form method="POST">
                 {% csrf_token %}
-                <button type="submit" class="button success" name="send"><i class="fa fa-repeat">&nbsp;</i>Reset Review</button>&nbsp <a href="{% url 'review_in_review' article.pk %}" class="button warning" type="submit">Cancel</a>
+              <div class="button-group">
+                {% with label="Reset Review" name="send" hierarchy="primary" %}
+                  {% include "elements/button_restore.html" %}
+                {% endwith %}
+                {% url 'review_in_review' article.pk as cancel_href %}
+                {% include "elements/a_cancel.html" with href=cancel_href %}
+              </div>
             </form>
         </div>
     </div>

@@ -24,7 +24,9 @@
                 {% if request.user.is_staff %}
                     <form method="POST">
                         {% csrf_token %}
-                        <button type="submit" class="small success button">Over-ride Security</button>
+                      {% with label="Over-ride Security" %}
+                        {% include "elements/button_yes.html" %}
+                      {% endwith %}
                     </form>
                 {% else %}
                     <p>You are not a staff member.</p>

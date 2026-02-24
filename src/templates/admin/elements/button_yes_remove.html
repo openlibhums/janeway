@@ -1,13 +1,16 @@
 {% comment %}
-  A generic confirm remove button with a minus icon
+  A primary-color confirm-remove button with a minus icon
+  Use this rather than button_yes_delete.html when the user will still be able to
+  go find the thing somewhere and put it back here.
 {% endcomment %}
 
 {% load i18n %}
 
 <button
   name="{{ name|default:'yes_delete' }}"
-  class="button {{ size|default:'normal' }} no-bottom-margin"
+  class="button primary {{ size|default:'normal' }} no-bottom-margin"
   type="submit">
-  <span class="fa fa-minus-circle"></span>
-  {% trans "Yes, remove" %}
+  <span class="fa fa-minus-circle" aria-hidden="true"></span>
+  {% trans "Yes, remove" as default_label %}
+  {{ label|default:default_label }}
 </button>

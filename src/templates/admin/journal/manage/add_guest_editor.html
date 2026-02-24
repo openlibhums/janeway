@@ -74,12 +74,9 @@
                                     {{ editor.role }}
                                 </td>
                                 <td>
-                                    <button type="submit"
-                                            name="user_remove"
-                                            value="{{ editor.pk }}"
-                                            class="tiny button warning">
-                                        <i class="fa fa-chain-broken">&nbsp;</i>Remove
-                                    </button>
+                                  {% with name="user_remove" value=editor.pk size="small" %}
+                                    {% include "elements/button_remove.html" %}
+                                  {% endwith %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -115,13 +112,10 @@
                             <td>
                                 <form method="POST">
                                     {% csrf_token %}
-                                    <input name="role" value="Guest Editor">
-
-                                    <button type="submit" name="user"
-                                            value="{{ user.pk }}"
-                                            class="tiny button">
-                                        <i class="fa fa-plus">&nbsp;</i>Add
-                                    </button>
+                                    <input type="text" name="role" value="Guest Editor">
+                                    {% with name="user" value=user.pk size="small" %}
+                                      {% include "elements/button_add.html" %}
+                                    {% endwith %}
                                 </form>
                             </td>
                         </tr>

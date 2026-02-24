@@ -42,7 +42,9 @@
                                     {% if stage.element.stage == article.stage or stage.element.stage == 'Unassigned' and article.stage == 'Under Review' %}
                                     Current Stage
                                     {% else %}
-                                    <button class="tiny button" name="stage_to" value="{{ stage.element.stage }}">Move to Stage</button>
+                                      {% with name="stage_to" value=stage.element.stage label="Move to Stage" size="small" %}
+                                        {% include "elements/button_restore.html" %}
+                                      {% endwith %}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -60,7 +62,7 @@
                 <p>Archiving an article will remove it from the workflow, essentially tombstoning it. You can still access it through the Article Archive.</p>
                 <form method="POST">
                     {% csrf_token %}
-                    <button name="archive" class="danger button">Archive Article</button>
+                  {% include "elements/button_archive.html" %}
                 </form>
                 {% endif %}
             </div>

@@ -93,37 +93,54 @@
               <div class="content">
               <form id="review_assignment" method="POST">
                 {% csrf_token %}
-                {% include "elements/forms/errors.html" %}
+                {% include "admin/elements/forms/errors.html" %}
                 {% if not assignment.accepted and not assignment.declined %}
                   {% include 'typesetting/elements/typesetting_assignment_fields.html' %}
-                  <button
-                      class="button success"
-                      name="{{ form.CONFIRMABLE_BUTTON_NAME }}">
-                      Save Changes
-                  </button>
-                  <button class="button alert" name="delete" onclick="return confirm('Are you sure you want to delete this assignment?');">Delete Assignment</button>
+                  <div class="flex space-between">
+                    {% with name=form.CONFIRMABLE_BUTTON_NAME label="Save Changes" %}
+                      {% include "elements/button_save.html" %}
+                    {% endwith %}
+                    {% with name="delete" confirm="confirm" label="Delete Assignment" %}
+                      {% include "elements/button_delete.html" %}
+                    {% endwith %}
+                  </div>
                 {% elif assignment.accepted and assignment.completed and not assignment.reviewed %}
                     {% if pending_corrections %}
-                    <div class="callout bs-callout-danger">
+                    <div class="bs-callout bs-callout-warning">
                         <h4><span class="fa fa-warning"></span> The typesetter has not made any changes to some typeset files</h4>
                         <ul >
                           {% for correction in pending_corrections %}
                            {% if correction.galley %}
                             <li><p>{{ correction.galley }} - {{ correction.galley.file }}</p></li>
                            {% else %}
-                           <li><p>A file with label {{ correction.label }} has been deleted, if this is not expected, check that the typesetter has uploaded a new file <a class="button success small float-right" href={% url 'typesetting_delete_correction' correction.pk %}>Dismiss</a></p></li>
+                              <li>
+                                <p>
+                                  A file with label {{ correction.label }} has been deleted, if this is not
+                                  expected, check that the typesetter has uploaded a new file
+                                  <a
+                                    class="button secondary small float-right"
+                                    href="{% url 'typesetting_delete_correction' correction.pk %}"
+                                  >
+                                    Dismiss
+                                  </a>
+                                </p>
+                              </li>
                            {% endif %}
                             {% endfor %}
                         </ul>
                     </div>
-                    <button class="button warning" name="reopen">Reopen Assignment</button>
+                    {% with name="reopen" label="Reopen Assignment" %}
+                      {% include "elements/button_restore.html" %}
+                    {% endwith %}
                     {% endif %}
                     <div class="content">
                         <p><small>Now that the typesetter has completed their task you can review the uploaded typeset files and make a decision about next steps. The typeset files for this article are listed below.</small></p>
                         <div class="row expanded">
                             <div class="large-6 columns">
                                 {{ decision_form }}
-                                <button name="decision" class="success button">Save Decision</button>
+                              {% with name="decision" label="Save Decision" %}
+                                {% include "elements/button_save.html" %}
+                              {% endwith %}
                             </div>
                             <div class="large-6 columns">
                                 <small>
@@ -143,7 +160,9 @@
                 {% elif assignment.accepted %}
                  This assignment can no longer be edited since it has been accepted by the typesetter
                 {% elif assignment.declined %}
-                  <button class="button warning" name="reopen">Reopen Assignment</button>
+                  {% with name="reopen" label="Reopen Assignment" %}
+                    {% include "elements/button_restore.html" %}
+                  {% endwith %}
                 {% endif %}
                 </form>
               </div>

@@ -38,14 +38,22 @@
                             <td>{% if lang.0 in active_languages %}{{ True|bool_fa }}{% else %}{{ False|bool_fa }}{% endif  %}</td>
                             <td>
                                 {% if lang.0 in active_languages %}
-                                    <button name="disable" value="{{ lang.0 }}" class="small alert button">Disable</button>
+                                  {% with name="disable" value=lang.0 label="Disable" size="small" %}
+                                    {% include "elements/button_remove.html" %}
+                                  {% endwith %}
                                 {% else %}
-                                    <button name="enable" value="{{ lang.0 }}" class="small success button">Enable</button>
+                                  {% with name="enable" value=lang.0 label="Enable" size="small" %}
+                                    {% include "elements/button_add.html" %}
+                                  {% endwith %}
                                 {% endif %}
                             </td>
                             <td>
                                 {% if lang.0 == request.default_language %}Current Default{% endif %}
-                                {% if not lang.0 == request.default_language and lang.0 in active_languages %}<button name="default" value="{{ lang.0 }}" class="small button warning">Mark as Default</button>{% endif %}
+                                {% if not lang.0 == request.default_language and lang.0 in active_languages %}
+                                  {% with name="default" value=lang.0 label="Mark as Default" size="small" %}
+                                    {% include "elements/button_yes.html" %}
+                                  {% endwith %}
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

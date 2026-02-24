@@ -7,6 +7,12 @@
 <form method="POST">
     {% csrf_token %}
     {{ form.note|foundation }}
-    <button class="success button" name="decision" value="accept">Accept Assignment</button>
-    <button class="alert button" name="decision" value="decline">Decline Assignment</button>
+  <div class="button-group no-bottom-margin">
+    {% with name="decision" value="accept" label="Accept Assignment" %}
+      {% include "elements/button_yes.html" %}
+    {% endwith %}
+    {% with name="decision" value="decline" label="Decline Assignment" %}
+      {% include "elements/button_no.html" %}
+    {% endwith %}
+  </div>
 </form>

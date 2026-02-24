@@ -37,7 +37,9 @@
                             </select>
                         </div>
                         <div class="medium-2 columns end">
-                            <button name="add_users" class="success button">Add Users to Role</button>
+                          <button name="add_users" class="button">
+                            Add Users to Role
+                          </button>
                         </div>
                     </div>
                     <table class="small scroll" id='users'>
@@ -60,14 +62,29 @@
                                 <td>{{ user.first_name }}</td>
                                 <td>{{ user.last_name }}</td>
                                 <td>{{ user.email }} <a onclick="return popitup('{% url 'send_user_email' user.pk %}')"><i class="fa fa-envelope">&nbsp;</i></a></td>
-                                <td><a class="tiny success button" href="{% url 'core_user_history' user.id %}">History</a></td>
-                                <td><a class="tiny success button"
-                                       href="{% url_with_return 'core_user_edit' user.id %}">Edit</a></td>
+                                <td>
+                                  {% url 'core_user_history' user.id as history_href %}
+                                  {% with href=history_href size="small" %}
+                                    {% include "elements/a_history.html" %}
+                                  {% endwith %}
+                                </td>
+                                <td>
+                                  {% url_with_return 'core_user_edit' user.id as href %}
+                                  {% include "elements/a_edit.html" with size="small" %}
+                                </td>
                                 {% if settings.HIJACK_USERS_ENABLED and request.user.is_superuser %}
-                                    <td>
-                                          <button formaction="{% url 'hijack:acquire' %}" name="user_pk" value="{{ user.pk }}" type="submit" class="tiny button"> Control User </button>
-                                          <input  type="hidden" name="next" value="{% url 'core_dashboard' %}">
-                                    </td>
+                                  <td>
+                                    <button
+                                      formaction="{% url 'hijack:acquire' %}"
+                                      name="user_pk"
+                                      value="{{ user.pk }}"
+                                      type="submit"
+                                      class="small secondary button"
+                                    >
+                                      Control User
+                                    </button>
+                                    <input type="hidden" name="next" value="{% url 'core_dashboard' %}" />
+                                  </td>
                                 {% endif %}
                             </tr>
                         {% endfor %}

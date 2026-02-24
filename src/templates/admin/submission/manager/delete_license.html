@@ -40,7 +40,9 @@
                 </div>
                 <form method="POST">
                         {% csrf_token %}
-                    <button name="delete" class="alert button">Delete License</button>
+                  {% with label="Delete License" %}
+                    {% include "elements/button_delete.html" %}
+                  {% endwith %}
                     </form>
             </div>
         </div>

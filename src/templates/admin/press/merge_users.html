@@ -97,7 +97,9 @@
                         <div class="box">
                             <p>Select a user from each column and click the button below. Note: this action is not
                                 reversible.</p>
-                            <button type="submit" name="merge_users" class="success button">Merge users</button>
+                            {% with label="Merge users" name="merge_users" %}
+                              {% include "elements/button_yes.html" %}
+                            {% endwith %}
                         </div>
                     </div>
                 </div>

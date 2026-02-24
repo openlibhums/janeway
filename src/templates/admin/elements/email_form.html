@@ -6,14 +6,15 @@
     </div>
     <div class="card-divider">
         <div class="button-group">
-            <button type="submit" class="button success" name="send"><i class="fa fa-envelope-o">&nbsp;</i>Send</button>
-            {% if skip %}
-            <button type="submit" class="button warning" name="skip" value="skip"><i class="fa fa-step-forward">&nbsp;</i>Skip & continue</button>
-            {% endif %}
-            {% if cancel_url %}
-            <a href="{{ cancel_url }}" class="button info float-right"> <i class="fa fa-times-circle">&nbsp;</i>Cancel & go back</a>
-            {% endif %}
+          {% include "elements/button_send.html" %}
+          {% if skip %}
+            {% include "elements/button_skip.html" %}
+          {% endif %}
+          {% if cancel_url %}
+            {% with href=cancel_url label="Cancel and go back" %}
+              {% include "elements/a_cancel.html" %}
+            {% endwith %}
+          {% endif %}
         </div>
     </div>
 </form>
-

@@ -40,12 +40,15 @@
                                 <td>{{ reminder.template_name }} <a href="{% url 'cron_create_template' reminder.pk reminder.template_name %}"><i class="fa fa-edit">&nbsp;</i></a></td>
                                 <td>{{ reminder.subject }}</td>
                                 <td>
-                                    <a href="{% url 'cron_reminder' reminder.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit</a>
+                                  {% url 'cron_reminder' reminder.pk as href %}
+                                  {% with href=href size="small" %}
+                                    {% include "elements/a_edit.html" %}
+                                  {% endwith %}
                                 </td>
                                 <td>
-                                    <button type="submit" name="delete" value="{{ reminder.pk }}" class="tiny alert button delete"><i
-                                            class="fa fa-trash"></i> Delete</button>
+                                  {% with value=reminder.pk size="small" %}
+                                    {% include "elements/button_delete.html" %}
+                                  {% endwith %}
                                 </td>
                             </tr>
                         {% empty %}

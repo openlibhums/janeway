@@ -47,7 +47,9 @@
     &.landscape-column { flex-direction: column; }
   }
 
+  /* Child states */
   .grow-1 { flex-grow: 1; }
+  .basis-min-content { flex-basis: min-content; }
 }
 
 /* Grid */
@@ -192,7 +194,10 @@
   line-height: 1.1;
 }
 
-/* Inline text alignment */
+/* Inline utilities */
 .text-align-center {
   text-align: center;
+}
+.display-inline {
+  display: inline;
 }

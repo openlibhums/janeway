@@ -42,9 +42,7 @@
                         <input name="file" type="file" id="file" class="filestyle" data-placeholder="No file"
                                data-buttonName="btn-primary">
                         <br/>
-                        <button type="submit" class="button success" name="replacement"><i class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
+                        {% include "elements/button_upload.html" with name="replacement" %}
                     </form>
                 </div>
 
