@@ -627,9 +627,9 @@ class CoreTests(TestCase):
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(response, "remove_orcid")
         self.assertContains(
-            response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>'
+            response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">'
         )
-        self.assertNotContains(response, "ORCID could not be validated.")
+        self.assertNotContains(response, "ORCID iD could not be validated.")
 
     @patch.object(models.Account, "is_orcid_token_valid")
     @override_settings(
@@ -660,10 +660,9 @@ class CoreTests(TestCase):
 
         url = reverse("core_user_edit", kwargs={"user_id": self.regular_user.pk})
         response = self.client.get(url, SERVER_NAME=journal.domain)
-
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(
-            response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000"/>'
+            response,'<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">'
         )
-        self.assertNotContains(response, "ORCID could not be validated.")
+        self.assertNotContains(response, "ORCID iD could not be validated.")
         self.assertNotContains(response, "remove_orcid")

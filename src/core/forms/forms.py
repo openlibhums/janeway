@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
+from django.conf import settings as django_settings
 
 from tinymce.widgets import TinyMCE
 
@@ -276,6 +277,12 @@ class EditAccountForm(forms.ModelForm):
             "signature": TinyMCE,
             "enable_public_profile": YesNoRadio,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if django_settings.ENABLE_ORCID:
+            self.fields['orcid'].widget = forms.HiddenInput()
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)
