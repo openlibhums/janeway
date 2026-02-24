@@ -695,8 +695,9 @@ def edit_profile(request):
             return logic.export_gdpr_user_profile(user)
         elif "remove_orcid" in request.POST:
             if orcid.revoke_token(user.orcid_token):
-                user.orcid = None
-                user.orcid_token = None
+                user.orcid = ""
+                user.orcid_token = ""
+                user.orcid_token_expiration = None
                 user.save()
                 form = forms.EditAccountForm(instance=user)
 
