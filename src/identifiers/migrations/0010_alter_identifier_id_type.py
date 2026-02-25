@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('identifiers', '0009_deduplicate_identifiers_20220527'),
+        ("identifiers", "0009_deduplicate_identifiers_20220527"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='identifier',
-            name='id_type',
-            field=models.CharField(choices=[('doi', 'DOI'), ('uri', 'URI Path'), ('pubid', 'Publisher ID'), ('openalex', 'OpenAlex ID')], max_length=300),
+            model_name="identifier",
+            name="id_type",
+            field=models.CharField(
+                choices=[
+                    ("doi", "DOI"),
+                    ("uri", "URI Path"),
+                    ("pubid", "Publisher ID"),
+                    ("openalex", "OpenAlex ID"),
+                ],
+                max_length=300,
+            ),
         ),
     ]

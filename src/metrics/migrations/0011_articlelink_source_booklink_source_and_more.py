@@ -4,30 +4,43 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('metrics', '0010_auto_20230317_1534'),
+        ("metrics", "0010_auto_20230317_1534"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='articlelink',
-            name='source',
-            field=models.CharField(choices=[('crossref', 'Crossref'), ('openalex', 'OpenAlex')], default='crossref', max_length=20),
+            model_name="articlelink",
+            name="source",
+            field=models.CharField(
+                choices=[("crossref", "Crossref"), ("openalex", "OpenAlex")],
+                default="crossref",
+                max_length=20,
+            ),
         ),
         migrations.AddField(
-            model_name='booklink',
-            name='source',
-            field=models.CharField(choices=[('crossref', 'Crossref'), ('openalex', 'OpenAlex')], default='crossref', max_length=20),
+            model_name="booklink",
+            name="source",
+            field=models.CharField(
+                choices=[("crossref", "Crossref"), ("openalex", "OpenAlex")],
+                default="crossref",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='articlelink',
-            name='object_type',
-            field=models.CharField(choices=[('book', 'Book'), ('article', 'Article'), ('other', 'Other')], max_length=20),
+            model_name="articlelink",
+            name="object_type",
+            field=models.CharField(
+                choices=[("book", "Book"), ("article", "Article"), ("other", "Other")],
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='booklink',
-            name='object_type',
-            field=models.CharField(choices=[('book', 'Book'), ('article', 'Article'), ('other', 'Other')], max_length=20),
+            model_name="booklink",
+            name="object_type",
+            field=models.CharField(
+                choices=[("book", "Book"), ("article", "Article"), ("other", "Other")],
+                max_length=20,
+            ),
         ),
     ]

@@ -175,8 +175,6 @@ class Command(BaseCommand):
 
                 cursor = meta.get("next_cursor")
 
-            self.stdout.write(
-                f"  Stored {stored} links, skipped {skipped} (no DOI)."
-            )
+            self.stdout.write(f"  Stored {stored} links, skipped {skipped} (no DOI).")
 
         self.stdout.write("Done.")
