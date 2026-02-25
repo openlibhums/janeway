@@ -46,12 +46,16 @@ class Command(BaseCommand):
         article_id = options["article_id"]
         delay = options["delay"]
 
-        articles = sm.Article.objects.filter(
-            stage=sm.STAGE_PUBLISHED,
-            identifier__id_type="doi",
-        ).exclude(
-            identifier__id_type="openalex",
-        ).distinct()
+        articles = (
+            sm.Article.objects.filter(
+                stage=sm.STAGE_PUBLISHED,
+                identifier__id_type="doi",
+            )
+            .exclude(
+                identifier__id_type="openalex",
+            )
+            .distinct()
+        )
 
         if article_id:
             articles = articles.filter(pk=article_id)
