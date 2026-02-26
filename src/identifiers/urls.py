@@ -48,6 +48,17 @@ urlpatterns = [
         views.poll_doi_output,
         name="poll_doi_output",
     ),
+    # Legacy article-only URL aliases for backward compatibility with templates
+    re_path(
+        r"^(?P<object_id>\d+)/$",
+        views.identifiers,
+        name="article_identifiers",
+    ),
+    re_path(
+        r"^(?P<object_id>\d+)/$",
+        views.identifiers,
+        name="edit_identifiers",
+    ),
     # DOI Manager
     re_path(
         r"^doi_manager/$",

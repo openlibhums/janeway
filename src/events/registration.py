@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from core import models as core_models, workflow
+from events import logic as event_logic
 from utils import transactional_emails, workflow_tasks
 from journal import logic as journal_logic
 from identifiers import logic as id_logic, reviews

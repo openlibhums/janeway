@@ -378,7 +378,6 @@ class PreprintSerializer(serializers.ModelSerializer):
             "preprint_doi",
             "authors",
             "subject",
-            "files",
             "versions",
             "supplementary_files",
             "additional_field_answers",

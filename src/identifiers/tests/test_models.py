@@ -1,9 +1,9 @@
 from django.test import TestCase
+from uuid import uuid4
 
 from identifiers import logic, models
 from utils.testing import helpers
 from utils.shared import clear_cache
-from uuid import uuid4
 
 
 class TestLogic(TestCase):

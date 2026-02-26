@@ -185,11 +185,18 @@ def show_doi(
             content_type="application/xml",
         )
     except AttributeError:
-        template_context = logic.create_crossref_doi_batch_context(
-            request.journal,
-            {identifier},
-        )
-        template = "common/identifiers/crossref_doi_batch.xml"
+        if content_type == "preprint":
+            template_context = logic.create_crossref_preprint_doi_batch_context(
+                request.repository,
+                {identifier},
+            )
+            template = "common/identifiers/crossref_preprint_batch.xml"
+        else:
+            template_context = logic.create_crossref_doi_batch_context(
+                request.journal,
+                {identifier},
+            )
+            template = "common/identifiers/crossref_doi_batch.xml"
         return render(
             None,
             template,
@@ -226,9 +233,25 @@ def poll_doi(
 
     # Scenario 1: The identifier has not been polled or deposited before.
     # It needs a CrossrefStatus object created.
-    if not identifier.crossrefstatus:
-        models.CrossrefStatus.objects.create(
-            identifier=identifier,
+    try:
+        has_status = identifier.crossrefstatus is not None
+    except models.CrossrefStatus.DoesNotExist:
+        has_status = False
+
+    if not has_status:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            "This identifier has not been deposited with Crossref yet.",
+        )
+        return redirect(
+            reverse(
+                "identifiers",
+                kwargs={
+                    "content_type": content_type,
+                    "object_id": obj.pk,
+                },
+            ),
         )
     # Scenario 2: The identifier has been deposited before.
     # It will have a CrossrefStatus and a CrossrefDeposit already.

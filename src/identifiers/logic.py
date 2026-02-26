@@ -273,6 +273,16 @@ def register_crossref_component(article, xml, supp_file):
         )
 
 
+def create_crossref_preprint_doi_batch_context(repository, identifiers):
+    versions = [ident.preprint_version for ident in identifiers if ident.preprint_version]
+    return {
+        "batch_id": uuid4(),
+        "now": datetime.datetime.now(),
+        "repository": repository,
+        "versions": versions,
+    }
+
+
 def create_crossref_doi_batch_context(journal, identifiers):
     timestamp_suffix = journal.get_setting(
         "crossref",
