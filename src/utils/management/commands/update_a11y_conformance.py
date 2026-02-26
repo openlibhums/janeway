@@ -24,31 +24,47 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
+        default_json = os.path.join(
+            settings.BASE_DIR,
+            "..",
+            "docs",
+            "md",
+            "a11y",
+            "conformance_data.json",
+        )
+        default_output = os.path.join(
+            settings.BASE_DIR,
+            "..",
+            "docs",
+            "md",
+            "a11y",
+            "a11y_conformance.md",
+        )
+        parser.add_argument(
+            "path_to_json",
+            nargs="?",
+            type=str,
+            default=None,
+            help="Path to the JSON data file (optional; uses default if omitted)",
+        )
+        parser.add_argument(
+            "path_to_output",
+            nargs="?",
+            type=str,
+            default=None,
+            help="Path to the output markdown file (optional; uses default if omitted)",
+        )
         parser.add_argument(
             "--json-file",
             type=str,
-            default=os.path.join(
-                settings.BASE_DIR,
-                "..",
-                "docs",
-                "md",
-                "a11y",
-                "conformance_data.json",
-            ),
-            help="Path to the JSON data file",
+            default=default_json,
+            help="Path to the JSON data file (overridden by path_to_json if given)",
         )
         parser.add_argument(
             "--output",
             type=str,
-            default=os.path.join(
-                settings.BASE_DIR,
-                "..",
-                "docs",
-                "md",
-                "a11y",
-                "a11y_conformance.md",
-            ),
-            help="Path to the output markdown file",
+            default=default_output,
+            help="Path to the output markdown file (overridden by path_to_output if given)",
         )
 
     def format_table_cell(self, value):
@@ -124,8 +140,8 @@ class Command(BaseCommand):
         :param options: Command options
         :return: None
         """
-        json_file = options.get("json_file")
-        output_file = options.get("output")
+        json_file = options.get("path_to_json") or options.get("json_file")
+        output_file = options.get("path_to_output") or options.get("output")
 
         # Resolve and normalize paths
         json_file = os.path.normpath(os.path.abspath(json_file))
