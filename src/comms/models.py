@@ -54,9 +54,21 @@ class NewsItem(models.Model):
         "core.Account", blank=True, null=True, on_delete=models.SET_NULL
     )
 
-    start_display = models.DateField(default=timezone.now)
-    end_display = models.DateField(blank=True, null=True)
-    sequence = models.PositiveIntegerField(default=0)
+    start_display = models.DateField(
+        default=timezone.now,
+        help_text="If you want to schedule this news item in advance, select a date for it to be published. Otherwise, select today's date for it to publish immediately.",
+    )
+
+    end_display = models.DateField(
+        blank=True,
+        null=True,
+        help_text="If you want your news item to appear for a limited time only, select a date for it to stop displaying.",
+    )
+
+    sequence = models.PositiveIntegerField(
+        default=0,
+        help_text="This controls the order of news items in relation to one another.",
+    )
 
     large_image_file = models.ForeignKey(
         "core.File",
@@ -73,13 +85,12 @@ class NewsItem(models.Model):
         max_length=255,
         blank=True,
         null=True,
-        help_text="If you want a custom byline add it here. This will overwrite the display of the user who created "
-        "the news item with whatever text is added here.",
+        help_text="The name of this news item's author. If this section is left blank, the byline will credit you as the author.",
     )
 
     pinned = models.BooleanField(
         default=False,
-        help_text="Pinned news items will appear at the top of the news list",
+        help_text="Tick this box to pin this item to the top of your news list.",
     )
 
     objects = models.Manager()

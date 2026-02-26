@@ -6,46 +6,48 @@
 
 {% block title %}Issue Management{% endblock title %}
 
-{% block breadcrumbs %} 
-    {{ block.super }}
-    {% include "elements/breadcrumbs/issue_management.html" %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% include "elements/breadcrumbs/issue_management.html" %}
 {% endblock breadcrumbs %}
 
 
 {% block body %}
-    <div class="row expanded">
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Issue Management</h2>
+<div class="row expanded">
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Issue Management</h2>
+                {% if not issue %}
+                <a href="#" data-open="issue" class="button">
+                    <i class="fa fa-plus">&nbsp;</i>Create Issue
+                </a>
+                <a href="{% url 'manage_issue_display' %}" class="button">
+                    <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
+                </a>
+                {% else %}
+                <a class="button" href="{% url 'journal_issue' issue.pk %}">
+                    View Issue
+                </a>
+                {% endif %}
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
                     {% if not issue %}
-                        <a href="#" data-open="issue" class="button">
-                            <i class="fa fa-plus">&nbsp;</i>Create Issue
-                        </a>
-                        <a href="{% url 'manage_issue_display' %}" class="button">
-                            <i class="fa fa-edit">&nbsp;</i>Edit Display Settings
-                        </a>
-                    {% else %}
-                        <a class="button" href="{% url 'journal_issue' issue.pk %}">
-                            View Issue
-                        </a>
+                    <p class="small">Issues of your journal are listed below. You can change the order of these issues
+                        by dragging and dropping them or by using the sorting options. Any changes made here will affect
+                        the order issues display in on the journal's website. </p>
+                    <button name="sort" value="date_sort_desc" class="button">
+                        <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
+                    </button>
+                    <button name="sort" value="date_sort_asc" class="button">
+                        <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
+                    </button>
                     {% endif %}
-                </div>
-                <div class="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {% if not issue %}
-                             <p class="small">You can drag and drop Issues into the desired order or use the order by buttons below. Ordering Issues from this interface changes the public display order of Issues, changes will take effect immediately.</p>
-                            <button name="sort" value="date_sort_desc" class="button">
-                                <i class="fa fa-sort-amount-desc"></i>&nbsp;Sort by Date Descending
-                            </button>
-                            <button name="sort" value="date_sort_asc" class="button">
-                                <i class="fa fa-sort-amount-asc"></i>&nbsp;Sort by Date Ascending
-                            </button>
-                        {% endif %}
-                    </form>
-                    <table class="scroll">
-                        <thead>
+                </form>
+                <table class="scroll">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
@@ -56,78 +58,80 @@
                             <th>No. Articles</th>
                             <th colspan="4"></th>
                         </tr>
-                        </thead>
-                        <tbody {% if not issue %}class="sortable"{% endif %}>
+                    </thead>
+                    <tbody {% if not issue %}class="sortable" {% endif %}>
                         {% for i in issues %}
-                            <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
-                                <td>{{ i.pk }}</td>
-                                <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
-                                <td>{{ i.issue_type }}</td>
-                                <td>{{ i.volume }}</td>
-                                <td>{{ i.issue }}</td>
-                                <td>{{ i.date|date:"Y-m-d" }}</td>
-                                <td>{{ i.articles.all|length }}</td>
-                                <td>
-                                    {% if issue %}
-                                        <a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>
-                                    {% endif %}
-                                    {% if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i class="fa fa-eye">&nbsp;</i>View</a>{%  endif %}
-                                </td>
-                                <td><a href="{% url 'manage_issues_event' i.pk 'delete' %}"><i class="fa fa-trash">&nbsp;</i>Delete</a></td>
-                                <td>
-                                    {% if request.journal.current_issue != i and i.is_published %}
-                                        <form method="POST">
-                                            {% csrf_token %}
-                                            <button name="make_current" type="submit" class="button" value="{{ i.pk }}"
-                                                    style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current
-                                            </button>
-                                        </form>
-                                    {% elif not i.is_published %}
-                                        <small>{% trans 'Issue date is in the future.' %}</small>
-                                    {% elif request.journal.current_issue == i %}
-                                        <small>{% trans 'Issue is already set as the current issue.' %}</small>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                        <tr {% if not issue %}id="issues-{{ i.pk }}" {% endif %}>
+                            <td>{{ i.pk }}</td>
+                            <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
+                            <td>{{ i.issue_type }}</td>
+                            <td>{{ i.volume }}</td>
+                            <td>{{ i.issue }}</td>
+                            <td>{{ i.date|date:"Y-m-d" }}</td>
+                            <td>{{ i.articles.all|length }}</td>
+                            <td>
+                                {% if issue %}
+                                <a href="#" data-open="issue"><i class="fa fa-edit">&nbsp;</i>Edit Details</a>
+                                {% endif %}
+                                {% if not issue %}<a href="{% url 'manage_issues_id' i.pk %}"><i
+                                        class="fa fa-eye">&nbsp;</i>View</a>{% endif %}
+                            </td>
+                            <td><a href="{% url 'manage_issues_event' i.pk 'delete' %}"><i
+                                        class="fa fa-trash">&nbsp;</i>Delete</a></td>
+                            <td>
+                                {% if request.journal.current_issue != i and i.is_published %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <button name="make_current" type="submit" class="button" value="{{ i.pk }}"
+                                        style="margin:0px"><i class="fa fa-clock-o">&nbsp;</i> Make Current
+                                    </button>
+                                </form>
+                                {% elif not i.is_published %}
+                                <small>{% trans 'Issue date is in the future.' %}</small>
+                                {% elif request.journal.current_issue == i %}
+                                <small>{% trans 'Issue is already set as the current issue.' %}</small>
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
-                        </tbody>
-                    </table>
-                    {% if issue %}
-                        {% include "admin/elements/issue/sort_toc.html" %}
-                    {% endif %}
-                </div>
+                    </tbody>
+                </table>
+                {% if issue %}
+                {% include "admin/elements/issue/sort_toc.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
+</div>
 
 {% if issue %}
-    {% include "admin/elements/issue/table_of_contents.html" with issue=issue %}
-    {% include "admin/elements/issue/guest_editors.html" with issue=issue %}
-    {% include "admin/elements/issue/galleys.html" with issue=issue galleys=galleys %}
+{% include "admin/elements/issue/table_of_contents.html" with issue=issue %}
+{% include "admin/elements/issue/guest_editors.html" with issue=issue %}
+{% include "admin/elements/issue/galleys.html" with issue=issue galleys=galleys %}
 {% endif %}
 {% include "admin/elements/issue/issue_modal.html" %}
 {% include "admin/elements/issue/delete_modal.html" %}
 {% endblock body %}
 
 {% block js %}
-    {% if modal %}
-        {% include "admin/elements/open_modal.html" with target=modal %}
-    {% endif %}
-    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script>
-        $( ".sortable" ).sortable({
-            update: function (event, ui) {
-                var data = $(this).sortable('serialize');
-                console.log(data);
-                // POST to server using $.post or $.ajax
-                $.ajax({
-                    data: data,
-                    type: 'POST',
-                    url: '{% if issue %}{% url 'issue_article_order' issue.id %}{% else %}{% url 'issue_order' %}{% endif %}'
+{% if modal %}
+{% include "admin/elements/open_modal.html" with target=modal %}
+{% endif %}
+<link type='text/css' href="{% static " common/css/jq-ui.css" %}" rel="stylesheet">
+<script type="text/javascript" src="{% static " common/js/jq-ui.min.js" %}"></script>
+<script>
+    $(".sortable").sortable({
+        update: function (event, ui) {
+            var data = $(this).sortable('serialize');
+            console.log(data);
+            // POST to server using $.post or $.ajax
+            $.ajax({
+                data: data,
+                type: 'POST',
+                url: '{% if issue %}{% url 'issue_article_order' issue.id %}{% else %}{% url 'issue_order' %}{% endif %}'
                 });
-            }
-        });
-        $( ".sortable" ).disableSelection();
-    </script>
+        }
+    });
+    $(".sortable").disableSelection();
+</script>
 {% endblock js %}
