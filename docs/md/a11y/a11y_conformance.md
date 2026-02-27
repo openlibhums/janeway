@@ -59,7 +59,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5158) |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
-|                      | 3.2.3 Consistent Navigation                                  | AA    |                    |         |                      |
+| :orange_circle:      | 3.2.3 Consistent Navigation                                  | AA    | Partially Supports | Single urgent bugfix on mobile | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 |                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
@@ -119,7 +119,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5158) |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |
-|                      | 3.2.3 Consistent Navigation                                  | AA    |                    |         |                      |
+| :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 |                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
@@ -179,7 +179,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5158) |
 | :orange_circle:      | 3.2.1 On Focus                                               | A     | Partially Supports |         | June 2024 VPAT       |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially Supports |         | June 2024 VPAT       |
-| :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | June 2024 VPAT       |
+| :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 | :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
 | :x:                  | 3.3.1 Error Identification                                   | A     | Does not support   |         | June 2024 VPAT       |
