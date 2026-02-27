@@ -56,7 +56,7 @@ class IsPreprintOwner(permissions.BasePermission):
 
     def has_permission(self, request, view):
         # grant access to non-create/update requests
-        if request.method not in ['PUT', 'PATCH']:
+        if request.method not in ['PUT', 'PATCH', 'DELETE']:
             return True
 
         # grant access if user is the preprint's owner
