@@ -75,5 +75,11 @@ class TimeMonitoring(BaseMiddleware):
 
     @staticmethod
     def _get_usage():
-        utime, stime, *_ = resource.getrusage(resource.RUSAGE_THREAD)
-        return (time.time(), utime, stime)
+        try:
+            try:
+                utime, stime, *_ = resource.getrusage(resource.RUSAGE_THREAD)
+            except AttributeError:
+                utime, stime, *_ = resource.getrusage(resource.RUSAGE_SELF)
+            return (time.time(), utime, stime)
+        except Exception:
+            return (time.time(), 0, 0)
