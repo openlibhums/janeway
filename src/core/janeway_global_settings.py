@@ -567,6 +567,9 @@ if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
 HIJACK_USERS_ENABLED = False
 HIJACK_LOGIN_REDIRECT_URL = "/manager/"
 
+# Allows you to create your own submission page at `/start/submit` with the name `submission_start`.
+HIJACK_SUBMISSION_ENABLED = False
+
 
 # OIDC
 ENABLE_OIDC = bool(os.environ.get("ENABLE_OIDC", False))
