@@ -19,6 +19,8 @@ class Migration(migrations.Migration):
                     ("doi", "DOI"),
                     ("uri", "URI Path"),
                     ("pubid", "Publisher ID"),
+                    ("arxiv", "ArXiv ID"),
+                    ("preprintid", "Preprint ID"),
                 ],
                 max_length=300,
             ),
