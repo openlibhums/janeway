@@ -5,20 +5,37 @@
     --primary-light-color: #fff; /* lighter colour or secondary colour */
     --topbar-background-color: #24193d; /* background colour for the top bar of the navigation */
     --menu-foreground-color: #512888; /* font colour used in the menu bar */
-    }
-    
-    .top-bar .dropdown.menu > li.is-dropdown-submenu-parent > a::after {
-      border-color: #FFF transparent transparent;
-    }
-    
-    header #main-menu li a {
-      font-weight: 600;
-    }
-    
-    footer .large-2.logo-wrapper {
-      display: none;
-    }
-    
-    footer .large-text-right li a {
-      margin: 0;
-    }
+}
+
+.top-bar .dropdown.menu > li.is-dropdown-submenu-parent > a {
+  color: var(--primary-light-color);
+}
+
+.top-bar .dropdown.menu > li.is-dropdown-submenu-parent > ul.submenu li a {
+  color: var(--menu-foreground-color);
+}
+
+.dropdown.menu > li.is-dropdown-submenu-parent > a {
+  color: var(--primary-light-color);
+
+}
+
+.top-bar .dropdown.menu > li.is-dropdown-submenu-parent > a::after {
+  border-color: #FFF transparent transparent;
+}
+
+.dropdown.menu > li.is-dropdown-submenu-parent > ul.submenu > li.is-submenu-item > a {
+  color: var(--menu-foreground-color);
+}
+
+header #main-menu li a {
+  font-weight: 600;
+}
+
+footer .large-2.logo-wrapper {
+  display: none;
+}
+
+footer .large-text-right li a {
+  margin: 0;
+}
