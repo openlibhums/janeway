@@ -1694,7 +1694,7 @@ class Galley(AbstractLastModifiedModel):
             # iterate over all found elements of each type in the elements dictionary
             for idx, val in enumerate(images):
                 # attempt to pull a URL from the specified attribute
-                url = os.path.basename(val.get(attribute, None))
+                url = os.path.basename(val.get(attribute, ""))
 
                 if show_all:
                     missing_elements.append(url)
