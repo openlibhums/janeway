@@ -62,7 +62,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 3.2.3 Consistent Navigation                                  | AA    | Partially Supports | Single urgent bugfix on mobile | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
-|                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
+| :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [March 2026](https://github.com/openlibhums/janeway/issues/5164) |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
@@ -122,7 +122,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
-|                      | 3.3.1 Error Identification                                   | A     |                    |         |                      |
+| :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [March 2026](https://github.com/openlibhums/janeway/issues/5164) |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
@@ -182,7 +182,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5161) |
 | :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5163) |
-| :x:                  | 3.3.1 Error Identification                                   | A     | Does not support   |         | June 2024 VPAT       |
+| :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [March 2026](https://github.com/openlibhums/janeway/issues/5164) |
 | :orange_circle:      | 3.3.2 Labels or Instructions                                 | A     | Partially Supports |         | June 2024 VPAT       |
 | :white_check_mark:   | 3.3.3 Error Suggestion                                       | AA    | Supports           |         | [February 2026](https://github.com/openlibhums/janeway/issues/5166) |
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not-applicable     |         | [January 2026](https://github.com/openlibhums/janeway/issues/5095) |
