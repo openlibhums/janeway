@@ -401,7 +401,11 @@ class ReviewAssignment(models.Model):
 
     def request_decision_status(self):
         if self.decision == RD.DECISION_WITHDRAWN.value:
-            return f"Withdrawn {self.date_complete.date()}"
+            if self.date_complete:
+                date = self.date_complete.date()
+            else:
+                date = "[unknown date]"
+            return f"Withdrawn {date}"
         elif self.date_complete and self.date_accepted:
             return f"Complete {self.date_complete.date()}"
         elif self.date_accepted:
