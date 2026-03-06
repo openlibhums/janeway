@@ -9,9 +9,10 @@
                 <h2 id="filter-title">{% trans 'Filter' %}</h2>
                 <form method="GET" id={{ facet_form.id }}>
                     {% bootstrap_form facet_form %}
-                    <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
                     <button type="button" class="btn btn-secondary" id="select-all-btn">{% trans 'Select all' %}</button>
                     <button type="button" class="btn btn-secondary" id="clear-all-btn">{% trans 'Clear all' %}</button>
+                    <hr aria-hidden="true" />
+                    <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
                 </form>
                 <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
                 <script>
