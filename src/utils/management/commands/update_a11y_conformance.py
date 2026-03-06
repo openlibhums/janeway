@@ -12,8 +12,8 @@ class Command(BaseCommand):
 
     # Conformance symbol mapping
     conformance_symbol_map = {
-        "Not-applicable": ":brown_square:",
-        "Partially Supports": ":orange_circle:",
+        "Not applicable": ":brown_square:",
+        "Partially supports": ":orange_circle:",
         "Supports": ":white_check_mark:",
         "Does not support": ":x:",
     }
