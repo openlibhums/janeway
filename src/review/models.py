@@ -42,7 +42,7 @@ def all_review_decisions():
         (RD.DECISION_MAJOR.value, "Major Revisions Required"),
         (RD.DECISION_REJECT.value, "Reject"),
         (RD.DECISION_NO_RECOMMENDATION.value, "No Recommendation"),
-        (RD.DECISION_WITHDRAWN.value, 'Withdrawn'),
+        (RD.DECISION_WITHDRAWN.value, "Withdrawn"),
     )
 
 

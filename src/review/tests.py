@@ -529,12 +529,14 @@ class ReviewTests(TestCase):
         files.delete_file(article_with_completed_reviews, file)
 
     def test_withdrawing_review_assignment(self):
-        review_to_withdraw, created = review_models.ReviewAssignment.objects.get_or_create(
-            article=self.article_under_review,
-            reviewer=self.second_reviewer,
-            editor=self.editor,
-            date_due=timezone.now(),
-            form=self.review_form,
+        review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+            )
         )
         review_to_withdraw.withdraw()
         self.assertTrue(
@@ -858,7 +860,7 @@ class ReviewTests(TestCase):
                 form=self.review_form,
                 is_complete=True,
                 decision="withdrawn",
-                date_complete = timezone.now()
+                date_complete=timezone.now(),
             )
         )
 
@@ -875,12 +877,14 @@ class ReviewTests(TestCase):
             )
         )
 
-        self.review_to_withdraw, created = review_models.ReviewAssignment.objects.get_or_create(
-            article=self.article_under_review,
-            reviewer=self.second_reviewer,
-            editor=self.editor,
-            date_due=timezone.now(),
-            form=self.review_form,
+        self.review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+            )
         )
 
         self.review_assignment = review_models.ReviewAssignment(
