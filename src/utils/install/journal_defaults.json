@@ -5615,5 +5615,24 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, RSS and Atom feed links are included in the journal's page headers.",
+            "is_translatable": false,
+            "name": "feeds",
+            "pretty_name": "RSS/Atom Feeds",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]
