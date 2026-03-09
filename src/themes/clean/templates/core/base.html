@@ -14,9 +14,11 @@
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
 
+    {% if not request.journal or journal_settings.general.feeds %}
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+    {% endif %}
     {% include "common/elements/favicons.html" %}
 
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
