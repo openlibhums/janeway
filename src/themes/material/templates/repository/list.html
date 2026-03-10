@@ -24,8 +24,8 @@
                         {% if preprints.has_previous %}
                             <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">
                             {% include "elements/icons/page_previous.html" %}
-                        </a></li>
-                            &nbsp;{% endif %}
+                        </a>
+                            &nbsp;</li>{% endif %}
                         {{ preprints.page.page_range }}
                         {% for page in preprints|slice_pages:3 %}
                             <li class="waves-effect {% if preprints.number == page.number %}active{% endif %}"><a
