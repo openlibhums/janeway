@@ -77,7 +77,7 @@ class Command(BaseCommand):
         """Output a markdown table row."""
         return (
             f"| {row_data['result']:<20} | {row_data['criterion_text']:<60} | {row_data['level']:<5} | "
-            f"{row_data['conformance']:<18} | {row_data['remarks']:<7} | {row_data['audit']:<20} |"
+            f"{row_data['conformance']:<18} | {row_data['remarks']:<7} | {row_data['audit']:<20} | {row_data['version']:<10} |"
         )
 
     def generate_table_row(self, criterion_id, area_criterion_data):
@@ -104,6 +104,7 @@ class Command(BaseCommand):
             "conformance": self.format_table_cell(conformance),
             "remarks": self.format_table_cell(area_criterion_data.get("remarks")),
             "audit": self.format_table_cell(area_criterion_data.get("audit")),
+            "version": self.format_table_cell(area_criterion_data.get("commit")),
         }
         return self.output_table_row(row_data)
 
@@ -118,6 +119,7 @@ class Command(BaseCommand):
             "conformance": "Conformance",
             "remarks": "Remarks",
             "audit": "Audit",
+            "version": "Version",
         }
         lines = [self.output_table_row(headings)]
         lines.append("|---" * len(headings) + "|")
