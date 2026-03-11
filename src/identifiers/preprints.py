@@ -84,7 +84,7 @@ def send_preprint_version_crossref_deposit(repository, versions, identifiers):
         crossref_deposit.save()
         logger.error(status)
         return status, e
-    if response.status_code == 200:
+    if response.ok:
         status = f"Deposit sent ({repository.short_name})"
         util_models.LogEntry.bulk_add_simple_entry(
             'Submission',

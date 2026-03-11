@@ -133,7 +133,7 @@ def send_review_crossref_deposit(mode, reviews, identifiers, journal):
         logger.error(status)
         return status, e
 
-    if response.status_code == 200:
+    if response.ok:
         status = f"Deposit sent ({journal.code})"
         util_models.LogEntry.bulk_add_simple_entry(
             'Submission',
