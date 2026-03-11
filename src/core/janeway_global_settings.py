@@ -722,6 +722,6 @@ HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
 # and may not work properly with a different size.
 DEFAULT_CROP_SIZE = (1500, 648)
 
-# This setting should only be enabled on Dev or where CORS is properly
+# This setting should only be enabled where CORS is properly
 # configured to stop misuse of this endpoint.
-API_ENABLE_SUBMISSION_ACCOUNT_SEARCH = False
+API_ENABLE_ACCOUNT_ENDPOINTS = False

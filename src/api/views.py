@@ -402,7 +402,7 @@ class SubmissionAccountSearch(viewsets.ModelViewSet):
     exact email or exact ORCID. Returns 0 results if no exact match.
 
     The availability of this view is controlled by the Django setting:
-    API_ENABLE_SUBMISSION_ACCOUNT_SEARCH which is False by default.
+    API_ENABLE_ACCOUNT_ENDPOINTS which is False by default.
     """
     serializer_class = serializers.SubmissionAccountSearch
     http_method_names = ['get']

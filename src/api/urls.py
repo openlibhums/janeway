@@ -30,7 +30,7 @@ router.register(r'identifiers', views.Identifiers, 'api_identifiers')
 router.register(r'user_info', views.UserInfo, 'api_user_info')
 router.register(r'logout', views.Logout, basename='logout')
 
-if settings.API_ENABLE_SUBMISSION_ACCOUNT_SEARCH:
+if settings.API_ENABLE_ACCOUNT_ENDPOINTS:
     router.register(
         r'submission_account_search',
         views.SubmissionAccountSearch,
