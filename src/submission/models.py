@@ -2668,6 +2668,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
             "ORCID to be displayed when no account is associated with this author."
         ),
     )
+    is_frozen_orcid_valid = models.BooleanField(
+        default=False,
+        help_text="Reflects if a validated orcid was associated with this account at the time of creation"
+    )
     display_email = models.BooleanField(
         default=False,
         help_text=_(
@@ -2867,6 +2871,14 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return f"https://orcid.org/{result.group(0)}"
         else:
             return ""
+
+    @property
+    def is_orcid_valid(self):
+        if self.frozen_orcid:
+            return self.is_frozen_orcid_valid
+        elif self.author:
+            return self.author.is_orcid_token_valid()
+        return False
 
     @property
     def corporate_name(self):

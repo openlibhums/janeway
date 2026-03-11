@@ -888,6 +888,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
             "order": article.next_frozen_author_order(),
         }
 
+        if self.orcid:
+            frozen_dict["frozen_orcid"] = self.orcid
+            frozen_dict["is_frozen_orcid_valid"] = self.is_orcid_token_valid()
+
         frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
             author=self,
             article=article,

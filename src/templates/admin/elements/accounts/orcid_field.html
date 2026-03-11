@@ -1,6 +1,6 @@
 {% load orcid %}
 {% load static %}
-
+{% if account.pk %}
 <div>
   <strong>
     ORCID iD
@@ -30,12 +30,8 @@
             Connect your ORCID iD
         </a>
     {% else %}
-        {% if account.date_orcid_requested %}
-            <p>Request sent: {{ account.date_orcid_requested|date:"d M Y" }}</p>
-        {% endif %}
-        <button class="success button" type="submit" name="request_orcid">
-            Request ORCID iD
-        </button>
+        {% include "admin/elements/orcid_request.html" %}
     {% endif %}
   {% endif %}
 </div>
+{% endif %}

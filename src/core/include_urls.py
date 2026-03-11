@@ -431,6 +431,11 @@ urlpatterns = [
         core_views.manage_access_requests,
         name="manage_access_requests",
     ),
+    re_path(
+        r"^manager/account/(?P<account_id>\d+)/request_orcid/$",
+        core_views.request_orcid,
+        name="request_orcid",
+    ),
 ]
 
 # Journal homepage block loading

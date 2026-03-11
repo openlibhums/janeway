@@ -315,6 +315,24 @@ def user_login_orcid(request):
 
 
 @login_required
+@require_POST
+def request_orcid(request, account_id):
+    user = get_object_or_404(
+        core_models.Account,
+        pk=account_id,
+    )
+    logic.send_orcid_request(request, user)
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        f"Successfully requested ORCID iD from {user.full_name()}",
+    )
+
+    next_url = request.GET.get("next", "")
+    return redirect(next_url)
+
+
+@login_required
 def user_logout(request):
     """
     Logs a user session out.
@@ -1575,32 +1593,24 @@ def user_edit(request, user_id):
     next_url = request.GET.get("next", "")
 
     if request.POST:
-        if "request_orcid" in request.POST:
-            logic.send_orcid_request(request, user)
+        form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
+        registration_form = forms.AdminUserForm(
+            request.POST, instance=user, request=request
+        )
+
+        if form.is_valid() and registration_form.is_valid():
+            registration_form.save()
+            form.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Successfully requested ORCID iD from user."),
-            )
-        else:
-            form = forms.EditAccountForm(request.POST, request.FILES, instance=user)
-            registration_form = forms.AdminUserForm(
-                request.POST, instance=user, request=request
+                "User account updated.",
             )
 
-            if form.is_valid() and registration_form.is_valid():
-                registration_form.save()
-                form.save()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    "User account updated.",
-                )
-
-                if next_url:
-                    return redirect(next_url)
-                else:
-                    return redirect(reverse("core_manager_users"))
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse("core_manager_users"))
 
     template = "core/manager/users/edit.html"
     context = {
