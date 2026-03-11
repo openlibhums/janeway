@@ -108,14 +108,14 @@ class CrossrefDepositAdmin(admin.ModelAdmin):
     list_select_related = True
 
     def _journal(self, obj):
-        fist_status = obj.crossrefstatus_set.first()
-
-        if obj and fist_status and fist_status.identifier.article:
-            return fist_status.identifier.article.journal
-        elif obj and fist_status and fist_status.identifier.review:
-            return fist_status.identifier.review.article.journal
-        else:
+        if not obj:
             return ""
+        first_status = obj.crossrefstatus_set.first()
+        if first_status and first_status.identifier.article:
+            return first_status.identifier.article.journal
+        elif first_status and first_status.identifier.review:
+            return first_status.identifier.review.article.journal
+        return ""
 
     inlines = [
         admin_utils.DepositCrossrefStatusInline,
