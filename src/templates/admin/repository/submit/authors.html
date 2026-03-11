@@ -84,7 +84,10 @@
                                 <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
                                 <td>{{ author.account.email }}</td>
                                 <td>
-                                    {% include "admin/elements/repository/orcid.html" %}
+                                    {% include "admin/elements/orcid_display.html" %}
+                                    {% if not author.is_orcid_valid %}
+                                        {% include "admin/elements/orcid_request.html" with account=author.account %}
+                                    {% endif %}
                                 </td>
                                 <td>{{ author.display_affiliation }}</td>
                                 <td>

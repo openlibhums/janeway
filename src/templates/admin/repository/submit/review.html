@@ -63,7 +63,10 @@
                 <td>{{ author.account.first_name }}</td>
                 <td>{{ author.account.last_name }}</td>
                 <td>
-                    {% include "admin/elements/repository/orcid.html" %}
+                  {% include "admin/elements/orcid_display.html" %}
+                  {% if not author.is_orcid_valid %}
+                    {% include "admin/elements/orcid_request.html" with account=author.account %}
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}
