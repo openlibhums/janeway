@@ -278,7 +278,7 @@ class UserPreprintsViewSet(PreprintViewSet):
     http_method_names = ['get', 'post', 'put']
     permission_classes = [
         permissions.IsAuthenticated,
-        api_permissions.IsPreprintOwner
+        api_permissions.CanEditPreprint
     ]
 
     def get_serializer_class(self):
@@ -339,7 +339,7 @@ class PreprintFiles(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'delete']
     permission_classes = [
         permissions.IsAuthenticated,
-        api_permissions.IsPreprintOwner
+        api_permissions.CanEditPreprint
     ]
 
     def get_serializer_class(self):

@@ -51,7 +51,7 @@ class IsRepositoryManager(permissions.BasePermission):
             return True
 
 
-class IsPreprintOwner(permissions.BasePermission):
+class CanEditPreprint(permissions.BasePermission):
     message = 'You must be the owner of this preprint to edit it.'
 
     def has_permission(self, request, view):
