@@ -1089,3 +1089,35 @@ ul.menu {
     grid-template-columns: 20rem minmax(auto, 60rem);
   }
 }
+
+.custom-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.custom-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    background: #fdfdfd;
+}
+
+.custom-radio:hover {
+    border-color: #2684ff;
+}
+
+.custom-radio input[type="radio"] {
+    margin: 0;
+}
+
+.ou-depth {
+    margin-left: calc(var(--ou-depth, 0) * 1rem);
+}

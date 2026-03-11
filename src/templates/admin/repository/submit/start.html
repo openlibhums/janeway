@@ -12,53 +12,6 @@
   {% include "admin/elements/breadcrumbs/repository_submission.html" with start=True %}
 {% endblock %}
 
-{% block css %}
-  <style>
-      .custom-radio-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          margin-top: 1rem;
-          margin-bottom: 1rem;
-      }
-
-      .custom-radio {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1rem;
-          border: 2px solid #ddd;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: border-color 0.3s ease;
-          background: #fdfdfd;
-      }
-
-      .custom-radio:hover {
-          border-color: #2684ff;
-      }
-
-      .custom-radio input[type="radio"] {
-          margin: 0;
-      }
-
-      .ou-depth-1 {
-          margin-left: 1rem;
-      }
-
-      .ou-depth-2 {
-          margin-left: 2rem;
-      }
-
-      .ou-depth-3 {
-          margin-left: 3rem;
-      }
-
-      .ou-depth-4 {
-          margin-left: 4rem;
-      }
-  </style>
-{% endblock %}
 
 {% block body %}
   <div class="box">
@@ -103,7 +56,7 @@
 {% for radio in form.organisation_unit %}
   {% with radio.data.value|stringformat:"s" as val %}
     {% with form.ou_depth_map|get:val as depth %}
-      <label class="custom-radio ou-depth-{{ depth }}">
+      <label class="custom-radio ou-depth" style="--ou-depth: {{ depth }};">
         {{ radio.tag }}
         {{ radio.choice_label }}
       </label>
