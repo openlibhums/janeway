@@ -6,6 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import uuid
 import json
 import os
+import warnings
 
 from django import forms
 from django.db.models import Q
@@ -33,6 +34,7 @@ from utils.forms import (
     YesNoRadio,
 )
 from utils.logger import get_logger
+from utils.models import ACTOR_EMAIL_MAX_LENGTH
 from submission import models as submission_models
 
 logger = get_logger(__name__)
@@ -85,18 +87,16 @@ class EditKey(forms.Form):
         return cleaned_data
 
 
-class JournalContactForm(JanewayTranslationModelForm):
+class ContactPersonForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop("next_sequence", None)
-        super(JournalContactForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if next_sequence:
             self.fields["sequence"].initial = next_sequence
 
     class Meta:
-        model = models.Contacts
+        model = models.ContactPerson
         fields = (
-            "name",
-            "email",
             "role",
             "sequence",
         )
@@ -104,6 +104,37 @@ class JournalContactForm(JanewayTranslationModelForm):
             "content_type",
             "object_id",
         )
+
+
+class ContactMessageForm(CaptchaForm):
+    contact_person = forms.TypedChoiceField(
+        label=_("Who would you like to contact?"),
+    )
+    sender = forms.EmailField(
+        max_length=ACTOR_EMAIL_MAX_LENGTH,
+        label=_("Your contact email address"),
+    )
+    subject = forms.CharField(max_length=300, label=_("Subject"))
+    body = JanewayBleachFormField(label=_("Your message"))
+
+    def __init__(self, *args, **kwargs):
+        subject = kwargs.pop("subject", "")
+        contact_person = kwargs.pop("contact_person", None)
+        contact_people = kwargs.pop("contact_people", [])
+        super().__init__(*args, **kwargs)
+        self.fields["contact_person"].choices = [
+            (person.pk, person.account.full_name()) for person in contact_people
+        ]
+        self.fields["subject"].initial = subject
+
+        if contact_person:
+            self.fields["contact_person"].initial = contact_person.pk
+
+
+class JournalContactForm(ContactPersonForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Use ContactPersonForm instead.")
+        super().__init__(*args, **kwargs)
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):
