@@ -25,7 +25,7 @@
             {% endif %}
 
             {% if author.orcid_uri %}
-                <ORCID>{{ author.orcid_uri }}</ORCID>
+                <ORCID authenticated="{% if author.is_orcid_valid %}true{% else %}false{% endif %}">{{ author.orcid_uri }}</ORCID>
             {% endif %}
         </person_name>
         {% endwith %}
