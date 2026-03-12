@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(verbose_name=django.db.models.fields.CharField),
+                    models.CharField(max_length=255, verbose_name=django.db.models.fields.CharField),
                 ),
                 (
                     "code",

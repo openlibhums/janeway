@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 default="Organisational Units",
                 help_text="Default name for the organisation structure within this repository.",
+                max_length=255,
             ),
         ),
         migrations.AddField(
@@ -33,6 +34,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 default="Organisational Units",
                 help_text="Default name for the organisation structure within this repository.",
+                max_length=255,
             ),
         ),
         migrations.AddField(

@@ -8,7 +8,6 @@ import uuid
 import json
 import csv
 
-from django.apps import apps
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -17,12 +16,10 @@ from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from django.http.request import split_domain_port
 from django.templatetags.static import static
 from django.template import Template, Context
 from django.utils.html import format_html
 from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
 
 from simple_history.models import HistoricalRecords
 from openpyxl import load_workbook
@@ -281,6 +278,7 @@ class Repository(model_utils.AbstractSiteModel):
         default=False, help_text="Enable this setting to display metrics publicly."
     )
     rou_default_name = models.CharField(
+        max_length=255,
         default="Organisational Units",
         help_text="Default name for the organisation structure within this repository.",
     )
@@ -429,7 +427,10 @@ class RepositoryOrganisationUnit(models.Model):
         Repository,
         on_delete=models.CASCADE,
     )
-    name = models.CharField()
+    name = models.CharField(
+        max_length=255,
+        help_text="The name of the unit, eg. 'Research' or 'Publications'.",
+    )
     code = models.SlugField(
         max_length=50,
         help_text="A unique code within the repository for URL generation.",
