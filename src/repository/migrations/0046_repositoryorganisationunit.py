@@ -26,7 +26,9 @@ class Migration(migrations.Migration):
                 (
                     "name",
                     models.CharField(
-                        max_length=255, verbose_name=django.db.models.fields.CharField
+                        help_text="The name of the unit, eg. 'Research' or 'Publications'.",
+                        max_length=255,
+                        verbose_name=django.db.models.fields.CharField,
                     ),
                 ),
                 (
