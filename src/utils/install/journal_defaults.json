@@ -5637,6 +5637,7 @@
     },
     {
         "group": {
+<<<<<<< integration/iowa-and-isolinear
             "name": "Identifiers"
         },
         "setting": {
@@ -5648,6 +5649,19 @@
         },
         "value": {
             "default": ""
+=======
+            "name": "general"
+        },
+        "setting": {
+            "description": "RSS and Atom feed links in the journal's page headers.",
+            "is_translatable": false,
+            "name": "feeds",
+            "pretty_name": "RSS/Atom Feeds",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+>>>>>>> master
         },
         "editable_by": [
             "editor",
