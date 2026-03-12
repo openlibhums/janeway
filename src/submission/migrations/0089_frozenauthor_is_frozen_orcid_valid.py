@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0088_auto_20250506_1214'),
+        ("submission", "0088_auto_20250506_1214"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='frozenauthor',
-            name='is_frozen_orcid_valid',
-            field=models.BooleanField(default=False, help_text='Reflects if a validated orcid was associated with this account at the time of creation'),
+            model_name="frozenauthor",
+            name="is_frozen_orcid_valid",
+            field=models.BooleanField(
+                default=False,
+                help_text="Reflects if a validated orcid was associated with this account at the time of creation",
+            ),
         ),
     ]

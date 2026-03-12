@@ -283,7 +283,7 @@ class EditAccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if django_settings.ENABLE_ORCID:
-            self.fields['orcid'].widget = forms.HiddenInput()
+            self.fields["orcid"].widget = forms.HiddenInput()
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)

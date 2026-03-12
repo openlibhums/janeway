@@ -627,7 +627,8 @@ class CoreTests(TestCase):
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(response, "remove_orcid")
         self.assertContains(
-            response, '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">'
+            response,
+            '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">',
         )
         self.assertNotContains(response, "ORCID iD could not be validated.")
 
@@ -662,7 +663,8 @@ class CoreTests(TestCase):
         response = self.client.get(url, SERVER_NAME=journal.domain)
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(
-            response,'<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">'
+            response,
+            '<input type="hidden" name="orcid" value="0000-0000-0000-0000" id="id_orcid">',
         )
         self.assertNotContains(response, "ORCID iD could not be validated.")
         self.assertNotContains(response, "remove_orcid")

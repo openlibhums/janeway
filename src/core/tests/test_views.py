@@ -506,9 +506,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     def test_orcid_inactive_account(self, retrieve_tokens, orcid_details):
         inactive_email = "2LKEgc2a23@example.org"
         inactive_user = core_models.Account.objects.create_user(
-            inactive_email,
-            password="RFBsviApaN6jfAdHyHXY",
-            orcid=""
+            inactive_email, password="RFBsviApaN6jfAdHyHXY", orcid=""
         )
         inactive_user.is_active = False
         retrieve_tokens.return_value = (
@@ -540,9 +538,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         inactive_email = "2LKEgc2a23@example.org"
         inactive_orcid = "0000-0001-1111-1111"
         inactive_user = core_models.Account.objects.create_user(
-            inactive_email,
-            password="RFBsviApaN6jfAdHyHXY",
-            orcid=inactive_orcid
+            inactive_email, password="RFBsviApaN6jfAdHyHXY", orcid=inactive_orcid
         )
         inactive_user.is_active = False
         retrieve_tokens.return_value = (
