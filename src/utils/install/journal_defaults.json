@@ -5637,7 +5637,6 @@
     },
     {
         "group": {
-<<<<<<< integration/iowa-and-isolinear
             "name": "Identifiers"
         },
         "setting": {
@@ -5649,7 +5648,14 @@
         },
         "value": {
             "default": ""
-=======
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -5661,7 +5667,6 @@
         },
         "value": {
             "default": "on"
->>>>>>> master
         },
         "editable_by": [
             "editor",
