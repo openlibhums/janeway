@@ -251,7 +251,9 @@ def user_login_orcid(request):
             else:
                 # if there are no accounts with this orcid
                 # look for accounts with emails
-                candidates = models.Account.objects.filter(email__in=emails, is_active=True)
+                candidates = models.Account.objects.filter(
+                    email__in=emails, is_active=True
+                )
 
             # if we found any above add orcid and token and log 'em in
             if candidates.exists():
@@ -265,9 +267,7 @@ def user_login_orcid(request):
                 # user.orcid_token = access_token
                 # user.orcid_token_expiration = expiration
                 # user.save()
-                return redirect(
-                    request.site_type.auth_success_url(next_url=next_url)
-                )
+                return redirect(request.site_type.auth_success_url(next_url=next_url))
 
         # If no account was found for login,
         # then prepare an ORCID token for registration.

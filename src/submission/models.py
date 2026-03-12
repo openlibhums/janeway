@@ -2697,7 +2697,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     )
     is_frozen_orcid_valid = models.BooleanField(
         default=False,
-        help_text="Reflects if a validated orcid was associated with this account at the time of creation"
+        help_text="Reflects if a validated orcid was associated with this account at the time of creation",
     )
     display_email = models.BooleanField(
         default=False,
