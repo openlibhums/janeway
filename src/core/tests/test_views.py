@@ -499,6 +499,73 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             response.redirect_chain[0][0],
         )
 
+    @patch("core.views.orcid.get_orcid_record_details")
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_orcid_inactive_account(self, retrieve_tokens, orcid_details):
+        inactive_email = "2LKEgc2a23@example.org"
+        inactive_user = core_models.Account.objects.create_user(
+            inactive_email,
+            password="RFBsviApaN6jfAdHyHXY",
+            orcid=""
+        )
+        inactive_user.is_active = False
+        retrieve_tokens.return_value = (
+            self.orcid_access_token_uuid,
+            datetime(2050, 5, 17, 10, 30, 0, tzinfo=timezone.get_current_timezone()),
+            self.user_orcid,
+        )
+        orcid_details.return_value = {"emails": []}
+        get_data = {
+            "code": "12345",
+            "state": self.state_login,
+        }
+        response = self.client.get(
+            "/login/orcid/",
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertIn(
+            f"/register/step/orcid/",
+            response.redirect_chain[0][0],
+        )
+
+    @patch("core.views.orcid.get_orcid_record_details")
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_duplicate_orcid_inactive(self, retrieve_tokens, orcid_details):
+        inactive_email = "2LKEgc2a23@example.org"
+        inactive_orcid = "0000-0001-1111-1111"
+        inactive_user = core_models.Account.objects.create_user(
+            inactive_email,
+            password="RFBsviApaN6jfAdHyHXY",
+            orcid=inactive_orcid
+        )
+        inactive_user.is_active = False
+        retrieve_tokens.return_value = (
+            self.orcid_access_token_uuid,
+            datetime(2050, 5, 17, 10, 30, 0, tzinfo=timezone.get_current_timezone()),
+            inactive_orcid,
+        )
+        orcid_details.return_value = {"emails": [inactive_email]}
+        get_data = {
+            "code": "12345",
+            "state": self.state_login,
+        }
+        response = self.client.get(
+            "/login/orcid/",
+            get_data,
+            follow=True,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertIn(
+            f"/register/step/orcid/",
+            response.redirect_chain[0][0],
+        )
+
 
 class GetResetTokenTests(CoreViewTestsWithData):
     @patch("core.views.logic.start_reset_process")

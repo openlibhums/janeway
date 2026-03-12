@@ -60,7 +60,7 @@ def retrieve_tokens(authorization_code, site):
     orcid_id = orcid_response.get("orcid", None)
 
     if "expires_in" in orcid_response:
-        expires = orcid_response.get("expires_in")
+        expires = int(orcid_response.get("expires_in"))
         expiration_date = datetime.datetime.now() + datetime.timedelta(seconds=expires)
     else:
         expiration_date = None
