@@ -26,6 +26,7 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "DB_VENDOR=sqlite" >> "$GITHUB_ENV"
+          echo "DB_NAME=:memory:" >> "$GITHUB_ENV"
           echo "JANEWAY_SETTINGS_MODULE=core.janeway_global_settings" >> "$GITHUB_ENV"
 
 
