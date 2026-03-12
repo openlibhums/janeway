@@ -311,16 +311,24 @@ def user_login_orcid(request):
                 _("You must be logged in to connect an ORCID iD to your account."),
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
-        # user is adding orcid so save it to logged in user's profile
-        request.user.orcid = orcid_id
-        request.user.orcid_token = access_token
-        request.user.orcid_expiration = expiration
-        request.user.save()
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _("Your ORCID iD has been connected to your account."),
-        )
+        # Make sure there isn't already an account with this orcid
+        if models.Account.filter(orcid=orcid_id).exclude(pk=request.user.pk):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _("An account with that orcid already exists."),
+            )
+        else:
+            # user is adding orcid so save it to logged in user's profile
+            request.user.orcid = orcid_id
+            request.user.orcid_token = access_token
+            request.user.orcid_expiration = expiration
+            request.user.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Your ORCID iD has been connected to your account."),
+            )
         # return to profile page
         return redirect(logic.reverse_with_next("core_edit_profile", next_url))
 
