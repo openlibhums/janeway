@@ -22,9 +22,4 @@ class Migration(migrations.Migration):
                 to="repository.repositoryorganisationunit",
             ),
         ),
-        migrations.AlterField(
-            model_name="repositoryorganisationunit",
-            name="name",
-            field=models.CharField(),
-        ),
     ]
