@@ -38,8 +38,10 @@
     {% hook 'base_head_css' %}
 
     {% if request.journal %}
-        <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
-        <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+        {% if journal_settings.general.feeds %}
+            <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
+            <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+        {% endif %}
     {% else %}
         <link rel="alternate" type="application/rss+xml" title="Articles RSS Feed" href="{% url 'rss_articles' %}"/>
         <link  type="application/atom+xml" rel="alternate" title="News Feed for Journal" href="{% url 'rss_news' %}">
