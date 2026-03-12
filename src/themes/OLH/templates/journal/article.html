@@ -162,7 +162,7 @@
                                 {% if journal_settings.general.uses_isolinear_plugin and not article.is_published %}
                                     {% hook 'preprint_abstract_block' article.abstract %}
                                 {% else %}
-                                    {{ article.abstract_display|safe }}
+                                    {{ article.abstract|safe }}
                                 {% endif %}
                             {% endif %}
                             {% if journal_settings.general.keyword_list_page %}
@@ -367,7 +367,7 @@
                                     <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
-                            {% if article.published or proofing %}
+                            {% if article.is_published or proofing %}
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
