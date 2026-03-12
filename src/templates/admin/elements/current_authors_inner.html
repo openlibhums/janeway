@@ -84,7 +84,20 @@
                           {% trans "Email" as email_key %}
                           {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
                           {% trans "ORCID" as orcid_key %}
-                          {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+                          <div class="key-value-pair key-above">
+                            <dt class="key">
+                              {{ orcid_key }}
+                            </dt>
+                            <dd class="value">
+                                {{ author.orcid|default:"No ORCID iD" }}
+                                {% if author.orcid and not author.is_orcid_valid %}
+                                    <div class="callout warning">ORCID iD could not be validated.</div>
+                                {% endif %}
+                                {% if not author.is_orcid_valid and author.author %}
+                                  {% include "admin/elements/orcid_request.html" with account=author.author %}
+                                {% endif %}
+                            </dd>
+                          </div>
                           {% trans "Has user account" as account_key %}
                           {% include "admin/elements/layout/key_value_above.html" with key=account_key value=author.author|yesno:"Yes,No" %}
                         </div>

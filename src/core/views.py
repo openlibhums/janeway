@@ -191,7 +191,7 @@ def user_login_orcid(request):
         messages.add_message(
             request,
             messages.WARNING,
-            _("ORCID is not enabled.Please log in with your username and password."),
+            _("ORCID is not enabled. Please log in with your username and password."),
         )
         return redirect(logic.reverse_with_next("core_login", next_url))
 
@@ -215,7 +215,9 @@ def user_login_orcid(request):
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
     # Make another request to orcid.org to verify it.
-    orcid_id = orcid.retrieve_tokens(orcid_code, request.site_type)
+    access_token, expiration, orcid_id = orcid.retrieve_tokens(
+        orcid_code, request.site_type
+    )
 
     # If verification did not work, send them to the regular login page.
     if not orcid_id:
@@ -230,38 +232,49 @@ def user_login_orcid(request):
     # The verification worked.
     # If the user wanted to log in, try to log them in.
     if action == "login":
-        try:
-            user = models.Account.objects.get(orcid=orcid_id)
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id)
+        # if we have exactly one account with this orcid do the login
+        if orcid_accounts.count() == 1:
             login(
                 request,
-                user,
+                orcid_accounts.first(),
                 backend="django.contrib.auth.backends.ModelBackend",
             )
             return redirect(request.site_type.auth_success_url(next_url=next_url))
-
-        except models.Account.DoesNotExist:
-            # Lookup ORCID email addresses
+        else:
             orcid_details = orcid.get_orcid_record_details(orcid_id)
-            for email in orcid_details.get("emails", []):
-                candidates = models.Account.objects.filter(email=email)
-                if candidates.exists():
-                    # Store ORCID for future authentication requests
-                    candidates.update(orcid=orcid_id)
-                    login(
-                        request,
-                        candidates.first(),
-                        backend="django.contrib.auth.backends.ModelBackend",
-                    )
-                    return redirect(
-                        request.site_type.auth_success_url(next_url=next_url)
-                    )
+            emails = orcid_details.get("emails", [])
+            # if we have more than one account with this orcid
+            # look for accounts that match emails and orcid
+            if orcid_accounts.count() > 1:
+                candidates = orcid_accounts.filter(email__in=emails, is_active=True)
+            else:
+                # if there are no accounts with this orcid
+                # look for accounts with emails
+                candidates = models.Account.objects.filter(
+                    email__in=emails, is_active=True
+                )
+
+            # if we found any above add orcid and token and log 'em in
+            if candidates.exists():
+                user = candidates.first()
+                login(
+                    request,
+                    user,
+                    backend="django.contrib.auth.backends.ModelBackend",
+                )
+                return redirect(request.site_type.auth_success_url(next_url=next_url))
 
         # If no account was found for login,
         # then prepare an ORCID token for registration.
         # Then send the user to a decision page that tells them
         # the ORCID login did not work and they will need to register.
         models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        new_token = models.OrcidToken.objects.create(
+            orcid=orcid_id,
+            access_token=access_token,
+            access_token_expiration=expiration,
+        )
         return redirect(
             logic.reverse_with_next(
                 "core_orcid_registration",
@@ -282,6 +295,56 @@ def user_login_orcid(request):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
+    elif action == "add_profile_orcid":  # user is adding orcid through their profile
+        if not request.user.is_authenticated:
+            # this case is very unlikely but since this view
+            # doesn't require a login check to ensure they are
+            # already logged in, if not just redirect to
+            # non-orcid login
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _("You must be logged in to connect an ORCID iD to your account."),
+            )
+            return redirect(logic.reverse_with_next("core_login", next_url))
+        # Make sure there isn't already an account with this orcid
+        if models.Account.filter(orcid=orcid_id).exclude(pk=request.user.pk):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _("An account with that orcid already exists."),
+            )
+        else:
+            # user is adding orcid so save it to logged in user's profile
+            request.user.orcid = orcid_id
+            request.user.orcid_token = access_token
+            request.user.orcid_expiration = expiration
+            request.user.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Your ORCID iD has been connected to your account."),
+            )
+        # return to profile page
+        return redirect(logic.reverse_with_next("core_edit_profile", next_url))
+
+
+@login_required
+@require_POST
+def request_orcid(request, account_id):
+    user = get_object_or_404(
+        core_models.Account,
+        pk=account_id,
+    )
+    logic.send_orcid_request(request, user)
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        f"Successfully requested ORCID iD from {user.full_name()}",
+    )
+
+    next_url = request.GET.get("next", "")
+    return redirect(next_url)
 
 
 @login_required
@@ -434,6 +497,9 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                new_user.orcid_token = token_obj.access_token
+                new_user.orcid_expiration = token_obj.access_token_expiration
+                new_user.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
                     for orcid_affil in orcid_details.get("affiliations", []):
@@ -545,6 +611,7 @@ def edit_profile(request):
     :return: HttpResponse object
     """
     user = request.user
+
     form = forms.EditAccountForm(instance=user)
     send_reader_notifications = False
     next_url = request.GET.get("next", "")
@@ -659,6 +726,13 @@ def edit_profile(request):
 
         elif "export" in request.POST:
             return logic.export_gdpr_user_profile(user)
+        elif "remove_orcid" in request.POST:
+            if orcid.revoke_token(user.orcid_token):
+                user.orcid = ""
+                user.orcid_token = ""
+                user.orcid_token_expiration = None
+                user.save()
+                form = forms.EditAccountForm(instance=user)
 
     template = "admin/core/accounts/edit_profile.html"
     context = {
