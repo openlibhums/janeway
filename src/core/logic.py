@@ -150,11 +150,18 @@ def send_confirmation_link(request, new_user):
 
 
 def send_orcid_request(request, user):
+    if request.journal:
+        publication_name = request.journal.name
+    elif request.repository:
+        publication_name = request.repository.name
+    else:
+        publication_name = request.press.name
     context = {
         "user": user,
         "user_profile_url": request.site_type.site_url(
             reverse("core_edit_profile"),
         ),
+        "publication_name": publication_name,
     }
     log_dict = {"level": "Info", "types": "ORCID Request", "target": None}
 
