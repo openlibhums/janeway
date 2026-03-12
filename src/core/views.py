@@ -232,31 +232,42 @@ def user_login_orcid(request):
     # The verification worked.
     # If the user wanted to log in, try to log them in.
     if action == "login":
-        try:
-            user = models.Account.objects.get(orcid=orcid_id)
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id)
+        # if we have exactly one account with this orcid do the login
+        if orcid_accounts.count() == 1:
             login(
                 request,
-                user,
+                orcid_accounts.first(),
                 backend="django.contrib.auth.backends.ModelBackend",
             )
             return redirect(request.site_type.auth_success_url(next_url=next_url))
-
-        except models.Account.DoesNotExist:
-            # Lookup ORCID email addresses
+        else:
             orcid_details = orcid.get_orcid_record_details(orcid_id)
-            for email in orcid_details.get("emails", []):
-                candidates = models.Account.objects.filter(email=email)
-                if candidates.exists():
-                    # Store ORCID for future authentication requests
-                    candidates.update(orcid=orcid_id)
-                    login(
-                        request,
-                        candidates.first(),
-                        backend="django.contrib.auth.backends.ModelBackend",
-                    )
-                    return redirect(
-                        request.site_type.auth_success_url(next_url=next_url)
-                    )
+            emails = orcid_details.get("emails", [])
+            # if we have more than one account with this orcid
+            # look for accounts that match emails and orcid
+            if orcid_accounts.count() > 1:
+                candidates = orcid_accounts.filter(email__in=emails, is_active=True)
+            else:
+                # if there are no accounts with this orcid
+                # look for accounts with emails
+                candidates = models.Account.objects.filter(email__in=emails, is_active=True)
+
+            # if we found any above add orcid and token and log 'em in
+            if candidates.exists():
+                user = candidates.first()
+                login(
+                    request,
+                    user,
+                    backend="django.contrib.auth.backends.ModelBackend",
+                )
+                # user.orcid = orcid_id
+                # user.orcid_token = access_token
+                # user.orcid_token_expiration = expiration
+                # user.save()
+                return redirect(
+                    request.site_type.auth_success_url(next_url=next_url)
+                )
 
         # If no account was found for login,
         # then prepare an ORCID token for registration.
