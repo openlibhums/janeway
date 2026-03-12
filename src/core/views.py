@@ -263,10 +263,6 @@ def user_login_orcid(request):
                     user,
                     backend="django.contrib.auth.backends.ModelBackend",
                 )
-                # user.orcid = orcid_id
-                # user.orcid_token = access_token
-                # user.orcid_token_expiration = expiration
-                # user.save()
                 return redirect(request.site_type.auth_success_url(next_url=next_url))
 
         # If no account was found for login,
