@@ -2,7 +2,11 @@
     {% for review in article.public_reviews %}
         <div class="modal" id="reviewmodal-{{ review.pk }}">
         <div class="modal-content">
-            <h2><i aria-hidden="true" class="fa fa-pencil">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}</h2>
+            <h4><i class="fa fa-pencil">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}</h4>
+            <p>
+                <strong>Reviewer: </strong> {{ review.reviewer.full_name }}<br/>
+                <strong>DOI:</strong> {{ review.get_doi }}
+            </p>
             {% for answer in review.review_form_answers %}
                 {% if answer.author_can_see %}
                     <p class="{{ answer.element.width }}">

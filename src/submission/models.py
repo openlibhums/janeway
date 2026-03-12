@@ -1677,6 +1677,10 @@ class Article(AbstractLastModifiedModel):
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
 
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
+
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
@@ -2590,6 +2594,14 @@ class Article(AbstractLastModifiedModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
     AFFILIATION_RELATED_NAME = "frozen_author"
@@ -3303,6 +3315,14 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
+    )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,
