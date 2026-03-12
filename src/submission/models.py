@@ -1679,9 +1679,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def stage_log_list(self):
-        return [
-            stage.stage_to for stage in self.articlestagelog_set.all()
-        ]
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
@@ -3322,9 +3320,9 @@ class SubmissionConfiguration(models.Model):
         Licence,
         null=True,
         blank=True,
-        help_text=_('The license that is applied to open peer reviews.'),
+        help_text=_("The license that is applied to open peer reviews."),
         on_delete=models.SET_NULL,
-        related_name='open_peer_review_license',
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,

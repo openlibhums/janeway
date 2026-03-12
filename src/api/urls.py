@@ -17,34 +17,44 @@ router.register(r"licences", views.LicenceViewSet, "licence")
 router.register(r"keywords", views.KeywordsViewSet, "keywords")
 router.register(r"accounts", views.AccountViewSet, "accounts")
 
-router.register(r'preprints', views.PreprintViewSet, 'repository_preprints')
-router.register(r'repository_licenses', views.PreprintLicenses, 'repository_licenses')
-router.register(r'repository_fields', views.RepositoryFields, 'repository_fields')
-router.register(r'preprint_files', views.PreprintFiles, 'repository_preprint_files')
-router.register(r'user_preprints', views.UserPreprintsViewSet, 'repository_user_preprints')
-router.register(r'repository_subjects', views.RepositorySubjects, 'repository_preprint_subjects')
-router.register(r'published_preprints', views.PublishedPreprintViewSet, 'repository_published_preprint')
-router.register(r'version_queue', views.RepositoryVersionQueue, 'repository_version_queue')
-router.register(r'identifiers', views.Identifiers, 'api_identifiers')
+router.register(r"preprints", views.PreprintViewSet, "repository_preprints")
+router.register(r"repository_licenses", views.PreprintLicenses, "repository_licenses")
+router.register(r"repository_fields", views.RepositoryFields, "repository_fields")
+router.register(r"preprint_files", views.PreprintFiles, "repository_preprint_files")
+router.register(
+    r"user_preprints", views.UserPreprintsViewSet, "repository_user_preprints"
+)
+router.register(
+    r"repository_subjects", views.RepositorySubjects, "repository_preprint_subjects"
+)
+router.register(
+    r"published_preprints",
+    views.PublishedPreprintViewSet,
+    "repository_published_preprint",
+)
+router.register(
+    r"version_queue", views.RepositoryVersionQueue, "repository_version_queue"
+)
+router.register(r"identifiers", views.Identifiers, "api_identifiers")
 
-router.register(r'user_info', views.UserInfo, 'api_user_info')
-router.register(r'logout', views.Logout, basename='logout')
+router.register(r"user_info", views.UserInfo, "api_user_info")
+router.register(r"logout", views.Logout, basename="logout")
 
 if settings.API_ENABLE_ACCOUNT_ENDPOINTS:
     router.register(
-        r'submission_account_search',
+        r"submission_account_search",
         views.SubmissionAccountSearch,
-        'submission_account_search',
+        "submission_account_search",
     )
     router.register(
-        r'account/register',
+        r"account/register",
         views.RegisterAccount,
-        'register_account',
+        "register_account",
     )
     router.register(
-        r'account/activate',
+        r"account/activate",
         views.ActivateAccount,
-        'activate_account',
+        "activate_account",
     )
 
 # Wire up our API using automatic URL routing.
@@ -63,5 +73,7 @@ urlpatterns = [
     ),
     re_path(r"^swagger_ui/$", views.swagger_ui, name="swagger_ui"),
     re_path(r"^redoc/$", views.redoc, name="redoc"),
-    re_path(r"^account/update/$", views.UpdateAccountView.as_view(), name="update_account"),
+    re_path(
+        r"^account/update/$", views.UpdateAccountView.as_view(), name="update_account"
+    ),
 ]

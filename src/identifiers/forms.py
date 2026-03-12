@@ -75,7 +75,9 @@ class IdentifierForm(forms.ModelForm):
                 self.add_error(
                     "identifier",
                     "This identifier already exists on: {}.".format(
-                        " ".join([ident.preprint_version.preprint.title for ident in idents])
+                        " ".join(
+                            [ident.preprint_version.preprint.title for ident in idents]
+                        )
                     ),
                 )
 

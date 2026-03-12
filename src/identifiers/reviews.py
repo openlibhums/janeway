@@ -13,11 +13,12 @@ logger = get_logger(__name__)
 
 
 def review_doi_mint_event_listener(**kwargs):
-    request = kwargs.get('request')
-    review = kwargs.get('review_assignment')
+    request = kwargs.get("request")
+    review = kwargs.get("review_assignment")
 
     mint_review_dois = request.journal.get_setting(
-        'Identifiers', 'mint_open_review_dois',
+        "Identifiers",
+        "mint_open_review_dois",
     )
 
     # Check if minting DOIs is enabled and the review has public permission
@@ -33,9 +34,7 @@ def deposit_doi_for_reviews(journal, reviews):
     if error:
         logger.debug(status)
         return status, error
-    use_crossref, mode, missing_settings = logic.check_crossref_settings(
-        journal
-    )
+    use_crossref, mode, missing_settings = logic.check_crossref_settings(journal)
     identifiers = get_dois_for_reviews(reviews)
     if use_crossref and not missing_settings:
         return send_review_crossref_deposit(
@@ -50,11 +49,11 @@ def get_dois_for_reviews(reviews):
     identifiers = []
     for review in reviews:
         identifier, c = models.Identifier.objects.get_or_create(
-            id_type='doi',
+            id_type="doi",
             review=review,
             defaults={
-                'identifier': review.get_doi_pattern(),
-            }
+                "identifier": review.get_doi_pattern(),
+            },
         )
         identifiers.append(identifier)
     return identifiers
@@ -63,26 +62,26 @@ def get_dois_for_reviews(reviews):
 def send_review_crossref_deposit(mode, reviews, identifiers, journal):
     # Form a set from the iterable passed in
     identifiers = set((i for i in identifiers))
-    template = 'common/identifiers/crossref_review_batch.xml'
+    template = "common/identifiers/crossref_review_batch.xml"
     template_context = {
-        'reviews': reviews,
-        'batch_id': uuid4(),
-        'now': datetime.now(),
-        'timestamp_suffix': journal.get_setting(
-            'crossref',
-            'crossref_date_suffix',
+        "reviews": reviews,
+        "batch_id": uuid4(),
+        "now": datetime.now(),
+        "timestamp_suffix": journal.get_setting(
+            "crossref",
+            "crossref_date_suffix",
         ),
-        'depositor_name': journal.get_setting(
-            'Identifiers',
-            'crossref_name',
+        "depositor_name": journal.get_setting(
+            "Identifiers",
+            "crossref_name",
         ),
-        'depositor_email': journal.get_setting(
-            'Identifiers',
-            'crossref_email',
+        "depositor_email": journal.get_setting(
+            "Identifiers",
+            "crossref_email",
         ),
-        'registrant': journal.get_setting(
-            'Identifiers',
-            'crossref_registrant',
+        "registrant": journal.get_setting(
+            "Identifiers",
+            "crossref_registrant",
         ),
     }
     document = render_to_string(
@@ -101,16 +100,16 @@ def send_review_crossref_deposit(mode, reviews, identifiers, journal):
         crossref_status.deposits.add(crossref_deposit)
 
     doi_prefix = journal.get_setting(
-        'Identifiers',
-        'crossref_prefix',
+        "Identifiers",
+        "crossref_prefix",
     )
     username = journal.get_setting(
-        'Identifiers',
-        'crossref_username',
+        "Identifiers",
+        "crossref_username",
     )
     password = journal.get_setting(
-        'Identifiers',
-        'crossref_password',
+        "Identifiers",
+        "crossref_password",
     )
     depositor = Depositor(
         prefix=doi_prefix,
@@ -124,9 +123,11 @@ def send_review_crossref_deposit(mode, reviews, identifiers, journal):
             request_xml=crossref_deposit.document,
         )
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-        status = 'Error depositing. Could not connect to Crossref ({0}). Error: {1}'.format(
-            depositor.get_endpoint(verb='deposit'),
-            e,
+        status = (
+            "Error depositing. Could not connect to Crossref ({0}). Error: {1}".format(
+                depositor.get_endpoint(verb="deposit"),
+                e,
+            )
         )
         crossref_deposit.result_text = status
         crossref_deposit.save()
@@ -136,9 +137,9 @@ def send_review_crossref_deposit(mode, reviews, identifiers, journal):
     if response.ok:
         status = f"Deposit sent ({journal.code})"
         util_models.LogEntry.bulk_add_simple_entry(
-            'Submission',
+            "Submission",
             status,
-            'Info',
+            "Info",
             targets=reviews,
         )
         logger.info(status)

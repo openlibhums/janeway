@@ -18,14 +18,9 @@ def headless_mode_check(func):
             messages.add_message(
                 request,
                 messages.INFO,
-                'Redirected to dashboard. This repository runs in headless'
-                ' mode.',
+                "Redirected to dashboard. This repository runs in headless mode.",
             )
-            return redirect(
-                reverse(
-                    'repository_dashboard'
-                )
-            )
+            return redirect(reverse("repository_dashboard"))
         return func(request, *args, **kwargs)
 
     return headless_mode_check_wrapper

@@ -22,19 +22,19 @@ def check_repository_crossref_settings(repository):
         repository.crossref_prefix,
     ]
     if any(settings) is None:
-        return False, 'Some crossref settings are missing.'
-    return True, ''
+        return False, "Some crossref settings are missing."
+    return True, ""
 
 
 def get_dois_for_preprint_versions(preprint_versions):
     identifiers = []
     for preprint_version in preprint_versions:
         identifier, c = models.Identifier.objects.get_or_create(
-            id_type='doi',
+            id_type="doi",
             preprint_version=preprint_version,
             defaults={
-                'identifier': preprint_version.get_doi_pattern(),
-            }
+                "identifier": preprint_version.get_doi_pattern(),
+            },
         )
         identifiers.append(identifier)
     return identifiers
@@ -43,12 +43,12 @@ def get_dois_for_preprint_versions(preprint_versions):
 def send_preprint_version_crossref_deposit(repository, versions, identifiers):
     status, error = None, None
     identifiers = set((i for i in identifiers))
-    template = 'common/identifiers/crossref_preprint_batch.xml'
+    template = "common/identifiers/crossref_preprint_batch.xml"
     template_context = {
-        'versions': versions,
-        'batch_id': uuid4(),
-        'repository': repository,
-        'now': datetime.now(),
+        "versions": versions,
+        "batch_id": uuid4(),
+        "repository": repository,
+        "now": datetime.now(),
     }
     document = render_to_string(
         template,
@@ -76,9 +76,11 @@ def send_preprint_version_crossref_deposit(repository, versions, identifiers):
             request_xml=crossref_deposit.document,
         )
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-        status = 'Error depositing. Could not connect to Crossref ({0}). Error: {1}'.format(
-            depositor.get_endpoint(verb='deposit'),
-            e,
+        status = (
+            "Error depositing. Could not connect to Crossref ({0}). Error: {1}".format(
+                depositor.get_endpoint(verb="deposit"),
+                e,
+            )
         )
         crossref_deposit.result_text = status
         crossref_deposit.save()
@@ -87,9 +89,9 @@ def send_preprint_version_crossref_deposit(repository, versions, identifiers):
     if response.ok:
         status = f"Deposit sent ({repository.short_name})"
         util_models.LogEntry.bulk_add_simple_entry(
-            'Submission',
+            "Submission",
             status,
-            'Info',
+            "Info",
             targets=versions,
         )
         logger.info(status)
@@ -112,8 +114,6 @@ def deposit_doi_for_preprint_version(repository, preprint_versions):
         if not error:
             identifiers = get_dois_for_preprint_versions(preprint_versions)
             return send_preprint_version_crossref_deposit(
-                repository,
-                preprint_versions,
-                identifiers
+                repository, preprint_versions, identifiers
             )
         return status, error

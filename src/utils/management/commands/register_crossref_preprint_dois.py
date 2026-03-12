@@ -15,7 +15,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('version_id')
+        parser.add_argument("version_id")
 
     def handle(self, *args, **options):
         """Calls the Crossref registration options
@@ -24,9 +24,7 @@ class Command(BaseCommand):
         :param options: Dictionary containing 'article_id'
         :return: None
         """
-        version = models.PreprintVersion.objects.get(
-            pk=options.get('version_id')
-        )
+        version = models.PreprintVersion.objects.get(pk=options.get("version_id"))
         if version:
             preprints.deposit_doi_for_preprint_version(
                 version.preprint.repository,

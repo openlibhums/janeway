@@ -5,19 +5,24 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0047_repositoryorganisationunit_parent_and_more'),
+        ("repository", "0047_repositoryorganisationunit_parent_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='repositoryorganisationunit',
-            name='preprints',
+            model_name="repositoryorganisationunit",
+            name="preprints",
         ),
         migrations.AddField(
-            model_name='preprint',
-            name='organisation_unit',
-            field=models.OneToOneField(blank=True, help_text='Linked organization of this preprint.', null=True, on_delete=django.db.models.deletion.SET_NULL, to='repository.repositoryorganisationunit'),
+            model_name="preprint",
+            name="organisation_unit",
+            field=models.OneToOneField(
+                blank=True,
+                help_text="Linked organization of this preprint.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="repository.repositoryorganisationunit",
+            ),
         ),
     ]

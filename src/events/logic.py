@@ -271,7 +271,7 @@ class Events:
 
     # kwargs: request, new_version, preprint
     # raised when a preprint author uploads a new version
-    ON_PREPRINT_NEW_VERSION = 'on_preprint_new_version'
+    ON_PREPRINT_NEW_VERSION = "on_preprint_new_version"
 
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one

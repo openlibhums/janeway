@@ -3024,7 +3024,6 @@ class PublishedArticlesListView(FacetedArticlesListView):
         }
         return self.filter_facets_if_journal(facets)
 
-
     def get_facet_queryset(self):
         queryset = super().get_facet_queryset()
         return queryset.filter(
@@ -3033,10 +3032,9 @@ class PublishedArticlesListView(FacetedArticlesListView):
         )
 
     def get_order_by(self):
-        order_by = self.request.GET.get('order_by', '-date_published')
+        order_by = self.request.GET.get("order_by", "-date_published")
         order_by_choices = self.get_order_by_choices()
-        return order_by if order_by in dict(order_by_choices) else ''
-
+        return order_by if order_by in dict(order_by_choices) else ""
 
     def get_order_by_choices(self):
         return [

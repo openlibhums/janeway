@@ -261,9 +261,9 @@ def repository_submit_update(request, preprint_id, action):
             event_logic.Events.raise_event(
                 event_logic.Events.ON_PREPRINT_NEW_VERSION,
                 **{
-                    'request': request,
-                    'new_version': new_version,
-                    'preprint': preprint,
+                    "request": request,
+                    "new_version": new_version,
+                    "preprint": preprint,
                 },
             )
 
@@ -364,16 +364,19 @@ def redirect_old_subject(request, subject_id):
 def repository_list(request):
     form = forms.PreprintFilterForm(request.GET, repository=request.repository)
 
-    preprints = models.Preprint.objects.filter(
-        date_published__lte=timezone.now(),
-        repository=request.repository,
-    ).select_related('submission_type') \
-     .prefetch_related('organisation_units')
+    preprints = (
+        models.Preprint.objects.filter(
+            date_published__lte=timezone.now(),
+            repository=request.repository,
+        )
+        .select_related("submission_type")
+        .prefetch_related("organisation_units")
+    )
 
     if form.is_valid():
-        subject = form.cleaned_data.get('subject')
-        submission_type = form.cleaned_data.get('submission_type')
-        search_term = form.cleaned_data.get('search_term', '').strip()
+        subject = form.cleaned_data.get("subject")
+        submission_type = form.cleaned_data.get("submission_type")
+        search_term = form.cleaned_data.get("search_term", "").strip()
 
         if subject:
             preprints = preprints.filter(subject=subject)
@@ -386,19 +389,22 @@ def repository_list(request):
 
             keyword_filter = Q(keywords__word__in=split_terms)
             title_abstract_filter = Q(title__icontains=search_term) | Q(
-                abstract__icontains=search_term)
+                abstract__icontains=search_term
+            )
 
-            author_filter = Q(preprintauthor__account__first_name__in=split_terms) | \
-                            Q(preprintauthor__account__middle_name__in=split_terms) | \
-                            Q(preprintauthor__account__last_name__in=split_terms) | \
-                            Q(preprintauthor__account__institution__icontains=search_term)
+            author_filter = (
+                Q(preprintauthor__account__first_name__in=split_terms)
+                | Q(preprintauthor__account__middle_name__in=split_terms)
+                | Q(preprintauthor__account__last_name__in=split_terms)
+                | Q(preprintauthor__account__institution__icontains=search_term)
+            )
 
             preprints = preprints.filter(
                 title_abstract_filter | keyword_filter | author_filter
             ).distinct()
 
-    paginator = Paginator(preprints.order_by('-date_published'), 15)
-    page = request.GET.get('page', 1)
+    paginator = Paginator(preprints.order_by("-date_published"), 15)
+    page = request.GET.get("page", 1)
 
     try:
         preprints = paginator.page(page)
@@ -407,12 +413,18 @@ def repository_list(request):
     except EmptyPage:
         preprints = paginator.page(paginator.num_pages)
 
-    return render(request, 'repository/list.html', {
-        'preprints': preprints,
-        'form': form,
-        'subject': form.cleaned_data.get('subject') if form.is_valid() else None,
-        'submission_type': form.cleaned_data.get('submission_type') if form.is_valid() else None,
-    })
+    return render(
+        request,
+        "repository/list.html",
+        {
+            "preprints": preprints,
+            "form": form,
+            "subject": form.cleaned_data.get("subject") if form.is_valid() else None,
+            "submission_type": form.cleaned_data.get("submission_type")
+            if form.is_valid()
+            else None,
+        },
+    )
 
 
 @decorators.headless_mode_check
@@ -422,14 +434,13 @@ def repository_search(request, search_term=None):
     main repository list view.
     """
     if request.method == "POST":
-        search_term = request.POST.get('search_term', '').strip()
+        search_term = request.POST.get("search_term", "").strip()
 
     query = {}
     if search_term:
-        query['search_term'] = search_term
+        query["search_term"] = search_term
 
     return redirect(f"{reverse('repository_list')}?{urlencode(query)}")
-
 
 
 @decorators.headless_mode_check
@@ -588,7 +599,7 @@ def repository_submit(request):
             submission_type = form.cleaned_data["submission_type"]
             organisation_unit = form.cleaned_data.get("organisation_unit")
 
-            url = reverse('repository_info')
+            url = reverse("repository_info")
             params = f"?submission_type={submission_type.slug}"
 
             if organisation_unit:
@@ -596,9 +607,9 @@ def repository_submit(request):
 
             return redirect(f"{url}{params}")
 
-    template = 'admin/repository/submit/start.html'
+    template = "admin/repository/submit/start.html"
     context = {
-        'form': form,
+        "form": form,
     }
     return render(request, template, context)
 
@@ -616,7 +627,7 @@ def repository_info(request, preprint_id=None):
         return result
 
     submission_type = result
-    organisation_unit = getattr(request, 'organisation_unit', None)
+    organisation_unit = getattr(request, "organisation_unit", None)
 
     if preprint_id:
         preprint = get_object_or_404(
@@ -1142,7 +1153,9 @@ def repository_edit_metadata(request, preprint_id):
         "preprint": preprint,
         "metadata_form": metadata_form,
         "additional_fields": request.repository.type_additional_submission_fields(
-            submission_type_slug=preprint.submission_type.slug if preprint.submission_type else None,
+            submission_type_slug=preprint.submission_type.slug
+            if preprint.submission_type
+            else None,
         ),
     }
 
@@ -2621,12 +2634,16 @@ def preprints_by_rou(request, rou_code):
     relevant_rous = [rou] + descendant_rous
 
     # Fetch preprints associated with the selected ROU and its sub-units
-    preprints = models.Preprint.objects.filter(
-        organisation_units__in=relevant_rous,
-        date_published__lte=timezone.now(),
-        stage=models.STAGE_PREPRINT_PUBLISHED,
-    ).distinct().order_by(
-        "-date_published",
+    preprints = (
+        models.Preprint.objects.filter(
+            organisation_units__in=relevant_rous,
+            date_published__lte=timezone.now(),
+            stage=models.STAGE_PREPRINT_PUBLISHED,
+        )
+        .distinct()
+        .order_by(
+            "-date_published",
+        )
     )
 
     # Pagination setup
@@ -2652,11 +2669,13 @@ def preprints_by_rou(request, rou_code):
 
 
 def build_hierarchy(units):
-    """ Recursively builds a nested dictionary structure for hierarchy """
+    """Recursively builds a nested dictionary structure for hierarchy"""
     hierarchy = []
     for unit in units:
         children = unit.children.annotate(preprint_count=Count("preprints"))
-        latest_preprints = unit.preprints.order_by("-date_published")[:10]  # Get latest 10 preprints
+        latest_preprints = unit.preprints.order_by("-date_published")[
+            :10
+        ]  # Get latest 10 preprints
         hierarchy.append(
             {
                 "unit": unit,
@@ -2666,6 +2685,7 @@ def build_hierarchy(units):
             }
         )
     return hierarchy
+
 
 def rou_hierarchy_view(request, rou_code=None):
     repository = request.repository
@@ -2713,7 +2733,7 @@ def rou_hierarchy_view(request, rou_code=None):
             "recent_preprints": models.Preprint.objects.filter(
                 repository=request.repository,
                 date_published__lte=timezone.now(),
-            ).order_by('-date_published')[:10],
+            ).order_by("-date_published")[:10],
             "page_text": repository.render_setting(repository.rou_struct_page_text),
         },
     )
@@ -2721,16 +2741,14 @@ def rou_hierarchy_view(request, rou_code=None):
 
 @is_repository_manager
 def submission_type_list(request):
-    types = (models.RepositorySubmissionType.objects.filter(
+    types = models.RepositorySubmissionType.objects.filter(
         repository=request.repository,
-    ).annotate(
-        preprint_count=Count('preprint')
-    ))
+    ).annotate(preprint_count=Count("preprint"))
     return render(
         request,
-        'repository/submission_type_list.html',
+        "repository/submission_type_list.html",
         {
-            'submission_types': types,
+            "submission_types": types,
         },
     )
 
@@ -2744,7 +2762,7 @@ def delete_submission_type(request, pk):
         repository=request.repository,
     )
     obj.delete()
-    return redirect('submission_type_list')
+    return redirect("submission_type_list")
 
 
 @is_repository_manager
@@ -2776,4 +2794,3 @@ def edit_submission_type(request, pk=None):
             "submission_type": submission_type,
         },
     )
-

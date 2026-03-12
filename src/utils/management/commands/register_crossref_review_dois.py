@@ -15,7 +15,7 @@ class Command(BaseCommand):
         :param parser: the parser to which the required arguments will be added
         :return: None
         """
-        parser.add_argument('article_id')
+        parser.add_argument("article_id")
 
     def handle(self, *args, **options):
         """Calls the Crossref registration options
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         :return: None
         """
         article = submission_models.Article.objects.get(
-            pk=options['article_id'],
+            pk=options["article_id"],
         )
 
         identifier_logic.deposit_doi_for_reviews(

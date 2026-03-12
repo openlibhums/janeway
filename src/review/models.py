@@ -405,13 +405,13 @@ class ReviewAssignment(models.Model):
         Maps a decision to Crossref deposit recommendations.
         """
         if self.decision == RD.DECISION_ACCEPT.value:
-            return 'accept'
+            return "accept"
         elif self.decision == RD.DECISION_MINOR.value:
-            return 'minor-revision'
+            return "minor-revision"
         elif self.decision == RD.DECISION_MAJOR.value:
-            return 'major-revision'
+            return "major-revision"
         elif self.decision == RD.DECISION_REJECT.value:
-            return 'reject'
+            return "reject"
 
     def get_doi_pattern(self):
         article_pattern = self.article.doi_pattern_preview
@@ -421,12 +421,11 @@ class ReviewAssignment(models.Model):
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(
-                    id_type='doi',
-                    review=self
+                    id_type="doi", review=self
                 )
             except identifier_models.Identifier.MultipleObjectsReturned:
                 doi = identifier_models.Identifier.objects.filter(
-                    id_type='doi',
+                    id_type="doi",
                     review=self,
                 ).first()
             if not _object:

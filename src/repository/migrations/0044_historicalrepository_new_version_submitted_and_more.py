@@ -4,25 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0043_alter_preprintversion_file'),
+        ("repository", "0043_alter_preprintversion_file"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrepository',
-            name='new_version_submitted',
-            field=models.TextField(blank=True, help_text='Email sent when an author uploads a new version.'),
+            model_name="historicalrepository",
+            name="new_version_submitted",
+            field=models.TextField(
+                blank=True, help_text="Email sent when an author uploads a new version."
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='new_version_submitted',
-            field=models.TextField(blank=True, help_text='Email sent when an author uploads a new version.'),
+            model_name="repository",
+            name="new_version_submitted",
+            field=models.TextField(
+                blank=True, help_text="Email sent when an author uploads a new version."
+            ),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='abstract',
-            field=models.TextField(blank=True, help_text='Copying and pasting from word processors is supported.', null=True),
+            model_name="preprint",
+            name="abstract",
+            field=models.TextField(
+                blank=True,
+                help_text="Copying and pasting from word processors is supported.",
+                null=True,
+            ),
         ),
     ]

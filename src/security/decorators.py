@@ -747,7 +747,8 @@ def article_stage_accepted_or_later_required(func):
             request.journal, identifier_type, identifier
         )
         if article_object and article_object.journal.get_setting(
-            "general", "uses_isolinear_plugin",
+            "general",
+            "uses_isolinear_plugin",
         ):
             return func(request, *args, **kwargs)
 

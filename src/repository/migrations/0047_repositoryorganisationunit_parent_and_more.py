@@ -5,20 +5,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0046_repositoryorganisationunit'),
+        ("repository", "0046_repositoryorganisationunit"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repositoryorganisationunit',
-            name='parent',
-            field=models.ForeignKey(blank=True, help_text='Parent organisational unit, or leave blank if this is a top-level unit.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='repository.repositoryorganisationunit'),
+            model_name="repositoryorganisationunit",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Parent organisational unit, or leave blank if this is a top-level unit.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="children",
+                to="repository.repositoryorganisationunit",
+            ),
         ),
         migrations.AlterField(
-            model_name='repositoryorganisationunit',
-            name='name',
+            model_name="repositoryorganisationunit",
+            name="name",
             field=models.CharField(),
         ),
     ]

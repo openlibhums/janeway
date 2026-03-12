@@ -6,23 +6,52 @@ import django.db.models.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0045_historicalrepository_display_public_metrics_and_more'),
+        ("repository", "0045_historicalrepository_display_public_metrics_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RepositoryOrganisationUnit',
+            name="RepositoryOrganisationUnit",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(verbose_name=django.db.models.fields.CharField)),
-                ('code', models.SlugField(help_text='A unique code within the repository for URL generation.')),
-                ('preprints', models.ManyToManyField(blank=True, help_text='Preprints associated with this organisational unit.', related_name='organisation_units', to='repository.preprint')),
-                ('repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='repository.repository')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(verbose_name=django.db.models.fields.CharField),
+                ),
+                (
+                    "code",
+                    models.SlugField(
+                        help_text="A unique code within the repository for URL generation."
+                    ),
+                ),
+                (
+                    "preprints",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Preprints associated with this organisational unit.",
+                        related_name="organisation_units",
+                        to="repository.preprint",
+                    ),
+                ),
+                (
+                    "repository",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="repository.repository",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('repository', 'code')},
+                "unique_together": {("repository", "code")},
             },
         ),
     ]

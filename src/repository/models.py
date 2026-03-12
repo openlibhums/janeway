@@ -287,18 +287,18 @@ class Repository(model_utils.AbstractSiteModel):
     rou_struct_page_text = model_utils.JanewayBleachField(
         blank=True,
         default="<p>This page provides an overview of the organisational structure "
-                "within {{ repository.name }}. You can navigate through the hierarchy "
-                "to explore different units and their associated preprints.</p>",
+        "within {{ repository.name }}. You can navigate through the hierarchy "
+        "to explore different units and their associated preprints.</p>",
         help_text="Text that displays on the organisational unit page.",
     )
     headless_mode = models.BooleanField(
         default=False,
-        help_text='Enable this feature to make this repository run in headless'
-                  ' mode, with no front end.',
+        help_text="Enable this feature to make this repository run in headless"
+        " mode, with no front end.",
     )
     crossref_enable = models.BooleanField(
         default=False,
-        help_text='Enable to use crossref. All other fields must be complete.',
+        help_text="Enable to use crossref. All other fields must be complete.",
     )
     crossref_username = models.CharField(
         max_length=255,
@@ -332,7 +332,7 @@ class Repository(model_utils.AbstractSiteModel):
     )
     crossref_test_mode = models.BooleanField(
         default=False,
-        help_text='Enable to use Crossref test.',
+        help_text="Enable to use Crossref test.",
     )
 
     class Meta:
@@ -375,8 +375,8 @@ class Repository(model_utils.AbstractSiteModel):
         return RepositoryField.objects.filter(
             repository=self,
         ).filter(
-            Q(submission_type__isnull=True) |
-            Q(submission_type__slug=submission_type_slug)
+            Q(submission_type__isnull=True)
+            | Q(submission_type__slug=submission_type_slug)
         )
 
     def site_url(self, path="", query=""):
@@ -432,23 +432,23 @@ class RepositoryOrganisationUnit(models.Model):
     name = models.CharField()
     code = models.SlugField(
         max_length=50,
-        help_text='A unique code within the repository for URL generation.',
+        help_text="A unique code within the repository for URL generation.",
     )
     parent = models.ForeignKey(
-        'self',
+        "self",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
-        related_name='children',
-        help_text='Parent organisational unit, or leave blank if this is '
-                  'a top-level unit.',
+        related_name="children",
+        help_text="Parent organisational unit, or leave blank if this is "
+        "a top-level unit.",
     )
 
     def __str__(self):
-        return f'{self.repository.code}/{self.code} - {self.name}'
+        return f"{self.repository.code}/{self.code} - {self.name}"
 
     class Meta:
-        unique_together = ('repository', 'code')
+        unique_together = ("repository", "code")
 
     def get_descendants(self):
         """Returns all descendant ROUs recursively."""
@@ -492,12 +492,12 @@ class RepositoryField(models.Model):
         on_delete=models.CASCADE,
     )
     submission_type = models.ForeignKey(
-        'RepositorySubmissionType',
+        "RepositorySubmissionType",
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        help_text='Optional, allows you to tie this field to a specific submission type. '
-                  'Leave blank to tie this to all submission types.',
+        help_text="Optional, allows you to tie this field to a specific submission type. "
+        "Leave blank to tie this to all submission types.",
     )
     name = models.CharField(max_length=255)
     input_type = models.CharField(
@@ -564,7 +564,7 @@ class Preprint(models.Model):
         on_delete=models.SET_NULL,
     )
     submission_type = models.ForeignKey(
-        'RepositorySubmissionType',
+        "RepositorySubmissionType",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -943,7 +943,7 @@ class RepositorySubmissionType(models.Model):
     repository = models.ForeignKey(
         Repository,
         on_delete=models.CASCADE,
-        related_name='object_types',
+        related_name="object_types",
     )
     name = models.CharField(max_length=100)
     name_plural = models.CharField(max_length=100)
@@ -961,10 +961,11 @@ class RepositorySubmissionType(models.Model):
     )
 
     class Meta:
-        ordering = ('name',)
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
+
 
 class KeywordPreprint(models.Model):
     keyword = models.ForeignKey(
@@ -1282,25 +1283,25 @@ class PreprintVersion(models.Model):
             return self.render_text()
         elif mime_type in (
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.ms-excel"
+            "application/vnd.ms-excel",
         ):
             return self.render_excel()
 
         return format_html(
-            '<p>Preview not available for this file type: {}</p>',
+            "<p>Preview not available for this file type: {}</p>",
             mime_type,
         )
 
     def render_pdf(self):
         pdf_view_url = reverse(
-            'repository_pdf',
-            kwargs={'preprint_id': self.preprint.pk},
+            "repository_pdf",
+            kwargs={"preprint_id": self.preprint.pk},
         )
         download_url = reverse(
-            'repository_file_download',
+            "repository_file_download",
             kwargs={
-                'preprint_id': self.preprint.pk,
-                'file_id': self.file.pk,
+                "preprint_id": self.preprint.pk,
+                "file_id": self.file.pk,
             },
         )
         return format_html(
@@ -1312,10 +1313,10 @@ class PreprintVersion(models.Model):
 
     def render_image(self):
         download_url = reverse(
-            'repository_file_download',
+            "repository_file_download",
             kwargs={
-                'preprint_id': self.preprint.pk,
-                'file_id': self.file.pk,
+                "preprint_id": self.preprint.pk,
+                "file_id": self.file.pk,
             },
         )
         return format_html(
@@ -1325,7 +1326,7 @@ class PreprintVersion(models.Model):
 
     def render_text(self):
         try:
-            with open(self.file.file.path, 'r', encoding='utf-8') as f:
+            with open(self.file.file.path, "r", encoding="utf-8") as f:
                 content = f.read()
                 return format_html("<pre>{}</pre>", content)
         except Exception:
@@ -1340,7 +1341,7 @@ class PreprintVersion(models.Model):
         with truncation notices if applicable.
         """
         try:
-            with open(self.file.file.path, newline='', encoding='utf-8') as f:
+            with open(self.file.file.path, newline="", encoding="utf-8") as f:
                 reader = csv.reader(f)
                 rows = list(reader)
 
@@ -1352,17 +1353,19 @@ class PreprintVersion(models.Model):
             total_rows = len(rows) - 1
 
             display_cols = header[:max_cols]
-            data_rows = [row[:max_cols] for row in rows[1:max_rows + 1]]
+            data_rows = [row[:max_cols] for row in rows[1 : max_rows + 1]]
 
             table = ['<table class="table table-striped table-bordered">']
-            table.append("<thead><tr>{}</tr></thead>".format(
-                "".join(f"<th>{col}</th>" for col in display_cols)
-            ))
+            table.append(
+                "<thead><tr>{}</tr></thead>".format(
+                    "".join(f"<th>{col}</th>" for col in display_cols)
+                )
+            )
             table.append("<tbody>")
             for row in data_rows:
-                table.append("<tr>{}</tr>".format(
-                    "".join(f"<td>{cell}</td>" for cell in row)
-                ))
+                table.append(
+                    "<tr>{}</tr>".format("".join(f"<td>{cell}</td>" for cell in row))
+                )
             table.append("</tbody></table>")
 
             messages = []
@@ -1397,18 +1400,24 @@ class PreprintVersion(models.Model):
             total_rows = len(rows) - 1
 
             display_cols = header[:max_cols]
-            data_rows = [row[:max_cols] for row in rows[1:max_rows + 1]]
+            data_rows = [row[:max_cols] for row in rows[1 : max_rows + 1]]
 
             table = ['<table class="table table-striped table-bordered">']
-            table.append("<thead><tr>{}</tr></thead>".format(
-                "".join(f"<th>{col}</th>" for col in display_cols)
-            ))
+            table.append(
+                "<thead><tr>{}</tr></thead>".format(
+                    "".join(f"<th>{col}</th>" for col in display_cols)
+                )
+            )
             table.append("<tbody>")
             for row in data_rows:
-                table.append("<tr>{}</tr>".format(
-                    "".join(
-                        f"<td>{cell if cell is not None else ''}</td>" for cell in row)
-                ))
+                table.append(
+                    "<tr>{}</tr>".format(
+                        "".join(
+                            f"<td>{cell if cell is not None else ''}</td>"
+                            for cell in row
+                        )
+                    )
+                )
             table.append("</tbody></table>")
 
             messages = []
@@ -1424,8 +1433,6 @@ class PreprintVersion(models.Model):
 
         except Exception as e:
             return format_html("<p>Error rendering Excel file: {}</p>", str(e))
-
-
 
     def html(self):
         if self.file.mime_type in files.HTML_MIMETYPES:
@@ -1450,12 +1457,11 @@ class PreprintVersion(models.Model):
         try:
             try:
                 doi = identifier_models.Identifier.objects.get(
-                    id_type='doi',
-                    preprint_version=self
+                    id_type="doi", preprint_version=self
                 )
             except identifier_models.Identifier.MultipleObjectsReturned:
                 doi = identifier_models.Identifier.objects.filter(
-                    id_type='doi',
+                    id_type="doi",
                     preprint_version=self,
                 ).first()
             if not _object:
@@ -1468,17 +1474,17 @@ class PreprintVersion(models.Model):
     def public_download_url(self):
         if self.preprint and self.file:
             path = reverse(
-                'repository_file_download',
+                "repository_file_download",
                 kwargs={
-                    'preprint_id': self.preprint.pk,
-                    'file_id': self.file.pk,
+                    "preprint_id": self.preprint.pk,
+                    "file_id": self.file.pk,
                 },
             )
             return self.preprint.repository.site_url(
                 path=path,
             )
         else:
-            return ''
+            return ""
 
 
 class Comment(models.Model):

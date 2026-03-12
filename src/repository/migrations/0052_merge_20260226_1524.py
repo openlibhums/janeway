@@ -4,12 +4,10 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0044_historicalrepository_new_version_submitted_and_more'),
-        ('repository', '0047_remove_preprintauthor_affiliation_and_more'),
-        ('repository', '0051_repositorysubmissiontype_preprint_submission_type'),
+        ("repository", "0044_historicalrepository_new_version_submitted_and_more"),
+        ("repository", "0047_remove_preprintauthor_affiliation_and_more"),
+        ("repository", "0051_repositorysubmissiontype_preprint_submission_type"),
     ]
 
-    operations = [
-    ]
+    operations = []

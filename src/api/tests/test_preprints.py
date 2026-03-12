@@ -6,6 +6,7 @@ it runs AFTER test_preprint_oai.py alphabetically. The OAI tests hardcode object
 in expected XML output, so any test class that creates Preprint objects before them
 will shift those PKs and cause failures.
 """
+
 from uuid import uuid4
 
 from django.test import TestCase, override_settings
@@ -73,7 +74,9 @@ class TestIdentifierFormWithPreprint(TestCase):
         cls.preprint_other_repo = helpers.create_preprint(
             cls.repo_two, cls.author, cls.subject_two, title="Preprint Other Repo"
         )
-        cls.preprint_other_repo.make_new_version(cls.preprint_other_repo.submission_file)
+        cls.preprint_other_repo.make_new_version(
+            cls.preprint_other_repo.submission_file
+        )
 
     def test_add_doi_to_preprint(self):
         """Can add a new DOI to a preprint."""
@@ -100,7 +103,11 @@ class TestIdentifierFormWithPreprint(TestCase):
             preprint_version=self.preprint_one.current_version,
         )
         form = identifier_forms.IdentifierForm(
-            {"id_type": "doi", "identifier": "10.9999/preprint-dup-doi", "enabled": True},
+            {
+                "id_type": "doi",
+                "identifier": "10.9999/preprint-dup-doi",
+                "enabled": True,
+            },
             preprint=self.preprint_two,
         )
         self.assertFalse(form.is_valid())
@@ -146,7 +153,11 @@ class TestIdentifierFormWithPreprint(TestCase):
             preprint_version=self.preprint_one.current_version,
         )
         form = identifier_forms.IdentifierForm(
-            {"id_type": "pubid", "identifier": "preprint-shared-pubid", "enabled": True},
+            {
+                "id_type": "pubid",
+                "identifier": "preprint-shared-pubid",
+                "enabled": True,
+            },
             preprint=self.preprint_other_repo,
         )
         self.assertTrue(form.is_valid())

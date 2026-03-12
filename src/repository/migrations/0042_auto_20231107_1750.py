@@ -4,105 +4,122 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0041_auto_20231207_1658'),
+        ("repository", "0041_auto_20231207_1658"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_depositor_email',
+            model_name="historicalrepository",
+            name="crossref_depositor_email",
             field=models.EmailField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_depositor_name',
+            model_name="historicalrepository",
+            name="crossref_depositor_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_enable',
-            field=models.BooleanField(default=False, help_text='Enable to use crossref. All other fields must be complete.'),
+            model_name="historicalrepository",
+            name="crossref_enable",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable to use crossref. All other fields must be complete.",
+            ),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_password',
+            model_name="historicalrepository",
+            name="crossref_password",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_prefix',
+            model_name="historicalrepository",
+            name="crossref_prefix",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_registrant',
+            model_name="historicalrepository",
+            name="crossref_registrant",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_test_mode',
-            field=models.BooleanField(default=False, help_text='Enable to use Crossref test.'),
+            model_name="historicalrepository",
+            name="crossref_test_mode",
+            field=models.BooleanField(
+                default=False, help_text="Enable to use Crossref test."
+            ),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='crossref_username',
+            model_name="historicalrepository",
+            name="crossref_username",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='headless_mode',
-            field=models.BooleanField(default=False, help_text='Enable this feature to make this repository run in headless mode, with no front end.'),
+            model_name="historicalrepository",
+            name="headless_mode",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable this feature to make this repository run in headless mode, with no front end.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_depositor_email',
+            model_name="repository",
+            name="crossref_depositor_email",
             field=models.EmailField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_depositor_name',
+            model_name="repository",
+            name="crossref_depositor_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_enable',
-            field=models.BooleanField(default=False, help_text='Enable to use crossref. All other fields must be complete.'),
+            model_name="repository",
+            name="crossref_enable",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable to use crossref. All other fields must be complete.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_password',
+            model_name="repository",
+            name="crossref_password",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_prefix',
+            model_name="repository",
+            name="crossref_prefix",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_registrant',
+            model_name="repository",
+            name="crossref_registrant",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_test_mode',
-            field=models.BooleanField(default=False, help_text='Enable to use Crossref test.'),
+            model_name="repository",
+            name="crossref_test_mode",
+            field=models.BooleanField(
+                default=False, help_text="Enable to use Crossref test."
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='crossref_username',
+            model_name="repository",
+            name="crossref_username",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='headless_mode',
-            field=models.BooleanField(default=False, help_text='Enable this feature to make this repository run in headless mode, with no front end.'),
+            model_name="repository",
+            name="headless_mode",
+            field=models.BooleanField(
+                default=False,
+                help_text="Enable this feature to make this repository run in headless mode, with no front end.",
+            ),
         ),
         migrations.AlterField(
-            model_name='preprintversion',
-            name='title',
-            field=models.CharField(blank=True, help_text='Your article title', max_length=300),
+            model_name="preprintversion",
+            name="title",
+            field=models.CharField(
+                blank=True, help_text="Your article title", max_length=300
+            ),
         ),
     ]

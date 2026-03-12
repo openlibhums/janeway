@@ -51,7 +51,7 @@ class IdentifierAdmin(admin_utils.ArticleFKModelAdmin):
         elif obj.review:
             return obj.review.article
         else:
-            return ''
+            return ""
 
     def _article_url(self, obj):
         if obj and obj.article:

@@ -5,15 +5,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0042_auto_20231107_1750'),
+        ("repository", "0042_auto_20231107_1750"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprintversion',
-            name='file',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='repository.preprintfile'),
+            model_name="preprintversion",
+            name="file",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="repository.preprintfile",
+            ),
         ),
     ]

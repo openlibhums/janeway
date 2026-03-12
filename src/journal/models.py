@@ -1055,7 +1055,7 @@ class Issue(AbstractLastModifiedModel):
             try:
                 year = "{}".format(self.date.year)
             except AttributeError:
-                year = ''
+                year = ""
         if journal.display_issue_title:
             issue_title = self.issue_title
         if journal.display_article_number and article and article.article_number:

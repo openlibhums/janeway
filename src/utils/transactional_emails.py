@@ -1858,44 +1858,40 @@ def preprint_new_version(**kwargs):
     objects
     :return: None
     """
-    request = kwargs.get('request')
-    preprint = kwargs.get('preprint')
-    new_version = kwargs.get('new_version')
+    request = kwargs.get("request")
+    preprint = kwargs.get("preprint")
+    new_version = kwargs.get("new_version")
 
-    description = '{author} has submitted a new {obj} version.'.format(
+    description = "{author} has submitted a new {obj} version.".format(
         author=request.user.full_name(),
         obj=request.repository.object_name,
         title=preprint.title,
     )
     log_dict = {
-        'level': 'Info',
-        'action_text': description,
-        'types': 'Submission',
-        'target': preprint,
+        "level": "Info",
+        "action_text": description,
+        "types": "Submission",
+        "target": preprint,
     }
-    url = request.repository.site_url(
-        path=reverse(
-            'version_queue'
-        )
-    )
+    url = request.repository.site_url(path=reverse("version_queue"))
     # Send an email to the preprint editors
     template = request.repository.new_version_submitted
     email_text = render_template.get_message_content(
         request,
-        {
-            'preprint': preprint,
-            'new_version': new_version,
-            'url': url
-        },
+        {"preprint": preprint, "new_version": new_version, "url": url},
         template,
         template_is_setting=True,
     )
     repo = request.repository
-    recipients = repo.submission_notification_recipients if repo.submission_notification_recipients.count() > 0 else repo.managers
+    recipients = (
+        repo.submission_notification_recipients
+        if repo.submission_notification_recipients.count() > 0
+        else repo.managers
+    )
     for r in recipients.all():
         notify_helpers.send_email_with_body_from_user(
             request,
-            '{} New Version'.format(request.repository.object_name),
+            "{} New Version".format(request.repository.object_name),
             r.email,
             email_text,
             log_dict=log_dict,

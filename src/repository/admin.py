@@ -343,34 +343,32 @@ class ReviewRecommendationAdmin(admin.ModelAdmin):
 
 
 class RepositoryOrganisationUnitAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'repository', 'parent')
-    list_filter = ('repository__short_name',)
+    list_display = ("name", "code", "repository", "parent")
+    list_filter = ("repository__short_name",)
     search_fields = (
-        'name',
-        'code',
-        'repository__name',
-        'repository__short_name',
+        "name",
+        "code",
+        "repository__name",
+        "repository__short_name",
     )
-    raw_id_fields = ('repository', 'parent')
+    raw_id_fields = ("repository", "parent")
 
 
 class RepositorySubmissionTypeAdmin(admin.ModelAdmin):
     list_display = (
-        'name',
-        'slug',
-        'repository',
-        'pill_colour',
+        "name",
+        "slug",
+        "repository",
+        "pill_colour",
     )
-    list_filter = (
-        'repository',
-    )
+    list_filter = ("repository",)
     search_fields = (
-        'name',
-        'slug',
-        'repository__name',
+        "name",
+        "slug",
+        "repository__name",
     )
     prepopulated_fields = {
-        'slug': ('name',),
+        "slug": ("name",),
     }
 
 

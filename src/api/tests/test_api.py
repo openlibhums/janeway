@@ -89,4 +89,3 @@ class TestAPI(TestCase):
                 journal_manager_role,
             )
         )
-

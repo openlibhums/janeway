@@ -11,7 +11,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def hook(context, hook_name, default_value='', *args, **kwargs):
+def hook(context, hook_name, default_value="", *args, **kwargs):
     html = ""
     for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
         try:

@@ -4,19 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0048_remove_repositoryorganisationunit_preprints_and_more'),
+        ("repository", "0048_remove_repositoryorganisationunit_preprints_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprint',
-            name='organisation_unit',
+            model_name="preprint",
+            name="organisation_unit",
         ),
         migrations.AddField(
-            model_name='preprint',
-            name='organisation_units',
-            field=models.ManyToManyField(blank=True, help_text='The organisational units this preprint belongs to.', related_name='preprints', to='repository.repositoryorganisationunit'),
+            model_name="preprint",
+            name="organisation_units",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="The organisational units this preprint belongs to.",
+                related_name="preprints",
+                to="repository.repositoryorganisationunit",
+            ),
         ),
     ]

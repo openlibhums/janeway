@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0074_submissionconfiguration_open_peer_review_license'),
-        ('submission', '0088_auto_20250506_1214'),
+        ("submission", "0074_submissionconfiguration_open_peer_review_license"),
+        ("submission", "0088_auto_20250506_1214"),
     ]
 
-    operations = [
-    ]
+    operations = []

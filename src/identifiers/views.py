@@ -63,9 +63,7 @@ def identifiers(
     # Only article and preprint content types are supported, all others
     # will 404.
     if content_type == "article":
-        identifier_objects = models.Identifier.objects.filter(
-            article=obj
-        )
+        identifier_objects = models.Identifier.objects.filter(article=obj)
     else:
         identifier_objects = models.Identifier.objects.filter(
             preprint_version__preprint=obj,
@@ -104,7 +102,9 @@ def manage_identifier(
             content_type=content_type,
             obj=obj,
             identifier_id=identifier_id,
-        ) if identifier_id else None
+        )
+        if identifier_id
+        else None
     )
 
     form = forms.IdentifierForm(

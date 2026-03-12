@@ -35,7 +35,7 @@ class IsSectionEditor(permissions.BasePermission):
 
 
 class IsRepositoryManager(permissions.BasePermission):
-    message = 'Please ensure the user is a manager of this repository.'
+    message = "Please ensure the user is a manager of this repository."
 
     def has_permission(self, request, view):
         if request.user and not request.user.is_authenticated:
@@ -52,17 +52,17 @@ class IsRepositoryManager(permissions.BasePermission):
 
 
 class CanEditPreprint(permissions.BasePermission):
-    message = 'You must be the owner of this preprint to edit it.'
+    message = "You must be the owner of this preprint to edit it."
 
     def has_permission(self, request, view):
         # grant access to non-create/update requests
-        if request.method not in ['PUT', 'PATCH', 'DELETE']:
+        if request.method not in ["PUT", "PATCH", "DELETE"]:
             return True
 
         # grant access if user is the preprint's owner
-        preprint_id = request.data.get('pk')
+        preprint_id = request.data.get("pk")
         if not preprint_id:
-            preprint_id = view.kwargs.get('pk')
+            preprint_id = view.kwargs.get("pk")
 
         preprint = get_object_or_404(
             rm.Preprint,

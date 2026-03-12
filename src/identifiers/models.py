@@ -126,13 +126,12 @@ class CrossrefDeposit(models.Model):
             stacklevel=2,
         )
         return self.parent_object
+
     def poll(self):
         self.polling_attempts += 1
         self.save()
 
-        test_mode, username, password = logic.get_poll_settings(
-            self.parent_object
-        )
+        test_mode, username, password = logic.get_poll_settings(self.parent_object)
 
         if test_mode:
             test_var = "test"

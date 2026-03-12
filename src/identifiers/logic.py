@@ -136,7 +136,11 @@ def get_poll_settings(parent_object):
         ).processed_value
         return test_mode, username, password
     elif isinstance(parent_object, repository_models.Repository):
-        return parent_object.crossref_test_mode, parent_object.crossref_username, parent_object.crossref_password
+        return (
+            parent_object.crossref_test_mode,
+            parent_object.crossref_username,
+            parent_object.crossref_password,
+        )
 
 
 def get_dois_for_articles(articles, create=False):
@@ -274,7 +278,9 @@ def register_crossref_component(article, xml, supp_file):
 
 
 def create_crossref_preprint_doi_batch_context(repository, identifiers):
-    versions = [ident.preprint_version for ident in identifiers if ident.preprint_version]
+    versions = [
+        ident.preprint_version for ident in identifiers if ident.preprint_version
+    ]
     return {
         "batch_id": uuid4(),
         "now": datetime.datetime.now(),
@@ -678,7 +684,6 @@ def preview_registration_information(article):
         return ""
 
 
-
 def generate_issue_doi_from_logic(issue):
     doi_prefix = setting_handler.get_setting(
         "Identifiers", "crossref_prefix", issue.journal
@@ -709,7 +714,7 @@ def get_object_by_content_type(content_type, object_id, request):
     """
     Fetches either an Article or a Preprint based on the content type.
     """
-    if content_type == 'article':
+    if content_type == "article":
         return get_object_or_404(
             submission_models.Article,
             pk=object_id,
@@ -727,17 +732,17 @@ def get_identifier_by_content_type(content_type, obj, identifier_id, id_type=Non
     """
     Fetches the Identifier for either an Article or a Preprint.
     """
-    if content_type == 'article':
+    if content_type == "article":
         return get_object_or_404(
             models.Identifier,
             pk=identifier_id,
             article=obj,
-            **({'id_type': id_type} if id_type else {})
+            **({"id_type": id_type} if id_type else {}),
         )
     else:
         return get_object_or_404(
             models.Identifier,
             pk=identifier_id,
             preprint_version__preprint=obj,
-            **({'id_type': id_type} if id_type else {})
+            **({"id_type": id_type} if id_type else {}),
         )

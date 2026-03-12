@@ -5,8 +5,7 @@ from core import models as cm
 
 
 class Command(BaseCommand):
-    help = 'Loops through all journals adding the Typesetting plugin' \
-           ' to workflows'
+    help = "Loops through all journals adding the Typesetting plugin to workflows"
 
     def handle(self, *args, **options):
         try:
@@ -17,10 +16,8 @@ class Command(BaseCommand):
         journals = jm.Journal.objects.all()
 
         for journal in journals:
-            workflow = cm.Workflow.objects.get(
-                journal=journal
-            )
-            elements_to_remove = ['production', 'proofing']
+            workflow = cm.Workflow.objects.get(journal=journal)
+            elements_to_remove = ["production", "proofing"]
 
             cm.WorkflowElement.objects.filter(
                 journal=journal,
@@ -31,18 +28,18 @@ class Command(BaseCommand):
                 journal=journal,
                 element_name=plugin_settings.PLUGIN_NAME,
                 defaults={
-                    'handshake_url': plugin_settings.HANDSHAKE_URL,
-                    'jump_url': plugin_settings.JUMP_URL,
-                    'stage': plugin_settings.STAGE,
-                }
+                    "handshake_url": plugin_settings.HANDSHAKE_URL,
+                    "jump_url": plugin_settings.JUMP_URL,
+                    "stage": plugin_settings.STAGE,
+                },
             )
             workflow.elements.add(ts_element)
 
             stage_order = [
-                'review',
-                'copyediting',
-                'Typesetting Plugin',
-                'prepublication',
+                "review",
+                "copyediting",
+                "Typesetting Plugin",
+                "prepublication",
             ]
 
             journal_elements = cm.WorkflowElement.objects.filter(

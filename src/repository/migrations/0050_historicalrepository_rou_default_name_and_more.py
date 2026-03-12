@@ -5,30 +5,43 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0049_remove_preprint_organisation_unit_and_more'),
+        ("repository", "0049_remove_preprint_organisation_unit_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalrepository',
-            name='rou_default_name',
-            field=models.CharField(default='Organisational Units', help_text='Default name for the organisation structure within this repository.'),
+            model_name="historicalrepository",
+            name="rou_default_name",
+            field=models.CharField(
+                default="Organisational Units",
+                help_text="Default name for the organisation structure within this repository.",
+            ),
         ),
         migrations.AddField(
-            model_name='historicalrepository',
-            name='rou_struct_page_text',
-            field=core.model_utils.JanewayBleachField(blank=True, default='<p>This page provides an overview of the organisational structure within {{ repository.name }}. You can navigate through the hierarchy to explore different units and their associated preprints.</p>', help_text='Text that displays on the organisational unit page.'),
+            model_name="historicalrepository",
+            name="rou_struct_page_text",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                default="<p>This page provides an overview of the organisational structure within {{ repository.name }}. You can navigate through the hierarchy to explore different units and their associated preprints.</p>",
+                help_text="Text that displays on the organisational unit page.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='rou_default_name',
-            field=models.CharField(default='Organisational Units', help_text='Default name for the organisation structure within this repository.'),
+            model_name="repository",
+            name="rou_default_name",
+            field=models.CharField(
+                default="Organisational Units",
+                help_text="Default name for the organisation structure within this repository.",
+            ),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='rou_struct_page_text',
-            field=core.model_utils.JanewayBleachField(blank=True, default='<p>This page provides an overview of the organisational structure within {{ repository.name }}. You can navigate through the hierarchy to explore different units and their associated preprints.</p>', help_text='Text that displays on the organisational unit page.'),
+            model_name="repository",
+            name="rou_struct_page_text",
+            field=core.model_utils.JanewayBleachField(
+                blank=True,
+                default="<p>This page provides an overview of the organisational structure within {{ repository.name }}. You can navigate through the hierarchy to explore different units and their associated preprints.</p>",
+                help_text="Text that displays on the organisational unit page.",
+            ),
         ),
     ]
