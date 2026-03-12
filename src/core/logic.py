@@ -149,11 +149,18 @@ def send_confirmation_link(request, new_user):
 
 
 def send_orcid_request(request, user):
+    if request.journal:
+        publication_name = request.journal.name
+    elif request.repository:
+        publication_name = request.repository.name
+    else:
+        publication_name = request.press.name
     context = {
         "user": user,
         "user_profile_url": request.site_type.site_url(
             reverse("core_edit_profile"),
         ),
+        "publication_name": publication_name,
     }
     log_dict = {"level": "Info", "types": "ORCID Request", "target": None}
 
@@ -1064,22 +1071,27 @@ def password_policy_check(request):
     password = request.POST.get("password_1")
 
     rules = [
-        lambda s: len(password) >= request.press.password_length
-        or _("Your password must be {} characters long").format(
-            request.press.password_length
+        lambda s: (
+            len(password) >= request.press.password_length
+            or _("Your password must be {} characters long").format(
+                request.press.password_length
+            )
         )
     ]
 
     if request.press.password_upper:
         rules.append(
-            lambda password: any(x.isupper() for x in password)
-            or _("An uppercase character is required")
+            lambda password: (
+                any(x.isupper() for x in password)
+                or _("An uppercase character is required")
+            )
         )
 
     if request.press.password_number:
         rules.append(
-            lambda password: any(x.isdigit() for x in password)
-            or _("A number is required")
+            lambda password: (
+                any(x.isdigit() for x in password) or _("A number is required")
+            )
         )
 
     problems = [p for p in [r(password) for r in rules] if p != True]
