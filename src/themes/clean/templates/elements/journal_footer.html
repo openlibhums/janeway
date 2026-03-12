@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-md-6">
         <small><div class="text-left">
-            <ul class="list-inline"><p></p>
+            <ul class="list-inline">
             {% if request.journal.issn %}<li class="list-inline-item">ISSN: {{ request.journal.issn }}</li>{% endif %}
             {% if request.journal.print_issn %}<li class="list-inline-item"> {% trans 'Print ISSN' %}: {{ request.journal.print_issn }}</li>{% endif %}
             {% if journal_settings.general.publisher_name %}
