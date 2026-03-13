@@ -15,7 +15,7 @@ def _resolve_url(value):
     :param value: An ImageFieldFile or string
     :return: URL string, or None if the field has no associated file
     """
-    if hasattr(value, 'url'):
+    if hasattr(value, "url"):
         try:
             return value.url
         except ValueError:
