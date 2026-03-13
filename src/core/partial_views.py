@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponseBadRequest
 from django.views.decorators.http import require_GET, require_POST
@@ -66,7 +68,7 @@ def alt_text_submit(request):
 
     if form.is_valid():
         form.save()
-        return render(
+        response = render(
             request,
             "core/partials/alt_text/edit_alt_text_button.html",
             {
@@ -74,6 +76,10 @@ def alt_text_submit(request):
                 "token": file_path,
             },
         )
+        response["HX-Trigger"] = json.dumps(
+            {"altTextSaved": {"type": "success", "message": "Alt text saved."}}
+        )
+        return response
 
     return render(
         request,
