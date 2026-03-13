@@ -161,7 +161,6 @@ def user_login(request):
 
     return render(request, template, context)
 
-
 def user_login_orcid(request):
     """
     Allow a user to log in with their ORCID account
@@ -232,38 +231,50 @@ def user_login_orcid(request):
     # The verification worked.
     # If the user wanted to log in, try to log them in.
     if action == "login":
-        orcid_accounts = models.Account.objects.filter(orcid=orcid_id)
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id,
+                                                       is_active=True)
         # if we have exactly one account with this orcid do the login
         if orcid_accounts.count() == 1:
-            login(
-                request,
-                orcid_accounts.first(),
-                backend="django.contrib.auth.backends.ModelBackend",
-            )
-            return redirect(request.site_type.auth_success_url(next_url=next_url))
+            user = orcid_accounts.first()
         else:
+            user = None
             orcid_details = orcid.get_orcid_record_details(orcid_id)
             emails = orcid_details.get("emails", [])
             # if we have more than one account with this orcid
-            # look for accounts that match emails and orcid
+            # find the best match (first, if orcid is validated
+            # second if email is listed in data from orcid)
             if orcid_accounts.count() > 1:
-                candidates = orcid_accounts.filter(email__in=emails, is_active=True)
+                user_token_valid = False
+                user_email_index = len(emails) + 2
+
+                for a in orcid_accounts:
+                    a_token_valid = a.is_orcid_token_valid()
+                    a_email_index = emails.index(a.email) if a.email in emails else len(emails) + 1
+                    if not user_token_valid and a_token_valid:
+                        user = a
+                        user_token_valid = a_token_valid
+                        user_email_index = a_email_index
+                    elif a_email_index < user_email_index:
+                        user = a
+                        user_token_valid = a_token_valid
+                        user_email_index = a_email_index
             else:
                 # if there are no accounts with this orcid
-                # look for accounts with emails
-                candidates = models.Account.objects.filter(
-                    email__in=emails, is_active=True
-                )
+                # look for an account with emails reported by orcid
+                for e in emails:
+                    email_accounts = models.Account.objects.filter(email=e,
+                                                                   is_active=True)
+                    if email_accounts.exists():
+                        user = email_accounts.first()
+                        break
 
-            # if we found any above add orcid and token and log 'em in
-            if candidates.exists():
-                user = candidates.first()
-                login(
-                    request,
-                    user,
-                    backend="django.contrib.auth.backends.ModelBackend",
-                )
-                return redirect(request.site_type.auth_success_url(next_url=next_url))
+        if user is not None:
+            login(
+                request,
+                user,
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
+            return redirect(request.site_type.auth_success_url(next_url=next_url))
 
         # If no account was found for login,
         # then prepare an ORCID token for registration.
@@ -308,7 +319,7 @@ def user_login_orcid(request):
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
         # Make sure there isn't already an account with this orcid
-        if models.Account.filter(orcid=orcid_id).exclude(pk=request.user.pk):
+        if models.Account.objects.filter(orcid=orcid_id).exclude(pk=request.user.pk).exists():
             messages.add_message(
                 request,
                 messages.WARNING,
