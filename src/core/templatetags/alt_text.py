@@ -9,14 +9,31 @@ from core import models
 register = template.Library()
 
 
+def _resolve_url(value):
+    """Extract a URL string from an ImageField, or return the value as-is.
+
+    :param value: An ImageFieldFile or string
+    :return: URL string, or None if the field has no associated file
+    """
+    if hasattr(value, 'url'):
+        try:
+            return value.url
+        except ValueError:
+            return None
+    return value
+
+
 @register.filter
 def encode_file_path(value):
     """
     Encode a file path string to an MD5 hash.
 
-    :param value: File path string to encode
+    :param value: File path string or ImageField to encode
     :return: MD5 hexadecimal hash of the value, or empty string if value is falsy
     """
+    if not value:
+        return ""
+    value = _resolve_url(value)
     if not value:
         return ""
     return hashlib.md5(value.encode()).hexdigest()
@@ -30,13 +47,13 @@ def get_alt_text(obj=None, file_path=None, token=None, default=""):
     file_path will be hashed using MD5 before lookup.
 
     :param obj: Model instance to associate with the alt text
-    :param file_path: File path string to hash and use as identifier
+    :param file_path: File path string or ImageField to hash and use as identifier
     :param token: Pre-computed token/hash to use as identifier
     :param default: Default text to return if no alt text is found
     :return: The alt text string, default value if alt text is empty, or empty string
     """
     if file_path:
-        path = encode_file_path(file_path.strip())
+        path = encode_file_path(file_path) or None
     elif token:
         path = token
     else:
@@ -61,12 +78,12 @@ def get_admin_alt_text_snippet(obj=None, file_path=None, token=None):
     file_path will be hashed using MD5 before lookup.
 
     :param obj: Model instance to associate with the alt text
-    :param file_path: File path string to hash and use as identifier
+    :param file_path: File path string or ImageField to hash and use as identifier
     :param token: Pre-computed token/hash to use as identifier
     :return: Rendered HTML string from the alt_text_snippet.html template
     """
     if file_path:
-        path = encode_file_path(file_path.strip())
+        path = encode_file_path(file_path) or None
     elif token:
         path = token
     else:
@@ -122,7 +139,7 @@ def get_id_token(obj=None, file_path=None, token=None):
     Priority order: obj > token > file_path > fallback.
 
     :param obj: Model instance to generate ID from
-    :param file_path: File path string to hash and use as identifier
+    :param file_path: File path string or ImageField to hash and use as identifier
     :param token: Pre-existing token/hash to use as identifier
     :return: Slugified identifier string or 'unknown-id-token' if no arguments provided
     """
@@ -131,5 +148,5 @@ def get_id_token(obj=None, file_path=None, token=None):
     elif token:
         return token
     elif file_path:
-        return encode_file_path(file_path)
+        return encode_file_path(file_path) or "unknown-id-token"
     return "unknown-id-token"
