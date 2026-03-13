@@ -61,7 +61,7 @@
                         {% for i in issues %}
                             <tr {% if not issue %}id="issues-{{ i.pk }}"{% endif %}>
                                 <td>{{ i.pk }}</td>
-                                <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title }}</td>
+                                <td><i class="fa fa-sort">&nbsp;</i>{{ i.issue_title|safe }}</td>
                                 <td>{{ i.issue_type }}</td>
                                 <td>{{ i.volume }}</td>
                                 <td>{{ i.issue }}</td>
@@ -130,4 +130,6 @@
         });
         $( ".sortable" ).disableSelection();
     </script>
+    {% include "admin/core/partials/htmx.html" %}
+    {% include "admin/core/partials/alt_text/alt_text_events.html" %}
 {% endblock js %}

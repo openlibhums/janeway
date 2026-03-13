@@ -57,7 +57,8 @@
                 {% if request.journal %}
                     <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
                         {% if request.journal.header_image %}
-                            {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                            {% get_alt_text file_path=request.journal.header_image default=request.journal.name as header_alt_text %}
+                            {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' alt_text=header_alt_text %}
                         {% else %}
                                 <img src="{% static "common/img/sample/janeway.png" %}">
                         {% endif %}
@@ -101,7 +102,7 @@
                     </div>
                 </div>
             </div>
-
+            {% hook 'language_header' %}
             {% if journal_settings.general.switch_language %}
                 <div class="top-bar-left">
                 <ul class="menu language-menu">
@@ -195,7 +196,8 @@
 <footer class="main-footer row expanded">
         <div class="large-2 columns very-dark-primary-color text-center logo-wrapper">
             {% if request.journal.press_image_override %}
-                {% svg_or_image request.journal.press_image_override %}
+                {% get_alt_text file_path=request.journal.press_image_override default=request.press.name as press_alt %}
+                {% svg_or_image request.journal.press_image_override alt_text=press_alt %}
             {% elif 'svg' in request.press_cover %}
                 <a href="{% press_url request %}" title="{{ request.press.name }}">
                     {% svg request.press_cover %}

@@ -275,6 +275,8 @@ def editor_or_journal_manager_required(func):
             return func(request, *args, **kwargs)
         deny_access(request)
 
+    return wrapper
+
 
 def editor_user_required(func):
     """This decorator checks that a user is an editor, or
@@ -1419,7 +1421,7 @@ def article_stage_review_required(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if not article.stage in models.REVIEW_STAGES:
+        if article.stage not in models.REVIEW_STAGES:
             deny_access(request)
         else:
             return func(request, article_id, *args, **kwargs)
