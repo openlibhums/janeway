@@ -39,11 +39,12 @@
         <div id="journal-title">
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
+                    {% get_alt_text file_path=request.journal.header_image default=request.journal.name as header_alt_text %}
                     <div class="col-md-2">
                         <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
                             <img src="{{ request.journal.header_image.url }}"
                                  class="img-fluid header-image top-bar-image"
-                                 alt="{{ request.journal.name }} logo">
+                                 alt="{{ header_alt_text }}">
                         </a>
                     </div>
 

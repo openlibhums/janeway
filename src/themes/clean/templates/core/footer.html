@@ -4,7 +4,8 @@
 <div class="row">
     <div class="col-md-2">
         {% if request.journal.press_image_override %}
-            {% svg_or_image request.journal.press_image_override "img-fluid" %}
+            {% get_alt_text file_path=request.journal.press_image_override default=request.press.name as press_alt %}
+            {% svg_or_image request.journal.press_image_override "img-fluid" alt_text=press_alt %}
         {% else %}
             {% svg request.press_cover %}
         {% endif %}
