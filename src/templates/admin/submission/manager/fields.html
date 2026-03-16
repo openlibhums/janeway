@@ -30,15 +30,21 @@
                             {% csrf_token %}
                             {% for field in fields %}
                                 <li class="list-group-item" id="order-{{ field.pk }}">
+                                  <div class="flex space-between items-center">
+                                    <div>
                                     <i class="fa fa-arrows">&nbsp;</i>
                                     {{ field.name }}
-                                    <div class="float-right">
-                                        <a href="{% url 'submission_fields_id' field.pk %}" class="tiny warning button"><i
-                                                class="fa fa-edit"></i></a>
-                                        <button name="delete" value="{{ field.pk }}" class="tiny alert button"><i
-                                                class="fa fa-trash"></i></button>
                                     </div>
-                                    <div class="clear"></div>
+                                    <div class="button-group no-bottom-margin flex">
+                                      {% url 'submission_fields_id' field.pk as edit_href %}
+                                      {% with href=edit_href size="small" %}
+                                        {% include "elements/a_edit.html" %}
+                                      {% endwith %}
+                                      {% with name="delete" value=field.pk size="small" %}
+                                        {% include "elements/button_delete.html" %}
+                                      {% endwith %}
+                                    </div>
+                                  </div>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -54,11 +60,11 @@
                     {% endif %}
                 </div>
                 <div class="content">
-                    {% include "elements/forms/errors.html" with form=form %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     <form method="POST">
                         {% csrf_token %}
                         {{ form|foundation }}
-                        <button class="success button" name="save">Save Field</button>
+                      {% include "elements/button_save.html" %}
                     </form>
                 </div>
             </div>

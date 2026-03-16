@@ -1,0 +1,12 @@
+<li class="list-group-item">
+  <div class="flex space-between items-center">
+    {{ item_label }}
+    {% with name=item_name|default:"nav" value=item_value size="small" %}
+      {% if added %}
+        {% include "elements/button_remove.html" %}
+      {% else %}
+        {% include "elements/button_add.html" %}
+      {% endif %}
+    {% endwith %}
+  </div>
+</li>

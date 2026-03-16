@@ -30,17 +30,22 @@
                             {% csrf_token %}
                             {% for license in licenses %}
                                 <li class="list-group-item" id="order-{{ license.pk }}">
+                                  <div class="flex space-between items-center">
+                                    <div>
                                     <i class="fa fa-arrows">&nbsp;</i>
                                     {{ license.name }}
-                                    <div class="float-right">
-                                        <a href="{% url 'submission_licenses_id' license.pk %}" class="tiny warning button"><i
-                                                class="fa fa-edit"></i></a>
-                                        {% if request.user.is_staff %}
-                                        <a href="{% url 'submission_delete_license' license.pk %}" class="tiny alert button"><i
-                                                class="fa fa-trash"></i></a>
-                                        {% endif %}
                                     </div>
-                                    <div class="clear"></div>
+                                    <div class="button-group no-bottom-margin flex">
+                                      {% url 'submission_licenses_id' license.pk as edit_href %}
+                                      {% with size="small" href=edit_href %}
+                                        {% include "elements/a_edit.html" %}
+                                      {% endwith %}
+                                      {% url 'submission_delete_license' license.pk as delete_href %}
+                                      {% with size="small" href=delete_href %}
+                                        {% include "elements/a_delete.html" %}
+                                      {% endwith %}
+                                    </div>
+                                  </div>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -56,11 +61,11 @@
                     {% endif %}
                 </div>
                 <div class="content">
-                    {% include "elements/forms/errors.html" with form=form %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     <form method="POST">
                         {% csrf_token %}
                         {{ form|foundation }}
-                        <button class="success button" name="save">Save Field</button>
+                      {% include "elements/button_save.html" %}
                     </form>
                 </div>
             </div>

@@ -45,7 +45,7 @@
                 <h2>Sent Notifications</h2>
             </div>
             <div class="content">
-                <div class="callout {% if send_reader_notifications %}success{% else %}warning{% endif %}">
+                <div class="bs-callout {% if send_reader_notifications %}bs-callout-success{% else %}bs-callout-warning{% endif %}">
                     <p>Note: Reader notifications are <strong>{% if send_reader_notifications %}on{% else %}off{% endif %}</strong>.
                     You can change that via the <a target="_blank" href="{% url 'core_edit_setting' 'notifications' 'send_reader_notifications' %}">Settings</a> interface.</p>
                     <p>The notification email template can be changed via the <a target="_blank" href="{% url 'core_edit_setting' 'email' 'reader_publication_notification' %}?email_template=True">Email Template</a> interface</p>

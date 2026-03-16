@@ -197,9 +197,9 @@
                     {% csrf_token %}
                     <label for="withdraw_reason">Withdrawl Reason:</label>
                     <textarea id="withdraw_reason" name="withdraw_reason"></textarea>
-                    <button type="submit" class="button warning" name="withdraw">Withdraw
-                        Invite
-                    </button>
+                    {% with label="Withdraw Invite" name="withdraw" %}
+                      {% include "elements/button_send.html" %}
+                    {% endwith %}
                 </form>
             </div>
         </div>

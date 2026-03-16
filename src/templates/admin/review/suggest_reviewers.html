@@ -18,7 +18,13 @@
         <form method="POST">
             {% csrf_token %}
             {{ form.suggested_reviewers }}
-            <button type="submit" class="button success">Suggest Reviewers</button> <a class="button warning" href="{% url 'website_index' %}">Don't Suggest Reviewers</a>
+          {% with label="Suggest Reviewers" %}
+            {% include "elements/button_send.html" %}
+          {% endwith %}
+          {% url 'website_index' as cancel_href %}
+          {% with href=cancel_href label="Don't Suggest Reviewers" %}
+            {% include "elements/a_cancel.html" %}
+          {% endwith %}
         </form>
     </div>
 </div>

@@ -1,0 +1,21 @@
+{% comment %}
+  A secondary-color no button with a cross icon
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  {% if id %}
+    id="{{ id }}"
+  {% endif %}
+  {{ data_attrs }}
+  name="{{ name|default:'no' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button secondary {{ size|default:'normal' }} no-bottom-margin"
+  type="submit">
+  <span class="fa fa-times" aria-hidden="true"></span>
+  {% trans "No" as default_label %}
+  {{ label|default:default_label }}
+</button>

@@ -55,13 +55,13 @@
                         <br/>
                         <small>
                             {% if not assignment.date_accepted %}
-                                <button class="button success" type="submit" id="accept" name="accept">
-                                    Agree to perform review
-                                </button>
+                              {% with id="accept" name="accept" label="Agree to perform review" %}
+                                {% include "elements/button_yes.html" %}
+                              {% endwith %}
                             {% endif %}
-                            <button class="button alert" type="submit" id="decline" name="decline">Decline to perform
-                                review
-                            </button>
+                            {% with id="decline" name="decline" label="Decline to perform review" %}
+                              {% include "elements/button_no.html" %}
+                            {% endwith %}
                         </small>
                     </form>
                 </div>
@@ -147,7 +147,7 @@
                     <div class="content">
                         <div class="row expanded">
                             {% if form.errors %}
-                                <div class="alert alert-info">
+                                <div class="bs-callout bs-callout-warning">
                                     Please correct errors below. Note, you'll have to reselect any files you want
                                     uploaded.
                                 </div>
@@ -165,10 +165,16 @@
                             {{ decision_form.comments_for_editor|foundation }}
                         </div>
                     </div>
-                {% if allow_save_review %}
-                <button class="button info" type="submit" name="save_progress">Save progress and continue later</button>
-                {% endif %}
-                <button class="button success" type="submit" name="complete">Complete Review</button>
+                <div class="button-group no-bottom-margin">
+                  {% if allow_save_review %}
+                    {% with name="save_progress" label="Save progress and continue later" hierarchy="secondary" %}
+                      {% include "elements/button_save.html" %}
+                    {% endwith %}
+                  {% endif %}
+                  {% with name="complete" label="Complete Review" %}
+                    {% include "elements/button_complete.html" %}
+                  {% endwith %}
+                </div>
               </form>
             </div>
         </div>

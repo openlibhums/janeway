@@ -1,0 +1,17 @@
+{% comment %}
+  A primary-color filter button with seive icon.
+{% endcomment %}
+
+{% load i18n %}
+
+<button
+  name="{{ name|default:'save' }}"
+  {% if value %}
+    value="{{ value }}"
+  {% endif %}
+  class="button no-bottom-margin {{ size|default:'normal' }}"
+  type="submit">
+  <span class="fa fa-filter" aria-hidden="true"></span>
+  {% trans "Apply" as default_label %}
+  {{ label|default:default_label }}
+</button>

@@ -28,7 +28,7 @@
                 </p>
                 <div class="content">
                   <p><strong>Typesetting Guide</strong></p>
-                  <div class="callout bs-callout-info">
+                  <div class="callout">
                     {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
                     {{ typesetting_guide|safe }}
                   </div>
@@ -85,7 +85,7 @@
                     <p>The editor has cancelled this typesetting task. No further changes can be made now</p>
                     {% else %}
                     {% if pending_corrections %}
-                    <div class="callout bs-callout-danger">
+                    <div class="bs-callout bs-callout-warning">
                         <h4><span class="fa fa-warning"></span> Some typeset files have not been corrected yet</h4>
                         <ul >
                             {% for correction in pending_corrections %}
@@ -96,7 +96,7 @@
                     </div>
                     {% endif %}
                     {% if missing_images %}
-                    <div class="callout bs-callout-danger">
+                    <div class="bs-callout bs-callout-danger">
                         <h4><span class="fa fa-warning"></span> Some typeset files don't have their images uploaded</h4>
                         <ul>
                             {% for galley in missing_images %}

@@ -21,11 +21,16 @@
                     {% csrf_token %}
                     <ul class="list-group"  id="sortable">
                         {% for element in workflow.elements.all %}
-                            <li class="list-group-item" id="element-{{ element.pk }}"><i class="fa fa-sort">
-                                &nbsp;</i>{{ element.element_name|capfirst }}
-                                <button type="submit" name="delete" value="{{ element.pk }}"
-                                        class="tiny alert button pull-right"><i class="fa fa-trash">&nbsp;</i>Remove
-                                </button>
+                            <li class="list-group-item" id="element-{{ element.pk }}">
+                              <div class="flex space-between items-center">
+                                <div>
+                                  <span class="fa fa-sort"></span>
+                                  {{ element.element_name|capfirst }}
+                                </div>
+                                {% with name="delete" value=element.pk size="small" %}
+                                  {% include "elements/button_remove.html" %}
+                                {% endwith %}
+                              </div>
                             </li>
                         {% endfor %}
                     </ul>
@@ -44,10 +49,12 @@
                     {% csrf_token %}
                     <ul class="list-group">
                         {% for element in available_elements %}
-                            <li class="list-group-item">{{ element.name|capfirst }}
-                                <button type="submit" name="element_name" value="{{ element.name }}"
-                                        class="tiny button pull-right"><i class="fa fa-plus">&nbsp;</i>Add
-                                </button>
+                            <li class="list-group-item">
+                              <div class="flex space-between items-center">
+                                {{ element.name|capfirst }}
+                                {% with name="element_name" value=element.name size="small" %}
+                                  {% include "elements/button_add.html" %}
+                                {% endwith %}
                             </li>
                         {% endfor %}
                     </ul>

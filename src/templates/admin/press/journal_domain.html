@@ -17,11 +17,15 @@
                     <h2>{{ journal.name }}</h2>
                 </div>
                 <div class="content">
-                    {% include "elements/forms/errors.html" with form=form %}
+                    {% include "admin/elements/forms/errors.html" with form=form %}
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <input type="text" name="domain" value="{{ journal.domain }}">
-                        <button type="submit" name="save_press" class="success button">Save</button>
+                        <label for="domain"><strong>Domain</strong></label>
+                        <input id="domain" type="text" name="domain"
+                          value="{{ journal.domain|default:"" }}">
+                        {% with name="save_press" %}
+                          {% include "elements/button_save.html" %}
+                        {% endwith %}
                     </form>
                 </div>
 

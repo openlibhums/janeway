@@ -27,7 +27,9 @@
                     <input type="hidden" id="timezone" name="timezone" value="{{ TIME_ZONE }}" />
                 </div>
                         <div class="large-12 columns">
-                            <button type="submit" name="accept" class="small success button">Save</button>
+                          {% with name="accept" size="small" %}
+                            {% include "elements/button_save.html" %}
+                          {% endwith %}
                         </div>
                     </div>
             <small></small>

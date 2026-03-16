@@ -59,7 +59,7 @@
           Edit
         </a>]
       </h3>
-      <div class="callout bs-callout-info">
+      <div class="callout">
         {% setting_var request.journal 'typesetting_guide' as typesetting_guide %}
         {{ typesetting_guide|safe }}
       </div>
@@ -69,7 +69,7 @@
             <p>Should the typesetter see the comments from proofreaders?</p>
             {{ form.display_proof_comments|foundation }}
             {% include "typesetting/elements/view_proofreading_comments.html" %}
-            <div class="callout bs-callout-info">
+            <div class="callout">
                 <p>Note: if proofreaders uploaded any files that typesetters should see,
                 you must give typesetters access to them in the files section
                 above.</p>

@@ -17,7 +17,7 @@
                 <a target="_blank" href="{% url_with_return 'core_user_edit' frozen_author.author.pk %}">{{ frozen_author.author.pk }} -
                     {{ frozen_author.author.full_name }}</a>. If you wish to change the ORCID or email address associated
                 with this record we recommend doing so at the account level using the link.{% endif %}</p>{% endif %}
-            {% include "elements/forms/errors.html" with form=author_form %}
+            {% include "admin/elements/forms/errors.html" with form=author_form %}
             <form method="POST">
                 {% if frozen_author.author and not frozen_author.author == article.correspondence_author %}
                     <div class="row expanded">

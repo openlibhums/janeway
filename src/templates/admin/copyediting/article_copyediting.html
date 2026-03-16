@@ -50,17 +50,18 @@
                                 <td>
                                     <div class="button-group">
                                         {% if not assignment.decision %}
-                                            <a href="{% url 'copyedit_edit_assignment' article.pk assignment.pk %}"
-                                               class="button">Edit</a>
-
-                                            <a class="dropdown button arrow-only"
+                                          {% url 'copyedit_edit_assignment' article.pk assignment.pk as href %}
+                                          {% include "elements/a_edit.html" with href=href %}
+                                            <a class="dropdown button secondary arrow-only"
                                                data-toggle="review-dropdown-{{ assignment.pk }}"><span
                                                     class="show-for-sr">Show menu</span></a>
                                         {% else %}
-                                            <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
+                                          {% url 'editor_review' article.id assignment.id as href %}
+                                          {% include "elements/a_menu_item.html" with href=href label="Review" %}
                                         {% endif %}
                                         {% if request.user.is_admin %}
-                                            <a class="button" target="_blank" href="{% url 'admin:copyediting_copyeditassignment_change' assignment.pk %}"><span class="fa fa-cogs">&nbsp;&nbsp;</span>Admin</a>
+                                          {% url 'admin:copyediting_copyeditassignment_change' assignment.pk as href %}
+                                          {% include "elements/a_django_admin.html" with href=href %}
                                         {% endif %}
                                     </div>
                                     <div class="dropdown-pane right"
@@ -70,9 +71,9 @@
                                             <form method="POST">
                                                 {% csrf_token %}
                                                 <li>
-                                                    <button name="delete" value="{{ assignment.pk }}"
-                                                            class="button warning"><i class="fa fa-trash action-icon">&nbsp;</i>Delete
-                                                    </button>
+                                                  {% with name="delete" value=assignment.pk %}
+                                                    {% include "elements/button_delete.html" %}
+                                                  {% endwith %}
                                                 </li>
                                             </form>
                                         </ul>
@@ -109,7 +110,8 @@
                                             {% if review.decision %}
                                                  <a href="{% url 'editor_review' article.id assignment.id %}" class="button">Review</a>
                                             {% else %}
-                                                <a href="{% url 'delete_author_review' article.id assignment.id review.pk %}" class="alert button delete">Delete Author Review</a>
+                                              {% url 'delete_author_review' article.id assignment.id review.pk as delete_href %}
+                                              {% include "elements/a_delete.html" with href=delete_href label="Delete Author Review" %}
                                             {% endif %}
                                         </td>
                                     {% endfor %}
@@ -138,7 +140,7 @@
                     <h2>Status</h2>
                 </div>
                 <div class="content">
-                    <div class="callout warning">
+                    <div class="bs-callout bs-callout-info">
                         <small>This article is currently in the {{ article.stage }} stage.</small>
                     </div>
                 </div>

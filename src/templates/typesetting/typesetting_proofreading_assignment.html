@@ -68,7 +68,9 @@
                             above.</p>
 
                         {{ form.notes|foundation }}
-                        <button class="success button">Save Notes</button>
+                        {% with label="Save Notes" hierarchy="secondary" %}
+                          {% include "elements/button_save.html" %}
+                        {% endwith %}
                     </div>
                     <div class="title-area">
                         <h2>Files</h2>
@@ -100,11 +102,11 @@
                         <input name="file" type="file" class=""
                                data-placeholder="No file"
                                data-buttonName="btn-primary">
-                        <button type="submit" class="button success" name="proofing_file"><i
-                                class="fa fa-upload">
-                            &nbsp;</i>Upload
-                        </button>
-
+                      <div class="button-group">
+                        {% with name="proofing_file" hierarchy="secondary" %}
+                          {% include "elements/button_upload.html" %}
+                        {% endwith %}
+                      </div>
 
                     </div>
 
@@ -113,7 +115,12 @@
                     </div>
                     <div class="content">
                         <p>When you have completed your notes and uploaded any annotated files, you can mark this task as complete using the button below. Note: Once you mark this task as complete you will not be able to return to this page.</p>
-                        <button class="button success float-right" name="{{ form.CONFIRMABLE_BUTTON_NAME }}">{% trans "Mark Task as Complete" %}</button>
+                      <div class="flex justify-end">
+                        {% trans "Mark Task as Complete" as complete_label %}
+                        {% with name=form.CONFIRMABLE_BUTTON_NAME label=complete_label %}
+                          {% include "elements/button_complete.html" %}
+                        {% endwith %}
+                      </div>
                     </div>
                 </form>
             </div>
