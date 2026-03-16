@@ -11,7 +11,7 @@
     </span>
     <img src="{% static 'common/img/icons/orcid.png' %}" alt="">
   </a>
-  {% if not author.is_orcid_valid %}
+  {% if settings.ENABLE_ORCID and not author.is_orcid_valid %}
     <div class="callout warning">ORCID iD could not be validated.</div>
   {% endif %}
 {% elif author.orcid %}

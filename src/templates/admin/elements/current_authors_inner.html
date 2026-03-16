@@ -90,11 +90,13 @@
                             </dt>
                             <dd class="value">
                                 {{ author.orcid|default:"No ORCID iD" }}
-                                {% if author.orcid and not author.is_orcid_valid %}
-                                    <div class="callout warning">ORCID iD could not be validated.</div>
-                                {% endif %}
-                                {% if not author.is_orcid_valid and author.author %}
-                                  {% include "admin/elements/orcid_request.html" with account=author.author %}
+                                {% if settings.ENABLE_ORCID %}
+                                  {% if author.orcid and not author.is_orcid_valid %}
+                                      <div class="callout warning">ORCID iD could not be validated.</div>
+                                  {% endif %}
+                                  {% if not author.is_orcid_valid and author.author %}
+                                    {% include "admin/elements/orcid_request.html" with account=author.author %}
+                                  {% endif %}
                                 {% endif %}
                             </dd>
                           </div>

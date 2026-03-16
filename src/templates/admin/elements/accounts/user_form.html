@@ -17,12 +17,16 @@
   {% include "admin/elements/forms/field.html" with field=form.github %}
   {% include "admin/elements/forms/field.html" with field=form.linkedin %}
   {% include "admin/elements/forms/field.html" with field=form.website %}
-  {{ form.orcid }}
+  {% if not settings.ENABLE_ORCID %}
+    {% include "admin/elements/forms/field.html" with field=form.orcid %}
+  {% else %}
+    {{ form.orcid }}
+    <div class="flex wrap column-gap-2">
+        {% include 'admin/elements/accounts/orcid_field.html' with account=form.instance %}
+    </div>
+  {% endif %}
 </div>
-<div class="flex wrap column-gap-2">
-    {% include 'admin/elements/accounts/orcid_field.html' with account=form.instance %}
-</div>
-<hr />
+<hr/>
 <h3 class="fs-3">{% trans "Biography and Signature" %}</h3>
 <div class="flex wrap column-gap-2">
   <div class="max-w-24">
