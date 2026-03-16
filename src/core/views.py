@@ -161,6 +161,7 @@ def user_login(request):
 
     return render(request, template, context)
 
+
 def user_login_orcid(request):
     """
     Allow a user to log in with their ORCID account
@@ -229,8 +230,7 @@ def user_login_orcid(request):
         return redirect(logic.reverse_with_next("core_login", next_url))
 
     if action == "login":
-        orcid_accounts = models.Account.objects.filter(orcid=orcid_id,
-                                                       is_active=True)
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
         # if we have exactly one account with this orcid do the login
         if orcid_accounts.count() == 1:
             user = orcid_accounts.first()
@@ -247,7 +247,9 @@ def user_login_orcid(request):
 
                 for a in orcid_accounts:
                     a_token_valid = a.is_orcid_token_valid()
-                    a_email_index = emails.index(a.email) if a.email in emails else len(emails) + 1
+                    a_email_index = (
+                        emails.index(a.email) if a.email in emails else len(emails) + 1
+                    )
                     if not user_token_valid and a_token_valid:
                         user = a
                         user_token_valid = a_token_valid
@@ -260,8 +262,9 @@ def user_login_orcid(request):
                 # if there are no accounts with this orcid
                 # look for an account with emails reported by orcid
                 for e in emails:
-                    email_accounts = models.Account.objects.filter(email=e,
-                                                                   is_active=True)
+                    email_accounts = models.Account.objects.filter(
+                        email=e, is_active=True
+                    )
                     if email_accounts.exists():
                         user = email_accounts.first()
                         break
@@ -332,7 +335,9 @@ def user_login_orcid(request):
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
         # Make sure there isn't already a validated account with this ORCID
-        orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True).exclude(pk=request.user.pk)
+        orcid_accounts = models.Account.objects.filter(
+            orcid=orcid_id, is_active=True
+        ).exclude(pk=request.user.pk)
         validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid()]
         if len(validated_accounts) > 0:
             messages.add_message(
