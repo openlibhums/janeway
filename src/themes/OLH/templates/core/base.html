@@ -75,8 +75,9 @@
                             <span class="sr-only">{% trans 'Home' %}</span>
                         </a>
                     {% else %}
+                        {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
                         <a href="/">
-                            <img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}">
+                            <img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ press_logo_alt }}">
                             <span class="sr-only">{% trans 'Home' %}</span>
                         </a>
                     {% endif %}

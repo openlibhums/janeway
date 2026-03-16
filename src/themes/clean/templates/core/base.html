@@ -58,8 +58,9 @@
                         {% if 'svg' in request.press_cover %}
                             {% svg request.press_cover %}
                         {% else %}
+                            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
                             <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
-                                             alt="{{ request.press.name }} logo">
+                                             alt="{{ press_logo_alt }}">
                         {% endif %}
                     </div>
             {% endif %}
