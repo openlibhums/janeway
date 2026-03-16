@@ -196,14 +196,14 @@ class ReviewAssignment(models.Model):
     reviewer = models.ForeignKey(
         "core.Account",
         related_name="reviewer",
-        help_text="User to undertake the review",
+        help_text="User to undertake the review.",
         null=True,
         on_delete=models.SET_NULL,
     )
     editor = models.ForeignKey(
         "core.Account",
         related_name="editor",
-        help_text="Editor requesting the review",
+        help_text="Editor requesting the review.",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -226,8 +226,8 @@ class ReviewAssignment(models.Model):
         blank=True,
         null=True,
         help_text="If any of the authors or editors "
-        "have any competing interests please add them here. "
-        "EG. 'This study was paid for by corp xyz.'.",
+        "have any competing interests, please add them here. "
+        "E.g., 'This study was paid for by corporation xyz.'.",
     )
     review_type = models.CharField(
         max_length=20,
@@ -275,7 +275,8 @@ class ReviewAssignment(models.Model):
         help_text="This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.",
     )
     display_public = models.BooleanField(
-        default=False, help_text="Whether this review should be publicly displayed."
+        default=False,
+        help_text="Tick this box if this review should be displayed publicly alongside the article.",
     )
 
     # set the default and completed reviews managers
@@ -443,12 +444,16 @@ def element_kind_choices():
 
 class BaseReviewFormElement(models.Model):
     name = models.CharField(max_length=200)
-    kind = models.CharField(max_length=50, choices=element_kind_choices())
+    kind = models.CharField(
+        max_length=50,
+        choices=element_kind_choices(),
+        help_text="The type of field this is. Note: a text field is for short, one-line input. A text area is more appropriate for longer responses.",
+    )
     choices = models.CharField(
         max_length=1000,
         null=True,
         blank=True,
-        help_text="Seperate choices with the bar | character.",
+        help_text="If you are creating a multiple choice option, separate these choices with the bar | character. Otherwise, leave this field blank.",
     )
     required = models.BooleanField(default=True)
     order = models.IntegerField()
@@ -456,9 +461,7 @@ class BaseReviewFormElement(models.Model):
 
     default_visibility = models.BooleanField(
         default=True,
-        help_text="If true, this setting will be available "
-        "to the author automatically, if false it will"
-        "be hidden to the author by default.",
+        help_text="Tick this box to allow the author to see this element of the review form by default. If left unticked, only reviewers and editors will be able to see this content.",
     )
 
     class Meta:
@@ -622,10 +625,10 @@ class RevisionRequest(models.Model):
     author_note = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        verbose_name="Covering Letter to Editor",
+        verbose_name="Covering letter to editor",
         help_text="If you would like to include a cover letter for the editor "
         "providing changes you made to your revised manuscript, "
-        "please add this above'",
+        "please add this above.",
     )  # Note from Author to Editor
     actions = models.ManyToManyField(
         RevisionAction,
@@ -640,7 +643,7 @@ class RevisionRequest(models.Model):
     response_letter = model_utils.JanewayBleachField(
         blank=True,
         null=True,
-        verbose_name="Response Letter to Reviewers",
+        verbose_name="Response letter to reviewers",
         help_text="You have the option to include a response letter for the "
         "reviewers, providing details about the changes you made "
         "to your manuscript or counter arguments.",
@@ -701,13 +704,13 @@ class DecisionDraft(models.Model):
         blank=True,
         help_text="This is the email that will be sent to the editor notifying them that you are "
         "logging your draft decision.",
-        verbose_name="Email to Editor",
+        verbose_name="Email to editor",
     )
     email_message = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text="This is a draft of the email that will be sent to the author. Your editor will check this.",
-        verbose_name="Draft Email to Author",
+        verbose_name="Draft email to the author",
     )
     drafted = models.DateTimeField(auto_now=True)
 
@@ -720,13 +723,13 @@ class DecisionDraft(models.Model):
     revision_request_due_date = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Stores a due date for a Drafted Revision Request.",
+        help_text="Sets a due date for a drafted revision request.",
     )
     editor_decline_rationale = model_utils.JanewayBleachField(
         null=True,
         blank=True,
         help_text="Provide the section editor with a rationale for declining their drafted decision.",
-        verbose_name="Rationale for Declining Draft Decision",
+        verbose_name="Rationale for declining draft decision",
     )
 
     def __str__(self):

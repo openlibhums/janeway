@@ -486,26 +486,26 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
     )
     twitter = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
+        max_length=300, null=True, blank=True, verbose_name=_("Twitter handle")
     )
     facebook = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Facebook Handle")
+        max_length=300, null=True, blank=True, verbose_name=_("Facebook handle")
     )
     linkedin = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Linkedin Profile")
+        max_length=300, null=True, blank=True, verbose_name=_("Linkedin profile")
     )
     website = models.URLField(
         max_length=300, null=True, blank=True, verbose_name=_("Website")
     )
     github = models.CharField(
-        max_length=300, null=True, blank=True, verbose_name=_("Github Username")
+        max_length=300, null=True, blank=True, verbose_name=_("GitHub username")
     )
     profile_image = models.ImageField(
         upload_to=profile_images_upload_path,
         null=True,
         blank=True,
         storage=fs,
-        verbose_name=("Profile Image"),
+        verbose_name=("Profile image"),
     )
     email_sent = models.DateTimeField(blank=True, null=True)
     date_confirmed = models.DateTimeField(blank=True, null=True)
@@ -513,9 +513,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
         max_length=200,
         blank=True,
         null=True,
-        verbose_name=_("Confirmation Code"),
-        help_text="A UUID created upon registration and retrieved "
-        "for authentication during account activation",
+        verbose_name=_("Confirmation code"),
+        help_text="A Universally Unique Identifier (UUID) created upon registration and retrieved "
+        "for authentication during account activation.",
     )
     signature = JanewayBleachField(
         blank=True,
@@ -528,7 +528,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         blank=True,
         choices=tuple(),
         dynamic_choices=TIMEZONE_CHOICES,
-        verbose_name=_("Preferred Timezone"),
+        verbose_name=_("Preferred timezone"),
     )
 
     is_active = models.BooleanField(default=False)
@@ -537,11 +537,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     enable_digest = models.BooleanField(
         default=False,
-        verbose_name=_("Enable Digest"),
+        verbose_name=_("Enable digest"),
     )
     enable_public_profile = models.BooleanField(
         default=False,
-        help_text=_("If enabled, your basic profile will be available to the public."),
+        help_text=_(
+            "Tick this box to make your basic profile available to the public."
+        ),
         verbose_name=_("Enable public profile"),
     )
 
@@ -997,7 +999,7 @@ class PasswordResetToken(models.Model):
 class Role(models.Model):
     name = models.CharField(
         max_length=100,
-        help_text="Display name for this role (can include spaces and capital letters)",
+        help_text="Display name for this role (can include spaces and capital letters).",
     )
     slug = models.CharField(
         max_length=100,
@@ -1063,7 +1065,7 @@ privacy_types = (
     ("public", "Public"),
     ("typesetters", "Typesetters"),
     ("proofreaders", "Proofreaders"),
-    ("copyeditors", "Copyedtiors"),
+    ("copyeditors", "Copyeditors"),
     ("editors", "Editors"),
     ("owner", "Owner"),
 )
@@ -1625,8 +1627,8 @@ class Galley(AbstractLastModifiedModel):
     # All Galleys
     label = models.CharField(
         max_length=400,
-        help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
-        "you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for "
+        help_text="Typeset file labels are displayed in download links and have the format 'Download Label', e.g. if "
+        'you set the label to be "PDF", the link will be "Download PDF". If you want Janeway to set a label for '
         "you, leave it blank.",
     )
     type = models.CharField(max_length=100, choices=galley_type_choices())
@@ -1768,7 +1770,7 @@ class XSLFile(models.Model):
     date_uploaded = models.DateTimeField(default=timezone.now)
     label = models.CharField(
         max_length=255,
-        help_text="A label to help recognise this stylesheet",
+        help_text="A label to help recognise this stylesheet.",
         unique=True,
     )
     comments = JanewayBleachField(blank=True, null=True)
@@ -1833,7 +1835,7 @@ class Task(models.Model):
     link = models.TextField(
         null=True,
         blank=True,
-        help_text="A url name, where the action of this task can undertaken",
+        help_text="A URL name, where the action of this task can be undertaken.",
     )
     assignees = models.ManyToManyField(Account)
     completed_by = models.ForeignKey(
@@ -1918,7 +1920,7 @@ class EditorialGroup(models.Model):
     sequence = models.PositiveIntegerField()
     display_profile_images = models.BooleanField(
         default=False,
-        help_text="Enable to display profile images for this group.",
+        help_text="Tick this box to display the profile images for this group.",
     )
 
     class Meta:
@@ -1950,7 +1952,7 @@ class EditorialGroupMember(models.Model):
     sequence = models.PositiveIntegerField()
     statement = models.TextField(
         blank=True,
-        help_text="A statement of interest or purpose",
+        help_text="A statement of interest or purpose.",
     )
 
     class Meta:
@@ -2211,7 +2213,7 @@ class HomepageElement(models.Model):
     has_config = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name_plural = "Homepage Elements"
+        verbose_name_plural = "Homepage elements"
         ordering = ("sequence", "name")
         unique_together = ("name", "content_type", "object_id")
 
@@ -2793,7 +2795,7 @@ class Organization(models.Model):
         max_length=10,
         validators=[validate_ror_id],
         verbose_name="ROR ID",
-        help_text="Non-URI form of Research Organization Registry identifier",
+        help_text="Non-URI form of Research Organization Registry identifier.",
     )
     ror_status = models.CharField(
         blank=True,
@@ -2804,7 +2806,7 @@ class Organization(models.Model):
     ror_record_timestamp = models.CharField(
         max_length=10,
         blank=True,
-        help_text="The admin.last_modified.date string from ROR data",
+        help_text="The admin.last_modified.date string from ROR data.",
     )
     website = models.CharField(
         blank=True,
@@ -3022,7 +3024,7 @@ class ControlledAffiliation(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Each author or user can have one primary affiliation",
+        help_text="Each author or user can have one primary affiliation.",
     )
     start = models.DateField(
         blank=True,
@@ -3033,7 +3035,7 @@ class ControlledAffiliation(models.Model):
         blank=True,
         null=True,
         verbose_name="End date",
-        help_text="Leave empty for a current affiliation",
+        help_text="Leave empty for a current affiliation.",
     )
 
     class Meta:
@@ -3274,7 +3276,7 @@ class LocationManager(models.Manager):
 class Location(models.Model):
     name = models.CharField(
         max_length=200,
-        help_text="City or place name",
+        help_text="City or place name.",
         blank=True,
     )
     country = models.ForeignKey(
