@@ -938,6 +938,30 @@ class PreprintAuthor(models.Model):
             preprint=self.preprint.title,
         )
 
+    # These orcid properties mirror those in FrozenAuthor
+    # it allows us to use the same template to display orcids
+    @property
+    def orcid(self):
+        if self.account:
+            return self.account.orcid
+        return None
+
+    @property
+    def orcid_uri(self):
+        if not self.orcid:
+            return ""
+        result = submission_models.COMPILED_ORCID_REGEX.search(self.orcid)
+        if result:
+            return f"https://orcid.org/{result.group(0)}"
+        else:
+            return ""
+
+    @property
+    def is_orcid_valid(self):
+        if self.account:
+            return self.account.is_orcid_token_valid()
+        return False
+
     @property
     def affiliation(self):
         """

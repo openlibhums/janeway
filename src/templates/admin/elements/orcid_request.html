@@ -1,0 +1,12 @@
+{% load next_url %}
+{% if settings.ENABLE_ORCID %}
+    {% if account.date_orcid_requested %}
+        <p>Request sent: {{ account.date_orcid_requested|date:"d M Y" }}</p>
+    {% endif %}
+    <div class="button-group">
+        <form method="POST" action="{% url_with_return 'request_orcid' account.pk %}">
+            {% csrf_token %}
+            <input type="submit" value="Request" class="button hollow secondary normal no-bottom-margin">
+        </form>
+    </div>
+{% endif %}

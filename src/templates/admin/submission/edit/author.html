@@ -134,7 +134,22 @@
             {% trans "Display email" as display_email %}
             {% include "elements/layout/key_value_above.html" with key=display_email value=author.display_email|yesno:"Yes,No" %}
             {% trans "ORCID" as orcid_key %}
-            {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+            <div class="key-value-pair key-above">
+              <dt class="key">
+                {{ orcid_key }}
+              </dt>
+              <dd class="value">
+                  <div>{{ author.orcid|default:"No ORCID iD" }}</div>
+                  {% if settings.ENABLE_ORCID %}
+                    {% if author.orcid and not author.is_orcid_valid %}
+                      <div class="callout warning">ORCID iD could not be validated.</div>
+                    {% endif %}
+                    {% if not author.is_orcid_valid and author.author %}
+                      {% include "admin/elements/orcid_request.html" with account=author.author %}
+                    {% endif %}
+                  {% endif %}
+              </dd>
+            </div>
           </div>
         </dl>
       {% endif %}

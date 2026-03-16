@@ -27,6 +27,7 @@ from core import (
     models as core_models,
     forms as core_forms,
     views as core_views,
+    logic as core_logic,
 )
 from journal import models as journal_models
 from utils import (

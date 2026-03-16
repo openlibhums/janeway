@@ -1,0 +1,41 @@
+{% load orcid %}
+{% load static %}
+{% if account.pk %}
+<div>
+    <div>
+        <strong>
+            ORCID iD
+        </strong>
+    </div>
+  {% if account.orcid %}
+        <div>
+            <a href="{{ account.get_orcid_url }}">
+                <img alt="ORCID logo" src="{% static 'common/img/icons/orcid.png' %}">&nbsp;{{ account.get_orcid_url }}
+            </a>
+        </div>
+    {% if account.is_orcid_token_valid %}
+        {% if account == request.user or request.user.is_staff %}
+            <div>
+                <button class="tiny success button" type="submit" name="remove_orcid">
+                    Remove
+                </button>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="callout warning">ORCID iD could not be validated.</div>
+    {% endif %}
+  {% endif %}
+  {% if not account.orcid or not account.is_orcid_token_valid %}
+    {% if account == request.user %}
+        <div class="button-group no-bottom-margin">
+            <a href="{% url_with_next_and_orcid_action 'core_login_orcid' action='add_profile_orcid' %}"
+                class="button secondary hollow no-bottom-margin">
+                Connect your ORCID iD
+            </a>
+        </div>
+    {% else %}
+        {% include "admin/elements/orcid_request.html" %}
+    {% endif %}
+  {% endif %}
+</div>
+{% endif %}
