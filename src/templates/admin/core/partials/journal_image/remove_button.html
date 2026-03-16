@@ -1,0 +1,15 @@
+{% load i18n %}
+<form
+  method="post"
+  hx-post="{% url 'journal_image_remove' field_name %}"
+  hx-target="#image-upload-{{ field_name }}"
+  hx-swap="outerHTML"
+  hx-indicator="#remove-spinner-{{ field_name }}"
+  style="display: inline;"
+>
+  {% csrf_token %}
+  <button type="submit" class="button alert small">
+    {% trans "Remove Image" %}
+  </button>
+  <i id="remove-spinner-{{ field_name }}" class="fa fa-circle-o-notch fa-spin" style="display: none;" aria-hidden="true"></i>
+</form>
