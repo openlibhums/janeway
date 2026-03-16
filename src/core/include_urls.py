@@ -434,6 +434,16 @@ urlpatterns = [
     # Partial views used for HTMX
     path("alt-text/form/", partial_views.alt_text_form, name="alt_text_form"),
     path("alt-text/submit/", partial_views.alt_text_submit, name="alt_text_submit"),
+    path(
+        "manager/settings/images/upload/<str:field_name>/",
+        partial_views.journal_image_upload,
+        name="journal_image_upload",
+    ),
+    path(
+        "manager/settings/images/remove/<str:field_name>/",
+        partial_views.journal_image_remove,
+        name="journal_image_remove",
+    ),
 ]
 
 # Journal homepage block loading
