@@ -228,8 +228,6 @@ def user_login_orcid(request):
         )
         return redirect(logic.reverse_with_next("core_login", next_url))
 
-    # The verification worked.
-    # If the user wanted to log in, try to log them in.
     if action == "login":
         orcid_accounts = models.Account.objects.filter(orcid=orcid_id,
                                                        is_active=True)
@@ -298,14 +296,29 @@ def user_login_orcid(request):
     # and pass along their orcid token so information can be pre-filled.
     elif action == "register":
         models.OrcidToken.objects.filter(orcid=orcid_id).delete()
-        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
-        return redirect(
-            logic.reverse_with_next(
-                "core_register_with_orcid_token",
-                next_url,
-                kwargs={"orcid_token": str(new_token.token)},
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
+        validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid()]
+        if len(validated_accounts) > 0:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _("An account with that ORCID iD already exists. Please login."),
             )
-        )
+            return redirect(
+                logic.reverse_with_next(
+                    "core_login",
+                    next_url,
+                )
+            )
+        else:
+            new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+            return redirect(
+                logic.reverse_with_next(
+                    "core_register_with_orcid_token",
+                    next_url,
+                    kwargs={"orcid_token": str(new_token.token)},
+                )
+            )
     elif action == "add_profile_orcid":  # user is adding orcid through their profile
         if not request.user.is_authenticated:
             # this case is very unlikely but since this view
@@ -318,12 +331,14 @@ def user_login_orcid(request):
                 _("You must be logged in to connect an ORCID iD to your account."),
             )
             return redirect(logic.reverse_with_next("core_login", next_url))
-        # Make sure there isn't already an account with this orcid
-        if models.Account.objects.filter(orcid=orcid_id).exclude(pk=request.user.pk).exists():
+        # Make sure there isn't already a validated account with this ORCID
+        orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True).exclude(pk=request.user.pk)
+        validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid()]
+        if len(validated_accounts) > 0:
             messages.add_message(
                 request,
-                messages.WARNING,
-                _("An account with that orcid already exists."),
+                messages.ERROR,
+                _("An account with that ORCID iD already exists."),
             )
         else:
             # user is adding orcid so save it to logged in user's profile
