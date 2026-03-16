@@ -512,6 +512,12 @@ class JournalImageForm(forms.ModelForm):
             "default_profile_image",
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.ClearableFileInput):
+                field.widget = forms.FileInput()
+
     def save(self, commit=True):
         instance = super().save(commit=True)
         try:
@@ -522,6 +528,41 @@ class JournalImageForm(forms.ModelForm):
                 )
         except ValueError:
             pass
+        return instance
+
+
+class JournalSingleImageForm(forms.ModelForm):
+    """Single-field form for uploading one journal image field at a time."""
+
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            "header_image",
+            "default_cover_image",
+            "default_large_image",
+            "favicon",
+            "press_image_override",
+            "default_profile_image",
+        )
+
+    def __init__(self, *args, field_name, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in list(self.fields):
+            if name != field_name:
+                del self.fields[name]
+        if field_name in self.fields:
+            self.fields[field_name].widget = forms.FileInput()
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        if "default_large_image" in self.fields and instance.default_large_image:
+            try:
+                resize_and_crop(
+                    instance.default_large_image.path,
+                    field_name="Default large image",
+                )
+            except ValueError:
+                pass
         return instance
 
 

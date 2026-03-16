@@ -22,6 +22,7 @@ from core.forms.forms import (
     JournalAttributeForm,
     JournalContactForm,
     JournalImageForm,
+    JournalSingleImageForm,
     JournalStylingForm,
     JournalSubmissionForm,
     LoginForm,
