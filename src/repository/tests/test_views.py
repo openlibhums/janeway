@@ -403,9 +403,7 @@ class TestHierarchyView(TestCase):
             parent=cls.root,
         )
         cls.author = helpers.create_user("hierarchy.author@janeway.systems")
-        cls.preprint = helpers.create_preprint(
-            cls.repository, cls.author, cls.subject
-        )
+        cls.preprint = helpers.create_preprint(cls.repository, cls.author, cls.subject)
         cls.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
         cls.preprint.date_published = timezone.now()
         cls.preprint.save()
