@@ -1,5 +1,3 @@
-import json
-
 from django.core.cache import cache
 from django.shortcuts import render
 from django.http import HttpResponseBadRequest
@@ -8,14 +6,7 @@ from django.core.exceptions import ValidationError
 
 from core import forms, models, logic
 from security.decorators import editor_or_journal_manager_required
-
-
-def hx_show_message(response, message, level="success"):
-    """Set the HX-Trigger header to fire a showMessage toastr notification."""
-    response["HX-Trigger"] = json.dumps(
-        {"showMessage": {"type": level, "message": message}}
-    )
-    return response
+from utils.htmx import hx_show_message
 
 
 JOURNAL_IMAGE_FIELDS = {

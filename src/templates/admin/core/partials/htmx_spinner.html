@@ -1,6 +1,4 @@
 <script>
-  {# Toastr notifications for image saves/removes are handled by htmx_messages.html in base.html. #}
-
   document.body.addEventListener("htmx:beforeRequest", function (event) {
     var indicator = event.detail.elt.getAttribute("hx-indicator");
     if (indicator) {
