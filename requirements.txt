@@ -47,7 +47,7 @@ packaging==23.2
 pdfkit==1.0.0
 pdfminer.six
 psycopg2-binary~=2.9.8
-pyasn1==0.1.9
+pyasn1==0.6.3
 pycparser==2.14
 PyJWT==2.4.0
 Pillow==10.2.0
