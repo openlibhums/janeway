@@ -7,6 +7,7 @@ in expected XML output, so any test class that creates Preprint objects before t
 will shift those PKs and cause failures.
 """
 
+import mock
 from uuid import uuid4
 
 from django.test import TestCase, override_settings
@@ -310,3 +311,214 @@ class TestPreprintSubjectFilter(TestCase):
         titles = self._get_titles(response)
         self.assertIn("Preprint A", titles)
         self.assertIn("Preprint B", titles)
+
+
+ACCOUNT_ENDPOINTS_DOMAIN = "account-endpoints-test.domain.com"
+CAN_EDIT_DOMAIN = "can-edit-preprint-test.domain.com"
+PREPRINT_FILES_DOMAIN = "preprint-files-test.domain.com"
+
+
+class TestAccountEndpointsGating(TestCase):
+    """
+    Tests for API_ENABLE_ACCOUNT_ENDPOINTS gating (iowa-and-isolinear).
+
+    The URL registration happens at import time, so the routing test only
+    works when the setting is False (the default). The queryset/search
+    behaviour is tested directly via the view class.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=ACCOUNT_ENDPOINTS_DOMAIN
+        )
+        cls.searcher = helpers.create_user("acct.searcher@test.com")
+        cls.target = helpers.create_user("exact.match@test.com")
+        cls.api_client = APIClient()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_account_search_not_routed_when_setting_disabled(self):
+        """submission_account_search returns 404 when API_ENABLE_ACCOUNT_ENDPOINTS is False (default)."""
+        response = self.api_client.get(
+            "/api/submission_account_search/",
+            SERVER_NAME=ACCOUNT_ENDPOINTS_DOMAIN,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_account_search_queryset_returns_exact_email_match(self):
+        """SubmissionAccountSearch queryset returns the account matching the exact email."""
+        from api.views import SubmissionAccountSearch
+        from rest_framework.test import APIRequestFactory
+
+        factory = APIRequestFactory()
+        request = factory.get(
+            "/api/submission_account_search/",
+            {"search": "exact.match@test.com"},
+        )
+        request.user = self.searcher
+        request.repository = self.repo
+
+        view = SubmissionAccountSearch()
+        view.request = request
+        qs = view.get_queryset()
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first().email, "exact.match@test.com")
+
+    def test_account_search_queryset_returns_nothing_for_partial_match(self):
+        """Partial email strings return no results (exact-only semantics)."""
+        from api.views import SubmissionAccountSearch
+        from rest_framework.test import APIRequestFactory
+
+        factory = APIRequestFactory()
+        request = factory.get(
+            "/api/submission_account_search/",
+            {"search": "exact.match"},
+        )
+        request.user = self.searcher
+        request.repository = self.repo
+
+        view = SubmissionAccountSearch()
+        view.request = request
+        qs = view.get_queryset()
+        self.assertEqual(qs.count(), 0)
+
+    def test_account_search_queryset_returns_nothing_without_search_param(self):
+        """An empty search parameter returns an empty queryset."""
+        from api.views import SubmissionAccountSearch
+        from rest_framework.test import APIRequestFactory
+
+        factory = APIRequestFactory()
+        request = factory.get("/api/submission_account_search/")
+        request.user = self.searcher
+        request.repository = self.repo
+
+        view = SubmissionAccountSearch()
+        view.request = request
+        qs = view.get_queryset()
+        self.assertEqual(qs.count(), 0)
+
+
+class TestCanEditPreprintPermission(TestCase):
+    """
+    Tests for the CanEditPreprint DRF permission class (iowa-and-isolinear).
+
+    GET requests are open to any authenticated user. PUT/PATCH/DELETE
+    are limited to the preprint's owner and staff.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=CAN_EDIT_DOMAIN
+        )
+        cls.owner = helpers.create_user("preprint.owner@test.com")
+        cls.other_user = helpers.create_user("preprint.other@test.com")
+        cls.staff_user = helpers.create_user("preprint.staff@test.com")
+        cls.staff_user.is_staff = True
+        cls.staff_user.save()
+        cls.preprint = helpers.create_preprint(
+            cls.repo, cls.owner, cls.subject, title="Permission Test Preprint"
+        )
+        cls.api_client = APIClient()
+
+    def _url(self, pk=None):
+        if pk:
+            return reverse("repository_user_preprints-detail", kwargs={"pk": pk})
+        return reverse("repository_user_preprints-list")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_owner_can_get_own_preprints(self):
+        """Owner can GET their own preprint list."""
+        self.api_client.force_authenticate(user=self.owner)
+        response = self.api_client.get(self._url(), SERVER_NAME=CAN_EDIT_DOMAIN)
+        self.assertEqual(response.status_code, 200)
+        self.api_client.force_authenticate(user=None)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_other_user_cannot_see_owners_preprints(self):
+        """Another user's preprint list does not include someone else's preprints."""
+        self.api_client.force_authenticate(user=self.other_user)
+        response = self.api_client.get(self._url(), SERVER_NAME=CAN_EDIT_DOMAIN)
+        self.assertEqual(response.status_code, 200)
+        titles = [r["title"] for r in response.data.get("results", response.data)]
+        self.assertNotIn("Permission Test Preprint", titles)
+        self.api_client.force_authenticate(user=None)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_non_owner_cannot_delete_preprint(self):
+        """A non-owner receives 403 when attempting DELETE."""
+        self.api_client.force_authenticate(user=self.other_user)
+        response = self.api_client.delete(
+            self._url(pk=self.preprint.pk), SERVER_NAME=CAN_EDIT_DOMAIN
+        )
+        self.assertEqual(response.status_code, 403)
+        self.api_client.force_authenticate(user=None)
+
+    def test_staff_can_edit_any_preprint(self):
+        """CanEditPreprint grants staff permission for mutation methods."""
+        from api.permissions import CanEditPreprint
+        from rest_framework.test import APIRequestFactory
+
+        factory = APIRequestFactory()
+        request = factory.delete(f"/api/user_preprints/{self.preprint.pk}/")
+        request.user = self.staff_user
+        request.data = {}
+
+        view = mock.Mock()
+        view.kwargs = {"pk": self.preprint.pk}
+
+        permission = CanEditPreprint()
+        self.assertTrue(permission.has_permission(request, view))
+
+
+class TestPreprintFilesScoping(TestCase):
+    """
+    Tests for PreprintFiles viewset queryset scoping (iowa-and-isolinear).
+
+    PreprintFile objects are scoped to the request's repository AND the
+    current user, so users cannot reach files belonging to other users'
+    preprints.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=PREPRINT_FILES_DOMAIN
+        )
+        cls.owner = helpers.create_user("files.owner@test.com")
+        cls.other_user = helpers.create_user("files.other@test.com")
+        cls.preprint_owner = helpers.create_preprint(
+            cls.repo, cls.owner, cls.subject, title="Owner Preprint"
+        )
+        cls.preprint_other = helpers.create_preprint(
+            cls.repo, cls.other_user, cls.subject, title="Other Preprint"
+        )
+        cls.api_client = APIClient()
+
+    def _url(self):
+        return reverse("repository_preprint_files-list")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unauthenticated_request_is_rejected(self):
+        """PreprintFiles endpoint requires authentication."""
+        response = self.api_client.get(self._url(), SERVER_NAME=PREPRINT_FILES_DOMAIN)
+        self.assertIn(response.status_code, [401, 403])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_owner_sees_only_own_files(self):
+        """The owner's file list only contains files from their own preprints."""
+        self.api_client.force_authenticate(user=self.owner)
+        response = self.api_client.get(self._url(), SERVER_NAME=PREPRINT_FILES_DOMAIN)
+        self.assertEqual(response.status_code, 200)
+        # submission_file created by create_preprint belongs to owner
+        preprint_ids = {
+            r["preprint"] for r in response.data.get("results", response.data)
+        }
+        self.assertNotIn(self.preprint_other.pk, preprint_ids)
+        self.api_client.force_authenticate(user=None)

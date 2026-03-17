@@ -485,3 +485,103 @@ class TestLogic(TestCase):
             missing_settings,
             ["crossref_prefix", "crossref_username", "crossref_password"],
         )
+
+
+class TestReviewDoiMinting(TestCase):
+    """
+    Tests for review DOI minting via the event listener (iowa-and-isolinear).
+
+    deposit_doi_for_reviews creates identifiers and a CrossrefDeposit when
+    Crossref is configured. The event listener only fires when the
+    mint_open_review_dois setting is enabled and the reviewer has given
+    permission_to_make_public.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.journal, _ = helpers.create_journals()
+
+        from utils.install import update_settings
+        update_settings()
+
+        save_setting("general", "journal_issn", cls.journal, "0000-0001")
+        save_setting("general", "print_issn", cls.journal, "0000-0002")
+        save_setting("Identifiers", "use_crossref", cls.journal, True)
+        save_setting("Identifiers", "crossref_prefix", cls.journal, "10.9999")
+        save_setting("Identifiers", "crossref_email", cls.journal, "test@example.com")
+        save_setting("Identifiers", "crossref_name", cls.journal, "Test Depositor")
+        save_setting("Identifiers", "crossref_registrant", cls.journal, "Test Reg")
+        save_setting("Identifiers", "crossref_username", cls.journal, "testuser")
+        save_setting("Identifiers", "crossref_password", cls.journal, "testpass")
+        save_setting("crossref", "crossref_date_suffix", cls.journal, "")
+        save_setting("Identifiers", "mint_open_review_dois", cls.journal, True)
+
+        cls.article = helpers.create_article(cls.journal, with_author=True)
+
+        from review import models as review_models
+        cls.reviewer = helpers.create_user("review.doi.reviewer@test.com")
+        cls.editor = helpers.create_user("review.doi.editor@test.com")
+        cls.review = helpers.create_review_assignment(
+            journal=cls.journal,
+            article=cls.article,
+            reviewer=cls.reviewer,
+            editor=cls.editor,
+        )
+        cls.review.permission_to_make_public = True
+        cls.review.date_complete = timezone.now()
+        cls.review.save()
+
+    def test_get_dois_for_reviews_creates_identifier(self):
+        """get_dois_for_reviews creates a DOI Identifier for each review."""
+        from identifiers import reviews as id_reviews
+        identifiers = id_reviews.get_dois_for_reviews([self.review])
+        self.assertEqual(len(identifiers), 1)
+        self.assertEqual(identifiers[0].id_type, "doi")
+        self.assertEqual(identifiers[0].review, self.review)
+
+    def test_get_dois_for_reviews_is_idempotent(self):
+        """Calling get_dois_for_reviews twice returns the same identifier."""
+        from identifiers import reviews as id_reviews
+        first = id_reviews.get_dois_for_reviews([self.review])
+        second = id_reviews.get_dois_for_reviews([self.review])
+        self.assertEqual(first[0].pk, second[0].pk)
+
+    @mock.patch("identifiers.reviews.Depositor")
+    def test_deposit_doi_for_reviews_creates_crossref_deposit(self, mock_depositor):
+        """deposit_doi_for_reviews creates a CrossrefDeposit record."""
+        mock_response = mock.Mock()
+        mock_response.ok = True
+        mock_depositor.return_value.register_doi.return_value = mock_response
+
+        from identifiers import reviews as id_reviews
+        initial_count = models.CrossrefDeposit.objects.count()
+        id_reviews.deposit_doi_for_reviews(self.journal, [self.review])
+        self.assertGreater(models.CrossrefDeposit.objects.count(), initial_count)
+
+    def test_event_listener_does_not_fire_without_permission(self):
+        """review_doi_mint_event_listener does nothing when permission_to_make_public is False."""
+        from identifiers import reviews as id_reviews
+        article_no_perm = helpers.create_article(self.journal, with_author=True)
+        review_no_permission = helpers.create_review_assignment(
+            journal=self.journal,
+            article=article_no_perm,
+        )
+        review_no_permission.permission_to_make_public = False
+        review_no_permission.save()
+
+        request = helpers.Request()
+        request.journal = self.journal
+
+        initial_count = models.Identifier.objects.filter(
+            review=review_no_permission
+        ).count()
+        id_reviews.review_doi_mint_event_listener(
+            request=request,
+            review_assignment=review_no_permission,
+        )
+        self.assertEqual(
+            models.Identifier.objects.filter(review=review_no_permission).count(),
+            initial_count,
+        )
