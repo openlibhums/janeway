@@ -513,7 +513,6 @@ class CreditRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.frozen_author = kwargs.pop("frozen_author", None)
         super().__init__(*args, **kwargs)
-        self.fields["role"].choices = self.fields["role"].choices[1:]
 
         if self.frozen_author:
             self._remove_choices_when_roles_already_exist(
