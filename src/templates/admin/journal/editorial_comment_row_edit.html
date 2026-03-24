@@ -1,0 +1,39 @@
+{% extends "admin/core/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% if comment %}{% trans "Edit Comment" %}{% else %}{% trans "Add Comment" %}{% endif %} — {{ article.safe_title }}{% endblock %}
+{% block title-section %}{% if comment %}{% trans "Edit Editor Comment" %}{% else %}{% trans "Add Editor Comment" %}{% endif %}{% endblock %}
+{% block title-sub %}{{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'manage_article_log' article.pk %}">{% trans "Logs" %}</a></li>
+  <li><a href="{% url 'article_editorial_log' article.pk %}">{% trans "Editorial Log" %}</a></li>
+  <li>{% if comment %}{% trans "Edit Comment" %}{% else %}{% trans "Add Comment" %}{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+<div class="box">
+  <div class="title-area">
+    <h2>{% if comment %}{% trans "Edit Comment" %}{% else %}{% trans "Add Comment" %}{% endif %}</h2>
+  </div>
+  <div class="content">
+    <form method="POST">
+      {% csrf_token %}
+      {% include "admin/elements/forms/errors.html" with form=comment_form %}
+      {{ comment_form.as_p }}
+      <button class="button" type="submit">{% trans "Save" %}</button>
+      <a class="button secondary" href="{% url 'article_editorial_log' article.pk %}">{% trans "Cancel" %}</a>
+    </form>
+    {% if comment %}
+    <form method="POST" style="display:inline;">
+      {% csrf_token %}
+      <input type="hidden" name="delete" value="1">
+      <button class="button alert"
+              type="submit"
+              onclick="return confirm('{% trans "Delete this comment?" %}')">{% trans "Delete" %}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

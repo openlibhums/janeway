@@ -496,6 +496,13 @@ def article(request, identifier_type, identifier):
             file__mime_type="text/html",
         )
 
+    public_editorial_log = setting_handler.get_setting(
+        "general", "public_editorial_log", request.journal
+    ).processed_value
+    editorial_log = (
+        logic.build_editorial_timeline(article_object) if public_editorial_log else None
+    )
+
     template = "journal/article.html"
     context = {
         "article": article_object,
@@ -504,6 +511,7 @@ def article(request, identifier_type, identifier):
         "identifier": identifier,
         "article_content": content,
         "tables_in_galley": tables_in_galley,
+        "editorial_log": editorial_log,
     }
 
     return render(request, template, context)
@@ -1183,8 +1191,8 @@ def publish_article(request, article_id):
                     request,
                     messages.WARNING,
                     _(
-                        f"Something went wrong when trying to save the form. "
-                        f"Please try again."
+                        "Something went wrong when trying to save the form. "
+                        "Please try again."
                     ),
                 )
 
@@ -2294,7 +2302,6 @@ def old_search(request):
 
     if redir:
         return redir
-    from itertools import chain
 
     if search_term:
         escaped = re.escape(search_term)
@@ -2416,6 +2423,77 @@ def manage_article_log(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@editor_user_required
+def article_editorial_log(request, article_id):
+    """Displays the public editorial log for an article.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :return: HttpResponse object
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    template = "journal/article_editorial_log.html"
+    context = {
+        "article": article,
+        "timeline": logic.build_editorial_timeline(article),
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def edit_editorial_comment(request, article_id, comment_id=None):
+    """Add, edit or delete a single EditorPublicComment.
+    :param request: HttpRequest object
+    :param article_id: Article object PK
+    :param comment_id: EditorPublicComment object PK, or None to add a new comment
+    :return: HttpResponse object
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    comment = (
+        get_object_or_404(
+            core_models.EditorPublicComment,
+            pk=comment_id,
+            article=article,
+        )
+        if comment_id
+        else None
+    )
+    log_url = reverse("article_editorial_log", kwargs={"article_id": article.pk})
+
+    if request.POST:
+        if "delete" in request.POST and comment:
+            comment.delete()
+            messages.success(request, "Comment deleted.")
+            return redirect(log_url)
+        comment_form = forms.EditorPublicCommentForm(request.POST, instance=comment)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            if not comment:
+                new_comment.article = article
+                new_comment.author = request.user
+            new_comment.save()
+            messages.success(request, "Comment saved.")
+            return redirect(log_url)
+    else:
+        comment_form = forms.EditorPublicCommentForm(instance=comment)
+
+    template = "journal/editorial_comment_row_edit.html"
+    context = {
+        "article": article,
+        "comment": comment,
+        "comment_form": comment_form,
+    }
+    return render(request, template, context)
+
 
 
 @editor_user_required

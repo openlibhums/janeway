@@ -1,0 +1,17 @@
+{% load i18n %}
+<tr>
+  <td>{{ comment.date_posted|date:"Y-m-d H:i" }}</td>
+  <td>{% trans "Editor Comment" %}</td>
+  <td>{% if comment.author %}{{ comment.author.full_name }}{% else %}—{% endif %}</td>
+  <td>{{ comment.body|safe }}</td>
+  <td>
+    {% if comment.public %}
+      <i class="fa fa-check" aria-label="{% trans 'Public' %}"></i>
+    {% else %}
+      <i class="fa fa-eye-slash" aria-label="{% trans 'Hidden' %}"></i>
+    {% endif %}
+  </td>
+  <td>
+    <a class="button tiny" href="{% url 'edit_editorial_comment' article.pk comment.pk %}">{% trans "Edit" %}</a>
+  </td>
+</tr>

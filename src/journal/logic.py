@@ -768,3 +768,127 @@ def merge_sections(destination, to_merge):
             article.section = destination
             article.save()
         section.delete()
+
+
+
+def build_editorial_timeline(article):
+    """Returns a date-ordered list of dicts describing the editorial history
+    of an article, derived from submission and review models, combined with
+    any EditorPublicComment records.
+    :param article: submission.models.Article
+    :return: list of dicts with keys: date, type, description, is_comment,
+             and optionally comment (EditorPublicComment) or log_entry_id /
+             hidden for hide/show control on editor-facing views.
+    """
+    from review import models as review_models
+
+    entries = []
+
+    def entry(date, type_, description, **kwargs):
+        if date:
+            entries.append(
+                {"date": date, "type": type_, "description": description, **kwargs}
+            )
+
+    # Article milestones
+    entry(article.date_submitted, "Submission", "Submitted for peer review", object_pk=article.pk)
+    entry(article.date_accepted, "Accepted", "Article accepted", object_pk=article.pk)
+    entry(article.date_declined, "Declined", "Article declined", object_pk=article.pk)
+    entry(article.date_published, "Published", "Published", object_pk=article.pk)
+
+    # Review rounds
+    for rr in article.reviewround_set.all():
+        entry(
+            rr.date_started,
+            "Review Round",
+            "Review Round {} opened".format(rr.round_number),
+            object_pk=rr.pk,
+        )
+        # Editor assignments for this round
+        for ea in review_models.EditorAssignment.objects.filter(article=article):
+            entry(
+                ea.assigned,
+                "Editor Assignment",
+                "Assigned to editor: {}".format(ea.editor.full_name),
+                object_pk=ea.pk,
+            )
+        # Peer reviews
+        for ra in rr.reviewassignment_set.all():
+            reviewer = ra.reviewer.full_name if ra.permission_to_make_public else None
+            entry(
+                ra.date_requested,
+                "Peer Review Requested",
+                "Peer review requested{}".format(" by {}".format(reviewer) if reviewer else ""),
+                object_pk=ra.pk,
+            )
+            entry(
+                ra.date_accepted,
+                "Peer Review Accepted",
+                "Reviewer accepted invitation{}".format(": {}".format(reviewer) if reviewer else ""),
+                object_pk=ra.pk,
+            )
+            if ra.is_complete and ra.date_complete:
+                entry(
+                    ra.date_complete,
+                    "Peer Review",
+                    "Peer review completed{}".format(" by {}".format(reviewer) if reviewer else ""),
+                    object_pk=ra.pk,
+                )
+
+    # Revision requests
+    for rev in review_models.RevisionRequest.objects.filter(article=article):
+        type_label = rev.get_type_display() if hasattr(rev, "get_type_display") else rev.type
+        entry(
+            rev.date_requested,
+            "Revisions Requested",
+            "Revisions requested: {}".format(type_label),
+            object_pk=rev.pk,
+        )
+        entry(
+            rev.date_completed,
+            "Revisions Submitted",
+            "Author revisions submitted",
+            object_pk=rev.pk,
+        )
+        if rev.date_completed and rev.response_letter:
+            entries.append(
+                {
+                    "date": rev.date_completed,
+                    "type": "Author Response",
+                    "description": rev.response_letter,
+                    "is_comment": True,
+                    "object_pk": rev.pk,
+                }
+            )
+
+    # Preprint versions
+    try:
+        preprint = article.preprint
+        for pv in preprint.preprintversion_set.order_by("version"):
+            entry(
+                pv.date_time,
+                "Preprint Version",
+                "Preprint version {} posted".format(pv.version),
+                object_pk=pv.pk,
+            )
+    except Exception:
+        pass
+
+    # Editor comments
+    for c in core_models.EditorPublicComment.objects.filter(article=article):
+        entries.append(
+            {
+                "date": c.date_posted,
+                "type": "Editor Comment",
+                "description": c.body,
+                "is_comment": True,
+                "comment": c,
+                "object_pk": c.pk,
+            }
+        )
+
+    # Set is_comment=False on all non-comment entries
+    for e in entries:
+        e.setdefault("is_comment", False)
+
+    return sorted(entries, key=lambda x: x["date"])

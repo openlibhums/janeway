@@ -1,0 +1,67 @@
+{% extends "admin/core/base.html" %}
+{% load static i18n %}
+
+{% block title %}Editorial Log — {{ article.safe_title }}{% endblock %}
+{% block title-section %}{% trans "Editorial Log" %}{% endblock %}
+{% block title-sub %}{{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'manage_article_log' article.pk %}">{% trans "Logs" %}</a></li>
+  <li>{% trans "Editorial Log" %}</li>
+{% endblock %}
+
+{% block body %}
+<div class="box">
+  <div class="title-area">
+    <h2>{% trans "Public Timeline" %}</h2>
+    <a class="button" href="{% url 'add_editorial_comment' article.pk %}"><i class="fa fa-plus">&nbsp;</i>{% trans "Add Comment" %}</a>
+  </div>
+  <div class="content">
+    {% if not timeline %}
+      <p>{% trans "No public log entries yet." %}</p>
+    {% else %}
+      <table class="scroll small">
+        <thead>
+          <tr>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "PK" %}</th>
+            <th>{% trans "Visible" %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in timeline %}
+            <tr>
+              <td>{{ entry.date|date:"Y-m-d H:i" }}</td>
+              <td>{{ entry.type }}</td>
+              <td>{{ entry.description|safe }}</td>
+              <td><small>{{ entry.object_pk }}</small></td>
+              <td>
+                {% if entry.is_comment %}
+                  {% if entry.comment.public %}
+                    <i class="fa fa-check" aria-label="{% trans 'Public' %}"></i>
+                  {% else %}
+                    <i class="fa fa-eye-slash" aria-label="{% trans 'Hidden' %}"></i>
+                  {% endif %}
+                {% else %}
+                  <i class="fa fa-check" aria-label="{% trans 'Public' %}"></i>
+                {% endif %}
+              </td>
+              <td>
+                {% if entry.comment %}
+                  <a class="button tiny" href="{% url 'edit_editorial_comment' article.pk entry.comment.pk %}">{% trans "Edit" %}</a>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

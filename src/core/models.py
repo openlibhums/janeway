@@ -3295,3 +3295,38 @@ class Location(models.Model):
             str(self.country) if self.country else "",
         ]
         return ", ".join([element for element in elements if element])
+
+
+class EditorPublicComment(models.Model):
+    """A public editorial comment on an article, visible to readers when the
+    Public Editorial Log setting is enabled."""
+
+    article = models.ForeignKey(
+        "submission.Article",
+        on_delete=models.CASCADE,
+        related_name="editor_public_comments",
+    )
+    author = models.ForeignKey(
+        "Account",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="editor_public_comments",
+    )
+    body = models.TextField()
+    date_posted = models.DateTimeField(default=timezone.now)
+    public = models.BooleanField(
+        default=True,
+        help_text="Uncheck to hide this comment from public view.",
+    )
+
+    class Meta:
+        ordering = ("date_posted",)
+
+    def __str__(self):
+        return "Editorial comment on {} by {} at {}".format(
+            self.article,
+            self.author,
+            self.date_posted,
+        )
+
+

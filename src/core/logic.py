@@ -591,6 +591,12 @@ def get_settings_to_edit(display_group, journal, user):
                     journal,
                 ),
             },
+            {
+                "name": "public_editorial_log",
+                "object": setting_handler.get_setting(
+                    "general", "public_editorial_log", journal
+                ),
+            },
         ]
         setting_group = "general"
 

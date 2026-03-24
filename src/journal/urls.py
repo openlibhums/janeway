@@ -277,6 +277,21 @@ urlpatterns = [
         name="manage_resend_logged_email",
     ),
     re_path(
+        r"^manage/article/(?P<article_id>\d+)/editorial-log/$",
+        views.article_editorial_log,
+        name="article_editorial_log",
+    ),
+    re_path(
+        r"^manage/article/(?P<article_id>\d+)/editorial-log/add/$",
+        views.edit_editorial_comment,
+        name="add_editorial_comment",
+    ),
+    re_path(
+        r"^manage/article/(?P<article_id>\d+)/editorial-log/(?P<comment_id>\d+)/edit/$",
+        views.edit_editorial_comment,
+        name="edit_editorial_comment",
+    ),
+    re_path(
         r"^manage/articles/schedule/$",
         views.publication_schedule,
         name="publication_schedule",

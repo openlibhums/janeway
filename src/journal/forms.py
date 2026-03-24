@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 
 from tinymce.widgets import TinyMCE
 
-from core import models as core_models
+from core import models as core_models, model_utils
 from core.forms import FullSettingEmailForm
 from journal import models as journal_models, logic
 from utils.forms import CaptchaForm
@@ -153,6 +153,16 @@ class IssueDisplayForm(forms.ModelForm):
             "display_issue_doi",
             "display_issues_grouped_by_decade",
         )
+
+
+class EditorPublicCommentForm(forms.ModelForm):
+    class Meta:
+        model = core_models.EditorPublicComment
+        fields = ("body", "date_posted", "public")
+        widgets = {
+            "body": TinyMCE(),
+            "date_posted": model_utils.DateTimePickerInput(),
+        }
 
 
 class BasePrepubNotificationFormSet(forms.BaseFormSet):
