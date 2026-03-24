@@ -3,33 +3,64 @@ name: janeway
 
 # CAREFUL with this env file, Docker env files don't support interpolation!
 env_file:
-  - dockerfiles/lando_defaults.env
-  - dockerfiles/lando_local.env
+  - etc/defaults.env
+
+proxy:
+  appserver:
+    - janeway.lndo.site
 
 services:
   appserver:
     type: python:3.9
-    command: python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
+    port: 8000
+    command: python3 /app/src/manage.py runserver 0.0.0.0:8000 -v 3 --noreload
     build_as_root:
-      - grep '^deb ' /etc/apt/sources.list | perl -pe 's/deb /deb-src /' >> /etc/apt/sources.list
-      - apt-get update -qq && apt-get install -y python3-lxml pylint libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev && apt-get build-dep -y lxml
+      - |
+          rm -f /etc/apt/sources.list.d/debian-src.sources
+          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
+            sed 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources > /etc/apt/sources.list.d/debian-with-src.sources
+            rm -f /etc/apt/sources.list.d/debian.sources
+            mv /etc/apt/sources.list.d/debian-with-src.sources /etc/apt/sources.list.d/debian.sources
+          fi
+      - |
+          set -eu
+          packages="python3-lxml pylint libxml2-dev libxslt1-dev python3-dev zlib1g-dev libffi-dev libssl-dev libjpeg-dev"
+          arch="$(dpkg --print-architecture)"
+          if [ "$arch" = "amd64" ] || [ "$arch" = "i386" ]; then
+            packages="$packages lib32z1-dev"
+          fi
+          apt-get update -qq
+          apt-get install -y $packages
+          apt-get build-dep -y lxml
     build:
-      - cd /app && pip install --upgrade pip && pip install Cython && pip install psycopg2-binary~=2.8.0 && pip install -r requirements.txt &&  pip install -r dev-requirements.txt
-    scanner: true
+      - cd /app && pip install --upgrade pip && pip install Cython && pip install psycopg2-binary~=2.8.0 && pip install -r requirements.txt && pip install -r dev-requirements.txt
+    scanner:
+      path: /
     overrides:
-      ports:
-        - '8000:8000'
       environment:
+        DB_HOST: "db"
         PYTHONPATH: "/app/src"
-        JANEWAY_SETTINGS_MODULE: "core.settings" # this is the path to the Janeway settings file, which is in src/core/settings.py
+        JANEWAY_SETTINGS_MODULE: "core.dev_settings"
+      labels:
+        # Janeway runs its Django development server on port 8000, but Lando's
+        # default proxy wiring for python services assumes port 80. Keep an
+        # explicit high-priority route to the real application port.
+        traefik.enable: "true"
+        traefik.docker.network: landoproxyhyperion5000gandalfedition_edge
+        traefik.http.routers.janeway.entrypoints: http
+        traefik.http.routers.janeway.rule: Host(`janeway.lndo.site`)
+        traefik.http.routers.janeway.priority: "100"
+        traefik.http.routers.janeway.service: janeway-service
+        traefik.http.services.janeway-service.loadbalancer.server.port: "8000"
     moreHttpPorts:
       - '8000'
+
   db:
     type: postgres:15
     portforward: true
     creds:
       user: postgres
-      password: 
+      password:
       database: janeway
 
 tooling:
@@ -37,24 +68,29 @@ tooling:
     service: appserver
     cmd: python
     dir: /app/src
+
   pip:
     service: appserver
     description: run pip commands to manage Python package installation in this environment
     cmd: pip
     dir: /app/src
+
   manage:
     service: appserver
     cmd: python manage.py
     dir: /app/src
+
   restart-runserver:
     service: appserver
     description: Quickly restarts the Django runserver process, follows logs, and enables interactive debugging
-    cmd: killall python || python /app/src/manage.py runserver 0.0.0.0:8000 -v 3
+    cmd: pkill -f "/app/src/manage.py runserver" || true && python3 /app/src/manage.py runserver 0.0.0.0:8000 -v 3 --noreload
     dir: /app/src
     user: root
+
   psql:
     service: db
     cmd: psql -U postgres
+
   'db-import <file>':
     service: :host
     description: Imports a dump file into a database service
