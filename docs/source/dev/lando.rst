@@ -19,6 +19,12 @@ Using path mode locally would require browsing to a URL like
 ``/Journal/``. The current Lando setup is intentionally configured for the
 root-domain variant instead.
 
+The local Lando appserver also uses a small wrapper script,
+``dockerfiles/lando-runserver-loop.sh``, to keep the Django development server
+available after ``lando restart-runserver`` or a transient local crash. This
+script is only used by the Lando appserver command in ``.lando.yml`` and does
+not affect non-Lando installs or production deployments.
+
 Prerequisites
 -------------
 
@@ -104,6 +110,10 @@ First-time setup
 
       http://janeway.lndo.site/
 
+   Use ``http`` for this local setup. ``https://janeway.lndo.site`` is not
+   configured as the primary development URL here and may return a proxy-level
+   error page.
+
 Useful commands
 ---------------
 
@@ -130,6 +140,9 @@ Restart only the Django development server:
 .. code-block:: bash
 
    lando restart-runserver
+
+This command intentionally stops the current ``runserver`` process and relies
+on the Lando appserver wrapper script to bring it back automatically.
 
 Inspect the active URLs:
 
@@ -293,6 +306,10 @@ If needed, restart the development server:
 
    lando restart-runserver
 
+The appserver command uses a small restart loop so that this command can stop
+the current Django process without leaving the container permanently without a
+development server.
+
 ``curl -I http://janeway.lndo.site/`` returns ``404 page not found``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -324,6 +341,24 @@ development server is often enough:
 .. code-block:: bash
 
    lando restart-runserver
+
+If ``lando restart-runserver`` leaves the site unavailable, ensure your
+checkout includes the Lando-only wrapper script at
+``dockerfiles/lando-runserver-loop.sh`` and the corresponding ``command`` in
+``.lando.yml``.
+
+``https://janeway.lndo.site`` returns ``404`` or another proxy error
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This setup is documented and tested against:
+
+.. code-block:: text
+
+   http://janeway.lndo.site/
+
+If you open the same hostname over ``https``, the local proxy may return an
+error page. Use the documented ``http`` URL unless you are explicitly testing
+local HTTPS behaviour.
 
 ``janeway.lndo.site`` does not resolve
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

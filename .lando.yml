@@ -13,7 +13,7 @@ services:
   appserver:
     type: python:3.9
     port: 8000
-    command: python3 /app/src/manage.py runserver 0.0.0.0:8000 -v 3 --noreload
+    command: /bin/sh /app/dockerfiles/lando-runserver-loop.sh
     build_as_root:
       - |
           rm -f /etc/apt/sources.list.d/debian-src.sources
@@ -82,8 +82,8 @@ tooling:
 
   restart-runserver:
     service: appserver
-    description: Quickly restarts the Django runserver process, follows logs, and enables interactive debugging
-    cmd: pkill -f "/app/src/manage.py runserver" || true && python3 /app/src/manage.py runserver 0.0.0.0:8000 -v 3 --noreload
+    description: Restarts the Django runserver by stopping it and letting the appserver command relaunch it
+    cmd: pkill -f "/app/src/manage.py runserver" || true
     dir: /app/src
     user: root
 
