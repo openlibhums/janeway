@@ -5,7 +5,7 @@
     <div class="clean-banner">
       <img class="clean-banner-image"
          src="{{ issue.hero_image_url }}"
-         alt="{{ issue.display_title_a11y }} Cover Image">
+         alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y %}">
     </div>
     <div class="card-text padding-inline-1 padding-block-1">
       {% if level == "deep" %}
