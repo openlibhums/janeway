@@ -1769,18 +1769,10 @@ def preprint_comment(**kwargs):
     preprint = kwargs.get("preprint")
 
     path = reverse(
-        "repository_comments",
+        "repository_manager_comment_list_filtered",
         kwargs={"preprint_id": preprint.pk},
     )
     url = request.repository.site_url(path)
-
-    email_text = (
-        "A comment has been made on your article {title}, you can moderate comments "
-        '<a href="{url}">on the journal site</a>.'.format(
-            title=preprint.title,
-            url=url,
-        )
-    )
 
     description = "{author} commented on {title}".format(
         author=request.user.full_name(),
@@ -1793,13 +1785,80 @@ def preprint_comment(**kwargs):
         "target": preprint,
     }
 
+    for manager in request.repository.managers.all():
+        context = {
+            "preprint": preprint,
+            "manager": manager,
+            "url": url,
+        }
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            request.repository.new_comment,
+            template_is_setting=True,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            "Preprint Comment",
+            manager.email,
+            email_text,
+            log_dict=log_dict,
+        )
+
+
+def preprint_comment_published(**kwargs):
+    request = kwargs.get("request")
+    preprint = kwargs.get("preprint")
+    comment = kwargs.get("comment")
+
+    url = request.repository.site_url(
+        reverse(
+            "repository_preprint",
+            kwargs={"preprint_id": preprint.pk},
+        )
+    )
+
+    description = "Comment approved on {title}".format(title=preprint.title)
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Preprint Comment Published",
+        "target": preprint,
+    }
+
+    context = {
+        "preprint": preprint,
+        "comment": comment,
+        "url": url,
+    }
+    email_text_owner = render_template.get_message_content(
+        request,
+        context,
+        request.repository.comment_published,
+        template_is_setting=True,
+    )
     notify_helpers.send_email_with_body_from_user(
         request,
-        "Preprint Comment",
+        "Comment Approved",
         preprint.owner.email,
-        email_text,
+        email_text_owner,
         log_dict=log_dict,
     )
+
+    if comment.author and comment.author != preprint.owner:
+        email_text_commenter = render_template.get_message_content(
+            request,
+            context,
+            request.repository.comment_approved,
+            template_is_setting=True,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            "Comment Approved",
+            comment.author.email,
+            email_text_commenter,
+            log_dict=log_dict,
+        )
 
 
 def preprint_version_update(**kwargs):
