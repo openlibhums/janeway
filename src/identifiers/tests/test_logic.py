@@ -241,6 +241,7 @@ class TestLogic(TestCase):
             "date_accepted": None,
             "date_published": self.article_published.date_published,
             "doi": f"10.0000/TST.{self.article_published.id}",
+            "erratum_of": None,
             "id": self.article_published.id,
             "license": "",
             "object": self.article_published,
@@ -267,6 +268,7 @@ class TestLogic(TestCase):
             "date_accepted": None,
             "date_published": None,
             "doi": self.doi_one.identifier,
+            "erratum_of": None,
             "id": self.article_one.id,
             "license": submission_models.Licence.objects.filter(
                 journal=self.journal_one,
