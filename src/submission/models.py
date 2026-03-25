@@ -2630,6 +2630,30 @@ class Article(AbstractLastModifiedModel):
             )
         return default_text
 
+    def erratum_of(self):
+        """
+        Return the "parent" article for which this article is an erratum.
+
+        This is intended to be used in templates/common/identifiers/crossref_article.xml
+        """
+        if self.section.name != "Erratum":
+            return None
+
+        # Most articles do not have a "Genealogy"
+        if not hasattr(self, "ancestors"):
+            return None
+
+        if not self.ancestors.exists():
+            return None
+
+        # We can safely assume that an erratum refers to only one other paper
+        # so we just return the first "ancestor".
+        #
+        # Also, there is no need to check if the "parent" was published:
+        # the business logic should ensure that we cannot publish an erratum
+        # to a non-published paper.
+        return self.ancestors.first().parent
+
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
     AFFILIATION_RELATED_NAME = "frozen_author"
