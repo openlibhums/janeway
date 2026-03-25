@@ -171,9 +171,26 @@ urlpatterns = [
         name="repository_preprint_log",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/comments/$",
-        views.repository_comments,
-        name="repository_comments",
+        r"^manager/comments/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list_filtered",
+    ),
+    re_path(
+        r"^manager/comments/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_reviewed",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_filtered_reviewed",
     ),
     re_path(
         r"^manager/(?P<preprint_id>\d+)/supp_files/$",

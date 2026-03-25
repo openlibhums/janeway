@@ -4629,7 +4629,7 @@ class TestSecurity(TestCase):
         self.client.force_login(self.repo_manager)
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
@@ -4652,7 +4652,7 @@ class TestSecurity(TestCase):
 
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
@@ -4676,7 +4676,7 @@ class TestSecurity(TestCase):
 
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
