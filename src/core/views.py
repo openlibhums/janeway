@@ -349,7 +349,7 @@ def user_login_orcid(request):
             # user is adding orcid so save it to logged in user's profile
             request.user.orcid = orcid_id
             request.user.orcid_token = access_token
-            request.user.orcid_expiration = expiration
+            request.user.orcid_token_expiration = expiration
             request.user.save()
             messages.add_message(
                 request,
@@ -529,7 +529,7 @@ def register(request, orcid_token=None):
             if token_obj:
                 new_user = form.save()
                 new_user.orcid_token = token_obj.access_token
-                new_user.orcid_expiration = token_obj.access_token_expiration
+                new_user.orcid_token_expiration = token_obj.access_token_expiration
                 new_user.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
