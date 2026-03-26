@@ -29,6 +29,7 @@ from django.db import (
     connection,
     IntegrityError,
     models,
+    OperationalError,
     ProgrammingError,
     transaction,
 )
@@ -692,7 +693,7 @@ def default_press():
     try:
         Press = apps.get_model("press", "Press")
         return Press.objects.first()
-    except ProgrammingError:
+    except (ProgrammingError, OperationalError):
         # Initial migration will attempt to call this,
         # even when no EditorialGroups are created
         return
