@@ -360,6 +360,17 @@ If you open the same hostname over ``https``, the local proxy may return an
 error page. Use the documented ``http`` URL unless you are explicitly testing
 local HTTPS behaviour.
 
+On Safari, a cached HSTS policy can also cause the browser to reopen the same
+hostname over ``https`` even after you saved the ``http`` version as a
+bookmark. If that happens, remove the stored website data for the domain and
+then reopen the ``http`` URL:
+
+1. Open ``Safari`` -> ``Settings``.
+2. Go to ``Privacy``.
+3. Click ``Manage Website Data...``.
+4. Search for ``janeway.lndo.site``.
+5. Remove the stored entry and reopen ``http://janeway.lndo.site/``.
+
 ``janeway.lndo.site`` does not resolve
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
