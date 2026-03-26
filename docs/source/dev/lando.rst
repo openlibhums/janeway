@@ -362,14 +362,15 @@ local HTTPS behaviour.
 
 On Safari, a cached HSTS policy can also cause the browser to reopen the same
 hostname over ``https`` even after you saved the ``http`` version as a
-bookmark. If that happens, remove the stored website data for the domain and
-then reopen the ``http`` URL:
+bookmark. If that happens, close the current tab first, then remove the stored
+website data and reopen the ``http`` URL in a new tab or window:
 
 1. Open ``Safari`` -> ``Settings``.
 2. Go to ``Privacy``.
 3. Click ``Manage Website Data...``.
-4. Search for ``janeway.lndo.site``.
-5. Remove the stored entry and reopen ``http://janeway.lndo.site/``.
+4. Search for ``lndo.site``.
+5. Remove the stored entry while the ``janeway.lndo.site`` tab is closed.
+6. Open ``http://janeway.lndo.site/`` again in a new tab or window.
 
 ``janeway.lndo.site`` does not resolve
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
