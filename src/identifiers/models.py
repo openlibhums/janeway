@@ -5,23 +5,22 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import re
 import sys
-from django.utils import timezone
+import warnings
 
 import requests
+from bs4 import BeautifulSoup
+
+from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 from identifiers import logic
 from utils import shared
 from utils.logger import get_logger
-from utils import setting_handler
 from utils.function_cache import cache
 
-from django.conf import settings
-
-from bs4 import BeautifulSoup
 
 logger = get_logger(__name__)
 
@@ -81,26 +80,58 @@ class CrossrefDeposit(models.Model):
 
     @property
     @cache(30)
-    def journal(self):
+    def parent_object(self):
+        """
+        Returns either a single journal or repository object.
+        Raises an error if multiple journals or repositories are linked.
+        """
+        # Step 1: Check for linked journals
         journals = set(
-            [
-                crossref_status.identifier.article.journal
-                for crossref_status in self.crossrefstatus_set.all()
-            ]
+            crossref_status.identifier.article.journal
+            for crossref_status in self.crossrefstatus_set.all()
+            if crossref_status.identifier.article
         )
+
         if len(journals) > 1:
             error = f"Identifiers from multiple journals passed to CrossrefDeposit: {journals}"
             logger.debug(error)
+            return None
         elif len(journals) == 1:
             return journals.pop()
-        else:
+
+        # Step 2: If no journals found, check for linked repositories
+        repositories = set(
+            crossref_status.identifier.preprint_version.preprint.repository
+            for crossref_status in self.crossrefstatus_set.all()
+            if crossref_status.identifier.preprint_version
+        )
+
+        if len(repositories) > 1:
+            error = f"Identifiers from multiple repositories passed to CrossrefDeposit: {repositories}"
+            logger.debug(error)
             return None
+        elif len(repositories) == 1:
+            return repositories.pop()
+
+        # Step 3: If no journals or repositories found, return None
+        return None
+
+    def journal(self):
+        """
+        Deprecated. Returns self.parent_object for backwards compatibility.
+        """
+        warnings.warn(
+            "The 'journal' method is deprecated. Use 'parent_object' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.parent_object
 
     def poll(self):
         self.polling_attempts += 1
         self.save()
 
-        test_mode, username, password = logic.get_poll_settings(self.journal)
+        test_mode, username, password = logic.get_poll_settings(self.parent_object)
 
         if test_mode:
             test_var = "test"
@@ -127,15 +158,15 @@ class CrossrefDeposit(models.Model):
             self.citation_success = not ' status="error"' in self.result_text
             self.save()
             logger.debug(self)
-            return f"Polled ({self.journal.code})", False
+            return f"Polled ({self.parent_object.name})", False
         except requests.RequestException as e:
             self.success = False
             self.has_result = True
-            self.result_text = f"Error ({self.journal.code}): {e}"
+            self.result_text = f"Error ({self.parent_object.name}): {e}"
             self.save()
             logger.error(self.result_text)
             logger.error(self)
-            return f"Error ({self.journal.code})", True
+            return f"Error ({self.parent_object.name})", True
 
     def get_record_diagnostic(self, doi):
         soup = BeautifulSoup(self.result_text, "lxml-xml")
@@ -259,7 +290,26 @@ class Identifier(models.Model):
     id_type = models.CharField(max_length=300, choices=identifier_choices)
     identifier = models.CharField(max_length=300)
     enabled = models.BooleanField(default=True)
-    article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
+    article = models.ForeignKey(
+        "submission.Article",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    preprint_version = models.ForeignKey(
+        "repository.PreprintVersion",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    review = models.ForeignKey(
+        "review.ReviewAssignment",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    # TODO: Add validation to ensure only one FK is filled.
 
     def __str__(self):
         return "[{0}]: {1}".format(self.id_type.upper(), self.identifier)
@@ -281,8 +331,11 @@ class Identifier(models.Model):
     def is_doi(self):
         if self.id_type == "doi":
             return True
-
         return False
+
+    @property
+    def _object(self):
+        return self.article or self.preprint_version or self.review or None
 
 
 class BrokenDOI(models.Model):

@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import os
 import uuid
 import json
-from dateutil import parser as dateparser
+import csv
 
 from django.db import models
 from django.db.models import Q
@@ -16,9 +16,13 @@ from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from django.http.request import split_domain_port
 from django.templatetags.static import static
+from django.template import Template, Context
+from django.utils.html import format_html
+from django.core.validators import RegexValidator
+
 from simple_history.models import HistoricalRecords
+from openpyxl import load_workbook
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -27,6 +31,7 @@ from repository import install
 from utils.function_cache import cache
 from submission import models as submission_models
 from events import logic as event_logic
+from identifiers import models as identifier_models
 
 
 STAGE_PREPRINT_UNSUBMITTED = "preprint_unsubmitted"
@@ -223,6 +228,10 @@ class Repository(model_utils.AbstractSiteModel):
     reviewer_review_status_change = model_utils.JanewayBleachField(
         blank=True, null=True
     )
+    new_version_submitted = model_utils.JanewayBleachField(
+        blank=True,
+        help_text="Email sent when an author uploads a new version.",
+    )
     footer = model_utils.JanewayBleachField(
         blank=True,
         null=True,
@@ -286,6 +295,61 @@ class Repository(model_utils.AbstractSiteModel):
     display_public_metrics = models.BooleanField(
         default=False, help_text="Enable this setting to display metrics publicly."
     )
+    rou_default_name = models.CharField(
+        max_length=255,
+        default="Organisational Units",
+        help_text="Default name for the organisation structure within this repository.",
+    )
+    rou_struct_page_text = model_utils.JanewayBleachField(
+        blank=True,
+        default="<p>This page provides an overview of the organisational structure "
+        "within {{ repository.name }}. You can navigate through the hierarchy "
+        "to explore different units and their associated preprints.</p>",
+        help_text="Text that displays on the organisational unit page.",
+    )
+    headless_mode = models.BooleanField(
+        default=False,
+        help_text="Enable this feature to make this repository run in headless"
+        " mode, with no front end.",
+    )
+    crossref_enable = models.BooleanField(
+        default=False,
+        help_text="Enable to use crossref. All other fields must be complete.",
+    )
+    crossref_username = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_password = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_depositor_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_depositor_email = models.EmailField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_registrant = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_prefix = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    crossref_test_mode = models.BooleanField(
+        default=False,
+        help_text="Enable to use Crossref test.",
+    )
 
     class Meta:
         verbose_name_plural = "repositories"
@@ -316,8 +380,19 @@ class Repository(model_utils.AbstractSiteModel):
         ).prefetch_related("children")
 
     def additional_submission_fields(self):
+        return self.all_additional_submission_fields
+
+    def all_additional_submission_fields(self):
         return RepositoryField.objects.filter(
             repository=self,
+        )
+
+    def type_additional_submission_fields(self, submission_type_slug=None):
+        return RepositoryField.objects.filter(
+            repository=self,
+        ).filter(
+            Q(submission_type__isnull=True)
+            | Q(submission_type__slug=submission_type_slug)
         )
 
     def site_url(self, path="", query=""):
@@ -352,6 +427,61 @@ class Repository(model_utils.AbstractSiteModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    def render_setting(self, setting_text):
+        """
+        Renders a repository setting string, replacing placeholders like
+        {{ repository.name }}.
+        """
+        if not setting_text:
+            return ""
+
+        template = Template(setting_text)
+        context = Context({"repository": self})  # Mimic request context
+        return template.render(context)
+
+
+class RepositoryOrganisationUnit(models.Model):
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text="The name of the unit, eg. 'Research' or 'Publications'.",
+    )
+    code = models.SlugField(
+        max_length=50,
+        help_text="A unique code within the repository for URL generation.",
+    )
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+        help_text="Parent organisational unit, or leave blank if this is "
+        "a top-level unit.",
+    )
+
+    def __str__(self):
+        return f"{self.repository.code}/{self.code} - {self.name}"
+
+    class Meta:
+        unique_together = ("repository", "code")
+
+    def get_descendants(self):
+        """Returns all descendant ROUs recursively."""
+        descendants = list(self.children.all())  # Start with direct children
+        queue = list(descendants)
+
+        while queue:
+            parent = queue.pop()
+            children = list(parent.children.all())
+            descendants.extend(children)
+            queue.extend(children)
+
+        return descendants
+
 
 class RepositoryRole(models.Model):
     repository = models.ForeignKey(
@@ -379,6 +509,14 @@ class RepositoryField(models.Model):
     repository = models.ForeignKey(
         Repository,
         on_delete=models.CASCADE,
+    )
+    submission_type = models.ForeignKey(
+        "RepositorySubmissionType",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Optional, allows you to tie this field to a specific submission type. "
+        "Leave blank to tie this to all submission types.",
     )
     name = models.CharField(max_length=255)
     input_type = models.CharField(
@@ -441,6 +579,11 @@ class RepositoryFieldAnswer(models.Model):
 class Preprint(models.Model):
     repository = models.ForeignKey(
         Repository,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    submission_type = models.ForeignKey(
+        "RepositorySubmissionType",
         null=True,
         on_delete=models.SET_NULL,
     )
@@ -531,6 +674,12 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         help_text="Linked article of this preprint.",
+    )
+    organisation_units = models.ManyToManyField(
+        "repository.RepositoryOrganisationUnit",
+        blank=True,
+        related_name="preprints",
+        help_text="The organisational units this preprint belongs to.",
     )
 
     def __str__(self):
@@ -760,6 +909,14 @@ class Preprint(models.Model):
 
         return url
 
+    def get_linked_books(self):
+        try:
+            from plugins.books.models import Book
+        except (ImportError, LookupError):
+            return []
+
+        return Book.objects.filter(linked_repository_objects=self)
+
     def create_article(
         self, journal, workflow_stage, journal_license, journal_section, force=False
     ):
@@ -799,6 +956,34 @@ class Preprint(models.Model):
 
         # Return None to indicate this method has not created a new article object.
         return None
+
+
+class RepositorySubmissionType(models.Model):
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+        related_name="object_types",
+    )
+    name = models.CharField(max_length=100)
+    name_plural = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=255, unique=True)
+    pill_colour = models.CharField(
+        max_length=7,
+        default="#1e40af",
+        validators=[
+            RegexValidator(
+                regex=r"^#(?:[0-9a-fA-F]{3}){1,2}$",
+                message="Enter a valid hex colour code (e.g. #1e40af or #fff).",
+            ),
+        ],
+        help_text="Hex colour code for the pill border and text (e.g. #1e40af)",
+    )
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return self.name
 
 
 class KeywordPreprint(models.Model):
@@ -1059,6 +1244,7 @@ class PreprintVersion(models.Model):
     file = models.ForeignKey(
         PreprintFile,
         on_delete=models.CASCADE,
+        null=True,
     )
     version = models.IntegerField(default=1)
     date_time = models.DateTimeField(default=timezone.now)
@@ -1088,6 +1274,185 @@ class PreprintVersion(models.Model):
     class Meta:
         ordering = ("-version", "-date_time", "-id")
 
+    def render(self):
+        """
+        Render the file associated with this version as HTML, if possible.
+        Supports: PDF, HTML, images, plain text.
+        """
+        if not self.file or not self.file.file:
+            return ""
+
+        file_path = self.file.file.path
+        if not os.path.exists(file_path):
+            return ""
+
+        mime_type = self.file.mime_type or files.guess_mime(self.file.file.url)[0]
+        if not mime_type:
+            return ""
+
+        if mime_type == "application/pdf":
+            return self.render_pdf()
+        elif mime_type == "text/html":
+            return self.render_html()
+        elif mime_type.startswith("image/"):
+            return self.render_image()
+        elif mime_type.endswith("csv"):
+            return self.render_csv()
+        elif mime_type.startswith("text/"):
+            return self.render_text()
+        elif mime_type in (
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel",
+        ):
+            return self.render_excel()
+
+        return format_html(
+            "<p>Preview not available for this file type: {}</p>",
+            mime_type,
+        )
+
+    def render_pdf(self):
+        pdf_view_url = reverse(
+            "repository_pdf",
+            kwargs={"preprint_id": self.preprint.pk},
+        )
+        download_url = reverse(
+            "repository_file_download",
+            kwargs={
+                "preprint_id": self.preprint.pk,
+                "file_id": self.file.pk,
+            },
+        )
+        return format_html(
+            '<iframe src="{}?file={}" width="100%" height="100%" '
+            'style="min-height: 900px;" allowfullscreen webkitallowfullscreen></iframe>',
+            pdf_view_url,
+            download_url,
+        )
+
+    def render_image(self):
+        download_url = reverse(
+            "repository_file_download",
+            kwargs={
+                "preprint_id": self.preprint.pk,
+                "file_id": self.file.pk,
+            },
+        )
+        return format_html(
+            '<img src="{}" alt="Preprint image" style="max-width:100%; height:auto;">',
+            download_url,
+        )
+
+    def render_text(self):
+        try:
+            with open(self.file.file.path, "r", encoding="utf-8") as f:
+                content = f.read()
+                return format_html("<pre>{}</pre>", content)
+        except Exception:
+            return "<p>Unable to render text content.</p>"
+
+    def render_html(self):
+        return self.html()
+
+    def render_csv(self, max_rows=10, max_cols=5):
+        """
+        Render the first `max_rows` and `max_cols` of a CSV file as an HTML table,
+        with truncation notices if applicable.
+        """
+        try:
+            with open(self.file.file.path, newline="", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+
+            if not rows:
+                return "<p>CSV file is empty.</p>"
+
+            header = rows[0]
+            total_cols = len(header)
+            total_rows = len(rows) - 1
+
+            display_cols = header[:max_cols]
+            data_rows = [row[:max_cols] for row in rows[1 : max_rows + 1]]
+
+            table = ['<table class="table table-striped table-bordered">']
+            table.append(
+                "<thead><tr>{}</tr></thead>".format(
+                    "".join(f"<th>{col}</th>" for col in display_cols)
+                )
+            )
+            table.append("<tbody>")
+            for row in data_rows:
+                table.append(
+                    "<tr>{}</tr>".format("".join(f"<td>{cell}</td>" for cell in row))
+                )
+            table.append("</tbody></table>")
+
+            messages = []
+            if total_rows > max_rows:
+                messages.append(f"Showing first {max_rows} of {total_rows} rows.")
+            if total_cols > max_cols:
+                messages.append(f"Showing first {max_cols} of {total_cols} columns.")
+
+            if messages:
+                table.append(f"<p>{' '.join(messages)}</p>")
+
+            return format_html("".join(table))
+
+        except Exception as e:
+            return format_html("<p>Error rendering CSV: {}</p>", str(e))
+
+    def render_excel(self, max_rows=10, max_cols=5):
+        """
+        Render the first `max_rows` and `max_cols` of the first worksheet in an Excel file
+        as an HTML table, with truncation messages if applicable.
+        """
+        try:
+            wb = load_workbook(filename=self.file.file.path, read_only=True)
+            sheet = wb.active
+
+            rows = list(sheet.iter_rows(values_only=True))
+            if not rows:
+                return "<p>Excel file is empty.</p>"
+
+            header = rows[0]
+            total_cols = len(header)
+            total_rows = len(rows) - 1
+
+            display_cols = header[:max_cols]
+            data_rows = [row[:max_cols] for row in rows[1 : max_rows + 1]]
+
+            table = ['<table class="table table-striped table-bordered">']
+            table.append(
+                "<thead><tr>{}</tr></thead>".format(
+                    "".join(f"<th>{col}</th>" for col in display_cols)
+                )
+            )
+            table.append("<tbody>")
+            for row in data_rows:
+                table.append(
+                    "<tr>{}</tr>".format(
+                        "".join(
+                            f"<td>{cell if cell is not None else ''}</td>"
+                            for cell in row
+                        )
+                    )
+                )
+            table.append("</tbody></table>")
+
+            messages = []
+            if total_rows > max_rows:
+                messages.append(f"Showing first {max_rows} of {total_rows} rows.")
+            if total_cols > max_cols:
+                messages.append(f"Showing first {max_cols} of {total_cols} columns.")
+
+            if messages:
+                table.append(f"<p>{' '.join(messages)}</p>")
+
+            return format_html("".join(table))
+
+        except Exception as e:
+            return format_html("<p>Error rendering Excel file: {}</p>", str(e))
+
     def html(self):
         if self.file.mime_type in files.HTML_MIMETYPES:
             return self.file.contents()
@@ -1103,6 +1468,42 @@ class PreprintVersion(models.Model):
 
     def __str__(self):
         return f"{self.preprint} (version {self.version})"
+
+    def get_doi_pattern(self):
+        return f"{self.preprint.repository.crossref_prefix}/{self.preprint.repository.short_name}.{self.preprint.pk}.v{self.version}"
+
+    def get_doi(self, _object=False):
+        try:
+            try:
+                doi = identifier_models.Identifier.objects.get(
+                    id_type="doi", preprint_version=self
+                )
+            except identifier_models.Identifier.MultipleObjectsReturned:
+                doi = identifier_models.Identifier.objects.filter(
+                    id_type="doi",
+                    preprint_version=self,
+                ).first()
+            if not _object:
+                return doi.identifier
+            else:
+                return doi
+        except identifier_models.Identifier.DoesNotExist:
+            return None
+
+    def public_download_url(self):
+        if self.preprint and self.file:
+            path = reverse(
+                "repository_file_download",
+                kwargs={
+                    "preprint_id": self.preprint.pk,
+                    "file_id": self.file.pk,
+                },
+            )
+            return self.preprint.repository.site_url(
+                path=path,
+            )
+        else:
+            return ""
 
 
 class Comment(models.Model):

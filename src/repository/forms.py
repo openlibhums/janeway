@@ -12,17 +12,73 @@ from repository import models
 from press import models as press_models
 from review.logic import render_choices
 from core import models as core_models, workflow
-from core.logic import resize_and_crop
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
 
 
-class PreprintInfo(utils_forms.KeywordModelForm):
-    submission_agreement = forms.BooleanField(
-        widget=forms.CheckboxInput(),
+class PreSubmissionStartForm(forms.Form):
+    submission_type = forms.ModelChoiceField(
+        queryset=models.RepositorySubmissionType.objects.none(),
         required=True,
+        label="Select the appropriate submission type. This will affect the metadata "
+        "fields shown and the processing steps your submission follows.",
+        widget=forms.RadioSelect,
     )
+
+    submission_agreement = forms.BooleanField(
+        required=True,
+        label="I agree to the terms of submission",
+    )
+
+    organisation_unit = forms.ModelChoiceField(
+        queryset=models.RepositoryOrganisationUnit.objects.none(),
+        required=False,
+        label="Organisational Unit",
+        help_text="Select the relevant unit, department, or group for this submission.",
+        widget=forms.RadioSelect,
+    )
+
+    def __init__(self, *args, **kwargs):
+        repository = kwargs.pop("repository")
+        super().__init__(*args, **kwargs)
+
+        self.fields[
+            "submission_type"
+        ].queryset = models.RepositorySubmissionType.objects.filter(
+            repository=repository,
+        )
+
+        self.ou_depth_map = {}
+
+        def walk(unit, level=0):
+            self.ou_depth_map[str(unit.id)] = level
+            yield (unit.id, unit.name)
+            for child in unit.children.all().order_by("name"):
+                yield from walk(child, level + 1)
+
+        top_units = (
+            models.RepositoryOrganisationUnit.objects.filter(
+                repository=repository,
+                parent__isnull=True,
+            )
+            .order_by("name")
+            .prefetch_related("children")
+        )
+
+        choices = []
+        for unit in top_units:
+            choices.extend(walk(unit))
+
+        self.fields["organisation_unit"].choices = choices
+        self.fields[
+            "organisation_unit"
+        ].queryset = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+        )
+
+
+class PreprintInfo(utils_forms.KeywordModelForm):
     subject = forms.ModelMultipleChoiceField(
         required=True,
         queryset=models.Subject.objects.none(),
@@ -49,22 +105,27 @@ class PreprintInfo(utils_forms.KeywordModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         self.admin = kwargs.pop("admin", False)
-        elements = self.request.repository.additional_submission_fields()
+        self.submission_type_slug = kwargs.pop("submission_type_slug", None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
-        if self.admin:
-            self.fields.pop("submission_agreement")
-            self.fields.pop("comments_editor")
+        if (
+            not self.submission_type_slug
+            and self.instance
+            and self.instance.submission_type
+        ):
+            self.submission_type_slug = self.instance.submission_type.slug
 
-        # If using this form and there is an instance then this has
-        # previously been checked as it is required.
-        if self.instance.id and "submission_agreement" in self._meta.fields:
-            self.fields["submission_agreement"].initial = True
+        elements = self.request.repository.type_additional_submission_fields(
+            submission_type_slug=self.submission_type_slug,
+        )
+        if self.admin:
+            self.fields.pop("comments_editor")
 
         self.fields["subject"].queryset = models.Subject.objects.filter(
             enabled=True,
             repository=self.request.repository,
         )
+
         if self.admin:
             self.fields["license"].queryset = submission_models.Licence.objects.filter(
                 journal__isnull=True,
@@ -79,7 +140,8 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             for element in elements:
                 if element.input_type == "text":
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(), required=element.required
+                        widget=forms.TextInput(),
+                        required=element.required,
                     )
                 elif element.input_type == "textarea":
                     self.fields[element.name] = forms.CharField(
@@ -88,11 +150,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                     )
                 elif element.input_type == "date":
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.DateInput(
-                            attrs={
-                                "class": "datepicker",
-                            }
-                        ),
+                        widget=forms.DateInput(attrs={"class": "datepicker"}),
                         required=element.required,
                     )
                 elif element.input_type == "select":
@@ -125,8 +183,8 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                 if element.input_type == "date":
                     self.fields[
                         element.name
-                    ].help_text = "Use ISO 8601 Date Format YYYY-MM-DD. {}".format(
-                        element.help_text
+                    ].help_text = (
+                        f"Use ISO 8601 Date Format YYYY-MM-DD. {element.help_text}"
                     )
                 else:
                     self.fields[element.name].help_text = element.help_text
@@ -146,7 +204,6 @@ class PreprintInfo(utils_forms.KeywordModelForm):
     def save(self, commit=True):
         preprint = super(PreprintInfo, self).save()
 
-        # We only set the preprint owner once on creation.
         if not preprint.owner:
             preprint.owner = self.request.user
 
@@ -158,7 +215,6 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             )
             for field in additional_fields:
                 answer = self.request.POST.get(field.name, None)
-
                 if answer:
                     try:
                         field_answer = models.RepositoryFieldAnswer.objects.get(
@@ -463,18 +519,6 @@ class RepositoryBase(forms.ModelForm):
         self.press = kwargs.pop("press")
         super(RepositoryBase, self).__init__(*args, **kwargs)
 
-    def save(self, commit=True):
-        instance = super().save(commit=True)
-        try:
-            if "hero_background" in self.cleaned_data:
-                resize_and_crop(
-                    instance.hero_background.path,
-                    field_name="Hero background",
-                )
-        except ValueError:
-            pass
-        return instance
-
 
 class RepositoryInitial(RepositoryBase):
     class Meta:
@@ -488,8 +532,6 @@ class RepositoryInitial(RepositoryBase):
             "theme",
             "display_public_metrics",
             "publisher",
-            "enable_comments",
-            "enable_invited_comments",
         )
         help_texts = {
             "domain": "Using a custom domain requires configuring DNS. "
@@ -510,6 +552,7 @@ class RepositorySite(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            "headless_mode",
             "about",
             "logo",
             "hero_background",
@@ -562,6 +605,7 @@ class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            "submission_notification_recipients",
             "submission",
             "publication",
             "decline",
@@ -573,7 +617,7 @@ class RepositoryEmails(RepositoryBase):
             "review_invitation",
             "manager_review_status_change",
             "reviewer_review_status_change",
-            "submission_notification_recipients",
+            "new_version_submitted",
         )
 
         widgets = {
@@ -588,6 +632,7 @@ class RepositoryEmails(RepositoryBase):
             "review_invitation": TinyMCE,
             "manager_review_status_change": TinyMCE,
             "reviewer_review_status_change": TinyMCE,
+            "new_version_submitted": TinyMCE,
             "submission_notification_recipients": TableMultiSelectUser(),
         }
 
@@ -611,6 +656,7 @@ class RepositoryFieldForm(forms.ModelForm):
         model = models.RepositoryField
         fields = (
             "name",
+            "submission_type",
             "input_type",
             "choices",
             "required",
@@ -765,3 +811,65 @@ class RecommendationForm(forms.ModelForm):
             recommendation.save()
 
         return recommendation
+
+
+class PreprintFilterForm(forms.Form):
+    subject = forms.ModelChoiceField(
+        queryset=models.Subject.objects.none(),
+        required=False,
+        label="Subject",
+        empty_label="— All Subjects —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    submission_type = forms.ModelChoiceField(
+        queryset=models.RepositorySubmissionType.objects.none(),
+        required=False,
+        label="Submission Type",
+        empty_label="— All Types —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    search_term = forms.CharField(
+        required=False,
+        label="Search",
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Search preprints",
+            }
+        ),
+    )
+
+    def __init__(self, *args, repository=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if repository:
+            self.fields["subject"].queryset = models.Subject.objects.filter(
+                repository=repository,
+                enabled=True,
+            )
+            self.fields[
+                "submission_type"
+            ].queryset = models.RepositorySubmissionType.objects.filter(
+                repository=repository,
+            )
+
+
+class RepositorySubmissionTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositorySubmissionType
+        fields = [
+            "name",
+            "name_plural",
+            "slug",
+            "pill_colour",
+        ]
+        help_texts = {
+            "slug": (
+                "A URL-safe identifier for this type (e.g. 'preprint'). "
+                "Used in HTML classes and API filters. Must be unique within this site."
+            ),
+            "pill_colour": ("Hex colour code used to style the label (e.g. #1e40af)."),
+        }
+        widgets = {
+            "pill_colour": forms.TextInput(attrs={"placeholder": "#1e40af"}),
+        }
