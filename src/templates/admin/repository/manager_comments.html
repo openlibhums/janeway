@@ -1,0 +1,119 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Comments{% endblock %}
+{% block title-section %}{% if show_reviewed %}Reviewed Comments{% else %}Comments Awaiting Moderation{% endif %}{% endblock %}
+{% block title-sub %}
+    {% if preprint %}
+        Showing comments for {{ preprint.title }}
+    {% else %}
+        All comments for {{ request.repository.name }}
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    {% if preprint %}
+    {% if show_reviewed %}
+    <li><a href="{% url 'repository_manager_comment_list_reviewed' %}">Reviewed Comments</a></li>
+    {% else %}
+    <li><a href="{% url 'repository_manager_comment_list' %}">Comments Awaiting Moderation</a></li>
+    {% endif %}
+    <li>{{ preprint.title }}</li>
+    {% else %}
+    <li>{% if show_reviewed %}Reviewed Comments{% else %}Comments Awaiting Moderation{% endif %}</li>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-9 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% if show_reviewed %}Reviewed Comments{% else %}Pending Comments{% endif %}</h2>
+                </div>
+                <div class="content">
+                    {% if comments %}
+                    <table class="small" id="comments-table">
+                        <thead>
+                            <tr>
+                                <th>Submission</th>
+                                <th>Author</th>
+                                <th>Date</th>
+                                <th>Comment</th>
+                                {% if show_reviewed %}<th>Status</th>{% endif %}
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comment in comments %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'repository_manager_comment_list_filtered' comment.preprint.pk %}">
+                                        {{ comment.preprint.title|safe }}
+                                    </a>
+                                </td>
+                                <td>{{ comment.author.full_name }}</td>
+                                <td>{{ comment.date_time }}</td>
+                                <td>{{ comment.body|linebreaksbr }}</td>
+                                {% if show_reviewed %}
+                                <td>{% if comment.is_public %}Public{% else %}Rejected{% endif %}</td>
+                                {% endif %}
+                                <td>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="preprint_id" value="{{ comment.preprint.pk }}">
+                                        <div class="button-group small">
+                                            {% if show_reviewed %}
+                                                <button class="small {% if comment.is_public %}warning{% else %}success{% endif %} button" name="comment_public" value="{{ comment.pk }}">
+                                                    {% if comment.is_public %}Make Private{% else %}Approve{% endif %}
+                                                </button>
+                                            {% else %}
+                                                <button class="small success button" name="comment_public" value="{{ comment.pk }}">Approve</button>
+                                                <button class="small info button" name="comment_reviewed" value="{{ comment.pk }}">Mark Reviewed</button>
+                                            {% endif %}
+                                            <button class="small alert button delete" name="comment_delete" value="{{ comment.pk }}">Delete</button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>{% if show_reviewed %}No reviewed comments.{% else %}No comments are currently awaiting moderation.{% endif %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="large-3 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>About Comment Moderation</h2>
+                </div>
+                <div class="content">
+                    {% if show_reviewed %}
+                    <p>
+                        These comments have already been reviewed. Public comments are visible to all readers on
+                        the submission page. Rejected comments are not visible publicly. You can reverse any
+                        decision by approving a rejected comment or making a public comment private.
+                    </p>
+                    <a href="{% if preprint %}{% url 'repository_manager_comment_list_filtered' preprint.pk %}{% else %}{% url 'repository_manager_comment_list' %}{% endif %}" class="button expanded">View Pending</a>
+                    {% else %}
+                    <p>Comments submitted by readers are held here for moderation before they appear publicly.</p>
+                    <ul>
+                        <li><strong>Approve</strong> — publishes the comment on the submission page and notifies the author and commenter.</li>
+                        <li><strong>Mark Reviewed</strong> — dismisses the comment without publishing it.</li>
+                        <li><strong>Delete</strong> — permanently removes the comment.</li>
+                    </ul>
+                    <a href="{% if preprint %}{% url 'repository_manager_comment_list_filtered_reviewed' preprint.pk %}{% else %}{% url 'repository_manager_comment_list_reviewed' %}{% endif %}" class="button expanded">View Reviewed</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "elements/datatables.html" with target="#comments-table" page_length=25 sort=2 order='desc' %}
+    {% include "admin/elements/post_check.html" %}
+{% endblock %}

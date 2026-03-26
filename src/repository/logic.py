@@ -133,24 +133,25 @@ def comment_manager_post(request, preprint):
     )
 
     if "comment_public" in request.POST:
+        was_public = comment.is_public
         comment.toggle_public()
+        if not was_public and comment.is_public:
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_PREPRINT_COMMENT_PUBLISHED,
+                request=request,
+                preprint=comment.preprint,
+                comment=comment,
+            )
     elif "comment_reviewed" in request.POST:
         comment.mark_reviewed()
 
     if "comment_delete" in request.POST:
-        if request.user in request.repository.managers.all():
-            comment.delete()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                "Comment deleted",
-            )
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                "You do not have permission to delete this comment.",
-            )
+        comment.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Comment deleted",
+        )
 
 
 # TODO: Update this implementation

@@ -72,6 +72,12 @@
                         <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
                         <a href="{% url 'version_queue' %}" class="box-link"></a>
                     </div>
+                    {% if request.repository.enable_comments %}
+                    <div class="summary">
+                        <span class="title">{{ comments_awaiting_moderation.count }} Comments Awaiting Moderation</span>
+                        <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
+                    </div>
+                    {% endif %}
                     <div class="summary">
                         <span class="title">View Orphaned Preprints</span>
                         <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>

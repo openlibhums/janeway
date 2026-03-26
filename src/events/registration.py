@@ -235,6 +235,10 @@ event_logic.Events.register_for_event(
     event_logic.Events.ON_PREPRINT_COMMENT, transactional_emails.preprint_comment
 )
 event_logic.Events.register_for_event(
+    event_logic.Events.ON_PREPRINT_COMMENT_PUBLISHED,
+    transactional_emails.preprint_comment_published,
+)
+event_logic.Events.register_for_event(
     event_logic.Events.ON_PREPRINT_VERSION_UPDATE,
     transactional_emails.preprint_version_update,
 )

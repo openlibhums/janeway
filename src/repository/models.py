@@ -203,7 +203,25 @@ class Repository(model_utils.AbstractSiteModel):
         default=True,
         help_text="Enable to display the invited comments interface.",
     )
-    new_comment = model_utils.JanewayBleachField(blank=True, null=True)
+    new_comment = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        help_text="Sent to repository managers when a new comment is submitted "
+        "and awaiting moderation. "
+        "Available variables: {{ preprint.title }}, {{ manager.full_name }}, {{ url }}.",
+    )
+    comment_published = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        help_text="Sent to the submission author when a comment on their work is approved. "
+        "Available variables: {{ preprint.title }}, {{ preprint.owner.full_name }}, {{ url }}.",
+    )
+    comment_approved = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        help_text="Sent to the commenter when their comment is approved. "
+        "Available variables: {{ preprint.title }}, {{ comment.author.full_name }}, {{ url }}.",
+    )
     review_invitation = model_utils.JanewayBleachField(blank=True, null=True)
     review_helper = model_utils.JanewayBleachField(blank=True, null=True)
     manager_review_status_change = model_utils.JanewayBleachField(blank=True, null=True)

@@ -1,0 +1,116 @@
+{% load press_url %}
+{% load static %}
+{% load i18n %}
+
+<div id="image-upload-{{ field_name }}">
+  <div class="row expanded">
+
+    <div class="large-7 columns">
+      <form
+        method="post"
+        hx-post="{% url 'journal_image_upload' field_name %}"
+        hx-target="#image-upload-{{ field_name }}"
+        hx-swap="outerHTML"
+        hx-encoding="multipart/form-data"
+        hx-indicator="#upload-spinner-{{ field_name }}"
+      >
+        {% csrf_token %}
+        {% include "admin/elements/forms/field.html" with field=field %}
+        <button type="submit" class="button success small">
+          {% trans "Upload" %}
+        </button>
+        <i id="upload-spinner-{{ field_name }}" class="fa fa-circle-o-notch fa-spin" style="display: none;" aria-hidden="true"></i>
+      </form>
+    </div>
+
+    <div class="large-5 columns">
+
+      {% if field_name == 'header_image' %}
+        {% if journal.header_image %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{{ journal.header_image.url }}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=journal.header_image %}
+        {% else %}
+          <p class="small secondary">{% trans "No image set." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'default_large_image' %}
+        {% if journal.default_large_image %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{{ journal.default_large_image.url }}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=journal.default_large_image %}
+        {% else %}
+          <p class="small secondary">{% trans "No image set." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'press_image_override' %}
+        {% if journal.press_image_override %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          {% svg_or_image journal.press_image_override "thumbnail" %}
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=journal.press_image_override %}
+        {% elif 'svg' in request.press_cover %}
+          <p><strong>{% trans "Press logo (default)" %}</strong></p>
+          {% svg request.press_cover %}
+          <p class="small">{% trans "Upload an image above to override this and add alt text." %}</p>
+        {% else %}
+          <p><strong>{% trans "Default logo" %}</strong></p>
+          {% svg "static/common/img/sample/janeway.svg" %}
+          <p class="small">{% trans "Upload an image above to override this and add alt text." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'default_cover_image' %}
+        {% if journal.default_cover_image %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{{ journal.default_cover_image.url }}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=journal.default_cover_image %}
+        {% else %}
+          <p class="small secondary">{% trans "No image set." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'default_thumbnail' %}
+        {% if journal.thumbnail_image %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{% url 'journal_cover_download' %}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with object=journal.thumbnail_image %}
+        {% else %}
+          <p class="small secondary">{% trans "No image set." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'favicon' %}
+        {% if journal.favicon %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{{ journal.favicon.url }}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+        {% else %}
+          <p class="small secondary">{% trans "No image set." %}</p>
+        {% endif %}
+
+      {% elif field_name == 'default_profile_image' %}
+        {% if journal.default_profile_image %}
+          <p><strong>{% trans "Current image" %}</strong></p>
+          <img src="{{ journal.default_profile_image.url }}" class="thumbnail" style="display: block;" alt="">
+          {% include "admin/core/partials/journal_image/remove_button.html" %}
+          <hr/>
+          {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=journal.default_profile_image %}
+        {% else %}
+          <p><strong>{% trans "Default image" %}</strong></p>
+          <img src="{% static "common/img/icons/users.png" %}" class="thumbnail" style="display: block;" alt="">
+          <p class="small">{% trans "Upload a custom image above to set your own alt text." %}</p>
+        {% endif %}
+
+      {% endif %}
+
+    </div>
+  </div>
+  <hr/>
+</div>

@@ -257,6 +257,10 @@ class Events:
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = "on_preprint_comment"
 
+    # kwargs: request, preprint, comment
+    # raised when a preprint comment is approved and made public
+    ON_PREPRINT_COMMENT_PUBLISHED = "on_preprint_comment_published"
+
     # kwargs: request, pending_update, action, reason (optional)
     # raised when an PreprintVersion is approved or declined
     ON_PREPRINT_VERSION_UPDATE = "on_preprint_version_update"

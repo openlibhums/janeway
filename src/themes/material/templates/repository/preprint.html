@@ -2,6 +2,7 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load alt_text %}
 {% load bootstrap4 %}
 {% load next_url %}
 {% load dates %}
@@ -20,7 +21,7 @@
         <div class="card">
           <div class="material-banner">
             <img class="material-banner-image"
-               alt="{{ preprint.title|striptags }}"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
                src="{{ request.repository.best_large_image_url }}">
             <div class="material-banner-heading">
               <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>

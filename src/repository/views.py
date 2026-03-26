@@ -457,7 +457,7 @@ def repository_preprint(request, preprint_id):
         repository=request.repository,
         date_published__lte=timezone.now(),
     )
-    comments = models.Comment.objects.filter(preprint=preprint)
+    comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
 
     if not preprint.repository.enable_invited_comments:
         comments = comments.exclude(review__isnull=False)
@@ -938,6 +938,12 @@ def preprints_manager(request):
         enabled=True,
     )
 
+    comments_awaiting_moderation = models.Comment.objects.filter(
+        preprint__repository=request.repository,
+        is_reviewed=False,
+        review__isnull=True,
+    )
+
     template = "admin/repository/manager.html"
     context = {
         "unpublished_preprints": unpublished_preprints,
@@ -946,6 +952,7 @@ def preprints_manager(request):
         "rejected_preprints": rejected_preprints,
         "version_queue": versions,
         "subjects": subjects,
+        "comments_awaiting_moderation": comments_awaiting_moderation,
     }
 
     return render(request, template, context)
@@ -1314,40 +1321,59 @@ def repository_preprint_log(request, preprint_id):
     attr_name="enable_comments",
     error_message="The comment feature is disabled.",
 )
-@preprint_editor_or_author_required
-def repository_comments(request, preprint_id):
+@is_repository_manager
+def repository_manager_comment_list(request, preprint_id=None, show_reviewed=False):
     """
-    Presents an interface for authors and editors to mark comments as publicly readable.
+    Displays comments for the repository manager. Shows pending comments by
+    default; pass show_reviewed=True to show already-reviewed comments instead.
+    If preprint_id is provided, filters to that preprint.
     :param request: HttpRequest object
-    :param preprint_id: PK of an Preprint object
-    :return: HttpRedirect if POST, HttpResponse otherwise
+    :param preprint_id: optional PK of a Preprint to filter by
+    :param show_reviewed: bool, show reviewed comments instead of pending
+    :return: HttpResponse
     """
-    preprint = get_object_or_404(
-        models.Preprint.objects,
-        pk=preprint_id,
-        repository=request.repository,
-    )
-
-    if request.POST:
-        repository_logic.comment_manager_post(request, preprint)
-        return redirect(
-            reverse(
-                "repository_comments",
-                kwargs={"preprint_id": preprint.pk},
-            )
+    preprint = None
+    if preprint_id:
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            repository=request.repository,
         )
 
-    template = "admin/repository/comments.html"
+    comments = models.Comment.objects.filter(
+        preprint__repository=request.repository,
+        review__isnull=True,
+        is_reviewed=show_reviewed,
+    )
+    if preprint:
+        comments = comments.filter(preprint=preprint)
+
+    if request.POST:
+        post_preprint = get_object_or_404(
+            models.Preprint,
+            pk=request.POST.get("preprint_id"),
+            repository=request.repository,
+        )
+        repository_logic.comment_manager_post(request, post_preprint)
+        if preprint_id:
+            url_name = (
+                "repository_manager_comment_list_filtered_reviewed"
+                if show_reviewed
+                else "repository_manager_comment_list_filtered"
+            )
+            return redirect(reverse(url_name, kwargs={"preprint_id": preprint_id}))
+        url_name = (
+            "repository_manager_comment_list_reviewed"
+            if show_reviewed
+            else "repository_manager_comment_list"
+        )
+        return redirect(reverse(url_name))
+
+    template = "admin/repository/manager_comments.html"
     context = {
+        "comments": comments,
         "preprint": preprint,
-        "new_comments": preprint.comment_set.filter(
-            is_reviewed=False,
-            review__isnull=True,
-        ),
-        "old_comments": preprint.comment_set.filter(
-            is_reviewed=True,
-            review__isnull=True,
-        ),
+        "show_reviewed": show_reviewed,
     }
 
     return render(request, template, context)

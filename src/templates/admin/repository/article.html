@@ -123,7 +123,7 @@
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     {% if request.repository.enable_comments %}
                     <li>
-                      <a href="{% url 'repository_comments' preprint.pk %}">
+                      <a href="{% url 'repository_manager_comment_list_filtered' preprint.pk %}">
                         <i class="fa fa-comments" aria-hidden="true">&nbsp;</i>
                         Comments ({{ comment_count }})
                       </a>
