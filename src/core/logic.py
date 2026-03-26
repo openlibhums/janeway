@@ -158,7 +158,13 @@ def send_orcid_request(request, user):
     context = {
         "user": user,
         "user_profile_url": request.site_type.site_url(
-            reverse("core_edit_profile"),
+            reverse_with_next(
+                "core_login",
+                reverse_with_query(
+                    "core_login_orcid",
+                    query_params={ "action": "add_profile_orcid" }
+                )
+            )
         ),
         "publication_name": publication_name,
     }
@@ -167,12 +173,8 @@ def send_orcid_request(request, user):
     user.date_orcid_requested = timezone.now()
     user.save()
 
-    if user.is_active:
-        template = "orcid_request"
-        subject = "subject_orcid_request"
-    else:
-        template = "orcid_activate_request"
-        subject = "subject_orcid_activate_request"
+    template = "orcid_request"
+    subject = "subject_orcid_request"
 
     notify_helpers.send_email_with_body_from_setting_template(
         request,
