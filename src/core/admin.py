@@ -92,6 +92,9 @@ class AccountAdmin(UserAdmin):
                     "name_prefix",
                     "middle_name",
                     "orcid",
+                    "orcid_token",
+                    "orcid_token_expiration",
+                    "date_orcid_requested",
                     "twitter",
                     "linkedin",
                     "facebook",
@@ -137,10 +140,14 @@ class AccountAdmin(UserAdmin):
     ]
 
     def get_readonly_fields(self, request, obj=None):
+        ro_fields = [
+            "orcid_token",
+            "orcid_token_expiration",
+            "date_orcid_requested"
+        ]
         if settings.ENABLE_ORCID:
-            return ["orcid"]
-        else:
-            return []
+            ro_fields.append("orcid")
+        return ro_fields
 
     def _roles_in(self, obj):
         if obj:
