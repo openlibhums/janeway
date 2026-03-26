@@ -2603,7 +2603,7 @@ class Article(AbstractLastModifiedModel):
             "<p><strong>This is an accepted article with a DOI pre-assigned"
             " that is not yet published.</strong></p>"
         ) + (self.abstract or "")
-    
+
     @property
     def best_large_image_alt_text(self):
         default_text = strip_tags(self.title)

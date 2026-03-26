@@ -504,6 +504,7 @@ class TestReviewDoiMinting(TestCase):
         cls.journal, _ = helpers.create_journals()
 
         from utils.install import update_settings
+
         update_settings()
 
         save_setting("general", "journal_issn", cls.journal, "0000-0001")
@@ -521,6 +522,7 @@ class TestReviewDoiMinting(TestCase):
         cls.article = helpers.create_article(cls.journal, with_author=True)
 
         from review import models as review_models
+
         cls.reviewer = helpers.create_user("review.doi.reviewer@test.com")
         cls.editor = helpers.create_user("review.doi.editor@test.com")
         cls.review = helpers.create_review_assignment(
@@ -536,6 +538,7 @@ class TestReviewDoiMinting(TestCase):
     def test_get_dois_for_reviews_creates_identifier(self):
         """get_dois_for_reviews creates a DOI Identifier for each review."""
         from identifiers import reviews as id_reviews
+
         identifiers = id_reviews.get_dois_for_reviews([self.review])
         self.assertEqual(len(identifiers), 1)
         self.assertEqual(identifiers[0].id_type, "doi")
@@ -544,6 +547,7 @@ class TestReviewDoiMinting(TestCase):
     def test_get_dois_for_reviews_is_idempotent(self):
         """Calling get_dois_for_reviews twice returns the same identifier."""
         from identifiers import reviews as id_reviews
+
         first = id_reviews.get_dois_for_reviews([self.review])
         second = id_reviews.get_dois_for_reviews([self.review])
         self.assertEqual(first[0].pk, second[0].pk)
@@ -556,6 +560,7 @@ class TestReviewDoiMinting(TestCase):
         mock_depositor.return_value.register_doi.return_value = mock_response
 
         from identifiers import reviews as id_reviews
+
         initial_count = models.CrossrefDeposit.objects.count()
         id_reviews.deposit_doi_for_reviews(self.journal, [self.review])
         self.assertGreater(models.CrossrefDeposit.objects.count(), initial_count)
@@ -563,6 +568,7 @@ class TestReviewDoiMinting(TestCase):
     def test_event_listener_does_not_fire_without_permission(self):
         """review_doi_mint_event_listener does nothing when permission_to_make_public is False."""
         from identifiers import reviews as id_reviews
+
         article_no_perm = helpers.create_article(self.journal, with_author=True)
         review_no_permission = helpers.create_review_assignment(
             journal=self.journal,
