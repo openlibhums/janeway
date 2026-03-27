@@ -25,7 +25,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 1.3.2 Meaningful Sequence                                    | A     | Supports           |         | [5051,January 2026](https://github.com/openlibhums/janeway/issues/5051) | f23d166d8  |
 | :orange_circle:      | 1.3.3 Sensory Characteristics                                | A     | Partially supports | toastr.js close buttons do not have text. | [5105, January 2026](https://github.com/openlibhums/janeway/issues/5105) | f23d166d8  |
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Bugs on portrait/mobile, see audit. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
-|                      | 1.3.5 Identify Input Purpose                                 | AA    |                    |         |                      |            |
+| :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
 |                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |            |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |            |
@@ -85,7 +85,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 1.3.2 Meaningful Sequence                                    | A     | Supports           |         | [5051, January 2026](https://github.com/openlibhums/janeway/issues/5051) | f23d166d8  |
 | :white_check_mark:   | 1.3.3 Sensory Characteristics                                | A     | Supports           |         | [5105, January 2026](https://github.com/openlibhums/janeway/issues/5105) | f23d166d8  |
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Not responsive on iOS Safari. Incompatible with wide header images. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
-|                      | 1.3.5 Identify Input Purpose                                 | AA    |                    |         |                      |            |
+| :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
 |                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |            |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |            |
@@ -145,7 +145,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 1.3.2 Meaningful Sequence                                    | A     | Supports           |         | [5051, January 2026](https://github.com/openlibhums/janeway/issues/5051) | f23d166d8  |
 | :white_check_mark:   | 1.3.3 Sensory Characteristics                                | A     | Supports           |         | [5105, January 2026](https://github.com/openlibhums/janeway/issues/5105) | f23d166d8  |
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Bug in (portrait) carousel for long titles. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
-| :brown_square:       | 1.3.5 Identify Input Purpose                                 | AA    | Not applicable     |         | June 2024 VPAT       |            |
+| :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
 | :white_check_mark:   | 1.4.10 Reflow                                                | AA    | Supports           |         | June 2024 VPAT       |            |
 | :brown_square:       | 1.4.11 Non-text Contrast                                     | AA    | Not applicable     | Colour themes are defined by users. | June 2024 VPAT       |            |
