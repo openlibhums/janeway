@@ -229,6 +229,7 @@
     "olh": {
       "name": "Front of House - OLH Theme",
       "audit_results": {
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
@@ -267,6 +268,7 @@
     "material": {
       "name": "Front of House - Material Theme",
       "audit_results": {
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
@@ -305,7 +307,7 @@
     "clean": {
       "name": "Front of House - Clean Theme",
       "audit_results": {
-        "1.1.1": { "commit": "",            "conformance": "Partially supports", "remarks": null, "audit": "June 2024 VPAT" },
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },

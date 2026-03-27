@@ -15,7 +15,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 
 | Result               | Success Criterion                                            | Level | Conformance        | Remarks | Audit                | Version    |
 |---|---|---|---|---|---|---|
-|                      | 1.1.1 Non-text Content                                       | A     |                    |         |                      |            |
+| :orange_circle:      | 1.1.1 Non-text Content                                       | A     | Partially supports |         | [5049, March 2026](https://github.com/openlibhums/janeway/issues/5049) | f23d166d8  |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not applicable     |         | [5085, January 2026](https://github.com/openlibhums/janeway/issues/5085) | f23d166d8  |
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not applicable     |         | [5086, January 2026](https://github.com/openlibhums/janeway/issues/5086) | f23d166d8  |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not applicable     |         | [5087, January 2026](https://github.com/openlibhums/janeway/issues/5087) | f23d166d8  |
@@ -75,7 +75,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 
 | Result               | Success Criterion                                            | Level | Conformance        | Remarks | Audit                | Version    |
 |---|---|---|---|---|---|---|
-|                      | 1.1.1 Non-text Content                                       | A     |                    |         |                      |            |
+| :orange_circle:      | 1.1.1 Non-text Content                                       | A     | Partially supports |         | [5049, March 2026](https://github.com/openlibhums/janeway/issues/5049) | f23d166d8  |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not applicable     |         | [5085, January 2026](https://github.com/openlibhums/janeway/issues/5085) | f23d166d8  |
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not applicable     |         | [5086, January 2026](https://github.com/openlibhums/janeway/issues/5086) | f23d166d8  |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not applicable     |         | [5087, January 2026](https://github.com/openlibhums/janeway/issues/5087) | f23d166d8  |
@@ -135,7 +135,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 
 | Result               | Success Criterion                                            | Level | Conformance        | Remarks | Audit                | Version    |
 |---|---|---|---|---|---|---|
-| :orange_circle:      | 1.1.1 Non-text Content                                       | A     | Partially supports |         | June 2024 VPAT       |            |
+| :orange_circle:      | 1.1.1 Non-text Content                                       | A     | Partially supports |         | [5049, March 2026](https://github.com/openlibhums/janeway/issues/5049) | f23d166d8  |
 | :brown_square:       | 1.2.1 Audio-only and Video-only (Prerecorded)                | A     | Not applicable     |         | [5085, January 2026](https://github.com/openlibhums/janeway/issues/5085) | f23d166d8  |
 | :brown_square:       | 1.2.2 Captions (Prerecorded)                                 | A     | Not applicable     |         | [5086, January 2026](https://github.com/openlibhums/janeway/issues/5086) | f23d166d8  |
 | :brown_square:       | 1.2.3 Audio Description or Media Alternative (Prerecorded)   | A     | Not applicable     |         | [5087, January 2026](https://github.com/openlibhums/janeway/issues/5087) | f23d166d8  |
