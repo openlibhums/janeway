@@ -68,7 +68,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not applicable     |         | [5095, January 2026](https://github.com/openlibhums/janeway/issues/5095) | f23d166d8  |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not applicable     |         | [5096, January 2026](https://github.com/openlibhums/janeway/issues/5096) | f23d166d8  |
 | :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not applicable     |         | [5167, February 2026](https://github.com/openlibhums/janeway/issues/5167) | f23d166d8  |
-|                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |            |
+| :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially supports |         | [5168, March 2026](https://github.com/openlibhums/janeway/issues/5168) | f23d166d8  |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not applicable     |         | [5097, January 2026](https://github.com/openlibhums/janeway/issues/5097) | f23d166d8  |
 
 ## Front of House - Material Theme
@@ -128,7 +128,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not applicable     |         | [5095, January 2026](https://github.com/openlibhums/janeway/issues/5095) | f23d166d8  |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not applicable     |         | [5096, January 2026](https://github.com/openlibhums/janeway/issues/5096) | f23d166d8  |
 | :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not applicable     |         | [5167, February 2026](https://github.com/openlibhums/janeway/issues/5167) | f23d166d8  |
-|                      | 4.1.2 Name, Role, Value                                      | A     |                    |         |                      |            |
+| :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially supports |         | [5168, March 2026](https://github.com/openlibhums/janeway/issues/5168) | f23d166d8  |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not applicable     |         | [5097, January 2026](https://github.com/openlibhums/janeway/issues/5097) | f23d166d8  |
 
 ## Front of House - Clean Theme
@@ -188,7 +188,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :brown_square:       | 3.3.4 Error Prevention (Legal, Financial, Data)              | AA    | Not applicable     |         | [5095, January 2026](https://github.com/openlibhums/janeway/issues/5095) | f23d166d8  |
 | :brown_square:       | 3.3.7 Redundant Entry                                        | A     | Not applicable     |         | [5096, January 2026](https://github.com/openlibhums/janeway/issues/5096) | f23d166d8  |
 | :brown_square:       | 3.3.8 Accessible Authentication (Minimum)                    | AA    | Not applicable     |         | [5167, February 2026](https://github.com/openlibhums/janeway/issues/5167) | f23d166d8  |
-| :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially supports |         | June 2024 VPAT       |            |
+| :orange_circle:      | 4.1.2 Name, Role, Value                                      | A     | Partially supports |         | [5168, March 2026](https://github.com/openlibhums/janeway/issues/5168) | f23d166d8  |
 | :brown_square:       | 4.1.3 Status Messages                                        | AA    | Not applicable     |         | [5097, January 2026](https://github.com/openlibhums/janeway/issues/5097) | f23d166d8  |
 
 ## Front of House - Accessibility Mode
