@@ -45,7 +45,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |            |
 | :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially supports | All have titles, but they are not fully descriptive. | [5146, February 2026](https://github.com/openlibhums/janeway/issues/5146) | f23d166d8  |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |            |
-|                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |            |
+| :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |            |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |            |
@@ -105,7 +105,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.4.11 Focus Not Obscured (Minimum)                          | AA    |                    |         |                      |            |
 | :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially supports | All have titles, but they are not fully descriptive. | [5146, February 2026](https://github.com/openlibhums/janeway/issues/5146) | f23d166d8  |
 |                      | 2.4.3 Focus Order                                            | A     |                    |         |                      |            |
-|                      | 2.4.4 Link Purpose (In Context)                              | A     |                    |         |                      |            |
+| :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 |                      | 2.4.6 Headings and Labels                                    | AA    |                    |         |                      |            |
 |                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |            |
@@ -165,7 +165,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | June 2024 VPAT       |            |
 | :orange_circle:      | 2.4.2 Page Titled                                            | A     | Partially supports | All have titles, but they are not fully descriptive. | [5146, February 2026](https://github.com/openlibhums/janeway/issues/5146) | f23d166d8  |
 | :orange_circle:      | 2.4.3 Focus Order                                            | A     | Partially supports |         | June 2024 VPAT       |            |
-| :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | June 2024 VPAT       |            |
+| :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially supports |         | June 2024 VPAT       |            |
 | :white_check_mark:   | 2.4.7 Focus Visible                                          | AA    | Supports           |         | June 2024 VPAT       |            |
