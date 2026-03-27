@@ -1144,4 +1144,3 @@ class ReviewTests(TestCase):
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(self.editor.email, mail.outbox[0].to)
-
