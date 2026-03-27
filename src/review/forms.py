@@ -339,6 +339,32 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
         return potential_errors
 
 
+class ReviewerNotificationForm(
+    core_forms.SettingEmailForm,
+    core_forms.ConfirmableIfErrorsForm,
+):
+    QUESTION = _("The reviewer link in the email body appears to be missing or incorrect. Do you want to send it anyway?")
+
+    def __init__(self, *args, **kwargs):
+        self.expected_url = kwargs.pop("expected_url", None)
+        super().__init__(*args, **kwargs)
+
+    def check_for_potential_errors(self):
+        if not self.expected_url:
+            return []
+        body = self.cleaned_data.get("body", "")
+        if self.expected_url not in body:
+            return [
+                _(
+                    "The email body does not contain the expected reviewer URL "
+                    "(%(url)s). Do not copy this template from elsewhere, as it "
+                    "must include the link to the review request."
+                )
+                % {"url": self.expected_url}
+            ]
+        return []
+
+
 class GeneratedForm(forms.Form):
     def __init__(self, *args, **kwargs):
         review_assignment = kwargs.pop("review_assignment", None)
