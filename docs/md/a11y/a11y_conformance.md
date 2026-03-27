@@ -27,7 +27,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Bugs on portrait/mobile, see audit. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
 | :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
-|                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |            |
+| :white_check_mark:   | 1.4.10 Reflow                                                | AA    | Supports           |         | [5118, January 2026](https://github.com/openlibhums/janeway/issues/5118) | f23d166d8  |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |            |
 | :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially supports | a few isolated bugs | [5120, January 2026](https://github.com/openlibhums/janeway/issues/5120) | f23d166d8  |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |            |
@@ -87,7 +87,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Not responsive on iOS Safari. Incompatible with wide header images. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
 | :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
-|                      | 1.4.10 Reflow                                                | AA    |                    |         |                      |            |
+| :orange_circle:      | 1.4.10 Reflow                                                | AA    | Partially supports | News page not reflowing on mobile. | [5118, January 2026](https://github.com/openlibhums/janeway/issues/5118) | f23d166d8  |
 |                      | 1.4.11 Non-text Contrast                                     | AA    |                    |         |                      |            |
 | :x:                  | 1.4.12 Text Spacing                                          | AA    | Does not support   | Desktop navigation is unusable at increased spacing. | [5120, January 2026](https://github.com/openlibhums/janeway/issues/5120) | f23d166d8  |
 |                      | 1.4.13 Content on Hover or Focus                             | AA    |                    |         |                      |            |
@@ -147,7 +147,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 1.3.4 Orientation                                            | AA    | Partially supports | Bug in (portrait) carousel for long titles. | [5108, March 2026](https://github.com/openlibhums/janeway/issues/5108) | f23d166d8  |
 | :white_check_mark:   | 1.3.5 Identify Input Purpose                                 | AA    | Supports           |         | [5109, March 2026](https://github.com/openlibhums/janeway/issues/5109) | f23d166d8  |
 | :white_check_mark:   | 1.4.1 Use of Color                                           | A     | Supports           |         | [5114, March 2026](https://github.com/openlibhums/janeway/issues/5114) | f23d166d8  |
-| :white_check_mark:   | 1.4.10 Reflow                                                | AA    | Supports           |         | June 2024 VPAT       |            |
+| :white_check_mark:   | 1.4.10 Reflow                                                | AA    | Supports           |         | [5118, January 2026](https://github.com/openlibhums/janeway/issues/5118) | f23d166d8  |
 | :brown_square:       | 1.4.11 Non-text Contrast                                     | AA    | Not applicable     | Colour themes are defined by users. | June 2024 VPAT       |            |
 | :orange_circle:      | 1.4.12 Text Spacing                                          | AA    | Partially supports | a few isolated bugs | [5120, January 2026](https://github.com/openlibhums/janeway/issues/5120) | f23d166d8  |
 | :orange_circle:      | 1.4.13 Content on Hover or Focus                             | AA    | Partially supports |         | June 2024 VPAT       |            |
