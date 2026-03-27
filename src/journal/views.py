@@ -2199,7 +2199,8 @@ def sitemap(request, issue_id=None):
     :return: HttpResponse object
     """
     if issue_id:
-        issue = models.Issue.objects.get(
+        issue = get_object_or_404(
+            Issue,
             pk=issue_id,
             journal=request.journal,
         )
