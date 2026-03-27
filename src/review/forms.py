@@ -333,7 +333,9 @@ class ReviewerNotificationForm(
     core_forms.SettingEmailForm,
     core_forms.ConfirmableIfErrorsForm,
 ):
-    QUESTION = _("The reviewer link in the email body appears to be missing or incorrect. Do you want to send it anyway?")
+    QUESTION = _(
+        "The reviewer link in the email body appears to be missing or incorrect. Do you want to send it anyway?"
+    )
 
     def __init__(self, *args, **kwargs):
         self.expected_url = kwargs.pop("expected_url", None)

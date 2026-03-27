@@ -1382,7 +1382,9 @@ def notify_reviewer(request, article_id, review_id):
                     ),
                 )
 
-            return redirect(reverse("review_in_review", kwargs={"article_id": article_id}))
+            return redirect(
+                reverse("review_in_review", kwargs={"article_id": article_id})
+            )
 
     template = "review/notify_reviewer.html"
     context = {
