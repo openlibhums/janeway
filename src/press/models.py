@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import os
 import uuid
+from datetime import timezone
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType

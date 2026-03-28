@@ -28,6 +28,8 @@ from journal import models as journal_models
 
 logger = get_logger(__name__)
 
+CROSSREF_LIVE_URL = "https://doi.crossref.org/servlet/deposit"
+CROSSREF_TEST_URL = "https://test.crossref.org/servlet/deposit"
 CROSSREF_TIMEOUT_SECONDS = 30
 
 
