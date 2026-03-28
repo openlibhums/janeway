@@ -3,12 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.urls import re_path
+from django.conf import settings
+from utils.logger import get_logger
 
 from submission import views
 
+logger = get_logger(__name__)
+
 urlpatterns = [
-    re_path(r"^start/$", views.start, name="submission_start"),
-    re_path(r"^(?P<type>[-\w.]+)/start/$", views.start, name="submission_start"),
     re_path(r"^(?P<article_id>\d+)/info/$", views.submit_info, name="submit_info"),
     re_path(
         r"^(?P<article_id>\d+)/authors/$", views.submit_authors, name="submit_authors"
@@ -108,3 +110,12 @@ urlpatterns = [
         name="submission_licenses_id",
     ),
 ]
+
+if not settings.HIJACK_SUBMISSION_ENABLED:
+    try:
+        urlpatterns += [
+            re_path(r"^start/$", views.start, name="submission_start"),
+            re_path(r"^(?P<type>[-\w.]+)/start/$", views.start, name="submission_start"),
+        ]
+    except AttributeError:
+        logger.warning("Could not import default submission views.")
