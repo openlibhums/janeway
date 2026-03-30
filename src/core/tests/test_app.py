@@ -600,10 +600,11 @@ class CoreTests(TestCase):
         self.assertNotContains(response, "ORCID could not be validated.")
         self.assertContains(response, "Connect your ORCID")
 
+    @patch("core.views.orcid.is_token_valid", return_value=False)
     @override_settings(
         ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize"
     )
-    def test_profile_orcid_unverified(self):
+    def test_profile_orcid_unverified(self, mock_method):
         self.admin_user.orcid = "0000-0000-0000-0000"
         self.admin_user.save()
         self.client.force_login(self.admin_user)
