@@ -139,11 +139,7 @@ class AccountAdmin(UserAdmin):
     ]
 
     def get_readonly_fields(self, request, obj=None):
-        ro_fields = [
-            "orcid_token",
-            "orcid_token_expiration",
-            "date_orcid_requested"
-        ]
+        ro_fields = ["orcid_token", "orcid_token_expiration", "date_orcid_requested"]
         if settings.ENABLE_ORCID:
             ro_fields.append("orcid")
         return ro_fields

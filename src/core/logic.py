@@ -161,9 +161,8 @@ def send_orcid_request(request, user):
             reverse_with_next(
                 "core_login",
                 reverse_with_query(
-                    "core_login_orcid",
-                    query_params={ "action": "add_profile_orcid" }
-                )
+                    "core_login_orcid", query_params={"action": "add_profile_orcid"}
+                ),
             )
         ),
         "publication_name": publication_name,
