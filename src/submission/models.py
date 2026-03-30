@@ -59,7 +59,7 @@ from review import models as review_models
 from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
-from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
+from utils.orcid import validate_orcid, normalized_orcid
 from utils.forms import plain_text_validator
 from journal import models as journal_models
 from review.const import (
@@ -2866,11 +2866,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def orcid_uri(self):
         if not self.orcid:
             return ""
-        result = COMPILED_ORCID_REGEX.search(self.orcid)
-        if result:
-            return f"https://orcid.org/{result.group(0)}"
-        else:
-            return ""
+        return normalized_orcid(self.orcid)
 
     @property
     def is_orcid_valid(self):

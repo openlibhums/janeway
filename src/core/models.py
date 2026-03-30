@@ -71,7 +71,7 @@ from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
 from production import logic as production_logic
-from utils.orcid import is_token_valid
+from utils.orcid import is_token_valid, normalized_orcid
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -957,7 +957,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return username.lower()
 
     def get_orcid_url(self):
-        return f"{settings.ORCID_URL.replace('oauth/authorize', '')}{self.orcid}"
+        return normalized_orcid(self.orcid)
 
     def is_orcid_token_valid(self):
         return is_token_valid(self.orcid, self.orcid_token)

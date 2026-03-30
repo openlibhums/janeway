@@ -27,6 +27,7 @@ from repository import install
 from utils.function_cache import cache
 from submission import models as submission_models
 from events import logic as event_logic
+from utils.orcid import normalized_orcid
 
 
 STAGE_PREPRINT_UNSUBMITTED = "preprint_unsubmitted"
@@ -950,11 +951,7 @@ class PreprintAuthor(models.Model):
     def orcid_uri(self):
         if not self.orcid:
             return ""
-        result = submission_models.COMPILED_ORCID_REGEX.search(self.orcid)
-        if result:
-            return f"https://orcid.org/{result.group(0)}"
-        else:
-            return ""
+        return normalized_orcid(self.orcid)
 
     @property
     def is_orcid_valid(self):

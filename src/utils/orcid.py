@@ -15,6 +15,7 @@ from django.http import QueryDict
 import requests
 from requests.exceptions import HTTPError
 import datetime
+from urllib.parse import urlparse
 
 from utils import logic
 from utils.logger import get_logger
@@ -209,3 +210,11 @@ COMPILED_ORCID_REGEX = re.compile(
 def validate_orcid(orcid):
     if not COMPILED_ORCID_REGEX.match(orcid):
         raise ValidationError(f"{orcid} is not a valid ORCID")
+
+
+def normalized_orcid(orcid):
+    url = urlparse(settings.ORCID_URL)
+    result = COMPILED_ORCID_REGEX.search(orcid)
+    if result:
+        return f"{url.scheme}://{url.netloc}/{result.group(0)}"
+    return ""
