@@ -18,7 +18,6 @@ from core import (
     models as core_models,
 )
 from review import logic as review_logic
-from review.const import EditorialDecisions as ED
 
 
 def send_reviewer_withdrawl_notice(**kwargs):
@@ -1924,8 +1923,7 @@ def preprint_new_version(**kwargs):
     description = "{author} has submitted a new {obj} version.".format(
         author=request.user.full_name(),
         obj=request.repository.object_name,
-        title=preprint.title,
-    )
+        )
     log_dict = {
         "level": "Info",
         "action_text": description,
