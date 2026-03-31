@@ -62,6 +62,11 @@ class TestViews(TestCase):
             repository=cls.repository,
             name="Accept",
         )
+        cls.staff_user = helpers.create_user("staff@janeway.systems")
+        cls.staff_user.is_staff = True
+        cls.staff_user.is_active = True
+        cls.staff_user.save()
+        cls.repository.managers.add(cls.staff_user)
         update_settings()
 
     def setUp(self):
@@ -388,12 +393,7 @@ class TestViews(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_press_manager_link_shown_to_staff(self):
-        staff_user = helpers.create_user("staff@janeway.systems")
-        staff_user.is_staff = True
-        staff_user.is_active = True
-        staff_user.save()
-        self.repository.managers.add(staff_user)
-        self.client.force_login(staff_user)
+        self.client.force_login(self.staff_user)
         path = reverse("preprints_manager")
         response = self.client.get(path, SERVER_NAME=self.server_name)
         self.assertIn(b"Press Manager", response.content)
