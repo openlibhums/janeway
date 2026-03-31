@@ -87,7 +87,7 @@ class NewsItem(models.Model):
     active_objects = ActiveNewsItemManager()
 
     class Meta:
-        ordering = ("pinned", "-posted", "title")
+        ordering = ("-pinned", "sequence", "-start_display", "title")
 
     @property
     def url(self):
