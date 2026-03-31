@@ -1,0 +1,38 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Accept Copyedit{% endblock %}
+{% block title-section %}Accept Copyedit{% endblock %}
+{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/copyediting_base.html" with subpage="yes" %}
+    <li>Review Copyediting</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="box">
+        <div class="title-area">
+            <h2>Accept Copyedit</h2>
+        </div>
+        <div class="content">
+            <p>You can write a note to the copyeditor thanking them for their time, or skip the email.</p>
+            <div class="card">
+                <div class="card-divider">
+                    <h4>To {{ copyedit.copyeditor.full_name }}</h4>
+                    <h5>From {{ request.user.full_name }}</h5>
+                </div>
+            </div>
+            {% url 'editor_review' article.pk copyedit.pk as cancel_url %}
+            {% include 'admin/elements/email_form.html' with form=form skip=1 cancel_url=cancel_url %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock js %}

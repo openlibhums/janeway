@@ -547,14 +547,7 @@ def editor_review(request, article_id, copyedit_id):
     )
 
     if request.POST:
-        if "accept_note" in request.POST:
-            logic.accept_copyedit(copyedit, article, request)
-
-            return redirect(
-                reverse("article_copyediting", kwargs={"article_id": article.id})
-            )
-
-        elif (
+        if (
             "author_review" in request.POST
             or author_review_form.CONFIRMED_BUTTON_NAME in request.POST
         ):
@@ -591,13 +584,63 @@ def editor_review(request, article_id, copyedit_id):
     context = {
         "article": article,
         "copyedit": copyedit,
-        "accept_message": logic.get_copyedit_message(
-            request, article, copyedit, "copyeditor_ack"
-        ),
         "reopen_message": logic.get_copyedit_message(
             request, article, copyedit, "copyeditor_reopen_task"
         ),
         "author_review_form": author_review_form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def accept_copyedit(request, article_id, copyedit_id):
+    """
+    Allows an editor to accept a completed copyedit and optionally notify the copyeditor.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
+    email_context = logic.get_copyeditor_notification_context(request, article, copyedit)
+    form = core_forms.SettingEmailForm(
+        setting_name="copyeditor_ack",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.POST:
+        skip = "skip" in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="copyeditor_ack",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid() or skip:
+            logic.accept_copyedit(
+                copyedit,
+                article,
+                request,
+                email_data=form.as_dataclass() if form.is_valid() else None,
+                skip=skip,
+            )
+            return redirect(
+                reverse("article_copyediting", kwargs={"article_id": article.id})
+            )
+
+    template = "copyediting/accept_copyedit.html"
+    context = {
+        "article": article,
+        "copyedit": copyedit,
+        "form": form,
     }
 
     return render(request, template, context)

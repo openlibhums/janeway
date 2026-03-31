@@ -921,7 +921,7 @@ def send_author_copyedit_deleted(**kwargs):
 def send_copyedit_ack(**kwargs):
     request = kwargs["request"]
     copyedit_assignment = kwargs["copyedit_assignment"]
-    user_message_content = kwargs["user_message_content"]
+    email_data = kwargs.get("email_data")
     skip = kwargs.get("skip", False)
 
     description = "{0} has acknowledged copyediting for {1}".format(
@@ -937,11 +937,11 @@ def send_copyedit_ack(**kwargs):
             "target": copyedit_assignment.article,
         }
 
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            copyedit_assignment.copyeditor,
+            email_data,
             request,
-            "subject_copyeditor_ack",
-            copyedit_assignment.copyeditor.email,
-            user_message_content,
+            article=copyedit_assignment.article,
             log_dict=log_dict,
         )
         notify_helpers.send_slack(request, description, ["slack_editors"])

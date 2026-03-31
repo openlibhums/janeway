@@ -16,8 +16,9 @@ class TestLogic(TestCase):
             "typesetter@janeway.systems",
             ["editor"],
             journal=cls.journal_one,
-            atrrs={"is_active": True},
         )
+        cls.editor.is_active = True
+        cls.editor.save()
         cls.copyeditor = helpers.create_user(
             "copyeditor@janeway.systems",
             ["copyeditor"],
@@ -130,3 +131,49 @@ class TestLogic(TestCase):
             response.status_code,
             200,
         )
+
+    def test_accept_copyedit_sends_email_and_marks_acknowledged(self):
+        """Accepting with send sets copyedit_accepted and copyedit_acknowledged."""
+        task = models.CopyeditAssignment.objects.create(
+            article=self.active_article,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+            copyeditor_completed=timezone.now(),
+        )
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                "accept_copyedit",
+                kwargs={
+                    "article_id": self.active_article.pk,
+                    "copyedit_id": task.pk,
+                },
+            ),
+            {"subject": "Thank you", "body": "Thank you for your work."},
+        )
+        task.refresh_from_db()
+        self.assertIsNotNone(task.copyedit_accepted)
+        self.assertTrue(task.copyedit_acknowledged)
+
+    def test_accept_copyedit_skip_marks_acknowledged_without_email(self):
+        """Accepting with skip sets copyedit_accepted and copyedit_acknowledged without sending email."""
+        task = models.CopyeditAssignment.objects.create(
+            article=self.active_article,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+            copyeditor_completed=timezone.now(),
+        )
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                "accept_copyedit",
+                kwargs={
+                    "article_id": self.active_article.pk,
+                    "copyedit_id": task.pk,
+                },
+            ),
+            {"skip": "True"},
+        )
+        task.refresh_from_db()
+        self.assertIsNotNone(task.copyedit_accepted)
+        self.assertTrue(task.copyedit_acknowledged)
