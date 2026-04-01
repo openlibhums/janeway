@@ -401,8 +401,8 @@ def assignment_notification(request, article_id, editor_id):
             request=request,
         )
         skip = request.POST.get("skip")
-        form.is_valid()
-        if skip or form.is_valid():
+        form_valid = form.is_valid()
+        if skip or form_valid:
             kwargs = {
                 "editor_assignment": assignment,
                 "request": request,
