@@ -349,8 +349,9 @@ class ReviewerNotificationForm(
             return [
                 _(
                     "The email body does not contain the expected reviewer URL "
-                    "(%(url)s). Do not copy this template from elsewhere, as it "
-                    "must include the link to the review request."
+                    "(%(url)s), so the reviewer will not be able to complete the "
+                    "request. This can happen if the body was copy-pasted into "
+                    "the text box from elsewhere."
                 )
                 % {"url": self.expected_url}
             ]
