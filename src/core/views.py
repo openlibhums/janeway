@@ -333,6 +333,7 @@ def user_login_orcid(request):
                 messages.WARNING,
                 _("You must be logged in to connect an ORCID iD to your account."),
             )
+            next_url = request.get_full_path()
             return redirect(logic.reverse_with_next("core_login", next_url))
         # Make sure there isn't already a validated account with this ORCID
         orcid_accounts = models.Account.objects.filter(
