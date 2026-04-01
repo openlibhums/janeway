@@ -1681,7 +1681,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>Dear {{ user.full_name }},<br/><br/><a href=\"{{ user_profile_url }}\">Please click here to verify your ORCID iD</a> and connect it to your {{ publication_name }} account (registered email: {{ user.email }}).<br/><br/>Kind regards,<br/>{{ publication_name }}</p>"
+            "default": "<p>Dear {{ user.full_name }},<br/><br/><a href=\"{{ orcid_verification_link }}\">Please click here to verify your ORCID iD</a> and connect it to your {{ publication_name }} account (registered email: {{ user.email }}).<br/><br/>Kind regards,<br/>{{ publication_name }}</p>"
         },
         "editable_by": [
             "editor",

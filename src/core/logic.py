@@ -157,12 +157,9 @@ def send_orcid_request(request, user):
         publication_name = request.press.name
     context = {
         "user": user,
-        "user_profile_url": request.site_type.site_url(
-            reverse_with_next(
-                "core_login",
-                reverse_with_query(
-                    "core_login_orcid", query_params={"action": "add_profile_orcid"}
-                ),
+        "orcid_verification_link": request.site_type.site_url(
+            reverse_with_query(
+                "core_login_orcid", query_params={"action": "add_profile_orcid"}
             )
         ),
         "publication_name": publication_name,
