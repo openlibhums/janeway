@@ -39,7 +39,9 @@ services:
     overrides:
       environment:
         DB_HOST: "db"
-        PYTHONPATH: "/app/src"
+        # Include vendored editable package roots so Django app labels resolve
+        # to the actual package instead of a namespace package shell.
+        PYTHONPATH: "/app/src:/app/src/foundationform"
         JANEWAY_SETTINGS_MODULE: "core.dev_settings"
       labels:
         # Janeway runs its Django development server on port 8000, but Lando's
