@@ -1502,13 +1502,36 @@ def article_is_not_submitted(func):
     def _article_is_not_submitted(request, *args, **kwargs):
         article_id = kwargs.get("article_id")
         try:
-            article = models.Article.objects.get(
+            models.Article.objects.get(
                 pk=article_id,
                 journal=request.journal,
                 date_submitted__isnull=True,
             )
             return func(request, *args, **kwargs)
         except models.Article.DoesNotExist:
+            submitted_article = models.Article.objects.filter(
+                pk=article_id,
+                journal=request.journal,
+            ).first()
+
+            if submitted_article and (
+                request.user.is_staff
+                or (
+                    getattr(request.user, "pk", None)
+                    and request.user.pk == submitted_article.owner_id
+                )
+            ):
+                messages.info(
+                    request,
+                    "This article has already been submitted. Showing its status instead.",
+                )
+                return redirect(
+                    reverse(
+                        "core_dashboard_article",
+                        kwargs={"article_id": submitted_article.pk},
+                    )
+                )
+
             raise Http404("This article has already been submitted.")
 
     return _article_is_not_submitted
