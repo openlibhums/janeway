@@ -157,9 +157,14 @@ def send_orcid_request(request, user):
         publication_name = request.press.name
     context = {
         "user": user,
+        # Force user to login to janeway first then forward to
+        # the orcid verification step
         "orcid_verification_link": request.site_type.site_url(
-            reverse_with_query(
-                "core_login_orcid", query_params={"action": "add_profile_orcid"}
+            reverse_with_next(
+                "core_login",
+                reverse_with_query(
+                    "core_login_orcid", query_params={"action": "add_profile_orcid"}
+                )
             )
         ),
         "publication_name": publication_name,
