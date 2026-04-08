@@ -1,6 +1,6 @@
 # Task and email logs
 
-Janeway creates a number of logs (`utils.LogEntry`) for actions that happen during the workflow. Many these actions trigger an email to be sent. The logging is thus managed by the email sending process. A log is created created that records the type of action taken in Janeway as well as details of the email.
+Janeway creates a number of logs (`utils.LogEntry`) for actions that happen during the workflow. Many of these actions trigger an email to be sent. The logging is thus managed by the email-sending process. A log is created that records the type of action taken in Janeway as well as details of the email.
 
 ## The notification system
 
