@@ -446,6 +446,12 @@ def create_preprint(repository, author, subject, title="This is a Test Preprint"
     return preprint
 
 
+def render_widget(widget, choices, value=""):
+    """Render a widget with the given choices and return the HTML string."""
+    widget.choices = choices
+    return widget.render("field", value)
+
+
 class Request(HttpRequest):
     """
     A fake request class for running tests outside of the

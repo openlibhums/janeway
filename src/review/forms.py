@@ -14,7 +14,7 @@ from tinymce.widgets import TinyMCE
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
-from core.widgets import JanewayFileInput
+from core.widgets import JanewayFileInput, OptGroupSelect
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
@@ -25,11 +25,15 @@ class DraftDecisionForm(forms.ModelForm):
     class Meta:
         model = models.DecisionDraft
         exclude = ("section_editor", "article", "editor_decision")
+        widgets = {
+            "editor": OptGroupSelect(),
+        }
 
     def __init__(self, *args, **kwargs):
         newly_created = kwargs.get("instance") is None
         message_to_editor = kwargs.pop("message_to_editor", None)
         editors = kwargs.pop("editors", [])
+        assigned_editors = kwargs.pop("assigned_editors", [])
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
         self.fields["message_to_editor"].initial = linebreaksbr(message_to_editor)
         self.fields["revision_request_due_date"].widget = HTMLDateInput()
@@ -42,6 +46,12 @@ class DraftDecisionForm(forms.ModelForm):
         self.fields["editor"].label_from_instance = lambda obj: (
             f"{obj.full_name()} ({obj.email})"
         )
+        assigned_pks = {e.pk for e in assigned_editors}
+        other_pks = {e.pk for e in editors if e.pk not in assigned_pks}
+        self.fields["editor"].widget.groups = {
+            "Assigned to this article": assigned_pks,
+            "Other editors": other_pks,
+        }
         if not newly_created:
             self.fields["message_to_editor"].widget = forms.HiddenInput()
             self.fields["editor"].widget = forms.HiddenInput()
