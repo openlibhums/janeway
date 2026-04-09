@@ -531,7 +531,8 @@ th {
     color: white;
 }
 
-.thread-dark a {
+.thread-dark a,
+.thread-dark h2 a {
     color: white;
 }
 
