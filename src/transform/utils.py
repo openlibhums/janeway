@@ -1,6 +1,6 @@
 import os
 
-from lxml import etree
+from lxml import etree, html as lxml_html
 
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -28,7 +28,7 @@ def convert_html_abstract_to_jats(abstract_string):
         transform = etree.XSLT(xslt_doc)
 
         wrapped_html = f"<root>{abstract_string}</root>"
-        html_doc = etree.XML(wrapped_html.encode("utf-8"))
+        html_doc = lxml_html.fromstring(wrapped_html)
 
         result = transform(html_doc)
 
