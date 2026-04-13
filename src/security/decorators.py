@@ -10,6 +10,7 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from core import models as core_models, logic
 from review import models as review_models
@@ -1502,13 +1503,33 @@ def article_is_not_submitted(func):
     def _article_is_not_submitted(request, *args, **kwargs):
         article_id = kwargs.get("article_id")
         try:
-            article = models.Article.objects.get(
+            models.Article.objects.get(
                 pk=article_id,
                 journal=request.journal,
                 date_submitted__isnull=True,
             )
             return func(request, *args, **kwargs)
         except models.Article.DoesNotExist:
+            submitted_article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+
+            if request.user.is_staff or request.user.pk == submitted_article.owner_id:
+                messages.info(
+                    request,
+                    _(
+                        "This article has already been submitted. Showing its status instead."
+                    ),
+                )
+                return redirect(
+                    reverse(
+                        "core_dashboard_article",
+                        kwargs={"article_id": submitted_article.pk},
+                    )
+                )
+
             raise Http404("This article has already been submitted.")
 
     return _article_is_not_submitted

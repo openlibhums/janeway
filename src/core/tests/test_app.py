@@ -523,6 +523,56 @@ class CoreTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "peer_review_data_block")
 
+    @override_settings(URL_CONFIG="domain")
+    def test_dashboard_article_displays_article_status_summary(self):
+        clear_script_prefix()
+        clear_cache()
+        section = submission_models.Section.objects.create(
+            journal=self.journal_one,
+            name="Research Article",
+        )
+        keyword = submission_models.Keyword.objects.create(word="Medicine")
+        self.article_one.section = section
+        self.article_one.abstract = "A concise abstract."
+        self.article_one.date_submitted = timezone.now()
+        self.article_one.keywords.add(keyword)
+        self.article_one.save()
+
+        self.client.force_login(self.article_one.owner)
+        response = self.client.get(
+            reverse(
+                "core_dashboard_article",
+                kwargs={
+                    "article_id": self.article_one.pk,
+                },
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Current Stage")
+        self.assertContains(response, "Unassigned")
+        self.assertContains(response, "Research Article")
+        self.assertContains(response, "Medicine")
+        self.assertContains(response, "A concise abstract.")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_dashboard_article_published_displays_view_live_link(self):
+        clear_script_prefix()
+        clear_cache()
+        self.client.force_login(self.article_two.owner)
+        response = self.client.get(
+            reverse(
+                "core_dashboard_article",
+                kwargs={
+                    "article_id": self.article_two.pk,
+                },
+            ),
+            SERVER_NAME="testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View live article")
+        self.assertContains(response, self.article_two.url)
+
     def setUp(self):
         self.press = helpers.create_press()
         self.press.save()
