@@ -447,6 +447,48 @@ class SubmissionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, section.__str__())
 
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_info_view_shows_journal_disciplines_as_keyword_suggestions(self):
+        author_1, _ = self.create_authors()
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: keyword suggestions",
+            owner=author_1,
+        )
+        medicine = models.Keyword.objects.create(word="Medicine")
+        arts = models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine, arts)
+
+        self.client.force_login(author_1)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse("submit_info", kwargs={"article_id": article.pk}),
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"Medicine"')
+        self.assertContains(response, '"Arts"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_edit_metadata_view_shows_journal_disciplines_as_keyword_suggestions(self):
+        article = helpers.create_article(self.journal_one)
+        medicine = models.Keyword.objects.create(word="Medicine")
+        arts = models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine, arts)
+
+        self.client.force_login(self.editor)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse("edit_metadata", kwargs={"article_id": article.pk}),
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"Medicine"')
+        self.assertContains(response, '"Arts"')
+
     def test_article_issue_title(self):
         from utils.testing import helpers
 
