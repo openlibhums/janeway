@@ -198,7 +198,7 @@
                     {% else %}
                         <small>This {{ request.repository.object_name }} is currently awaiting review.</small>
                     {% endif %}
-                    {% if not preprint.has_version and not preprint.date_declined %}
+                    {% if not preprint.has_version and not preprint.date_declined and not request.repository.auto_create_first_version %}
                         <small> This {{ request.repository.object_name }} requires at least one version. You can either
                             turn an existing file
                             into a version in the table below, or upload a new file to be a version.
