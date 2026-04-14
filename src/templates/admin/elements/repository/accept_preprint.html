@@ -22,9 +22,9 @@
             <div class="row">
                 <div class="large-12 columns">
                     <label for="datetime">Publication date and time</label>
-                    <input type="datetime-local" name="datetime" id="datetime" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'Y-m-d\TH:i' }}{% else %}{% now 'Y-m-d\TH:i' %}{% endif %}">
-                    {% get_current_timezone as TIME_ZONE %}
-                    <input type="hidden" id="timezone" name="timezone" value="{{ TIME_ZONE }}" />
+                    <input type="datetime-local" name="datetime" id="datetime" required
+                        {% if preprint.date_published %}data-utc="{{ preprint.date_published|date:'c' }}"{% endif %}>
+                    <input type="hidden" id="timezone" name="timezone" value="UTC" />
                 </div>
                         <div class="large-12 columns">
                             <button type="submit" name="accept" class="small success button">Save</button>
@@ -34,3 +34,38 @@
         </form>
     </div>
 </div>
+
+<script>
+(function () {
+    var tzInput = document.getElementById('timezone');
+    var dtInput = document.getElementById('datetime');
+    if (!tzInput || !dtInput) return;
+
+    // Use the browser's IANA timezone so the submitted local time is
+    // interpreted correctly on the server regardless of server timezone
+    // or whether the user has set a Janeway profile timezone.
+    var browserTz = (Intl && Intl.DateTimeFormat)
+        ? Intl.DateTimeFormat().resolvedOptions().timeZone
+        : null;
+    if (browserTz) {
+        tzInput.value = browserTz;
+    }
+
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    var formatLocal = function (d) {
+        return d.getFullYear() + '-' +
+               pad(d.getMonth() + 1) + '-' +
+               pad(d.getDate()) + 'T' +
+               pad(d.getHours()) + ':' +
+               pad(d.getMinutes());
+    };
+
+    if (dtInput.dataset.utc) {
+        // Editing an existing published date: convert stored UTC to browser local.
+        dtInput.value = formatLocal(new Date(dtInput.dataset.utc));
+    } else {
+        // New acceptance: default to the browser's current local time.
+        dtInput.value = formatLocal(new Date());
+    }
+}());
+</script>

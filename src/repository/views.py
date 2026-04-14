@@ -996,7 +996,7 @@ def repository_manager_article(request, preprint_id):
                         request.POST.get(
                             "timezone", str(timezone.get_current_timezone())
                         )
-                    )
+                    ) or tz.UTC
 
                     date_published = datetime(
                         d.year, d.month, d.day, d.hour, d.minute, tzinfo=t

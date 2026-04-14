@@ -160,6 +160,15 @@ class Repository(model_utils.AbstractSiteModel):
             "authors to be PDF files."
         ),
     )
+    auto_create_first_version = models.BooleanField(
+        default=True,
+        help_text=_(
+            "If enabled, the file uploaded during submission will automatically "
+            "become the first version when the author completes their submission, "
+            "so managers do not need to manually create one before accepting."
+        ),
+        verbose_name="Auto-create first version on submission",
+    )
     about = model_utils.JanewayBleachField(blank=True, null=True)
     start = model_utils.JanewayBleachField(
         blank=True,
@@ -827,6 +836,12 @@ class Preprint(models.Model):
         self.stage = STAGE_PREPRINT_REVIEW
         self.current_step = 5
         self.save()
+        if (
+            self.repository.auto_create_first_version
+            and self.submission_file
+            and not self.preprintversion_set.exists()
+        ):
+            self.make_new_version(self.submission_file)
 
     def subject_editors(self):
         editors = []
