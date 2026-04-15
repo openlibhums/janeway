@@ -499,6 +499,7 @@ def send_submission_acknowledgement(**kwargs):
 
     editor_emails |= {editor.email for editor in assigned_to_section}
 
+    replyto_address = request.journal.get_setting("general", "replyto_address")
     notify_helpers.send_email_with_body_from_setting_template(
         request,
         "editor_new_submission",
@@ -506,7 +507,9 @@ def send_submission_acknowledgement(**kwargs):
         editor_emails,
         context,
         log_dict=log_dict,
-        custom_reply_to=[f"noreply{settings.DUMMY_EMAIL_DOMAIN}"],
+        custom_reply_to=[replyto_address]
+        if replyto_address
+        else [f"noreply{settings.DUMMY_EMAIL_DOMAIN}"],
     )
 
 
