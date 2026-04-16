@@ -418,7 +418,7 @@ def create_preprint(
     author,
     subject,
     title="This is a Test Preprint",
-    abstract="This is a fake abstract",
+    abstract="This is a fake abstract.",
 ):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
