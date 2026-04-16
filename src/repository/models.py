@@ -1205,6 +1205,14 @@ class PreprintFile(models.Model):
     )
     size = models.PositiveIntegerField(default=0)
 
+    text = models.OneToOneField(
+        swapper.get_model_name("core", "FileText"),
+        blank=True,
+        null=True,
+        related_name="preprint_file",
+        on_delete=models.SET_NULL,
+    )
+
     def __str__(self):
         return self.original_filename
 
@@ -1239,6 +1247,31 @@ class PreprintFile(models.Model):
         contents = file.read()
         file.close()
         return contents
+
+    def index_full_text(self):
+        indexed = False
+        parser = files.MIME_TO_TEXT_PARSER.get(self.get_file_mime_type())
+        if not parser:
+            # No support for this mime type
+            return indexed
+
+        parsed = parser(self.file.path)
+
+        FileTextModel = swapper.load_model("core", "FileText")
+        preprocessed_text = FileTextModel.preprocess_contents(parsed)
+        if self.text:
+            self.text.update_contents(preprocessed_text)
+            indexed = True
+        else:
+            file_text = FileTextModel.objects.create(
+                preprint_file=self,
+                contents=preprocessed_text,
+            )
+            self.text = file_text
+            self.save()
+            indexed = True
+
+        return indexed
 
 
 class PreprintSupplementaryFile(models.Model):
@@ -2136,3 +2169,11 @@ def add_email_setting_defaults(sender, instance, **kwargs):
                         repository=repo,
                         name=default,
                     )
+
+@receiver(models.signals.post_save, sender=PreprintFile)
+def update_preprint_file_index(sender, instance, created, **kwargs):
+    """Updates file indexes in the DB"""
+    if not instance.pk or not instance.file:
+        return
+
+    instance.index_full_text()
