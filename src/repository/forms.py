@@ -814,6 +814,10 @@ class RecommendationForm(forms.ModelForm):
 
 
 class PreprintFilterForm(forms.Form):
+    search_term = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Search..."}),
+    )
     subject = forms.ModelChoiceField(
         queryset=models.Subject.objects.none(),
         required=False,
@@ -830,15 +834,12 @@ class PreprintFilterForm(forms.Form):
         widget=forms.Select(attrs={"class": "full-width"}),
     )
 
-    search_term = forms.CharField(
-        required=False,
-        label="Search",
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Search preprints",
-            }
-        ),
-    )
+    title = forms.BooleanField(required=False, initial=True)
+    abstract = forms.BooleanField(required=False, initial=True)
+    authors = forms.BooleanField(required=False, initial=True)
+    keywords = forms.BooleanField(required=False)
+    full_text = forms.BooleanField(required=False)
+    orcid = forms.BooleanField(required=False, label="ORCID")
 
     def __init__(self, *args, repository=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -853,6 +854,17 @@ class PreprintFilterForm(forms.Form):
                 repository=repository,
             )
 
+    def search_filters(self):
+        if not self.is_valid():
+            return {}
+        return {
+            "title": self.cleaned_data.get("title", False),
+            "abstract": self.cleaned_data.get("abstract", False),
+            "authors": self.cleaned_data.get("authors", False),
+            "keywords": self.cleaned_data.get("keywords", False),
+            "full_text": self.cleaned_data.get("full_text", False),
+            "ORCID": self.cleaned_data.get("orcid", False),
+        }
 
 class RepositorySubmissionTypeForm(forms.ModelForm):
     class Meta:

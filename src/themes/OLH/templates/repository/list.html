@@ -101,6 +101,29 @@
                                    placeholder="{% trans "Search" %}"
                                    value="{{ form.search_term.value|default_if_none:'' }}">
                         </div>
+                        <fieldset>
+                            <legend class="subheader">{% trans "Search in" %}:</legend>
+                            <div class="row small-up-2">
+                                <div class="column">
+                                    <label>{{ form.title }} {% trans "Title" %}</label>
+                                </div>
+                                <div class="column">
+                                    <label>{{ form.abstract }} {% trans "Abstract" %}</label>
+                                </div>
+                                <div class="column">
+                                    <label>{{ form.authors }} {% trans "Authors" %}</label>
+                                </div>
+                                <div class="column">
+                                    <label>{{ form.keywords }} {% trans "Keywords" %}</label>
+                                </div>
+                                <div class="column">
+                                    <label>{{ form.full_text }} {% trans "Full Text" %}</label>
+                                </div>
+                                <div class="column">
+                                    <label>{{ form.orcid }} {% trans "ORCID" %}</label>
+                                </div>
+                            </div>
+                        </fieldset>
 
                       {{ form.subject.label_tag }}
                       {{ form.subject }}
@@ -114,15 +137,6 @@
                   </form>
               </div>
 
-              <div class="section">
-                  <h6 class="subheader">{% trans "You can search by" %}:</h6>
-                  <ul class="no-bullet small">
-                      <li>{% trans "Title" %}</li>
-                      <li>{% trans "Keywords" %}</li>
-                      <li>{% trans "Author Name" %}</li>
-                      <li>{% trans "Author Affiliation" %}</li>
-                  </ul>
-              </div>
 
               {% if subject and subject.editors.exists %}
                   <div class="section">
