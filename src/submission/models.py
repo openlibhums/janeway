@@ -825,8 +825,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -859,8 +861,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
