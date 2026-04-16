@@ -866,6 +866,7 @@ class PreprintFilterForm(forms.Form):
             "ORCID": self.cleaned_data.get("orcid", False),
         }
 
+
 class RepositorySubmissionTypeForm(forms.ModelForm):
     class Meta:
         model = models.RepositorySubmissionType

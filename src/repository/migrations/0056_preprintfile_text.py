@@ -6,16 +6,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.CORE_FILETEXT_MODEL),
-        ('repository', '0055_alter_historicalrepository_comment_approved_and_more'),
+        ("repository", "0055_alter_historicalrepository_comment_approved_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preprintfile',
-            name='text',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='preprint_file', to=settings.CORE_FILETEXT_MODEL),
+            model_name="preprintfile",
+            name="text",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="preprint_file",
+                to=settings.CORE_FILETEXT_MODEL,
+            ),
         ),
     ]
