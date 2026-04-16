@@ -585,6 +585,7 @@ class RepositoryFieldAnswer(models.Model):
     def __str__(self):
         return "{}: {}".format(self.preprint, self.answer)
 
+
 class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
     SORT_KEYS = {
         "-title",
@@ -752,6 +753,7 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         sql, params = queryset.query.sql_with_params()
         with connection.cursor() as cursor:
             return cursor.mogrify(sql, params).decode()
+
 
 class Preprint(models.Model):
     objects = PreprintSearchManager()
@@ -2169,6 +2171,7 @@ def add_email_setting_defaults(sender, instance, **kwargs):
                         repository=repo,
                         name=default,
                     )
+
 
 @receiver(models.signals.post_save, sender=PreprintFile)
 def update_preprint_file_index(sender, instance, created, **kwargs):

@@ -413,7 +413,13 @@ def create_repository(press, managers, subject_editors, domain="repo.domain.com"
     return repository, subject
 
 
-def create_preprint(repository, author, subject, title="This is a Test Preprint", abstract="This is a fake abstract"):
+def create_preprint(
+    repository,
+    author,
+    subject,
+    title="This is a Test Preprint",
+    abstract="This is a fake abstract",
+):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
         owner=author,
