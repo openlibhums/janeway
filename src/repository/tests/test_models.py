@@ -2,11 +2,13 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Andy Byers, Mauro Sanchez & Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-
 import mock
+from datetime import timedelta
+
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from utils.testing import helpers
@@ -56,7 +58,7 @@ class TestModels(TestCase):
     def test_create_article(self):
         preprint_file = SimpleUploadedFile(
             "test1.txt",
-            b"these are the file contents!",  # note the b in front of the string [bytes]
+            b"some bytes",
         )
         with mock.patch("core.file_system.JanewayFileSystemStorage.location", "/tmp/"):
             preprint_one_version_file = rm.PreprintFile.objects.create(
@@ -95,7 +97,7 @@ class TestModels(TestCase):
     def test_create_article_force(self):
         preprint_file = SimpleUploadedFile(
             "test1.txt",
-            b"these are the file contents!",  # note the b in front of the string [bytes]
+            b"file content bytes",
         )
         with mock.patch("core.file_system.JanewayFileSystemStorage.location", "/tmp/"):
             preprint_one_version_file = rm.PreprintFile.objects.create(
@@ -105,7 +107,7 @@ class TestModels(TestCase):
                 mime_type="text/plain",
                 size=10000,
             )
-            preprint_one_version = rm.PreprintVersion.objects.create(
+            rm.PreprintVersion.objects.create(
                 preprint=self.preprint_one,
                 version=1,
                 title="Preprint Number One",
@@ -253,3 +255,113 @@ class TestRepositorySubmissionType(TestCase):
     def test_str_returns_name(self):
         obj = self._make_type()
         self.assertEqual(str(obj), "Article")
+
+
+class PreprintSearchManagerTestBase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [],
+            [],
+            domain="search-test.janeway.systems",
+        )
+        cls.owner = helpers.create_user(
+            username="spock@janeway.systems",
+            first_name="Spock",
+            last_name="S'Chn T'Gai ",
+        )
+        cls.published_preprint = helpers.create_preprint(
+            cls.repository,
+            cls.owner,
+            cls.subject,
+            title="Published Preprint on Quantum Teleportation",
+            abstract="A study on quantum teleportation",
+        )
+        cls.published_preprint.abstract = "A study on quantum teleportation"
+        cls.published_preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.published_preprint.date_published = timezone.now() - timedelta(days=1)
+        cls.published_preprint.save()
+
+        cls.unpublished_preprint = helpers.create_preprint(
+            cls.repository,
+            cls.owner,
+            cls.subject,
+            title="Unpublished Draft on Quantum Teleportation",
+        )
+        cls.unpublished_preprint.abstract = "This is not yet published"
+        cls.unpublished_preprint.stage = rm.STAGE_PREPRINT_REVIEW
+        cls.unpublished_preprint.date_published = None
+        cls.unpublished_preprint.save()
+
+        cls.future_preprint = helpers.create_preprint(
+            cls.repository,
+            cls.owner,
+            cls.subject,
+            title="Future Quantum Teleportation Research",
+        )
+        cls.future_preprint.abstract = "Scheduled for future publicaiton"
+        cls.future_preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.future_preprint.date_published = timezone.now() + timedelta(days=30)
+        cls.future_preprint.save()
+
+        cls.keyword = sm.Keyword.objects.create(word="quantum")
+        rm.KeywordPreprint.objects.create(
+            keyword=cls.keyword,
+            preprint=cls.published_preprint,
+            order=1,
+        )
+
+        cls.preprint_author = rm.PreprintAuthor.objects.get_or_create(
+            preprint=cls.published_preprint,
+            account=cls.owner,
+            defaults=dict(
+                order=0,
+            ),
+        )
+
+
+class TestPreprintSearchManagerSearch(PreprintSearchManagerTestBase):
+    def test_search_title(self):
+        results = rm.Preprint.objects.search("quantum", {"title": True})
+
+        self.assertEqual(
+            next(iter(results)).title,
+            self.published_preprint.title,
+            "Search returned unexpected results: {}".format([r for r in results]),
+        )
+        self.assertEqual(
+            sum(1 for _ in results),
+            1,
+            "search returned additional results: {}".format([r for r in results]),
+        )
+
+    def test_search_author(self):
+        results = rm.Preprint.objects.search("Spock", {"authors": True})
+
+        self.assertEqual(
+            next(iter(results)).title,
+            self.published_preprint.title,
+            "Search returned unexpected results: {}".format([r for r in results]),
+        )
+        self.assertEqual(
+            sum(1 for _ in results),
+            1,
+            "search returned additional results: {}".format([r for r in results]),
+        )
+
+    def test_search_abstract(self):
+        results = rm.Preprint.objects.search("quantum", {"abstract": True})
+
+        self.assertEqual(
+            next(iter(results)).title,
+            self.published_preprint.title,
+            "Search returned unexpected results: {}".format([r for r in results]),
+        )
+        self.assertEqual(
+            sum(1 for _ in results),
+            1,
+            "search returned additional results: {}".format([r for r in results]),
+        )
