@@ -128,7 +128,10 @@ class Command(BaseCommand):
 
         # Iterate over all criteria from the top-level criteria object
         # Sort by criterion ID to ensure consistent ordering
-        for criterion_id in sorted(self.data["criteria"].keys()):
+        for criterion_id in sorted(
+            self.data["criteria"].keys(),
+            key=lambda x: tuple(int(p) for p in x.split(".")),
+        ):
             # Get area-specific data for this criterion, or use empty dict if not present
             result_data = audit_results.get(criterion_id, {})
             lines.append(self.generate_table_row(criterion_id, result_data))
