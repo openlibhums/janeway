@@ -1,6 +1,6 @@
 # Janeway Accessibility Conformance
 
-Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started with the Front of House. Next will come the back office, and then the plugins. Version tested is given as the git commit reference on the master branch.
+Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started with the Front of House (OLH, Material and Clean themes and the introduction of a new accessibility mode). Next will come the back office, and then the plugins. Version tested is given as the git commit reference on the master branch.
 
 ## Results Key
 
