@@ -60,7 +60,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially supports | language selection updates onchange | [5160, April 2026](https://github.com/openlibhums/janeway/issues/5160) | f23d166d8  |
 | :orange_circle:      | 3.2.3 Consistent Navigation                                  | AA    | Partially supports | Single urgent bugfix on mobile | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
-|                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |            |
+| :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | [5162, April 2026](https://github.com/openlibhums/janeway/issues/5162) | f23d166d8  |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [5163, February 2026](https://github.com/openlibhums/janeway/issues/5163) | f23d166d8  |
 | :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [5164, March 2026](https://github.com/openlibhums/janeway/issues/5164) | f23d166d8  |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |            |
@@ -120,7 +120,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially supports | language selection updates onchange | [5160, April 2026](https://github.com/openlibhums/janeway/issues/5160) | f23d166d8  |
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
-|                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |            |
+| :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | [5162, April 2026](https://github.com/openlibhums/janeway/issues/5162) | f23d166d8  |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [5163, February 2026](https://github.com/openlibhums/janeway/issues/5163) | f23d166d8  |
 | :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [5164, March 2026](https://github.com/openlibhums/janeway/issues/5164) | f23d166d8  |
 |                      | 3.3.2 Labels or Instructions                                 | A     |                    |         |                      |            |
@@ -180,7 +180,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially supports | language selection updates onchange | [5160, April 2026](https://github.com/openlibhums/janeway/issues/5160) | f23d166d8  |
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
-| :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | June 2024 VPAT       |            |
+| :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | [5162, April 2026](https://github.com/openlibhums/janeway/issues/5162) | f23d166d8  |
 | :white_check_mark:   | 3.2.6 Consistent Help                                        | A     | Supports           |         | [5163, February 2026](https://github.com/openlibhums/janeway/issues/5163) | f23d166d8  |
 | :white_check_mark:   | 3.3.1 Error Identification                                   | A     | Supports           |         | [5164, March 2026](https://github.com/openlibhums/janeway/issues/5164) | f23d166d8  |
 | :orange_circle:      | 3.3.2 Labels or Instructions                                 | A     | Partially supports |         | June 2024 VPAT       |            |
