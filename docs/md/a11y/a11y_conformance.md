@@ -47,7 +47,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially supports |         | [5151, March 2026](https://github.com/openlibhums/janeway/issues/5151) | f23d166d8  |
-|                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |            |
+| :orange_circle:      | 2.4.7 Focus Visible                                          | AA    | Partially supports | carousel focus is not visible | [5152, April 2026](https://github.com/openlibhums/janeway/issues/5152) | f23d166d8  |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | [5153, April 2026](https://github.com/openlibhums/janeway/issues/5153) | f23d166d8  |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [5154, Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) | f23d166d8  |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not applicable     |         | [5092, January 2026](https://github.com/openlibhums/janeway/issues/5092) | f23d166d8  |
@@ -107,7 +107,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially supports |         | [5151, March 2026](https://github.com/openlibhums/janeway/issues/5151) | f23d166d8  |
-|                      | 2.4.7 Focus Visible                                          | AA    |                    |         |                      |            |
+| :orange_circle:      | 2.4.7 Focus Visible                                          | AA    | Partially supports | carousel focus is not visible | [5152, April 2026](https://github.com/openlibhums/janeway/issues/5152) | f23d166d8  |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | [5153, April 2026](https://github.com/openlibhums/janeway/issues/5153) | f23d166d8  |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [5154, Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) | f23d166d8  |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not applicable     |         | [5092, January 2026](https://github.com/openlibhums/janeway/issues/5092) | f23d166d8  |
@@ -167,7 +167,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.4.4 Link Purpose (In Context)                              | A     | Partially supports |         | [5149, March 2026](https://github.com/openlibhums/janeway/issues/5149) | f23d166d8  |
 | :orange_circle:      | 2.4.5 Multiple Ways                                          | AA    | Partially supports |         | [5150, Feburary 2026](https://github.com/openlibhums/janeway/issues/5150) | f23d166d8  |
 | :orange_circle:      | 2.4.6 Headings and Labels                                    | AA    | Partially supports |         | [5151, March 2026](https://github.com/openlibhums/janeway/issues/5151) | f23d166d8  |
-| :white_check_mark:   | 2.4.7 Focus Visible                                          | AA    | Supports           |         | June 2024 VPAT       |            |
+| :orange_circle:      | 2.4.7 Focus Visible                                          | AA    | Partially supports | carousel focus is not visible | [5152, April 2026](https://github.com/openlibhums/janeway/issues/5152) | f23d166d8  |
 | :white_check_mark:   | 2.4.11 Focus Not Obscured (Minimum)                          | AA    | Supports           |         | [5153, April 2026](https://github.com/openlibhums/janeway/issues/5153) | f23d166d8  |
 | :white_check_mark:   | 2.5.1 Pointer Gestures                                       | A     | Supports           |         | [5154, Feburary 2026](https://github.com/openlibhums/janeway/issues/5154) | f23d166d8  |
 | :brown_square:       | 2.5.2 Pointer Cancellation                                   | A     | Not applicable     |         | [5092, January 2026](https://github.com/openlibhums/janeway/issues/5092) | f23d166d8  |
