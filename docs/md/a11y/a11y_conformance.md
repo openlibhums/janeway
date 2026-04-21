@@ -57,7 +57,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Multiple failures, particularly on the articles page. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially supports | Single bug in article print page. | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
-|                      | 3.2.1 On Focus                                               | A     |                    |         |                      |            |
+| :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |            |
 | :orange_circle:      | 3.2.3 Consistent Navigation                                  | AA    | Partially supports | Single urgent bugfix on mobile | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |            |
@@ -117,7 +117,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Several issues, carousel controls unusable for longer titles. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :white_check_mark:   | 3.1.1 Language of Page                                       | A     | Supports           |         | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
-|                      | 3.2.1 On Focus                                               | A     |                    |         |                      |            |
+| :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 |                      | 3.2.2 On Input                                               | A     |                    |         |                      |            |
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
 |                      | 3.2.4 Consistent Identification                              | AA    |                    |         |                      |            |
@@ -177,7 +177,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Handful of failures, article page filters particularly impacted. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially supports | Single bug in article print page. | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
-| :orange_circle:      | 3.2.1 On Focus                                               | A     | Partially supports |         | June 2024 VPAT       |            |
+| :white_check_mark:   | 3.2.1 On Focus                                               | A     | Supports           |         | [5159, April 2026](https://github.com/openlibhums/janeway/issues/5159) | f23d166d8  |
 | :orange_circle:      | 3.2.2 On Input                                               | A     | Partially supports |         | June 2024 VPAT       |            |
 | :white_check_mark:   | 3.2.3 Consistent Navigation                                  | AA    | Supports           |         | [5161, February 2026](https://github.com/openlibhums/janeway/issues/5161) | f23d166d8  |
 | :white_check_mark:   | 3.2.4 Consistent Identification                              | AA    | Supports           |         | June 2024 VPAT       |            |
