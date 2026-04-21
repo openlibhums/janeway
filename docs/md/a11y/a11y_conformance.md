@@ -54,7 +54,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |            |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not applicable     |         | [5093, January 2026](https://github.com/openlibhums/janeway/issues/5093) | f23d166d8  |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not applicable     |         | [5094, January 2026](https://github.com/openlibhums/janeway/issues/5094) | f23d166d8  |
-|                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |            |
+| :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Multiple failures, particularly on the articles page. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially supports | Single bug in article print page. | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |            |
@@ -114,7 +114,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 |                      | 2.5.3 Label in Name                                          | A     |                    |         |                      |            |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not applicable     |         | [5093, January 2026](https://github.com/openlibhums/janeway/issues/5093) | f23d166d8  |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not applicable     |         | [5094, January 2026](https://github.com/openlibhums/janeway/issues/5094) | f23d166d8  |
-|                      | 2.5.8 Target Size (Minimum)                                  | AA    |                    |         |                      |            |
+| :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Several issues, carousel controls unusable for longer titles. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :white_check_mark:   | 3.1.1 Language of Page                                       | A     | Supports           |         | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
 |                      | 3.2.1 On Focus                                               | A     |                    |         |                      |            |
@@ -174,7 +174,7 @@ Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started
 | :white_check_mark:   | 2.5.3 Label in Name                                          | A     | Supports           |         | June 2024 VPAT       |            |
 | :brown_square:       | 2.5.4 Motion Actuation                                       | A     | Not applicable     |         | [5093, January 2026](https://github.com/openlibhums/janeway/issues/5093) | f23d166d8  |
 | :brown_square:       | 2.5.7 Dragging Movements                                     | AA    | Not applicable     |         | [5094, January 2026](https://github.com/openlibhums/janeway/issues/5094) | f23d166d8  |
-| :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports |         | June 2024 VPAT       |            |
+| :orange_circle:      | 2.5.8 Target Size (Minimum)                                  | AA    | Partially supports | Handful of failures, article page filters particularly impacted. | [5156, April 2026](https://github.com/openlibhums/janeway/issues/5156) | f23d166d8  |
 | :orange_circle:      | 3.1.1 Language of Page                                       | A     | Partially supports | Single bug in article print page. | [5157, February 2026](https://github.com/openlibhums/janeway/issues/5157) | f23d166d8  |
 | :white_check_mark:   | 3.1.2 Language of Parts                                      | AA    | Supports           |         | [5158, February 2026](https://github.com/openlibhums/janeway/issues/5158) | f23d166d8  |
 | :orange_circle:      | 3.2.1 On Focus                                               | A     | Partially supports |         | June 2024 VPAT       |            |
