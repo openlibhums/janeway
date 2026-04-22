@@ -2,10 +2,9 @@
 {% load static %}
 {% load settings %}
 
-
 {% block title %}Add Review Assignment{% endblock title %}
 {% block title-section %}Add Review Assignment{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block css %}
     <link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">
@@ -32,7 +31,10 @@
                             <h5>From {{ request.user.full_name }}</h5>
                         </div>
                     </div>
-                    {% include "admin/elements/email_form.html" with form=form skip=1 %}
+                    {% include "admin/elements/email_form.html" with form=form skip=1 form_id="notify_reviewer_form" button_name=form.CONFIRMABLE_BUTTON_NAME %}
+                    {% if form.modal %}
+                        {% include "admin/elements/confirm_modal.html" with modal=form.modal form_id="notify_reviewer_form" %}
+                    {% endif %}
             </div>
         </div>
     </div>
@@ -44,5 +46,8 @@
     {{ block.super}}
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     {{ form.media.js }}
+    {% if form.modal %}
+        {% include "admin/elements/open_modal.html" with target=form.modal.id %}
+    {% endif %}
 
 {% endblock js %}

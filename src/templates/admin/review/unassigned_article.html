@@ -1,9 +1,10 @@
 {% extends "admin/core/base.html" %}
-{% load static roles i18n securitytags %}
+{% load static roles i18n securitytags hooks %}
+
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -284,6 +285,7 @@
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>
                             <li><a href="{% url 'review_decision' article.id 'decline' %}"><i
                                     class="fa fa-minus-circle action-icon">&nbsp;</i>Decline Article</a></li>
+                            {% hook 'unassigned_additional_actions' %}
                         </ul>
                     {% else %}
                         <div class="bs-callout bs-callout-info">

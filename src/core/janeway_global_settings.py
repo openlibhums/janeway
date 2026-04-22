@@ -230,7 +230,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "/db/janeway.sqlite3",
+            "NAME": os.environ.get("DB_NAME", "/db/janeway.sqlite3"),
         }
     }
 
@@ -722,3 +722,7 @@ HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
 # Note that the provided theme CSS expects a default crop size of (1500, 648)
 # and may not work properly with a different size.
 DEFAULT_CROP_SIZE = (1500, 648)
+
+# This setting should only be enabled where CORS is properly
+# configured to stop misuse of this endpoint.
+API_ENABLE_ACCOUNT_ENDPOINTS = False

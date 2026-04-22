@@ -168,8 +168,11 @@
                     </div>
 
                     {% if preprint.preprint_doi %}
-                        <h2>DOI</h2>
-                        <p>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</p>
+                    <h2>DOI</h2>
+                    <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% elif preprint.current_version.get_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ preprint.current_version.get_doi }}">https://doi.org/{{ preprint.current_version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}

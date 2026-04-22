@@ -825,8 +825,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -859,8 +861,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
@@ -1678,6 +1682,10 @@ class Article(AbstractLastModifiedModel):
     @cached_property
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
+
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
@@ -2592,6 +2600,14 @@ class Article(AbstractLastModifiedModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
     @property
     def best_large_image_alt_text(self):
         default_text = strip_tags(self.title)
@@ -3327,6 +3343,14 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
+    )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,
