@@ -170,23 +170,21 @@ def accept_copyedit(copyedit, article, request, email_data=None, skip=False):
     copyedit.save()
 
 
-def reset_copyedit(copyedit, article, request):
-    user_message_content = request.POST.get("reset_note")
-    due = request.POST.get("due")
-
+def reset_copyedit(copyedit, due):
     copyedit.copyedit_reopened = timezone.now()
     copyedit.copyedit_reopened_complete = None
     copyedit.due = due
     copyedit.save()
 
+
+def notify_reopen_copyedit(copyedit, article, request, email_data=None, skip=False):
     kwargs = {
         "copyedit_assignment": copyedit,
         "article": article,
-        "user_message_content": user_message_content,
+        "email_data": email_data,
         "request": request,
-        "skip": True if "skip" in request.POST else False,
+        "skip": skip,
     }
-
     event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_REOPEN, **kwargs)
 
 

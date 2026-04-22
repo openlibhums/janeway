@@ -177,3 +177,88 @@ class TestLogic(TestCase):
         task.refresh_from_db()
         self.assertIsNotNone(task.copyedit_accepted)
         self.assertTrue(task.copyedit_acknowledged)
+
+    def test_editor_review_reopen_due_date(self):
+        """Posting reopen_due to editor_review saves the due date and redirects to reopen_copyedit."""
+        task = models.CopyeditAssignment.objects.create(
+            article=self.active_article,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+            copyeditor_completed=timezone.now(),
+        )
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            reverse(
+                "editor_review",
+                kwargs={
+                    "article_id": self.active_article.pk,
+                    "copyedit_id": task.pk,
+                },
+            ),
+            {"reopen_due": "1", "due": "2026-05-01"},
+        )
+        task.refresh_from_db()
+        self.assertIsNotNone(task.copyedit_reopened)
+        self.assertIsNone(task.copyedit_reopened_complete)
+        expected_redirect = reverse(
+            "reopen_copyedit",
+            kwargs={
+                "article_id": self.active_article.pk,
+                "copyedit_id": task.pk,
+            },
+        )
+        self.assertRedirects(response, expected_redirect)
+
+    def test_reopen_copyedit_sends_email(self):
+        """Posting a subject/body to reopen_copyedit redirects to article_copyediting."""
+        task = models.CopyeditAssignment.objects.create(
+            article=self.active_article,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+            copyeditor_completed=timezone.now(),
+            copyedit_reopened=timezone.now(),
+        )
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            reverse(
+                "reopen_copyedit",
+                kwargs={
+                    "article_id": self.active_article.pk,
+                    "copyedit_id": task.pk,
+                },
+            ),
+            {"subject": "Please revisit", "body": "Please reopen your copyedit."},
+        )
+        task.refresh_from_db()
+        self.assertIsNotNone(task.copyedit_reopened)
+        expected_redirect = reverse(
+            "article_copyediting",
+            kwargs={"article_id": self.active_article.pk},
+        )
+        self.assertRedirects(response, expected_redirect)
+
+    def test_reopen_copyedit_skip(self):
+        """Posting skip to reopen_copyedit redirects without sending email."""
+        task = models.CopyeditAssignment.objects.create(
+            article=self.active_article,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+            copyeditor_completed=timezone.now(),
+            copyedit_reopened=timezone.now(),
+        )
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            reverse(
+                "reopen_copyedit",
+                kwargs={
+                    "article_id": self.active_article.pk,
+                    "copyedit_id": task.pk,
+                },
+            ),
+            {"skip": "True"},
+        )
+        expected_redirect = reverse(
+            "article_copyediting",
+            kwargs={"article_id": self.active_article.pk},
+        )
+        self.assertRedirects(response, expected_redirect)

@@ -212,14 +212,13 @@
                 <h4><i class="fa fa-inbox">&nbsp;</i>Reopen Copyedit</h4>
             </div>
             <div class="card-section">
-                <p>If you wish to reopen the copyedit task without an author review, you can do so by adding a note
-                    below, which will be sent to the copyeditor.</p>
+                <p>Set a new due date for the copyeditor. You will be able to edit the notification email on the next page.</p>
                 <form method="POST">
                     {% csrf_token %}
-                    <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
                     <label for="due">Due Date</label>
                     <input type="date" name="due" id="due" required="required">
-                    <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
+                    <button name="reopen_due" type="submit" class="button success">
+                        <i class="fa fa-arrow-right">&nbsp;</i>Next
                     </button>
                 </form>
             </div>

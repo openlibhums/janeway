@@ -943,13 +943,22 @@ def send_copyedit_ack(**kwargs):
             article=copyedit_assignment.article,
             log_dict=log_dict,
         )
-        notify_helpers.send_slack(request, description, ["slack_editors"])
+
+    util_models.LogEntry.add_entry(
+        "Copyedit Acknowledgement",
+        description,
+        "Info",
+        request.user,
+        request,
+        copyedit_assignment.article,
+    )
+    notify_helpers.send_slack(request, description, ["slack_editors"])
 
 
 def send_copyedit_reopen(**kwargs):
     request = kwargs["request"]
     copyedit_assignment = kwargs["copyedit_assignment"]
-    user_message_content = kwargs["user_message_content"]
+    email_data = kwargs.get("email_data")
     skip = kwargs.get("skip", False)
 
     description = "{0} has reopened copyediting for {1} from {2}".format(
@@ -962,18 +971,27 @@ def send_copyedit_reopen(**kwargs):
         log_dict = {
             "level": "Info",
             "action_text": description,
-            "types": "Copyedit Complete",
+            "types": "Copyedit Reopened",
             "target": copyedit_assignment.article,
         }
 
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            copyedit_assignment.copyeditor,
+            email_data,
             request,
-            "subject_copyeditor_reopen_task",
-            copyedit_assignment.copyeditor.email,
-            user_message_content,
+            article=copyedit_assignment.article,
             log_dict=log_dict,
         )
-        notify_helpers.send_slack(request, description, ["slack_editors"])
+
+    util_models.LogEntry.add_entry(
+        "Copyedit Reopened",
+        description,
+        "Info",
+        request.user,
+        request,
+        copyedit_assignment.article,
+    )
+    notify_helpers.send_slack(request, description, ["slack_editors"])
 
 
 def send_typeset_assignment(**kwargs):

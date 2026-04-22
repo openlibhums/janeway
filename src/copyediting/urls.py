@@ -43,6 +43,11 @@ urlpatterns = [
         name="accept_copyedit",
     ),
     re_path(
+        r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/reopen/$",
+        views.reopen_copyedit,
+        name="reopen_copyedit",
+    ),
+    re_path(
         r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/author_review/(?P<author_review_id>\d+)/$",
         views.request_author_copyedit,
         name="request_author_copyedit",
