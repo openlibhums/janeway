@@ -1923,7 +1923,7 @@ def preprint_new_version(**kwargs):
     description = "{author} has submitted a new {obj} version.".format(
         author=request.user.full_name(),
         obj=request.repository.object_name,
-        )
+    )
     log_dict = {
         "level": "Info",
         "action_text": description,

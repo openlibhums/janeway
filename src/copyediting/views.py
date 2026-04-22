@@ -605,7 +605,9 @@ def accept_copyedit(request, article_id, copyedit_id):
         pk=copyedit_id,
         article=article,
     )
-    email_context = logic.get_copyeditor_notification_context(request, article, copyedit)
+    email_context = logic.get_copyeditor_notification_context(
+        request, article, copyedit
+    )
     form = core_forms.SettingEmailForm(
         setting_name="copyeditor_ack",
         email_context=email_context,
