@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from importlib import import_module
 import json
-from urllib.parse import unquote, urlencode
+from urllib.parse import urlencode
 import pytz
 import time
 import warnings
@@ -16,12 +16,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.urls import NoReverseMatch, reverse, reverse_lazy
+from django.urls import NoReverseMatch, reverse
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, QueryDict
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -29,7 +28,6 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
@@ -817,6 +815,8 @@ def dashboard(request):
         editor=request.user,
         editor_type="section-editor",
         article__journal=request.journal,
+    ).order_by(
+        "-article__date_submitted",
     )
 
     # TODO: Move most of this to model logic.
