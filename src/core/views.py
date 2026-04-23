@@ -20,14 +20,14 @@ from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict, JsonResponse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.conf import settings as django_settings
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
@@ -1182,7 +1182,6 @@ def edit_setting(request, setting_group, setting_name):
         }
         return render(request, template, context)
 
-
 @staff_member_required
 def edit_default_setting(request, setting_group, setting_name):
     """Proxy view for edit_setting allowing editing the default value
@@ -1283,6 +1282,24 @@ def edit_settings_group(request, display_group):
         }
 
         return render(request, template, context)
+
+
+@editor_user_required
+@require_GET
+def journal_keyword_suggestions(request):
+    """
+    Returns a small list of matching existing keywords for journal disciplines.
+    """
+    search_term = request.GET.get("q", "").strip()
+
+    matches = submission_models.Keyword.objects.all()
+
+    if search_term:
+        matches = matches.filter(word__istartswith=search_term)
+
+    matches = matches.order_by("word").values_list("word", flat=True)[:10]
+
+    return JsonResponse(list(matches), safe=False)
 
 
 @editor_user_required

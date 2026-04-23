@@ -10,14 +10,14 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.db.models import Q
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from core import files, models as core_models
 from core.logic import create_organization_name, reverse_with_next
@@ -173,6 +173,34 @@ def submit_funding(request, article_id):
     }
 
     return render(request, template, context)
+
+
+@login_required
+@decorators.submission_is_enabled
+@user_can_edit_article
+@submission_authorised
+@require_GET
+def keyword_suggestions(request, article_id):
+    """
+    Returns a small list of matching journal keywords for submission forms.
+    """
+    get_object_or_404(
+        models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    search_term = request.GET.get("q", "").strip()
+
+    matches = request.journal.keywords.all()
+
+    if search_term:
+        matches = matches.filter(
+            word__istartswith=search_term,
+        )
+
+    matches = matches.order_by("word").values_list("word", flat=True)[:10]
+
+    return JsonResponse(list(matches), safe=False)
 
 
 @login_required

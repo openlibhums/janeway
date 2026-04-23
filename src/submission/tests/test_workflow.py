@@ -468,8 +468,15 @@ class SubmissionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '"Medicine"')
-        self.assertContains(response, '"Arts"')
+        self.assertContains(
+            response,
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+        )
+        self.assertNotContains(response, '"Medicine"')
+        self.assertNotContains(response, '"Arts"')
 
     @override_settings(URL_CONFIG="domain")
     def test_edit_metadata_view_shows_journal_disciplines_as_keyword_suggestions(self):
@@ -486,8 +493,143 @@ class SubmissionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '"Medicine"')
-        self.assertContains(response, '"Arts"')
+        self.assertContains(
+            response,
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+        )
+        self.assertNotContains(response, '"Medicine"')
+        self.assertNotContains(response, '"Arts"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_keyword_suggestions_returns_filtered_journal_keywords(self):
+        author_1, _ = self.create_authors()
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: keyword suggestions endpoint",
+            owner=author_1,
+        )
+        medicine = models.Keyword.objects.create(word="Medicine")
+        mediation = models.Keyword.objects.create(word="Mediation")
+        arts = models.Keyword.objects.create(word="Arts")
+        medieval = models.Keyword.objects.create(word="Medieval")
+        self.journal_one.keywords.add(medicine, mediation, arts)
+        self.journal_two.keywords.add(medieval)
+
+        self.client.force_login(author_1)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+            {"q": "Me"},
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Mediation", "Medicine"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_keyword_suggestions_returns_initial_results_for_empty_query(self):
+        author_1, _ = self.create_authors()
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: empty keyword query",
+            owner=author_1,
+        )
+        medicine = models.Keyword.objects.create(word="Medicine")
+        arts = models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine)
+        self.journal_one.keywords.add(arts)
+
+        self.client.force_login(author_1)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Arts", "Medicine"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_keyword_suggestions_can_filter_single_character_query(self):
+        author_1, _ = self.create_authors()
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: short keyword query",
+            owner=author_1,
+        )
+        medicine = models.Keyword.objects.create(word="Medicine")
+        arts = models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine)
+        self.journal_one.keywords.add(arts)
+
+        self.client.force_login(author_1)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+            {"q": "M"},
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Medicine"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submission_keyword_autocomplete_requires_three_characters_before_searching(self):
+        author_1, _ = self.create_authors()
+        clear_cache()
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: keyword autocomplete threshold",
+            owner=author_1,
+        )
+
+        self.client.force_login(author_1)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse("submit_info", kwargs={"article_id": article.pk}),
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "minLength: 3")
+        self.assertNotContains(response, "showAutocompleteOnFocus: true")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_keyword_suggestions_available_for_editor_on_submitted_article(self):
+        article = helpers.create_article(self.journal_one)
+        article.stage = models.STAGE_UNDER_REVIEW
+        article.save()
+        medicine = models.Keyword.objects.create(word="Medicine")
+        self.journal_one.keywords.add(medicine)
+
+        self.client.force_login(self.editor)
+        clear_script_prefix()
+        response = self.client.get(
+            reverse(
+                "submission_keyword_suggestions",
+                kwargs={"article_id": article.pk},
+            ),
+            {"q": "Me"},
+            SERVER_NAME="testserver",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Medicine"])
 
     def test_article_issue_title(self):
         from utils.testing import helpers
