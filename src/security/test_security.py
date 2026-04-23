@@ -4301,6 +4301,28 @@ class TestSecurity(TestCase):
         with self.assertRaises(Http404):
             decorated_func(request, **kwargs)
 
+    def test_article_is_not_submitted_complete_redirects_author(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {"article_id": self.article_unassigned.pk}
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+
+        response = decorated_func(request, **kwargs)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse(
+                "core_dashboard_article",
+                kwargs={"article_id": self.article_unassigned.pk},
+            ),
+        )
+        self.assertFalse(func.called)
+
     def test_article_is_not_submitted_unsubmitted(self):
         func = Mock()
         decorated_func = decorators.article_is_not_submitted(func)
