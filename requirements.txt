@@ -37,7 +37,7 @@ more-itertools==10.1.0
 jsmin==3.0.1
 kitchen==1.2.4
 libsass==0.23.0
-lxml==4.9.4
+lxml==6.1.0
 markdown
 maxminddb==2.5.1
 mock
