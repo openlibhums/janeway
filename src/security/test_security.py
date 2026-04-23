@@ -4319,6 +4319,27 @@ class TestSecurity(TestCase):
             "article_is_not_submitted incorrectly raises a 404 when article is unsubmitted.",
         )
 
+    def test_article_is_not_submitted_complete_redirects_author(self):
+        func = Mock()
+        decorated_func = decorators.article_is_not_submitted(func)
+        kwargs = {"article_id": self.article_unassigned.pk}
+
+        request = self.prepare_request_with_user(
+            self.regular_user,
+            journal=self.journal_one,
+        )
+
+        response = decorated_func(request, **kwargs)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse(
+                "core_dashboard_article",
+                kwargs={"article_id": self.article_unassigned.pk},
+            ),
+        )
+
     def test_journal_manager_can_access_manager(self):
         self.client.force_login(self.journal_manager)
         response = self.client.get(
