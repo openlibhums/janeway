@@ -10,7 +10,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from copyediting import models, logic, forms
 from core import (
@@ -21,12 +20,10 @@ from core import (
 )
 from events import logic as event_logic
 from security.decorators import (
-    production_user_or_editor_required,
     copyeditor_user_required,
     copyeditor_for_copyedit_required,
     article_author_required,
     editor_user_required,
-    senior_editor_user_required,
     any_editor_user_required,
 )
 
@@ -547,14 +544,7 @@ def editor_review(request, article_id, copyedit_id):
     )
 
     if request.POST:
-        if "accept_note" in request.POST:
-            logic.accept_copyedit(copyedit, article, request)
-
-            return redirect(
-                reverse("article_copyediting", kwargs={"article_id": article.id})
-            )
-
-        elif (
+        if (
             "author_review" in request.POST
             or author_review_form.CONFIRMED_BUTTON_NAME in request.POST
         ):
@@ -577,11 +567,14 @@ def editor_review(request, article_id, copyedit_id):
                         },
                     )
                 )
-        elif "reset_note" in request.POST:
-            logic.reset_copyedit(copyedit, article, request)
-
+        elif "reopen_due" in request.POST:
+            due = request.POST.get("due")
+            logic.reset_copyedit(copyedit, due)
             return redirect(
-                reverse("article_copyediting", kwargs={"article_id": article.id})
+                reverse(
+                    "reopen_copyedit",
+                    kwargs={"article_id": article.id, "copyedit_id": copyedit.pk},
+                )
             )
 
     if request.GET.get("file_id"):
@@ -591,15 +584,118 @@ def editor_review(request, article_id, copyedit_id):
     context = {
         "article": article,
         "copyedit": copyedit,
-        "accept_message": logic.get_copyedit_message(
-            request, article, copyedit, "copyeditor_ack"
-        ),
-        "reopen_message": logic.get_copyedit_message(
-            request, article, copyedit, "copyeditor_reopen_task"
-        ),
         "author_review_form": author_review_form,
     }
 
+    return render(request, template, context)
+
+
+@editor_user_required
+def accept_copyedit(request, article_id, copyedit_id):
+    """
+    Allows an editor to accept a completed copyedit and optionally notify the copyeditor.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
+    email_context = logic.get_copyeditor_notification_context(
+        request, article, copyedit
+    )
+    form = core_forms.SettingEmailForm(
+        setting_name="copyeditor_ack",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.POST:
+        skip = "skip" in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="copyeditor_ack",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid() or skip:
+            logic.accept_copyedit(
+                copyedit,
+                article,
+                request,
+                email_data=form.as_dataclass() if form.is_valid() else None,
+                skip=skip,
+            )
+            return redirect(
+                reverse("article_copyediting", kwargs={"article_id": article.id})
+            )
+
+    template = "copyediting/accept_copyedit.html"
+    context = {
+        "article": article,
+        "copyedit": copyedit,
+        "form": form,
+    }
+
+    return render(request, template, context)
+
+
+@editor_user_required
+def reopen_copyedit(request, article_id, copyedit_id):
+    """
+    Allows an editor to notify a copyeditor that their task has been reopened.
+    """
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
+    email_context = logic.get_copyeditor_notification_context(
+        request, article, copyedit
+    )
+    form = core_forms.SettingEmailForm(
+        setting_name="copyeditor_reopen_task",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.POST:
+        skip = "skip" in request.POST
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="copyeditor_reopen_task",
+            email_context=email_context,
+            request=request,
+        )
+        if form.is_valid() or skip:
+            logic.notify_reopen_copyedit(
+                copyedit,
+                article,
+                request,
+                email_data=form.as_dataclass() if form.is_valid() else None,
+                skip=skip,
+            )
+            return redirect(
+                reverse("article_copyediting", kwargs={"article_id": article.id})
+            )
+
+    template = "copyediting/reopen_copyedit.html"
+    context = {
+        "article": article,
+        "copyedit": copyedit,
+        "form": form,
+    }
     return render(request, template, context)
 
 

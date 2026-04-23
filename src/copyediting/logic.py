@@ -145,51 +145,46 @@ def handle_file_post(request, copyedit):
         return errors
 
 
-def accept_copyedit(copyedit, article, request):
+def accept_copyedit(copyedit, article, request, email_data=None, skip=False):
     """
     Raises an event when a copyedit is accepted
     :param copyedit: CopyeditAssignment object
     :param article: Article object
     :param request: HttpRequest object
+    :param email_data: EmailData dataclass instance
+    :param skip: bool, if True the notification email is skipped
     :return: None
     """
-    user_message_content = request.POST.get("accept_note")
-
     kwargs = {
         "copyedit_assignment": copyedit,
         "article": article,
-        "user_message_content": user_message_content,
+        "email_data": email_data,
         "request": request,
-        "skip": True if "skip" in request.POST else False,
+        "skip": skip,
     }
 
     event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_ACKNOWLEDGE, **kwargs)
 
     copyedit.copyedit_accepted = timezone.now()
-
-    if "skip" not in request.POST:
-        copyedit.copyedit_acknowledged = True
-
+    copyedit.copyedit_acknowledged = True
     copyedit.save()
 
 
-def reset_copyedit(copyedit, article, request):
-    user_message_content = request.POST.get("reset_note")
-    due = request.POST.get("due")
-
+def reset_copyedit(copyedit, due):
     copyedit.copyedit_reopened = timezone.now()
     copyedit.copyedit_reopened_complete = None
     copyedit.due = due
     copyedit.save()
 
+
+def notify_reopen_copyedit(copyedit, article, request, email_data=None, skip=False):
     kwargs = {
         "copyedit_assignment": copyedit,
         "article": article,
-        "user_message_content": user_message_content,
+        "email_data": email_data,
         "request": request,
-        "skip": True if "skip" in request.POST else False,
+        "skip": skip,
     }
-
     event_logic.Events.raise_event(event_logic.Events.ON_COPYEDIT_REOPEN, **kwargs)
 
 

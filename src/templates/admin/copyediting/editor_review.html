@@ -149,7 +149,7 @@
             <div class="content">
                 {% if copyedit.actions_available %}
                     <ul class="menu vertical actions">
-                        <li><a href="#" data-open="accept-modal"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Copyedit</a></li>
+                        <li><a href="{% url 'accept_copyedit' article.pk copyedit.pk %}"><i class="fa fa-check-circle action-icon">&nbsp;</i>Accept Copyedit</a></li>
                         <li>
                             <form id="copyediting_author_review_assignment" method="POST">
                             {% csrf_token %}
@@ -204,26 +204,6 @@
         </div>
     </div>
 
-    <div class="reveal" id="accept-modal" data-reveal data-animation-in="slide-in-up"
-         data-animation-out="slide-out-down">
-        <div class="card">
-            <div class="card-divider">
-                <h4><i class="fa fa-check-circle">&nbsp;</i>Accept Copyedit</h4>
-            </div>
-            <div class="card-section">
-                <p>You can write a note to the copyeditor thanking them for their time.</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <textarea name="accept_note">{{ accept_message|safe|linebreaksbr }}</textarea>
-                    <button name="accept" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
-                    </button>
-                </form>
-            </div>
-        </div>
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
 
     <div class="reveal" id="reset-modal" data-reveal data-animation-in="slide-in-up"
          data-animation-out="slide-out-down">
@@ -232,14 +212,13 @@
                 <h4><i class="fa fa-inbox">&nbsp;</i>Reopen Copyedit</h4>
             </div>
             <div class="card-section">
-                <p>If you wish to reopen the copyedit task without an author review, you can do so by adding a note
-                    below, which will be sent to the copyeditor.</p>
+                <p>Set a new due date for the copyeditor. You will be able to edit the notification email on the next page.</p>
                 <form method="POST">
                     {% csrf_token %}
-                    <textarea name="reset_note">{{ reopen_message|safe|linebreaksbr }}</textarea>
                     <label for="due">Due Date</label>
                     <input type="date" name="due" id="due" required="required">
-                    <button name="review" type="submit" class="button success"><i class="fa fa-envelope-o">&nbsp;</i>Send
+                    <button name="reopen_due" type="submit" class="button success">
+                        <i class="fa fa-arrow-right">&nbsp;</i>Next
                     </button>
                 </form>
             </div>
