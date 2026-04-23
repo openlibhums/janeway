@@ -62,6 +62,11 @@ class TestViews(TestCase):
             repository=cls.repository,
             name="Accept",
         )
+        cls.staff_user = helpers.create_user("staff@janeway.systems")
+        cls.staff_user.is_staff = True
+        cls.staff_user.is_active = True
+        cls.staff_user.save()
+        cls.repository.managers.add(cls.staff_user)
         update_settings()
 
     def setUp(self):
@@ -408,6 +413,20 @@ class TestViews(TestCase):
             )
             content = response.content.decode()
             self.assertIn("/login/?next=", content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_press_manager_link_hidden_from_repository_manager(self):
+        self.client.force_login(self.repo_manager)
+        path = reverse("preprints_manager")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertNotIn(b"Press Manager", response.content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_press_manager_link_shown_to_staff(self):
+        self.client.force_login(self.staff_user)
+        path = reverse("preprints_manager")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertIn(b"Press Manager", response.content)
 
 
 class TestHierarchyView(TestCase):
