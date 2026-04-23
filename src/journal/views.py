@@ -93,7 +93,13 @@ def home(request):
     # call all registered plugin block hooks to get relevant contexts
 
     for hook in settings.PLUGIN_HOOKS.get("yield_homepage_element_context", []):
-        if hook.get("name") in homepage_element_names:
+        hook_configure_url = hook.get("configure_url")
+        hook_is_active = (
+            homepage_elements.filter(configure_url=hook_configure_url).exists()
+            if hook_configure_url
+            else hook.get("name") in homepage_element_names
+        )
+        if hook_is_active:
             try:
                 hook_module = plugin_loader.import_module(hook.get("module"))
                 function = getattr(hook_module, hook.get("function"))
