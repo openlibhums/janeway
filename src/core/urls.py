@@ -26,13 +26,21 @@ urlpatterns = [
 ]
 
 try:
-    if settings.DEBUG or settings.IN_TEST_RUNNER:
-        import debug_toolbar
-
+    if (
+        settings.DEBUG
+        or settings.IN_TEST_RUNNER
+        or getattr(settings, "SERVE_MEDIA_LOCALLY", False)
+    ):
         urlpatterns += [
             re_path(
                 r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}
             ),
+        ]
+
+    if settings.DEBUG or settings.IN_TEST_RUNNER:
+        import debug_toolbar
+
+        urlpatterns += [
             re_path(r"^404/$", error_views.handler404),
             re_path(r"^500/$", error_views.handler500),
             path("__debug__/", include("debug_toolbar.urls")),

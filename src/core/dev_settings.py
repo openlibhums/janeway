@@ -2,9 +2,10 @@
 # You should change this key before you go live!
 import os
 
-DEBUG = True
+DEBUG = False
 FORCE_BUILTIN_XSL = False
 SECRET_KEY = "uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv"
+SERVE_MEDIA_LOCALLY = True
 
 # This is the default redirect if no other sites are found.
 DEFAULT_HOST = "https://www.example.org"
@@ -17,13 +18,8 @@ EMAIL_BACKEND = (
 
 URL_CONFIG = "path"  # path or domain
 
-MIDDLEWARE = (
-    "utils.middleware.TimeMonitoring",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-)
-INSTALLED_APPS = [
-    "debug_toolbar",
-]
+MIDDLEWARE = ("utils.middleware.TimeMonitoring",)
+INSTALLED_APPS = []
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +33,10 @@ def show_toolbar(request):
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
+
+if DEBUG:
+    MIDDLEWARE += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
+    INSTALLED_APPS += ["debug_toolbar"]
 
 HIJACK_LOGIN_REDIRECT_URL = "/manager/"
 HIJACK_USERS_ENABLED = True
