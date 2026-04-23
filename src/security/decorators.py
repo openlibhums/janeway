@@ -145,7 +145,10 @@ def editor_or_manager(func):
         if request.user.is_staff:
             return func(request, *args, **kwargs)
 
-        if request.journal and request.user in request.journal.editor_list():
+        if request.journal and (
+            request.user.is_editor(request)
+            or request.user.is_journal_manager(request.journal)
+        ):
             return func(request, *args, **kwargs)
 
         if request.repository and request.user in request.repository.managers.all():
