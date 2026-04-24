@@ -507,6 +507,9 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get("article_id", None)
+        galley_id = kwargs.get("galley_id", None)
+
         if (
             request.user.is_typesetter(request)
             or request.user.is_production(request)
@@ -514,8 +517,24 @@ def typesetting_user_or_production_user_or_editor_required(func):
             or request.user.is_staff
         ):
             return func(request, *args, **kwargs)
-        else:
-            deny_access(request)
+
+        elif article_id:
+            article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+            if request.user in article.section_editors():
+                return func(request, *args, **kwargs)
+        elif galley_id:
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+            )
+            if request.user in galley.article.section_editors():
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
