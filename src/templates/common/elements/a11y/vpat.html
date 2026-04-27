@@ -7,14 +7,6 @@
             We audit against WCAG 2.2 AA standard, and each success criterion is crosslinked to any work that needs to be done on Github. 
         {% endblocktrans%} 
     </p>
-    <p> 
-    <p>
-        <a href="https://github.com/openlibhums/janeway/issues/new/choose" 
-            target="_blank">
-            {% trans 'Please report accessibility issues directly to our developers.' %}
-            {% include "elements/icons/link_external.html" %}
-        </a>
-    </p>
 
 {% for theme_key, theme_data in vpat_data.items %}
   {% if theme_key == theme %}
@@ -24,3 +16,12 @@
 
   {% endif %}
 {% endfor %}
+<hr aria-hidden="true"/>
+<h3> Report Platform Accessibility Issues</h3>
+<p>
+    <a href="https://github.com/openlibhums/janeway/issues/new/choose" 
+        target="_blank">
+        {% trans 'Please report janeway accessibility issues directly to the developers.' %}
+        {% include "elements/icons/link_external.html" %}
+    </a>
+</p>
