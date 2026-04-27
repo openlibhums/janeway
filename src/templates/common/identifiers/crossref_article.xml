@@ -56,7 +56,7 @@
 
             {% if article.erratum_of %}
             <crossmark>
-              <crossmark_policy>{{ crossmark_policy_doi }}</crossmark_policy>
+              <crossmark_policy>{{ article.object.journal|setting:'crossref_prefix' }}/not-used</crossmark_policy>
               <updates>
                 <update type="erratum" date="{{ now|date:"Y-m-d" }}">{{ article.erratum_of.get_doi }}</update>
               </updates>
