@@ -10,6 +10,7 @@
                     <h1 id="cms-title">{% trans "Accessibility" %} </h1>
                     <hr aria-hidden="true" /> 
                     {% include "common/elements/a11y/janeway.html" %}
+                    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="olh" %}
                     {% include "common/elements/a11y/press.html" %}
                     {% include "common/elements/a11y/journal.html" %}
                 </div>

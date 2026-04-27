@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import os
 import re
 
 from django.conf import settings
@@ -2138,7 +2139,40 @@ def accessibility(request):
     else:
         template = "press/a11y.html"
 
-    context = {}
+    # Load a11y conformance data
+    try:
+        json_path = os.path.join(
+            settings.BASE_DIR, "..", "docs", "md", "a11y", "conformance_data.json"
+        )
+        with open(json_path, "r") as f:
+            raw_data = json.load(f)
+
+        # Process data for each theme
+        vpat_data = {}
+        for theme_key, theme_info in raw_data.get("area", {}).items():
+            vpat_data[theme_key] = {
+                "name": theme_info.get("name"),
+                "audit_results": [
+                    {
+                        "criterion_id": crit_id,
+                        "criterion_name": raw_data["criteria"]
+                        .get(crit_id, {})
+                        .get("criterion_name"),
+                        "level": raw_data["criteria"].get(crit_id, {}).get("level"),
+                        "conformance": result.get("conformance"),
+                        "remarks": result.get("remarks"),
+                        "audit": result.get("audit"),
+                    }
+                    for crit_id, result in theme_info.get("audit_results", {}).items()
+                ],
+            }
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        vpat_data = {}
+
+    context = {
+        "vpat_data": vpat_data,
+    }
     return render(request, template, context)
 
 
