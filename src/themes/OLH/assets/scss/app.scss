@@ -81,6 +81,13 @@ a {
   color: var(--link-color);
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 #toc a, aside a {
   color: var(--toc-link-color);
 }
