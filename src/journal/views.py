@@ -2147,6 +2147,15 @@ def accessibility(request):
         with open(json_path, "r") as f:
             raw_data = json.load(f)
 
+        # Parse markdown links: [text](url) -> {text: ..., url: ...}
+        def parse_audit_link(audit_str):
+            if not audit_str:
+                return {"text": "", "url": ""}
+            match = re.match(r"\[([^\]]+)\]\(([^)]+)\)", audit_str)
+            if match:
+                return {"text": match.group(1), "url": match.group(2)}
+            return {"text": audit_str, "url": ""}
+
         # Process data for each theme
         vpat_data = {}
         for theme_key, theme_info in raw_data.get("area", {}).items():
@@ -2161,7 +2170,7 @@ def accessibility(request):
                         "level": raw_data["criteria"].get(crit_id, {}).get("level"),
                         "conformance": result.get("conformance"),
                         "remarks": result.get("remarks"),
-                        "audit": result.get("audit"),
+                        "audit": parse_audit_link(result.get("audit")),
                     }
                     for crit_id, result in theme_info.get("audit_results", {}).items()
                 ],

@@ -6,6 +6,7 @@
         <th>Success Criterion</th>
         <th>Conformance</th>
         <th>Remarks</th>
+        <th>Audit</th>
     </tr>
     </thead>
     <tbody>
@@ -16,6 +17,15 @@
         <td>{{ item.criterion_name }}</td>
         <td>{{ item.conformance }}</td>
         <td>{{ item.remarks }}</td>
+        <td>
+            {% if item.audit.url %}
+                <a href="{{ item.audit.url }}" target="_blank">
+                    {{ item.audit.text }}{% include "elements/icons/link_external.html" %}
+                </a>
+            {% else %}
+                {{ item.audit.text }}
+            {% endif %}
+        </td>        
         </tr>
         {% endif %}
     {% endfor %}
