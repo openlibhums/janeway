@@ -7,10 +7,8 @@
 
 {% block body %}
 <h1> {% trans "Accessibility" %} </h1>
-
-    {% include "common/elements/a11y/janeway.html" %}
-    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="clean" %}
     {% include "common/elements/a11y/press.html" %}
     {% include "common/elements/a11y/journal.html" %}
-
+    {% include "common/elements/a11y/janeway.html" %}
+    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="clean" %}
 {% endblock body %}
