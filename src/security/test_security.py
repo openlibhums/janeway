@@ -4500,7 +4500,7 @@ class TestSecurity(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), ["Mediation", "Medicine"])
+        self.assertEqual(response.json(), ["Mediation"])
 
     def test_journal_keyword_suggestions_returns_initial_results_for_empty_query(self):
         medicine = submission_models.Keyword.objects.create(word="Medicine")
@@ -4515,7 +4515,7 @@ class TestSecurity(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), ["Arts", "Medicine"])
+        self.assertEqual(response.json(), ["Arts"])
 
     def test_journal_settings_page_requires_three_characters_before_searching(self):
         self.client.force_login(self.editor)

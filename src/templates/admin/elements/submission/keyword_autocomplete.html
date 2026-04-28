@@ -10,6 +10,22 @@
             return;
         }
 
+        function getAssignedKeywords() {
+            try {
+                return $("#id_keywords").tagit("assignedTags");
+            } catch (error) {
+                return $("#id_keywords")
+                    .val()
+                    .split(",")
+                    .map(function (keyword) {
+                        return $.trim(keyword).toLowerCase();
+                    })
+                    .filter(Boolean);
+            }
+        }
+
+        $("#id_keywords").attr("autocomplete", "off");
+
         $("#id_keywords").tagit({
             allowSpaces: true,
             autocomplete: {
@@ -19,7 +35,14 @@
                 source: function (request, response) {
                     $.getJSON("{{ suggestions_url|escapejs }}", {q: request.term})
                         .done(function (data) {
-                            response(data);
+                            var assignedKeywords = $.map(getAssignedKeywords(), function (keyword) {
+                                return keyword.toLowerCase();
+                            });
+                            var filteredResults = $.grep(data, function (keyword) {
+                                return $.inArray(keyword.toLowerCase(), assignedKeywords) === -1;
+                            });
+
+                            response(filteredResults);
                         })
                         .fail(function () {
                             response([]);
@@ -27,5 +50,10 @@
                 }
             }
         });
+
+        $("#id_keywords")
+            .next(".tagit")
+            .find(".tagit-new input")
+            .attr("autocomplete", "off");
     });
 </script>
