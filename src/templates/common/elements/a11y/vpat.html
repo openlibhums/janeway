@@ -1,12 +1,4 @@
-<h3> Janeway VPAT </h3>
-    <p> 
-        {% blocktrans %}
-            Janeway conformance data is stored within the codebase, so that its history can be tracked. 
-            We audit our platform with a combination of manual and automated testing alongside reviewing the codebase.  
-            The primary purpose of each audit is to identify accessibility improvements and specify them for development.
-            We audit against WCAG 2.2 AA standard, and each success criterion is crosslinked to any work that needs to be done on Github. 
-        {% endblocktrans%} 
-    </p>
+
 
 {% for theme_key, theme_data in vpat_data.items %}
   {% if theme_key == theme %}
@@ -16,12 +8,3 @@
 
   {% endif %}
 {% endfor %}
-<hr aria-hidden="true"/>
-<h3> Report Platform Accessibility Issues</h3>
-<p>
-    <a href="https://github.com/openlibhums/janeway/issues/new/choose" 
-        target="_blank">
-        {% trans 'Please report janeway accessibility issues directly to the developers.' %}
-        {% include "elements/icons/link_external.html" %}
-    </a>
-</p>
