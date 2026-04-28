@@ -2179,8 +2179,37 @@ def accessibility(request):
     except (FileNotFoundError, json.JSONDecodeError):
         vpat_data = {}
 
+    # For press a11y page, identify themes in use by journals
+    journal_themes = {}
+    if not request.journal:  # This is the press-level page
+        from core.models import SettingValue, Setting
+
+        press = request.press
+        all_journals = press.journals()
+
+        # Check all themes used by journals (including defaults)
+        try:
+            journal_theme_settings = (
+                SettingValue.objects.filter(
+                    journal__in=all_journals,
+                    setting__name="journal_theme",
+                    setting__group__name="general",
+                )
+                .values_list("value", flat=True)
+                .distinct()
+            )
+            themes_in_use = set(journal_theme_settings)
+        except (SettingValue.DoesNotExist, Setting.DoesNotExist):
+            themes_in_use = set()
+
+        # make lower case and include all journal themes
+        for theme in themes_in_use:
+            theme_lower = theme.lower()
+            journal_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
+
     context = {
         "vpat_data": vpat_data,
+        "journal_themes": journal_themes,
     }
     return render(request, template, context)
 

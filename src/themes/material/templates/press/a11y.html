@@ -10,6 +10,45 @@
 <h1> {% trans "Accessibility" %} </h1>
     {% include "common/elements/a11y/press.html" %}
     {% include "common/elements/a11y/janeway.html" %}
-    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="material" %}
+
+    {% if not journal_themes or journal_themes|length == 1 and 'material' in journal_themes %}
+        <h3>VPAT</h3>
+            {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="material" %}
+    {% else %}
+        <p>
+            {% blocktrans %}
+                Janeway has several themes, each of which has unique templates and is built on a different framework and so vary in accessibility.
+                This press-site uses a different theme to some of the journals-sites.  VPATs for all themes in use are given below.
+            {% endblocktrans%}
+        </p>
+
+        {% if 'material' in journal_themes %}
+            <h3>Material Theme VPAT {% trans "(Press and Journals)" %}</h3>
+        {% else %}
+            <h3>Material Theme VPAT {% trans "(Press)" %}</h3>
+        {% endif %}
+        {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="material" %}
+
+        {% if 'olh' in journal_themes %}
+            <h3>OLH Theme VPAT {% trans "(Journals)" %}</h3>
+                {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="olh" %}
+        {% endif %}
+
+        {% if 'clean' in journal_themes %}
+            <h3>Clean Theme VPAT {% trans "(Journals)" %}</h3>
+                {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="clean" %}
+        {% endif %}
+
+    {% endif %}
+
+    <hr aria-hidden="true"/>
+    <h3> {% trans 'Report Platform Accessibility Issues' %} </h3>
+    <p>
+        <a href="https://github.com/openlibhums/janeway/issues/new/choose" 
+            target="_blank">
+            {% trans 'Please report janeway accessibility issues directly to the developers.' %}
+            {% include "elements/icons/link_external.html" %}
+        </a>
+    </p>
 
 {% endblock body %}
