@@ -241,7 +241,14 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#id_keywords").tagit(
-                {allowSpaces: true});
+                {
+                    allowSpaces: true,
+                    availableTags: [
+                        {% for keyword in request.journal.keywords.all %}
+                            "{{ keyword.word|escapejs }}"{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                });
         });
     </script>
     <script src="{% static "admin/js/csrf.js" %}"></script>
