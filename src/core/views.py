@@ -1292,7 +1292,8 @@ def journal_keyword_suggestions(request):
     """
     search_term = request.GET.get("q", "").strip()
 
-    matches = submission_models.Keyword.objects.all()
+    current_keyword_ids = request.journal.keywords.values_list("pk", flat=True)
+    matches = submission_models.Keyword.objects.exclude(pk__in=current_keyword_ids)
 
     if search_term:
         matches = matches.filter(word__istartswith=search_term)
