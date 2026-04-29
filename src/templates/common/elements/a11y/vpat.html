@@ -1,0 +1,10 @@
+
+
+{% for theme_key, theme_data in vpat_data.items %}
+  {% if theme_key == theme %}
+
+    {% include "common/elements/a11y/vpat_table.html" with wcag_level="A" %}
+    {% include "common/elements/a11y/vpat_table.html" with wcag_level="AA" %}
+
+  {% endif %}
+{% endfor %}

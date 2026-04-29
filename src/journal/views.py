@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import os
 import re
 
 from django.conf import settings
@@ -2138,7 +2139,78 @@ def accessibility(request):
     else:
         template = "press/a11y.html"
 
-    context = {}
+    # Load a11y conformance data
+    try:
+        json_path = os.path.join(
+            settings.BASE_DIR, "..", "docs", "md", "a11y", "conformance_data.json"
+        )
+        with open(json_path, "r") as f:
+            raw_data = json.load(f)
+
+        # Parse markdown links: [text](url) -> {text: ..., url: ...}
+        def parse_audit_link(audit_str):
+            if not audit_str:
+                return {"text": "", "url": ""}
+            match = re.match(r"\[([^\]]+)\]\(([^)]+)\)", audit_str)
+            if match:
+                return {"text": match.group(1), "url": match.group(2)}
+            return {"text": audit_str, "url": ""}
+
+        # Process data for each theme
+        vpat_data = {}
+        for theme_key, theme_info in raw_data.get("area", {}).items():
+            vpat_data[theme_key] = {
+                "name": theme_info.get("name"),
+                "audit_results": [
+                    {
+                        "criterion_id": crit_id,
+                        "criterion_name": raw_data["criteria"]
+                        .get(crit_id, {})
+                        .get("criterion_name"),
+                        "level": raw_data["criteria"].get(crit_id, {}).get("level"),
+                        "conformance": result.get("conformance"),
+                        "remarks": result.get("remarks"),
+                        "audit": parse_audit_link(result.get("audit")),
+                    }
+                    for crit_id, result in theme_info.get("audit_results", {}).items()
+                ],
+            }
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        vpat_data = {}
+
+    # For press a11y page, identify themes in use by journals
+    journal_themes = {}
+    if not request.journal:  # This is the press-level page
+        from core.models import SettingValue, Setting
+
+        press = request.press
+        all_journals = press.journals()
+
+        # Check all themes used by journals (including defaults)
+        try:
+            journal_theme_settings = (
+                SettingValue.objects.filter(
+                    journal__in=all_journals,
+                    setting__name="journal_theme",
+                    setting__group__name="general",
+                )
+                .values_list("value", flat=True)
+                .distinct()
+            )
+            themes_in_use = set(journal_theme_settings)
+        except (SettingValue.DoesNotExist, Setting.DoesNotExist):
+            themes_in_use = set()
+
+        # make lower case and include all journal themes
+        for theme in themes_in_use:
+            theme_lower = theme.lower()
+            journal_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
+
+    context = {
+        "vpat_data": vpat_data,
+        "journal_themes": journal_themes,
+    }
     return render(request, template, context)
 
 

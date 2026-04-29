@@ -529,6 +529,13 @@ a {
     overflow-wrap: break-word;
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 .section-link {
     white-space: nowrap;
 }
