@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block title %}{{ preprint.title|striptags }} - Manager{% endblock %}
-{% block title-section %}{{ request.repository.object_name }} Manager{% endblock %}
-{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name|capfirst }} Manager{% endblock %}
+{% block title-sub %}{{ request.repository.object_name|capfirst }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
 {% load files %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
     <li>{{ preprint.title|safe }}</li>
 {% endblock %}
 
@@ -32,12 +32,14 @@
                         <td colspan="3">{{ preprint.title }}</td>
                     </tr>
                     <tr>
-                        <th colspan="2">Owner</th>
+                        <th>Owner</th>
                         <th>Licence</th>
+                        <th>Type</th>
                     </tr>
                     <tr>
-                        <td colspan="2">{{ preprint.owner.full_name }}</td>
+                        <td>{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
+                        <td>{{ preprint.submission_type.name|default:"No submission type set" }}</td>
                     </tr>
                     <tr>
                         <th colspan="2">Preprint DOI</th>
@@ -121,7 +123,7 @@
                                 class="fa fa-clipboard">&nbsp;</i>Log</a></li>
                     {% if request.repository.enable_comments %}
                     <li>
-                      <a href="{% url 'repository_comments' preprint.pk %}">
+                      <a href="{% url 'repository_manager_comment_list_filtered' preprint.pk %}">
                         <i class="fa fa-comments" aria-hidden="true">&nbsp;</i>
                         Comments ({{ comment_count }})
                       </a>
@@ -178,6 +180,10 @@
                     </form>
                     <li>
                         <a href="{% url 'repository_send_to_a_journal' preprint.pk %}"><i class="fa fa-exchange">&nbsp;</i>Send to Journal
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'identifiers' 'preprint' preprint.pk %}"><i class="fa fa-link">&nbsp;</i>Manage Identifiers
                         </a>
                     </li>
                 </ul>

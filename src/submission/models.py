@@ -38,6 +38,7 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -52,6 +53,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
+from core.templatetags import alt_text
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -823,8 +825,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -857,8 +861,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
@@ -1676,6 +1682,10 @@ class Article(AbstractLastModifiedModel):
     @cached_property
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
+
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
@@ -2590,6 +2600,36 @@ class Article(AbstractLastModifiedModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
+    @property
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.best_large_image_alt_text
+        elif self.journal.default_large_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.default_large_image.url,
+                default=default_text,
+            )
+        elif self.journal.press.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.press.default_carousel_image.url,
+                default=default_text,
+            )
+        return default_text
+
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
     AFFILIATION_RELATED_NAME = "frozen_author"
@@ -3303,6 +3343,14 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
+    )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,

@@ -1,0 +1,8 @@
+<p>
+    <strong>{{ person.full_name }}</strong>
+    <a onclick="return popitup('{% url 'send_user_email_article' person.pk article.pk %}')">
+        <i class="fa fa-envelope-o" aria-hidden="true"></i>
+    </a><br>
+    <small>{{ person.real_email }}</small><br>
+    <small>{{ role }}</small>
+</p>

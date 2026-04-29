@@ -40,7 +40,7 @@
               <div class="olh-banner">
                 <img class="olh-banner-image"
                   src="{{ article.best_large_image_url }}"
-                  alt="{{ article.title | striptags }}">
+                  alt="{{ article.best_large_image_alt_text }}">
                 <div class="overlay"></div>
                 <div class="olh-banner-heading">
                   <p class="uppercase">{{ article.section.name }}</p>
@@ -158,8 +158,12 @@
                 <hr aria-hidden="true" />
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
-                                <h2>{% trans "Abstract" %}</h2>
-                                <p>{{ article.abstract|safe }}</p>
+                                <h3>{% trans "Abstract" %}</h3>
+                                {% if journal_settings.general.uses_isolinear_plugin and not article.is_published %}
+                                    {% hook 'preprint_abstract_block' article.abstract %}
+                                {% else %}
+                                    {{ article.abstract|safe }}
+                                {% endif %}
                             {% endif %}
                             {% if journal_settings.general.keyword_list_page %}
                                 {% include "elements/journal/article_keywords.html" with keywords=article.keywords linked="True" %}
@@ -221,6 +225,7 @@
                                 </div>
                             {% endif %}
                             {% include "elements/funder_info_for_readers.html" %}
+
                             <div class="summary">
                                 {% if article.is_published or proofing %}
                                     {% if not request.journal.disable_metrics_display %}
@@ -272,6 +277,8 @@
                                         {% endif %}
                                             {% if article.peer_reviewed %}
                                                 <p>{% trans "Peer Reviewed" %}</p>
+                                            {% elif journal_settings.general.uses_isolinear_plugin and not article.is_published %}
+                                                <h5>Preprint Under Review</h5>
                                             {% endif %}
                                         </div>
                                         {% if article.date_published or article.date_accepted or proofing %}
@@ -292,12 +299,14 @@
                                 <article id="main_article">
                                     <div itemprop="articleBody">
                                         {{ article_content|safe }}
+                                        {% hook 'article_content_block' %}
                                         <div id="article_footer_block">
                                             {% hook 'article_footer_block' %}
                                         </div>
                                     </div>
                                 </article>
                             {% endif %}
+                            {% hook 'article_content' %}
                         </div>
                     </div>
                 </div>
@@ -351,25 +360,30 @@
                                     {% else %}
                                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                                     {% endif %}
+                                {% elif journal_settings.general.uses_isolinear_plugin and article.preprint %}
+                                    <h3>{% trans "Download" %}</h3>
+                                    {% hook 'preprint_version_downloads' %}
                                 {% else %}
                                     <p> {% trans 'Downloads are not available until this article is published ' %}</p>
                                 {% endif %}
                             </div>
+                            {% if article.is_published or proofing %}
                             <div class="section">
                             {% include "elements/journal/article_issue_list.html" %}
                             </div>
-                        {% with article.get_doi_url as doi_url %}
-                        {% if doi_url %}
-                         <div class="section">
-                             <h2>{% trans "Identifiers" %}</h2>
-                             <ul>
-                                 <li>
-                                    {% include "elements/doi_display.html" with doi=doi_url title=article.title %}
-                                </li>
-                             </ul>
-                         </div>
-                         {% endif %}
-                        {% endwith %}
+                            {% endif %}
+                            {% with article.get_doi_url as doi_url %}
+                                {% if doi_url %}
+                                 <div class="section">
+                                     <h3>{% trans "Identifiers" %}</h3>
+                                     <ul>
+                                         <li>
+                                            {% include "elements/doi_display.html" with doi=doi_url title=article.title %}
+                                        </li>
+                                     </ul>
+                                 </div>
+                                {% endif %}
+                            {% endwith %}
 
                         {% if article.has_publication_details %}
                          <div class="section">
@@ -455,7 +469,7 @@
                         </div>
                         {% endfor %}
 
-                        {% if article.preprint and article.preprint.is_published %}
+                        {% if article.preprint and article.preprint.is_published and not journal_settings.general.uses_isolinear_plugin %}
                         <div class="section hide-for-small-only">
                             <h2>{{ article.preprint.repository.object_name }}</h2>
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
@@ -463,6 +477,7 @@
                         </div>
                         {% endif %}
 
+                        {% if galleys %}
                         <div class="section hide-for-small-only">
                             <h2>{% trans "File Checksums" %} (MD5)</h2>
                             {% if galleys %}
@@ -477,6 +492,7 @@
                                 <p> {% trans 'File Checksums are not available for this article.' %}</p>
                             {% endif %}
                         </div>
+                        {% endif %}
 
                         {% if journal_settings.general.use_credit and author.credits.exists %}
                           <div class="section hide-for-small-only">
@@ -499,12 +515,12 @@
                         <div class="section hide-for-small-only">
                             {% if journal_settings.general.open_peer_review %}
                                 {% if article.public_reviews.count > 0 %}
-                                    <h2>{% trans "Peer Review" %}</h2>
-                                    <p>
+                                    <h3>{% trans "Peer Review" %}</h3>
+                                    <ul>
                                         {% for review in article.public_reviews %}
-                                            <a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a>
+                                            <li><a href="#" data-open="reviewmodal-{{ review.pk }}">Review by {{ review.reviewer.full_name }}</a></li>
                                         {% endfor %}<br/>
-                                    </p>
+                                    </ul>
                                 {% endif %}
                             {% endif %}
                         </div>

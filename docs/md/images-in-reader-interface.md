@@ -10,7 +10,7 @@
 - `press.Press.default_carousel_image`
 - `press.Press.thumbnail_image`
 - `journal.Journal.thumbnail_image`
-- `submission.thumbnail_image_file`
+- `submission.Article.thumbnail_image_file`
 - `journal.Journal.default_cover_image`
 - `journal.Issue.cover_image`
 - `journal.Journal.header_image`

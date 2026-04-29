@@ -499,6 +499,7 @@ def send_submission_acknowledgement(**kwargs):
 
     editor_emails |= {editor.email for editor in assigned_to_section}
 
+    replyto_address = request.journal.get_setting("general", "replyto_address")
     notify_helpers.send_email_with_body_from_setting_template(
         request,
         "editor_new_submission",
@@ -506,7 +507,9 @@ def send_submission_acknowledgement(**kwargs):
         editor_emails,
         context,
         log_dict=log_dict,
-        custom_reply_to=[f"noreply{settings.DUMMY_EMAIL_DOMAIN}"],
+        custom_reply_to=[replyto_address]
+        if replyto_address
+        else [f"noreply{settings.DUMMY_EMAIL_DOMAIN}"],
     )
 
 
@@ -1769,18 +1772,10 @@ def preprint_comment(**kwargs):
     preprint = kwargs.get("preprint")
 
     path = reverse(
-        "repository_comments",
+        "repository_manager_comment_list_filtered",
         kwargs={"preprint_id": preprint.pk},
     )
     url = request.repository.site_url(path)
-
-    email_text = (
-        "A comment has been made on your article {title}, you can moderate comments "
-        '<a href="{url}">on the journal site</a>.'.format(
-            title=preprint.title,
-            url=url,
-        )
-    )
 
     description = "{author} commented on {title}".format(
         author=request.user.full_name(),
@@ -1793,13 +1788,80 @@ def preprint_comment(**kwargs):
         "target": preprint,
     }
 
+    for manager in request.repository.managers.all():
+        context = {
+            "preprint": preprint,
+            "manager": manager,
+            "url": url,
+        }
+        email_text = render_template.get_message_content(
+            request,
+            context,
+            request.repository.new_comment,
+            template_is_setting=True,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            "Preprint Comment",
+            manager.email,
+            email_text,
+            log_dict=log_dict,
+        )
+
+
+def preprint_comment_published(**kwargs):
+    request = kwargs.get("request")
+    preprint = kwargs.get("preprint")
+    comment = kwargs.get("comment")
+
+    url = request.repository.site_url(
+        reverse(
+            "repository_preprint",
+            kwargs={"preprint_id": preprint.pk},
+        )
+    )
+
+    description = "Comment approved on {title}".format(title=preprint.title)
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Preprint Comment Published",
+        "target": preprint,
+    }
+
+    context = {
+        "preprint": preprint,
+        "comment": comment,
+        "url": url,
+    }
+    email_text_owner = render_template.get_message_content(
+        request,
+        context,
+        request.repository.comment_published,
+        template_is_setting=True,
+    )
     notify_helpers.send_email_with_body_from_user(
         request,
-        "Preprint Comment",
+        "Comment Approved",
         preprint.owner.email,
-        email_text,
+        email_text_owner,
         log_dict=log_dict,
     )
+
+    if comment.author and comment.author != preprint.owner:
+        email_text_commenter = render_template.get_message_content(
+            request,
+            context,
+            request.repository.comment_approved,
+            template_is_setting=True,
+        )
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            "Comment Approved",
+            comment.author.email,
+            email_text_commenter,
+            log_dict=log_dict,
+        )
 
 
 def preprint_version_update(**kwargs):
@@ -1849,6 +1911,53 @@ def preprint_version_update(**kwargs):
         email_text,
         log_dict=log_dict,
     )
+
+
+def preprint_new_version(**kwargs):
+    """
+    Called by events.Event.ON_PREPRINT_NEW_VERSION
+    :param kwargs: Dictionary containing new_version, preprint and request
+    objects
+    :return: None
+    """
+    request = kwargs.get("request")
+    preprint = kwargs.get("preprint")
+    new_version = kwargs.get("new_version")
+
+    description = "{author} has submitted a new {obj} version.".format(
+        author=request.user.full_name(),
+        obj=request.repository.object_name,
+        title=preprint.title,
+    )
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Submission",
+        "target": preprint,
+    }
+    url = request.repository.site_url(path=reverse("version_queue"))
+    # Send an email to the preprint editors
+    template = request.repository.new_version_submitted
+    email_text = render_template.get_message_content(
+        request,
+        {"preprint": preprint, "new_version": new_version, "url": url},
+        template,
+        template_is_setting=True,
+    )
+    repo = request.repository
+    recipients = (
+        repo.submission_notification_recipients
+        if repo.submission_notification_recipients.count() > 0
+        else repo.managers
+    )
+    for r in recipients.all():
+        notify_helpers.send_email_with_body_from_user(
+            request,
+            "{} New Version".format(request.repository.object_name),
+            r.email,
+            email_text,
+            log_dict=log_dict,
+        )
 
 
 def send_cancel_corrections(**kwargs):

@@ -1,10 +1,6 @@
-__copyright__ = "Copyright 2017 Birkbeck, University of London"
-__author__ = "Martin Paul Eve & Andy Byers"
-__license__ = "AGPL v3"
-__maintainer__ = "Birkbeck Centre for Technology and Publishing"
-
 import os
 
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -21,6 +17,7 @@ from press import models as press_models
 from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
 from utils.testing import helpers
+from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
 
 
@@ -1063,3 +1060,194 @@ class ReviewTests(TestCase):
             0,
             response.context.get("incomplete").count(),
         )
+
+    # assignment_notification tests
+
+    def _make_editor_assignment(self, notified=False):
+        return review_models.EditorAssignment.objects.create(
+            article=self.article_unassigned,
+            editor=self.editor,
+            editor_type="editor",
+            notified=notified,
+        )
+
+    def _assignment_notification_url(self):
+        return reverse(
+            "review_assignment_notification",
+            kwargs={
+                "article_id": self.article_unassigned.pk,
+                "editor_id": self.editor.pk,
+            },
+        )
+
+    def test_assignment_notification_get(self):
+        self._make_editor_assignment()
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            self._assignment_notification_url(),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_assignment_notification_post_sends(self):
+        """A valid POST redirects and marks the assignment as notified."""
+        assignment = self._make_editor_assignment()
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            self._assignment_notification_url(),
+            {
+                "cc": "",
+                "bcc": "",
+                "subject": "You have been assigned",
+                "body": "You have been assigned as an editor.",
+                "send": "send",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.notified)
+
+    def test_assignment_notification_skip_redirects_and_notifies(self):
+        """Clicking Skip redirects and marks the assignment as notified without sending email."""
+        assignment = self._make_editor_assignment()
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            self._assignment_notification_url(),
+            {
+                "cc": "",
+                "bcc": "",
+                "subject": "You have been assigned",
+                "body": "You have been assigned as an editor.",
+                "skip": "skip",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.notified)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_assignment_notification_send_delivers_email(self):
+        """Submitting the form sends an email to the assigned editor."""
+        self._make_editor_assignment()
+        self.client.force_login(self.editor)
+        self.client.post(
+            self._assignment_notification_url(),
+            {
+                "cc": "",
+                "bcc": "",
+                "subject": "You have been assigned",
+                "body": "You have been assigned as an editor.",
+                "send": "send",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.editor.email, mail.outbox[0].to)
+
+    def test_notify_reviewer_post_redirects(self):
+        """A valid POST redirects when one-click access is off (no URL check)."""
+        self.client.force_login(self.editor)
+        with janeway_setting_override(
+            "general", "enable_one_click_access", self.journal_one, ""
+        ):
+            response = self.client.post(
+                reverse(
+                    "review_notify_reviewer",
+                    kwargs={
+                        "article_id": self.article_under_review.pk,
+                        "review_id": self.review_assignment.pk,
+                    },
+                ),
+                {
+                    "cc": "",
+                    "bcc": "",
+                    "subject": "Review request",
+                    "body": "Please review this article.",
+                    "send": "send",
+                },
+                SERVER_NAME=self.journal_one.domain,
+            )
+        self.assertEqual(response.status_code, 302)
+
+    def test_notify_reviewer_skip_redirects_without_email(self):
+        """Skip bypasses URL validation and redirects without sending an email."""
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            reverse(
+                "review_notify_reviewer",
+                kwargs={
+                    "article_id": self.article_under_review.pk,
+                    "review_id": self.review_assignment.pk,
+                },
+            ),
+            {
+                "cc": "",
+                "bcc": "",
+                "subject": "Review request",
+                "body": "No link here.",
+                "skip": "skip",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_notify_reviewer_with_correct_url_redirects(self):
+        """A POST containing the correct reviewer URL redirects when one-click access is on."""
+        self.client.force_login(self.editor)
+        review_url = self.journal_one.site_url(
+            path=reverse(
+                "do_review", kwargs={"assignment_id": self.review_assignment.pk}
+            )
+        )
+        review_url = "{}?access_code={}".format(
+            review_url, self.review_assignment.access_code
+        )
+        with janeway_setting_override(
+            "general", "enable_one_click_access", self.journal_one, "on"
+        ):
+            response = self.client.post(
+                reverse(
+                    "review_notify_reviewer",
+                    kwargs={
+                        "article_id": self.article_under_review.pk,
+                        "review_id": self.review_assignment.pk,
+                    },
+                ),
+                {
+                    "cc": "",
+                    "bcc": "",
+                    "subject": "Review request",
+                    "body": "Please review at {}".format(review_url),
+                    "send": "send",
+                },
+                SERVER_NAME=self.journal_one.domain,
+            )
+        self.assertEqual(response.status_code, 302)
+
+    def test_notify_reviewer_missing_url_does_not_redirect(self):
+        """A POST without the reviewer URL and without skip stays on the page."""
+        self.client.force_login(self.editor)
+        with janeway_setting_override(
+            "general", "enable_one_click_access", self.journal_one, "on"
+        ):
+            response = self.client.post(
+                reverse(
+                    "review_notify_reviewer",
+                    kwargs={
+                        "article_id": self.article_under_review.pk,
+                        "review_id": self.review_assignment.pk,
+                    },
+                ),
+                {
+                    "cc": "",
+                    "bcc": "",
+                    "subject": "Review request",
+                    "body": "No link here.",
+                    "send": "send",
+                },
+                SERVER_NAME=self.journal_one.domain,
+            )
+        self.assertEqual(response.status_code, 200)

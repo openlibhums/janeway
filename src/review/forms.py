@@ -14,7 +14,7 @@ from tinymce.widgets import TinyMCE
 
 from review import models, logic
 from core import models as core_models, forms as core_forms
-from core.widgets import JanewayFileInput
+from core.widgets import JanewayFileInput, OptGroupSelect
 from utils import setting_handler
 from utils.forms import FakeModelForm, HTMLDateInput, HTMLSwitchInput
 
@@ -25,11 +25,15 @@ class DraftDecisionForm(forms.ModelForm):
     class Meta:
         model = models.DecisionDraft
         exclude = ("section_editor", "article", "editor_decision")
+        widgets = {
+            "editor": OptGroupSelect(),
+        }
 
     def __init__(self, *args, **kwargs):
         newly_created = kwargs.get("instance") is None
         message_to_editor = kwargs.pop("message_to_editor", None)
         editors = kwargs.pop("editors", [])
+        assigned_editors = kwargs.pop("assigned_editors", [])
         super(DraftDecisionForm, self).__init__(*args, **kwargs)
         self.fields["message_to_editor"].initial = linebreaksbr(message_to_editor)
         self.fields["revision_request_due_date"].widget = HTMLDateInput()
@@ -39,9 +43,15 @@ class DraftDecisionForm(forms.ModelForm):
         self.fields["decision"].widget.attrs["onchange"] = "decision_change()"
         self.fields["decision"].widget.attrs["onfocus"] = "store_previous_decision()"
         self.fields["editor"].queryset = editors
-        self.fields["editor"].label_from_instance = (
-            lambda obj: f"{obj.full_name()} ({obj.email})"
+        self.fields["editor"].label_from_instance = lambda obj: (
+            f"{obj.full_name()} ({obj.email})"
         )
+        assigned_pks = {e.pk for e in assigned_editors}
+        other_pks = {e.pk for e in editors if e.pk not in assigned_pks}
+        self.fields["editor"].widget.groups = {
+            "Assigned to this article": assigned_pks,
+            "Other editors": other_pks,
+        }
         if not newly_created:
             self.fields["message_to_editor"].widget = forms.HiddenInput()
             self.fields["editor"].widget = forms.HiddenInput()
@@ -329,6 +339,35 @@ class DoRevisions(forms.ModelForm, core_forms.ConfirmableForm):
         return potential_errors
 
 
+class ReviewerNotificationForm(
+    core_forms.SettingEmailForm,
+    core_forms.ConfirmableIfErrorsForm,
+):
+    QUESTION = _(
+        "The reviewer link in the email body appears to be missing or incorrect. Do you want to send it anyway?"
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.expected_url = kwargs.pop("expected_url", None)
+        super().__init__(*args, **kwargs)
+
+    def check_for_potential_errors(self):
+        if not self.expected_url:
+            return []
+        body = self.cleaned_data.get("body", "")
+        if self.expected_url not in body:
+            return [
+                _(
+                    "The email body does not contain the expected reviewer URL "
+                    "(%(url)s), so the reviewer will not be able to complete the "
+                    "request. This can happen if the body was copy-pasted into "
+                    "the text box from elsewhere."
+                )
+                % {"url": self.expected_url}
+            ]
+        return []
+
+
 class GeneratedForm(forms.Form):
     def __init__(self, *args, **kwargs):
         review_assignment = kwargs.pop("review_assignment", None)
@@ -430,20 +469,32 @@ class ReviewReminderForm(forms.Form):
 class ReviewVisibilityForm(forms.ModelForm):
     class Meta:
         model = models.ReviewAssignment
-        fields = ("for_author_consumption", "display_review_file")
+        fields = (
+            "for_author_consumption",
+            "display_review_file",
+            "display_public",
+        )
         labels = {
             "for_author_consumption": _("Author can access this review"),
             "display_review_file": _("Author can access review file"),
+            "display_public": _("Display Review Publicly"),
         }
         widgets = {
             "for_author_consumption": HTMLSwitchInput(),
             "display_review_file": HTMLSwitchInput(),
+            "display_public": HTMLSwitchInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super(ReviewVisibilityForm, self).__init__(*args, **kwargs)
         if not self.instance.review_file:
             self.fields.pop("display_review_file")
+        if self.instance:
+            open_review_enabled = self.instance.article.journal.get_setting(
+                "general", "open_peer_review"
+            )
+            if not open_review_enabled or not self.instance.permission_to_make_public:
+                self.fields.pop("display_public")
 
 
 class AnswerVisibilityForm(forms.Form):

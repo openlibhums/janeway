@@ -91,6 +91,9 @@
     <p>If you want to toggle CRediT support, you can do so here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_use_credit %}
     {% include "admin/elements/forms/field.html" with field=edit_form.use_credit %}
+
+    <p>When enabled, RSS and Atom feed links are included in the journal's page headers.</p>
+    {% include "admin/elements/forms/field.html" with field=edit_form.feeds %}
 </div>
 
 {% if request.press.allow_journal_a11y_info %}

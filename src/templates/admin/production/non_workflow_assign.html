@@ -6,7 +6,7 @@
 
 {% block title %}Article - {{ article.pk }}{% endblock title %}
 {% block admin-header %}Article - {{ article.pk }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

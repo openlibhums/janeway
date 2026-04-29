@@ -3,32 +3,40 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import operator
 from datetime import datetime
 from dateutil import tz
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.query import RawQuerySet
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlencode
 
-from repository import forms, logic as repository_logic, models
+
 from core import (
     email as core_email,
     files,
+    logic as core_logic,
     models as core_models,
     forms as core_forms,
     views as core_views,
 )
 from journal import models as journal_models
+from repository import (
+    forms,
+    logic as repository_logic,
+    models,
+    decorators,
+)
 from utils import (
     logger,
     logic as utils_logic,
@@ -48,31 +56,68 @@ from security.decorators import (
 logger = logger.get_logger(__name__)
 
 
-def repository_home(request):
-    """
-    Displays the preprints home page with search box and 6 latest
-    preprints publications
-    :param request: HttpRequest object
-    :return: HttpResponse
-    """
-    preprints = models.Preprint.objects.filter(
-        repository=request.repository,
+@decorators.headless_mode_check
+def repository_home(
+    request,
+    rou_code=None,
+):
+    repository = request.repository
+    selected_rou = None
+    rous = []
+
+    if rou_code:
+        # Get the selected ROU
+        selected_rou = get_object_or_404(
+            models.RepositoryOrganisationUnit,
+            repository=repository,
+            code=rou_code,
+        )
+        # Get all descendant ROUs
+        descendant_rous = selected_rou.get_descendants()
+        relevant_rous = [selected_rou] + descendant_rous
+        rous = selected_rou.children.all()
+    else:
+        # Fetch top-level ROUs
+        rous = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        )
+        relevant_rous = []
+
+    # Filter preprints, ensuring they belong to the repository and are published
+    preprints_query = models.Preprint.objects.filter(
+        repository=repository,
         date_published__lte=timezone.now(),
         stage=models.STAGE_PREPRINT_PUBLISHED,
-    ).order_by("-date_published")[:6]
-    subjects = models.Subject.objects.filter(
-        repository=request.repository,
-    ).prefetch_related(
-        "preprint_set",
     )
+
+    if relevant_rous:
+        # Filter preprints that belong to the selected ROU or its sub-units
+        preprints_query = preprints_query.filter(
+            organisation_units__in=relevant_rous,
+        ).distinct()
+
+    # Limit to latest 6 preprints
+    preprints = preprints_query.order_by("-date_published")[:6]
+
+    # Fetch subjects related to the repository
+    subjects = models.Subject.objects.filter(
+        repository=repository,
+        enabled=True,
+    ).prefetch_related("preprint_set")
 
     template = "repository/home.html"
     context = {
         "preprints": preprints,
         "subjects": subjects,
+        "rous": rous,
+        "selected_rou": selected_rou,
     }
-
-    return render(request, template, context)
+    return render(
+        request,
+        template,
+        context,
+    )
 
 
 def sitemap(request, subject_id=None):
@@ -214,6 +259,15 @@ def repository_submit_update(request, preprint_id, action):
 
             new_version.save()
 
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_PREPRINT_NEW_VERSION,
+                **{
+                    "request": request,
+                    "new_version": new_version,
+                    "preprint": preprint,
+                },
+            )
+
             return redirect(
                 reverse(
                     "repository_author_article",
@@ -267,6 +321,7 @@ def repository_author_article(request, preprint_id):
     return render(request, template, context)
 
 
+@decorators.headless_mode_check
 def repository_about(request):
     """
     Displays the about page with text about preprints
@@ -277,6 +332,7 @@ def repository_about(request):
     return render(request, template, {})
 
 
+@decorators.headless_mode_check
 def repository_subject_list(request):
     """
     Displays a list of enabled subjects for selection.
@@ -296,106 +352,61 @@ def repository_subject_list(request):
     return render(request, template, context)
 
 
-def repository_list(request, subject_id=None):
+def redirect_old_subject(request, subject_id):
     """
-    Displays a list of all published preprints.
-    :param request: HttpRequest
-    :return: HttpResponse
+    Redirects our old url pattern to the new query string filtering.
     """
-    if subject_id:
-        subject = get_object_or_404(
-            models.Subject,
-            pk=subject_id,
-            repository=request.repository,
-        )
-        preprints = subject.preprint_set.filter(
-            repository=request.repository,
-            date_published__lte=timezone.now(),
-        ).order_by("-date_published")
-    else:
-        subject = None
-        preprints = models.Preprint.objects.filter(
-            date_published__lte=timezone.now(),
-            repository=request.repository,
-        ).order_by("-date_published")
-
-    paginator = Paginator(preprints, 15)
-    page = request.GET.get("page", 1)
-
-    try:
-        preprints = paginator.page(page)
-    except PageNotAnInteger:
-        preprints = paginator.page(1)
-    except EmptyPage:
-        preprints = paginator.page(paginator.num_pages)
-
-    template = "repository/list.html"
-    context = {
-        "preprints": preprints,
-        "subject": subject,
-        "subjects": models.Subject.objects.filter(enabled=True),
-    }
-
-    return render(request, template, context)
-
-
-def repository_search(request, search_term=None):
-    """
-    Searches for and displays a list of Preprints.
-    """
-    if request.POST and "search_term" in request.POST:
-        search_term = request.POST.get("search_term")
-        return redirect(
-            reverse(
-                "repository_search_with_term",
-                kwargs={"search_term": search_term},
-            )
-        )
-
-    # Grab all of the preprints that are published. We can then filter them
-    # if a search term is given or return them if none.
-    preprints = models.Preprint.objects.filter(
-        date_published__lte=timezone.now(),
-        repository=request.repository,
+    return redirect(
+        f"{reverse('repository_list')}?subject={subject_id}",
+        permanent=True,
     )
 
-    if search_term:
-        search_term = search_term.strip()
-        split_search_term = [term.strip() for term in search_term.split(" ") if term]
 
-        # Initial filter on Title, Abstract and Keywords.
-        preprint_search = preprints.filter(
-            (
-                Q(title__icontains=search_term)
-                | Q(abstract__icontains=search_term)
-                | Q(keywords__word__in=split_search_term)
-            )
+def repository_list(request):
+    form = forms.PreprintFilterForm(repository=request.repository)
+
+    preprints = (
+        models.Preprint.objects.filter(
+            date_published__lte=timezone.now(),
+            repository=request.repository,
         )
+        .select_related("submission_type")
+        .prefetch_related("organisation_units")
+    )
 
-        from_author = models.PreprintAuthor.objects.filter(
-            (
-                Q(account__first_name__in=split_search_term)
-                | Q(account__middle_name__in=split_search_term)
-                | Q(account__last_name__in=split_search_term)
-                | Q(
-                    account__affiliation__organization__labels__value__icontains=search_term
-                )
+    if request.GET:
+        form = forms.PreprintFilterForm(request.GET, repository=request.repository)
+    if form.is_valid():
+        subject = form.cleaned_data.get("subject")
+        submission_type = form.cleaned_data.get("submission_type")
+        search_term = form.cleaned_data.get("search_term", "").strip()
+        sort = form.cleaned_data.get("sort", "")
+
+        if search_term:
+            search_filters = form.search_filters()
+
+        if subject:
+            preprints = preprints.filter(subject=subject)
+
+        if submission_type:
+            preprints = preprints.filter(submission_type=submission_type)
+
+        if search_filters:
+            preprints = models.Preprint.objects.search(
+                search_term,
+                search_filters,
+                sort=sort or None,
+                site=request.repository,
+                queryset=preprints,
             )
-            & (Q(preprint__repository=request.repository))
-        )
 
-        preprints_from_author = [
-            pa.preprint
-            for pa in models.PreprintAuthor.objects.filter(
-                pk__in=from_author,
-                preprint__date_published__lte=timezone.now(),
-            )
-        ]
-
-        preprints = list(set(list(preprint_search) + preprints_from_author))
-        preprints.sort(key=operator.attrgetter("date_published"), reverse=True)
-
-    paginator = Paginator(preprints, 15)
+    if isinstance(preprints, RawQuerySet):
+        # RawQuerySets (used for postgres relevance sort) don't support .order_by() or pagination
+        preprints_list = list(preprints)
+        paginator = Paginator(preprints_list, 15)
+    else:
+        preprints = preprints.order_by("-date_published")
+        paginator = Paginator(preprints, 15)
     page = request.GET.get("page", 1)
 
     try:
@@ -405,15 +416,37 @@ def repository_search(request, search_term=None):
     except EmptyPage:
         preprints = paginator.page(paginator.num_pages)
 
-    template = "repository/list.html"
-    context = {
-        "search_term": search_term,
-        "preprints": preprints,
-    }
+    return render(
+        request,
+        "repository/list.html",
+        {
+            "preprints": preprints,
+            "form": form,
+            "subject": form.cleaned_data.get("subject") if form.is_valid() else None,
+            "submission_type": form.cleaned_data.get("submission_type")
+            if form.is_valid()
+            else None,
+        },
+    )
 
-    return render(request, template, context)
+
+@decorators.headless_mode_check
+def repository_search(request, search_term=None):
+    """
+    Redirects legacy search URL with optional search_term to the
+    main repository list view.
+    """
+    if request.method == "POST":
+        search_term = request.POST.get("search_term", "").strip()
+
+    query = {}
+    if search_term:
+        query["search_term"] = search_term
+
+    return redirect(f"{reverse('repository_list')}?{urlencode(query)}")
 
 
+@decorators.headless_mode_check
 def repository_preprint(request, preprint_id):
     """
     Fetches a single article and displays its metadata
@@ -427,7 +460,7 @@ def repository_preprint(request, preprint_id):
         repository=request.repository,
         date_published__lte=timezone.now(),
     )
-    comments = models.Comment.objects.filter(preprint=preprint)
+    comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
 
     if not preprint.repository.enable_invited_comments:
         comments = comments.exclude(review__isnull=False)
@@ -535,7 +568,7 @@ def repository_pdf(request, preprint_id):
     return render(request, template, context)
 
 
-# TODO: Re-implement
+@decorators.headless_mode_check
 def preprints_editors(request):
     """
     Displays lists of preprint editors by their subject group.
@@ -556,13 +589,49 @@ def preprints_editors(request):
 
 
 @submission_authorised
-def repository_submit(request, preprint_id=None):
+def repository_submit(request):
+    form = forms.PreSubmissionStartForm(
+        repository=request.repository,
+    )
+    if request.POST:
+        form = forms.PreSubmissionStartForm(
+            request.POST,
+            repository=request.repository,
+        )
+        if form.is_valid():
+            submission_type = form.cleaned_data["submission_type"]
+            organisation_unit = form.cleaned_data.get("organisation_unit")
+
+            url = reverse("repository_info")
+            params = f"?submission_type={submission_type.slug}"
+
+            if organisation_unit:
+                params += f"&ou={organisation_unit.code}"
+
+            return redirect(f"{url}{params}")
+
+    template = "admin/repository/submit/start.html"
+    context = {
+        "form": form,
+    }
+    return render(request, template, context)
+
+
+@submission_authorised
+def repository_info(request, preprint_id=None):
     """
     Handles initial steps of generating a preprints submission.
     :param request: HttpRequest
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
+    result = repository_logic.get_submission_type_or_redirect(request)
+    if isinstance(result, HttpResponseRedirect):
+        return result
+
+    submission_type = result
+    organisation_unit = getattr(request, "organisation_unit", None)
+
     if preprint_id:
         preprint = get_object_or_404(
             models.Preprint,
@@ -576,6 +645,7 @@ def repository_submit(request, preprint_id=None):
     form = forms.PreprintInfo(
         instance=preprint,
         request=request,
+        submission_type_slug=submission_type.slug,
     )
 
     if request.POST:
@@ -583,10 +653,17 @@ def repository_submit(request, preprint_id=None):
             request.POST,
             instance=preprint,
             request=request,
+            submission_type_slug=submission_type.slug,
         )
 
         if form.is_valid():
-            preprint = form.save()
+            preprint = form.save(commit=False)
+            preprint.submission_type = submission_type
+            if organisation_unit:
+                preprint.organisation_units.add(organisation_unit)
+
+            preprint.save()
+
             return redirect(
                 reverse(
                     "repository_authors",
@@ -594,11 +671,13 @@ def repository_submit(request, preprint_id=None):
                 ),
             )
 
-    template = "admin/repository/submit/start.html"
+    template = "admin/repository/submit/info.html"
     context = {
         "form": form,
         "preprint": preprint,
-        "additional_fields": request.repository.additional_submission_fields(),
+        "additional_fields": request.repository.type_additional_submission_fields(
+            submission_type_slug=submission_type.slug,
+        ),
     }
 
     return render(request, template, context)
@@ -862,6 +941,12 @@ def preprints_manager(request):
         enabled=True,
     )
 
+    comments_awaiting_moderation = models.Comment.objects.filter(
+        preprint__repository=request.repository,
+        is_reviewed=False,
+        review__isnull=True,
+    )
+
     template = "admin/repository/manager.html"
     context = {
         "unpublished_preprints": unpublished_preprints,
@@ -870,6 +955,7 @@ def preprints_manager(request):
         "rejected_preprints": rejected_preprints,
         "version_queue": versions,
         "subjects": subjects,
+        "comments_awaiting_moderation": comments_awaiting_moderation,
     }
 
     return render(request, template, context)
@@ -1076,7 +1162,11 @@ def repository_edit_metadata(request, preprint_id):
     context = {
         "preprint": preprint,
         "metadata_form": metadata_form,
-        "additional_fields": request.repository.additional_submission_fields(),
+        "additional_fields": request.repository.type_additional_submission_fields(
+            submission_type_slug=preprint.submission_type.slug
+            if preprint.submission_type
+            else None,
+        ),
     }
 
     return render(request, template, context)
@@ -1234,40 +1324,59 @@ def repository_preprint_log(request, preprint_id):
     attr_name="enable_comments",
     error_message="The comment feature is disabled.",
 )
-@preprint_editor_or_author_required
-def repository_comments(request, preprint_id):
+@is_repository_manager
+def repository_manager_comment_list(request, preprint_id=None, show_reviewed=False):
     """
-    Presents an interface for authors and editors to mark comments as publicly readable.
+    Displays comments for the repository manager. Shows pending comments by
+    default; pass show_reviewed=True to show already-reviewed comments instead.
+    If preprint_id is provided, filters to that preprint.
     :param request: HttpRequest object
-    :param preprint_id: PK of an Preprint object
-    :return: HttpRedirect if POST, HttpResponse otherwise
+    :param preprint_id: optional PK of a Preprint to filter by
+    :param show_reviewed: bool, show reviewed comments instead of pending
+    :return: HttpResponse
     """
-    preprint = get_object_or_404(
-        models.Preprint.objects,
-        pk=preprint_id,
-        repository=request.repository,
-    )
-
-    if request.POST:
-        repository_logic.comment_manager_post(request, preprint)
-        return redirect(
-            reverse(
-                "repository_comments",
-                kwargs={"preprint_id": preprint.pk},
-            )
+    preprint = None
+    if preprint_id:
+        preprint = get_object_or_404(
+            models.Preprint,
+            pk=preprint_id,
+            repository=request.repository,
         )
 
-    template = "admin/repository/comments.html"
+    comments = models.Comment.objects.filter(
+        preprint__repository=request.repository,
+        review__isnull=True,
+        is_reviewed=show_reviewed,
+    )
+    if preprint:
+        comments = comments.filter(preprint=preprint)
+
+    if request.POST:
+        post_preprint = get_object_or_404(
+            models.Preprint,
+            pk=request.POST.get("preprint_id"),
+            repository=request.repository,
+        )
+        repository_logic.comment_manager_post(request, post_preprint)
+        if preprint_id:
+            url_name = (
+                "repository_manager_comment_list_filtered_reviewed"
+                if show_reviewed
+                else "repository_manager_comment_list_filtered"
+            )
+            return redirect(reverse(url_name, kwargs={"preprint_id": preprint_id}))
+        url_name = (
+            "repository_manager_comment_list_reviewed"
+            if show_reviewed
+            else "repository_manager_comment_list"
+        )
+        return redirect(reverse(url_name))
+
+    template = "admin/repository/manager_comments.html"
     context = {
+        "comments": comments,
         "preprint": preprint,
-        "new_comments": preprint.comment_set.filter(
-            is_reviewed=False,
-            review__isnull=True,
-        ),
-        "old_comments": preprint.comment_set.filter(
-            is_reviewed=True,
-            review__isnull=True,
-        ),
+        "show_reviewed": show_reviewed,
     }
 
     return render(request, template, context)
@@ -1655,7 +1764,7 @@ def repository_fields(request, field_id=None):
     context = {
         "field": field,
         "form": form,
-        "fields": request.repository.additional_submission_fields(),
+        "fields": request.repository.all_additional_submission_fields(),
     }
 
     return render(request, template, context)
@@ -2538,4 +2647,179 @@ def manage_review_recommendation(request, recommendation_id=None):
         request,
         template,
         context,
+    )
+
+
+def preprints_by_rou(request, rou_code):
+    # Get the selected ROU
+    rou = get_object_or_404(
+        models.RepositoryOrganisationUnit,
+        repository=request.repository,
+        code=rou_code,
+    )
+
+    # Get all descendant ROUs
+    descendant_rous = rou.get_descendants()
+    relevant_rous = [rou] + descendant_rous
+
+    # Fetch preprints associated with the selected ROU and its sub-units
+    preprints = (
+        models.Preprint.objects.filter(
+            organisation_units__in=relevant_rous,
+            date_published__lte=timezone.now(),
+            stage=models.STAGE_PREPRINT_PUBLISHED,
+        )
+        .distinct()
+        .order_by(
+            "-date_published",
+        )
+    )
+
+    # Pagination setup
+    paginator = Paginator(preprints, 10)  # Show 10 preprints per page
+    page = request.GET.get("page", 1)  # Default to page 1
+
+    try:
+        preprints_page = paginator.page(page)
+    except PageNotAnInteger:
+        preprints_page = paginator.page(1)
+    except EmptyPage:
+        preprints_page = paginator.page(paginator.num_pages)
+
+    # Render the template
+    return render(
+        request,
+        "repository/list.html",
+        {
+            "preprints": preprints_page,
+            "rou": rou,
+        },
+    )
+
+
+def build_hierarchy(units):
+    """Recursively builds a nested dictionary structure for hierarchy"""
+    hierarchy = []
+    for unit in units:
+        children = unit.children.annotate(preprint_count=Count("preprints"))
+        latest_preprints = unit.preprints.order_by("-date_published")[
+            :10
+        ]  # Get latest 10 preprints
+        hierarchy.append(
+            {
+                "unit": unit,
+                "preprint_count": unit.preprints.count(),
+                "latest_preprints": latest_preprints,  # Add latest preprints
+                "children": build_hierarchy(children),
+            }
+        )
+    return hierarchy
+
+
+def rou_hierarchy_view(request, rou_code=None):
+    repository = request.repository
+    selected_rou = None
+    hierarchy = []
+
+    if rou_code:
+        # Get the selected ROU
+        selected_rou = get_object_or_404(
+            models.RepositoryOrganisationUnit.objects.annotate(
+                preprint_count=Count("preprints")
+            ),
+            repository=repository,
+            code=rou_code,
+        )
+        # Fetch the latest 10 preprints for the selected ROU
+        selected_rou.latest_preprints = selected_rou.preprints.order_by(
+            "-date_published",
+        )[:10]
+
+        # Build hierarchy from the **top level down**
+        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        ).annotate(preprint_count=Count("preprints"))
+
+        hierarchy = build_hierarchy(top_level_units)
+
+    else:
+        # No ROU selected – Show **all top-level ROUs and their full hierarchy**
+        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+            parent__isnull=True,
+        ).annotate(preprint_count=Count("preprints"))
+
+        hierarchy = build_hierarchy(top_level_units)
+
+    return render(
+        request,
+        "repository/hierarchy.html",
+        {
+            "rou": selected_rou,
+            "repository": repository,
+            "hierarchy": hierarchy,
+            "recent_preprints": models.Preprint.objects.filter(
+                repository=request.repository,
+                date_published__lte=timezone.now(),
+            ).order_by("-date_published")[:10],
+            "page_text": repository.render_setting(repository.rou_struct_page_text),
+        },
+    )
+
+
+@is_repository_manager
+def submission_type_list(request):
+    types = models.RepositorySubmissionType.objects.filter(
+        repository=request.repository,
+    ).annotate(preprint_count=Count("preprint"))
+    return render(
+        request,
+        "repository/submission_type_list.html",
+        {
+            "submission_types": types,
+        },
+    )
+
+
+@is_repository_manager
+@require_POST
+def delete_submission_type(request, pk):
+    obj = get_object_or_404(
+        models.RepositorySubmissionType,
+        pk=pk,
+        repository=request.repository,
+    )
+    obj.delete()
+    return redirect("submission_type_list")
+
+
+@is_repository_manager
+def edit_submission_type(request, pk=None):
+    if pk:
+        submission_type = get_object_or_404(models.RepositorySubmissionType, pk=pk)
+    else:
+        submission_type = None
+
+    if request.method == "POST":
+        form = forms.RepositorySubmissionTypeForm(
+            request.POST,
+            instance=submission_type,
+        )
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.repository = request.repository  # assumes middleware provides this
+            obj.save()
+            return redirect("submission_type_list")
+    else:
+        form = forms.RepositorySubmissionTypeForm(instance=submission_type)
+
+    return render(
+        request,
+        "repository/submission_type_form.html",
+        {
+            "form": form,
+            "editing": submission_type is not None,
+            "submission_type": submission_type,
+        },
     )

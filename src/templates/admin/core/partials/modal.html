@@ -1,0 +1,67 @@
+{% comment %}
+  Reusable accessible modal template.
+
+  Usage:
+
+  1. Include with overrides:
+  {% include "core/partials/modal.html" withmodal_id="my-modal-id"modal_class="my-css-classes" %}
+
+  2. Extend and override blocks:
+  {% extends "core/partials/modal.html" %}
+
+  {% block modal_id %}your-modal-id{% endblock modal_id %}
+
+  {% block modal_class %}your-modal-class{% endblock modal_class %}
+
+  {% block modal_title %}
+    My Modal Title
+  {% endblock %}
+
+  {% block modal_description %}
+    Content that describes the purpose of this modal.
+  {% endblock modal_description %}
+
+  {% block modal_content %}
+  {% endblock %}
+
+{% endcomment %}
+
+{% with modal_id|default:"modal" as id %}
+  {% with modal_class|default:"modal" as class %}
+
+    <dialog
+            id="{% block modal_id %}modal{% endblock %}"
+            class="{% block modal_class %}modal{% endblock %}"
+            open
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+            role="dialog"
+    >
+      <div class="modal-content" id="{{ id|default:'modal' }}-content">
+        <h2 id="modal-title">
+          {% block modal_title %}{% endblock modal_title %}
+        </h2>
+
+        <button
+                type="button"
+                class="modal-close-button"
+                onclick="this.closest('dialog').close()"
+                aria-describedby="modal-title"
+        >
+          ×
+          <span class="sr-only">close</span>
+        </button>
+
+        <div id="modal-description">
+          {% block modal_description %}
+          {% endblock modal_description %}
+        </div>
+
+        {% block modal_content %}
+        {% endblock %}
+      </div>
+    </dialog>
+
+
+  {% endwith %}
+{% endwith %}
