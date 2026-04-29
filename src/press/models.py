@@ -195,6 +195,22 @@ class Press(AbstractSiteModel):
         help_text="If enabled, journals can have their own accessibility information as well.",
     )
 
+    PUBLIC_PROFILE_RESTRICTION_CHOICES = [
+        (
+            "role_or_published",
+            "Editors, section editors, editorial group members, or authors with a published article",
+        ),
+        ("open", "Any user who opts in"),
+        ("disabled", "No public profiles"),
+    ]
+    public_profile_restriction = models.CharField(
+        max_length=20,
+        choices=PUBLIC_PROFILE_RESTRICTION_CHOICES,
+        default="role_or_published",
+        verbose_name="Public profile visibility",
+        help_text="Controls who can have a public profile on this press.",
+    )
+
     def __str__(self):
         return "%s" % self.name
 

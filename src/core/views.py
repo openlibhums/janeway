@@ -134,14 +134,22 @@ def user_login(request):
                         ),
                     )
                     logic.start_reset_process(request, empty_password_check)
-                else:
+                elif models.Account.objects.filter(
+                    email__iexact=username, is_active=False
+                ).exists():
                     messages.add_message(
                         request,
                         messages.ERROR,
                         _(
-                            "Wrong email/password combination or your"
-                            " email address has not been confirmed yet."
+                            "Your account has not been activated yet. "
+                            "Please check your email for an activation link."
                         ),
+                    )
+                else:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        _("Wrong email/password combination."),
                     )
                     util_models.LogEntry.add_entry(
                         types="Authentication",
@@ -464,21 +472,23 @@ def register(request, orcid_token=None):
             if request.journal:
                 new_user.add_account_role("author", request.journal)
             logic.send_confirmation_link(request, new_user)
-
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _(
-                    "Your account has been created. Please follow the "
-                    "instructions in the email that has been sent to you."
-                ),
-            )
-            return redirect(logic.reverse_with_next("core_login", next_url))
+            return redirect(reverse("core_register_pending"))
 
     template = "admin/core/accounts/register.html"
     context["form"] = form
 
     return render(request, template, context)
+
+
+def registration_pending(request):
+    pending_text = setting_handler.get_setting(
+        "general", "registration_pending_text", request.journal
+    )
+    return render(
+        request,
+        "admin/core/accounts/registration_pending.html",
+        {"pending_text": pending_text},
+    )
 
 
 def orcid_registration(request, token):
@@ -524,7 +534,7 @@ def activate_account(request, token):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _("Account activated"),
+            _("Your account is now active. You can log in below."),
         )
 
         return redirect(logic.reverse_with_next("core_login", next_url))
@@ -686,6 +696,22 @@ def public_profile(request, uuid):
         is_active=True,
         enable_public_profile=True,
     )
+
+    restriction = request.press.public_profile_restriction
+    if restriction == "disabled":
+        raise Http404()
+    elif restriction == "role_or_published":
+        has_role = models.AccountRole.objects.filter(
+            user=user,
+            role__slug__in=["editor", "section-editor"],
+        ).exists()
+        in_editorial_group = models.EditorialGroupMember.objects.filter(
+            user=user,
+        ).exists()
+        has_published = user.published_articles().exists()
+        if not (has_role or in_editorial_group or has_published):
+            raise Http404()
+
     template = "core/accounts/public_profile.html"
     context = {
         "user": user,

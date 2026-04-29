@@ -224,6 +224,8 @@ def complete_typesetting(request, article):
         "article": article,
     }
 
+    kwargs["skip"] = "skip" in request.POST
+
     event_logic.Events.raise_event(
         event_logic.Events.ON_TYPESETTING_COMPLETE, task_object=article, **kwargs
     )

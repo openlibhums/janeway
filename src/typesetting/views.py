@@ -103,7 +103,9 @@ def typesetting_article(request, article_id):
             )
         )
 
-    elif request.POST and "complete-typesetting" in request.POST:
+    elif request.POST and (
+        "complete-typesetting" in request.POST or "skip" in request.POST
+    ):
         return logic.complete_typesetting(request, article)
 
     elif request.POST and "source" in request.POST:

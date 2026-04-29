@@ -5672,5 +5672,24 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "Displayed to users after they complete registration, before they have activated their account.",
+            "is_translatable": true,
+            "name": "registration_pending_text",
+            "pretty_name": "Registration Pending Text",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>Thank you for registering. Please check your email for an activation link and click it to activate your account before logging in.</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

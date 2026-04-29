@@ -372,7 +372,7 @@ footer svg {
 
 .article-table {
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .table-caption {

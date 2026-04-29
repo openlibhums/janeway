@@ -58,7 +58,7 @@ from security.decorators import (
     production_user_or_editor_required,
 )
 from submission import models as submission_models
-from utils import models as utils_models, shared, setting_handler, xml_validation
+from utils import models as utils_models, shared, setting_handler, xml_validation, htmx
 from utils.logger import get_logger
 from events import logic as event_logic
 from typesetting import models as typesetting_models
@@ -2510,7 +2510,13 @@ def new_note(request, article_id):
     )
 
     if request.POST:
-        note = request.POST.get("note")
+        note = request.POST.get("note", "").strip()
+
+        if not note:
+            response = HttpResponse(status=204)
+            return htmx.hx_show_message(
+                response, "Note text cannot be blank.", level="danger"
+            )
 
         sav_note = submission_models.Note.objects.create(
             article=article,
@@ -2518,18 +2524,13 @@ def new_note(request, article_id):
             text=note,
         )
 
-        return_dict = {
-            "id": sav_note.pk,
-            "note": sav_note.text,
-            "initials": sav_note.creator.initials(),
-            "date_time": str(sav_note.date_time),
-            "html": logic.create_html_snippet(sav_note),
-        }
+        return render(
+            request,
+            "admin/elements/notes/note_snippet.html",
+            {"note": sav_note},
+        )
 
-    else:
-        return_dict = {"error": "This request must be made with POST"}
-
-    return HttpResponse(json.dumps(return_dict), content_type="application/json")
+    return HttpResponse(status=405)
 
 
 @editor_user_required

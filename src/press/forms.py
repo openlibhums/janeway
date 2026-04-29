@@ -43,6 +43,7 @@ class PressForm(forms.ModelForm):
             "privacy_policy_url",
             "a11y_info",
             "allow_journal_a11y_info",
+            "public_profile_restriction",
         )
         widgets = {
             "theme": forms.Select(choices=logic.get_theme_list()),

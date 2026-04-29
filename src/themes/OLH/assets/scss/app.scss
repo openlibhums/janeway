@@ -1299,7 +1299,7 @@ button.list-group-item-danger.active:focus {
 
 .article-table {
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .article-table thead tr {
@@ -1371,7 +1371,7 @@ button.list-group-item-danger.active:focus {
 }
 
 .table-wrap {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .no-margin-left {

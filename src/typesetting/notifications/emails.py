@@ -7,28 +7,30 @@ from utils import models as utils_models
 def send_typesetting_complete(**kwargs):
     request = kwargs["request"]
     article = kwargs["article"]
+    skip = kwargs.get("skip", False)
 
     description = "Typesetting has been completed for article {0}.".format(
         article.title
     )
 
-    log_dict = {
-        "level": "Info",
-        "action_text": description,
-        "types": "Typesetting Complete",
-        "actor": request.user,
-        "target": article,
-    }
+    if not skip:
+        log_dict = {
+            "level": "Info",
+            "action_text": description,
+            "types": "Typesetting Complete",
+            "actor": request.user,
+            "target": article,
+        }
 
-    notify_helpers.send_email_with_body_from_setting_template(
-        request,
-        "typesetting_complete",
-        "subject_typesetting_complete",
-        article.editor_emails(),
-        {"article": article},
-        log_dict=log_dict,
-    )
-    notify_helpers.send_slack(request, description, ["slack_editors"])
+        notify_helpers.send_email_with_body_from_setting_template(
+            request,
+            "typesetting_complete",
+            "subject_typesetting_complete",
+            article.editor_emails(),
+            {"article": article},
+            log_dict=log_dict,
+        )
+        notify_helpers.send_slack(request, description, ["slack_editors"])
 
 
 def send_proofreader_assign_notification(**kwargs):

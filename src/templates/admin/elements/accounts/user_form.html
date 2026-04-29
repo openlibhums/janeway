@@ -61,6 +61,8 @@
 <hr />
 <h3 class="fs-3">{% trans 'Options' %}</h3>
 <div class="flex wrap column-gap-2">
-  {% include "admin/elements/forms/field.html" with field=form.enable_public_profile %}
+  {% if request.press.public_profile_restriction != 'disabled' %}
+    {% include "admin/elements/forms/field.html" with field=form.enable_public_profile %}
+  {% endif %}
   {% include "admin/elements/forms/field.html" with field=form.preferred_timezone %}
 </div>

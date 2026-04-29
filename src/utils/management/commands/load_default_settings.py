@@ -20,10 +20,17 @@ class Command(BaseCommand):
             default=False,
             help="Resets all of the default settings from the value in JSON.",
         )
+        parser.add_argument(
+            "--setting",
+            dest="setting_name",
+            default=None,
+            help="Only load/update the setting with this name.",
+        )
 
     def handle(self, *args, **options):
         translation.activate("en")
         install.update_settings(
             management_command=True,
             overwrite_with_defaults=options.get("force_update", False),
+            setting_name=options.get("setting_name"),
         )

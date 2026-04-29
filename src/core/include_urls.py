@@ -59,6 +59,11 @@ urlpatterns = [
     re_path(r"^kanban/$", core_views.kanban, name="kanban"),
     re_path(r"^login/$", core_views.user_login, name="core_login"),
     re_path(r"^login/orcid/$", core_views.user_login_orcid, name="core_login_orcid"),
+    re_path(
+        r"^register/pending/$",
+        core_views.registration_pending,
+        name="core_register_pending",
+    ),
     re_path(r"^register/step/1/$", core_views.register, name="core_register"),
     re_path(
         r"^register/step/1/(?P<orcid_token>[\w-]+)/$",

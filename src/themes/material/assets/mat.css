@@ -665,7 +665,7 @@ nav a.sidenav-trigger i {
 
 .article-table {
   display: block;
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .modal-large {

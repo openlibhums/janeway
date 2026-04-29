@@ -25,6 +25,7 @@ def update_settings(
     management_command=False,
     overwrite_with_defaults=False,
     file_path="utils/install/journal_defaults.json",
+    setting_name=None,
 ):
     """Updates or creates the settings for a journal from journal_defaults.json.
 
@@ -37,6 +38,13 @@ def update_settings(
         os.path.join(settings.BASE_DIR, file_path), encoding="utf-8"
     ) as json_data:
         default_data = json.load(json_data)
+
+        if setting_name:
+            default_data = [
+                item
+                for item in default_data
+                if item["setting"].get("name") == setting_name
+            ]
 
         for item in default_data:
             setting_group, created = core_models.SettingGroup.objects.get_or_create(
