@@ -64,6 +64,7 @@ from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
 from utils.forms import plain_text_validator
 from journal import models as journal_models
+from sortedm2m.fields import SortedManyToManyField
 from review.const import (
     ReviewerDecisions as RD,
 )
@@ -2630,6 +2631,26 @@ class Article(AbstractLastModifiedModel):
             )
         return default_text
 
+    def erratum_of(self):
+        """
+        Return the "parent" article for which this article is an erratum.
+
+        This is intended to be used in
+        templates/common/identifiers/crossref_article.xml
+        """
+        if self.section.name != "Erratum":
+            return None
+        if not self.ancestors.exists():
+            return None
+
+        # We can safely assume that an erratum refers to only one other paper
+        # so we just return the first "ancestor".
+        #
+        # Also, there is no need to check if the "parent" was published:
+        # the business logic should ensure that we cannot publish an erratum
+        # to a non-published paper.
+        return self.ancestors.first().parent
+
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
     AFFILIATION_RELATED_NAME = "frozen_author"
@@ -3398,6 +3419,28 @@ class SubmissionConfiguration(models.Model):
             article.license = self.default_license
 
         article.save()
+
+
+class Genealogy(models.Model):
+    """
+    Maintain relations of type parent/children between articles.
+
+    This can be used, for instance, to link erratum to the original paper.
+    """
+
+    parent = models.OneToOneField(
+        Article,
+        verbose_name=_("Original or main paper"),
+        on_delete=models.CASCADE,
+        related_name="genealogy",
+    )
+    children = SortedManyToManyField(
+        Article,
+        related_name="ancestors",
+    )
+
+    def __str__(self):
+        return f"Genealogy: {self.parent} has {self.children.count()} kids"
 
 
 # Signals

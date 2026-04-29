@@ -54,6 +54,31 @@
                 <item_number item_number_type="article_number">{{ article.object.pk }}</item_number>
             </publisher_item>
 
+            {% if article.erratum_of %}
+            <crossmark>
+              <crossmark_policy>{{ article.object.journal|setting:'crossref_prefix' }}/not-used</crossmark_policy>
+              <updates>
+                <update type="erratum" date="{{ now|date:"Y-m-d" }}">{{ article.erratum_of.get_doi }}</update>
+              </updates>
+              {% if article.object.funders.exists %}
+              <custom_metadata>
+                <fr:program name="fundref">
+                    {% for funder in article.object.funders.all %}
+                    <fr:assertion name="fundgroup">
+                        <fr:assertion name="funder_name">{{ funder.name }}</fr:assertion>
+                        {% if funder.fundref_id %}
+                        <fr:assertion name="funder_identifier">{{ funder.fundref_id }}</fr:assertion>
+                        {% endif %}
+                        {% if funder.funding_id %}
+                        <fr:assertion name="award_number">{{ funder.funding_id }}</fr:assertion>
+                        {% endif %}
+                    </fr:assertion>
+                    {% endfor %}
+                </fr:program>
+              </custom_metadata>
+              {% endif %}
+            </crossmark>
+            {% else %}
             {% if article.object.funders.exists %}
             <fr:program name="fundref">
                 {% for funder in article.object.funders.all %}
@@ -69,8 +94,7 @@
                 {% endfor %}
             </fr:program>
             {% endif %}
-
-
+            {% endif %}
 
             <doi_data>
                 <doi>{{ article.doi }}</doi>

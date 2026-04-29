@@ -260,6 +260,21 @@ class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
         return truncatewords_html(obj.answer, 10) if obj else ""
 
 
+class GenealogyAdmin(admin.ModelAdmin):
+    list_display = ("pk", "parent_id", "_parent_title")
+    list_filter = ("parent__journal",)
+    search_fields = (
+        "parent__pk",
+        "parent__title",
+        "children__pk",
+        "children__title",
+    )
+    raw_id_fields = ("parent", "children")
+
+    def _parent_title(self, obj):
+        return truncatewords_html(obj.parent.title, 10)
+
+
 class SubmissionConfigAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
@@ -295,6 +310,7 @@ admin_list = [
     (models.Keyword, KeywordAdmin),
     (models.SubmissionConfiguration, SubmissionConfigAdmin),
     (models.CreditRecord, CreditRecordAdmin),
+    (models.Genealogy, GenealogyAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]
