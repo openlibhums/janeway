@@ -13,7 +13,7 @@ from tinymce.widgets import TinyMCE
 
 from core import models as core_models
 from core.forms import FullSettingEmailForm
-from journal import models as journal_models, logic
+from journal import models as journal_models
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
