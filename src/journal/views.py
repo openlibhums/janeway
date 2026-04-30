@@ -2141,9 +2141,7 @@ def accessibility(request):
 
     # Load a11y conformance data
     try:
-        json_path = os.path.join(
-            settings.BASE_DIR, "..", "docs", "md", "a11y", "conformance_data.json"
-        )
+        json_path = os.path.join(settings.BASE_DIR, "a11y", "conformance_data.json")
         with open(json_path, "r") as f:
             raw_data = json.load(f)
 

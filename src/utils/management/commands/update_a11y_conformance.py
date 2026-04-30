@@ -27,8 +27,7 @@ class Command(BaseCommand):
         default_json = os.path.join(
             settings.BASE_DIR,
             "..",
-            "docs",
-            "md",
+            "src",
             "a11y",
             "conformance_data.json",
         )
@@ -37,7 +36,6 @@ class Command(BaseCommand):
             "..",
             "docs",
             "md",
-            "a11y",
             "a11y_conformance.md",
         )
         parser.add_argument(
