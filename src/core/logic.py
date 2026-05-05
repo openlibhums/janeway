@@ -778,6 +778,52 @@ def get_theme_list():
     return [[dir, dir] for dir in dirs if dir not in ["admin", "press", "__pycache__"]]
 
 
+def accessibility_mode_active(request):
+    """Resolve the user's accessibility-mode preference.
+
+    Authenticated users: read from Account.accessibility_mode.
+    Anonymous users: read from session["accessibility_mode"].
+    Returns False if the journal context has the
+    general.accessibility_mode setting turned off.
+    """
+    if request is None:
+        return False
+
+    user = getattr(request, "user", None)
+    if user is not None and getattr(user, "is_authenticated", False):
+        user_flag = bool(getattr(user, "accessibility_mode", False))
+    else:
+        user_flag = False
+
+    if not user_flag:
+        session = getattr(request, "session", None)
+        session_flag = bool(session.get("accessibility_mode")) if session else False
+    else:
+        session_flag = False
+
+    if not (user_flag or session_flag):
+        return False
+
+    # Only consult the journal-level setting when a preference has been
+    # expressed. Use the cached journal-settings dict (same source as
+    # the journal_settings context processor) so we hit the DB at most
+    # once per journal/language per cache window. Wrapped in a broad
+    # except because the resolver is invoked from the template loader,
+    # which must never raise during template resolution — DB
+    # unavailability (initial migrations, SimpleTestCase subclasses)
+    # falls back to "accessibility mode off".
+    journal = getattr(request, "journal", None)
+    if journal is not None:
+        try:
+            cached = settings_for_context(request)
+        except Exception:
+            return False
+        if not cached.get("general", {}).get("accessibility_mode"):
+            return False
+
+    return True
+
+
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get("default_thumbnail"):
         new_file = files.save_file_to_journal(

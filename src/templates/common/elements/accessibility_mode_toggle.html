@@ -1,0 +1,42 @@
+{% load i18n %}
+{% if journal_settings.general.accessibility_mode or not request.journal %}
+{% if accessibility_mode_active %}
+  {% trans 'Disable accessibility mode' as a11y_toggle_label %}
+{% else %}
+  {% trans 'Enable accessibility mode' as a11y_toggle_label %}
+{% endif %}
+<details class="a11y-toggle-dropdown{% if accessibility_mode_active %} a11y-toggle-dropdown--on{% endif %}">
+  <summary class="a11y-toggle-summary">
+    <span class="a11y-toggle-icon" aria-hidden="true">
+      <i class="fa fa-universal-access"></i>
+      {% if accessibility_mode_active %}
+        <span class="a11y-toggle-indicator">
+          <i class="fa fa-check-circle"></i>
+        </span>
+      {% endif %}
+    </span>
+    <span class="sr-only">{% trans 'Accessibility menu' %}</span>
+  </summary>
+  <ul class="a11y-toggle-menu">
+    <li>
+      <form method="post"
+            action="{% url 'toggle_accessibility_mode' %}"
+            class="a11y-toggle-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit"
+                class="a11y-toggle-button{% if accessibility_mode_active %} a11y-toggle-button--on{% endif %}"
+                aria-pressed="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
+          {{ a11y_toggle_label }}
+        </button>
+      </form>
+    </li>
+    <li>
+      <a class="a11y-toggle-info"
+         href="{% url 'accessibility' %}">
+        {% trans 'About accessibility' %}
+      </a>
+    </li>
+  </ul>
+</details>
+{% endif %}

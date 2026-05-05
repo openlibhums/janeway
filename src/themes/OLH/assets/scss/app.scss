@@ -1826,3 +1826,40 @@ input[type="submit"]:focus-visible {
         flex-shrink: 0;
     }
 }
+
+/* Accessibility mode toggle */
+.top-bar-right.a11y-toggle-host {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    flex: 0 0 auto;
+}
+
+.a11y-toggle-host .a11y-toggle-summary {
+    color: #1779ba;
+}
+
+.menu .a11y-mobile-form {
+    margin: 0;
+    padding: 0;
+}
+
+.menu .a11y-mobile-button {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.menu .a11y-mobile-button:hover,
+.menu .a11y-mobile-button:focus {
+    background: rgba(0, 0, 0, 0.05);
+    outline: none;
+}

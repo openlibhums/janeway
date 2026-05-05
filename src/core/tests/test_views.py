@@ -4,14 +4,19 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
+from types import SimpleNamespace
 from uuid import uuid4
+from django.core.cache import cache as django_cache
+from django.test.client import RequestFactory
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
 
 from core import models as core_models
+from core import middleware as core_middleware
 from core import views as core_views
-from utils import orcid
+from utils import orcid, setting_handler
+from utils.template_override_middleware import Loader
 from utils.testing import helpers
 
 
@@ -857,3 +862,203 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.assertEqual(
             self.user.primary_affiliation(as_object=False), "California Digital Library"
         )
+
+
+class AccessibilityModeLoaderTests(TestCase):
+    """Tests for the Clarity-override branch in the template Loader."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        # Configure the journal to use a non-Clarity theme so we can confirm
+        # the accessibility-mode flag overrides the journal setting.
+        setting_handler.save_setting(
+            "general", "journal_theme", cls.journal_one, "material"
+        )
+
+    def setUp(self):
+        # The Loader memoises journal_theme/base_theme via function_cache,
+        # which uses the Django cache. Clear it so each test starts fresh.
+        django_cache.clear()
+        self.factory = RequestFactory()
+        # The loader only ever reads `engine.dirs`, so a stub object is
+        # sufficient for unit-testing get_theme_dirs.
+        self.loader = Loader(engine=SimpleNamespace(dirs=[]))
+
+    def build_request(self, session=None, query=None):
+        request = self.factory.get("/", data=query or {})
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.session = session or {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        return request
+
+    def test_accessibility_mode_session_serves_clarity(self):
+        self.build_request(session={"accessibility_mode": True})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+    def test_accessibility_mode_off_serves_journal_theme(self):
+        self.build_request(session={})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/material/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    @override_settings(DEBUG=True)
+    def test_debug_theme_query_param_wins_over_session(self):
+        self.build_request(
+            session={"accessibility_mode": True},
+            query={"theme": "OLH"},
+        )
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/OLH/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    def test_journal_setting_off_disables_loader_override(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            self.build_request(session={"accessibility_mode": True})
+            dirs = self.loader.get_theme_dirs()
+            joined = " ".join(dirs)
+            self.assertIn("/themes/material/templates", joined)
+            self.assertNotIn("/themes/clarity/templates", joined)
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    def test_authenticated_user_attribute_serves_clarity(self):
+        user = helpers.create_regular_user()
+        user.accessibility_mode = True
+        user.save()
+        request = self.factory.get("/")
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.user = user
+        request.session = {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+
+class AccessibilityModeToggleViewTests(TestCase):
+    """Tests for the toggle_accessibility_mode view."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_anonymous_post_flips_session_value_true_then_false(self):
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        self.assertFalse(self.client.session.get("accessibility_mode"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_safe_next_url_is_followed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "/about/"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/about/")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unsafe_next_url_falls_back_to_safe_redirect(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "https://evil.example.com/steal/"},
+            HTTP_REFERER="https://evil.example.com/steal/",
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Both `next` and the referer point to a different host, so the view
+        # falls back to the root path.
+        self.assertEqual(response["Location"], "/")
+        self.assertNotIn("evil.example.com", response["Location"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_method_is_not_allowed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(response.status_code, 405)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_setting_off_returns_404(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            url = reverse("toggle_accessibility_mode")
+            response = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+            self.assertEqual(response.status_code, 404)
+            self.assertFalse(self.client.session.get("accessibility_mode"))
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_authenticated_post_flips_user_attribute_not_session(self):
+        user = helpers.create_regular_user()
+        self.client.force_login(user)
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        user.refresh_from_db()
+        self.assertTrue(user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        user.refresh_from_db()
+        self.assertFalse(user.accessibility_mode)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_authenticated_post_ignores_session_flag(self):
+        # An anonymous toggle leaves a session flag; once the user logs in
+        # and toggles, the user attribute is the canonical source and the
+        # session flag is not consulted by the resolver.
+        anon_response = self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(anon_response.status_code, 302)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        user = helpers.create_regular_user()
+        self.client.force_login(user)
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        user.refresh_from_db()
+        self.assertTrue(user.accessibility_mode)

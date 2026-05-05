@@ -29,6 +29,7 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
@@ -2613,6 +2614,59 @@ def set_session_timezone(request):
         content_type="application/json",
         status=200,
     )
+
+
+@require_POST
+def toggle_accessibility_mode(request):
+    """
+    Toggle the accessibility mode flag.
+
+    When enabled, the template override loader serves the Clarity theme
+    regardless of the journal/repository/press theme setting, providing an
+    accessible base palette and templates. Available to anonymous users.
+
+    For authenticated users the preference is persisted on
+    Account.accessibility_mode. Anonymous users have it stored in the
+    session. If the journal-level setting general.accessibility_mode is
+    turned off, the toggle is unavailable and the view returns 404.
+    """
+    if request.journal:
+        try:
+            setting_value = setting_handler.get_setting(
+                "general",
+                "accessibility_mode",
+                request.journal,
+            )
+        except models.Setting.DoesNotExist:
+            setting_value = None
+        if setting_value is None or not setting_value.processed_value:
+            raise Http404()
+
+    if request.user.is_authenticated:
+        request.user.accessibility_mode = not request.user.accessibility_mode
+        request.user.save(update_fields=["accessibility_mode"])
+    else:
+        current = bool(request.session.get("accessibility_mode"))
+        request.session["accessibility_mode"] = not current
+
+    host = request.get_host()
+    next_url = request.POST.get("next")
+    if next_url and url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={host},
+        require_https=request.is_secure(),
+    ):
+        return redirect(next_url)
+
+    referer = request.META.get("HTTP_REFERER")
+    if referer and url_has_allowed_host_and_scheme(
+        url=referer,
+        allowed_hosts={host},
+        require_https=request.is_secure(),
+    ):
+        return redirect(referer)
+
+    return redirect("/")
 
 
 @login_required

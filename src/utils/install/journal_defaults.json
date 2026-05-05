@@ -952,6 +952,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "When on, users can switch the journal to a high-contrast Clarity-themed view via a toggle in the header.",
+            "is_translatable": false,
+            "name": "accessibility_mode",
+            "pretty_name": "Accessibility Mode",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Guide shown to Copyeditors.",
             "is_translatable": true,
             "name": "copyediting_guidelines",

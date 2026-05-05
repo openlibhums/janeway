@@ -5,6 +5,12 @@ body {
     margin-top: 20px;
 }
 
+@media (max-width: 991px) {
+    body {
+        margin-top: 0;
+    }
+}
+
 .container {
     background-color: white;
     padding-left: 0;
@@ -870,4 +876,15 @@ textarea.tinymce:focus,
   .clean-banner.explicit-image-height .clean-banner-image {
     height: 540px;
   }
+}
+
+/* Accessibility mode toggle */
+.navbar .a11y-toggle-host {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.5rem;
+}
+
+.navbar .a11y-toggle-host .a11y-toggle-summary {
+  color: #ffffff;
 }

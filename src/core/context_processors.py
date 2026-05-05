@@ -86,3 +86,8 @@ def version(request):
     :return: a dictionary containing the current version.
     """
     return {"version": get_janeway_version()}
+
+
+def accessibility_mode(request):
+    """Expose the resolved accessibility-mode flag in template context."""
+    return {"accessibility_mode_active": logic.accessibility_mode_active(request)}

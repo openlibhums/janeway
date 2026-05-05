@@ -176,6 +176,11 @@
                 </ul>
             </div>
             {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <div class="top-bar-right a11y-toggle-host">
+                {% include "common/elements/accessibility_mode_toggle.html" %}
+            </div>
+            {% endif %}
         </div>
         {% block navbar %}
             {% if request.journal %}
@@ -222,6 +227,7 @@
 <script src="{% static "OLH/js/app.min.js" %}"></script>
 <script src="{% static "admin/js/csrf.js" %}"></script>
 <script src="{% static "common/js/timezone-setter.js" %}"></script>
+<script src="{% static "common/js/accessibility-toggle.js" %}"></script>
 {% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
 <script>
     toastr.options = {
