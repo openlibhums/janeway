@@ -1091,6 +1091,126 @@ ul.menu {
   }
 }
 
+
+/*
+ * Plugin list
+ * Compact list layout for the plugin manager page.
+ */
+
+.plugin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.plugin-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  transition: background 0.1s;
+}
+
+.plugin-list-item:last-child {
+  border-bottom: none;
+}
+
+.plugin-list-item:hover {
+  background: #f9f9f9;
+}
+
+.plugin-list-item-badge-failed {
+  background: #fde8e8;
+  color: #c0392b;
+}
+
+.plugin-list-item-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: #e8e8e8;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1rem;
+}
+
+.plugin-list-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.plugin-list-item-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+.plugin-list-item-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.plugin-list-item-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1em 0.5em;
+  border-radius: 3px;
+  background: #e0e0e0;
+  color: #444;
+}
+
+.plugin-list-item-badge-version {
+  background: #e8f0fe;
+  color: #3367d6;
+}
+
+.plugin-list-item-desc {
+  font-size: 0.82rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plugin-list-item-meta {
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 0.78rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.plugin-list-item-action {
+  flex-shrink: 0;
+}
+
+.plugin-list-item-action .button {
+  margin: 0;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.plugin-list-count {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: normal;
+}
+
+.plugin-list-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
 .custom-radio-group {
     display: flex;
     flex-direction: column;
@@ -1122,6 +1242,7 @@ ul.menu {
 .ou-depth {
     margin-left: calc(var(--ou-depth, 0) * 1rem);
 }
+
 /*
  * Accessible Modals
  * Uses the dialog tag.
