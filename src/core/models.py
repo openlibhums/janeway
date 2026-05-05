@@ -70,6 +70,11 @@ IMAGE_GALLEY_TEMPLATE = """
     <img class="responsive-img" src={url} alt="{alt}">
 """
 
+# Chunks ROR bulk_create() inserts so they fit within MySQL's
+# default max_allowed_packet (16MB on older servers) and avoid
+# 'Server has gone away' on large dumps. See issue #5248.
+ROR_BULK_BATCH_SIZE = 1000
+
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -2356,7 +2361,10 @@ class OrganizationNameManager(models.Manager):
                 if "acronym" in name.get("types"):
                     kwargs["acronym_for"] = organization
                 organization_names.append(OrganizationName(**kwargs))
-        return OrganizationName.objects.bulk_create(organization_names)
+        return OrganizationName.objects.bulk_create(
+            organization_names,
+            batch_size=ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2627,7 +2635,10 @@ class OrganizationManager(models.Manager):
                     )
                 )
 
-        Organization.locations.through.objects.bulk_create(organization_location_links)
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links,
+            batch_size=ROR_BULK_BATCH_SIZE,
+        )
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
@@ -2649,7 +2660,10 @@ class OrganizationManager(models.Manager):
                     website=website,
                 )
             )
-        return self.bulk_create(new_organizations)
+        return self.bulk_create(
+            new_organizations,
+            batch_size=ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2707,13 +2721,15 @@ class OrganizationManager(models.Manager):
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode="r") as zip_ref:
             for file_info in zip_ref.infolist():
-                if file_info.filename.endswith("v2.json"):
+                if file_info.filename.endswith("ror-data.json"):
                     string = zip_ref.read(file_info).decode()
                     if limit:
                         records = json.loads(string)[:limit]
                     else:
                         records = json.loads(string)
                     break
+            else:
+                raise ValueError(f"No ROR data file found in {ror_import.zip_path}")
 
         new_records = ror_import.filter_new_records(
             records,
@@ -2721,10 +2737,11 @@ class OrganizationManager(models.Manager):
         )
         if new_records:
             try:
-                Location.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_link_locations_from_ror(new_records)
-                OrganizationName.objects.bulk_create_from_ror(new_records)
+                with transaction.atomic():
+                    Location.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_link_locations_from_ror(new_records)
+                    OrganizationName.objects.bulk_create_from_ror(new_records)
             except Exception as error:
                 message = f"{type(error)}: {error}"
                 RORImportError.objects.create(
@@ -3214,7 +3231,10 @@ class LocationManager(models.Manager):
                         )
                     )
                     current_geonames_ids.add(geonames_id)
-        return Location.objects.bulk_create(new_locations)
+        return Location.objects.bulk_create(
+            new_locations,
+            batch_size=ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
