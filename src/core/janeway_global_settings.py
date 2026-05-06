@@ -712,3 +712,9 @@ JATS_ARTICLE_TYPES = (
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
+
+# Chunks ROR bulk_create() inserts so they fit within MySQL's
+# default max_allowed_packet (16MB on older servers) and avoid
+# 'Server has gone away' errors on large dumps. Operators on a MySQL server
+# with a smaller max_allowed_packet may need to lower this value in their local settings.
+ROR_BULK_BATCH_SIZE = 1000

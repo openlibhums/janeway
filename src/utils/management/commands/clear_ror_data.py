@@ -44,6 +44,13 @@ class Command(BaseCommand):
         error_count = RORImportError.objects.count()
 
         self.stdout.write(
+            self.style.WARNING(
+                "WARNING: this is a destructive, irreversible operation. "
+                "ControlledAffiliation rows pointing at deleted organisations "
+                "will have their organization FK set to NULL."
+            )
+        )
+        self.stdout.write(
             f"This will delete:\n"
             f"  {org_count} ROR Organizations (and their cascade-linked names)\n"
             f"  {location_count} ROR Locations\n"
@@ -52,8 +59,10 @@ class Command(BaseCommand):
         )
 
         if not options["no_input"]:
-            confirm = input("Continue? [y/N] ").strip().lower()
-            if confirm != "y":
+            confirm = input(
+                "Type 'wipe' to confirm you want to delete this data: "
+            ).strip()
+            if confirm != "wipe":
                 self.stdout.write("Aborted.")
                 return
 
