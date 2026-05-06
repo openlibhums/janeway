@@ -716,8 +716,15 @@ JATS_ARTICLE_TYPES = (
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
 
+# Chunks ROR bulk_create() inserts so they fit within MySQL's
+# default max_allowed_packet (16MB on older servers) and avoid
+# 'Server has gone away' errors on large dumps.# Operators on a MySQL server
+# with a smaller max_allowed_packet may need to lower this value in their local settings.
+ROR_BULK_BATCH_SIZE = 1000
+
 # Last-resort hero image (a.k.a. large image), loadable as a static file
 HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
+
 # The default crop size, used mainly for hero / large images.
 # Note that the provided theme CSS expects a default crop size of (1500, 648)
 # and may not work properly with a different size.
