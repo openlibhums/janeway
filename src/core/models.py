@@ -81,11 +81,6 @@ IMAGE_GALLEY_TEMPLATE = """
     <img class="responsive-img" src={url} alt="{alt}">
 """
 
-# Chunks ROR bulk_create() inserts so they fit within MySQL's
-# default max_allowed_packet (16MB on older servers) and avoid
-# 'Server has gone away' on large dumps. See issue #5248.
-ROR_BULK_BATCH_SIZE = 1000
-
 
 def profile_images_upload_path(instance, filename):
     try:
@@ -2374,7 +2369,7 @@ class OrganizationNameManager(models.Manager):
                 organization_names.append(OrganizationName(**kwargs))
         return OrganizationName.objects.bulk_create(
             organization_names,
-            batch_size=ROR_BULK_BATCH_SIZE,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
         )
 
     @transaction.atomic
@@ -2648,7 +2643,7 @@ class OrganizationManager(models.Manager):
 
         Organization.locations.through.objects.bulk_create(
             organization_location_links,
-            batch_size=ROR_BULK_BATCH_SIZE,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
         )
 
     def bulk_create_from_ror(self, ror_records):
@@ -2673,7 +2668,7 @@ class OrganizationManager(models.Manager):
             )
         return self.bulk_create(
             new_organizations,
-            batch_size=ROR_BULK_BATCH_SIZE,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
         )
 
     @transaction.atomic
@@ -3280,7 +3275,7 @@ class LocationManager(models.Manager):
                     current_geonames_ids.add(geonames_id)
         return Location.objects.bulk_create(
             new_locations,
-            batch_size=ROR_BULK_BATCH_SIZE,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
         )
 
     @transaction.atomic
