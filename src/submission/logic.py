@@ -19,6 +19,7 @@ from core import models as core_models
 from utils import orcid, setting_handler, shared as utils_shared
 from utils.forms import clean_orcid_id
 from submission import models
+from submission.const import AddAuthorStatus
 from submission.forms import EditFrozenAuthor, CreditRecordForm
 
 
@@ -386,7 +387,8 @@ def add_author_using_email(search_term, article):
         email,
         article,
     )
-    return author, created
+    status = AddAuthorStatus.OK if author else AddAuthorStatus.NOT_FOUND
+    return author, created, status
 
 
 def add_author_using_orcid(search_term, article, request):
@@ -396,19 +398,20 @@ def add_author_using_orcid(search_term, article, request):
     try:
         cleaned_orcid = clean_orcid_id(search_term)
     except ValueError:
-        cleaned_orcid = ""
-        return author, created
+        return author, created, AddAuthorStatus.NOT_FOUND
 
     author, created = models.FrozenAuthor.get_or_snapshot_if_orcid_found(
         cleaned_orcid,
         article,
     )
     if author:
-        return author, created
+        return author, created, AddAuthorStatus.OK
 
     # If there is no account or frozen author in Janeway with that orcid and article,
     # get the public ORCID record.
     orcid_details = orcid.get_orcid_record_details(cleaned_orcid)
+    if not orcid_details:
+        return author, created, AddAuthorStatus.ORCID_ERROR
     orcid_emails = orcid_details.get("emails", [])
 
     # Check for accounts by email address.
@@ -422,7 +425,7 @@ def add_author_using_orcid(search_term, article, request):
             account.save()
             author = account.snapshot_as_author(article)
             created = True
-            return author, created
+            return author, created, AddAuthorStatus.OK
         except core_models.Account.DoesNotExist:
             author = None
 
@@ -445,7 +448,8 @@ def add_author_using_orcid(search_term, article, request):
     if created:
         add_author_affiliation_from_orcid(author, orcid_details, request)
 
-    return author, created
+    status = AddAuthorStatus.OK if author else AddAuthorStatus.NOT_FOUND
+    return author, created, status
 
 
 def add_author_affiliation_from_orcid(author, orcid_details, request):
@@ -465,29 +469,42 @@ def add_author_from_search(search_term, request, article):
     """
     Tries to add a FrozenAuthor from a search query.
     """
-    author, created = add_author_using_email(search_term, article)
+    author, created, status = add_author_using_email(search_term, article)
     if not author:
-        author, created = add_author_using_orcid(search_term, article, request)
+        author, created, status = add_author_using_orcid(
+            search_term,
+            article,
+            request,
+        )
 
-    if author:
-        if created:
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _("%(author_name)s is now an author.")
-                % {
-                    "author_name": author.full_name(),
-                },
+    if author and created:
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("%(author_name)s is now an author.")
+            % {"author_name": author.full_name()},
+        )
+    elif author:
+        messages.add_message(
+            request,
+            messages.INFO,
+            _("%(author_name)s is already an author.")
+            % {"author_name": author.full_name()},
+        )
+    elif status == AddAuthorStatus.ORCID_ERROR:
+        try:
+            cleaned_orcid = clean_orcid_id(search_term)
+        except ValueError:
+            cleaned_orcid = search_term
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _(
+                "We couldn't retrieve a record from ORCID for "
+                "%(orcid)s. Check the ORCID ID and try again later."
             )
-        else:
-            messages.add_message(
-                request,
-                messages.INFO,
-                _("%(author_name)s is already an author.")
-                % {
-                    "author_name": author.full_name(),
-                },
-            )
+            % {"orcid": cleaned_orcid},
+        )
     else:
         messages.add_message(
             request,
