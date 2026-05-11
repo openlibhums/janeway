@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load hooks %}
+{% load hooks i18n %}
 
 {% block title %}Article {{ article.pk }} Information{% endblock %}
 {% block breadcrumbs %}
@@ -18,6 +18,89 @@
             {% hook 'edit_article' %}
         {% endif %}
         <div class="content">
+            <p>
+                {% if article.stage == "Unassigned" %}
+                    {% trans "Your article has been submitted and is awaiting editorial assignment." %}
+                {% elif article.stage == "Assigned to Editor" %}
+                    {% trans "Your article has been assigned to an editor and is awaiting the next workflow step." %}
+                {% elif article.stage == "Under Review" %}
+                    {% trans "Your article is currently in peer review." %}
+                {% elif article.stage == "Revision" %}
+                    {% trans "Your article is currently in revision. Please check the tasks below for any actions." %}
+                {% elif article.stage == "Accepted" %}
+                    {% trans "Your article has been accepted and is progressing through the publication workflow." %}
+                {% elif article.stage == "Editor Copyediting" or article.stage == "Author Copyediting" or article.stage == "Final Copyediting" %}
+                    {% trans "Your article is currently in copyediting." %}
+                {% elif article.stage == "Typesetting" or article.stage == "Proofing" or article.stage == "Pre Publication" %}
+                    {% trans "Your article is in the final production stages before publication." %}
+                {% elif article.stage == "Published" %}
+                    {% trans "Your article has been published." %}
+                {% elif article.stage == "Archived" %}
+                    {% trans "Your article has been archived." %}
+                {% elif article.stage == "Rejected" %}
+                    {% trans "Your article has been declined." %}
+                {% else %}
+                    {% trans "You can find the current status of your article below." %}
+                {% endif %}
+            </p>
+            <table class="scroll">
+                <tr>
+                    <th>{% trans "Current Stage" %}</th>
+                    <td>{{ article.get_stage_display }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Submitted" %}</th>
+                    <td>
+                        {% if article.date_submitted %}
+                            {{ article.date_submitted }}
+                        {% else %}
+                            {% trans "Not yet submitted" %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if article.date_published %}
+                    <tr>
+                        <th>{% trans "Published" %}</th>
+                        <td>{{ article.date_published }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <th>{% trans "Section" %}</th>
+                    <td>
+                        {% if article.section %}
+                            {{ article.section.name }}
+                        {% else %}
+                            {% trans "Not set" %}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Keywords" %}</th>
+                    <td>
+                        {% for keyword in article.keywords.all %}
+                            {{ keyword }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            {% trans "No keywords recorded" %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Abstract" %}</th>
+                    <td>
+                        {% if article.abstract %}
+                            {{ article.abstract|safe }}
+                        {% else %}
+                            {% trans "No abstract provided" %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if article.is_published %}
+                    <tr>
+                        <th>{% trans "Article" %}</th>
+                        <td><a href="{{ article.url }}">{% trans "View live article" %}</a></td>
+                    </tr>
+                {% endif %}
+            </table>
         </div>
     </div>
 
@@ -108,6 +191,10 @@
             {% include "typesetting/elements/author_tasks.html" %}
 
             {% hook 'core_article_tasks' %}
+
+            {% if not article.active_revision_requests and not article.active_author_copyedits %}
+                <p>{% trans "There is currently no action required from you." %}</p>
+            {% endif %}
         </div>
     </div>
 
