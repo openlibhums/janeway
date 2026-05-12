@@ -1840,21 +1840,23 @@ input[type="submit"]:focus-visible {
 }
 
 .menu .a11y-mobile-form {
-    margin: 0;
+    margin: -4px;
     padding: 0;
 }
 
 .menu .a11y-mobile-button {
+    box-sizing: border-box;
     display: block;
     width: 100%;
-    padding: 0.7rem 1rem;
+    padding: 20px 16px;
     margin: 0;
     background: transparent;
     border: 0;
     color: inherit;
     font: inherit;
+    font-size: 14px;
+    line-height: 14px;
     text-align: left;
-    line-height: 1;
     cursor: pointer;
 }
 
