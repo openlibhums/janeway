@@ -1,19 +1,19 @@
 <div id="issue_top">
     {% if issue.hero_image_url %}
-        <div class="olh-banner">
-          <img class="olh-banner-image"
-                         src="{{ issue.hero_image_url }}"
-                         alt='{{ issue.display_title_a11y }}'
-                        >
-          <div class="overlay"></div>
-                        <figcaption class="olh-banner-heading">
-                            {% if level == "deep" %}
-                                <h2 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
-                            {% else %}
-                                <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
-                            {% endif %}
-                        </figcaption>
-        </div>
+      <div class="olh-banner">
+        <img class="olh-banner-image"
+             src="{{ issue.hero_image_url }}"
+             alt="{{ issue.best_large_image_alt_text }}"
+        >
+        <div class="overlay"></div>
+        <figcaption class="olh-banner-heading">
+          {% if level == "deep" %}
+            <h2 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
+          {% else %}
+            <h1 aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+          {% endif %}
+        </figcaption>
+      </div>
         {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
     {% else %}
         {% if level == "deep" %}

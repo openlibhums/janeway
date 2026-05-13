@@ -17,7 +17,7 @@
                     <img
                         class="clean-banner-image"
                         src="{{ collection.hero_image_url }}"
-                        alt="{{ collection.issue_title }}"
+                        alt="{% get_alt_text obj=collection file_path=collection.hero_image_url default=collection.issue_title|striptags %}"
                     >
                   </div>
                     <div class="card-block">

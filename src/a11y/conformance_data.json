@@ -1,0 +1,441 @@
+{
+  "metadata": {
+    "title": "Janeway Accessibility Conformance",
+    "description": "Janeway is moving towards compliance with WCAG 2.2 AA.  This process has started with the Front of House (OLH, Material and Clean themes and the introduction of a new accessibility mode). Next will come the back office, and then the plugins. Version tested is given as the git commit reference on the master branch."
+  },
+  "criteria": {
+    "1.1.1": {
+      "criterion_name": "Non-text Content",
+      "level": "A"
+    },
+    "1.2.1": {
+      "criterion_name": "Audio-only and Video-only (Prerecorded)",
+      "level": "A"
+    },
+    "1.2.2": {
+      "criterion_name": "Captions (Prerecorded)",
+      "level": "A"
+    },
+    "1.2.3": {
+      "criterion_name": "Audio Description or Media Alternative (Prerecorded)",
+      "level": "A"
+    },
+    "1.2.4": {
+      "criterion_name": "Captions (Live)",
+      "level": "AA"
+    },
+    "1.2.5": {
+      "criterion_name": "Audio Description (Prerecorded)",
+      "level": "AA"
+    },
+    "1.3.1": {
+      "criterion_name": "Info and Relationships",
+      "level": "A"
+    },
+    "1.3.2": {
+      "criterion_name": "Meaningful Sequence",
+      "level": "A"
+    },
+    "1.3.3": {
+      "criterion_name": "Sensory Characteristics",
+      "level": "A"
+    },
+    "1.3.4": {
+      "criterion_name": "Orientation",
+      "level": "AA"
+    },
+    "1.3.5": {
+      "criterion_name": "Identify Input Purpose",
+      "level": "AA"
+    },
+    "1.4.1": {
+      "criterion_name": "Use of Color",
+      "level": "A"
+    },
+    "1.4.2": {
+      "criterion_name": "Audio Control",
+      "level": "A"
+    },
+    "1.4.3": {
+      "criterion_name": "Contrast (Minimum)",
+      "level": "AA"
+    },
+    "1.4.4": {
+      "criterion_name": "Resize Text",
+      "level": "AA"
+    },
+    "1.4.5": {
+      "criterion_name": "Images of Text",
+      "level": "AA"
+    },
+    "1.4.10": {
+      "criterion_name": "Reflow",
+      "level": "AA"
+    },
+    "1.4.11": {
+      "criterion_name": "Non-text Contrast",
+      "level": "AA"
+    },
+    "1.4.12": {
+      "criterion_name": "Text Spacing",
+      "level": "AA"
+    },
+    "1.4.13": {
+      "criterion_name": "Content on Hover or Focus",
+      "level": "AA"
+    },
+    "2.1.1": {
+      "criterion_name": "Keyboard",
+      "level": "A"
+    },
+    "2.1.2": {
+      "criterion_name": "No Keyboard Trap",
+      "level": "A"
+    },
+    "2.1.4": {
+      "criterion_name": "Character Key Shortcuts",
+      "level": "A"
+    },
+    "2.2.1": {
+      "criterion_name": "Timing Adjustable",
+      "level": "A"
+    },
+    "2.2.2": {
+      "criterion_name": "Pause, Stop, Hide",
+      "level": "A"
+    },
+    "2.3.1": {
+      "criterion_name": "Three Flashes or Below Threshold",
+      "level": "A"
+    },
+    "2.4.1": {
+      "criterion_name": "Bypass Blocks",
+      "level": "A"
+    },
+    "2.4.2": {
+      "criterion_name": "Page Titled",
+      "level": "A"
+    },
+    "2.4.3": {
+      "criterion_name": "Focus Order",
+      "level": "A"
+    },
+    "2.4.4": {
+      "criterion_name": "Link Purpose (In Context)",
+      "level": "A"
+    },
+    "2.4.5": {
+      "criterion_name": "Multiple Ways",
+      "level": "AA"
+    },
+    "2.4.6": {
+      "criterion_name": "Headings and Labels",
+      "level": "AA"
+    },
+    "2.4.7": {
+      "criterion_name": "Focus Visible",
+      "level": "AA"
+    },
+    "2.4.11": {
+      "criterion_name": "Focus Not Obscured (Minimum)",
+      "level": "AA"
+    },
+    "2.5.1": {
+      "criterion_name": "Pointer Gestures",
+      "level": "A"
+    },
+    "2.5.2": {
+      "criterion_name": "Pointer Cancellation",
+      "level": "A"
+    },
+    "2.5.3": {
+      "criterion_name": "Label in Name",
+      "level": "A"
+    },
+    "2.5.4": {
+      "criterion_name": "Motion Actuation",
+      "level": "A"
+    },
+    "2.5.7": {
+      "criterion_name": "Dragging Movements",
+      "level": "AA"
+    },
+    "2.5.8": {
+      "criterion_name": "Target Size (Minimum)",
+      "level": "AA"
+    },
+    "3.1.1": {
+      "criterion_name": "Language of Page",
+      "level": "A"
+    },
+    "3.1.2": {
+      "criterion_name": "Language of Parts",
+      "level": "AA"
+    },
+    "3.2.1": {
+      "criterion_name": "On Focus",
+      "level": "A"
+    },
+    "3.2.2": {
+      "criterion_name": "On Input",
+      "level": "A"
+    },
+    "3.2.3": {
+      "criterion_name": "Consistent Navigation",
+      "level": "AA"
+    },
+    "3.2.4": {
+      "criterion_name": "Consistent Identification",
+      "level": "AA"
+    },
+    "3.2.6": {
+      "criterion_name": "Consistent Help",
+      "level": "A"
+    },
+    "3.3.1": {
+      "criterion_name": "Error Identification",
+      "level": "A"
+    },
+    "3.3.2": {
+      "criterion_name": "Labels or Instructions",
+      "level": "A"
+    },
+    "3.3.3": {
+      "criterion_name": "Error Suggestion",
+      "level": "AA"
+    },
+    "3.3.4": {
+      "criterion_name": "Error Prevention (Legal, Financial, Data)",
+      "level": "AA"
+    },
+    "3.3.7": {
+      "criterion_name": "Redundant Entry",
+      "level": "A"
+    },
+    "3.3.8": {
+      "criterion_name": "Accessible Authentication (Minimum)",
+      "level": "AA"
+    },
+    "4.1.2": {
+      "criterion_name": "Name, Role, Value",
+      "level": "A"
+    },
+    "4.1.3": {
+      "criterion_name": "Status Messages",
+      "level": "AA"
+    }
+  },
+  "area": {
+    "olh": {
+      "name": "Front of House - OLH Theme",
+      "audit_results": {
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
+        "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
+        "1.2.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5088, January 2026](https://github.com/openlibhums/janeway/issues/5088)" },
+        "1.2.5": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5089, January 2026](https://github.com/openlibhums/janeway/issues/5089)" },
+        "1.3.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5050, March 2026](https://github.com/openlibhums/janeway/issues/5050)" },
+        "1.3.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5051,January 2026](https://github.com/openlibhums/janeway/issues/5051)" },
+        "1.3.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "toastr.js close buttons do not have text.", "audit": "[5105, January 2026](https://github.com/openlibhums/janeway/issues/5105)" },
+        "1.3.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Bugs on portrait/mobile, see audit.", "audit": "[5108, March 2026](https://github.com/openlibhums/janeway/issues/5108)" },
+        "1.3.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5109, March 2026](https://github.com/openlibhums/janeway/issues/5109)" },
+        "1.4.1": { "commit": "f23d166d8",   "conformance": "Supports",           "remarks": null, "audit": "[5114, March 2026](https://github.com/openlibhums/janeway/issues/5114)"  },
+        "1.4.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5090, January 2026](https://github.com/openlibhums/janeway/issues/5090)" },
+        "1.4.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5116, March 2026](https://github.com/openlibhums/janeway/issues/5116)"},
+        "1.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5117, March 2026](https://github.com/openlibhums/janeway/issues/5117)"  },
+        "1.4.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5099, January 2026](https://github.com/openlibhums/janeway/issues/5099)" },
+        "1.4.10": { "commit": "f23d166d8",  "conformance": "Supports",        "remarks": null, "audit": "[5118, January 2026](https://github.com/openlibhums/janeway/issues/5118)" },
+        "1.4.11": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5119, January 2026](https://github.com/openlibhums/janeway/issues/5119)"  },
+        "1.4.12": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "a few isolated bugs", "audit": "[5120, January 2026](https://github.com/openlibhums/janeway/issues/5120)" },
+        "1.4.13": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "Navigation not compliant.", "audit": "[5140, April 2026](https://github.com/openlibhums/janeway/issues/5140)" },
+        "2.1.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5141, March 2026](https://github.com/openlibhums/janeway/issues/5141)"},
+        "2.1.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5091, January 2026](https://github.com/openlibhums/janeway/issues/5091)" },
+        "2.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5143, April 2026](https://github.com/openlibhums/janeway/issues/5143)" },
+        "2.2.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Log-out message cannot be paused.", "audit": "[5144, February 2026](https://github.com/openlibhums/janeway/issues/5144)"  },
+        "2.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5145, January 2026](https://github.com/openlibhums/janeway/issues/5145)" },
+        "2.3.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5147, February 2026](https://github.com/openlibhums/janeway/issues/5147)"  },
+        "2.4.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5101, January 2026](https://github.com/openlibhums/janeway/issues/5101)" },   
+        "2.4.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "All have titles, but they are not fully descriptive.", "audit": "[5146, February 2026](https://github.com/openlibhums/janeway/issues/5146)" },     
+        "2.4.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "enlarge figure close button unfocusable", "audit": "[5148, April 2026](https://github.com/openlibhums/janeway/issues/5148)" },
+        "2.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5149, March 2026](https://github.com/openlibhums/janeway/issues/5149)" },
+        "2.4.5": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5150, February 2026](https://github.com/openlibhums/janeway/issues/5150)" },
+        "2.4.6": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5151, March 2026](https://github.com/openlibhums/janeway/issues/5151)" },
+        "2.4.7": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "carousel focus is not visible", "audit": "[5152, April 2026](https://github.com/openlibhums/janeway/issues/5152)"  },
+        "2.4.11": { "commit": "f23d166d8",  "conformance": "Supports", "remarks": null, "audit": "[5153, April 2026](https://github.com/openlibhums/janeway/issues/5153)"},
+        "2.5.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5154, February 2026](https://github.com/openlibhums/janeway/issues/5154)" },
+        "2.5.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5092, January 2026](https://github.com/openlibhums/janeway/issues/5092)" },
+        "2.5.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Some labels only in English. Labels are contextual, not all include name.", "audit": "[5155, April 2026](https://github.com/openlibhums/janeway/issues/5155)" },
+        "2.5.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5093, January 2026](https://github.com/openlibhums/janeway/issues/5093)" },
+        "2.5.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5094, January 2026](https://github.com/openlibhums/janeway/issues/5094)" },
+        "2.5.8": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Multiple failures, particularly on the articles page.", "audit": "[5156, April 2026](https://github.com/openlibhums/janeway/issues/5156)" },
+        "3.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Single bug in article print page.", "audit": "[5157, February 2026](https://github.com/openlibhums/janeway/issues/5157)" },
+        "3.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5158, February 2026](https://github.com/openlibhums/janeway/issues/5158)" },
+        "3.2.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5159, April 2026](https://github.com/openlibhums/janeway/issues/5159)"  },
+        "3.2.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "language selection updates on change", "audit": "[5160, April 2026](https://github.com/openlibhums/janeway/issues/5160)"  },
+        "3.2.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Single urgent bug on mobile", "audit": "[5161, February 2026](https://github.com/openlibhums/janeway/issues/5161)"},
+        "3.2.4": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5162, April 2026](https://github.com/openlibhums/janeway/issues/5162)" },
+        "3.2.6": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5163, February 2026](https://github.com/openlibhums/janeway/issues/5163)" }, 
+        "3.3.1": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5164, March 2026](https://github.com/openlibhums/janeway/issues/5164)" },
+        "3.3.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "visible instruction, not all marked up correctly", "audit": "[5165, April 2026](https://github.com/openlibhums/janeway/issues/5165)" },
+        "3.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5166, February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
+        "3.3.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5095, January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
+        "3.3.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5096, January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5167, February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
+        "4.1.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5168, March 2026](https://github.com/openlibhums/janeway/issues/5168)" },
+        "4.1.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5097, January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
+      }
+    },
+    "material": {
+      "name": "Front of House - Material Theme",
+      "audit_results": {
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
+        "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
+        "1.2.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5088, January 2026](https://github.com/openlibhums/janeway/issues/5088)" },
+        "1.2.5": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5089, January 2026](https://github.com/openlibhums/janeway/issues/5089)" },
+        "1.3.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5050, March 2026](https://github.com/openlibhums/janeway/issues/5050)" },
+        "1.3.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5051, January 2026](https://github.com/openlibhums/janeway/issues/5051)" },
+        "1.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5105, January 2026](https://github.com/openlibhums/janeway/issues/5105)" },       
+        "1.3.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Not responsive on iOS Safari. Incompatible with wide header images.", "audit": "[5108, March 2026](https://github.com/openlibhums/janeway/issues/5108)" },
+        "1.3.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5109, March 2026](https://github.com/openlibhums/janeway/issues/5109)" },
+        "1.4.1": { "commit": "f23d166d8",   "conformance": "Supports",           "remarks": null, "audit": "[5114, March 2026](https://github.com/openlibhums/janeway/issues/5114)"  },
+        "1.4.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5090,January 2026](https://github.com/openlibhums/janeway/issues/5090)" },
+        "1.4.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5116, March 2026](https://github.com/openlibhums/janeway/issues/5116)"},
+        "1.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5117, March 2026](https://github.com/openlibhums/janeway/issues/5117)"  },
+        "1.4.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5099, January 2026](https://github.com/openlibhums/janeway/issues/5099)" },
+        "1.4.10": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "News page not reflowing on mobile.", "audit": "[5118, January 2026](https://github.com/openlibhums/janeway/issues/5118)" },
+        "1.4.11": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5119, January 2026](https://github.com/openlibhums/janeway/issues/5119)"  },
+        "1.4.12": { "commit": "f23d166d8",  "conformance": "Does not support", "remarks": "Desktop navigation is unusable at increased spacing.", "audit": "[5120, January 2026](https://github.com/openlibhums/janeway/issues/5120)" },
+        "1.4.13": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "Navigation not compliant.", "audit": "[5140, April 2026](https://github.com/openlibhums/janeway/issues/5140)" },
+        "2.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Two mobile pages have non-focusable scrollable areas.", "audit": "[5141, March 2026](https://github.com/openlibhums/janeway/issues/5141)"},
+        "2.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5143, April 2026](https://github.com/openlibhums/janeway/issues/5143)" },
+        "2.2.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Carousel and log-out message cannot be paused.", "audit": "[5144, February 2026](https://github.com/openlibhums/janeway/issues/5144)"  },
+        "2.2.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Carousel autoplays and cannot be paused.", "audit": "[5145, January 2026](https://github.com/openlibhums/janeway/issues/5145)" },
+        "2.1.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5091, January 2026](https://github.com/openlibhums/janeway/issues/5091)" },
+        "2.3.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5147, February 2026](https://github.com/openlibhums/janeway/issues/5147)"  },
+        "2.4.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5101, January 2026](https://github.com/openlibhums/janeway/issues/5101)" },
+        "2.4.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "All have titles, but they are not fully descriptive.", "audit": "[5146, February 2026](https://github.com/openlibhums/janeway/issues/5146)" },
+        "2.4.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "text options after article text in focus order", "audit": "[5148, April 2026](https://github.com/openlibhums/janeway/issues/5148)" },
+        "2.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5149, March 2026](https://github.com/openlibhums/janeway/issues/5149)" },
+        "2.4.5": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5150, February 2026](https://github.com/openlibhums/janeway/issues/5150)" },
+        "2.4.6": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5151, March 2026](https://github.com/openlibhums/janeway/issues/5151)" },
+        "2.4.7": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "carousel focus is not visible", "audit": "[5152, April 2026](https://github.com/openlibhums/janeway/issues/5152)"  },
+        "2.4.11": { "commit": "f23d166d8",  "conformance": "Supports", "remarks": null, "audit": "[5153, April 2026](https://github.com/openlibhums/janeway/issues/5153)"},
+        "2.5.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5154, February 2026](https://github.com/openlibhums/janeway/issues/5154)" },
+        "2.5.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5092, January 2026](https://github.com/openlibhums/janeway/issues/5092)" },
+        "2.5.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Some labels only in English. Labels are contextual, not all include name.", "audit": "[5155, April 2026](https://github.com/openlibhums/janeway/issues/5155)" },
+        "2.5.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5093, January 2026](https://github.com/openlibhums/janeway/issues/5093)" },
+        "2.5.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5094, January 2026](https://github.com/openlibhums/janeway/issues/5094)" },
+        "2.5.8": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Several issues, carousel controls unusable for longer titles.", "audit": "[5156, April 2026](https://github.com/openlibhums/janeway/issues/5156)" },
+        "3.1.1": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5157, February 2026](https://github.com/openlibhums/janeway/issues/5157)" },
+        "3.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5158, February 2026](https://github.com/openlibhums/janeway/issues/5158)" },
+        "3.2.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5159, April 2026](https://github.com/openlibhums/janeway/issues/5159)"  },
+        "3.2.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "language selection updates on change", "audit": "[5160, April 2026](https://github.com/openlibhums/janeway/issues/5160)"  },
+        "3.2.3": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5161, February 2026](https://github.com/openlibhums/janeway/issues/5161)"},
+        "3.2.4": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5162, April 2026](https://github.com/openlibhums/janeway/issues/5162)" },
+        "3.2.6": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5163, February 2026](https://github.com/openlibhums/janeway/issues/5163)" },
+        "3.3.1": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5164, March 2026](https://github.com/openlibhums/janeway/issues/5164)" },
+        "3.3.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "visible instruction, not all marked up correctly", "audit": "[5165, April 2026](https://github.com/openlibhums/janeway/issues/5165)" },
+        "3.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5166, February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
+        "3.3.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5095, January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
+        "3.3.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5096, January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5167, February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
+        "4.1.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5168, March 2026](https://github.com/openlibhums/janeway/issues/5168)" },
+        "4.1.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5097, January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
+      }
+    },
+    "clean": {
+      "name": "Front of House - Clean Theme",
+      "audit_results": {
+        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
+        "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
+        "1.2.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5088, January 2026](https://github.com/openlibhums/janeway/issues/5088)" },
+        "1.2.5": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5089, January 2026](https://github.com/openlibhums/janeway/issues/5089)" },
+        "1.3.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5050, March 2026](https://github.com/openlibhums/janeway/issues/5050)" },
+        "1.3.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5051, January 2026](https://github.com/openlibhums/janeway/issues/5051)" },
+        "1.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5105, January 2026](https://github.com/openlibhums/janeway/issues/5105)" },
+        "1.3.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Bug in (portrait) carousel for long titles.", "audit": "[5108, March 2026](https://github.com/openlibhums/janeway/issues/5108)" },
+        "1.3.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5109, March 2026](https://github.com/openlibhums/janeway/issues/5109)" },
+        "1.4.1": { "commit": "f23d166d8",   "conformance": "Supports",           "remarks": null, "audit": "[5114, March 2026](https://github.com/openlibhums/janeway/issues/5114)"  },
+        "1.4.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5090, January 2026](https://github.com/openlibhums/janeway/issues/5090)" },
+        "1.4.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5116, March 2026](https://github.com/openlibhums/janeway/issues/5116)"},
+        "1.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5117, March 2026](https://github.com/openlibhums/janeway/issues/5117)"  },
+        "1.4.5": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5099, January 2026](https://github.com/openlibhums/janeway/issues/5099)" },
+        "1.4.10": { "commit": "f23d166d8",  "conformance": "Supports", "remarks": null, "audit": "[5118, January 2026](https://github.com/openlibhums/janeway/issues/5118)" },
+        "1.4.11": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "Colour themes are defined by users, but defaults are not fully compliant.", "audit": "[5119, January 2026](https://github.com/openlibhums/janeway/issues/5119)"  },
+        "1.4.12": { "commit": "f23d166d8",  "conformance": "Partially supports", "remarks": "a few isolated bugs", "audit": "[5120, January 2026](https://github.com/openlibhums/janeway/issues/5120)" },
+        "1.4.13": { "commit": "f23d166d8",  "conformance": "Supports", "remarks": null, "audit": "[5140, April 2026](https://github.com/openlibhums/janeway/issues/5140)" },
+        "2.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "A scrollable area on mobile article page is not keyboard focusable.", "audit": "[5141, March 2026](https://github.com/openlibhums/janeway/issues/5141)" },
+        "2.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5143, April 2026](https://github.com/openlibhums/janeway/issues/5143)" },
+        "2.1.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5091, January 2026](https://github.com/openlibhums/janeway/issues/5091)" },
+        "2.2.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5144,February 2026](https://github.com/openlibhums/janeway/issues/5144)"  },
+        "2.2.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5145, January 2026](https://github.com/openlibhums/janeway/issues/5145)" },
+        "2.3.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5147, February 2026](https://github.com/openlibhums/janeway/issues/5147)"  },
+        "2.4.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5101, January 2026](https://github.com/openlibhums/janeway/issues/5101)" },
+        "2.4.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "All have titles, but they are not fully descriptive.", "audit": "[5146, February 2026](https://github.com/openlibhums/janeway/issues/5146)" },
+        "2.4.3": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5148, April 2026](https://github.com/openlibhums/janeway/issues/5148)" },
+        "2.4.4": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5149, March 2026](https://github.com/openlibhums/janeway/issues/5149)" },
+        "2.4.5": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5150, February 2026](https://github.com/openlibhums/janeway/issues/5150)" },
+        "2.4.6": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5151, March 2026](https://github.com/openlibhums/janeway/issues/5151)" },
+        "2.4.7": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "carousel focus is not visible", "audit": "[5152, April 2026](https://github.com/openlibhums/janeway/issues/5152)"  },
+        "2.4.11": { "commit": "f23d166d8",  "conformance": "Supports", "remarks": null, "audit": "[5153, April 2026](https://github.com/openlibhums/janeway/issues/5153)"},
+        "2.5.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5154, February 2026](https://github.com/openlibhums/janeway/issues/5154)" },
+        "2.5.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5092, January 2026](https://github.com/openlibhums/janeway/issues/5092)" },
+        "2.5.3": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Some labels only in English. Labels are contextual, not all include name.", "audit": "[5155, April 2026](https://github.com/openlibhums/janeway/issues/5155)" },
+        "2.5.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5093, January 2026](https://github.com/openlibhums/janeway/issues/5093)" },
+        "2.5.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5094, January 2026](https://github.com/openlibhums/janeway/issues/5094)" },
+        "2.5.8": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Handful of failures, article page filters particularly impacted.", "audit": "[5156, April 2026](https://github.com/openlibhums/janeway/issues/5156)" },
+        "3.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "Single bug in article print page.", "audit": "[5157, February 2026](https://github.com/openlibhums/janeway/issues/5157)" },
+        "3.1.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5158, February 2026](https://github.com/openlibhums/janeway/issues/5158)" },
+        "3.2.1": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5159, April 2026](https://github.com/openlibhums/janeway/issues/5159)"  },
+        "3.2.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "language selection updates on change", "audit": "[5160, April 2026](https://github.com/openlibhums/janeway/issues/5160)"  },
+        "3.2.3": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5161, February 2026](https://github.com/openlibhums/janeway/issues/5161)"},
+        "3.2.4": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null, "audit": "[5162, April 2026](https://github.com/openlibhums/janeway/issues/5162)" },
+        "3.2.6": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5163, February 2026](https://github.com/openlibhums/janeway/issues/5163)" },
+        "3.3.1": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5164, March 2026](https://github.com/openlibhums/janeway/issues/5164)" },
+        "3.3.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": "visible instruction, not all marked up correctly", "audit": "[5165, April 2026](https://github.com/openlibhums/janeway/issues/5165)" },
+        "3.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5166, February 2026](https://github.com/openlibhums/janeway/issues/5166)" },
+        "3.3.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5095, January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
+        "3.3.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5096, January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5167, February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
+        "4.1.2": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5168, March 2026](https://github.com/openlibhums/janeway/issues/5168)" },
+        "4.1.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5097, January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
+      }
+    },
+    "accessibility_mode": {
+      "name": "Front of House - Accessibility Mode",
+      "notes": ["Accessibility Mode is provided as an user-selectable alternative from all three themes."],
+      "audit_results": {
+        "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
+        "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
+        "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
+        "1.2.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5088, January 2026](https://github.com/openlibhums/janeway/issues/5088)" },
+        "1.2.5": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5089, January 2026](https://github.com/openlibhums/janeway/issues/5089)" },
+        "1.3.2": { "commit": "f23d166d8",   "conformance": "Supports", "remarks": null,       "audit": "[5051, January 2026](https://github.com/openlibhums/janeway/issues/5051)" },
+        "1.3.3": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5105, January 2026](https://github.com/openlibhums/janeway/issues/5105)" },              
+        "1.4.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5090, January 2026](https://github.com/openlibhums/janeway/issues/5090)" },
+        "1.4.5": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5099, January 2026](https://github.com/openlibhums/janeway/issues/5099)" },
+        "2.1.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5091, January 2026](https://github.com/openlibhums/janeway/issues/5091)" },
+        "2.3.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5147, February 2026](https://github.com/openlibhums/janeway/issues/5147)"  },
+        "2.4.1": { "commit": "f23d166d8",   "conformance": "Supports",       "remarks": null, "audit": "[5101, January 2026](https://github.com/openlibhums/janeway/issues/5101)" },
+        "2.4.5": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5150, February 2026](https://github.com/openlibhums/janeway/issues/5150)" },
+        "2.5.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5092, January 2026](https://github.com/openlibhums/janeway/issues/5092)" },
+        "2.5.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5093, January 2026](https://github.com/openlibhums/janeway/issues/5093)" },
+        "2.5.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5094, January 2026](https://github.com/openlibhums/janeway/issues/5094)" },
+        "3.2.6": { "commit": "f23d166d8",   "conformance": "Supports",         "remarks": null, "audit": "[5163, February 2026](https://github.com/openlibhums/janeway/issues/5163)" },
+        "3.3.4": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5095, January 2026](https://github.com/openlibhums/janeway/issues/5095)" },
+        "3.3.7": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5096, January 2026](https://github.com/openlibhums/janeway/issues/5096)" },
+        "3.3.8": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5167, February 2026](https://github.com/openlibhums/janeway/issues/5167)" },
+        "4.1.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5097, January 2026](https://github.com/openlibhums/janeway/issues/5097)" }
+     }
+    },
+    "back_office": {
+      "name": "Back office",
+      "notes": ["No data. Development focus will turn to back office accessibility improvements after the front of house is addressed in version 1.9."]
+    }
+  }
+}

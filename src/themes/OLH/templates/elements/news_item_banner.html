@@ -5,7 +5,7 @@
 <div class="olh-banner">
   <img class="olh-banner-image"
     src="{{ news_item.best_image_url }}"
-    alt="{{ news_item.title|striptags|unescape }}">
+    alt="{{ news_item.best_large_image_alt_text }}">
   <div class="overlay"></div>
   <figcaption class="olh-banner-heading">
     <h1>{{ news_item.title|safe }}</h1>

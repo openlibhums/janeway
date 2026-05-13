@@ -48,11 +48,12 @@ urlpatterns = [
     ),
     re_path(
         r"^list/(?P<subject_id>\d+)/$",
-        views.repository_list,
+        views.redirect_old_subject,
         name="repository_list_subject",
     ),
     re_path(r"^editors/$", views.preprints_editors, name="preprints_editors"),
     re_path(r"^submit/start/$", views.repository_submit, name="repository_submit"),
+    re_path(r"^submit/info/$", views.repository_info, name="repository_info"),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/$",
         views.repository_submit,
@@ -114,6 +115,26 @@ urlpatterns = [
         views.delete_preprint_author,
         name="repository_manager_delete_author",
     ),
+    re_path(
+        r"^manager/submission-types/$",
+        views.submission_type_list,
+        name="submission_type_list",
+    ),
+    re_path(
+        r"^manager/submission-types/create/$",
+        views.edit_submission_type,
+        name="create_submission_type",
+    ),
+    re_path(
+        r"^manager/submission-types/(?P<pk>\d+)/edit/$",
+        views.edit_submission_type,
+        name="edit_submission_type",
+    ),
+    re_path(
+        r"^manager/submission-types/(?P<pk>\d+)/delete/$",
+        views.delete_submission_type,
+        name="delete_submission_type",
+    ),
     # Review
     re_path(
         r"^manager/reviewers/$",
@@ -171,9 +192,26 @@ urlpatterns = [
         name="repository_preprint_log",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/comments/$",
-        views.repository_comments,
-        name="repository_comments",
+        r"^manager/comments/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list_filtered",
+    ),
+    re_path(
+        r"^manager/comments/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_reviewed",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_filtered_reviewed",
     ),
     re_path(
         r"^manager/(?P<preprint_id>\d+)/supp_files/$",
@@ -274,5 +312,25 @@ urlpatterns = [
         r"^email/user/(?P<user_id>\d+)/preprint/(?P<preprint_id>\d+)/$",
         views.send_user_email,
         name="send_user_email_preprint",
+    ),
+    re_path(
+        r"^hierarchy/(?P<rou_code>[\w-]+)/$",
+        views.rou_hierarchy_view,
+        name="rou_hierarchy",
+    ),
+    re_path(
+        r"^hierarchy/$",
+        views.rou_hierarchy_view,
+        name="rou_hierarchy",
+    ),
+    re_path(
+        r"^(?P<rou_code>[\w-]+)/$",
+        views.repository_home,
+        name="repository_home_by_rou",
+    ),
+    re_path(
+        r"^(?P<rou_code>[\w-]+)/list$",
+        views.preprints_by_rou,
+        name="repository_preprints_by_rou",
     ),
 ]

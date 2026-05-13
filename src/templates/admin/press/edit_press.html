@@ -34,6 +34,9 @@
                         {{ form.footer_description|foundation }}
                         {{ form.journal_footer_text|foundation }}
                         {{ form.press_logo|foundation }}
+                        {% if press.thumbnail_image %}
+                            {% include "core/partials/alt_text/edit_alt_text_button.html" with object=press.thumbnail_image %}
+                        {% endif %}
                         {{ form.secondary_image|foundation }}
                         {{ form.secondary_image_url|foundation }}
                         {{ form.default_carousel_image|foundation }}
@@ -71,3 +74,7 @@
     </div>
     </section>
 {% endblock %}
+
+{% block js %}
+    {% include "admin/core/partials/htmx.html" %}
+{% endblock js %}

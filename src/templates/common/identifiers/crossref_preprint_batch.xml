@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.crossref.org/schema/4.4.2 http://www.crossref.org/schema/crossref4.4.2.xsd"
+           xmlns="http://www.crossref.org/schema/4.4.2" version="4.4.2">
+    <head>
+        <doi_batch_id>{{ batch_id }}</doi_batch_id>
+        <timestamp>{{ now|date:"YmdHis" }}</timestamp>
+        <depositor>
+            <depositor_name>{{ repository.crossref_depositor_name }}</depositor_name>
+            <email_address>{{ repository.crossref_depositor_email }}</email_address>
+        </depositor>
+        <registrant>{{ repository.crossref_registrant }}</registrant>
+    </head>
+    <body>
+    {% for version in versions %}
+        {% include "common/identifiers/crossref_preprint.xml" %}
+    {% endfor %}
+    </body>
+</doi_batch>

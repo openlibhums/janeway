@@ -12,10 +12,7 @@ from datetime import timedelta
 from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
-from iso639 import Lang
-from iso639.exceptions import InvalidLanguageValue
 import warnings
-import tqdm
 import zipfile
 
 from bs4 import BeautifulSoup
@@ -35,15 +32,13 @@ from django.db import (
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.contrib.postgres.search import SearchVectorField
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
-from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.template.defaultfilters import date
 import swapper
 
 from core import files, validators
@@ -54,9 +49,7 @@ from core.model_utils import (
     AffiliationCompatibleQueryset,
     DynamicChoiceField,
     JanewayBleachField,
-    JanewayBleachCharField,
     PGCaseInsensitiveEmailField,
-    SearchLookup,
     default_press_id,
     check_exclusive_fields_constraint,
 )
@@ -65,8 +58,6 @@ from copyediting import models as copyediting_models
 from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
-from utils.forms import clean_orcid_id
-from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
@@ -1179,7 +1170,7 @@ class SettingValue(models.Model):
         elif self.setting.types == "json" and self.value:
             try:
                 return json.loads(self.value)
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 logger.error(
                     "Error loading JSON setting {setting_name} on {site_name} site.".format(
                         setting_name=self.setting.name,
@@ -1670,7 +1661,7 @@ class Galley(AbstractLastModifiedModel):
         return files.render_xml(self.file, self.article, xsl_path=xsl_path)
 
     def has_missing_image_files(self, show_all=False):
-        if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
+        if self.file.mime_type not in files.MIMETYPES_WITH_FIGURES:
             return []
 
         xml_file_contents = self.file.get_file(self.article)
@@ -2345,7 +2336,7 @@ class OrganizationNameManager(models.Manager):
             for org in Organization.objects.filter(~models.Q(ror_id__exact=""))
         }
         organization_names = []
-        logger.debug(f"Importing organization names")
+        logger.debug("Importing organization names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2384,7 +2375,7 @@ class OrganizationNameManager(models.Manager):
 
         ror_records_with_updated_names = []
         org_name_pks_to_delete = set()
-        logger.debug(f"Updating names")
+        logger.debug("Updating names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2609,7 +2600,7 @@ class OrganizationManager(models.Manager):
             )
         }
         organization_location_links = []
-        logger.debug(f"Linking locations")
+        logger.debug("Linking locations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2640,7 +2631,7 @@ class OrganizationManager(models.Manager):
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
-        logger.debug(f"Importing organizations")
+        logger.debug("Importing organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
@@ -2670,7 +2661,7 @@ class OrganizationManager(models.Manager):
         }
         organizations_to_update = []
         fields_to_update = set()
-        logger.debug(f"Updating organizations")
+        logger.debug("Updating organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -3207,7 +3198,7 @@ class LocationManager(models.Manager):
         )
         countries_by_code = {country.code: country for country in Country.objects.all()}
         new_locations = []
-        logger.debug(f"Importing locations")
+        logger.debug("Importing locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3241,7 +3232,7 @@ class LocationManager(models.Manager):
         locations_to_update = []
         ror_records_with_new_loc = []
         fields_to_update = set()
-        logger.debug(f"Updating locations")
+        logger.debug("Updating locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3295,3 +3286,101 @@ class Location(models.Model):
             str(self.country) if self.country else "",
         ]
         return ", ".join([element for element in elements if element])
+
+
+class AltText(models.Model):
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    object_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
+    content_object = GenericForeignKey(
+        "content_type",
+        "object_id",
+    )
+    file_path = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Path to a file for alt text fallback (e.g., /media/image.jpg).",
+        unique=True,
+    )
+    alt_text = models.TextField(
+        help_text="Descriptive alternative text for screen readers.",
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        unique_together = [
+            ("content_type", "object_id"),
+        ]
+        verbose_name = "Alt text"
+        verbose_name_plural = "Alt texts"
+
+    def __str__(self):
+        return self.alt_text
+
+    def clean(self):
+        """
+        Ensure either a GFK (content_type + object_id) OR file_path is set — not both
+        or neither.
+        """
+        has_gfk = self.content_type is not None and self.object_id is not None
+        has_path = bool(self.file_path)
+
+        if has_gfk and has_path:
+            raise ValidationError(
+                "Provide either a related object or a file path — not both."
+            )
+
+        if not has_gfk and not has_path:
+            raise ValidationError(
+                "You must provide either a related object or a file path."
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_text(
+        cls,
+        obj=None,
+        path=None,
+    ):
+        """
+        Retrieve alt text for a model instance or file path.
+        """
+        if obj is not None:
+            try:
+                content_type = ContentType.objects.get_for_model(obj)
+                object_id = obj.pk
+                qs = cls.objects.filter(
+                    content_type=content_type,
+                    object_id=object_id,
+                )
+
+                match = qs.first()
+                if match:
+                    return match.alt_text
+            except Exception:
+                pass
+
+        if path:
+            qs = cls.objects.filter(file_path=path)
+
+            match = qs.first()
+            if match:
+                return match.alt_text
+
+        return ""

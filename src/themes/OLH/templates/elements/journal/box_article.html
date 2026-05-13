@@ -11,13 +11,21 @@
         {% if not journal_settings.article.disable_article_thumbnails %}
          <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
-            <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                 alt="{{ article.title|striptags|escape }}" class="article-thumbnail">
+                <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
+                   alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}"
+                     class="article-thumbnail"
+                >
             {% elif request.journal.thumbnail_image %}
-                <img src="{% url 'journal_cover_download' %}" class="article-thumbnail">
+                <img src="{% url 'journal_cover_download' %}"
+                     alt="{% get_alt_text obj=request.journal.thumbnail_image default=article.title|striptags|escape %}"
+                     class="article-thumbnail"
+                >
             {% else %}
-            <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
-                 class="article-thumbnail"> {% endif %}
+                <img src="{% static 'common/img/icons/article.png' %}"
+                     alt="{{ thumbnail_alt_text }}"
+                     class="article-thumbnail"
+                >
+            {% endif %}
         </div>
         {% endif %}
     <div id="{{ article.id }}-box-details" class="{% if not journal_settings.article.disable_article_thumbnails %}large-10{% endif %} columns end">
@@ -49,6 +57,7 @@
                 </h2>
             {% endif %}
 
+
            {% include "elements/journal/authors_block.html" %}
             <p>
                 <span class="date">
@@ -56,12 +65,15 @@
                     <time datetime='{{ article.date_published|date:"Y-m-d" }}'>
                         <span role="time">{{ article.date_published|date_human}}</span>
                     </time>
-                </span> 
-                <i aria-hidden="true" class="fa fa-book"></i> 
+                </span>
+                <i aria-hidden="true" class="fa fa-book"></i>
                 {% if article.issue.issue_type.code == 'issue' %}
                     <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
-                {% else %}  
+                {% else %}
                     {{ article.issue.issue_title }}
+                {% endif %}
+                {% if article.section %}
+                    <i aria-hidden="true" class="fa fa-tag"></i> {{ article.section.name }}
                 {% endif %}
             </p>
             {% if article.issues.count > 1 %}

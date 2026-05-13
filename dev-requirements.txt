@@ -6,4 +6,4 @@ marshmallow
 freezegun
 snakeviz
 django-browser-reload
-ruff
+ruff>=0.15

@@ -121,10 +121,12 @@ class Carousel(models.Model):
             else:
                 issues = chain(self.issues.all(), issues)
 
-        return sorted(
-            chain(articles, news, issues),
-            key=attrgetter("date_published"),
-            reverse=True,
+        return list(
+            sorted(
+                chain(articles, news, issues),
+                key=attrgetter("date_published"),
+                reverse=True,
+            )
         )
 
 

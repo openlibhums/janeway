@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load dates %}
+{% load alt_text %}
 
 
 <div class="card-panel">
@@ -9,9 +10,9 @@
         <div class="col m2 hide-on-small-and-down">
             {% if article.thumbnail_image_file %}
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                     alt="{{ article.title|striptags|escape }}" class="responsive-img">
+                     alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}" class="responsive-img">
             {% elif request.journal.thumbnail_image %}
-                <img src="{% url 'journal_cover_download' %}" class="responsive-img">
+                <img src="{% url 'journal_cover_download' %}" alt="{{ request.journal }} thumbnail icon" class="responsive-img">
             {% else %}
                 <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
                      class="responsive-img">
@@ -66,6 +67,9 @@
                     <a class="issue-link" href="{{ article.issue.url }}">
                         <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
+                {% endif %}
+                {% if article.section %}
+                    <i aria-hidden="true" class="fa fa-tag"></i> {{ article.section.name }}
                 {% endif %}
                 {% if article.issues.count > 1 %}
                   <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>

@@ -16,7 +16,7 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    {% if request.journal %}
+    {% if request.journal and journal_settings.general.feeds %}
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate"

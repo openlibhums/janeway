@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load static %}
 {% load dates %}
+{% load alt_text %}
 
 <div class="card">
     <div class="card-block">
@@ -9,7 +10,7 @@
                 <div class="col-md-2">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                             alt="{{ article.title|striptags|escape }}" class="article-thumbnail img-fluid">
+                             alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}" class="article-thumbnail img-fluid">
                     {% elif request.journal.thumbnail_image %}
                         <img src="{% url 'journal_cover_download' %}" class="article-thumbnail img-fluid" alt="{{ request.journal }} thumbnail icon">
                     {% else %}
@@ -73,6 +74,11 @@
                         <i aria-hidden="true" class="fa fa-book"></i>
                         <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
+                    {% endif %}
+                    {% if article.section %}
+                    <span>
+                        <i aria-hidden="true" class="fa fa-tag"></i> {{ article.section.name }}
+                    </span>
                     {% endif %}
                 </p>
                  {% if article.issues.count > 1 %}

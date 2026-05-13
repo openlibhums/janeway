@@ -1253,7 +1253,7 @@ def edit_settings_group(request, display_group):
             else:
                 fire_redirect = False
 
-            if attr_form_object:
+            if attr_form_object and display_group != "images":
                 attr_form = attr_form_object(
                     request.POST,
                     request.FILES,
@@ -1261,11 +1261,6 @@ def edit_settings_group(request, display_group):
                 )
                 if attr_form.is_valid():
                     attr_form.save()
-
-                    if display_group == "images":
-                        logic.handle_default_thumbnail(
-                            request, request.journal, attr_form
-                        )
                 else:
                     fire_redirect = False
 
@@ -2175,13 +2170,20 @@ def plugin_list(request):
                 {
                     "model": plugin,
                     "manager_url": manager_url,
-                    "name": getattr(plugin_settings, "PLUGIN_NAME"),
+                    "settings": plugin_settings,
                 },
             )
         except (ImportError, NoReverseMatch) as e:
-            failed_to_load.append(plugin)
+            failed_to_load.append({"plugin": plugin, "error": str(e)})
             logger.error("Importing plugin %s failed: %s" % (plugin, e))
             logger.exception(e)
+
+    plugin_list.sort(
+        key=lambda p: (
+            getattr(p["settings"], "DISPLAY_NAME", None)
+            or getattr(p["settings"], "PLUGIN_NAME", "")
+        ).lower()
+    )
 
     template = "core/manager/plugins.html"
     context = {

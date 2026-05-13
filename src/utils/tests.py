@@ -45,6 +45,7 @@ from utils.forms import (
 )
 from utils.logic import generate_sitemap
 from utils.testing import helpers
+from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
 
@@ -467,6 +468,28 @@ class TransactionalReviewEmailTests(UtilsTests):
         subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
+
+    def test_send_submission_acknowledgement_uses_journal_replyto(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs["article"] = self.submitted_article
+
+        with janeway_setting_override(
+            "general", "replyto_address", self.journal_one, "replyto@example.com"
+        ):
+            send_submission_acknowledgement(**kwargs)
+
+        self.assertEqual(mail.outbox[1].reply_to, ["replyto@example.com"])
+
+    def test_send_submission_acknowledgement_falls_back_to_noreply(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs["article"] = self.submitted_article
+
+        with janeway_setting_override(
+            "general", "replyto_address", self.journal_one, ""
+        ):
+            send_submission_acknowledgement(**kwargs)
+
+        self.assertIn(settings.DUMMY_EMAIL_DOMAIN, mail.outbox[1].reply_to[0])
 
     def test_send_article_decision(self):
         kwargs = dict(**self.base_kwargs)
@@ -1275,6 +1298,12 @@ class TestORCiDRecord(TestCase):
         self.assertEqual(len(details["emails"]), 0)
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
+
+    @mock.patch("utils.orcid.get_orcid_record", return_value=None)
+    def test_record_details_empty_on_lookup_failure(self, mock_record):
+        details = get_orcid_record_details("0000-0000-0000-0000")
+        self.assertFalse(details)
+        self.assertEqual(len(details), 0)
 
     @override_settings(URL_CONFIG="domain")
     @mock.patch("utils.logic.get_current_request")

@@ -17,7 +17,7 @@
               <img
                 class="clean-banner-image"
                 src="{{ news_item.best_image_url }}"
-                alt="{{ news_item.title|striptags|unescape }}">
+                alt="{{ news_item.best_image_alt_text }}">
             </div>
           {% endif %}
           <h1 class="padding-block-1">{{ news_item.title|safe }}</h1>

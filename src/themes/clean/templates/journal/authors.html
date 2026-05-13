@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Authors{% endblock title %}
 {% block page_title %}Authors{% endblock page_title %}
@@ -11,9 +12,9 @@
 
         {% for author in author_list %}
             <div class="col-md-3 row-eq-height">
-                <div class="card" style="width: 20rem;">
+                <div class="card">
                     <img class="card-img-top img-fluid editorial-image" src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                         alt="Card image cap">
+                         alt="{% if author.profile_image %}{% blocktrans with name=author.full_name %}Headshot photograph of {{ name }}{% endblocktrans %}{% else %}{% trans 'A generic headshot photograph of a person' %}{% endif %}">
                     <div class="card-block">
                         <h2 id="card-{{ author.id }}" class="card-title">{{ author.full_name }}</h2>
                         <p>

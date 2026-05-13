@@ -133,24 +133,25 @@ def comment_manager_post(request, preprint):
     )
 
     if "comment_public" in request.POST:
+        was_public = comment.is_public
         comment.toggle_public()
+        if not was_public and comment.is_public:
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_PREPRINT_COMMENT_PUBLISHED,
+                request=request,
+                preprint=comment.preprint,
+                comment=comment,
+            )
     elif "comment_reviewed" in request.POST:
         comment.mark_reviewed()
 
     if "comment_delete" in request.POST:
-        if request.user in request.repository.managers.all():
-            comment.delete()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                "Comment deleted",
-            )
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                "You do not have permission to delete this comment.",
-            )
+        comment.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Comment deleted",
+        )
 
 
 # TODO: Update this implementation
@@ -526,3 +527,39 @@ def get_review_notification(request, preprint, review):
         template_is_setting=True,
     )
     return email_content
+
+
+def get_submission_type_or_redirect(request):
+    """
+    Attempts to retrieve submission_type and organisation_unit from request.GET.
+    If missing or invalid, returns an HttpResponseRedirect to the start page.
+    Otherwise, attaches them to request for later use and returns submission_type.
+    """
+    submission_type_slug = request.GET.get("submission_type")
+    if not submission_type_slug:
+        return redirect(reverse("repository_start"))
+
+    submission_type = models.RepositorySubmissionType.objects.filter(
+        repository=request.repository,
+        slug=submission_type_slug,
+    ).first()
+
+    if not submission_type:
+        messages.warning(request, "No submission type found.")
+        return redirect(reverse("repository_start"))
+
+    # Handle OU if present
+    ou_code = request.GET.get("ou")
+    request.organisation_unit = None
+
+    if ou_code:
+        request.organisation_unit = models.RepositoryOrganisationUnit.objects.filter(
+            repository=request.repository,
+            code=ou_code,
+        ).first()
+
+        if not request.organisation_unit:
+            messages.warning(request, "Invalid organisational unit.")
+            return redirect(reverse("repository_start"))
+
+    return submission_type

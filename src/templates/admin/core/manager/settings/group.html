@@ -21,33 +21,36 @@
                     {% endif %}
                     {% include "admin/elements/forms/errors.html" with form=edit_form %}
                     {% include "admin/elements/forms/errors.html" with form=attr_form %}
-                    <form action="" method="POST" enctype="multipart/form-data">
 
-                        {% csrf_token %}
+                    {% if group == 'images' %}
+                        {% include "admin/elements/forms/group_journal_images.html" with attr_form=attr_form %}
+                    {% else %}
+                        <form action="" method="POST" enctype="multipart/form-data">
 
-                        {% if group == 'journal' %}
-                            {% include "admin/elements/forms/group_journal.html" with form=attr_form %}
-                        {% elif group == 'images' %}
-                            {% include "admin/elements/forms/group_journal_images.html" with form=attr_form %}
-                        {% elif group == 'submission' %}
-                            {% include "admin/elements/forms/group_submission.html" %}
-                        {% elif group == 'styling' %}
-                            {% include "admin/elements/forms/group_styling.html" %}
-                        {% elif group == 'article' %}
-                            {% include "admin/elements/forms/group_article.html" %}
-                        {% elif group == 'review' %}
-                            {% include "admin/elements/forms/group_review.html" %}
-                        {% elif group == 'news' %}
-                            {% include "admin/elements/forms/group_journal_news.html" with form=edit_form %}
-                        {% elif group == 'support' %}
-                        {% else %}
-                            {% include "admin/elements/forms/submission.html" with form=edit_form %}
-                        {% endif %}
+                            {% csrf_token %}
 
-                        <button type="submit" class="button success">
-                            Submit
-                        </button>
-                    </form>
+                            {% if group == 'journal' %}
+                                {% include "admin/elements/forms/group_journal.html" with form=attr_form %}
+                            {% elif group == 'submission' %}
+                                {% include "admin/elements/forms/group_submission.html" %}
+                            {% elif group == 'styling' %}
+                                {% include "admin/elements/forms/group_styling.html" %}
+                            {% elif group == 'article' %}
+                                {% include "admin/elements/forms/group_article.html" %}
+                            {% elif group == 'review' %}
+                                {% include "admin/elements/forms/group_review.html" %}
+                            {% elif group == 'news' %}
+                                {% include "admin/elements/forms/group_journal_news.html" with form=edit_form %}
+                            {% elif group == 'support' %}
+                            {% else %}
+                                {% include "admin/elements/forms/submission.html" with form=edit_form %}
+                            {% endif %}
+
+                            <button type="submit" class="button success">
+                                Submit
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
