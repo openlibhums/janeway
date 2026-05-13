@@ -1346,3 +1346,67 @@ class TestOrganizationManagers(TestCase):
             self.affiliation_historian.organization,
             models.Organization.objects.get(ror_id="035dkdb55"),
         )
+
+
+class TestFilePublicDownloadName(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, _ = helpers.create_journals()
+        cls.owner = helpers.create_user("downloader@janeway.systems")
+        cls.article = helpers.create_submission(
+            owner=cls.owner,
+            journal_id=cls.journal_one.pk,
+        )
+        cls.frozen_author = submission_models.FrozenAuthor.objects.create(
+            article=cls.article,
+            last_name="Smith",
+            order=1,
+        )
+        cls.file_obj = models.File.objects.create(
+            article_id=cls.article.pk,
+            label="public",
+            original_filename="paper.pdf",
+            uuid_filename="uuid-paper.pdf",
+        )
+        cls.prefix = "{0}-{1}".format(
+            cls.journal_one.code.lower(),
+            cls.article.pk,
+        )
+
+    def test_surname_sanitisation(self):
+        cases = [
+            ("Smith", "-smith"),
+            ("Müller", "-muller"),
+            ("  Smith  ", "-smith"),
+            ("Smith/../Jones", "-smithjones"),
+            ("李", ""),
+        ]
+        for last_name, expected_segment in cases:
+            with self.subTest(last_name=last_name):
+                self.frozen_author.last_name = last_name
+                self.frozen_author.save()
+                self.assertEqual(
+                    self.file_obj.public_download_name(),
+                    "{0}{1}.pdf".format(self.prefix, expected_segment),
+                )
+
+    def test_no_author_records(self):
+        submission_models.FrozenAuthor.objects.filter(
+            article=self.article,
+        ).delete()
+        self.assertEqual(
+            self.file_obj.public_download_name(),
+            "{0}.pdf".format(self.prefix),
+        )
+
+    def test_no_article_returns_original_filename(self):
+        orphan = models.File.objects.create(
+            label="orphan",
+            original_filename="Weird Name.pdf",
+            uuid_filename="uuid-orphan.pdf",
+        )
+        self.assertEqual(
+            orphan.public_download_name(),
+            "Weird Name.pdf",
+        )

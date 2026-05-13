@@ -39,6 +39,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.text import get_valid_filename, slugify
 import swapper
 
 from core import files, validators
@@ -1399,26 +1400,25 @@ class File(AbstractLastModifiedModel):
             extension = file_elements[-1]
 
             if article.frozen_authors():
-                author_surname = "-{0}".format(
-                    article.frozen_authors()[0].last_name,
-                )
+                last_name = article.frozen_authors()[0].last_name or ""
             elif article.correspondence_author:
-                author_surname = "-{0}".format(
-                    article.correspondence_author.last_name,
-                )
+                last_name = article.correspondence_author.last_name or ""
             else:
                 logger.warning(
                     "Article {pk} has no author records".format(pk=article.pk)
                 )
-                author_surname = ""
+                last_name = ""
+
+            surname_slug = slugify(last_name, allow_unicode=False)
+            surname = "-{0}".format(surname_slug) if surname_slug else ""
 
             file_name = "{code}-{pk}{surname}{extension}".format(
                 code=article.journal.code,
                 pk=article.pk,
-                surname=author_surname.strip(),
+                surname=surname,
                 extension=extension,
             )
-            return file_name.lower()
+            return get_valid_filename(file_name.lower())
         else:
             return self.original_filename
 
