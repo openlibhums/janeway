@@ -307,4 +307,5 @@
 
 {% block js %}
     {% include "admin/elements/datatables.html" with target="#editors" page_length=5 %}
+     <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
 {% endblock js %}
