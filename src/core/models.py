@@ -2044,10 +2044,17 @@ class DomainAlias(AbstractSiteModel):
 
 BASE_ELEMENTS = [
     {
+        "name": "editor_assignment",
+        "handshake_url": "editor_assignment_list",
+        "jump_url": "editor_assignment_article",
+        "stage": submission_models.STAGE_UNASSIGNED,
+        "article_url": True,
+    },
+    {
         "name": "review",
         "handshake_url": "review_home",
         "jump_url": "review_in_review",
-        "stage": submission_models.STAGE_UNASSIGNED,
+        "stage": submission_models.STAGE_ASSIGNED,
         "article_url": True,
     },
     {
@@ -2084,6 +2091,13 @@ BASE_ELEMENTS = [
         "jump_url": "proofing_article",
         "stage": submission_models.STAGE_PROOFING,
         "article_url": False,
+    },
+    {
+        "name": "screening",
+        "handshake_url": "screening_list",
+        "jump_url": "screening_article",
+        "stage": submission_models.STAGE_SCREENING,
+        "article_url": True,
     },
 ]
 
@@ -2137,6 +2151,10 @@ class WorkflowElement(models.Model):
         from core import workflow
 
         return workflow.workflow_plugin_settings(self)
+
+    @property
+    def display_name(self):
+        return self.element_name.replace("_", " ").title()
 
     def __str__(self):
         return self.element_name
