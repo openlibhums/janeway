@@ -8,18 +8,13 @@
             <div class="row expanded">
                 <div class="large-4 columns">
                     <div class="content">
-                        <div class="summary">
-                            <span class="stat">{{ unassigned_articles_count }}</span>
-                            <span class="title">Unassigned</span>
-                            <a href="{% url 'review_unassigned' %}" class="box-link"></a>
-                        </div>
                         {% for element in request.journal.workflow.elements.all %}
                             <div class="summary">
                                 <span class="stat">{{ element.articles.count }}</span>
-                                <span class="title">{{ element|capfirst }}</span>
+                                <span class="title">{{ element.display_name }}</span>
                                 <a href="{% url element.handshake_url %}" class="box-link"></a>
                             </div>
-                            {% if forloop.counter == 1 or forloop.counter|divisibleby:3 and not forloop.last %}
+                            {% if forloop.counter|divisibleby:3 and not forloop.last %}
                                 </div>
                                 </div>
                                 <div class="large-4 columns end">

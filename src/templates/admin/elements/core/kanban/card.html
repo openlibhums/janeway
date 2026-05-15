@@ -5,6 +5,8 @@
     <div class="card-section">
         {% if type == "unassigned" %}
             <p>New article, awaiting Editor assignment.</p>
+        {% elif type == "screening" %}
+            <p>Article in screening.</p>
         {% elif type == "assigned" %}
             <p>Review in progress.</p>
         {% elif type == "copyedit" %}
@@ -24,6 +26,8 @@
         <div class="button-group">
             {% if type == "unassigned" %}
                 <a class="button tiny" href="{% url 'review_unassigned_article' article.pk %}">Assign Editor</a>
+            {% elif type == "screening" %}
+                <a class="button tiny" href="{% url 'screening_article' article.pk %}">View Screening Detail</a>
             {% elif type == 'assigned' %}
                 <a class="button tiny" href="{% url 'review_in_review' article.pk %}">View Review Detail</a>
             {% elif type == "copyedit" %}

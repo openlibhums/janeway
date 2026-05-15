@@ -41,6 +41,30 @@
                 </div>
             </div>
         {% endif %}
+        {% if journal_has_screening %}{% if assigned_screenings_for_user_count or assigned_screenings_for_user_accepted_count or assigned_screenings_for_user_completed_count %}
+            <div class="large-4 columns end" data-equalizer-watch>
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Screener</h2>
+                        <a href="{% url 'screening_requests' %}" class="button">View Requests</a>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            <span class="stat alert">{{ assigned_screenings_for_user_count }}</span>
+                            <span class="title">Screening Requests</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat">{{ assigned_screenings_for_user_accepted_count }}</span>
+                            <span class="title">Accepted Screenings</span>
+                        </div>
+                        <div class="summary">
+                            <span class="stat success">{{ assigned_screenings_for_user_completed_count }}</span>
+                            <span class="title">Completed Screenings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}{% endif %}
         {% user_has_role request 'copyeditor' as copyeditor %}
         {% if copyeditor and 'copyediting' in workflow_elements %}
             <div class="large-4 columns end" data-equalizer-watch>

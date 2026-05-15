@@ -17,13 +17,20 @@
                 {% for element in workflow.elements.all %}
                     <div class="box">
                         <div class="title-area">
-                            <h2>{{ element.element_name }}</h2>
+                            <h2>{{ element.display_name }}</h2>
                         </div>
                         <div class="content">
-                            {% if element.element_name == 'review' %}
+                            {% if element.element_name == 'editor_assignment' %}
                                 {% for article in unassigned_articles %}
                                     {% include "admin/elements/core/kanban/card.html" with article=article type='unassigned' %}
                                 {% endfor %}
+
+                            {% elif element.element_name == 'screening' %}
+                                {% for article in screening_articles %}
+                                    {% include "admin/elements/core/kanban/card.html" with article=article type='screening' %}
+                                {% endfor %}
+
+                            {% elif element.element_name == 'review' %}
                                 {% for article in in_review %}
                                     {% include "admin/elements/core/kanban/card.html" with article=article type='assigned' %}
                                 {% endfor %}
