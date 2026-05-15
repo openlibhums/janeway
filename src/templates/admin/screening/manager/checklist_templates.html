@@ -1,0 +1,81 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Technical Checklist Templates{% endblock title %}
+{% block title-section %}Technical Checklist Templates{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'screening_checklist_templates' %}">Technical Checklist Templates</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal's Checklist Templates</h2>
+            </div>
+            <div class="content">
+                <ul class="list-group">
+                    {% for template in template_list %}
+                        <li class="list-group-item">
+                            {{ template.name }}
+                            {% if template.is_default %} <i>(Default)</i>{% endif %}
+                            <div class="float-right">
+                                <a href="{% url 'edit_screening_checklist_template' template.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <a class="tiny alert button" data-open="delete-{{ template.pk }}"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item"><small>No checklist templates on this journal yet.</small></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add New Template</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">Add Template</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% for template in template_list %}
+        <div class="reveal small" id="delete-{{ template.pk }}" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-trash">&nbsp;</i>Delete checklist template</h4>
+                </div>
+                <div class="card-section">
+                    <p>
+                        Existing per-article checklists derived from
+                        <strong>"{{ template.name }}"</strong> will keep their items.
+                        The template will no longer be available for future articles
+                        entering screening.
+                    </p>
+                    <p>Proceed?</p>
+                    <form method="POST" class="display-inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete" value="{{ template.pk }}" class="alert button">Delete</button>
+                        <button type="button" class="button secondary" data-close>Cancel</button>
+                    </form>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+{% endblock body %}

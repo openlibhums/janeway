@@ -1,0 +1,31 @@
+<tr id="checklist-item-{{ item.pk }}">
+    <td>
+        <form hx-post="{% url 'toggle_checklist_item' item.pk %}"
+              hx-target="closest tr"
+              hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit"
+                    class="tiny {% if item.is_complete %}success{% else %}secondary{% endif %} button"
+                    aria-label="Toggle">
+                {% if item.is_complete %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-square-o"></i>{% endif %}
+            </button>
+        </form>
+    </td>
+    <td>{{ item.label }}</td>
+    <td>
+        {% if item.comment %}
+            <small>{{ item.comment|truncatewords:12 }}</small>
+        {% else %}
+            <small><em>No comment</em></small>
+        {% endif %}
+        <a class="tiny button float-right" data-open="comment-{{ item.pk }}"
+           aria-label="{% if item.comment %}Edit comment{% else %}Add comment{% endif %}">
+            <i class="fa fa-comment-o"></i>
+        </a>
+    </td>
+    <td>
+        {% if item.completed_by %}
+            <small>{{ item.completed_by.full_name }}{% if item.completed_at %}, {{ item.completed_at|date:"Y-m-d" }}{% endif %}</small>
+        {% endif %}
+    </td>
+</tr>

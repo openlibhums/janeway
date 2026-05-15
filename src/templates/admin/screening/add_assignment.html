@@ -1,0 +1,121 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+{% load i18n %}
+
+{% block title %}{% trans "Invite Screener" %}{% endblock %}
+{% block title-section %}{% trans "Invite Screener" %}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'screening_list' %}">{% trans "Screening" %}</a></li>
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>{% blocktrans with round_number=screening_round.round_number %}Invite Screener (Round {{ round_number }}){% endblocktrans %}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <form id="screening_assignment_form" method="post">
+            {% include "elements/forms/errors.html" with form=form %}
+            {% csrf_token %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% blocktrans with round_number=screening_round.round_number %}1. Select Screener for Round {{ round_number }}{% endblocktrans %}</h2>
+                </div>
+                <div class="content">
+                    <div class="callout primary">
+                        <p>
+                            <span class="fa fa-info-circle" aria-hidden="true"></span>
+                            {% if pool_groups %}
+                                {% blocktrans %}
+                                    The screening pool is drawn from members of the
+                                    editorial groups selected in the
+                                {% endblocktrans %}
+                                <a href="{% url 'screening_pool' %}">{% trans "Screener Pool manager" %}</a>:
+                                {% for group in pool_groups %}<strong>{{ group.name }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+                                {% trans "Anyone already invited to this round is excluded from the list below." %}
+                            {% else %}
+                                {% blocktrans %}
+                                    No <a href="#">Screener Pool</a> is configured for this journal, so the list below falls
+                                    back to all users holding the <strong>Editor</strong>
+                                    or <strong>Section Editor</strong> role. Anyone already
+                                    invited to this round is excluded.
+                                {% endblocktrans %}
+                            {% endif %}
+                        </p>
+                        <p>
+                            {% blocktrans %}
+                                Select a candidate using the radio buttons in
+                                the first column, then complete the options in
+                                step 2 before sending the invitation.
+                            {% endblocktrans %}
+                        </p>
+                    </div>
+
+                    <table class="small scroll" id="screeners">
+                        <thead>
+                            <tr>
+                                <th scope="col">{% trans "Select" %}</th>
+                                <th scope="col">{% trans "Name" %}</th>
+                                <th scope="col">{% trans "Email" %}</th>
+                                <th scope="col">{% trans "Roles &amp; Editorial Groups" %}</th>
+                                <th scope="col">{% trans "Active Screenings" %}</th>
+                                <th scope="col">{% trans "Last Completed" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for screener in candidates %}
+                                <tr>
+                                    {% include "admin/elements/screening/add_screener_table_row.html" with screener=screener form=form %}
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">
+                                        {% trans "No editorial team members are available to screen this round. Anyone with the Editor or Section Editor role on this journal who is not already invited to this round will appear here." %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="title-area">
+                    <h2>{% trans "2. Set Options" %}</h2>
+                </div>
+                <div class="content">
+                    <div class="row expanded">
+                        <div class="large-4 columns">
+                            {{ form.form|foundation }}
+                        </div>
+                        <div class="large-4 columns">
+                            {{ form.date_due|foundation }}
+                        </div>
+                        <div class="large-4 columns">
+                            <fieldset>
+                                <legend>{% trans "Anonymity" %}</legend>
+                                {{ form.anonymous_to_author|foundation }}
+                                {{ form.anonymous_to_coscreeners|foundation }}
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row expanded">
+                        <div class="large-12 columns">
+                            <button type="submit" class="success button">
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                {% trans "Invite Screener" %}
+                            </button>
+                            <a href="{% url 'screening_article' article.pk %}" class="button secondary">
+                                {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    {% include "elements/datatables.html" with target="#screeners" %}
+{% endblock js %}

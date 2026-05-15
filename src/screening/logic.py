@@ -4,7 +4,12 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 
+from django.db.models import Count, Max, Q
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from core import models as core_models
+from review import models as review_models
 from screening import models as screening_models
 
 
@@ -88,6 +93,110 @@ def current_screeners_on_round(screening_round):
     return core_models.Account.objects.filter(
         screener_assignments__screening_round=screening_round,
     ).distinct()
+
+
+def annotate_candidate_screeners(queryset, journal):
+    """Decorate the candidate Account queryset with the per-row data the
+    invitation table renders: editorial roles on this journal, current
+    active screening count and the date of the screener's last completed
+    screening on this journal."""
+    annotated = queryset.annotate(
+        active_screenings_count=Count(
+            "screener_assignments",
+            filter=Q(
+                screener_assignments__article__journal=journal,
+                screener_assignments__is_complete=False,
+                screener_assignments__date_declined__isnull=True,
+            ),
+            distinct=True,
+        ),
+        last_screening_completed=Max(
+            "screener_assignments__date_complete",
+            filter=Q(
+                screener_assignments__article__journal=journal,
+                screener_assignments__is_complete=True,
+            ),
+        ),
+    )
+    role_lookup = editorial_role_labels_by_user(journal)
+    group_lookup = editorial_group_labels_by_user(journal)
+    candidates = list(annotated)
+    for candidate in candidates:
+        candidate.role_labels = role_lookup.get(candidate.pk, [])
+        candidate.group_labels = group_lookup.get(candidate.pk, [])
+    return candidates
+
+
+def editorial_role_labels_by_user(journal):
+    """Return a mapping of user_id -> [role display name, ...] for the
+    editorial team on the journal. Keeps the per-candidate role list to
+    a single query rather than touching account_role for every row."""
+    role_qs = core_models.AccountRole.objects.filter(
+        journal=journal,
+        role__slug__in=SCREENER_POOL_ROLES,
+    ).select_related("role")
+    mapping = {}
+    for row in role_qs:
+        mapping.setdefault(row.user_id, []).append(row.role.name)
+    return mapping
+
+
+def editorial_group_labels_by_user(journal):
+    """Return a mapping of user_id -> [editorial group name, ...] for
+    members of the groups in this journal's screener pool. Falls back
+    to an empty mapping when no pool is configured."""
+    pool = screening_models.ScreeningPool.objects.filter(journal=journal).first()
+    if pool is None:
+        return {}
+    members = core_models.EditorialGroupMember.objects.filter(
+        group__in=pool.groups.all(),
+    ).select_related("group")
+    mapping = {}
+    for member in members:
+        mapping.setdefault(member.user_id, []).append(member.group.name)
+    return mapping
+
+
+def back_url_for_assignment(request, assignment):
+    """Return the URL the user should be sent to after viewing or
+    completing a screening report. Editors go back to the article's
+    screening page; screeners go back to their Screening Requests list."""
+    if request.user.pk == assignment.screener_id:
+        return reverse("screening_requests")
+    return reverse(
+        "screening_article",
+        kwargs={"article_id": assignment.article_id},
+    )
+
+
+def setup_after_screening(article, next_element):
+    """Per-stage setup when an article exits screening into the next
+    workflow element. Mirrors editor_assignment's dispatcher so that
+    going screening → review still creates ReviewRound 1, etc."""
+    if next_element.element_name == "review":
+        review_models.ReviewRound.objects.get_or_create(
+            article=article,
+            round_number=1,
+        )
+
+
+def render_checklist_item_response(request, item):
+    """Return the appropriate response for a checklist-item mutation:
+    a single-row HTML partial when the request is from HTMX (so the
+    table can swap just the affected row), or a full-page redirect
+    back to the screening article otherwise."""
+    if request.headers.get("HX-Request"):
+        return render(
+            request,
+            "admin/screening/_checklist_item_row.html",
+            {"item": item},
+        )
+    return redirect(
+        reverse(
+            "screening_article",
+            kwargs={"article_id": item.checklist.article.pk},
+        )
+    )
 
 
 def ensure_checklist_for_article(article):

@@ -297,6 +297,28 @@ class Events:
     ON_TYPESETTING_COMPLETE = "on_typesetting_complete"
     ON_TYPESETTING_ASSIGN_NOTIFICATION = "on_typesetting_assign_notification"
     ON_TYPESETTING_ASSIGN_DECISION = "on_typesetting_assign_decision"
+
+    # Screening Events (bau#271)
+    # kwargs: request, screening_assignment
+    # raised when a screener is invited to screen an article
+    ON_SCREENER_REQUESTED = "on_screener_requested"
+    # kwargs: request, screening_assignment
+    # raised when a screener submits their screening report
+    ON_SCREENING_COMPLETE = "on_screening_complete"
+    # kwargs: request, article, next_workflow_element
+    # raised when an article exits screening into the next workflow stage
+    # so the corresponding author can be notified the submission has
+    # passed screening
+    ON_SCREENING_PASSED = "on_screening_passed"
+    # kwargs: request, screening_revision
+    # raised when an editor requests revisions from the author after
+    # screening; handler emails the corresponding author with a link to
+    # the revision page
+    ON_SCREENING_REVISIONS_REQUESTED = "on_screening_revisions_requested"
+    # kwargs: request, screening_revision
+    # raised when the author submits their revisions; handler emails the
+    # editor so they can reopen a screening round
+    ON_SCREENING_REVISIONS_COMPLETED = "on_screening_revisions_completed"
     ON_TYPESETTING_ASSIGN_CANCELLED = "on_typesetting_assign_cancelled"
     ON_TYPESETTING_ASSIGN_DELETED = "on_typesetting_assign_deleted"
     ON_TYPESETTING_ASSIGN_COMPLETE = "on_typesetting_assign_complete"

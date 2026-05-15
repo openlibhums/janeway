@@ -1,0 +1,43 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Screening Assignment{% endblock title %}
+{% block title-section %}Edit Screening Assignment{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Edit assignment (Round {{ screening_round.round_number }})</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Edit Screening Assignment</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>
+                        Adjust the screener, due date, anonymity flags or the
+                        screening form for this open assignment. Changes do not
+                        affect anything the screener has already submitted.
+                    </small>
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <button type="submit" class="success button">Save</button>
+                            <a href="{% url 'screening_article' article.pk %}" class="button secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

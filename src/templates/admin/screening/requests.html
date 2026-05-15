@@ -1,0 +1,124 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Screening Requests{% endblock title %}
+{% block title-section %}Screening Requests{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screener_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Your Screening Requests</h2>
+            </div>
+            <div class="content">
+                <table class="small scroll" id="screening-requests">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th>Round</th>
+                            <th>Date Requested</th>
+                            <th>Date Due</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in pending %}
+                            <tr>
+                                <td>{{ assignment.article.safe_title }}</td>
+                                <td>{{ assignment.screening_round.round_number }}</td>
+                                <td>{{ assignment.date_requested|date:"Y-m-d" }}</td>
+                                <td>
+                                    {{ assignment.date_due }}
+                                    {% with days=assignment.days_until_due %}
+                                        {% if days is not None %}
+                                            {% if days < 0 %}
+                                                <span class="label alert" title="Overdue">
+                                                    Overdue by {{ days|stringformat:"d"|cut:"-" }} day{{ days|stringformat:"d"|cut:"-"|pluralize }}
+                                                </span>
+                                            {% elif days == 0 %}
+                                                <span class="label warning">Due today</span>
+                                            {% else %}
+                                                <span class="label secondary">Due in {{ days }} day{{ days|pluralize }}</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <span class="label {{ assignment.status.span_class }}">{{ assignment.status.display }}</span>
+                                </td>
+                                <td>
+                                    {% if not assignment.date_accepted and not assignment.date_declined %}
+                                        <a class="success button small" href="{% url 'accept_screening_request' assignment.pk %}">Accept</a>
+                                        <a class="alert button small" href="{% url 'decline_screening_request' assignment.pk %}">Decline</a>
+                                    {% elif assignment.date_accepted and not assignment.is_complete %}
+                                        <a class="button small" href="{% url 'do_screening' assignment.pk %}">Open Report</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">You have no pending screening requests.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if completed %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>Completed &amp; Declined Screening Requests</h2>
+                </div>
+                <div class="content">
+                    <table class="small scroll" id="completed-screening-requests">
+                        <thead>
+                            <tr>
+                                <th>Article</th>
+                                <th>Round</th>
+                                <th>Date</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in completed %}
+                                <tr>
+                                    <td>{{ assignment.article.safe_title }}</td>
+                                    <td>{{ assignment.screening_round.round_number }}</td>
+                                    <td>
+                                        {% if assignment.is_complete %}
+                                            {{ assignment.date_complete|date:"Y-m-d" }}
+                                        {% else %}
+                                            {{ assignment.date_declined|date:"Y-m-d" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if assignment.is_complete %}
+                                            {{ assignment.get_recommendation_display|default:"—" }}
+                                        {% else %}
+                                            <span class="label alert">Declined</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    {% include "admin/elements/datatables.html" with target="#screening-requests" sort=2 order='desc' %}
+    {% if completed %}
+        {% include "admin/elements/datatables.html" with target="#completed-screening-requests" sort=2 order='desc' %}
+    {% endif %}
+{% endblock js %}

@@ -1,0 +1,53 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Screening Revision{% endblock title %}
+{% block title-section %}Screening Revision{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Revision #{{ revision.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-8 columns end">
+        <p>
+            <a href="{% url 'screening_article' article.pk %}" class="button secondary">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+        </p>
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Request</h2>
+            </div>
+            <div class="content">
+                <dl>
+                    {% include "admin/elements/layout/key_value_above.html" with key="Requested by" value=revision.editor.full_name %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date requested" value=revision.date_requested|date:"Y-m-d" %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date due" value=revision.date_due %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Type" value=revision.get_type_display %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date completed" value=revision.date_completed|date:"Y-m-d H:i" %}
+                </dl>
+            </div>
+
+            <div class="title-area">
+                <h2>Note to the author</h2>
+            </div>
+            <div class="content">
+                {{ revision.editor_note|safe|default:"<small>No note provided.</small>" }}
+            </div>
+
+            {% if revision.is_complete %}
+                <div class="title-area">
+                    <h2>Author's covering letter</h2>
+                </div>
+                <div class="content">
+                    {{ revision.author_note|safe|default:"<small>No covering letter provided.</small>" }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock body %}

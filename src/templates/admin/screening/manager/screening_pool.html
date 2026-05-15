@@ -1,0 +1,42 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Screener Pool{% endblock title %}
+{% block title-section %}Screener Pool{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'screening_pool' %}">Screener Pool</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Screener Pool</h2>
+            </div>
+            <div class="content">
+                <div class="callout primary">
+                    <p>
+                        Select the editorial groups whose members appear in
+                        the screener selection list. If no groups are selected,
+                        the screener pool falls back to all users holding the
+                        Editor or Section Editor role on this journal.
+                    </p>
+                    <p>
+                        To control who belongs to each group, use the
+                        <a href="{% url 'core_editorial_team' %}">Editorial Team manager</a>.
+                    </p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

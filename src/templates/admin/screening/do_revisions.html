@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% load foundation %}
+
+{% block title %}Submit Revisions{% endblock title %}
+{% block title-section %}Revisions for "{{ article.safe_title }}"{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-8 columns end">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Editor's note</h2>
+                </div>
+                <div class="content">
+                    <p>
+                        <small>
+                            Requested by {{ revision.editor.full_name }}
+                            on {{ revision.date_requested|date:"Y-m-d" }}.
+                            Due by <strong>{{ revision.date_due }}</strong>.
+                            Revision type: <strong>{{ revision.get_type_display }}</strong>.
+                        </small>
+                    </p>
+                    {{ revision.editor_note|safe }}
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="title-area">
+                    <h2>Submit your revisions</h2>
+                </div>
+                <div class="content">
+                    <p>
+                        Upload your revised manuscript and add a covering letter describing
+                        the changes you made. Submitting these revisions reopens a new
+                        screening round so the editorial team can review them.
+                    </p>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+                        <button type="submit" class="success button">
+                            <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                            Submit Revisions
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

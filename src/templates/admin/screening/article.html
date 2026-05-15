@@ -1,0 +1,336 @@
+{% extends "admin/core/base.html" %}
+{% load static roles i18n securitytags hooks %}
+
+{% block title %}Screening {{ article.title }}{% endblock title %}
+{% block title-section %}Screening{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-8 columns">
+            <div class="box">
+                {% if rounds %}
+                    <ul class="tabs" data-tabs id="screening-round-tabs">
+                        {% for round in rounds %}
+                            {% with summary=round.completion_summary %}
+                                <li class="tabs-title{% if forloop.last %} is-active{% endif %}">
+                                    <a href="#screening-tab{{ round.round_number }}" aria-selected="true">
+                                        Round {{ round.round_number }}{% if summary.1 %} ({{ summary.0 }} / {{ summary.1 }}){% endif %}
+                                    </a>
+                                </li>
+                            {% endwith %}
+                        {% endfor %}
+                    </ul>
+                    <div class="tabs-content" data-tabs-content="screening-round-tabs">
+                        {% for round in rounds %}
+                            <div class="tabs-panel{% if forloop.last %} is-active{% endif %}" id="screening-tab{{ round.round_number }}">
+                                <div class="content">
+                                    <div class="title-area">
+                                        <h2>Screeners</h2>
+                                        {% if round == latest_round and is_screening_stage %}
+                                            <a href="{% url 'add_screening_assignment' article.pk round.pk %}" class="button">
+                                                <i class="fa fa-plus action-icon">&nbsp;</i>Invite Screener
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <table class="scroll small">
+                                        <thead>
+                                            <tr>
+                                                <th>Screener</th>
+                                                <th>Anonymity to Author</th>
+                                                <th>Anonymity to Co-screeners</th>
+                                                <th>Date Due</th>
+                                                <th>Status</th>
+                                                <th>Recommendation</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for assignment in round.screeningassignment_set.all %}
+                                                <tr>
+                                                    <td>
+                                                        {{ assignment.screener.full_name|se_can_see_pii:article }}
+                                                        {% if assignment.screener_id == assignment.editor_id %}
+                                                            <span class="label warning" title="The editor and the screener are the same user.">Self-assigned</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ assignment.anonymous_to_author|yesno:"Anonymous,Open" }}</td>
+                                                    <td>{{ assignment.anonymous_to_coscreeners|yesno:"Anonymous,Open" }}</td>
+                                                    <td>
+                                                        {{ assignment.date_due }}
+                                                        {% if assignment.is_late and not assignment.is_complete %}
+                                                            <span class="label alert" title="Overdue">
+                                                                <i class="fa fa-clock-o"></i> Overdue
+                                                            </span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <span class="label {{ assignment.status.span_class }}">{{ assignment.status.display }}</span>
+                                                    </td>
+                                                    <td>{{ assignment.get_recommendation_display|default:"—" }}</td>
+                                                    <td>
+                                                        {% if not is_screening_stage %}
+                                                            {% if assignment.is_complete %}
+                                                                <a href="{% url 'view_screening_report' article.pk assignment.pk %}" class="tiny button secondary">
+                                                                    <i class="fa fa-file-text-o"></i> View Report
+                                                                </a>
+                                                            {% endif %}
+                                                        {% else %}
+                                                        <div class="button-group">
+                                                            <a class="dropdown button arrow-only tiny secondary"
+                                                               data-toggle="screening-actions-{{ assignment.pk }}">
+                                                                <span class="show-for-sr">Actions</span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="dropdown-pane right" id="screening-actions-{{ assignment.pk }}"
+                                                             data-dropdown data-close-on-click="true">
+                                                            <ul class="menu vertical actions">
+                                                                {% if assignment.is_complete %}
+                                                                    <li>
+                                                                        <a href="{% url 'view_screening_report' article.pk assignment.pk %}">
+                                                                            <i class="fa fa-file-text-o action-icon">&nbsp;</i>View Report
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                                {% if not assignment.is_withdrawn %}
+                                                                    <li>
+                                                                        <a href="{% url 'edit_screening_assignment' article.pk assignment.pk %}">
+                                                                            <i class="fa fa-pencil action-icon">&nbsp;</i>Edit
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                                {% if not assignment.is_complete and not assignment.is_withdrawn %}
+                                                                    <li>
+                                                                        <a href="{% url 'do_screening' assignment.pk %}">
+                                                                            <i class="fa fa-user-secret action-icon">&nbsp;</i>Submit on behalf
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                                {% if assignment.is_complete or assignment.is_withdrawn %}
+                                                                    <li>
+                                                                        <a data-open="confirm-reset-{{ assignment.pk }}">
+                                                                            <i class="fa fa-undo action-icon">&nbsp;</i>Reset
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                                {% if not assignment.is_withdrawn and not assignment.is_complete %}
+                                                                    <li>
+                                                                        <a data-open="confirm-withdraw-{{ assignment.pk }}">
+                                                                            <i class="fa fa-ban action-icon">&nbsp;</i>Withdraw
+                                                                        </a>
+                                                                    </li>
+                                                                {% endif %}
+                                                            </ul>
+                                                        </div>
+
+                                                        <div class="reveal small" id="confirm-withdraw-{{ assignment.pk }}" data-reveal>
+                                                            <div class="card">
+                                                                <div class="card-divider">
+                                                                    <h4><i class="fa fa-ban">&nbsp;</i>Withdraw screening assignment</h4>
+                                                                </div>
+                                                                <div class="card-section">
+                                                                    <p>
+                                                                        Withdrawing this assignment closes
+                                                                        {{ assignment.screener.full_name|se_can_see_pii:article }}
+                                                                        out of this round. They will no longer be able to
+                                                                        accept, decline, or submit a report. Any work they
+                                                                        have already submitted is retained.
+                                                                    </p>
+                                                                    <p>Proceed?</p>
+                                                                    <form method="post" action="{% url 'withdraw_screening_assignment' article.pk assignment.pk %}" class="display-inline">
+                                                                        {% csrf_token %}
+                                                                        <button type="submit" class="alert button">Withdraw</button>
+                                                                        <button type="button" class="button secondary" data-close>Cancel</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                            <button class="close-button" data-close aria-label="Close" type="button">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+
+                                                        {% if assignment.is_complete or assignment.is_withdrawn %}
+                                                            <div class="reveal small" id="confirm-reset-{{ assignment.pk }}" data-reveal>
+                                                                <div class="card">
+                                                                    <div class="card-divider">
+                                                                        <h4><i class="fa fa-undo">&nbsp;</i>Reset screening assignment</h4>
+                                                                    </div>
+                                                                    <div class="card-section">
+                                                                        <p>
+                                                                            {% if assignment.is_withdrawn %}
+                                                                                Resetting re-opens the assignment for
+                                                                                {{ assignment.screener.full_name|se_can_see_pii:article }}.
+                                                                                They will be able to accept, decline, or
+                                                                                submit a report again.
+                                                                            {% else %}
+                                                                                Resetting clears
+                                                                                {{ assignment.screener.full_name|se_can_see_pii:article }}'s
+                                                                                recommendation and completion stamp so they can
+                                                                                revise their report. Saved form answers are kept.
+                                                                            {% endif %}
+                                                                        </p>
+                                                                        <p>Proceed?</p>
+                                                                        <form method="post" action="{% url 'reset_screening_assignment' article.pk assignment.pk %}" class="display-inline">
+                                                                            {% csrf_token %}
+                                                                            <button type="submit" class="alert button">Reset</button>
+                                                                            <button type="button" class="button secondary" data-close>Cancel</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                                <button class="close-button" data-close aria-label="Close" type="button">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="7">No screeners invited to this round yet.</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="title-area">
+                        <h2>Screening Rounds</h2>
+                    </div>
+                    <div class="content">
+                        <div class="bs-callout bs-callout-info">
+                            <p class="no-bottom-margin">
+                                <small>No screening rounds have been opened for this article yet. Use the Actions panel to open the first round.</small>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if revision_requests %}
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Revision Requests</h2>
+                    </div>
+                    <div class="content">
+                        <table class="scroll small">
+                            <thead>
+                                <tr>
+                                    <th>Requested</th>
+                                    <th>Type</th>
+                                    <th>Due</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rev in revision_requests %}
+                                    <tr>
+                                        <td>{{ rev.date_requested|date:"Y-m-d" }}</td>
+                                        <td>{{ rev.get_type_display }}</td>
+                                        <td>{{ rev.date_due }}</td>
+                                        <td>
+                                            {% if rev.is_complete %}
+                                                <span class="label success">Submitted</span>
+                                            {% else %}
+                                                <span class="label warning">Awaiting Author</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'view_screening_revision' rev.pk %}" class="tiny secondary button">View</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% include "admin/screening/_checklist_panel.html" %}
+        </div>
+
+        <div class="large-4 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Status</h2>
+                </div>
+                <div class="content">
+                    <div class="callout warning">
+                        <small>This article is currently in the {{ article.stage }} stage.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="title-area">
+                    <h2>Actions</h2>
+                </div>
+                <div class="content">
+                    {% if is_screening_stage %}
+                        <ul class="menu vertical actions">
+                            <li>
+                                <form method="post" action="{% url 'add_screening_round' article.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="link-button"><i class="fa fa-plus-circle action-icon">&nbsp;</i>New Screening Round</button>
+                                </form>
+                            </li>
+                            {% if next_workflow_element %}
+                                <li>
+                                    <a href="{% url 'screening_move_to_next_stage' article.pk %}">
+                                        <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <a href="{% url 'request_screening_revisions' article.pk %}">
+                                    <i class="fa fa-pencil-square-o action-icon">&nbsp;</i>Request Revisions
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'review_decision' article.pk 'decline' %}">
+                                    <i class="fa fa-gavel action-icon">&nbsp;</i>Reject Article
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'document_management' article.pk %}?return={{ request.path }}">
+                                    <i class="fa fa-file-archive-o action-icon">&nbsp;</i>Document Management
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'edit_metadata' article.pk %}?return={{ request.path|urlencode }}">
+                                    <i class="fa fa-server action-icon">&nbsp;</i>View Metadata
+                                </a>
+                            </li>
+                            {% hook 'screening_actions' %}
+                        </ul>
+                    {% else %}
+                        <div class="callout secondary">
+                            <p class="no-bottom-margin">
+                                <small>This article has moved past the screening stage. Reports are shown for reference only.</small>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% include "admin/elements/contacts_box.html" %}
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    {% include "admin/core/partials/htmx.html" %}
+    <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
+{% endblock js %}

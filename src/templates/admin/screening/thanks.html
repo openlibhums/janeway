@@ -1,0 +1,31 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}Screening Report Submitted{% endblock title %}
+{% block title-section %}Screening Complete{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screener_base.html" %}
+    <li>Thanks</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Thank you</h2>
+            </div>
+            <div class="content">
+                <p>
+                    Your screening report for <strong>{{ article.safe_title }}</strong>
+                    has been submitted. The managing editor will be notified.
+                </p>
+                <p>
+                    <a class="button" href="{{ back_url }}">Continue</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

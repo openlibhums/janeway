@@ -1,0 +1,71 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Checklist Template{% endblock title %}
+{% block title-section %}Edit Checklist Template{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'screening_checklist_templates' %}">Checklist Templates</a></li>
+    <li><a href="{% url 'edit_screening_checklist_template' edit_template.pk %}">{{ edit_template.name }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Template's Items</h2>
+                <a href="#" data-open="item" class="button">Add Item</a>
+            </div>
+            <div class="content">
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group">
+                        {% for tpl_item in edit_template.items.all %}
+                            <li class="list-group-item">
+                                {{ tpl_item.label }}
+                                <div class="float-right">
+                                    <a class="tiny warning button"
+                                       href="{% url 'edit_screening_checklist_template_item' edit_template.pk tpl_item.pk %}"><i
+                                            class="fa fa-edit"></i></a>
+                                    <button type="submit" name="delete" value="{{ tpl_item.pk }}"
+                                            class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><small>No items on this template yet.</small></li>
+                        {% endfor %}
+                    </ul>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Edit Template Detail</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="template" class="success button">Save Template</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/screening/checklist_item_form.html" %}
+
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock %}

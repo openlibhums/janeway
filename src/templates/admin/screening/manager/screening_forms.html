@@ -1,0 +1,79 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Screening Forms{% endblock title %}
+{% block title-section %}Screening Forms{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'screening_forms' %}">Screening Forms</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Journal's Forms</h2>
+            </div>
+            <div class="content">
+                <ul class="list-group">
+                    {% for screening_form in form_list %}
+                        <li class="list-group-item">
+                            {{ screening_form.name }}
+                            <div class="float-right">
+                                <a href="{% url 'edit_screening_form' screening_form.pk %}" class="tiny warning button"><i class="fa fa-edit"></i></a>
+                                <a class="tiny alert button" data-open="delete-{{ screening_form.pk }}"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item"><small>No screening forms on this journal yet.</small></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add New Form</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">Add Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% for screening_form in form_list %}
+        <div class="reveal small" id="delete-{{ screening_form.pk }}" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-trash">&nbsp;</i>Delete screening form</h4>
+                </div>
+                <div class="card-section">
+                    <p>
+                        Deleting <strong>"{{ screening_form.name }}"</strong> won't delete any
+                        active or past screening reports using it. The form will no
+                        longer be available for selection on future screenings.
+                    </p>
+                    <p>Proceed?</p>
+                    <form method="POST" class="display-inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete" value="{{ screening_form.pk }}" class="alert button">Delete</button>
+                        <button type="button" class="button secondary" data-close>Cancel</button>
+                    </form>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+{% endblock body %}
