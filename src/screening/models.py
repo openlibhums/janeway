@@ -173,6 +173,74 @@ class ScreeningAssignment(models.Model):
             "frozen_element__order",
         )
 
+    def accept(self):
+        """Record acceptance of the screening invitation.
+
+        Returns True if the assignment transitioned, False if it was
+        already accepted.
+        """
+        if self.date_accepted:
+            return False
+        self.date_accepted = timezone.now()
+        self.save()
+        return True
+
+    def decline(self):
+        """Record the screener's decline.
+
+        Returns True if the assignment transitioned, False if it was
+        already declined.
+        """
+        if self.date_declined:
+            return False
+        self.date_declined = timezone.now()
+        self.save()
+        return True
+
+    def withdraw(self):
+        """Set the assignment to the withdrawn state.
+
+        Stamps date_declined when not already set so the screener can
+        no longer act on the request. Returns True if the assignment
+        actually transitioned to withdrawn, False if it was already
+        withdrawn (the view uses this to decide whether to raise
+        ON_SCREENING_WITHDRAWN).
+        """
+        if self.is_withdrawn:
+            return False
+        self.recommendation = SR.WITHDRAWN.value
+        if not self.date_declined:
+            self.date_declined = timezone.now()
+        self.save()
+        return True
+
+    def reset(self):
+        """Reset a completed or declined assignment back to in-progress.
+
+        Clears completion state, recommendation, and date_declined so
+        the screener can revise their report. date_accepted is preserved
+        so they do not have to re-accept.
+        """
+        self.is_complete = False
+        self.date_complete = None
+        self.recommendation = None
+        self.date_declined = None
+        self.save()
+
+    def complete(self, recommendation, suggested_reviewers="", comments_for_editor=""):
+        """Mark the assignment complete with the screener's report.
+
+        Sets the recommendation, optional reviewer suggestions and
+        editor-only comments, flips is_complete, stamps date_complete,
+        and saves.
+        """
+        self.recommendation = recommendation
+        self.suggested_reviewers = suggested_reviewers
+        self.comments_for_editor = comments_for_editor
+        self.is_complete = True
+        self.date_complete = timezone.now()
+        self.save()
+
     def save_screening_form(self, screening_form):
         elements_by_pk = {
             str(e.pk): e
@@ -407,6 +475,21 @@ class FrozenScreeningFormElement(BaseScreeningFormElement):
         pass
 
 
+class ScreeningRevisionRequestManager(models.Manager):
+    def open_for_article(self, article):
+        """Return the most recent open (not completed, not cancelled)
+        revision request for an article, or None."""
+        return (
+            self.filter(
+                article=article,
+                date_completed__isnull=True,
+                date_cancelled__isnull=True,
+            )
+            .order_by("-date_requested")
+            .first()
+        )
+
+
 class ScreeningRevisionRequest(models.Model):
     """Author revision triggered by a screening decision.
 
@@ -454,6 +537,8 @@ class ScreeningRevisionRequest(models.Model):
     date_completed = models.DateTimeField(blank=True, null=True)
     date_cancelled = models.DateTimeField(blank=True, null=True)
 
+    objects = ScreeningRevisionRequestManager()
+
     def __str__(self):
         editor_name = self.editor.full_name() if self.editor else "Unknown editor"
         return "Screening revision of {0} requested by {1}".format(
@@ -472,6 +557,24 @@ class ScreeningRevisionRequest(models.Model):
     @property
     def is_open(self):
         return not self.is_complete and not self.is_cancelled
+
+    def cancel(self):
+        """Cancel an open revision request. Stamps date_cancelled."""
+        self.date_cancelled = timezone.now()
+        self.save()
+
+    def complete(self):
+        """Mark the revision complete and open a fresh screening round.
+
+        Stamps date_completed, saves, and opens a new ScreeningRound on
+        the article so the same screener(s) can re-screen the revision.
+        Returns the new ScreeningRound.
+        """
+        from screening import logic as screening_logic
+
+        self.date_completed = timezone.now()
+        self.save()
+        return screening_logic.open_screening_round(self.article)
 
 
 class ScreeningPool(models.Model):

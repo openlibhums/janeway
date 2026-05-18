@@ -17,7 +17,6 @@ from core import forms as core_forms
 from core import workflow as core_workflow
 from events import logic as event_logic
 from screening import forms, logic, models as screening_models
-from screening.const import ScreeningRecommendations
 from screening.decorators import (
     screener_for_assignment_required,
     screener_or_editor_for_assignment_required,
@@ -350,14 +349,7 @@ def withdraw_screening_assignment(request, article_id, assignment_id):
         pk=assignment_id,
         article=article,
     )
-    already_withdrawn = (
-        assignment.recommendation == ScreeningRecommendations.WITHDRAWN.value
-    )
-    assignment.recommendation = ScreeningRecommendations.WITHDRAWN.value
-    if not assignment.date_declined:
-        assignment.date_declined = timezone.now()
-    assignment.save()
-    if not already_withdrawn:
+    if assignment.withdraw():
         event_logic.Events.raise_event(
             event_logic.Events.ON_SCREENING_WITHDRAWN,
             task_object=article,
@@ -428,11 +420,7 @@ def reset_screening_assignment(request, article_id, assignment_id):
         pk=assignment_id,
         article=article,
     )
-    assignment.is_complete = False
-    assignment.date_complete = None
-    assignment.recommendation = None
-    assignment.date_declined = None
-    assignment.save()
+    assignment.reset()
     messages.add_message(
         request,
         messages.SUCCESS,
@@ -476,9 +464,7 @@ def accept_screening_request(request, assignment_id, assignment=None):
         )
         return redirect(reverse("screening_requests"))
 
-    if not assignment.date_accepted:
-        assignment.date_accepted = timezone.now()
-        assignment.save()
+    if assignment.accept():
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -499,9 +485,7 @@ def decline_screening_request(request, assignment_id, assignment=None):
         )
         return redirect(reverse("screening_requests"))
 
-    if not assignment.date_declined:
-        assignment.date_declined = timezone.now()
-        assignment.save()
+    if assignment.decline():
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -518,9 +502,7 @@ def do_screening(request, assignment_id, assignment=None):
     screener."""
     if assignment.date_declined:
         raise Http404
-    if not assignment.date_accepted:
-        assignment.date_accepted = timezone.now()
-        assignment.save()
+    assignment.accept()
 
     form_class = (
         forms.build_screening_form_class(assignment.form) if assignment.form else None
@@ -543,20 +525,17 @@ def do_screening(request, assignment_id, assignment=None):
         if screening_form_valid and recommendation_valid:
             if screening_form is not None:
                 assignment.save_screening_form(screening_form)
-            assignment.recommendation = recommendation_form.cleaned_data[
-                "recommendation"
-            ]
-            assignment.suggested_reviewers = recommendation_form.cleaned_data.get(
-                "suggested_reviewers",
-                "",
+            assignment.complete(
+                recommendation=recommendation_form.cleaned_data["recommendation"],
+                suggested_reviewers=recommendation_form.cleaned_data.get(
+                    "suggested_reviewers",
+                    "",
+                ),
+                comments_for_editor=recommendation_form.cleaned_data.get(
+                    "comments_for_editor",
+                    "",
+                ),
             )
-            assignment.comments_for_editor = recommendation_form.cleaned_data.get(
-                "comments_for_editor",
-                "",
-            )
-            assignment.is_complete = True
-            assignment.date_complete = timezone.now()
-            assignment.save()
             event_logic.Events.raise_event(
                 event_logic.Events.ON_SCREENING_COMPLETE,
                 task_object=assignment.article,
@@ -666,14 +645,8 @@ def request_screening_revisions(request, article_id):
         journal=request.journal,
         stage=submission_models.STAGE_SCREENING,
     )
-    open_revision = (
-        screening_models.ScreeningRevisionRequest.objects.filter(
-            article=article,
-            date_completed__isnull=True,
-            date_cancelled__isnull=True,
-        )
-        .order_by("-date_requested")
-        .first()
+    open_revision = screening_models.ScreeningRevisionRequest.objects.open_for_article(
+        article,
     )
     if open_revision:
         messages.add_message(
@@ -806,8 +779,7 @@ def withdraw_screening_revisions(request, article_id, revision_id):
         date_completed__isnull=True,
         date_cancelled__isnull=True,
     )
-    revision.date_cancelled = timezone.now()
-    revision.save()
+    revision.cancel()
     event_logic.Events.raise_event(
         event_logic.Events.ON_SCREENING_REVISION_WITHDRAWN,
         task_object=article,
@@ -907,9 +879,7 @@ def do_screening_revisions(request, revision_id):
             )
         if "submit" in request.POST and form.is_valid():
             form.save()
-            revision.date_completed = timezone.now()
-            revision.save()
-            logic.open_screening_round(revision.article)
+            revision.complete()
             event_logic.Events.raise_event(
                 event_logic.Events.ON_SCREENING_REVISIONS_COMPLETED,
                 task_object=revision.article,
