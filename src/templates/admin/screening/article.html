@@ -83,7 +83,7 @@
                                                             {% endif %}
                                                         {% else %}
                                                         <div class="button-group">
-                                                            <a class="dropdown button arrow-only tiny secondary"
+                                                            <a role="button" tabindex="0" class="dropdown button arrow-only tiny secondary"
                                                                data-toggle="screening-actions-{{ assignment.pk }}">
                                                                 <span class="show-for-sr">Actions</span>
                                                             </a>
@@ -229,7 +229,7 @@
                                     <th>Type</th>
                                     <th>Due</th>
                                     <th>Status</th>
-                                    <th></th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -241,12 +241,74 @@
                                         <td>
                                             {% if rev.is_complete %}
                                                 <span class="label success">Submitted</span>
+                                            {% elif rev.is_cancelled %}
+                                                <span class="label alert">Withdrawn</span>
                                             {% else %}
                                                 <span class="label warning">Awaiting Author</span>
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{% url 'view_screening_revision' rev.pk %}" class="tiny secondary button">View</a>
+                                            {% if not is_screening_stage %}
+                                                <a href="{% url 'view_screening_revision' rev.pk %}" class="tiny button secondary">
+                                                    <i class="fa fa-file-text-o"></i> View
+                                                </a>
+                                            {% else %}
+                                                <div class="button-group">
+                                                    <a role="button" tabindex="0" class="dropdown button arrow-only tiny secondary"
+                                                       data-toggle="revision-actions-{{ rev.pk }}">
+                                                        <span class="show-for-sr">Actions</span>
+                                                    </a>
+                                                </div>
+                                                <div class="dropdown-pane right" id="revision-actions-{{ rev.pk }}"
+                                                     data-dropdown data-close-on-click="true">
+                                                    <ul class="menu vertical actions">
+                                                        <li>
+                                                            <a href="{% url 'view_screening_revision' rev.pk %}">
+                                                                <i class="fa fa-file-text-o action-icon">&nbsp;</i>View
+                                                            </a>
+                                                        </li>
+                                                        {% if rev.is_open %}
+                                                            <li>
+                                                                <a href="{% url 'edit_screening_revisions' article.pk rev.pk %}">
+                                                                    <i class="fa fa-pencil action-icon">&nbsp;</i>Edit
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a data-open="confirm-rev-withdraw-{{ rev.pk }}">
+                                                                    <i class="fa fa-ban action-icon">&nbsp;</i>Withdraw
+                                                                </a>
+                                                            </li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+
+                                                {% if rev.is_open %}
+                                                    <div class="reveal small" id="confirm-rev-withdraw-{{ rev.pk }}" data-reveal>
+                                                        <div class="card">
+                                                            <div class="card-divider">
+                                                                <h4><i class="fa fa-ban">&nbsp;</i>Withdraw revision request</h4>
+                                                            </div>
+                                                            <div class="card-section">
+                                                                <p>
+                                                                    Withdrawing this revision request will close it out
+                                                                    and notify <strong>{{ rev.article.correspondence_author.full_name }}</strong>
+                                                                    that no response is needed. You may open a new
+                                                                    revision request afterwards if circumstances change.
+                                                                </p>
+                                                                <p>Proceed?</p>
+                                                                <form method="post" action="{% url 'withdraw_screening_revisions' article.pk rev.pk %}" class="display-inline">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="alert button">Withdraw</button>
+                                                                    <button type="button" class="button secondary" data-close>Cancel</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                        <button class="close-button" data-close aria-label="Close" type="button">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -286,9 +348,12 @@
                             </li>
                             {% if next_workflow_element %}
                                 <li>
-                                    <a href="{% url 'screening_move_to_next_stage' article.pk %}">
-                                        <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}
-                                    </a>
+                                    <form method="post" action="{% url 'screening_move_to_next_stage' article.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="link-button">
+                                            <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}
+                                        </button>
+                                    </form>
                                 </li>
                             {% endif %}
                             <li>

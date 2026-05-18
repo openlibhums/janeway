@@ -5862,5 +5862,81 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the screener when the editor withdraws their screening assignment.",
+            "is_translatable": true,
+            "name": "subject_screening_withdrawn",
+            "pretty_name": "Screening Withdrawn",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening assignment withdrawn"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the screener when the editor withdraws their screening assignment.",
+            "is_translatable": true,
+            "name": "screening_withdrawn",
+            "pretty_name": "Screening Withdrawn",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ screening_assignment.screener.salutation_name }},<br/><br/>Your screening assignment for \"{{ article.safe_title }}\" has been withdrawn by the editorial team. You no longer need to take any action on this submission.<br/><br/>Thank you for your time.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the author when the editor cancels a screening revision request.",
+            "is_translatable": true,
+            "name": "subject_screening_revision_withdrawn",
+            "pretty_name": "Screening Revision Withdrawn",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening revision request cancelled"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the author when the editor cancels a screening revision request.",
+            "is_translatable": true,
+            "name": "screening_revision_withdrawn",
+            "pretty_name": "Screening Revision Withdrawn",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.salutation_name }},<br/><br/>The revision request for \"{{ article.safe_title }}\" has been cancelled by the editorial team. You no longer need to submit a response.<br/><br/>The editorial team will be in touch if any further action is needed.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

@@ -319,6 +319,14 @@ class Events:
     # raised when the author submits their revisions; handler emails the
     # editor so they can reopen a screening round
     ON_SCREENING_REVISIONS_COMPLETED = "on_screening_revisions_completed"
+    # kwargs: request, screening_assignment
+    # raised when an editor withdraws an open screening assignment;
+    # handler emails the screener so they know the request is closed
+    ON_SCREENING_WITHDRAWN = "on_screening_withdrawn"
+    # kwargs: request, screening_revision
+    # raised when an editor withdraws (cancels) an open revision
+    # request; handler emails the corresponding author
+    ON_SCREENING_REVISION_WITHDRAWN = "on_screening_revision_withdrawn"
     ON_TYPESETTING_ASSIGN_CANCELLED = "on_typesetting_assign_cancelled"
     ON_TYPESETTING_ASSIGN_DELETED = "on_typesetting_assign_deleted"
     ON_TYPESETTING_ASSIGN_COMPLETE = "on_typesetting_assign_complete"

@@ -54,8 +54,14 @@
                                 </td>
                                 <td>
                                     {% if not assignment.date_accepted and not assignment.date_declined %}
-                                        <a class="success button small" href="{% url 'accept_screening_request' assignment.pk %}">Accept</a>
-                                        <a class="alert button small" href="{% url 'decline_screening_request' assignment.pk %}">Decline</a>
+                                        <form method="post" action="{% url 'accept_screening_request' assignment.pk %}" class="display-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="success button small">Accept</button>
+                                        </form>
+                                        <form method="post" action="{% url 'decline_screening_request' assignment.pk %}" class="display-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="alert button small">Decline</button>
+                                        </form>
                                     {% elif assignment.date_accepted and not assignment.is_complete %}
                                         <a class="button small" href="{% url 'do_screening' assignment.pk %}">Open Report</a>
                                     {% endif %}

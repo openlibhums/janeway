@@ -350,10 +350,20 @@ def withdraw_screening_assignment(request, article_id, assignment_id):
         pk=assignment_id,
         article=article,
     )
+    already_withdrawn = (
+        assignment.recommendation == ScreeningRecommendations.WITHDRAWN.value
+    )
     assignment.recommendation = ScreeningRecommendations.WITHDRAWN.value
     if not assignment.date_declined:
         assignment.date_declined = timezone.now()
     assignment.save()
+    if not already_withdrawn:
+        event_logic.Events.raise_event(
+            event_logic.Events.ON_SCREENING_WITHDRAWN,
+            task_object=article,
+            request=request,
+            screening_assignment=assignment,
+        )
     messages.add_message(
         request,
         messages.SUCCESS,
@@ -454,6 +464,7 @@ def screening_requests(request):
     return render(request, template, context)
 
 
+@require_POST
 @screener_for_assignment_required
 def accept_screening_request(request, assignment_id, assignment=None):
     """Record the screener's acceptance of an invitation."""
@@ -476,6 +487,7 @@ def accept_screening_request(request, assignment_id, assignment=None):
     return redirect(reverse("do_screening", kwargs={"assignment_id": assignment.pk}))
 
 
+@require_POST
 @screener_for_assignment_required
 def decline_screening_request(request, assignment_id, assignment=None):
     """Record the screener's decline of an invitation."""
@@ -579,6 +591,7 @@ def screening_thanks(request, assignment_id, assignment=None):
 
 
 @editor_user_required
+@require_POST
 def move_to_next_stage(request, article_id):
     """Move an article out of screening into whichever workflow element
     follows it for this journal. Mirrors the editor_assignment exit
@@ -653,6 +666,29 @@ def request_screening_revisions(request, article_id):
         journal=request.journal,
         stage=submission_models.STAGE_SCREENING,
     )
+    open_revision = (
+        screening_models.ScreeningRevisionRequest.objects.filter(
+            article=article,
+            date_completed__isnull=True,
+            date_cancelled__isnull=True,
+        )
+        .order_by("-date_requested")
+        .first()
+    )
+    if open_revision:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            "A revision request is already open on this article. "
+            "Only one revision task may be open at a time.",
+        )
+        return redirect(
+            reverse(
+                "view_screening_revision",
+                kwargs={"revision_id": open_revision.pk},
+            )
+        )
+
     form = forms.ScreeningRevisionRequestForm(
         request.POST or None,
         article=article,
@@ -660,23 +696,176 @@ def request_screening_revisions(request, article_id):
     )
     if request.method == "POST" and form.is_valid():
         revision = form.save()
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_SCREENING_REVISIONS_REQUESTED,
-            task_object=article,
-            request=request,
-            screening_revision=revision,
-        )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            "Revision request sent to the corresponding author.",
-        )
         return redirect(
-            reverse("screening_article", kwargs={"article_id": article.pk}),
+            reverse(
+                "screening_revision_notification",
+                kwargs={
+                    "article_id": article.pk,
+                    "revision_id": revision.pk,
+                },
+            )
         )
 
     template = "admin/screening/request_revisions.html"
     context = {"article": article, "form": form}
+    return render(request, template, context)
+
+
+@editor_user_required
+def screening_revision_notification(request, article_id, revision_id):
+    """Preview and edit the revision-request email before sending it to
+    the corresponding author. POST sends the email (or skips it) and
+    raises ON_SCREENING_REVISIONS_REQUESTED with the edited email body."""
+    if not journal_has_screening_element(request.journal):
+        raise Http404("Screening is not enabled for this journal.")
+
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        stage=submission_models.STAGE_SCREENING,
+    )
+    revision = get_object_or_404(
+        screening_models.ScreeningRevisionRequest,
+        pk=revision_id,
+        article=article,
+    )
+
+    do_revisions_url = request.journal.site_url(
+        reverse("do_screening_revisions", kwargs={"revision_id": revision.pk}),
+    )
+    email_context = {
+        "article": article,
+        "screening_revision": revision,
+        "do_revisions_url": do_revisions_url,
+    }
+    form = core_forms.SettingEmailForm(
+        setting_name="screening_revisions_requested",
+        email_context=email_context,
+        request=request,
+    )
+
+    if request.method == "POST":
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="screening_revisions_requested",
+            email_context=email_context,
+            request=request,
+        )
+        skip = request.POST.get("skip")
+        if skip or form.is_valid():
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_SCREENING_REVISIONS_REQUESTED,
+                task_object=article,
+                request=request,
+                screening_revision=revision,
+                email_data=form.as_dataclass() if not skip else None,
+                skip=bool(skip),
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                (
+                    "Revision request created (email skipped)."
+                    if skip
+                    else "Revision request sent to the corresponding author."
+                ),
+            )
+            return redirect(
+                reverse("screening_article", kwargs={"article_id": article.pk}),
+            )
+
+    template = "admin/screening/revision_notification.html"
+    context = {
+        "article": article,
+        "revision": revision,
+        "form": form,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@require_POST
+def withdraw_screening_revisions(request, article_id, revision_id):
+    """Editor cancels an open revision request. Sets date_cancelled and
+    fires ON_SCREENING_REVISION_WITHDRAWN so the author is notified."""
+    if not journal_has_screening_element(request.journal):
+        raise Http404("Screening is not enabled for this journal.")
+
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        stage=submission_models.STAGE_SCREENING,
+    )
+    revision = get_object_or_404(
+        screening_models.ScreeningRevisionRequest,
+        pk=revision_id,
+        article=article,
+        date_completed__isnull=True,
+        date_cancelled__isnull=True,
+    )
+    revision.date_cancelled = timezone.now()
+    revision.save()
+    event_logic.Events.raise_event(
+        event_logic.Events.ON_SCREENING_REVISION_WITHDRAWN,
+        task_object=article,
+        request=request,
+        screening_revision=revision,
+    )
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        "Revision request withdrawn.",
+    )
+    return redirect(
+        reverse("screening_article", kwargs={"article_id": article.pk}),
+    )
+
+
+@editor_user_required
+def edit_screening_revisions(request, article_id, revision_id):
+    """Editor amends an open revision request (due date, type, note)
+    before the author submits."""
+    if not journal_has_screening_element(request.journal):
+        raise Http404("Screening is not enabled for this journal.")
+
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+        stage=submission_models.STAGE_SCREENING,
+    )
+    revision = get_object_or_404(
+        screening_models.ScreeningRevisionRequest,
+        pk=revision_id,
+        article=article,
+        date_completed__isnull=True,
+        date_cancelled__isnull=True,
+    )
+    form = forms.ScreeningRevisionRequestForm(
+        request.POST or None,
+        instance=revision,
+        article=article,
+        editor=request.user,
+    )
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Revision request updated.",
+        )
+        return redirect(
+            reverse(
+                "view_screening_revision",
+                kwargs={"revision_id": revision.pk},
+            )
+        )
+
+    template = "admin/screening/edit_revisions.html"
+    context = {"article": article, "revision": revision, "form": form}
     return render(request, template, context)
 
 
@@ -693,7 +882,7 @@ def do_screening_revisions(request, revision_id):
     )
     if request.user != revision.article.correspondence_author:
         raise Http404
-    if revision.date_completed:
+    if revision.date_completed or revision.date_cancelled:
         return redirect(
             reverse(
                 "view_screening_revision",
@@ -701,39 +890,38 @@ def do_screening_revisions(request, revision_id):
             )
         )
 
-    form = forms.AuthorRevisionResponseForm(
-        request.POST or None,
-        request.FILES or None,
-        instance=revision,
-    )
-    if request.method == "POST" and form.is_valid():
-        from core import files as core_files
-
-        manuscript = form.cleaned_data["manuscript"]
-        new_file = core_files.save_file_to_article(
-            manuscript,
-            revision.article,
-            request.user,
-            label="Revised Manuscript",
-        )
-        revision.article.manuscript_files.add(new_file)
-
-        revision = form.save(commit=False)
-        revision.date_completed = timezone.now()
-        revision.save()
-        logic.open_screening_round(revision.article)
-        event_logic.Events.raise_event(
-            event_logic.Events.ON_SCREENING_REVISIONS_COMPLETED,
-            task_object=revision.article,
-            request=request,
-            screening_revision=revision,
-        )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            "Revisions submitted. The editorial team will be in touch.",
-        )
-        return redirect(reverse("core_dashboard"))
+    form = forms.AuthorRevisionResponseForm(request.POST or None, instance=revision)
+    if request.method == "POST":
+        if "save" in request.POST and form.is_valid():
+            form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Covering letter saved. Come back any time to finish.",
+            )
+            return redirect(
+                reverse(
+                    "do_screening_revisions",
+                    kwargs={"revision_id": revision.pk},
+                )
+            )
+        if "submit" in request.POST and form.is_valid():
+            form.save()
+            revision.date_completed = timezone.now()
+            revision.save()
+            logic.open_screening_round(revision.article)
+            event_logic.Events.raise_event(
+                event_logic.Events.ON_SCREENING_REVISIONS_COMPLETED,
+                task_object=revision.article,
+                request=request,
+                screening_revision=revision,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Revisions submitted. The editorial team will be in touch.",
+            )
+            return redirect(reverse("core_dashboard"))
 
     template = "admin/screening/do_revisions.html"
     context = {
@@ -741,6 +929,87 @@ def do_screening_revisions(request, revision_id):
         "revision": revision,
         "form": form,
     }
+    return render(request, template, context)
+
+
+@login_required
+def screening_revisions_replace_file(request, revision_id, file_id):
+    """Replace one of the article's files with a new upload, as part of
+    the author's revision response. Mirrors review's `replace_file`."""
+    from core import files as core_files
+    from core import models as core_models
+
+    revision = logic.get_open_revision_for_author(request, revision_id)
+    file = get_object_or_404(core_models.File, pk=file_id)
+
+    if request.method == "POST" and request.FILES:
+        uploaded_file = request.FILES.get("replacement-file")
+        if uploaded_file:
+            label = request.POST.get("label") or file.label
+            new_file = core_files.save_file_to_article(
+                uploaded_file,
+                revision.article,
+                request.user,
+                replace=file,
+                is_galley=False,
+                label=label,
+            )
+            core_files.replace_file(
+                revision.article,
+                file,
+                new_file,
+                retain_old_label=False,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "File replaced.",
+            )
+        return redirect(
+            reverse("do_screening_revisions", kwargs={"revision_id": revision.pk}),
+        )
+
+    template = "admin/screening/replace_file.html"
+    context = {"revision": revision, "article": revision.article, "file": file}
+    return render(request, template, context)
+
+
+@login_required
+def screening_revisions_upload_new_file(request, revision_id):
+    """Upload a new file (manuscript or data/figure) to the article as
+    part of the author's revision response. Mirrors review's
+    `upload_new_file`."""
+    from core import files as core_files
+
+    revision = logic.get_open_revision_for_author(request, revision_id)
+    article = revision.article
+
+    if request.method == "POST" and request.FILES:
+        file_type = request.POST.get("file_type")
+        uploaded_file = request.FILES.get("file")
+        label = request.POST.get("label") or "Author Upload"
+        if uploaded_file:
+            new_file = core_files.save_file_to_article(
+                uploaded_file,
+                article,
+                request.user,
+                label=label,
+            )
+            if file_type == "manuscript":
+                article.manuscript_files.add(new_file)
+            else:
+                article.data_figure_files.add(new_file)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "File uploaded.",
+            )
+        return redirect(
+            reverse("do_screening_revisions", kwargs={"revision_id": revision.pk}),
+        )
+
+    template = "admin/screening/upload_new_file.html"
+    context = {"revision": revision, "article": article}
     return render(request, template, context)
 
 

@@ -1,0 +1,45 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Upload New File{% endblock title %}
+{% block title-section %}Upload a new file{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'do_screening_revisions' revision.pk %}">Screening Revisions</a></li>
+    <li>Upload New File</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Add a file to the revision</h2>
+            </div>
+            <div class="content">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label>
+                        Label
+                        <input type="text" name="label" placeholder="e.g. Supplementary Appendix">
+                    </label>
+                    <label>
+                        File type
+                        <select name="file_type">
+                            <option value="manuscript">Manuscript</option>
+                            <option value="data_figure">Data / Figure</option>
+                        </select>
+                    </label>
+                    <label>
+                        File
+                        <input type="file" name="file" required>
+                    </label>
+                    <button type="submit" class="success button">
+                        <i class="fa fa-upload"></i> Upload File
+                    </button>
+                    <a href="{% url 'do_screening_revisions' revision.pk %}" class="button secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -87,7 +87,7 @@ class ScreenerFlowTests(TestCase):
 
     def test_accept_records_date_accepted(self):
         self.client.force_login(self.screener)
-        self.client.get(
+        self.client.post(
             reverse(
                 "accept_screening_request",
                 kwargs={"assignment_id": self.assignment.pk},
@@ -99,7 +99,7 @@ class ScreenerFlowTests(TestCase):
 
     def test_decline_records_date_declined(self):
         self.client.force_login(self.screener)
-        self.client.get(
+        self.client.post(
             reverse(
                 "decline_screening_request",
                 kwargs={"assignment_id": self.assignment.pk},
@@ -113,7 +113,7 @@ class ScreenerFlowTests(TestCase):
         self.assignment.is_complete = True
         self.assignment.save()
         self.client.force_login(self.screener)
-        self.client.get(
+        self.client.post(
             reverse(
                 "decline_screening_request",
                 kwargs={"assignment_id": self.assignment.pk},

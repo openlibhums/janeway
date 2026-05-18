@@ -125,6 +125,43 @@ class ScreeningEditorManagementTests(TestCase):
         self.assertEqual(self.assignment.recommendation, SR.WITHDRAWN.value)
         self.assertIsNotNone(self.assignment.date_declined)
 
+    def test_withdraw_emails_screener(self):
+        from django.core import mail as django_mail
+
+        django_mail.outbox = []
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                "withdraw_screening_assignment",
+                kwargs={
+                    "article_id": self.article.pk,
+                    "assignment_id": self.assignment.pk,
+                },
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(len(django_mail.outbox), 1)
+        self.assertIn(self.screener.email, django_mail.outbox[0].to)
+
+    def test_repeat_withdraw_does_not_double_email(self):
+        from django.core import mail as django_mail
+
+        self.assignment.recommendation = SR.WITHDRAWN.value
+        self.assignment.save()
+        django_mail.outbox = []
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                "withdraw_screening_assignment",
+                kwargs={
+                    "article_id": self.article.pk,
+                    "assignment_id": self.assignment.pk,
+                },
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(len(django_mail.outbox), 0)
+
     def test_withdraw_rejects_get(self):
         self.client.force_login(self.editor)
         response = self.client.get(

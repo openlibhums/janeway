@@ -193,15 +193,9 @@ class ScreeningRevisionRequestForm(forms.ModelForm):
 
 
 class AuthorRevisionResponseForm(forms.ModelForm):
-    """Author-side form to submit a revised manuscript file plus an
-    optional covering letter. The uploaded file is saved as a new
-    manuscript file on the article via core.files.save_file_to_article."""
-
-    manuscript = forms.FileField(
-        required=True,
-        label="Revised manuscript",
-        help_text="Upload the revised manuscript as a single file.",
-    )
+    """Author-side form for the covering letter. Files are replaced or
+    added through dedicated per-file views (mirroring Review's revision
+    flow), so this form only captures the author_note."""
 
     class Meta:
         model = models.ScreeningRevisionRequest

@@ -5,7 +5,8 @@ __maintainer__ = "Open Library of Humanities"
 
 
 from django.db.models import Count, Max, Q
-from django.shortcuts import redirect, render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core import models as core_models
@@ -178,6 +179,22 @@ def setup_after_screening(article, next_element):
             article=article,
             round_number=1,
         )
+
+
+def get_open_revision_for_author(request, revision_id):
+    """Return the open ScreeningRevisionRequest belonging to the
+    correspondence author on the current journal, raising Http404 if
+    the user is not the corresponding author or the revision is not
+    open."""
+    revision = get_object_or_404(
+        screening_models.ScreeningRevisionRequest,
+        pk=revision_id,
+        article__journal=request.journal,
+        date_completed__isnull=True,
+    )
+    if request.user != revision.article.correspondence_author:
+        raise Http404
+    return revision
 
 
 def render_checklist_item_response(request, item):

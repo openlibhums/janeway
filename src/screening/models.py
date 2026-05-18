@@ -452,6 +452,7 @@ class ScreeningRevisionRequest(models.Model):
     date_requested = models.DateTimeField(default=timezone.now)
     date_due = models.DateField()
     date_completed = models.DateTimeField(blank=True, null=True)
+    date_cancelled = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         editor_name = self.editor.full_name() if self.editor else "Unknown editor"
@@ -463,6 +464,14 @@ class ScreeningRevisionRequest(models.Model):
     @property
     def is_complete(self):
         return self.date_completed is not None
+
+    @property
+    def is_cancelled(self):
+        return self.date_cancelled is not None
+
+    @property
+    def is_open(self):
+        return not self.is_complete and not self.is_cancelled
 
 
 class ScreeningPool(models.Model):

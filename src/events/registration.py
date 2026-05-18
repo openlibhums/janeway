@@ -337,6 +337,16 @@ event_logic.Events.register_for_event(
 )
 
 event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_WITHDRAWN,
+    screening_notifications.send_screening_withdrawn,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_REVISION_WITHDRAWN,
+    screening_notifications.send_screening_revision_withdrawn,
+)
+
+event_logic.Events.register_for_event(
     event_logic.Events.ON_TYPESETTING_ASSIGN_CANCELLED,
     emails.send_typesetting_assign_cancelled,
 )

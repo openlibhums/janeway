@@ -71,9 +71,34 @@ urlpatterns = [
         name="request_screening_revisions",
     ),
     re_path(
+        r"^article/(?P<article_id>\d+)/revisions/(?P<revision_id>\d+)/notify/$",
+        views.screening_revision_notification,
+        name="screening_revision_notification",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/revisions/(?P<revision_id>\d+)/edit/$",
+        views.edit_screening_revisions,
+        name="edit_screening_revisions",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/revisions/(?P<revision_id>\d+)/withdraw/$",
+        views.withdraw_screening_revisions,
+        name="withdraw_screening_revisions",
+    ),
+    re_path(
         r"^revisions/(?P<revision_id>\d+)/do/$",
         views.do_screening_revisions,
         name="do_screening_revisions",
+    ),
+    re_path(
+        r"^revisions/(?P<revision_id>\d+)/file/(?P<file_id>\d+)/replace/$",
+        views.screening_revisions_replace_file,
+        name="screening_revisions_replace_file",
+    ),
+    re_path(
+        r"^revisions/(?P<revision_id>\d+)/file/new/$",
+        views.screening_revisions_upload_new_file,
+        name="screening_revisions_upload_new_file",
     ),
     re_path(
         r"^revisions/(?P<revision_id>\d+)/$",

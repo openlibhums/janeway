@@ -441,7 +441,7 @@ class ScreeningFlowTests(TestCase):
         self.article.save()
         screening_logic.open_screening_round(self.article)
         self.client.force_login(self.editor)
-        self.client.get(
+        self.client.post(
             reverse(
                 "screening_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},

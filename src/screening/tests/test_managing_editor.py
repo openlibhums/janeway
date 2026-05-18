@@ -77,7 +77,7 @@ class ScreeningManagingEditorTests(TestCase):
 
     def test_screening_move_to_next_stage_routes_to_review(self):
         self.client.force_login(self.editor)
-        self.client.get(
+        self.client.post(
             reverse(
                 "screening_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},
@@ -94,7 +94,7 @@ class ScreeningManagingEditorTests(TestCase):
         self.article.stage = submission_models.STAGE_UNASSIGNED
         self.article.save()
         self.client.force_login(self.editor)
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 "screening_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},
@@ -102,6 +102,17 @@ class ScreeningManagingEditorTests(TestCase):
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_screening_move_rejects_get(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "screening_move_to_next_stage",
+                kwargs={"article_id": self.article.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 405)
 
     def test_screening_article_shows_move_and_reject_buttons(self):
         self.client.force_login(self.editor)

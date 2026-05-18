@@ -190,30 +190,46 @@ def send_screening_revisions_requested(**kwargs):
     Notifies the corresponding author that an editor has asked them to
     revise their submission. The email contains a link to the revision
     page where the author uploads revised files and a covering letter.
+    When ``email_data`` is supplied (editor previewed and edited the
+    email), it is used verbatim. When ``skip`` is truthy, the assignment
+    is created but no email is sent.
     """
     request = kwargs["request"]
     revision = kwargs["screening_revision"]
+    skip = kwargs.get("skip", False)
+    custom_email_data = kwargs.get("email_data")
     article = revision.article
 
     if not article.correspondence_author:
         return
 
-    do_revisions_url = request.journal.site_url(
-        reverse("do_screening_revisions", kwargs={"revision_id": revision.pk}),
-    )
-    context = {
-        "article": article,
-        "screening_revision": revision,
-        "do_revisions_url": do_revisions_url,
-    }
-    email_data = _build_email_data(
-        request,
-        "subject_screening_revisions_requested",
-        "screening_revisions_requested",
-        context,
-    )
-
     description = 'Screening revisions requested for "{0}"'.format(article.title)
+
+    if skip:
+        notify_helpers.send_slack(request, description, ["slack_editors"])
+        return
+
+    if custom_email_data is not None:
+        email_data = core_email.EmailData(
+            subject=custom_email_data.subject,
+            body=custom_email_data.body,
+        )
+    else:
+        do_revisions_url = request.journal.site_url(
+            reverse("do_screening_revisions", kwargs={"revision_id": revision.pk}),
+        )
+        context = {
+            "article": article,
+            "screening_revision": revision,
+            "do_revisions_url": do_revisions_url,
+        }
+        email_data = _build_email_data(
+            request,
+            "subject_screening_revisions_requested",
+            "screening_revisions_requested",
+            context,
+        )
+
     log_dict = {
         "level": "Info",
         "action_text": description,
@@ -267,6 +283,88 @@ def send_screening_revisions_completed(**kwargs):
     }
     core_email.send_email(
         revision.editor,
+        email_data,
+        request,
+        article=article,
+        log_dict=log_dict,
+    )
+    notify_helpers.send_slack(request, description, ["slack_editors"])
+
+
+def send_screening_withdrawn(**kwargs):
+    """Handler for ON_SCREENING_WITHDRAWN.
+
+    Notifies the screener that the editor has withdrawn their screening
+    assignment. Fires even for assignments the screener had not yet
+    accepted — the editor's intent to cancel is always communicated.
+    """
+    request = kwargs["request"]
+    assignment = kwargs["screening_assignment"]
+    article = assignment.article
+
+    if not assignment.screener:
+        return
+
+    context = {"article": article, "screening_assignment": assignment}
+    email_data = _build_email_data(
+        request,
+        "subject_screening_withdrawn",
+        "screening_withdrawn",
+        context,
+    )
+
+    description = 'Screening assignment withdrawn for "{0}" ({1})'.format(
+        article.title,
+        assignment.screener.full_name(),
+    )
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Screening Withdrawn",
+        "target": article,
+    }
+    core_email.send_email(
+        assignment.screener,
+        email_data,
+        request,
+        article=article,
+        log_dict=log_dict,
+    )
+    notify_helpers.send_slack(request, description, ["slack_editors"])
+
+
+def send_screening_revision_withdrawn(**kwargs):
+    """Handler for ON_SCREENING_REVISION_WITHDRAWN.
+
+    Notifies the corresponding author that the editor has cancelled the
+    open revision request.
+    """
+    request = kwargs["request"]
+    revision = kwargs["screening_revision"]
+    article = revision.article
+
+    if not article.correspondence_author:
+        return
+
+    context = {"article": article, "screening_revision": revision}
+    email_data = _build_email_data(
+        request,
+        "subject_screening_revision_withdrawn",
+        "screening_revision_withdrawn",
+        context,
+    )
+
+    description = 'Screening revision request withdrawn for "{0}"'.format(
+        article.title,
+    )
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Screening Revision Withdrawn",
+        "target": article,
+    }
+    core_email.send_email(
+        article.correspondence_author,
         email_data,
         request,
         article=article,
