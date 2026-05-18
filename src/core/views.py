@@ -53,6 +53,7 @@ from review import models as review_models
 from copyediting import models as copyedit_models
 from production import models as production_models
 from screening import models as screening_models
+from screening.const import ScreeningRecommendations
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
@@ -897,7 +898,9 @@ def dashboard(request):
             article__journal=request.journal,
             date_accepted__isnull=False,
             is_complete=False,
-        ).count(),
+        )
+        .exclude(recommendation=ScreeningRecommendations.WITHDRAWN.value)
+        .count(),
         "assigned_screenings_for_user_completed_count": screening_models.ScreeningAssignment.objects.filter(
             screener=request.user,
             article__journal=request.journal,

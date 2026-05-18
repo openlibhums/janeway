@@ -252,3 +252,19 @@ class ScreeningEditorManagementTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Screening Requests")
+
+    def test_dashboard_accepted_count_excludes_withdrawn_after_accept(self):
+        """Regression: an assignment the screener accepted and that the
+        editor later withdrew must not be counted as an open accepted
+        screening on the dashboard."""
+        self.assignment.accept()
+        self.assignment.withdraw()
+        self.client.force_login(self.screener)
+        response = self.client.get(
+            reverse("core_dashboard"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            response.context["assigned_screenings_for_user_accepted_count"],
+            0,
+        )
