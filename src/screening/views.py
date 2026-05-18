@@ -13,7 +13,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from core import files as core_files
 from core import forms as core_forms
+from core import models as core_models
 from core import workflow as core_workflow
 from events import logic as event_logic
 from screening import forms, logic, models as screening_models
@@ -906,9 +908,6 @@ def do_screening_revisions(request, revision_id):
 def screening_revisions_replace_file(request, revision_id, file_id):
     """Replace one of the article's files with a new upload, as part of
     the author's revision response. Mirrors review's `replace_file`."""
-    from core import files as core_files
-    from core import models as core_models
-
     revision = logic.get_open_revision_for_author(request, revision_id)
     file = get_object_or_404(core_models.File, pk=file_id)
 
@@ -949,8 +948,6 @@ def screening_revisions_upload_new_file(request, revision_id):
     """Upload a new file (manuscript or data/figure) to the article as
     part of the author's revision response. Mirrors review's
     `upload_new_file`."""
-    from core import files as core_files
-
     revision = logic.get_open_revision_for_author(request, revision_id)
     article = revision.article
 
@@ -1117,13 +1114,11 @@ def edit_screening_checklist_template(request, template_id, item_id=None):
     return render(request, template, context)
 
 
+@require_POST
 @editor_user_required
 def toggle_checklist_item(request, item_id):
     """Toggle a single checklist item's complete state for an article in
     Screening. POST-only; records who toggled it and when."""
-    if request.method != "POST":
-        return redirect(reverse("screening_list"))
-
     item = get_object_or_404(
         screening_models.TechnicalChecklistItem,
         pk=item_id,
@@ -1140,14 +1135,12 @@ def toggle_checklist_item(request, item_id):
     return logic.render_checklist_item_response(request, item)
 
 
+@require_POST
 @editor_user_required
 def switch_checklist_template(request, article_id):
     """Replace the checklist applied to an article with a different
     journal-level template. Existing item state is discarded — the
     operation re-seeds items from the chosen template."""
-    if request.method != "POST":
-        return redirect(reverse("screening_list"))
-
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
@@ -1193,12 +1186,10 @@ def switch_checklist_template(request, article_id):
     )
 
 
+@require_POST
 @editor_user_required
 def save_checklist_item_comment(request, item_id):
     """Persist the editor's comment on a checklist item."""
-    if request.method != "POST":
-        return redirect(reverse("screening_list"))
-
     item = get_object_or_404(
         screening_models.TechnicalChecklistItem,
         pk=item_id,
