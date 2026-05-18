@@ -205,7 +205,7 @@ def render_checklist_item_response(request, item):
     if request.headers.get("HX-Request"):
         return render(
             request,
-            "admin/screening/_checklist_item_row.html",
+            "admin/screening/elements/checklist_item_row.html",
             {"item": item},
         )
     return redirect(

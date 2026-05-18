@@ -28,7 +28,7 @@
                 </thead>
                 <tbody aria-live="polite">
                     {% for item in items %}
-                        {% include "admin/screening/_checklist_item_row.html" %}
+                        {% include "admin/screening/elements/checklist_item_row.html" %}
                     {% empty %}
                         <tr><td colspan="4">This checklist has no items.</td></tr>
                     {% endfor %}

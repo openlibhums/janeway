@@ -1174,7 +1174,7 @@ def switch_checklist_template(request, article_id):
     if request.headers.get("HX-Request"):
         return render(
             request,
-            "admin/screening/_checklist_panel.html",
+            "admin/screening/elements/checklist_panel.html",
             {
                 "article": article,
                 "checklist": checklist,
