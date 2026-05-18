@@ -15,7 +15,7 @@ from core import email as core_email
 from utils import notify_helpers, render_template, setting_handler
 
 
-def _build_email_data(request, subject_setting, body_setting, context):
+def build_email_data(request, subject_setting, body_setting, context):
     """Render the subject and body settings for the active journal and
     return an EmailData ready for send_email."""
     subject = setting_handler.get_setting(
@@ -65,7 +65,7 @@ def send_screener_requested(**kwargs):
             "screening_assignment": screening_assignment,
             "screening_requests_url": screening_requests_url,
         }
-        email_data = _build_email_data(
+        email_data = build_email_data(
             request,
             "subject_screening_invitation",
             "screening_invitation",
@@ -109,7 +109,7 @@ def send_screening_complete(**kwargs):
         "screening_assignment": screening_assignment,
         "screening_article_url": screening_article_url,
     }
-    email_data = _build_email_data(
+    email_data = build_email_data(
         request,
         "subject_screening_complete",
         "screening_complete",
@@ -158,7 +158,7 @@ def send_screening_passed(**kwargs):
         "article": article,
         "next_workflow_element": next_workflow_element,
     }
-    email_data = _build_email_data(
+    email_data = build_email_data(
         request,
         "subject_screening_passed",
         "screening_passed",
@@ -223,7 +223,7 @@ def send_screening_revisions_requested(**kwargs):
             "screening_revision": revision,
             "do_revisions_url": do_revisions_url,
         }
-        email_data = _build_email_data(
+        email_data = build_email_data(
             request,
             "subject_screening_revisions_requested",
             "screening_revisions_requested",
@@ -267,7 +267,7 @@ def send_screening_revisions_completed(**kwargs):
         "screening_revision": revision,
         "article_url": article_url,
     }
-    email_data = _build_email_data(
+    email_data = build_email_data(
         request,
         "subject_screening_revisions_completed",
         "screening_revisions_completed",
@@ -306,7 +306,7 @@ def send_screening_withdrawn(**kwargs):
         return
 
     context = {"article": article, "screening_assignment": assignment}
-    email_data = _build_email_data(
+    email_data = build_email_data(
         request,
         "subject_screening_withdrawn",
         "screening_withdrawn",
@@ -347,7 +347,7 @@ def send_screening_revision_withdrawn(**kwargs):
         return
 
     context = {"article": article, "screening_revision": revision}
-    email_data = _build_email_data(
+    email_data = build_email_data(
         request,
         "subject_screening_revision_withdrawn",
         "screening_revision_withdrawn",

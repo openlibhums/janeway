@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 
+import datetime
+
 from django.db import models
 from django.db.models import Max, Q
 from django.utils import timezone
@@ -299,17 +301,15 @@ class ScreeningAssignment(models.Model):
         when overdue, zero on the day, positive when due in the future.
         Returns None if the assignment has no due date or the value is
         not comparable to a date."""
-        import datetime as _dt
-
         due = self.date_due
         if due is None:
             return None
         # date_due is declared as DateField, but historical rows or
         # bad data could store a datetime. Normalise to date before
         # comparing.
-        if isinstance(due, _dt.datetime):
+        if isinstance(due, datetime.datetime):
             due = due.date()
-        if not isinstance(due, _dt.date):
+        if not isinstance(due, datetime.date):
             return None
         try:
             return (due - timezone.now().date()).days
