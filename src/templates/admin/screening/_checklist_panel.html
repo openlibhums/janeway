@@ -1,5 +1,6 @@
-<div id="screening-checklist-panel">
+<div id="screening-checklist-panel" aria-live="polite">
 {% if checklist %}
+    {% with items=checklist.items.all %}
     <div class="box">
         <div class="title-area">
             <h2>Technical Checklist</h2>
@@ -25,8 +26,8 @@
                         <th>Completed by</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for item in checklist.items.all %}
+                <tbody aria-live="polite">
+                    {% for item in items %}
                         {% include "admin/screening/_checklist_item_row.html" %}
                     {% empty %}
                         <tr><td colspan="4">This checklist has no items.</td></tr>
@@ -36,7 +37,7 @@
         </div>
     </div>
 
-    {% for item in checklist.items.all %}
+    {% for item in items %}
         <div class="reveal small" id="comment-{{ item.pk }}" data-reveal
              data-animation-in="slide-in-up" data-animation-out="slide-out-down">
             <div class="card">
@@ -97,5 +98,6 @@
             </button>
         </div>
     {% endif %}
+    {% endwith %}
 {% endif %}
 </div>

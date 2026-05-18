@@ -20,7 +20,7 @@
                         {% for round in rounds %}
                             {% with summary=round.completion_summary %}
                                 <li class="tabs-title{% if forloop.last %} is-active{% endif %}">
-                                    <a href="#screening-tab{{ round.round_number }}" aria-selected="true">
+                                    <a href="#screening-tab{{ round.round_number }}" aria-selected="{% if forloop.last %}true{% else %}false{% endif %}">
                                         Round {{ round.round_number }}{% if summary.1 %} ({{ summary.0 }} / {{ summary.1 }}){% endif %}
                                     </a>
                                 </li>
@@ -362,7 +362,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url 'review_decision' article.pk 'decline' %}">
+                                <a data-open="confirm-reject-article">
                                     <i class="fa fa-gavel action-icon">&nbsp;</i>Reject Article
                                 </a>
                             </li>
@@ -391,6 +391,34 @@
             {% include "admin/elements/contacts_box.html" %}
         </div>
     </div>
+
+    {% if is_screening_stage %}
+        <div class="reveal small" id="confirm-reject-article" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-gavel">&nbsp;</i>Reject article</h4>
+                </div>
+                <div class="card-section">
+                    <p>
+                        Rejecting this article ends the editorial process. The author will be
+                        notified, and the article will be moved out of the screening stage.
+                    </p>
+                    <p>
+                        On the next screen you will be able to review and edit the rejection
+                        email before it is sent.
+                    </p>
+                    <p>Continue?</p>
+                    <a href="{% url 'review_decision' article.pk 'decline' %}" class="alert button">
+                        Continue to reject
+                    </a>
+                    <button type="button" class="button secondary" data-close>Cancel</button>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
 
 {% endblock body %}
 
