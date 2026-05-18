@@ -280,8 +280,13 @@
                         <ul class="menu vertical actions">
                             {% if next_workflow_element %}
                                 <li>
-                                    <a href="{% url 'editor_assignment_move_to_next_stage' article.pk %}"><i
-                                            class="fa fa-check action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}</a></li>
+                                    <form method="post" action="{% url 'editor_assignment_move_to_next_stage' article.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="link-button">
+                                            <i class="fa fa-check action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}
+                                        </button>
+                                    </form>
+                                </li>
                             {% endif %}
                             <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>

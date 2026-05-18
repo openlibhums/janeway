@@ -176,7 +176,7 @@ class ScreeningFlowTests(TestCase):
             editor_type="editor",
         )
         self.client.force_login(self.editor)
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 "editor_assignment_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},
@@ -214,7 +214,7 @@ class ScreeningFlowTests(TestCase):
             editor_type="editor",
         )
         self.client.force_login(editor_on_two)
-        self.client.get(
+        self.client.post(
             reverse(
                 "editor_assignment_move_to_next_stage",
                 kwargs={"article_id": article.pk},
@@ -229,7 +229,7 @@ class ScreeningFlowTests(TestCase):
 
     def test_move_to_next_stage_requires_editor_assignment(self):
         self.client.force_login(self.editor)
-        self.client.get(
+        self.client.post(
             reverse(
                 "editor_assignment_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},
@@ -378,7 +378,7 @@ class ScreeningFlowTests(TestCase):
             editor_type="editor",
         )
         self.client.force_login(self.editor)
-        self.client.get(
+        self.client.post(
             reverse(
                 "editor_assignment_move_to_next_stage",
                 kwargs={"article_id": self.article.pk},
@@ -418,7 +418,7 @@ class ScreeningFlowTests(TestCase):
             editor_type="editor",
         )
         self.client.force_login(editor_on_two)
-        self.client.get(
+        self.client.post(
             reverse(
                 "editor_assignment_move_to_next_stage",
                 kwargs={"article_id": article.pk},

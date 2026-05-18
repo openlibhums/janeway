@@ -7,11 +7,13 @@ __maintainer__ = "Open Library of Humanities"
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from core import (
     forms as core_forms,
     logic as core_logic,
     models as core_models,
+    workflow as core_workflow,
 )
 from editor_assignment import logic
 from events import logic as event_logic
@@ -101,7 +103,10 @@ def unassigned_article(request, article_id):
         "article": article,
         "editors": editors,
         "section_editors": section_editors,
-        "next_workflow_element": _next_workflow_element(request.journal),
+        "next_workflow_element": core_workflow.get_next_workflow_element(
+            request.journal,
+            "editor_assignment",
+        ),
     }
 
     return render(request, template, context)
@@ -309,29 +314,7 @@ def assignment_notification(request, article_id, editor_id):
     return render(request, template, context)
 
 
-def _next_workflow_element(journal):
-    """Compatibility shim. Prefer core.workflow.get_next_workflow_element."""
-    from core import workflow as core_workflow
-
-    return core_workflow.get_next_workflow_element(journal, "editor_assignment")
-
-
-def _setup_next_stage(article, next_element):
-    """Idempotent per-stage setup when an article enters the next workflow
-    element. New downstream stages should add their initialisation here
-    (or, when there are enough of them, this should become a registry).
-    """
-    if next_element.element_name == "review":
-        models.ReviewRound.objects.get_or_create(article=article, round_number=1)
-    elif next_element.element_name == "screening":
-        from screening import logic as screening_logic
-
-        if not screening_logic.screening_models.ScreeningRound.objects.filter(
-            article=article,
-        ).exists():
-            screening_logic.open_screening_round(article)
-
-
+@require_POST
 @editor_user_required
 def move_to_next_stage(request, article_id, should_redirect=True):
     """Move an article out of editor assignment into whichever workflow
@@ -359,7 +342,10 @@ def move_to_next_stage(request, article_id, should_redirect=True):
             )
         return
 
-    next_element = _next_workflow_element(request.journal)
+    next_element = core_workflow.get_next_workflow_element(
+        request.journal,
+        "editor_assignment",
+    )
     if next_element is None:
         messages.add_message(
             request,
@@ -374,12 +360,10 @@ def move_to_next_stage(request, article_id, should_redirect=True):
 
     # Pre-create the next stage's artefacts (Round 1, etc.) so they exist
     # when the user lands on the next page.
-    _setup_next_stage(article, next_element)
+    logic.setup_after_editor_assignment(article, next_element)
 
     # Delegate the stage transition, log entry, and redirect to the
     # canonical core.workflow machinery.
-    from core import workflow as core_workflow
-
     workflow = request.journal.workflow()
     current_element = workflow.elements.get(element_name="editor_assignment")
     response = core_workflow.workflow_next(

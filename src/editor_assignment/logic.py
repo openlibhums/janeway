@@ -8,6 +8,21 @@ from django.urls import reverse
 
 from events import logic as event_logic
 from review import models
+from screening import logic as screening_logic
+from screening.models import ScreeningRound
+
+
+def setup_after_editor_assignment(article, next_element):
+    """Idempotent per-stage setup when an article enters the next workflow
+    element following editor assignment. New downstream stages should add
+    their initialisation here (or, when there are enough of them, this
+    should become a registry).
+    """
+    if next_element.element_name == "review":
+        models.ReviewRound.objects.get_or_create(article=article, round_number=1)
+    elif next_element.element_name == "screening":
+        if not ScreeningRound.objects.filter(article=article).exists():
+            screening_logic.open_screening_round(article)
 
 
 def get_assignment_context(request, article, editor, assignment):
