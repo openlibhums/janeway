@@ -63,6 +63,18 @@ def index(request):
         page.delete()
         return redirect(reverse("cms_index"))
 
+    if request.POST and "toggle_draft" in request.POST:
+        page_id = request.POST.get("toggle_draft")
+        page = get_object_or_404(
+            models.Page,
+            pk=page_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
+        page.is_draft = not page.is_draft
+        page.save()
+        return redirect(reverse("cms_index"))
+
     if request.POST and "new_xsl" in request.POST:
         xsl_form = XSLFileForm(request.POST, request.FILES)
         if xsl_form.is_valid():
@@ -113,6 +125,11 @@ def view_page(request, page_name):
         content_type=request.model_content_type,
         object_id=request.site_type.pk,
     )
+
+    if page.is_draft:
+        access_code = request.GET.get("access_code")
+        if not access_code or access_code != str(page.preview_token):
+            raise Http404
 
     if page.template:
         templates_path = logic.get_custom_templates_path(request.journal, request.press)

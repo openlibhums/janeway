@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+from uuid import uuid4
 
 from django.db import models
 from django.db.models import Q
@@ -57,6 +58,8 @@ class Page(models.Model):
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
+    is_draft = models.BooleanField(default=True)
+    preview_token = models.CharField(max_length=100, blank=True, default=uuid4)
     display_toc = models.BooleanField(
         default=False,
         help_text="When enabled this page will display a thinner reading pane "
