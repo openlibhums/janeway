@@ -613,7 +613,7 @@ class CoreTests(TestCase):
         self.assertContains(response, "Connect your ORCID")
         self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
 
-    @patch.object(models.Account, "is_orcid_token_valid")
+    @patch.object(models.Account, "has_orcid_token")
     @override_settings(
         ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize"
     )
@@ -633,7 +633,7 @@ class CoreTests(TestCase):
         )
         self.assertNotContains(response, "ORCID iD could not be validated.")
 
-    @patch.object(models.Account, "is_orcid_token_valid")
+    @patch.object(models.Account, "has_orcid_token")
     @override_settings(
         ENABLE_ORCID=True,
         URL_CONFIG="domain",
