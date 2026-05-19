@@ -67,16 +67,41 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <form method="POST">
+                                <form method="POST" {% if page.is_draft %}id="publish-form-{{ page.pk }}"{% endif %}>
                                     {% csrf_token %}
                                     {% if page.is_draft %}
-                                        <button name="toggle_draft" value="{{ page.pk }}" type="submit" class="tiny button">Publish</button>
+                                        <button type="button" data-open="publish-confirm-{{ page.pk }}" class="tiny button">Publish</button>
                                     {% else %}
                                         <button name="toggle_draft" value="{{ page.pk }}" type="submit" class="tiny hollow secondary button">Unpublish</button>
                                     {% endif %}
                                 </form>
                             </td>
                         </tr>
+                        {% if page.is_draft %}
+                        <div class="reveal small-4" id="publish-confirm-{{ page.pk }}" data-reveal
+                             data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+                            <div class="card">
+                                <div class="card-divider">
+                                    <h4>Confirm Publish</h4>
+                                </div>
+                                <div class="card-section">
+                                    <div class="callout bs-callout-warning">
+                                        <p><span class="fa fa-warning">&nbsp;</span>Publishing this page will invalidate the current preview link. Anyone who has the preview link will no longer be able to use it.</p>
+                                    </div>
+                                </div>
+                                <div class="card-section">
+                                    <div class="button-group expanded">
+                                        <button class="success button" form="publish-form-{{ page.pk }}"
+                                                type="submit" name="toggle_draft" value="{{ page.pk }}">Publish</button>
+                                        <button class="alert button" data-close type="button">No, go back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>

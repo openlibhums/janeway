@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+from uuid import uuid4
 
 from django.contrib import messages
 from django.db.models import Q
@@ -72,6 +73,8 @@ def index(request):
             object_id=request.site_type.pk,
         )
         page.is_draft = not page.is_draft
+        if not page.is_draft:
+            page.preview_token = str(uuid4())
         page.save()
         return redirect(reverse("cms_index"))
 
@@ -130,6 +133,8 @@ def view_page(request, page_name):
         access_code = request.GET.get("access_code")
         if not access_code or access_code != str(page.preview_token):
             raise Http404
+    elif request.GET.get("access_code"):
+        raise Http404
 
     if page.template:
         templates_path = logic.get_custom_templates_path(request.journal, request.press)
