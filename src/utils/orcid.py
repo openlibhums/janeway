@@ -70,10 +70,6 @@ def retrieve_tokens(authorization_code, site):
 
 
 def is_token_valid(orcid_id, token):
-    # orcid api will return true for empty string
-    # so just test it first
-    if not token:
-        return False
     is_sandbox = "sandbox" in settings.ORCID_URL
     api_client = OrcidAPI(
         settings.ORCID_CLIENT_ID, settings.ORCID_CLIENT_SECRET, sandbox=is_sandbox

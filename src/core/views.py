@@ -257,7 +257,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
             user_email_index = len(emails) + 2
 
             for a in orcid_accounts:
-                a_token_valid = a.is_orcid_token_valid()
+                a_token_valid = a.is_orcid_token_valid
                 a_email_index = (
                     emails.index(a.email) if a.email in emails else len(emails) + 1
                 )
@@ -309,7 +309,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
 def orcid_register_action(request, orcid_id, next_url):
     models.OrcidToken.objects.filter(orcid=orcid_id).delete()
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
-    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid()]
+    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid]
     if len(validated_accounts) > 0:
         messages.add_message(
             request,
@@ -349,7 +349,7 @@ def orcid_add_action(request, orcid_id, access_token, expiration):
     orcid_accounts = models.Account.objects.filter(
         orcid=orcid_id, is_active=True
     ).exclude(pk=request.user.pk)
-    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid()]
+    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid]
     if len(validated_accounts) > 0:
         messages.add_message(
             request,

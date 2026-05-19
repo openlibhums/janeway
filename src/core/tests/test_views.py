@@ -478,11 +478,16 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             response.redirect_chain[0][0],
         )
 
+    @patch("core.views.orcid.get_orcid_record_details")
     @patch("core.views.orcid.retrieve_tokens")
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
-    def test_action_register_redirects_with_next(self, retrieve_tokens):
+    def test_action_register_redirects_with_next(self, retrieve_tokens, orcid_record):
         retrieve_tokens.return_value = "", "", self.user_orcid_uri
+        orcid_record.return_value = {
+            "uri": self.user_orcid_uri,
+            "orcid": self.user_orcid
+        }
         get_data = {
             "code": "12345",
             "next": self.next_url_raw,

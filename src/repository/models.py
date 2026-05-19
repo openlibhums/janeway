@@ -956,7 +956,7 @@ class PreprintAuthor(models.Model):
     @property
     def is_orcid_valid(self):
         if self.account:
-            return self.account.is_orcid_token_valid()
+            return self.account.has_orcid_token
         return False
 
     @property

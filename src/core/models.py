@@ -8,7 +8,7 @@ import re
 import uuid
 import statistics
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils.html import format_html
 import pytz
 from hijack.signals import hijack_started, hijack_ended
@@ -890,7 +890,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         if self.orcid:
             frozen_dict["frozen_orcid"] = self.orcid
-            frozen_dict["is_frozen_orcid_valid"] = self.is_orcid_token_valid()
+            frozen_dict["is_frozen_orcid_valid"] = self.has_orcid_token
 
         frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
             author=self,
@@ -959,8 +959,21 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def get_orcid_url(self):
         return normalized_orcid(self.orcid)
 
+    @cached_property
+    def has_orcid_token(self):
+        if not self.orcid_token or datetime.datetime.now() > self.orcid_token_expiration:
+            return False
+        return True
+
+    @cached_property
     def is_orcid_token_valid(self):
-        return is_token_valid(self.orcid, self.orcid_token)
+        # orcid api will return true for empty string
+        # also, no need to call api if expiration has passed
+        # we only validate against the API when explicitly told to:
+        # login, register or add validated orcid token
+        if self.has_orcid_token:
+            return is_token_valid(self.orcid, self.orcid_token, self.orcid_token_expiration)
+        return True
 
 
 def generate_expiry_date():

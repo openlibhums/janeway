@@ -2873,7 +2873,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
         if self.frozen_orcid:
             return self.is_frozen_orcid_valid
         elif self.author:
-            return self.author.is_orcid_token_valid()
+            return self.author.has_orcid_token
         return False
 
     @property
