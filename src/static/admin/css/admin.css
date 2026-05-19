@@ -40,11 +40,21 @@
 
 .cms-nav-item .cms-nav-actions {
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
-.cms-nav-item .button {
+.cms-nav-item .button,
+.cms-nav-item .label {
     margin-bottom: 0;
     vertical-align: middle;
+}
+
+.cms-nav-actions > .button,
+.cms-nav-actions > .label {
+    min-width: 6rem;
+    text-align: center;
 }
 
 .list-group-item:first-child {
