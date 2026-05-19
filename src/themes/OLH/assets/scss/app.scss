@@ -1863,5 +1863,9 @@ input[type="submit"]:focus-visible {
 .menu .a11y-mobile-button:hover,
 .menu .a11y-mobile-button:focus {
     background: rgba(0, 0, 0, 0.05);
-    outline: none;
+}
+
+.menu .a11y-mobile-button:focus-visible {
+    outline: 2px solid #1779ba;
+    outline-offset: -2px;
 }

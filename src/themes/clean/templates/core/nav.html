@@ -139,13 +139,7 @@
                     {% trans 'Accessibility' %}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="a11y-mobile-trigger">
-                    <form method="post" action="{% url 'toggle_accessibility_mode' %}" class="a11y-mobile-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button type="submit" class="dropdown-item a11y-mobile-button">
-                            {% if accessibility_mode_active %}{% trans 'Disable accessibility mode' %}{% else %}{% trans 'Enable accessibility mode' %}{% endif %}
-                        </button>
-                    </form>
+                    {% include "common/elements/accessibility_mode_mobile_button.html" with button_class="dropdown-item" %}
                     <a class="dropdown-item" href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a>
                 </div>
             </li>

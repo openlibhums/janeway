@@ -174,15 +174,9 @@
                 </li>
             {% endif %}
             {% if journal_settings.general.accessibility_mode or not request.journal %}
-            <li class="a11y-mobile-item"><div class="divider"></div></li>
+            <li class="a11y-mobile-item" aria-hidden="true"><div class="divider"></div></li>
             <li class="a11y-mobile-item">
-                <form method="post" action="{% url 'toggle_accessibility_mode' %}" class="a11y-mobile-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="a11y-mobile-button">
-                        {% if accessibility_mode_active %}{% trans 'Disable accessibility mode' %}{% else %}{% trans 'Enable accessibility mode' %}{% endif %}
-                    </button>
-                </form>
+                {% include "common/elements/accessibility_mode_mobile_button.html" %}
             </li>
             <li class="a11y-mobile-item"><a href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a></li>
             {% endif %}
