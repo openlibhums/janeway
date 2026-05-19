@@ -2,9 +2,10 @@
     {% csrf_token %}
     <ul class="list-group">
         {% if request.journal %}
-            <li class="list-group-item">Home
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Home</span>
                 <button name="nav" value="nav_home"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_home %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -17,49 +18,54 @@
         {% endif %}
         {% for nav in top_nav_items %}
         <li class="list-group-item">
-            {{ nav.link_name }}
-            {% if nav.link %}
-                ({{ nav.link }})
-            {% endif %}
-            (sequence {{ nav.sequence }})
-              <span class="float-right">
-                <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"> Edit</i></a>
-                <button class="tiny button alert" name="delete_nav" value="{{ nav.pk }}"><i class="fa fa-trash"></i> Delete</button>
-              </span>
+            <div class="cms-nav-item">
+                <span class="cms-nav-label">
+                    {{ nav.link_name }}
+                    {% if nav.link %}({{ nav.link }}){% endif %}
+                    (sequence {{ nav.sequence }})
+                </span>
+                <span class="cms-nav-actions">
+                    <a class="tiny button" href="{% url 'cms_nav_edit' nav.pk %}"><i class="fa fa-edit"> Edit</i></a>
+                    <button class="tiny button alert" name="delete_nav" value="{{ nav.pk }}"><i class="fa fa-trash"></i> Delete</button>
+                </span>
+            </div>
             {% if nav.sub_nav_items %}
-            <br />
-                <ul>
-                    {% for sub_nav in nav.sub_nav_items %}
-                        <li class="padded-group-item">
-                            {{ sub_nav.link_name }}
-                            {% if sub_nav.link %}
-                                ({{ sub_nav.link }})
-                            {% endif %}
-                            (sequence {{ sub_nav.sequence }})
-                            <span class="float-right">
-                            <a class="tiny button" href="{% url 'cms_nav_edit' sub_nav.pk %}"><i class="fa fa-edit"></i> Edit</a>
-                            <button class="tiny button alert" name="delete_nav" value="{{ sub_nav.pk }}">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
+            <ul>
+                {% for sub_nav in nav.sub_nav_items %}
+                    <li class="padded-group-item">
+                        <div class="cms-nav-item">
+                            <span class="cms-nav-label">
+                                {{ sub_nav.link_name }}
+                                {% if sub_nav.link %}({{ sub_nav.link }}){% endif %}
+                                (sequence {{ sub_nav.sequence }})
                             </span>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </li>
+                            <span class="cms-nav-actions">
+                                <a class="tiny button" href="{% url 'cms_nav_edit' sub_nav.pk %}"><i class="fa fa-edit"></i> Edit</a>
+                                <button class="tiny button alert" name="delete_nav" value="{{ sub_nav.pk }}">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
             {% endif %}
+        </li>
         {% endfor %}
         {#Custom Issue types navigation#}
         {% for issue_type in collection_nav_items %}
-        <li class="list-group-item">{{ issue_type.plural_name }}
-            <button name="toggle_collection_nav" value="{{ issue_type.pk }}" class="tiny button float-right success">
+        <li class="list-group-item cms-nav-item">
+            <span class="cms-nav-label">{{ issue_type.plural_name }}</span>
+            <button name="toggle_collection_nav" value="{{ issue_type.pk }}" class="tiny button success cms-nav-actions">
                 <i class="fa fa-check"></i> Enable
             </button>
         </li>
         {% endfor %}
         {% if request.journal %}
-            <li class="list-group-item">News
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">News</span>
                 <button name="nav" value="nav_news"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_news %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -69,9 +75,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Articles
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Articles</span>
                 <button name="nav" value="nav_articles"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_articles %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -81,9 +88,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Issues
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Issues</span>
                 <button name="nav" value="nav_issues"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_issues %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -93,9 +101,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">{{ journal_settings.styling.editorial_group_page_name }}
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">{{ journal_settings.styling.editorial_group_page_name }}</span>
                 <button name="editorial_team" value="editorial_team"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if enable_editorial_display %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -105,9 +114,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Keyword List
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Keyword List</span>
                 <button name="keyword_list_page" value="keyword_list_page"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if keyword_list_page %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -117,9 +127,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Submissions
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Submissions</span>
                 <button name="nav" value="nav_sub"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_sub %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -129,9 +140,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Contact
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Contact</span>
                 <button name="nav" value="nav_contact"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_contact %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -141,9 +153,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Start Submission
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Start Submission</span>
                 <button name="nav" value="nav_start"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_start %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
@@ -153,9 +166,10 @@
                   {% endif %}
                 </button>
             </li>
-            <li class="list-group-item">Become a Reviewer
+            <li class="list-group-item cms-nav-item">
+                <span class="cms-nav-label">Become a Reviewer</span>
                 <button name="nav" value="nav_review"
-                    class="tiny button float-right
+                    class="tiny button cms-nav-actions
                   {% if request.journal.nav_review %}
                     warning">
                     <i class="fa fa-times warning"></i> Disable
