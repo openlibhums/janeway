@@ -4,16 +4,15 @@
         {% if request.journal %}
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Home</span>
-                <button name="nav" value="nav_home"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_home %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_home %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_home" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_home" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
         {% endif %}
         {% for nav in top_nav_items %}
@@ -64,120 +63,111 @@
         {% if request.journal %}
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">News</span>
-                <button name="nav" value="nav_news"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_news %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_news %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_news" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_news" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Articles</span>
-                <button name="nav" value="nav_articles"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_articles %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_articles %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_articles" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_articles" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Issues</span>
-                <button name="nav" value="nav_issues"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_issues %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_issues %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_issues" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_issues" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">{{ journal_settings.styling.editorial_group_page_name }}</span>
-                <button name="editorial_team" value="editorial_team"
-                    class="tiny button cms-nav-actions
-                  {% if enable_editorial_display %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if enable_editorial_display %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="editorial_team" value="editorial_team" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="editorial_team" value="editorial_team" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Keyword List</span>
-                <button name="keyword_list_page" value="keyword_list_page"
-                    class="tiny button cms-nav-actions
-                  {% if keyword_list_page %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if keyword_list_page %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="keyword_list_page" value="keyword_list_page" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="keyword_list_page" value="keyword_list_page" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Submissions</span>
-                <button name="nav" value="nav_sub"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_sub %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_sub %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_sub" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_sub" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Contact</span>
-                <button name="nav" value="nav_contact"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_contact %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_contact %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_contact" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_contact" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Start Submission</span>
-                <button name="nav" value="nav_start"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_start %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_start %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_start" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_start" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
             <li class="list-group-item cms-nav-item">
                 <span class="cms-nav-label">Become a Reviewer</span>
-                <button name="nav" value="nav_review"
-                    class="tiny button cms-nav-actions
-                  {% if request.journal.nav_review %}
-                    warning">
-                    <i class="fa fa-times warning"></i> Disable
-                  {% else %}
-                    success">
-                    <i class="fa fa-check"></i> Enable
-                  {% endif %}
-                </button>
+                <span class="cms-nav-actions">
+                    {% if request.journal.nav_review %}
+                        <span class="success label"><i class="fa fa-check"></i> Enabled</span>
+                        <button name="nav" value="nav_review" class="tiny hollow secondary button">Disable</button>
+                    {% else %}
+                        <button name="nav" value="nav_review" class="tiny hollow secondary button">Enable</button>
+                        <span class="warning label"><i class="fa fa-times"></i> Disabled</span>
+                    {% endif %}
+                </span>
             </li>
         {% endif %}
     </ul>
