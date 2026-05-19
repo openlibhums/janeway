@@ -24,13 +24,31 @@
                         <th>View</th>
                         <th>Edit</th>
                         <th>Delete</th>
+                        <th>Status</th>
+                        <th>Available</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for page in pages %}
+                        {% url 'cms_page' page.name as page_path %}
                         <tr>
-                            <td>{{ page.display_name }} (/site/{{ page.name }})</td>
-                            <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
+                            <td>
+                                {{ page.display_name }}
+                                {% if page.is_draft %}
+                                    <br>
+                                    <button type="button"
+                                            onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ page_path }}?access_code={{ page.preview_token }}'); this.textContent='Copied!';"
+                                            class="tiny hollow secondary button">Copy preview link</button>
+                                {% else %}
+                                    (/site/{{ page.name }})
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if page.is_draft %}
+                                    <a href="{{ page_path }}?access_code={{ page.preview_token }}" target="_blank" class="tiny hollow secondary button">Preview</a>
+                                {% else %}
+                                    <a href="{{ page_path }}" target="_blank" class="tiny button">View</a>
+                                {% endif %}
                             </td>
                             <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
                             <td>
@@ -39,6 +57,23 @@
                                     <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
                                         Delete
                                     </button>
+                                </form>
+                            </td>
+                            <td>
+                                {% if page.is_draft %}
+                                    <span class="warning label"><i class="fa fa-eye-slash"></i> Draft</span>
+                                {% else %}
+                                    <span class="success label"><i class="fa fa-eye"></i> Public</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {% if page.is_draft %}
+                                        <button name="toggle_draft" value="{{ page.pk }}" type="submit" class="tiny button">Publish</button>
+                                    {% else %}
+                                        <button name="toggle_draft" value="{{ page.pk }}" type="submit" class="tiny hollow secondary button">Unpublish</button>
+                                    {% endif %}
                                 </form>
                             </td>
                         </tr>
