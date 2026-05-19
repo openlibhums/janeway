@@ -38,7 +38,7 @@
                                     <br>
                                     <button type="button"
                                             onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ page_path }}?access_code={{ page.preview_token }}'); this.textContent='Copied!';"
-                                            class="tiny hollow secondary button">Copy preview link</button>
+                                            class="tiny hollow secondary button"><i class="fa fa-copy"></i> Copy preview link</button>
                                 {% else %}
                                     (/site/{{ page.name }})
                                 {% endif %}
@@ -50,12 +50,12 @@
                                     <a href="{{ page_path }}" target="_blank" class="tiny button">View</a>
                                 {% endif %}
                             </td>
-                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
+                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button"><i class="fa fa-edit"></i>Edit</a></td>
                             <td>
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
-                                        Delete
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </form>
                             </td>
