@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from unittest.mock import patch
+from requests import Response
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
@@ -9,6 +10,7 @@ from django.forms import Form, ValidationError
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
+from orcid import PublicAPI
 
 from core import forms, models
 from core.model_utils import (
@@ -270,6 +272,38 @@ class TestAccount(TestCase):
             author.credits.first().get_role_display(),
             "Conceptualization",
         )
+
+    @patch.object(PublicAPI, "_get_public_info")
+    def test_orcid_invalid(self, mock_method):
+        account = helpers.create_author(self.journal_one)
+        account.orcid = "0000-0000-0000-0000"
+        account.orcid_token = "token"
+        account.orcid_token_expiration = timezone.make_aware(timezone.datetime(2050, 1, 1, 0, 0, 0))
+        account.save()
+
+        mock_method.return_value = Response()
+        mock_method.return_value.status_code = 401
+        mock_method.return_value.reason = "Unauthorized"
+
+        self.assertFalse(account.is_orcid_token_valid)
+        self.assertEquals(account.orcid_token, "")
+        self.assertIsNone(account.orcid_token_expiration)
+
+    @patch.object(PublicAPI, "_get_public_info")
+    def test_orcid_valid(self, mock_method):
+        account = helpers.create_author(self.journal_one)
+        account.orcid = "0000-0000-0000-0000"
+        account.orcid_token = "token"
+        account.orcid_token_expiration = timezone.make_aware(timezone.datetime(2050, 1, 1, 0, 0, 0))
+        account.save()
+
+        mock_method.return_value = Response()
+        mock_method.return_value.status_code = 200
+        mock_method.return_value.reason = "OK"
+
+        self.assertTrue(account.is_orcid_token_valid)
+        self.assertIsNotNone(account.orcid_token)
+        self.assertIsNotNone(account.orcid_token_expiration)
 
 
 class TestSVGImageFormField(TestCase):

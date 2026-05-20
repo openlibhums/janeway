@@ -5,8 +5,10 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import io
 import os
+import requests
 
 from bs4 import BeautifulSoup
+from orcid import PublicAPI
 
 from django.apps import apps
 from django.http import QueryDict
@@ -34,6 +36,7 @@ from utils.orcid import (
     build_redirect_uri,
     encode_state,
     decode_state,
+    is_token_valid,
 )
 
 from utils import install
@@ -1287,6 +1290,14 @@ class TestORCiDRecord(TestCase):
         self.assertEqual(
             build_redirect_uri(repo), "http://repo.domain.com/login/orcid/"
         )
+
+    @mock.patch.object(PublicAPI, "_get_public_info")
+    def test_token_invalid(self, mock_method):
+        mock_method.return_value = requests.Response()
+        mock_method.return_value.status_code = 401
+        mock_method.return_value.reason = "Unauthorized"
+        with self.assertRaises(ValidationError):
+            is_token_valid("0000-0000-0000-0000", "token")
 
 
 class URLLogicTests(TestCase):

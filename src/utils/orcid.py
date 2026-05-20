@@ -77,6 +77,8 @@ def is_token_valid(orcid_id, token):
     r = api_client._get_public_info(
         orcid_id, "record", token, None, "application/orcid+json"
     )
+    if r.status_code == 401:
+        raise ValidationError(f"Token associated with {orcid_id} is not valid.")
     return r.status_code == 200
 
 

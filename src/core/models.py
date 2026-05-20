@@ -44,6 +44,8 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.template.defaultfilters import date
+from django.utils import timezone
+
 import swapper
 
 from core import files, validators
@@ -961,7 +963,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def has_orcid_token(self):
-        if not self.orcid_token or datetime.datetime.now() > self.orcid_token_expiration:
+        if not self.orcid_token or timezone.now() > self.orcid_token_expiration:
             return False
         return True
 
@@ -972,8 +974,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
         # we only validate against the API when explicitly told to:
         # login, register or add validated orcid token
         if self.has_orcid_token:
-            return is_token_valid(self.orcid, self.orcid_token, self.orcid_token_expiration)
-        return True
+            try:
+                return is_token_valid(self.orcid, self.orcid_token)
+            except ValidationError as e:
+                self.orcid_token = ""
+                self.orcid_token_expiration = None
+                self.save()
+                logger.info(f"Removed token from {self}: {self.orcid}")
+                return False
+        return False
 
 
 def generate_expiry_date():
