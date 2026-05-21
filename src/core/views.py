@@ -238,7 +238,7 @@ def user_login_orcid(request):
         return orcid_register_action(request, orcid_id, next_url)
     # user is adding orcid through their profile
     elif action == "add_profile_orcid":
-        return orcid_add_action(request, orcid_id, access_token, expiration)
+        return orcid_add_action(request, orcid_id, next_url, access_token, expiration)
 
 def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
@@ -332,7 +332,7 @@ def orcid_register_action(request, orcid_id, next_url):
             )
         )
 
-def orcid_add_action(request, orcid_id, access_token, expiration):
+def orcid_add_action(request, orcid_id, next_url, access_token, expiration):
     if not request.user.is_authenticated:
         # this case is very unlikely but since this view
         # doesn't require a login check to ensure they are
