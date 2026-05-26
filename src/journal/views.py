@@ -2269,10 +2269,16 @@ def sitemap(request, issue_id=None):
     """
     Renders an XML sitemap based on articles and pages available to the journal.
     :param request: HttpRequest object
-    :param issue_id: Int, primary key of an Issue object
+    :param issue_id: Int primary key of an Issue object, or the sentinel
+        string "none" to serve the 'not in any issue' sub-sitemap.
     :return: HttpResponse object
     """
-    if issue_id:
+    if issue_id == "none":
+        path_parts = [
+            request.journal.code,
+            "no_issue_sitemap.xml",
+        ]
+    elif issue_id:
         issue = models.Issue.objects.get(
             pk=issue_id,
             journal=request.journal,
@@ -2286,6 +2292,34 @@ def sitemap(request, issue_id=None):
             request.journal.code,
             "sitemap.xml",
         ]
+    return core_views.sitemap(
+        request,
+        path_parts,
+    )
+
+
+def news_sitemap(request):
+    """
+    Serves the news sub-sitemap for the current journal.
+    """
+    path_parts = [
+        request.journal.code,
+        "news_sitemap.xml",
+    ]
+    return core_views.sitemap(
+        request,
+        path_parts,
+    )
+
+
+def pages_sitemap(request):
+    """
+    Serves the pages sub-sitemap for the current journal.
+    """
+    path_parts = [
+        request.journal.code,
+        "pages_sitemap.xml",
+    ]
     return core_views.sitemap(
         request,
         path_parts,

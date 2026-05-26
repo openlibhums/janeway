@@ -123,10 +123,16 @@ def repository_home(
 def sitemap(request, subject_id=None):
     """
     :param request: HttpRequest object
-    :param subject_id: Int, primary key of a Subject object
+    :param subject_id: Int primary key of a Subject object, or the sentinel
+        string "none" to serve the 'not in any subject' sub-sitemap.
     :return: HttpResponse
     """
-    if subject_id:
+    if subject_id == "none":
+        path_parts = [
+            request.repository.code,
+            "no_subject_sitemap.xml",
+        ]
+    elif subject_id:
         subject = get_object_or_404(
             models.Subject,
             pk=subject_id,
@@ -142,6 +148,20 @@ def sitemap(request, subject_id=None):
             "sitemap.xml",
         ]
 
+    return core_views.sitemap(
+        request,
+        path_parts,
+    )
+
+
+def pages_sitemap(request):
+    """
+    Serves the pages sub-sitemap for the current repository.
+    """
+    path_parts = [
+        request.repository.code,
+        "pages_sitemap.xml",
+    ]
     return core_views.sitemap(
         request,
         path_parts,
