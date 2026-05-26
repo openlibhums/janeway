@@ -1060,6 +1060,12 @@ def do_review(request, assignment_id):
                 if not assignment.date_accepted:
                     assignment.date_accepted = timezone.now()
 
+                if request.journal.get_setting(
+                    "general",
+                    "default_review_visible_to_author",
+                ):
+                    assignment.for_author_consumption = True
+
                 assignment.save()
 
                 kwargs = {"review_assignment": assignment, "request": request}

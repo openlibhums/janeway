@@ -10,6 +10,7 @@ import datetime
 
 from django.http import HttpRequest
 from django.test.client import QueryDict
+from django.urls import reverse
 from django.utils import translation, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -616,6 +617,21 @@ def create_reminder(journal=None, reminder_type=None):
         is_translatable=True,
     )
     setting_handler.save_setting("email", reminder.template_name, journal, "Test body")
+
+
+def submit_review(client, assignment, form_element, journal):
+    return client.post(
+        reverse(
+            "do_review",
+            kwargs={"assignment_id": assignment.pk},
+        ),
+        data={
+            "complete": "1",
+            "decision": "accept",
+            str(form_element.pk): "Looks good.",
+        },
+        SERVER_NAME=journal.domain,
+    )
 
     return reminder
 

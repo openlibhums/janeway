@@ -543,6 +543,12 @@ def get_settings_to_edit(display_group, journal, user):
                 ),
             },
             {
+                "name": "default_review_visible_to_author",
+                "object": setting_handler.get_setting(
+                    "general", "default_review_visible_to_author", journal
+                ),
+            },
+            {
                 "name": "accept_article_warning",
                 "object": setting_handler.get_setting(
                     "general", "accept_article_warning", journal
