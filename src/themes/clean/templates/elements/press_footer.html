@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load next_url %}
+{% load sitemap_tags %}
 
 <div class="row">
     <div class="col-md-7">
@@ -15,7 +16,7 @@
                     <li class="list-inline-item"><a
                             href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
                 {% endif %}
-                <li class="list-inline-item"><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
+                <li class="list-inline-item"><a href="{% page_sitemap_url request.resolver_match.url_name %}">{% trans "Sitemap" %}</a></li>
                 <li class="list-inline-item">
                   <a href="{% url 'press_contact' %}">
                     {% trans "Contact" %}

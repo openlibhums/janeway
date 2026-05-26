@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load next_url %}
+{% load sitemap_tags %}
 
 <div class="large-5 columns" data-equalizer-watch>
     <p>
@@ -12,7 +13,7 @@
       {% else %}
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
-        <li><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
+        <li><a href="{% page_sitemap_url request.resolver_match.url_name %}">{% trans "Sitemap" %}</a></li>
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         <li><a href="{% url 'press_contact' %}">{% trans "Contact" %}</a></li>
         <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
