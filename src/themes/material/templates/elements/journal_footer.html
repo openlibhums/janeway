@@ -1,3 +1,4 @@
+{% load sitemap_tags %}
 <div class="row expanded">
     <div class="col m10">
         <ul class="list-inline bar-sep">
@@ -39,6 +40,7 @@
                 {% trans "Privacy Policy" %}
             </a> </li>
             <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
+            <li><a href="{% page_sitemap_url request.resolver_match.url_name article %}">{% trans "Sitemap" %}</a></li>
         </ul>
     </div>
     <div class="col m2">
