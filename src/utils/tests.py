@@ -7,6 +7,7 @@ import codecs
 import io
 import json
 import os
+from unittest import expectedFailure
 
 from bs4 import BeautifulSoup
 
@@ -22,6 +23,7 @@ from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.template.engine import Engine
+from django.template.loader import render_to_string
 
 import mock
 from utils import (
@@ -46,18 +48,31 @@ from utils.forms import (
     KeywordModelForm,
     plain_text_validator,
 )
-from utils.logic import generate_sitemap
+from utils.logic import (
+    generate_sitemap,
+    build_press_index_context,
+    build_journal_index_context,
+    build_repo_index_context,
+    build_news_sitemap_context,
+    build_issue_sitemap_context,
+    build_subject_sitemap_context,
+    _suffixed_name,
+    _disambiguate_labels_by_date,
+)
 from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
 from utils.management.commands import check_mailgun_stat
 
+from cms import models as cms_models
 from journal import (
     models as journal_models,
     logic as journal_logic,
     forms as journal_forms,
 )
+from press import models as press_models
+from repository import models as repo_models
 from review import models as review_models
 from submission import models as submission_models
 from core import (
@@ -159,9 +174,8 @@ class UtilsTests(TestCase):
         # Setup issues for sitemap testing
         cls.issue_type, created = journal_models.IssueType.objects.get_or_create(
             journal=cls.journal_one,
-            code="test_issue_type",
-            pretty_name="Test Issue Type",
-            custom_plural="Test Issues Type",
+            code="issue",
+            defaults={"pretty_name": "Issue", "custom_plural": "Issues"},
         )
         cls.issue_one, created = journal_models.Issue.objects.get_or_create(
             journal=cls.journal_one,
@@ -213,6 +227,12 @@ class SitemapTests(UtilsTests):
         cls.news_item.posted = timezone.now() - timezone.timedelta(days=1)
         cls.news_item.save()
 
+        # Repository fixture for subject/no-subject sitemap tests.
+        cls.repo_manager_user = helpers.create_user("sm_repo_mgr@example.com")
+        cls.repository, cls.repo_subject = helpers.create_repository(
+            cls.press, [cls.repo_manager_user], []
+        )
+
     @override_settings(URL_CONFIG="path")
     def test_press_sitemap_generation(self):
         file = io.StringIO()
@@ -225,14 +245,11 @@ class SitemapTests(UtilsTests):
             soup.select("sitemap_name")[0].get_text(strip=True),
             "Press",
         )
-        self.assertEqual(
-            soup.select("loc_label")[0].get_text(strip=True),
-            "Home",
-        )
-        self.assertEqual(
-            soup.select("lastmod")[0].get_text(strip=True),
-            self.news_item.posted.isoformat(),
-        )
+        # The pages_sitemap.xml child is referenced with the owner-prefixed
+        # label "{owner.name} pages" (so labels stay unique under WCAG 2.4.4
+        # when listed alongside child journals/repos).
+        all_labels = [el.get_text(strip=True) for el in soup.select("loc_label")]
+        self.assertIn(f"{self.press.name} pages", all_labels)
 
     @override_settings(URL_CONFIG="path")
     def test_journal_sitemap_generation(self):
@@ -250,13 +267,13 @@ class SitemapTests(UtilsTests):
             soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
             "Press",
         )
-        self.assertEqual(
-            soup.select("sitemap urlset url loc")[0].get_text(strip=True),
-            self.journal_one.site_url(path="/"),
-        )
+        # pages_sitemap.xml child is the first entry, labelled with the
+        # owner-prefixed "{journal.name} pages".
+        all_labels = [el.get_text(strip=True) for el in soup.select("loc_label")]
+        self.assertIn(f"{self.journal_one.name} pages", all_labels)
         self.assertEqual(
             soup.select("sitemap > loc_label")[0].get_text(strip=True),
-            self.issue_one.non_pretty_issue_identifier,
+            f"{self.journal_one.name} pages",
         )
 
     @override_settings(URL_CONFIG="path")
@@ -283,6 +300,1062 @@ class SitemapTests(UtilsTests):
             soup.select("urlset url loc_label")[0].get_text(strip=True),
             self.article_one.title,
         )
+
+    # -------------------------------------------------------------------
+    # Context builder structural tests
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_context_builder_returns_required_keys(self):
+        """build_press_index_context returns a dict with all required keys."""
+        ctx = build_press_index_context(self.press)
+        self.assertIn("press", ctx)
+        self.assertIn("child_sitemaps", ctx)
+        self.assertIn("page_title", ctx)
+        self.assertIn("h1", ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_context_builder_page_title_and_h1(self):
+        """Press context page_title and h1 both equal 'Sitemap - {press.name}'."""
+        ctx = build_press_index_context(self.press)
+        expected = f"Sitemap - {self.press.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_context_builder_static_links_type(self):
+        """Press pages context links is a list of 3-tuples (url, label, lastmod)."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.press)
+        self.assertIsInstance(ctx["links"], list)
+        for item in ctx["links"]:
+            self.assertEqual(len(item), 3)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_context_builder_returns_required_keys(self):
+        """build_journal_index_context returns a dict with all required keys."""
+        ctx = build_journal_index_context(self.journal_one)
+        for key in (
+            "journal",
+            "child_sitemaps",
+            "parent_sitemap",
+            "page_title",
+            "h1",
+            "site_name",
+        ):
+            self.assertIn(key, ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_context_builder_page_title_and_h1(self):
+        """Journal context page_title and h1 both equal 'Sitemap - {journal.name}'."""
+        ctx = build_journal_index_context(self.journal_one)
+        expected = f"Sitemap - {self.journal_one.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_context_builder_returns_required_keys(self):
+        """build_issue_sitemap_context returns a dict with all required keys."""
+        ctx = build_issue_sitemap_context(self.issue_one, self.journal_one)
+        for key in (
+            "issue",
+            "journal",
+            "article_entries",
+            "parent_sitemap",
+            "page_title",
+            "h1",
+        ):
+            self.assertIn(key, ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_context_builder_page_title_contains_identifier(self):
+        """Issue context page_title includes the issue identifier and journal name."""
+        ctx = build_issue_sitemap_context(self.issue_one, self.journal_one)
+        self.assertIn(self.issue_one.non_pretty_issue_identifier, ctx["page_title"])
+        self.assertIn(self.journal_one.name, ctx["page_title"])
+
+    @override_settings(URL_CONFIG="path")
+    def test_no_issue_context_builder_page_title(self):
+        """'Not in any issue' context has correct page_title and h1."""
+        ctx = build_issue_sitemap_context(None, self.journal_one)
+        expected = f"Sitemap - Not in any issue, {self.journal_one.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_context_builder_press_page_title(self):
+        """Press news context has 'News sitemap - {press.name}' title."""
+        ctx = build_news_sitemap_context(self.press)
+        expected = f"News sitemap - {self.press.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_context_builder_journal_page_title(self):
+        """Journal news context has 'News sitemap - {journal.name}' title."""
+        ctx = build_news_sitemap_context(self.journal_one)
+        expected = f"News sitemap - {self.journal_one.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_context_builder_returns_required_keys(self):
+        """build_news_sitemap_context returns a dict with all required keys."""
+        ctx = build_news_sitemap_context(self.press)
+        for key in ("owner", "news_items", "parent_sitemap", "page_title", "h1"):
+            self.assertIn(key, ctx)
+
+    def test_write_news_sitemap_for_press_uses_root_path(self):
+        """write_news_sitemap for a press writes to the sitemaps root, not a subdirectory.
+
+        The press news sitemap is served from /news_sitemap.xml (path_parts=[]).
+        A previous bug used [press.code] as path_parts, writing to /{press.code}/news_sitemap.xml
+        which the view could not find.
+        """
+        from unittest.mock import patch, mock_open
+        from utils.logic import write_news_sitemap
+
+        with (
+            patch(
+                "utils.logic.get_sitemap_path", return_value="/tmp/news_sitemap.xml"
+            ) as mock_gsp,
+            patch("utils.logic.render_to_string", return_value="<xml/>"),
+            patch("builtins.open", mock_open()),
+        ):
+            write_news_sitemap(self.press)
+
+        mock_gsp.assert_called_once_with(path_parts=[], file_name="news_sitemap.xml")
+
+    # -------------------------------------------------------------------
+    # static_links: alphabetical order, no URL duplicates
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_static_links_are_alphabetical(self):
+        """Press pages links are sorted alphabetically by label (case-insensitive)."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.press)
+        labels = [label for _url, label, _lastmod in ctx["links"]]
+        self.assertEqual(labels, sorted(labels, key=str.lower))
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_static_links_no_url_duplicates(self):
+        """Press pages links contain no duplicate URLs."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.press)
+        urls = [url for url, _label, _lastmod in ctx["links"]]
+        self.assertEqual(len(urls), len(set(urls)))
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_static_links_are_alphabetical(self):
+        """Journal pages links are sorted alphabetically by label (case-insensitive)."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.journal_one)
+        labels = [label for _url, label, _lastmod in ctx["links"]]
+        self.assertEqual(labels, sorted(labels, key=str.lower))
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_static_links_no_url_duplicates(self):
+        """Journal pages links contain no duplicate URLs."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.journal_one)
+        urls = [url for url, _label, _lastmod in ctx["links"]]
+        self.assertEqual(len(urls), len(set(urls)))
+
+    # -------------------------------------------------------------------
+    # News items: -posted ordering
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_context_builder_news_items_ordered_by_posted_descending(self):
+        """News context news_items are ordered by posted descending (newest first)."""
+        # Create two journal news items with different posted dates.
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        older = helpers.create_news_item(journal_ct, self.journal_one.pk)
+        older.start_display = timezone.now() - timezone.timedelta(days=5)
+        older.posted = timezone.now() - timezone.timedelta(days=5)
+        older.save()
+
+        newer = helpers.create_news_item(journal_ct, self.journal_one.pk)
+        newer.start_display = timezone.now() - timezone.timedelta(days=1)
+        newer.posted = timezone.now() - timezone.timedelta(days=1)
+        newer.save()
+
+        try:
+            ctx = build_news_sitemap_context(self.journal_one)
+            posted_dates = [item["posted"] for item in ctx["news_items"]]
+            self.assertEqual(posted_dates, sorted(posted_dates, reverse=True))
+        finally:
+            older.delete()
+            newer.delete()
+
+    # -------------------------------------------------------------------
+    # News listing canonical: gated by nav_news AND active_news_items
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_listing_excluded_from_static_links_when_no_news_items(self):
+        """The /news/ canonical is absent from the journal pages sitemap when
+        the journal has no active news items, even if nav_news is enabled."""
+        from utils.logic import build_pages_sitemap_context
+
+        original_nav_news = self.journal_one.nav_news
+        self.journal_one.nav_news = True
+        self.journal_one.save()
+        try:
+            ctx = build_pages_sitemap_context(self.journal_one)
+            urls = [url for url, _label, _lastmod in ctx["links"]]
+            self.assertFalse(any("/news/" in u for u in urls))
+        finally:
+            self.journal_one.nav_news = original_nav_news
+            self.journal_one.save()
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_listing_included_in_static_links_when_news_items_exist(self):
+        """The /news/ canonical is present in the journal pages sitemap when
+        nav_news is enabled AND the journal has at least one active news item."""
+        from utils.logic import build_pages_sitemap_context
+
+        # Django caches ContentType lookups process-wide; that cache survives
+        # the test DB being recreated, so get_for_model can hand back IDs from
+        # a previous DB.  Clear it before we trust it.
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        news = helpers.create_news_item(journal_ct, self.journal_one.pk)
+        news.start_display = (timezone.now() - timezone.timedelta(days=1)).date()
+        news.posted = timezone.now() - timezone.timedelta(days=1)
+        news.save()
+        original_nav_news = self.journal_one.nav_news
+        self.journal_one.nav_news = True
+        self.journal_one.save()
+        try:
+            ctx = build_pages_sitemap_context(self.journal_one)
+            urls = [url for url, _label, _lastmod in ctx["links"]]
+            self.assertTrue(any("/news/" in u for u in urls))
+        finally:
+            self.journal_one.nav_news = original_nav_news
+            self.journal_one.save()
+            news.delete()
+
+    # -------------------------------------------------------------------
+    # "Not in any issue" sub-sitemap
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_issue_listed_in_journal_context_when_articles_exist(self):
+        """Journal context child_sitemaps includes 'Not in any issue' when orphan articles exist."""
+        # article_one is already in issue_one via cls.issue_one.articles.add(cls.article_one).
+        # Create a published article NOT in any issue.
+        orphan = submission_models.Article.objects.create(
+            journal=self.journal_one,
+            owner=self.author,
+            title="Orphan Article",
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+        )
+        try:
+            self.assertTrue(self.journal_one.published_articles_not_in_issues.exists())
+            ctx = build_journal_index_context(self.journal_one)
+            child_labels = [child["label"] for child in ctx["child_sitemaps"]]
+            self.assertIn("Not in any issue", child_labels)
+        finally:
+            orphan.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_issue_absent_from_journal_context_when_no_orphan_articles(self):
+        """Journal context child_sitemaps omits 'Not in any issue' when no orphan articles exist."""
+        # Ensure no orphan articles for journal_two (which has no articles at all).
+        self.assertFalse(self.journal_two.published_articles_not_in_issues.exists())
+        ctx = build_journal_index_context(self.journal_two)
+        child_labels = [child["label"] for child in ctx["child_sitemaps"]]
+        self.assertNotIn("Not in any issue", child_labels)
+
+    @override_settings(URL_CONFIG="path")
+    def test_empty_issue_excluded_from_journal_child_sitemaps(self):
+        """An issue with no articles is not listed in the journal sitemap's child_sitemaps."""
+        empty_issue = helpers.create_issue(self.journal_one, vol=99, number=99)
+        self.assertFalse(empty_issue.get_sorted_articles().exists())
+        try:
+            ctx = build_journal_index_context(self.journal_one)
+            child_locs = [child["loc"] for child in ctx["child_sitemaps"]]
+            issue_url = f"{self.journal_one.site_url()}{reverse('journal_sitemap', kwargs={'issue_id': empty_issue.pk})}"
+            self.assertNotIn(issue_url, child_locs)
+        finally:
+            empty_issue.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_with_articles_included_in_journal_child_sitemaps(self):
+        """An issue with articles is listed in the journal sitemap's child_sitemaps."""
+        ctx = build_journal_index_context(self.journal_one)
+        child_locs = [child["loc"] for child in ctx["child_sitemaps"]]
+        issue_url = f"{self.journal_one.site_url()}{reverse('journal_sitemap', kwargs={'issue_id': self.issue_one.pk})}"
+        self.assertIn(issue_url, child_locs)
+
+    @override_settings(URL_CONFIG="path")
+    def test_no_issue_context_builder_uses_published_articles_not_in_issues(self):
+        """'Not in any issue' context article_entries contains the journal's orphan articles."""
+        ctx = build_issue_sitemap_context(None, self.journal_one)
+        expected_pks = set(
+            self.journal_one.published_articles_not_in_issues.values_list(
+                "pk", flat=True
+            )
+        )
+        actual_pks = {entry["pk"] for entry in ctx["article_entries"]}
+        self.assertEqual(actual_pks, expected_pks)
+
+    # -------------------------------------------------------------------
+    # "Not in any subject" sub-sitemap
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_no_subject_context_builder_page_title(self):
+        """'Not in any subject' context has correct page_title and h1."""
+        ctx = build_subject_sitemap_context(None, self.repository)
+        expected = f"Sitemap - Not in any subject, {self.repository.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_no_subject_context_builder_returns_required_keys(self):
+        """build_subject_sitemap_context(None, repo) returns a dict with all required keys."""
+        ctx = build_subject_sitemap_context(None, self.repository)
+        for key in (
+            "subject",
+            "repo",
+            "preprint_entries",
+            "parent_sitemap",
+            "page_title",
+            "h1",
+        ):
+            self.assertIn(key, ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_subject_listed_in_repo_context_when_preprints_exist(self):
+        """Repo context child_sitemaps includes 'Not in any subject' when orphan preprints exist."""
+        # Create a published preprint with no subject.
+        author = helpers.create_user("orphan_author@example.com")
+        orphan = repo_models.Preprint.objects.create(
+            repository=self.repository,
+            owner=author,
+            stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+            title="Orphan Preprint",
+            abstract="No subject here.",
+            comments_editor="",
+            date_submitted=timezone.now(),
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+        )
+        # No subject added — so subject is empty.
+        try:
+            self.assertTrue(logic._preprints_without_subject(self.repository).exists())
+            ctx = build_repo_index_context(self.repository)
+            child_labels = [child["label"] for child in ctx["child_sitemaps"]]
+            self.assertIn("Not in any subject", child_labels)
+        finally:
+            orphan.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_subject_absent_from_repo_context_when_no_orphan_preprints(self):
+        """Repo context child_sitemaps omits 'Not in any subject' when no orphan preprints."""
+        # No preprints were created for this repository, so preprints_without_subject is empty.
+        # This test verifies the omission when the queryset is empty.
+        self.assertFalse(logic._preprints_without_subject(self.repository).exists())
+        ctx = build_repo_index_context(self.repository)
+        child_labels = [child["label"] for child in ctx["child_sitemaps"]]
+        self.assertNotIn("Not in any subject", child_labels)
+
+    @override_settings(URL_CONFIG="path")
+    def test_empty_subject_excluded_from_repo_child_sitemaps(self):
+        """A subject with no published preprints is not listed in the repo sitemap's child_sitemaps."""
+        empty_subject, _ = repo_models.Subject.objects.get_or_create(
+            repository=self.repository,
+            name="Empty Subject",
+            slug="empty-subject",
+            defaults={"enabled": True},
+        )
+        self.assertFalse(empty_subject.published_preprints().exists())
+        try:
+            ctx = build_repo_index_context(self.repository)
+            child_locs = [child["loc"] for child in ctx["child_sitemaps"]]
+            subject_url = f"{self.repository.site_url()}{reverse('repository_sitemap', kwargs={'subject_id': empty_subject.pk})}"
+            self.assertNotIn(subject_url, child_locs)
+        finally:
+            empty_subject.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_subject_with_preprints_included_in_repo_child_sitemaps(self):
+        """A subject with published preprints is listed in the repo sitemap's child_sitemaps."""
+        author = helpers.create_user("subject_preprint_author@example.com")
+        preprint = repo_models.Preprint.objects.create(
+            repository=self.repository,
+            owner=author,
+            stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+            title="Subject Preprint",
+            abstract="Has a subject.",
+            comments_editor="",
+            date_submitted=timezone.now(),
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+        )
+        preprint.subject.add(self.repo_subject)
+        try:
+            ctx = build_repo_index_context(self.repository)
+            child_locs = [child["loc"] for child in ctx["child_sitemaps"]]
+            subject_url = f"{self.repository.site_url()}{reverse('repository_sitemap', kwargs={'subject_id': self.repo_subject.pk})}"
+            self.assertIn(subject_url, child_locs)
+        finally:
+            preprint.delete()
+
+    # -------------------------------------------------------------------
+    # Rendered XML contains <janeway:page_title> and <janeway:h1>
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered press sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        file = io.StringIO()
+        generate_sitemap(file=file, press=self.press)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        expected = f"Sitemap - {self.press.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered journal sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        file = io.StringIO()
+        generate_sitemap(file=file, journal=self.journal_one)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        expected = f"Sitemap - {self.journal_one.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered issue sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        file = io.StringIO()
+        generate_sitemap(file=file, issue=self.issue_one)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        expected_fragment = self.issue_one.non_pretty_issue_identifier
+        self.assertIn(
+            expected_fragment,
+            soup.select("page_title")[0].get_text(strip=True),
+        )
+        self.assertIn(
+            expected_fragment,
+            soup.select("h1")[0].get_text(strip=True),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_repo_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered repository sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        file = io.StringIO()
+        generate_sitemap(file=file, repository=self.repository)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        expected = f"Sitemap - {self.repository.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_subject_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered subject sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        file = io.StringIO()
+        generate_sitemap(file=file, subject=self.repo_subject)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        expected = f"Sitemap - {self.repo_subject.name}, {self.repository.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_news_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered press news sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        ctx = build_news_sitemap_context(self.press)
+        xml = render_to_string("common/news_sitemap.xml", ctx)
+        soup = BeautifulSoup(xml, "xml")
+        expected = f"News sitemap - {self.press.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_news_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered journal news sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        ctx = build_news_sitemap_context(self.journal_one)
+        xml = render_to_string("common/news_sitemap.xml", ctx)
+        soup = BeautifulSoup(xml, "xml")
+        expected = f"News sitemap - {self.journal_one.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_issue_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered 'not in any issue' sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        ctx = build_issue_sitemap_context(None, self.journal_one)
+        xml = render_to_string("common/issue_sitemap.xml", ctx)
+        soup = BeautifulSoup(xml, "xml")
+        expected = f"Sitemap - Not in any issue, {self.journal_one.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_not_in_any_subject_sitemap_xml_contains_page_title_and_h1(self):
+        """Rendered 'not in any subject' sitemap XML contains <janeway:page_title> and <janeway:h1>."""
+        ctx = build_subject_sitemap_context(None, self.repository)
+        xml = render_to_string("common/subject_sitemap.xml", ctx)
+        soup = BeautifulSoup(xml, "xml")
+        expected = f"Sitemap - Not in any subject, {self.repository.name}"
+        self.assertEqual(soup.select("page_title")[0].get_text(strip=True), expected)
+        self.assertEqual(soup.select("h1")[0].get_text(strip=True), expected)
+
+    # -------------------------------------------------------------------
+    # sitemap_level key in context dicts
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_press_context(self):
+        """build_press_index_context returns sitemap_level='press'."""
+        ctx = build_press_index_context(self.press)
+        self.assertEqual(ctx["sitemap_level"], "press")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_journal_context(self):
+        """build_journal_index_context returns sitemap_level='journal'."""
+        ctx = build_journal_index_context(self.journal_one)
+        self.assertEqual(ctx["sitemap_level"], "journal")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_issue_context(self):
+        """build_issue_sitemap_context returns sitemap_level='issue' for a real issue."""
+        ctx = build_issue_sitemap_context(self.issue_one, self.journal_one)
+        self.assertEqual(ctx["sitemap_level"], "issue")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_not_in_issue_context(self):
+        """build_issue_sitemap_context returns sitemap_level='not-in-any-issue' for None."""
+        ctx = build_issue_sitemap_context(None, self.journal_one)
+        self.assertEqual(ctx["sitemap_level"], "not-in-any-issue")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_press_news_context(self):
+        """build_news_sitemap_context returns sitemap_level='press-news' for press owner."""
+        ctx = build_news_sitemap_context(self.press)
+        self.assertEqual(ctx["sitemap_level"], "press-news")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_journal_news_context(self):
+        """build_news_sitemap_context returns sitemap_level='journal-news' for journal owner."""
+        ctx = build_news_sitemap_context(self.journal_one)
+        self.assertEqual(ctx["sitemap_level"], "journal-news")
+
+    # -------------------------------------------------------------------
+    # Name-clash disambiguation helpers
+    # -------------------------------------------------------------------
+
+    def test_suffixed_name_adds_suffix_when_clash(self):
+        """_suffixed_name appends suffix when name is in clash_names."""
+        result = _suffixed_name("Clash Name", {"Clash Name"}, "[journal]")
+        self.assertEqual(result, "Clash Name [journal]")
+
+    def test_suffixed_name_unchanged_when_no_clash(self):
+        """_suffixed_name returns name unchanged when name is not in clash_names."""
+        result = _suffixed_name("My Journal", {"Other Name"}, "[journal]")
+        self.assertEqual(result, "My Journal")
+
+    @override_settings(URL_CONFIG="path")
+    def test_name_clash_adds_journal_suffix_in_press_child_sitemaps(self):
+        """When press name matches a journal name, child sitemap label gets [journal] suffix.
+
+        Press.name is a plain DB field (no caching), so changing it in-memory is
+        enough for _build_clash_names to detect the clash without touching the DB.
+        """
+        original_press_name = self.press.name
+        self.press.name = self.journal_one.name
+        try:
+            ctx = build_press_index_context(self.press)
+            journal_labels = [
+                child["label"]
+                for child in ctx["child_sitemaps"]
+                if child["group"] == "journals"
+            ]
+            self.assertTrue(
+                any(
+                    f"{self.journal_one.name} [journal]" == label
+                    for label in journal_labels
+                ),
+                f"Expected '[journal]' suffix in labels: {journal_labels}",
+            )
+        finally:
+            self.press.name = original_press_name
+
+    @override_settings(URL_CONFIG="path")
+    def test_no_clash_no_suffix_in_press_child_sitemaps(self):
+        """When journal names do not clash, no suffix is added to child sitemap labels."""
+        ctx = build_press_index_context(self.press)
+        journal_labels = [
+            child["label"]
+            for child in ctx["child_sitemaps"]
+            if child["group"] == "journals"
+        ]
+        self.assertFalse(
+            any("[journal]" in label for label in journal_labels),
+            f"Unexpected '[journal]' suffix in labels: {journal_labels}",
+        )
+
+    # -------------------------------------------------------------------
+    # _disambiguate_labels_by_date unit tests
+    # -------------------------------------------------------------------
+
+    def test_disambiguate_labels_by_date_no_clash(self):
+        """Entries with distinct titles are returned unchanged."""
+        from datetime import date
+
+        entries = [
+            {"title": "Alpha", "date": date(2020, 1, 1)},
+            {"title": "Beta", "date": date(2020, 2, 1)},
+        ]
+        _disambiguate_labels_by_date(entries)
+        self.assertEqual(entries[0]["title"], "Alpha")
+        self.assertEqual(entries[1]["title"], "Beta")
+
+    def test_disambiguate_labels_by_date_year_sufficient(self):
+        """Clashing titles are resolved with [year] when years differ."""
+        from datetime import date
+
+        entries = [
+            {"title": "News", "date": date(2020, 1, 1)},
+            {"title": "News", "date": date(2021, 6, 1)},
+        ]
+        _disambiguate_labels_by_date(entries)
+        titles = [e["title"] for e in entries]
+        self.assertIn("News [2020]", titles)
+        self.assertIn("News [2021]", titles)
+
+    def test_disambiguate_labels_by_date_month_needed(self):
+        """When years clash, [Mon YYYY] is used."""
+        from datetime import date
+
+        entries = [
+            {"title": "News", "date": date(2020, 1, 1)},
+            {"title": "News", "date": date(2020, 6, 1)},
+        ]
+        _disambiguate_labels_by_date(entries)
+        titles = [e["title"] for e in entries]
+        self.assertIn("News [Jan 2020]", titles)
+        self.assertIn("News [Jun 2020]", titles)
+
+    def test_disambiguate_labels_by_date_sequential_fallback(self):
+        """When even day-level dates clash, sequential [#N] suffixes are used."""
+        from datetime import date
+
+        entries = [
+            {"title": "News", "date": date(2020, 1, 1)},
+            {"title": "News", "date": date(2020, 1, 1)},
+        ]
+        _disambiguate_labels_by_date(entries)
+        titles = [e["title"] for e in entries]
+        self.assertIn("News [#1]", titles)
+        self.assertIn("News [#2]", titles)
+
+    def test_disambiguate_labels_by_date_case_insensitive(self):
+        """Titles that differ only in case are treated as clashing."""
+        from datetime import date
+
+        entries = [
+            {"title": "My Article", "date": date(2020, 1, 1)},
+            {"title": "my article", "date": date(2021, 3, 15)},
+        ]
+        _disambiguate_labels_by_date(entries)
+        titles = [e["title"] for e in entries]
+        self.assertIn("My Article [2020]", titles)
+        self.assertIn("my article [2021]", titles)
+
+    # -------------------------------------------------------------------
+    # Issue label deduplication
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_labels_disambiguated_when_clashing(self):
+        """Issues with identical non_pretty_issue_identifier get PK-disambiguated labels."""
+        issue_two = journal_models.Issue.objects.create(
+            journal=self.journal_one,
+            volume=self.issue_one.volume,
+            issue=self.issue_one.issue,
+            issue_title=self.issue_one.issue_title,
+            issue_type=self.issue_type,
+            date=self.issue_one.date,
+        )
+        try:
+            ctx = build_journal_index_context(self.journal_one)
+            issue_labels = [
+                child["label"]
+                for child in ctx["child_sitemaps"]
+                if child["group"] == "issues" and child["label"] != "Not in any issue"
+            ]
+            self.assertEqual(
+                len(set(issue_labels)),
+                len(issue_labels),
+                f"Duplicate issue labels found: {issue_labels}",
+            )
+            for label in issue_labels:
+                self.assertIn(self.issue_one.non_pretty_issue_identifier, label)
+        finally:
+            issue_two.delete()
+
+    # -------------------------------------------------------------------
+    # level2 XML contains janeway:group
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_level2_xml_child_sitemaps_contain_group_element(self):
+        """Rendered level2 sitemap XML includes <janeway:group> on each child sitemap."""
+        import io as _io
+
+        file = _io.StringIO()
+        generate_sitemap(file=file, journal=self.journal_one)
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        child_groups = soup.select("sitemapindex > sitemap > group")
+        self.assertTrue(
+            len(child_groups) > 0,
+            "Expected at least one <janeway:group> in child sitemaps",
+        )
+
+
+class SitemapRepoTests(TestCase):
+    """Sitemap tests requiring a repository fixture."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.repo_manager = helpers.create_user("repo_mgr_sitemap@example.com")
+        cls.repo_author = helpers.create_user("repo_author_sitemap@example.com")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.repo_manager], []
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_repo_context_builder_returns_required_keys(self):
+        """build_repo_index_context returns a dict with all required keys."""
+        ctx = build_repo_index_context(self.repository)
+        for key in (
+            "repo",
+            "child_sitemaps",
+            "parent_sitemap",
+            "page_title",
+            "h1",
+            "site_name",
+        ):
+            self.assertIn(key, ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_repo_context_builder_page_title_and_h1(self):
+        """Repo context page_title and h1 both equal 'Sitemap - {repo.name}'."""
+        ctx = build_repo_index_context(self.repository)
+        expected = f"Sitemap - {self.repository.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    @override_settings(URL_CONFIG="path")
+    def test_repo_static_links_are_alphabetical(self):
+        """Repo pages links are sorted alphabetically by label (case-insensitive)."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.repository)
+        labels = [label for _url, label, _lastmod in ctx["links"]]
+        self.assertEqual(labels, sorted(labels, key=str.lower))
+
+    @override_settings(URL_CONFIG="path")
+    def test_subject_context_builder_returns_required_keys(self):
+        """build_subject_sitemap_context returns a dict with all required keys."""
+        ctx = build_subject_sitemap_context(self.subject, self.repository)
+        for key in (
+            "subject",
+            "repo",
+            "preprint_entries",
+            "parent_sitemap",
+            "page_title",
+            "h1",
+        ):
+            self.assertIn(key, ctx)
+
+    @override_settings(URL_CONFIG="path")
+    def test_subject_context_builder_page_title(self):
+        """Subject context page_title includes subject name and repo name."""
+        ctx = build_subject_sitemap_context(self.subject, self.repository)
+        expected = f"Sitemap - {self.subject.name}, {self.repository.name}"
+        self.assertEqual(ctx["page_title"], expected)
+        self.assertEqual(ctx["h1"], expected)
+
+    # -------------------------------------------------------------------
+    # sitemap_level for repo / subject / not-in-any-subject
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_repo_context(self):
+        """build_repo_index_context returns sitemap_level='repository'."""
+        ctx = build_repo_index_context(self.repository)
+        self.assertEqual(ctx["sitemap_level"], "repository")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_subject_context(self):
+        """build_subject_sitemap_context returns sitemap_level='subject' for a real subject."""
+        ctx = build_subject_sitemap_context(self.subject, self.repository)
+        self.assertEqual(ctx["sitemap_level"], "subject")
+
+    @override_settings(URL_CONFIG="path")
+    def test_sitemap_level_in_not_in_subject_context(self):
+        """build_subject_sitemap_context returns sitemap_level='not-in-any-subject' for None."""
+        ctx = build_subject_sitemap_context(None, self.repository)
+        self.assertEqual(ctx["sitemap_level"], "not-in-any-subject")
+
+
+class PageSitemapURLTagTests(TestCase):
+    """Tests for the page_sitemap_url template tag (§5 table in the plan)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one = journal_models.Journal.objects.get(
+            code="TST", domain="testserver"
+        )
+        cls.repo_manager = helpers.create_user("repo_mgr_tag@example.com")
+        cls.repo_author = helpers.create_user("repo_author_tag@example.com")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.repo_manager], []
+        )
+
+        # Published article in an issue.
+        cls.issue_type, _ = journal_models.IssueType.objects.get_or_create(
+            journal=cls.journal_one,
+            code="tag_test_issue_type",
+            pretty_name="Tag Test Issue Type",
+            custom_plural="Tag Test Issues",
+        )
+        cls.issue, _ = journal_models.Issue.objects.get_or_create(
+            journal=cls.journal_one,
+            volume="2",
+            issue="1",
+            issue_title="V 2 I 1",
+            issue_type=cls.issue_type,
+        )
+        cls.author = helpers.create_author(cls.journal_one)
+        cls.section, _ = submission_models.Section.objects.get_or_create(
+            journal=cls.journal_one,
+            name="Tag Test Section",
+        )
+        cls.article_in_issue = submission_models.Article.objects.create(
+            journal=cls.journal_one,
+            owner=cls.author,
+            title="Article in issue (tag test)",
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+            section=cls.section,
+        )
+        cls.issue.articles.add(cls.article_in_issue)
+
+        cls.article_not_in_issue = submission_models.Article.objects.create(
+            journal=cls.journal_one,
+            owner=cls.author,
+            title="Article not in issue (tag test)",
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+            section=cls.section,
+        )
+
+        cls.preprint_with_subject = helpers.create_preprint(
+            cls.repository, cls.repo_author, cls.subject
+        )
+        cls.preprint_with_subject.stage = repo_models.STAGE_PREPRINT_PUBLISHED
+        cls.preprint_with_subject.date_published = timezone.now() - timezone.timedelta(
+            hours=1
+        )
+        cls.preprint_with_subject.save()
+
+        cls.preprint_no_subject = repo_models.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.repo_author,
+            stage=repo_models.STAGE_PREPRINT_PUBLISHED,
+            title="No Subject Preprint (tag test)",
+            abstract="Abstract.",
+            comments_editor="",
+            date_submitted=timezone.now(),
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+        )
+        # No subject added to preprint_no_subject.
+
+    def _make_tag_context(self, request):
+        """Returns a minimal template tag context containing the request."""
+        return {"request": request}
+
+    def _press_request(self):
+        """Returns a fake press-scoped request."""
+        req = helpers.Request()
+        req.press = self.press
+        req.journal = None
+        req.repository = None
+        return req
+
+    def _journal_request(self):
+        """Returns a fake journal-scoped request."""
+        req = helpers.Request()
+        req.press = self.press
+        req.journal = self.journal_one
+        req.repository = None
+        return req
+
+    def _repo_request(self):
+        """Returns a fake repository-scoped request."""
+        req = helpers.Request()
+        req.press = self.press
+        req.journal = None
+        req.repository = self.repository
+        return req
+
+    # Import the tag function at test time to avoid top-level circular issues.
+    def _call_tag(self, context, view_name, obj=None):
+        from core.templatetags.sitemap_tags import page_sitemap_url
+
+        return page_sitemap_url(context, view_name, obj)
+
+    # §5 table row: Press home / press CMS / press editorial / press contact
+    @override_settings(URL_CONFIG="path")
+    def test_press_home_returns_press_sitemap(self):
+        ctx = self._make_tag_context(self._press_request())
+        url = self._call_tag(ctx, "website_index")
+        self.assertTrue(url.endswith("/sitemap.xml"))
+        self.assertIn(self.press.site_url(), url)
+
+    # §5 table row: Press news item
+    @override_settings(URL_CONFIG="path")
+    def test_press_news_item_returns_press_news_sitemap(self):
+        ctx = self._make_tag_context(self._press_request())
+        url = self._call_tag(ctx, "core_news_item")
+        self.assertTrue(url.endswith("/news_sitemap.xml"))
+        self.assertIn(self.press.site_url(), url)
+
+    # §5 table row: Press CMS page
+    @override_settings(URL_CONFIG="path")
+    def test_press_cms_page_returns_press_pages_sitemap(self):
+        ctx = self._make_tag_context(self._press_request())
+        url = self._call_tag(ctx, "cms_page")
+        self.assertTrue(url.endswith("/pages_sitemap.xml"))
+        self.assertIn(self.press.site_url(), url)
+
+    # Journal home
+    @override_settings(URL_CONFIG="path")
+    def test_journal_home_returns_journal_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "website_index")
+        self.assertTrue(url.endswith("/sitemap.xml"))
+        self.assertIn(self.journal_one.site_url(), url)
+
+    # §5 table row: Journal news item
+    @override_settings(URL_CONFIG="path")
+    def test_journal_news_item_returns_journal_news_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "core_news_item")
+        self.assertTrue(url.endswith("/news_sitemap.xml"))
+        self.assertIn(self.journal_one.site_url(), url)
+
+    # §5 table row: Journal CMS page
+    @override_settings(URL_CONFIG="path")
+    def test_journal_cms_page_returns_journal_pages_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "cms_page")
+        self.assertTrue(url.endswith("/pages_sitemap.xml"))
+        self.assertIn(self.journal_one.site_url(), url)
+
+    # §5 table row: Article (in an issue)
+    @override_settings(URL_CONFIG="path")
+    def test_article_in_issue_returns_issue_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "article_view", self.article_in_issue)
+        # Should be the issue sitemap URL, which includes the issue PK.
+        self.assertIn(str(self.issue.pk), url)
+        self.assertTrue(url.endswith("_sitemap.xml"))
+
+    # §5 table row: Article (not in an issue)
+    @override_settings(URL_CONFIG="path")
+    def test_article_not_in_issue_returns_no_issue_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "article_view", self.article_not_in_issue)
+        self.assertIn("no_issue_sitemap", url)
+
+    # §5 table row: Issue listing — not home, not article/news, so → static sitemap
+    @override_settings(URL_CONFIG="path")
+    def test_issue_listing_returns_journal_pages_sitemap(self):
+        ctx = self._make_tag_context(self._journal_request())
+        url = self._call_tag(ctx, "journal_issues")
+        self.assertTrue(url.endswith("/pages_sitemap.xml"))
+        self.assertIn(self.journal_one.site_url(), url)
+
+    # §5 table row: Repository home / about / list
+    @override_settings(URL_CONFIG="path")
+    def test_repo_home_returns_repo_sitemap(self):
+        ctx = self._make_tag_context(self._repo_request())
+        url = self._call_tag(ctx, "website_index")
+        self.assertTrue(url.endswith("/sitemap.xml"))
+        self.assertIn(self.repository.site_url(), url)
+
+    # §5 table row: Repository CMS page
+    @override_settings(URL_CONFIG="path")
+    def test_repo_cms_page_returns_repo_pages_sitemap(self):
+        ctx = self._make_tag_context(self._repo_request())
+        url = self._call_tag(ctx, "cms_page")
+        self.assertTrue(url.endswith("/pages_sitemap.xml"))
+        self.assertIn(self.repository.site_url(), url)
+
+    # §5 table row: Preprint (with subject)
+    @override_settings(URL_CONFIG="path")
+    def test_preprint_with_subject_returns_subject_sitemap(self):
+        ctx = self._make_tag_context(self._repo_request())
+        url = self._call_tag(ctx, "repository_preprint", self.preprint_with_subject)
+        self.assertIn(str(self.subject.pk), url)
+        self.assertTrue(url.endswith("_sitemap.xml"))
+
+    # §5 table row: Preprint (no subject)
+    @override_settings(URL_CONFIG="path")
+    def test_preprint_no_subject_returns_no_subject_sitemap(self):
+        ctx = self._make_tag_context(self._repo_request())
+        url = self._call_tag(ctx, "repository_preprint", self.preprint_no_subject)
+        self.assertIn("no_subject_sitemap", url)
+
+    # Preprint with multiple subjects → footer links to first-by-name subject.
+    @override_settings(URL_CONFIG="path")
+    def test_preprint_multi_subject_footer_links_to_first_alphabetical_subject(self):
+        """When a preprint has two subjects, the footer sitemap URL points to
+        the subject whose name sorts first alphabetically, not the first by pk."""
+        subject_a = repo_models.Subject.objects.create(
+            repository=self.repository,
+            name="Aardvark Studies",
+            slug="tag-aardvark",
+        )
+        subject_z = repo_models.Subject.objects.create(
+            repository=self.repository,
+            name="Zoology",
+            slug="tag-zoology",
+        )
+        # Add both subjects; subject_z has a lower pk (created first in some
+        # orderings) so without order_by("name") the wrong one could be returned.
+        self.preprint_with_subject.subject.set([subject_a, subject_z])
+        try:
+            ctx = self._make_tag_context(self._repo_request())
+            url = self._call_tag(ctx, "repository_preprint", self.preprint_with_subject)
+            self.assertIn(str(subject_a.pk), url)
+            self.assertNotIn(str(subject_z.pk), url)
+        finally:
+            self.preprint_with_subject.subject.set([self.subject])
+            subject_a.delete()
+            subject_z.delete()
+
+    # Edge case: missing request in context returns empty string.
+    def test_missing_request_returns_empty_string(self):
+        url = self._call_tag({}, "website_index")
+        self.assertEqual(url, "")
 
 
 class TransactionalReviewEmailTests(UtilsTests):
@@ -1062,6 +2135,321 @@ class TestThemeMiddleware(TestCase):
                     os.path.join(settings.BASE_DIR, "themes", "OLH", "templates"),
                 ],
             )
+
+
+class PlainLabelTests(SitemapTests):
+    """Unit tests for _plain_label — the function that converts HTML titles to plain text
+    before they enter the XML sitemap context.
+
+    Inherits from SitemapTests so that self.press, self.journal_one,
+    self.issue_one and self.repository fixtures are available for the
+    rendering and schema-validation tests below.
+    """
+
+    def setUp(self):
+        from utils.logic import _plain_label
+
+        self.plain_label = _plain_label
+
+    def test_strips_html_tags(self):
+        self.assertEqual(self.plain_label("<em>italics</em>"), "italics")
+
+    def test_decodes_amp_entity(self):
+        self.assertEqual(self.plain_label("A &amp; B"), "A & B")
+
+    def test_strips_tags_and_decodes_entities(self):
+        """HTML stored in DB as <em>text &amp; more</em> produces clean plain text."""
+        self.assertEqual(self.plain_label("<em>Test &amp; thing</em>"), "Test & thing")
+
+    def test_decodes_lt_gt_entities(self):
+        self.assertEqual(self.plain_label("A &lt;em&gt; B"), "A <em> B")
+
+    def test_decodes_quot_and_apos(self):
+        self.assertEqual(
+            self.plain_label("say &quot;hello&quot; &amp; &apos;hi&apos;"),
+            "say \"hello\" & 'hi'",
+        )
+
+    def test_handles_none(self):
+        self.assertEqual(self.plain_label(None), "")
+
+    def test_handles_empty_string(self):
+        self.assertEqual(self.plain_label(""), "")
+
+    def test_plain_text_unchanged(self):
+        self.assertEqual(self.plain_label("Normal title"), "Normal title")
+
+    # ------------------------------------------------------------------
+    # Entity escaping
+    # ------------------------------------------------------------------
+
+    def _parse_xml(self, template_name, context):
+        from xml.etree import ElementTree as ET
+
+        xml_str = render_to_string(template_name, context)
+        return ET.fromstring(xml_str), xml_str
+
+    def _loc_labels(self, root):
+        ns = {"j": "https://janeway.systems"}
+        return [el.text or "" for el in root.findall(".//j:loc_label", ns)]
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_title_with_ampersand_is_valid_xml_and_not_double_encoded(self):
+        """A news title containing & must be single-encoded (&amp;) in the XML."""
+        from datetime import datetime, timezone as dt_tz
+
+        ctx = {
+            "page_title": "News",
+            "h1": "News",
+            "sitemap_level": "press-news",
+            "parent_sitemap": {
+                "loc": "http://example.com/sitemap.xml",
+                "label": "Press",
+            },
+            "owner": self.press,
+            "news_items": [
+                {
+                    "url": "http://example.com/news/1/",
+                    "posted": datetime(2024, 1, 1, tzinfo=dt_tz.utc),
+                    "title": "Cats & Dogs",
+                }
+            ],
+        }
+        root, xml_str = self._parse_xml("common/news_sitemap.xml", ctx)
+        self.assertNotIn("&amp;amp;", xml_str)
+        self.assertIn("Cats & Dogs", self._loc_labels(root))
+
+    @override_settings(URL_CONFIG="path")
+    def test_article_title_with_html_is_plain_text_in_xml(self):
+        """An article title with HTML markup is stored as plain text in the XML."""
+        from utils.logic import _plain_label
+
+        ctx = build_issue_sitemap_context(self.issue_one, self.journal_one)
+        ctx["article_entries"][0]["title"] = _plain_label("<em>Test &amp; Article</em>")
+        root, xml_str = self._parse_xml("common/issue_sitemap.xml", ctx)
+        self.assertNotIn("&amp;amp;", xml_str)
+        self.assertNotIn("&lt;em&gt;", xml_str)
+        self.assertIn("Test & Article", self._loc_labels(root))
+
+    @override_settings(URL_CONFIG="path")
+    def test_pages_label_with_special_chars_is_valid_xml(self):
+        """A pages-sitemap label containing < > & produces well-formed XML."""
+        ctx = {
+            "page_title": "Pages",
+            "h1": "Pages",
+            "sitemap_level": "press-pages",
+            "parent_sitemap": {
+                "loc": "http://example.com/sitemap.xml",
+                "label": "Press",
+            },
+            "links": [("http://example.com/about/", 'About "Us" & <More>', None)],
+        }
+        root, xml_str = self._parse_xml("common/pages_sitemap.xml", ctx)
+        self.assertIn('About "Us" & <More>', self._loc_labels(root))
+
+    # ------------------------------------------------------------------
+    # URL completeness
+    # ------------------------------------------------------------------
+
+    def _rendered_locs(self, template_name, context):
+        xml = render_to_string(template_name, context)
+        soup = BeautifulSoup(xml, "xml")
+        return {el.get_text(strip=True) for el in soup.find_all("loc")}
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_sitemap_renders_all_child_locs(self):
+        """press_sitemap.xml emits a <loc> for every entry in child_sitemaps."""
+        ctx = build_press_index_context(self.press)
+        self.assertTrue(
+            ctx["child_sitemaps"], "No child_sitemaps — test would vacuously pass"
+        )
+        locs = self._rendered_locs("common/press_sitemap.xml", ctx)
+        for child in ctx["child_sitemaps"]:
+            self.assertIn(child["loc"], locs, f"Missing child loc: {child['loc']}")
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_sitemap_renders_all_child_locs(self):
+        """level2_sitemap.xml emits a <loc> for every entry in child_sitemaps (journal)."""
+        ctx = build_journal_index_context(self.journal_one)
+        self.assertTrue(
+            ctx["child_sitemaps"], "No child_sitemaps — test would vacuously pass"
+        )
+        locs = self._rendered_locs("common/level2_sitemap.xml", ctx)
+        for child in ctx["child_sitemaps"]:
+            self.assertIn(child["loc"], locs, f"Missing child loc: {child['loc']}")
+
+    @override_settings(URL_CONFIG="path")
+    def test_repo_sitemap_renders_all_child_locs(self):
+        """level2_sitemap.xml emits a <loc> for every entry in child_sitemaps (repository)."""
+        ctx = build_repo_index_context(self.repository)
+        self.assertTrue(
+            ctx["child_sitemaps"], "No child_sitemaps — test would vacuously pass"
+        )
+        locs = self._rendered_locs("common/level2_sitemap.xml", ctx)
+        for child in ctx["child_sitemaps"]:
+            self.assertIn(child["loc"], locs, f"Missing child loc: {child['loc']}")
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_sitemap_renders_all_article_locs(self):
+        """issue_sitemap.xml emits a <loc> for every entry in article_entries."""
+        ctx = build_issue_sitemap_context(self.issue_one, self.journal_one)
+        self.assertTrue(
+            ctx["article_entries"], "No article_entries — test would vacuously pass"
+        )
+        locs = self._rendered_locs("common/issue_sitemap.xml", ctx)
+        for entry in ctx["article_entries"]:
+            self.assertIn(entry["url"], locs, f"Missing article loc: {entry['url']}")
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sitemap_renders_all_news_locs(self):
+        """news_sitemap.xml emits a <loc> for every entry in news_items."""
+        from datetime import datetime, timezone as dt_tz
+
+        news_url = "http://testpress.example.com/news/test-item/"
+        ctx = {
+            "page_title": "News Sitemap",
+            "h1": "News Sitemap",
+            "sitemap_level": "press-news",
+            "parent_sitemap": {
+                "loc": "http://testpress.example.com/sitemap.xml",
+                "label": "Press",
+            },
+            "owner": self.press,
+            "news_items": [
+                {
+                    "url": news_url,
+                    "posted": datetime(2024, 1, 15, 12, 0, tzinfo=dt_tz.utc),
+                    "title": "Test News Item",
+                }
+            ],
+        }
+        locs = self._rendered_locs("common/news_sitemap.xml", ctx)
+        self.assertIn(news_url, locs)
+
+    @override_settings(URL_CONFIG="path")
+    def test_pages_sitemap_renders_all_page_locs(self):
+        """pages_sitemap.xml emits a <loc> for every entry in links."""
+        page_url = "http://testpress.example.com/about/"
+        ctx = {
+            "page_title": "Pages - Test Journal",
+            "h1": "Pages - Test Journal",
+            "sitemap_level": "journal-pages",
+            "parent_sitemap": {
+                "loc": "http://testpress.example.com/sitemap.xml",
+                "label": "Journal",
+            },
+            "links": [(page_url, "About", None)],
+        }
+        locs = self._rendered_locs("common/pages_sitemap.xml", ctx)
+        self.assertIn(page_url, locs)
+
+    # ------------------------------------------------------------------
+    # Schema validation
+    # ------------------------------------------------------------------
+
+    _SCHEMA_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema")
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from lxml import etree
+
+        cls.urlset_schema = etree.XMLSchema(
+            etree.parse(os.path.join(cls._SCHEMA_ROOT, "sitemap.xsd.xml"))
+        )
+        cls.siteindex_schema = etree.XMLSchema(
+            etree.parse(os.path.join(cls._SCHEMA_ROOT, "siteindex.xsd.xml"))
+        )
+
+    def _validate(self, schema, template_name, context):
+        from lxml import etree
+
+        xml_str = render_to_string(template_name, context)
+        doc = etree.parse(io.BytesIO(xml_str.encode("utf-8")))
+        valid = schema.validate(doc)
+        return valid, schema.error_log
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_sitemap_validates_against_urlset_schema(self):
+        """A rendered issue sitemap (urlset) validates against sitemap.xsd."""
+        ctx = {
+            "page_title": "Sitemap - Journal One",
+            "h1": "Sitemap - Journal One",
+            "sitemap_level": "issue",
+            "parent_sitemap": {
+                "loc": "http://localhost:8000/tst/sitemap.xml",
+                "label": "Journal One",
+            },
+            "article_entries": [
+                {
+                    "url": "http://localhost:8000/tst/article/id/1/",
+                    "lastmod": "2024-01-15T12:00:00+00:00",
+                    "title": "Test Article",
+                }
+            ],
+            "issue": None,
+            "journal": self.journal_one,
+        }
+        valid, errors = self._validate(
+            self.urlset_schema, "common/issue_sitemap.xml", ctx
+        )
+        self.assertTrue(valid, str(errors))
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sitemap_validates_against_urlset_schema(self):
+        """A rendered news sitemap (urlset) validates against sitemap.xsd."""
+        from datetime import datetime, timezone as dt_tz
+
+        ctx = {
+            "page_title": "Sitemap - News",
+            "h1": "Sitemap - News",
+            "sitemap_level": "news",
+            "parent_sitemap": {
+                "loc": "http://localhost:8000/sitemap.xml",
+                "label": "Press",
+            },
+            "owner": self.press,
+            "news_items": [
+                {
+                    "url": "http://localhost:8000/news/1/",
+                    "posted": datetime(2024, 1, 15, 12, 0, tzinfo=dt_tz.utc),
+                    "title": "Test News Item",
+                }
+            ],
+        }
+        valid, errors = self._validate(
+            self.urlset_schema, "common/news_sitemap.xml", ctx
+        )
+        self.assertTrue(valid, str(errors))
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_sitemap_validates_against_siteindex_schema(self):
+        """Press sitemapindex validates against siteindex.xsd."""
+        ctx = build_press_index_context(self.press)
+        valid, errors = self._validate(
+            self.siteindex_schema, "common/press_sitemap.xml", ctx
+        )
+        self.assertTrue(valid, str(errors))
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_sitemap_validates_against_siteindex_schema(self):
+        """Journal sitemapindex validates against siteindex.xsd."""
+        ctx = build_journal_index_context(self.journal_one)
+        valid, errors = self._validate(
+            self.siteindex_schema, "common/level2_sitemap.xml", ctx
+        )
+        self.assertTrue(valid, str(errors))
+
+    @override_settings(URL_CONFIG="path")
+    def test_pages_sitemap_validates_against_urlset_schema(self):
+        """A rendered pages sitemap (urlset) validates against sitemap.xsd."""
+        from utils.logic import build_pages_sitemap_context
+
+        ctx = build_pages_sitemap_context(self.journal_one)
+        valid, errors = self._validate(
+            self.urlset_schema, "common/pages_sitemap.xml", ctx
+        )
+        self.assertTrue(valid, str(errors))
 
 
 class PreprintsUtilsTests(TestCase):
