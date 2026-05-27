@@ -47,3 +47,23 @@ class LanguageMiddleware(BaseMiddleware):
             request.available_languages = set(available_languages)
             request.default_language = default_language
             request.current_language = translation.get_language()
+
+        elif getattr(request, "repository", None) and settings.USE_I18N:
+            current_language = translation.get_language()
+            available_languages = list(request.repository.languages or [])
+            default_language = (
+                request.repository.default_language or settings.LANGUAGE_CODE
+            )
+
+            if current_language not in available_languages:
+                translation.activate(default_language)
+
+            if not available_languages:
+                available_languages = [lang[0] for lang in settings.LANGUAGES]
+            else:
+                if settings.LANGUAGE_CODE not in available_languages:
+                    available_languages.append(settings.LANGUAGE_CODE)
+
+            request.available_languages = set(available_languages)
+            request.default_language = default_language
+            request.current_language = translation.get_language()
