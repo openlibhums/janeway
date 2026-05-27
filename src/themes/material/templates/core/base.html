@@ -69,6 +69,7 @@
                 {% include "elements/journal_footer.html" %}
             {% elif request.repository %}
                 {{ request.repository.footer|safe }}
+                {% include "elements/repository/language_switcher.html" %}
             {% else %}
                 {% include "press/elements/press_footer.html" %}
             {% endif %}
