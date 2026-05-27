@@ -33,6 +33,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.core.validators import RegexValidator
 
+from modeltranslation.utils import build_localized_fieldname
 from openpyxl import load_workbook
 from simple_history.models import HistoricalRecords
 import swapper
@@ -362,6 +363,20 @@ class Repository(model_utils.AbstractSiteModel):
     crossref_test_mode = models.BooleanField(
         default=False,
         help_text="Enable to use Crossref test.",
+    )
+    languages = models.JSONField(
+        default=list,
+        blank=True,
+        help_text=_(
+            "List of language codes accepted by this repository, "
+            "sourced from settings.LANGUAGES."
+        ),
+    )
+    default_language = models.CharField(
+        max_length=20,
+        blank=True,
+        default="en",
+        help_text=_("The primary language of this repository."),
     )
 
     class Meta:
@@ -900,6 +915,24 @@ class Preprint(models.Model):
         return "{}".format(
             self.title,
         )
+
+    def translated_metadata(self):
+        active_languages = self.repository.languages if self.repository else []
+        if len(active_languages) <= 1:
+            return []
+        lang_dict = dict(settings.LANGUAGES)
+        result = []
+        for code in active_languages:
+            title_field = build_localized_fieldname("title", code)
+            abstract_field = build_localized_fieldname("abstract", code)
+            result.append(
+                {
+                    "language": lang_dict.get(code, code),
+                    "title": getattr(self, title_field, "") or "",
+                    "abstract": getattr(self, abstract_field, "") or "",
+                }
+            )
+        return result
 
     def old_versions(self):
         return PreprintVersion.objects.filter(
@@ -1881,12 +1914,29 @@ class VersionQueue(models.Model):
         self.approved = True
         current_version = None
 
+        translated_fields = [
+            (
+                build_localized_fieldname("title", code),
+                build_localized_fieldname("abstract", code),
+            )
+            for code in dict(settings.LANGUAGES)
+        ]
+
         # Update the current version to have the Preprint's current title
         # and abstract.
         if self.preprint.current_version is not None:
             current_version = self.preprint.current_version
-            current_version.title = self.preprint.title
-            current_version.abstract = self.preprint.abstract
+            for title_field, abstract_field in translated_fields:
+                setattr(
+                    current_version,
+                    title_field,
+                    getattr(self.preprint, title_field, ""),
+                )
+                setattr(
+                    current_version,
+                    abstract_field,
+                    getattr(self.preprint, abstract_field, ""),
+                )
             current_version.published_doi = self.preprint.doi
             this_file = self.preprint.current_version.file
         # no version yet
@@ -1905,11 +1955,13 @@ class VersionQueue(models.Model):
         )
 
         # Overwrite the preprint's metadata now we have a historical record.
-        # Check that title and abstract have value, if not there is no change.
-        if self.title:
-            self.preprint.title = self.title
-        if self.abstract:
-            self.preprint.abstract = self.abstract
+        for title_field, abstract_field in translated_fields:
+            title_val = getattr(self, title_field, "")
+            abstract_val = getattr(self, abstract_field, "")
+            if title_val:
+                setattr(self.preprint, title_field, title_val)
+            if abstract_val:
+                setattr(self.preprint, abstract_field, abstract_val)
         if self.published_doi:
             self.preprint.doi = self.published_doi
 
@@ -1936,6 +1988,28 @@ class VersionQueue(models.Model):
             return _("Under Review")
         else:
             return _("Declined")
+
+    def translated_metadata(self):
+        active_languages = (
+            self.preprint.repository.languages
+            if self.preprint and self.preprint.repository
+            else []
+        )
+        if len(active_languages) <= 1:
+            return []
+        lang_dict = dict(settings.LANGUAGES)
+        result = []
+        for code in active_languages:
+            title_field = build_localized_fieldname("title", code)
+            abstract_field = build_localized_fieldname("abstract", code)
+            result.append(
+                {
+                    "language": lang_dict.get(code, code),
+                    "title": getattr(self, title_field, "") or "",
+                    "abstract": getattr(self, abstract_field, "") or "",
+                }
+            )
+        return result
 
     @property
     def safe_title(self):
