@@ -108,6 +108,40 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         self.submission_type_slug = kwargs.pop("submission_type_slug", None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
+        repository = self.request.repository
+        active_languages = repository.languages or [settings.LANGUAGE_CODE]
+        lang_dict = dict(settings.LANGUAGES)
+
+        if len(active_languages) > 1:
+            self.fields.pop("title", None)
+            self.fields.pop("abstract", None)
+            self.language_field_names = []
+            for code in active_languages:
+                lang_name = lang_dict.get(code, code)
+                title_field = "title_{}".format(code.replace("-", "_"))
+                abstract_field = "abstract_{}".format(code.replace("-", "_"))
+                self.fields[title_field] = forms.CharField(
+                    max_length=300,
+                    required=(code == settings.LANGUAGE_CODE),
+                    label=_("Title ({})").format(lang_name),
+                    widget=forms.TextInput(attrs={"placeholder": _("Title")}),
+                )
+                self.fields[abstract_field] = forms.CharField(
+                    required=False,
+                    label=_("Abstract ({})").format(lang_name),
+                    widget=forms.Textarea(
+                        attrs={"placeholder": _("Enter your article's abstract here")}
+                    ),
+                )
+                if self.instance and self.instance.pk:
+                    self.initial[title_field] = getattr(self.instance, title_field, "")
+                    self.initial[abstract_field] = getattr(
+                        self.instance, abstract_field, ""
+                    )
+                self.language_field_names.extend([title_field, abstract_field])
+        else:
+            self.language_field_names = []
+
         if (
             not self.submission_type_slug
             and self.instance
@@ -208,6 +242,10 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             preprint.owner = self.request.user
 
         preprint.repository = self.request.repository
+
+        for field_name in self.language_field_names:
+            if field_name in self.cleaned_data:
+                setattr(preprint, field_name, self.cleaned_data[field_name])
 
         if self.request:
             additional_fields = models.RepositoryField.objects.filter(
@@ -485,13 +523,47 @@ class VersionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
         super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields["title"].initial = self.preprint.title
-        self.fields["abstract"].initial = self.preprint.abstract
+
+        repository = self.preprint.repository
+        active_languages = repository.languages or [settings.LANGUAGE_CODE]
+        lang_dict = dict(settings.LANGUAGES)
+
+        self.language_field_names = []
+        if len(active_languages) > 1:
+            self.fields.pop("title", None)
+            self.fields.pop("abstract", None)
+            for code in active_languages:
+                lang_name = lang_dict.get(code, code)
+                title_field = "title_{}".format(code.replace("-", "_"))
+                abstract_field = "abstract_{}".format(code.replace("-", "_"))
+                self.fields[title_field] = forms.CharField(
+                    max_length=300,
+                    required=False,
+                    label=_("Title ({})").format(lang_name),
+                )
+                self.fields[abstract_field] = forms.CharField(
+                    required=False,
+                    label=_("Abstract ({})").format(lang_name),
+                    widget=forms.Textarea,
+                )
+                self.initial[title_field] = getattr(self.preprint, title_field, "")
+                self.initial[abstract_field] = getattr(
+                    self.preprint, abstract_field, ""
+                )
+                self.language_field_names.extend([title_field, abstract_field])
+        else:
+            self.fields["title"].initial = self.preprint.title
+            self.fields["abstract"].initial = self.preprint.abstract
+
         self.fields["published_doi"].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
         version.preprint = self.preprint
+
+        for field_name in self.language_field_names:
+            if field_name in self.cleaned_data:
+                setattr(version, field_name, self.cleaned_data[field_name])
 
         if commit:
             version.save()

@@ -1,0 +1,103 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+{% load bool_fa %}
+
+{% block title %}{{ request.repository.name }} Languages{% endblock %}
+{% block title-section %}{{ request.repository.name }} Languages{% endblock %}
+{% block title-sub %}Management interface for {{ request.repository.name }} Languages{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
+    <li>Languages</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded" data-equalizer data-equalize-on="medium">
+        <div class="large-12 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>Active Languages</h2>
+                </div>
+                <div class="content">
+                    <p>Languages enabled for this repository. Authors will be able to provide title and abstract translations in each active language.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Language</th>
+                                    <th>Code</th>
+                                    <th>Default</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for code, name in active_language_details %}
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>{{ code }}</td>
+                                    <td>
+                                        {% if code == request.repository.default_language %}
+                                            Current Default
+                                        {% else %}
+                                            <button name="default" value="{{ code }}" class="small button warning" type="submit">Mark as Default</button>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button name="disable" value="{{ code }}" class="small alert button" type="submit">Disable</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="large-12 columns">
+            <div class="box" data-equalizer-watch>
+                <div class="title-area">
+                    <h2>All Languages</h2>
+                </div>
+                <div class="content">
+                    <p>Enable additional languages for this repository.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <table class="table scroll" id="languages">
+                            <thead>
+                                <tr>
+                                    <th>Language</th>
+                                    <th>Code</th>
+                                    <th>Enabled</th>
+                                    <th>Enable/Disable</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for code, name in language_choices %}
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>{{ code }}</td>
+                                    <td>{% if code in active_languages %}{{ True|bool_fa }}{% else %}{{ False|bool_fa }}{% endif %}</td>
+                                    <td>
+                                        {% if code in active_languages %}
+                                            <button name="disable" value="{{ code }}" class="small alert button" type="submit">Disable</button>
+                                        {% else %}
+                                            <button name="enable" value="{{ code }}" class="small success button" type="submit">Enable</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "admin/elements/datatables.html" with target="#languages" page_length=25 sort=0 order="asc" %}
+{% endblock %}
