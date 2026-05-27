@@ -922,6 +922,11 @@ class Preprint(models.Model):
             self.title,
         )
 
+    @property
+    def language_name(self):
+        lang_dict = dict(settings.LANGUAGES)
+        return lang_dict.get(self.language, self.language or "")
+
     def translated_metadata(self):
         active_languages = self.repository.languages if self.repository else []
         if len(active_languages) <= 1:

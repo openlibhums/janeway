@@ -35,11 +35,13 @@
                         <th>Owner</th>
                         <th>Licence</th>
                         <th>Type</th>
+                        <th>Language</th>
                     </tr>
                     <tr>
                         <td>{{ preprint.owner.full_name }}</td>
                         <td>{{ preprint.license.short_name }}</td>
                         <td>{{ preprint.submission_type.name|default:"No submission type set" }}</td>
+                        <td>{{ preprint.language_name|default:"—" }}</td>
                     </tr>
                     <tr>
                         <th colspan="2">Preprint DOI</th>

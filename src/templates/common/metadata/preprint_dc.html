@@ -7,6 +7,7 @@
     <meta name="DC.Source.URI" content="{% journal_url 'website_index' %}"/>
     <meta name="DC.Identifier.URI" content="{% site_url 'repository_preprint' preprint.pk %}"/>
     <meta name="DC.Rights" content="{{ preprint.license.name | striptags }}"/>
+    {% if preprint.language %}<meta name="DC.Language" scheme="ISO639-1" content="{{ preprint.language }}"/>{% endif %}
     <meta name="DC.Publisher" content="{{ request.repository.name }}"/>
     <meta name="DC.Title" content="{{ preperint.title|striptags }}"/>
     {% for author in preprint.authors %}<meta name="DC.Creator" content="{{ author.full_name }}"/>
