@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.contrib import messages
+from modeltranslation.utils import build_localized_fieldname
 from tinymce.widgets import TinyMCE
 
 
@@ -90,6 +91,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         fields = (
             "title",
             "abstract",
+            "language",
             "license",
             "comments_editor",
             "subject",
@@ -111,18 +113,20 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         repository = self.request.repository
         active_languages = repository.languages or [settings.LANGUAGE_CODE]
         lang_dict = dict(settings.LANGUAGES)
+        primary_language = repository.default_language or settings.LANGUAGE_CODE
+        is_multilingual = len(active_languages) > 1
 
-        if len(active_languages) > 1:
+        self.language_field_names = []
+        if is_multilingual:
             self.fields.pop("title", None)
             self.fields.pop("abstract", None)
-            self.language_field_names = []
             for code in active_languages:
                 lang_name = lang_dict.get(code, code)
-                title_field = "title_{}".format(code.replace("-", "_"))
-                abstract_field = "abstract_{}".format(code.replace("-", "_"))
+                title_field = build_localized_fieldname("title", code)
+                abstract_field = build_localized_fieldname("abstract", code)
                 self.fields[title_field] = forms.CharField(
                     max_length=300,
-                    required=(code == settings.LANGUAGE_CODE),
+                    required=(code == primary_language),
                     label=_("Title ({})").format(lang_name),
                     widget=forms.TextInput(attrs={"placeholder": _("Title")}),
                 )
@@ -139,8 +143,19 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                         self.instance, abstract_field, ""
                     )
                 self.language_field_names.extend([title_field, abstract_field])
+
+        if is_multilingual:
+            self.fields["language"] = forms.ChoiceField(
+                choices=[
+                    (code, lang_dict.get(code, code)) for code in active_languages
+                ],
+                required=True,
+                label=_("Language"),
+                help_text=_("The primary language of this preprint."),
+            )
         else:
-            self.language_field_names = []
+            self.initial["language"] = active_languages[0]
+            self.fields["language"].widget = forms.HiddenInput()
 
         if (
             not self.submission_type_slug
@@ -534,8 +549,8 @@ class VersionForm(forms.ModelForm):
             self.fields.pop("abstract", None)
             for code in active_languages:
                 lang_name = lang_dict.get(code, code)
-                title_field = "title_{}".format(code.replace("-", "_"))
-                abstract_field = "abstract_{}".format(code.replace("-", "_"))
+                title_field = build_localized_fieldname("title", code)
+                abstract_field = build_localized_fieldname("abstract", code)
                 self.fields[title_field] = forms.CharField(
                     max_length=300,
                     required=False,

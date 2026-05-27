@@ -227,6 +227,83 @@ class TestPreprintTranslation(TestCase):
         self.assertTrue(form.fields["title_en"].required)
         self.assertFalse(form.fields["title_es"].required)
 
+    def test_form_required_title_follows_repository_default_language(self):
+        from repository.forms import PreprintInfo
+
+        self.repository.languages = ["en", "es"]
+        self.repository.default_language = "es"
+        self.repository.save()
+        request = helpers.Request()
+        request.press = self.press
+        request.repository = self.repository
+        form = PreprintInfo(
+            instance=self.preprint,
+            request=request,
+            submission_type_slug=None,
+        )
+        self.assertTrue(form.fields["title_es"].required)
+        self.assertFalse(form.fields["title_en"].required)
+
+    def test_form_language_dropdown_with_multiple_languages(self):
+        from repository.forms import PreprintInfo
+
+        self.repository.languages = ["en", "es"]
+        self.repository.save()
+        request = helpers.Request()
+        request.press = self.press
+        request.repository = self.repository
+        form = PreprintInfo(
+            instance=self.preprint,
+            request=request,
+            submission_type_slug=None,
+        )
+        self.assertIn("language", form.fields)
+        choice_values = [c[0] for c in form.fields["language"].choices]
+        self.assertEqual(choice_values, ["en", "es"])
+
+    def test_form_language_hidden_with_single_language(self):
+        from repository.forms import PreprintInfo
+        from django.forms import HiddenInput
+
+        self.repository.languages = ["en"]
+        self.repository.save()
+        request = helpers.Request()
+        request.press = self.press
+        request.repository = self.repository
+        form = PreprintInfo(
+            instance=self.preprint,
+            request=request,
+            submission_type_slug=None,
+        )
+        self.assertIsInstance(form.fields["language"].widget, HiddenInput)
+        self.assertEqual(form.initial["language"], "en")
+
+    def test_version_form_shows_per_language_fields_when_multiple(self):
+        from repository.forms import VersionForm
+
+        self.repository.languages = ["en", "es"]
+        self.repository.save()
+        self.preprint.repository = self.repository
+        form = VersionForm(preprint=self.preprint)
+        self.assertIn("title_en", form.fields)
+        self.assertIn("title_es", form.fields)
+        self.assertIn("abstract_en", form.fields)
+        self.assertIn("abstract_es", form.fields)
+        self.assertNotIn("title", form.fields)
+        self.assertNotIn("abstract", form.fields)
+
+    def test_version_form_shows_base_fields_when_single_language(self):
+        from repository.forms import VersionForm
+
+        self.repository.languages = ["en"]
+        self.repository.save()
+        self.preprint.repository = self.repository
+        form = VersionForm(preprint=self.preprint)
+        self.assertIn("title", form.fields)
+        self.assertIn("abstract", form.fields)
+        self.assertNotIn("title_en", form.fields)
+        self.assertNotIn("title_es", form.fields)
+
 
 class TestRepositoryLanguageMiddleware(TestCase):
     @classmethod

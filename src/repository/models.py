@@ -861,6 +861,12 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    language = models.CharField(
+        max_length=20,
+        blank=True,
+        default="en",
+        help_text=_("The primary language of this preprint."),
+    )
     comments_editor = models.TextField(
         blank=True,
         null=True,
