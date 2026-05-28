@@ -394,11 +394,11 @@ msgid "Password updated."
 msgstr ""
 
 #: src/core/views.py:467
-msgid "Passwords do not match"
+msgid "Passwords do not match."
 msgstr ""
 
 #: src/core/views.py:470
-msgid "Old password is not correct."
+msgid "Current password is incorrect."
 msgstr ""
 
 #: src/core/views.py:480

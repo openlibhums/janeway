@@ -590,10 +590,14 @@ def edit_profile(request):
             )
             if password_form.is_valid():
                 password_form.save()
-                messages.add_message(
-                    request, messages.SUCCESS, _("Password updated.")
-                )
+                messages.add_message(request, messages.SUCCESS, _("Password updated."))
                 return redirect(reverse("core_edit_profile"))
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _("Password not updated. Please correct the errors below."),
+                )
 
         elif "subscribe" in request.POST and send_reader_notifications:
             request.user.add_account_role(
