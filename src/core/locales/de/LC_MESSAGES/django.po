@@ -406,7 +406,7 @@ msgstr "Passwort aktualisiert."
 
 #: src/core/views.py:467
 msgid "Passwords do not match."
-msgstr "Passwörter stimmen nicht überein"
+msgstr "Passwörter stimmen nicht überein."
 
 #: src/core/views.py:470
 msgid "Current password is incorrect."
