@@ -29,19 +29,28 @@ _BAR_FORMAT = (
 )
 
 
+def _log(message):
+    """Console progress line, silenced under the test runner so the suite
+    output stays clean."""
+    if not settings.IN_TEST_RUNNER:
+        print(message)
+
+
 def _run(children):
     """Write each sub-sitemap of a siteindex, showing progress.
 
     ``children`` is the list of zero-argument writers for the sub-sitemaps
     referenced by one siteindex. The progress bar counts those sub-sitemaps,
     so every site reports a meaningful, non-zero total (pages is always
-    present) rather than tqdm's bare ``0it`` placeholder.
+    present) rather than tqdm's bare ``0it`` placeholder. The bar is disabled
+    under the test runner so it does not spam the test output.
     """
     for write in tqdm(
         children,
         desc="  sub-sitemaps",
         unit=" sitemap",
         bar_format=_BAR_FORMAT,
+        disable=settings.IN_TEST_RUNNER,
     ):
         write()
 
@@ -69,8 +78,13 @@ class Command(ProfiledCommand):
             site_type = options.get("site_type")
             codes = options.get("codes")
 
+            # Remote journals are not hosted in Janeway, so they have no local
+            # pages to write a sitemap for. Hidden journals (hide_from_press)
+            # are still generated: they have a live site, just no link from the
+            # press index (their siteindex has no higher level — see
+            # build_journal_index_context).
             journals = _filter(
-                journal_models.Journal.objects.all(),
+                journal_models.Journal.objects.filter(is_remote=False),
                 site_type,
                 "journals",
                 codes,
@@ -87,7 +101,7 @@ class Command(ProfiledCommand):
 
             # Press level
             if press:
-                print("Generating press sitemap")
+                _log("Generating press sitemap")
                 # Sub-sitemaps written into the press siteindex. Journals and
                 # repositories are also referenced by the index but written in
                 # their own loops below, so they are not counted here.
@@ -100,7 +114,7 @@ class Command(ProfiledCommand):
 
             # Journal level
             for journal in journals:
-                print(f"Generating sitemap for {journal.name}")
+                _log(f"Generating sitemap for {journal.name}")
                 regular_issues = logic._journal_regular_issues(journal)
                 issues_with_articles = [
                     i for i in regular_issues if i.get_sorted_articles().exists()
@@ -128,7 +142,7 @@ class Command(ProfiledCommand):
 
             # Repository level
             for repo in repositories:
-                print(f"Generating sitemap for {repo.name}")
+                _log(f"Generating sitemap for {repo.name}")
                 subjects = repo.subject_set.all()
                 # Canonicalised list: each preprint counted under whichever
                 # of its subjects sorts first by name, so subjects whose

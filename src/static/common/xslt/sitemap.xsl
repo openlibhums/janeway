@@ -56,6 +56,12 @@
               </ul>
             </section>
           </xsl:if>
+          <xsl:if test="//janeway:note">
+            <section aria-labelledby="sitemap_note">
+              <h2 id="sitemap_note">Note</h2>
+              <p><xsl:value-of select="//janeway:note"/></p>
+            </section>
+          </xsl:if>
           <xsl:if test="//sitemap:urlset">
             <section aria-labelledby="this_level">
               <h2 id="this_level">This sitemap</h2>
