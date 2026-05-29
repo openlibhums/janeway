@@ -18,6 +18,17 @@ def _filter(qs, site_type, my_site_type, codes, code_field):
     return qs
 
 
+# Fixed-width trailing fields keep every bar the same length: the count and
+# rate columns no longer change width line-to-line, so tqdm expands the bar to
+# fill the gap and the figures right-align to the line. The leading space on
+# the unit (below) puts a gap between the rate number and "sitemap/s".
+_BAR_FORMAT = (
+    "{desc}: {percentage:3.0f}%|{bar}| "
+    "{n_fmt:>4}/{total_fmt:<4} "
+    "[{elapsed} < {remaining}, {rate_fmt:>16}]"
+)
+
+
 def _run(children):
     """Write each sub-sitemap of a siteindex, showing progress.
 
@@ -26,7 +37,12 @@ def _run(children):
     so every site reports a meaningful, non-zero total (pages is always
     present) rather than tqdm's bare ``0it`` placeholder.
     """
-    for write in tqdm(children, desc="  sub-sitemaps", unit="sitemap"):
+    for write in tqdm(
+        children,
+        desc="  sub-sitemaps",
+        unit=" sitemap",
+        bar_format=_BAR_FORMAT,
+    ):
         write()
 
 
