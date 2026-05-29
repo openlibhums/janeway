@@ -2812,6 +2812,38 @@ class PlainLabelTests(SitemapTests):
         self.assertTrue(valid, str(errors))
 
     @override_settings(URL_CONFIG="path")
+    def test_journal_index_escapes_ampersand_in_issue_label(self):
+        """An '&' in an issue title must be XML-escaped in the journal
+        siteindex. `non_pretty_issue_identifier` is a Django SafeString, so
+        without `_plain_label` the raw '&' bypasses autoescaping and breaks XML
+        parsing/validation (regression for the xmllint `xmlParseEntityRef`
+        failure)."""
+        from lxml import etree
+
+        issue = journal_models.Issue.objects.create(
+            journal=self.journal_one,
+            volume="9",
+            issue="9",
+            issue_title="Sound & Vision",
+            issue_type=self.issue_type,
+            date=timezone.now(),
+        )
+        issue.articles.add(self.article_one)
+        try:
+            ctx = build_journal_index_context(self.journal_one)
+            xml_str = render_to_string("common/level2_sitemap.xml", ctx)
+            # Raw '&' would raise XMLSyntaxError here.
+            etree.fromstring(xml_str.encode("utf-8"))
+            self.assertIn("Sound &amp; Vision", xml_str)
+            self.assertNotIn("Sound & Vision", xml_str)
+            valid, errors = self._validate(
+                self.siteindex_schema, "common/level2_sitemap.xml", ctx
+            )
+            self.assertTrue(valid, str(errors))
+        finally:
+            issue.delete()
+
+    @override_settings(URL_CONFIG="path")
     def test_pages_sitemap_validates_against_urlset_schema(self):
         """A rendered pages sitemap (urlset) validates against sitemap.xsd."""
         from utils.logic import build_pages_sitemap_context
