@@ -219,6 +219,10 @@ class SitemapTests(UtilsTests):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        # get_for_model() caches process-wide and the cache survives the test
+        # DB being recreated, so a stale ContentType id can be written onto the
+        # fixture row. Clear it first so news_item gets this DB's correct id.
+        ContentType.objects.clear_cache()
         cls.news_item = helpers.create_news_item(
             ContentType.objects.get_for_model(cls.press),
             cls.press.pk,
@@ -245,11 +249,11 @@ class SitemapTests(UtilsTests):
             soup.select("sitemap_name")[0].get_text(strip=True),
             "Press",
         )
-        # The pages_sitemap.xml child is referenced with the owner-prefixed
-        # label "{owner.name} pages" (so labels stay unique under WCAG 2.4.4
-        # when listed alongside child journals/repos).
+        # The pages_sitemap.xml child is referenced with the generic type
+        # label "Press Pages" (unique within the index without repeating the
+        # owner name).
         all_labels = [el.get_text(strip=True) for el in soup.select("loc_label")]
-        self.assertIn(f"{self.press.name} pages", all_labels)
+        self.assertIn("Press Pages", all_labels)
 
     @override_settings(URL_CONFIG="path")
     def test_journal_sitemap_generation(self):
@@ -268,12 +272,12 @@ class SitemapTests(UtilsTests):
             "Press",
         )
         # pages_sitemap.xml child is the first entry, labelled with the
-        # owner-prefixed "{journal.name} pages".
+        # generic type label "Journal Pages".
         all_labels = [el.get_text(strip=True) for el in soup.select("loc_label")]
-        self.assertIn(f"{self.journal_one.name} pages", all_labels)
+        self.assertIn("Journal Pages", all_labels)
         self.assertEqual(
             soup.select("sitemap > loc_label")[0].get_text(strip=True),
-            f"{self.journal_one.name} pages",
+            "Journal Pages",
         )
 
     @override_settings(URL_CONFIG="path")
@@ -641,9 +645,11 @@ class SitemapTests(UtilsTests):
             end_today.delete()
 
     @override_settings(URL_CONFIG="path")
-    def test_news_sub_sitemap_includes_items_with_null_display_window(self):
-        """start_display=None and end_display=None match the second branch
-        of each Q clause and so are always considered active."""
+    def test_news_sub_sitemap_includes_items_with_open_ended_window(self):
+        """end_display=None (no expiry) matches the second branch of the
+        end_display Q clause, so the item is always considered active.
+        start_display is non-nullable, so the only open-ended case is a past
+        start with no end."""
         ContentType.objects.clear_cache()
         journal_ct = ContentType.objects.get_for_model(self.journal_one)
         open_window = helpers.create_news_item(
@@ -651,7 +657,7 @@ class SitemapTests(UtilsTests):
             self.journal_one.pk,
             title="No window",
         )
-        open_window.start_display = None
+        open_window.start_display = (timezone.now() - timezone.timedelta(days=1)).date()
         open_window.end_display = None
         open_window.save()
         try:
@@ -707,6 +713,86 @@ class SitemapTests(UtilsTests):
             self.assertIn("news", groups)
         finally:
             news.delete()
+
+    # -------------------------------------------------------------------
+    # Press index journal inclusion: hidden and remote journals are kept
+    # out; conferences are kept in.
+    # -------------------------------------------------------------------
+
+    def _press_index_journal_locs(self):
+        ctx = build_press_index_context(self.press)
+        return [c["loc"] for c in ctx["child_sitemaps"] if c["group"] == "journals"]
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_includes_visible_journal(self):
+        """A normal, hosted, non-hidden journal is listed in the press index."""
+        locs = self._press_index_journal_locs()
+        self.assertIn(f"{self.journal_one.site_url()}/sitemap.xml", locs)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_excludes_hidden_journal(self):
+        """A journal with hide_from_press=True is not listed in the press index."""
+        self.journal_two.hide_from_press = True
+        self.journal_two.save()
+        locs = self._press_index_journal_locs()
+        self.assertNotIn(f"{self.journal_two.site_url()}/sitemap.xml", locs)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_excludes_remote_journal(self):
+        """A journal with is_remote=True (not hosted in Janeway) is not listed."""
+        self.journal_two.is_remote = True
+        self.journal_two.save()
+        locs = self._press_index_journal_locs()
+        self.assertNotIn(f"{self.journal_two.site_url()}/sitemap.xml", locs)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_includes_conference(self):
+        """Conferences (is_conference=True) are listed in the press index."""
+        self.journal_two.is_conference = True
+        self.journal_two.save()
+        locs = self._press_index_journal_locs()
+        self.assertIn(f"{self.journal_two.site_url()}/sitemap.xml", locs)
+
+    # -------------------------------------------------------------------
+    # A hidden journal's siteindex has no higher level and carries a note
+    # explaining why; a visible journal links up to the press.
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_visible_journal_index_links_to_press(self):
+        """A visible journal's siteindex links up to the press index."""
+        ctx = build_journal_index_context(self.journal_one)
+        self.assertIsNotNone(ctx["parent_sitemap"])
+        self.assertFalse(ctx["note"])
+
+    @override_settings(URL_CONFIG="path")
+    def test_hidden_journal_index_has_no_parent_and_a_note(self):
+        """A hidden journal's siteindex has no higher level and explains why."""
+        self.journal_one.hide_from_press = True
+        self.journal_one.save()
+        ctx = build_journal_index_context(self.journal_one)
+        self.assertIsNone(ctx["parent_sitemap"])
+        self.assertIn("hidden", ctx["note"].lower())
+
+    # -------------------------------------------------------------------
+    # Accessibility lastmod data-file dependency
+    # -------------------------------------------------------------------
+
+    def test_accessibility_conformance_data_file_exists(self):
+        """The Accessibility canonical link's lastmod is the mtime of
+        a11y/conformance_data.json (logic._accessibility_lastmod). This test
+        fails loudly if that file is moved, renamed, or removed, flagging that
+        the sitemap dependency must be updated."""
+        path = os.path.join(settings.BASE_DIR, "a11y", "conformance_data.json")
+        self.assertTrue(
+            os.path.isfile(path),
+            f"Sitemap accessibility lastmod depends on {path}, which is "
+            f"missing. If the file moved, update logic._accessibility_lastmod() "
+            f"and this test.",
+        )
+        # The dependency is consumed via _accessibility_lastmod(); confirm it
+        # resolves to a real mtime rather than the None fallback.
+        self.assertIsNotNone(logic._accessibility_lastmod())
 
     # -------------------------------------------------------------------
     # generate_sitemaps command: news-write gating mirrors the index gate.
@@ -767,6 +853,65 @@ class SitemapTests(UtilsTests):
         call_command("generate_sitemaps")
         owners = [c[0][0] for c in mock_news.call_args_list]
         self.assertNotIn(self.press, owners)
+
+    @mock.patch("utils.logic.write_not_in_any_subject_sitemap")
+    @mock.patch("utils.logic.write_subject_sitemap")
+    @mock.patch("utils.logic.write_repository_sitemap")
+    @mock.patch("utils.logic.write_not_in_any_issue_sitemap")
+    @mock.patch("utils.logic.write_issue_sitemap")
+    @mock.patch("utils.logic.write_news_sitemap")
+    @mock.patch("utils.logic.write_pages_sitemap")
+    @mock.patch("utils.logic.write_journal_sitemap")
+    @mock.patch("utils.logic.write_press_sitemap")
+    def test_generate_sitemaps_skips_remote_journals(
+        self,
+        mock_press,
+        mock_journal,
+        mock_pages,
+        mock_news,
+        mock_issue,
+        mock_not_in_issue,
+        mock_repo,
+        mock_subject,
+        mock_not_in_subject,
+    ):
+        """The command does not write a sitemap for remote (not Janeway-hosted)
+        journals, but still writes hosted ones."""
+        self.journal_two.is_remote = True
+        self.journal_two.save()
+        call_command("generate_sitemaps")
+        written = [c[0][0] for c in mock_journal.call_args_list]
+        self.assertIn(self.journal_one, written)
+        self.assertNotIn(self.journal_two, written)
+
+    @mock.patch("utils.logic.write_not_in_any_subject_sitemap")
+    @mock.patch("utils.logic.write_subject_sitemap")
+    @mock.patch("utils.logic.write_repository_sitemap")
+    @mock.patch("utils.logic.write_not_in_any_issue_sitemap")
+    @mock.patch("utils.logic.write_issue_sitemap")
+    @mock.patch("utils.logic.write_news_sitemap")
+    @mock.patch("utils.logic.write_pages_sitemap")
+    @mock.patch("utils.logic.write_journal_sitemap")
+    @mock.patch("utils.logic.write_press_sitemap")
+    def test_generate_sitemaps_includes_hidden_journals(
+        self,
+        mock_press,
+        mock_journal,
+        mock_pages,
+        mock_news,
+        mock_issue,
+        mock_not_in_issue,
+        mock_repo,
+        mock_subject,
+        mock_not_in_subject,
+    ):
+        """The command still writes a sitemap for journals hidden from the
+        press: they have a live site, just no link from the press index."""
+        self.journal_two.hide_from_press = True
+        self.journal_two.save()
+        call_command("generate_sitemaps")
+        written = [c[0][0] for c in mock_journal.call_args_list]
+        self.assertIn(self.journal_two, written)
 
     # -------------------------------------------------------------------
     # "Not in any issue" sub-sitemap

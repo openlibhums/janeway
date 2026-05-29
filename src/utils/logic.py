@@ -704,7 +704,7 @@ def build_press_index_context(press):
     child_sitemaps = [
         {
             "loc": f"{press.site_url()}/pages_sitemap.xml",
-            "label": f"{press_label} pages",
+            "label": "Press Pages",
             "group": "pages",
         }
     ]
@@ -712,7 +712,7 @@ def build_press_index_context(press):
         child_sitemaps.append(
             {
                 "loc": f"{press.site_url()}/news_sitemap.xml",
-                "label": f"{press_label} news",
+                "label": "Press News",
                 "group": "news",
             }
         )
@@ -746,13 +746,19 @@ def build_press_index_context(press):
 def build_journal_index_context(journal):
     """Journal siteindex context: pages → news → issues (date desc) → not-in-any-issue."""
     press = journal.press
-    clash_names = _local_clash_names(journal.name, press.name)
-    journal_label = _suffixed_name(journal.name, clash_names, "[journal]")
-    press_label = _suffixed_name(press.name, clash_names, "[press]")
+    if journal.hide_from_press:
+        # A journal hidden from the press is not linked from the press index,
+        # so its siteindex is a top-level sitemap with no higher level. With no
+        # press reference on the page there is no name clash to disambiguate.
+        journal_label = journal.name
+    else:
+        clash_names = _local_clash_names(journal.name, press.name)
+        journal_label = _suffixed_name(journal.name, clash_names, "[journal]")
+        press_label = _suffixed_name(press.name, clash_names, "[press]")
     child_sitemaps = [
         {
             "loc": f"{journal.site_url()}/pages_sitemap.xml",
-            "label": f"{journal_label} pages",
+            "label": "Journal Pages",
             "group": "pages",
         }
     ]
@@ -760,7 +766,7 @@ def build_journal_index_context(journal):
         child_sitemaps.append(
             {
                 "loc": f"{journal.site_url()}/news_sitemap.xml",
-                "label": f"{journal_label} news",
+                "label": "Journal News",
                 "group": "news",
             }
         )
@@ -793,16 +799,25 @@ def build_journal_index_context(journal):
             }
         )
 
-    parent_sitemap = {
-        "loc": f"{press.site_url()}/sitemap.xml",
-        "label": press_label,
-    }
+    if journal.hide_from_press:
+        parent_sitemap = None
+        note = (
+            "This journal is hidden from the press, so it is not linked from a "
+            "higher-level sitemap."
+        )
+    else:
+        parent_sitemap = {
+            "loc": f"{press.site_url()}/sitemap.xml",
+            "label": press_label,
+        }
+        note = ""
     page_title = f"Sitemap - {journal_label}"
     return {
         "journal": journal,
         "site_name": journal_label,
         "child_sitemaps": child_sitemaps,
         "parent_sitemap": parent_sitemap,
+        "note": note,
         "page_title": page_title,
         "h1": page_title,
         "sitemap_level": "journal",
@@ -818,7 +833,7 @@ def build_repo_index_context(repo):
     child_sitemaps = [
         {
             "loc": f"{repo.site_url()}/pages_sitemap.xml",
-            "label": f"{repo_label} pages",
+            "label": "Repository Pages",
             "group": "pages",
         }
     ]
