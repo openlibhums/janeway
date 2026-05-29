@@ -117,7 +117,9 @@ class Command(ProfiledCommand):
                 _log(f"Generating sitemap for {journal.name}")
                 regular_issues = logic._journal_regular_issues(journal)
                 issues_with_articles = [
-                    i for i in regular_issues if i.get_sorted_articles().exists()
+                    i
+                    for i in regular_issues
+                    if logic._canonical_articles_for_issue(i).exists()
                 ]
                 has_orphans = logic._articles_not_in_any_regular_issue(journal).exists()
                 has_news = journal.active_news_items.exists()
