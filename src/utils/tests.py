@@ -495,30 +495,27 @@ class SitemapTests(UtilsTests):
             newer.delete()
 
     # -------------------------------------------------------------------
-    # News listing canonical: gated by nav_news AND active_news_items
+    # News listing canonical: gated by active_news_items only.
+    # nav_news only controls whether the default nav link is rendered;
+    # the /news/ URL is always served by the comms.news_list view, so
+    # whenever active news exists the canonical link must be in the
+    # pages sitemap regardless of nav_news.
     # -------------------------------------------------------------------
 
     @override_settings(URL_CONFIG="path")
     def test_news_listing_excluded_from_static_links_when_no_news_items(self):
-        """The /news/ canonical is absent from the journal pages sitemap when
-        the journal has no active news items, even if nav_news is enabled."""
+        """/news/ is absent from the journal pages sitemap when there are no
+        active news items."""
         from utils.logic import build_pages_sitemap_context
 
-        original_nav_news = self.journal_one.nav_news
-        self.journal_one.nav_news = True
-        self.journal_one.save()
-        try:
-            ctx = build_pages_sitemap_context(self.journal_one)
-            urls = [url for url, _label, _lastmod in ctx["links"]]
-            self.assertFalse(any("/news/" in u for u in urls))
-        finally:
-            self.journal_one.nav_news = original_nav_news
-            self.journal_one.save()
+        ctx = build_pages_sitemap_context(self.journal_one)
+        urls = [url for url, _label, _lastmod in ctx["links"]]
+        self.assertFalse(any("/news/" in u for u in urls))
 
     @override_settings(URL_CONFIG="path")
     def test_news_listing_included_in_static_links_when_news_items_exist(self):
-        """The /news/ canonical is present in the journal pages sitemap when
-        nav_news is enabled AND the journal has at least one active news item."""
+        """/news/ is present in the journal pages sitemap when the journal has
+        at least one active news item."""
         from utils.logic import build_pages_sitemap_context
 
         # Django caches ContentType lookups process-wide; that cache survives
@@ -530,8 +527,30 @@ class SitemapTests(UtilsTests):
         news.start_display = (timezone.now() - timezone.timedelta(days=1)).date()
         news.posted = timezone.now() - timezone.timedelta(days=1)
         news.save()
+        try:
+            ctx = build_pages_sitemap_context(self.journal_one)
+            urls = [url for url, _label, _lastmod in ctx["links"]]
+            self.assertTrue(any("/news/" in u for u in urls))
+        finally:
+            news.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_listing_included_when_nav_news_false_but_active_news_exist(
+        self,
+    ):
+        """nav_news=False must not hide /news/ from the sitemap if active news
+        exists. nav_news only governs the default nav link, while /news/ is
+        always served by the comms.news_list view."""
+        from utils.logic import build_pages_sitemap_context
+
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        news = helpers.create_news_item(journal_ct, self.journal_one.pk)
+        news.start_display = (timezone.now() - timezone.timedelta(days=1)).date()
+        news.posted = timezone.now() - timezone.timedelta(days=1)
+        news.save()
         original_nav_news = self.journal_one.nav_news
-        self.journal_one.nav_news = True
+        self.journal_one.nav_news = False
         self.journal_one.save()
         try:
             ctx = build_pages_sitemap_context(self.journal_one)
@@ -541,6 +560,213 @@ class SitemapTests(UtilsTests):
             self.journal_one.nav_news = original_nav_news
             self.journal_one.save()
             news.delete()
+
+    # -------------------------------------------------------------------
+    # News sub-sitemap context: active_news_items display-window gating.
+    # ActiveNewsItemManager filters with
+    #   (start_display__lte=now() | start_display=None)
+    #   & (end_display__gte=now() | end_display=None)
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sub_sitemap_excludes_future_dated_items(self):
+        """A NewsItem whose start_display is in the future is filtered out
+        of build_news_sitemap_context."""
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        future = helpers.create_news_item(
+            journal_ct,
+            self.journal_one.pk,
+            title="Future story",
+        )
+        future.start_display = (timezone.now() + timezone.timedelta(days=7)).date()
+        future.save()
+        try:
+            ctx = build_news_sitemap_context(self.journal_one)
+            titles = [item["title"] for item in ctx["news_items"]]
+            self.assertNotIn("Future story", titles)
+        finally:
+            future.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sub_sitemap_excludes_expired_items(self):
+        """A NewsItem whose end_display is in the past is filtered out of
+        build_news_sitemap_context."""
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        expired = helpers.create_news_item(
+            journal_ct,
+            self.journal_one.pk,
+            title="Expired story",
+        )
+        expired.start_display = (timezone.now() - timezone.timedelta(days=30)).date()
+        expired.end_display = (timezone.now() - timezone.timedelta(days=1)).date()
+        expired.save()
+        try:
+            ctx = build_news_sitemap_context(self.journal_one)
+            titles = [item["title"] for item in ctx["news_items"]]
+            self.assertNotIn("Expired story", titles)
+        finally:
+            expired.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sub_sitemap_includes_items_at_window_boundaries(self):
+        """start_display==today and end_display==today are inclusive — the
+        manager uses __lte / __gte."""
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        today = timezone.now().date()
+        start_today = helpers.create_news_item(
+            journal_ct,
+            self.journal_one.pk,
+            title="Starts today",
+        )
+        start_today.start_display = today
+        start_today.save()
+        end_today = helpers.create_news_item(
+            journal_ct,
+            self.journal_one.pk,
+            title="Ends today",
+        )
+        end_today.start_display = today - timezone.timedelta(days=10)
+        end_today.end_display = today
+        end_today.save()
+        try:
+            ctx = build_news_sitemap_context(self.journal_one)
+            titles = [item["title"] for item in ctx["news_items"]]
+            self.assertIn("Starts today", titles)
+            self.assertIn("Ends today", titles)
+        finally:
+            start_today.delete()
+            end_today.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_news_sub_sitemap_includes_items_with_null_display_window(self):
+        """start_display=None and end_display=None match the second branch
+        of each Q clause and so are always considered active."""
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        open_window = helpers.create_news_item(
+            journal_ct,
+            self.journal_one.pk,
+            title="No window",
+        )
+        open_window.start_display = None
+        open_window.end_display = None
+        open_window.save()
+        try:
+            ctx = build_news_sitemap_context(self.journal_one)
+            titles = [item["title"] for item in ctx["news_items"]]
+            self.assertIn("No window", titles)
+        finally:
+            open_window.delete()
+
+    # -------------------------------------------------------------------
+    # Siteindex gating: news sub-sitemap entry only appears when active
+    # news items exist on the owner.
+    # -------------------------------------------------------------------
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_includes_news_when_active_news_exist(self):
+        """build_press_index_context references the news sub-sitemap when
+        the press has at least one active news item (fixture provides
+        cls.news_item with start_display in the past)."""
+        ctx = build_press_index_context(self.press)
+        groups = [c["group"] for c in ctx["child_sitemaps"]]
+        self.assertIn("news", groups)
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_index_excludes_news_when_no_active_news(self):
+        """build_press_index_context does not reference the news sub-sitemap
+        when the press has no active news items."""
+        self.news_item.delete()
+        ctx = build_press_index_context(self.press)
+        groups = [c["group"] for c in ctx["child_sitemaps"]]
+        self.assertNotIn("news", groups)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_index_excludes_news_when_no_active_news(self):
+        """build_journal_index_context does not reference the news sub-sitemap
+        when the journal has no active news items."""
+        ctx = build_journal_index_context(self.journal_one)
+        groups = [c["group"] for c in ctx["child_sitemaps"]]
+        self.assertNotIn("news", groups)
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_index_includes_news_when_active_news_exist(self):
+        """build_journal_index_context references the news sub-sitemap when
+        the journal has at least one active news item."""
+        ContentType.objects.clear_cache()
+        journal_ct = ContentType.objects.get_for_model(self.journal_one)
+        news = helpers.create_news_item(journal_ct, self.journal_one.pk)
+        news.start_display = (timezone.now() - timezone.timedelta(days=1)).date()
+        news.save()
+        try:
+            ctx = build_journal_index_context(self.journal_one)
+            groups = [c["group"] for c in ctx["child_sitemaps"]]
+            self.assertIn("news", groups)
+        finally:
+            news.delete()
+
+    # -------------------------------------------------------------------
+    # generate_sitemaps command: news-write gating mirrors the index gate.
+    # All write_* functions are patched so the test does not touch disk.
+    # -------------------------------------------------------------------
+
+    @mock.patch("utils.logic.write_not_in_any_subject_sitemap")
+    @mock.patch("utils.logic.write_subject_sitemap")
+    @mock.patch("utils.logic.write_repository_sitemap")
+    @mock.patch("utils.logic.write_not_in_any_issue_sitemap")
+    @mock.patch("utils.logic.write_issue_sitemap")
+    @mock.patch("utils.logic.write_news_sitemap")
+    @mock.patch("utils.logic.write_pages_sitemap")
+    @mock.patch("utils.logic.write_journal_sitemap")
+    @mock.patch("utils.logic.write_press_sitemap")
+    def test_generate_sitemaps_writes_news_when_press_has_active_news(
+        self,
+        mock_press,
+        mock_journal,
+        mock_pages,
+        mock_news,
+        mock_issue,
+        mock_not_in_issue,
+        mock_repo,
+        mock_subject,
+        mock_not_in_subject,
+    ):
+        """The command invokes write_news_sitemap(press) when the press has
+        active news items."""
+        call_command("generate_sitemaps")
+        owners = [c[0][0] for c in mock_news.call_args_list]
+        self.assertIn(self.press, owners)
+
+    @mock.patch("utils.logic.write_not_in_any_subject_sitemap")
+    @mock.patch("utils.logic.write_subject_sitemap")
+    @mock.patch("utils.logic.write_repository_sitemap")
+    @mock.patch("utils.logic.write_not_in_any_issue_sitemap")
+    @mock.patch("utils.logic.write_issue_sitemap")
+    @mock.patch("utils.logic.write_news_sitemap")
+    @mock.patch("utils.logic.write_pages_sitemap")
+    @mock.patch("utils.logic.write_journal_sitemap")
+    @mock.patch("utils.logic.write_press_sitemap")
+    def test_generate_sitemaps_skips_news_when_press_has_no_active_news(
+        self,
+        mock_press,
+        mock_journal,
+        mock_pages,
+        mock_news,
+        mock_issue,
+        mock_not_in_issue,
+        mock_repo,
+        mock_subject,
+        mock_not_in_subject,
+    ):
+        """The command does NOT invoke write_news_sitemap(press) when the
+        press has no active news items."""
+        self.news_item.delete()
+        call_command("generate_sitemaps")
+        owners = [c[0][0] for c in mock_news.call_args_list]
+        self.assertNotIn(self.press, owners)
 
     # -------------------------------------------------------------------
     # "Not in any issue" sub-sitemap
