@@ -5,6 +5,26 @@
   xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:janeway ="https://janeway.systems">
   <xsl:output method="html" indent="yes" encoding="utf-8" omit-xml-declaration="yes"/>
+
+  <!--
+    Render a link whose accessible name is its visible text followed by the
+    heading of the section it sits in. aria-labelledby references the link's
+    own id first (its visible text), then the section heading id (the context),
+    so no two links on the page share an accessible name even when their
+    visible text is identical. This keeps every entry in a screen reader's
+    "list of links" unique and self-describing (WCAG 2.4.4). The visible text
+    is preserved inside the accessible name (WCAG 2.5.3, Label in Name).
+  -->
+  <xsl:template name="contextual_link">
+    <xsl:param name="url"/>
+    <xsl:param name="label"/>
+    <xsl:param name="context_id"/>
+    <xsl:variable name="link_id" select="generate-id()"/>
+    <a href="{$url}" id="{$link_id}" aria-labelledby="{$link_id} {$context_id}">
+      <xsl:value-of select="$label"/>
+    </a>
+  </xsl:template>
+
   <xsl:template match="/sitemap:sitemapindex|/sitemap:urlset" >
     <xsl:variable name="page_title">
       <xsl:choose>
@@ -49,9 +69,11 @@
                   <xsl:variable name="itemURL">
                     <xsl:value-of select="//janeway:higher_sitemap/janeway:loc"/>
                   </xsl:variable>
-                  <a href="{$itemURL}">
-                    <xsl:value-of select="//janeway:higher_sitemap/janeway:loc_label"/>
-                  </a>
+                  <xsl:call-template name="contextual_link">
+                    <xsl:with-param name="url" select="$itemURL"/>
+                    <xsl:with-param name="label" select="//janeway:higher_sitemap/janeway:loc_label"/>
+                    <xsl:with-param name="context_id" select="'higher_level'"/>
+                  </xsl:call-template>
                 </li>
               </ul>
             </section>
@@ -73,7 +95,7 @@
                         <xsl:variable name="itemURL">
                           <xsl:value-of select="sitemap:loc"/>
                         </xsl:variable>
-                        <a href="{$itemURL}">
+                        <xsl:variable name="label">
                           <xsl:choose>
                             <xsl:when test="janeway:loc_label">
                               <xsl:value-of select="janeway:loc_label"/>
@@ -82,7 +104,12 @@
                               <xsl:value-of select="sitemap:loc"/>
                             </xsl:otherwise>
                           </xsl:choose>
-                        </a>
+                        </xsl:variable>
+                        <xsl:call-template name="contextual_link">
+                          <xsl:with-param name="url" select="$itemURL"/>
+                          <xsl:with-param name="label" select="$label"/>
+                          <xsl:with-param name="context_id" select="'this_level'"/>
+                        </xsl:call-template>
                         <xsl:if test="sitemap:lastmod">
                           <span>, </span>
                           <xsl:value-of select="substring(sitemap:lastmod,0,11)"/>
@@ -110,7 +137,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='pages']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_pages'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -123,7 +154,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='news']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_news'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -136,7 +171,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='journals']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_journals'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -149,7 +188,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='repositories']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_repos'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -162,7 +205,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='issues']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_issues'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -175,7 +222,11 @@
                         <xsl:for-each select="sitemap:sitemap[janeway:group='subjects']">
                           <li>
                             <xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-                            <a href="{$itemURL}"><xsl:value-of select="janeway:loc_label"/></a>
+                            <xsl:call-template name="contextual_link">
+                              <xsl:with-param name="url" select="$itemURL"/>
+                              <xsl:with-param name="label" select="janeway:loc_label"/>
+                              <xsl:with-param name="context_id" select="'lower_subjects'"/>
+                            </xsl:call-template>
                           </li>
                         </xsl:for-each>
                       </ul>
@@ -190,9 +241,11 @@
                         <xsl:variable name="itemURL">
                           <xsl:value-of select="."/>
                         </xsl:variable>
-                        <a href="{$itemURL}">
-                          <xsl:value-of select="../janeway:loc_label"/>
-                        </a>
+                        <xsl:call-template name="contextual_link">
+                          <xsl:with-param name="url" select="$itemURL"/>
+                          <xsl:with-param name="label" select="../janeway:loc_label"/>
+                          <xsl:with-param name="context_id" select="'lower_level'"/>
+                        </xsl:call-template>
                       </li>
                     </xsl:for-each>
                   </ul>

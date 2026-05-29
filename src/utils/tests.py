@@ -2913,6 +2913,59 @@ class PlainLabelTests(SitemapTests):
             self.article_one.save()
             issue.delete()
 
+    def test_xslt_gives_clashing_links_unique_accessible_names(self):
+        """The stylesheet gives each list link a contextual accessible name via
+        aria-labelledby, so two links with identical visible text but different
+        destinations (a child labelled like the parent back-link) are
+        distinguishable in a screen reader's list of links (WCAG 2.4.4)."""
+        from lxml import etree
+
+        xslt_path = os.path.join(
+            settings.BASE_DIR, "static", "common", "xslt", "sitemap.xsl"
+        )
+        transform = etree.XSLT(etree.parse(xslt_path))
+        siteindex = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+            ' xmlns:janeway="https://janeway.systems">'
+            "<janeway:page_title>Sitemap - Repeated Name</janeway:page_title>"
+            "<janeway:h1>Sitemap - Repeated Name</janeway:h1>"
+            "<janeway:sitemap_level>journal</janeway:sitemap_level>"
+            "<janeway:higher_sitemap>"
+            "<janeway:loc>http://localhost/sitemap.xml</janeway:loc>"
+            "<janeway:loc_label>Repeated Name</janeway:loc_label>"
+            "</janeway:higher_sitemap>"
+            "<sitemap><loc>http://localhost/TST/news_sitemap.xml</loc>"
+            "<janeway:loc_label>Repeated Name</janeway:loc_label>"
+            "<janeway:group>news</janeway:group></sitemap>"
+            "</sitemapindex>"
+        )
+        root = transform(etree.fromstring(siteindex.encode("utf-8"))).getroot()
+        by_id = {
+            el.get("id"): "".join(el.itertext()).strip()
+            for el in root.iter()
+            if el.get("id")
+        }
+
+        def accessible_name(a):
+            labelledby = a.get("aria-labelledby")
+            if labelledby:
+                return " ".join(by_id.get(i, "") for i in labelledby.split())
+            return "".join(a.itertext()).strip()
+
+        anchors = [a for a in root.iter() if etree.QName(a).localname == "a"]
+        names = [accessible_name(a) for a in anchors]
+        repeated = [
+            accessible_name(a)
+            for a in anchors
+            if "".join(a.itertext()).strip() == "Repeated Name"
+        ]
+        # Both 'Repeated Name' links render, with distinct accessible names.
+        self.assertEqual(len(repeated), 2, repeated)
+        self.assertEqual(len(set(repeated)), 2, repeated)
+        # No two links on the page share an accessible name.
+        self.assertEqual(len(names), len(set(names)), names)
+
     @override_settings(URL_CONFIG="path")
     def test_pages_sitemap_validates_against_urlset_schema(self):
         """A rendered pages sitemap (urlset) validates against sitemap.xsd."""
