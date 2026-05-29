@@ -9,10 +9,15 @@
   <janeway:page_title>{{ page_title }}</janeway:page_title>
   <janeway:h1>{{ h1 }}</janeway:h1>
   <janeway:sitemap_level>{{ sitemap_level }}</janeway:sitemap_level>
+  {% if parent_sitemap %}
   <janeway:higher_sitemap>
     <janeway:loc>{{ parent_sitemap.loc }}</janeway:loc>
     <janeway:loc_label>{{ parent_sitemap.label }}</janeway:loc_label>
   </janeway:higher_sitemap>
+  {% endif %}
+  {% if note %}
+  <janeway:note>{{ note }}</janeway:note>
+  {% endif %}
   {% for child in child_sitemaps %}
     <sitemap>
       <loc>{{ child.loc }}</loc>
