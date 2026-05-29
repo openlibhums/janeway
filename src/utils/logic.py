@@ -275,10 +275,15 @@ def _local_clash_names(*names):
 
 
 def _suffixed_name(name, clash_names, suffix):
-    """name + suffix if name is in clash_names, else name unchanged."""
+    """name + suffix if name is in clash_names, else name unchanged.
+
+    Always returns a plain ``str`` (never a ``SafeString``): ``Journal.name``
+    comes from a setting and can be marked safe, which would bypass the XML
+    template's autoescaping and emit a raw ``&`` into the sitemap.
+    """
     if name in clash_names:
         return f"{name} {suffix}"
-    return name
+    return f"{name}"
 
 
 def _disambiguate_labels_by_date(entries):
@@ -557,7 +562,7 @@ def build_pages_sitemap_context(owner):
 
     parent_sitemap = {
         "loc": f"{owner.site_url()}/sitemap.xml",
-        "label": owner.name,
+        "label": _plain_label(owner.name),
     }
     page_title = f"Pages sitemap - {owner.name}"
     return {
@@ -587,7 +592,7 @@ def build_news_sitemap_context(owner):
     )
     parent_sitemap = {
         "loc": f"{owner.site_url()}/sitemap.xml",
-        "label": owner.name,
+        "label": _plain_label(owner.name),
     }
     page_title = f"News sitemap - {owner.name}"
     return {
@@ -634,7 +639,7 @@ def build_issue_sitemap_context(issue_or_none, journal):
 
     parent_sitemap = {
         "loc": f"{journal.site_url()}/sitemap.xml",
-        "label": journal.name,
+        "label": _plain_label(journal.name),
     }
     return {
         "issue": issue_or_none,
@@ -678,7 +683,7 @@ def build_subject_sitemap_context(subject_or_none, repo):
 
     parent_sitemap = {
         "loc": f"{repo.site_url()}/sitemap.xml",
-        "label": repo.name,
+        "label": _plain_label(repo.name),
     }
     return {
         "subject": subject_or_none,
@@ -750,7 +755,8 @@ def build_journal_index_context(journal):
         # A journal hidden from the press is not linked from the press index,
         # so its siteindex is a top-level sitemap with no higher level. With no
         # press reference on the page there is no name clash to disambiguate.
-        journal_label = journal.name
+        # _plain_label keeps it a plain str so the template escapes any "&".
+        journal_label = _plain_label(journal.name)
     else:
         clash_names = _local_clash_names(journal.name, press.name)
         journal_label = _suffixed_name(journal.name, clash_names, "[journal]")
@@ -786,7 +792,7 @@ def build_journal_index_context(journal):
                     f"{journal.site_url()}"
                     f"{reverse('journal_sitemap', kwargs={'issue_id': issue.pk})}"
                 ),
-                "label": issue.non_pretty_issue_identifier,
+                "label": _plain_label(issue.non_pretty_issue_identifier),
                 "group": "issues",
             }
         )
@@ -845,7 +851,7 @@ def build_repo_index_context(repo):
                         f"{repo.site_url()}"
                         f"{reverse('repository_sitemap', kwargs={'subject_id': subject.pk})}"
                     ),
-                    "label": subject.name,
+                    "label": _plain_label(subject.name),
                     "group": "subjects",
                 }
             )
