@@ -519,6 +519,64 @@ def _canonical_preprints_for_subject(subject):
     )
 
 
+def _canonical_issue(article):
+    """The single regular issue an article is canonicalised to for sitemaps.
+
+    `primary_issue` when it is a regular ('issue'-type) issue, otherwise the
+    first regular issue by issue ordering.  None when the article is in no
+    regular issue.  Matches `_canonical_articles_for_issue` and the footer
+    link, so an article appears in exactly one issue sub-sitemap.
+    """
+    primary = article.primary_issue
+    if primary is not None and primary.issue_type.code == "issue":
+        return primary
+    return (
+        article.issues.filter(issue_type__code="issue")
+        .order_by("order", "-date")
+        .first()
+    )
+
+
+def _canonical_articles_for_issue(issue):
+    """Published articles whose canonical regular issue is `issue`.
+
+    An article can belong to several regular issues; sitemap.org best practice
+    is for each URL to appear in only one sitemap.  Canonicalise each article to
+    its `primary_issue` (when that is a regular issue) or otherwise its first
+    regular issue by ordering, so each article appears in exactly one issue
+    sub-sitemap.  Mirrors `_canonical_preprints_for_subject`.
+    """
+    from django.db.models import (
+        Case,
+        IntegerField,
+        OuterRef,
+        Subquery,
+        Value,
+        When,
+    )
+
+    canonical_pk = Subquery(
+        journal_models.Issue.objects.filter(
+            articles=OuterRef("pk"),
+            issue_type__code="issue",
+        )
+        .annotate(
+            _is_primary=Case(
+                When(pk=OuterRef("primary_issue_id"), then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("_is_primary", "order", "-date")
+        .values("pk")[:1]
+    )
+    return (
+        issue.get_sorted_articles()
+        .annotate(_canonical_issue_pk=canonical_pk)
+        .filter(_canonical_issue_pk=issue.pk)
+    )
+
+
 def build_pages_sitemap_context(owner):
     """Pages sub-sitemap context: canonicals + CMS pages, deduped by URL,
     sorted case-insensitively by label.
@@ -610,7 +668,7 @@ def build_issue_sitemap_context(issue_or_none, journal):
     'Not in any issue' virtual sitemap.
     """
     if issue_or_none is not None:
-        articles_qs = issue_or_none.get_sorted_articles()
+        articles_qs = _canonical_articles_for_issue(issue_or_none)
         page_title = (
             f"Sitemap - {issue_or_none.non_pretty_issue_identifier}, {journal.name}"
         )
@@ -780,7 +838,7 @@ def build_journal_index_context(journal):
         [
             i
             for i in _journal_regular_issues(journal)
-            if i.get_sorted_articles().exists()
+            if _canonical_articles_for_issue(i).exists()
         ],
         key=lambda i: i.date,
         reverse=True,

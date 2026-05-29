@@ -968,6 +968,66 @@ class SitemapTests(UtilsTests):
         self.assertIn(issue_url, child_locs)
 
     @override_settings(URL_CONFIG="path")
+    def test_article_in_two_regular_issues_only_in_canonical_issue(self):
+        """An article in two regular issues is listed only in its canonical
+        (primary_issue, else first) issue sub-sitemap, not both."""
+        second_issue = journal_models.Issue.objects.create(
+            journal=self.journal_one,
+            volume="1",
+            issue="2",
+            issue_title="V 1 I 2",
+            issue_type=self.issue_type,
+            date=timezone.now(),
+        )
+        second_issue.articles.add(self.article_one)
+        self.article_one.primary_issue = self.issue_one
+        self.article_one.save()
+        try:
+            primary_urls = [
+                e["url"]
+                for e in build_issue_sitemap_context(self.issue_one, self.journal_one)[
+                    "article_entries"
+                ]
+            ]
+            other_urls = [
+                e["url"]
+                for e in build_issue_sitemap_context(second_issue, self.journal_one)[
+                    "article_entries"
+                ]
+            ]
+            self.assertIn(self.article_one.url, primary_urls)
+            self.assertNotIn(self.article_one.url, other_urls)
+        finally:
+            self.article_one.primary_issue = None
+            self.article_one.save()
+            second_issue.delete()
+
+    @override_settings(URL_CONFIG="path")
+    def test_issue_excluded_from_index_when_articles_canonical_elsewhere(self):
+        """A regular issue whose only articles are canonicalised to another
+        issue is not listed in the journal index (and gets no sitemap)."""
+        second_issue = journal_models.Issue.objects.create(
+            journal=self.journal_one,
+            volume="1",
+            issue="3",
+            issue_title="V 1 I 3",
+            issue_type=self.issue_type,
+            date=timezone.now(),
+        )
+        second_issue.articles.add(self.article_one)
+        self.article_one.primary_issue = self.issue_one
+        self.article_one.save()
+        try:
+            ctx = build_journal_index_context(self.journal_one)
+            child_locs = [child["loc"] for child in ctx["child_sitemaps"]]
+            second_url = f"{self.journal_one.site_url()}{reverse('journal_sitemap', kwargs={'issue_id': second_issue.pk})}"
+            self.assertNotIn(second_url, child_locs)
+        finally:
+            self.article_one.primary_issue = None
+            self.article_one.save()
+            second_issue.delete()
+
+    @override_settings(URL_CONFIG="path")
     def test_no_issue_context_builder_uses_published_articles_not_in_issues(self):
         """'Not in any issue' context article_entries contains the journal's orphan articles."""
         ctx = build_issue_sitemap_context(None, self.journal_one)
@@ -1499,12 +1559,16 @@ class PageSitemapURLTagTests(TestCase):
             cls.press, [cls.repo_manager], []
         )
 
-        # Published article in an issue.
+        # Published article in a regular ('issue'-type) issue, so it is
+        # canonicalised to that issue and the footer points at its issue
+        # sub-sitemap (collections/custom types are not regular issues).
         cls.issue_type, _ = journal_models.IssueType.objects.get_or_create(
             journal=cls.journal_one,
-            code="tag_test_issue_type",
-            pretty_name="Tag Test Issue Type",
-            custom_plural="Tag Test Issues",
+            code="issue",
+            defaults={
+                "pretty_name": "Issue",
+                "custom_plural": "Issues",
+            },
         )
         cls.issue, _ = journal_models.Issue.objects.get_or_create(
             journal=cls.journal_one,
@@ -2829,6 +2893,10 @@ class PlainLabelTests(SitemapTests):
             date=timezone.now(),
         )
         issue.articles.add(self.article_one)
+        # Make this issue the article's canonical issue so it is listed in the
+        # index (single-location routing keeps an article in just one issue).
+        self.article_one.primary_issue = issue
+        self.article_one.save()
         try:
             ctx = build_journal_index_context(self.journal_one)
             xml_str = render_to_string("common/level2_sitemap.xml", ctx)
@@ -2841,6 +2909,8 @@ class PlainLabelTests(SitemapTests):
             )
             self.assertTrue(valid, str(errors))
         finally:
+            self.article_one.primary_issue = None
+            self.article_one.save()
             issue.delete()
 
     @override_settings(URL_CONFIG="path")

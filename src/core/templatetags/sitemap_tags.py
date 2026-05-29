@@ -106,7 +106,11 @@ def _resolve_journal_sitemap_url(journal, view_name, obj):
     if view_name in _NEWS_ITEM_VIEW_NAMES:
         return _journal_news_sitemap_url(journal)
     if view_name in _ARTICLE_VIEW_NAMES and isinstance(obj, submission_models.Article):
-        issue = obj.issue
+        # Use the same canonical regular issue the article is listed under, so
+        # the footer points to the one issue sub-sitemap that contains it.
+        from utils.logic import _canonical_issue
+
+        issue = _canonical_issue(obj)
         if issue is not None:
             return _issue_sitemap_url(journal, issue)
         return _no_issue_sitemap_url(journal)
