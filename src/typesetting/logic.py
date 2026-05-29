@@ -15,7 +15,7 @@ from events import logic as event_logic
 from identifiers import logic as ident_logic
 from identifiers.models import DOI_RE
 from production import logic
-from utils import setting_handler, render_template
+from utils import setting_handler
 
 from typesetting import models
 from typesetting.notifications import notify
@@ -120,34 +120,6 @@ def get_proofreaders(article, round, assignment=None):
         pk__in=pks,
     ).exclude(
         pk__in=current_proofer_pks,
-    )
-
-
-def get_typesetter_notification(assignment, article, request):
-    url = request.journal.site_url(reverse("typesetting_assignments"))
-    context = {
-        "article": article,
-        "assignment": assignment,
-        "typesetting_assignments_url": url,
-    }
-    return render_template.get_message_content(
-        request,
-        context,
-        "typesetting_notify_typesetter",
-    )
-
-
-def get_proofreader_notification(assignment, article, request):
-    url = request.journal.site_url(reverse("typesetting_proofreading_assignments"))
-    context = {
-        "article": article,
-        "assignment": assignment,
-        "typesetting_assignments_url": url,
-    }
-    return render_template.get_message_content(
-        request,
-        context,
-        "typesetting_notify_proofreader",
     )
 
 
