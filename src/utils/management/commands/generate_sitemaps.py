@@ -18,6 +18,18 @@ def _filter(qs, site_type, my_site_type, codes, code_field):
     return qs
 
 
+def _run(children):
+    """Write each sub-sitemap of a siteindex, showing progress.
+
+    ``children`` is the list of zero-argument writers for the sub-sitemaps
+    referenced by one siteindex. The progress bar counts those sub-sitemaps,
+    so every site reports a meaningful, non-zero total (pages is always
+    present) rather than tqdm's bare ``0it`` placeholder.
+    """
+    for write in tqdm(children, desc="  sub-sitemaps", unit="sitemap"):
+        write()
+
+
 class Command(ProfiledCommand):
     """CLI interface for generating sitemap files."""
 
@@ -60,33 +72,43 @@ class Command(ProfiledCommand):
             # Press level
             if press:
                 print("Generating press sitemap")
-                logic.write_press_sitemap()
-                logic.write_pages_sitemap(press)
+                # Sub-sitemaps written into the press siteindex. Journals and
+                # repositories are also referenced by the index but written in
+                # their own loops below, so they are not counted here.
+                children = [lambda: logic.write_pages_sitemap(press)]
                 if press.active_news_items.exists():
-                    logic.write_news_sitemap(press)
+                    children.append(lambda: logic.write_news_sitemap(press))
+
+                logic.write_press_sitemap()
+                _run(children)
 
             # Journal level
             for journal in journals:
                 print(f"Generating sitemap for {journal.name}")
                 regular_issues = logic._journal_regular_issues(journal)
-                has_issues_with_articles = any(
-                    i.get_sorted_articles().exists() for i in regular_issues
-                )
+                issues_with_articles = [
+                    i for i in regular_issues if i.get_sorted_articles().exists()
+                ]
                 has_orphans = logic._articles_not_in_any_regular_issue(journal).exists()
                 has_news = journal.active_news_items.exists()
-                # Canonical pages always include Home and Accessibility
-                has_pages = True
 
-                if has_pages or has_issues_with_articles or has_orphans or has_news:
-                    logic.write_journal_sitemap(journal)
-                    logic.write_pages_sitemap(journal)
-                    if has_news:
-                        logic.write_news_sitemap(journal)
-                    for issue in tqdm(list(regular_issues)):
-                        if issue.get_sorted_articles().exists():
-                            logic.write_issue_sitemap(issue)
-                    if has_orphans:
-                        logic.write_not_in_any_issue_sitemap(journal)
+                # Sub-sitemaps written into the journal siteindex. Pages is
+                # unconditional (Home and Accessibility are always canonicals),
+                # so there is always at least one child.
+                children = [lambda: logic.write_pages_sitemap(journal)]
+                if has_news:
+                    children.append(lambda: logic.write_news_sitemap(journal))
+                children += [
+                    (lambda issue=issue: logic.write_issue_sitemap(issue))
+                    for issue in issues_with_articles
+                ]
+                if has_orphans:
+                    children.append(
+                        lambda: logic.write_not_in_any_issue_sitemap(journal)
+                    )
+
+                logic.write_journal_sitemap(journal)
+                _run(children)
 
             # Repository level
             for repo in repositories:
@@ -96,16 +118,27 @@ class Command(ProfiledCommand):
                 # of its subjects sorts first by name, so subjects whose
                 # preprints are all canonicalised elsewhere don't get an
                 # empty sub-sitemap.
-                has_subjects_with_preprints = any(
-                    logic._canonical_preprints_for_subject(s).exists() for s in subjects
-                )
+                subjects_with_preprints = [
+                    s
+                    for s in subjects
+                    if logic._canonical_preprints_for_subject(s).exists()
+                ]
                 has_orphans = logic._preprints_without_subject(repo).exists()
 
-                if has_subjects_with_preprints or has_orphans:
-                    logic.write_repository_sitemap(repo)
-                    logic.write_pages_sitemap(repo)
-                    for subject in tqdm(list(subjects)):
-                        if logic._canonical_preprints_for_subject(subject).exists():
-                            logic.write_subject_sitemap(subject)
-                    if has_orphans:
-                        logic.write_not_in_any_subject_sitemap(repo)
+                # Repos with no published preprints get no files at all.
+                if not (subjects_with_preprints or has_orphans):
+                    continue
+
+                # Sub-sitemaps written into the repository siteindex.
+                children = [lambda: logic.write_pages_sitemap(repo)]
+                children += [
+                    (lambda subject=subject: logic.write_subject_sitemap(subject))
+                    for subject in subjects_with_preprints
+                ]
+                if has_orphans:
+                    children.append(
+                        lambda: logic.write_not_in_any_subject_sitemap(repo)
+                    )
+
+                logic.write_repository_sitemap(repo)
+                _run(children)
