@@ -92,8 +92,12 @@ class Command(ProfiledCommand):
             for repo in repositories:
                 print(f"Generating sitemap for {repo.name}")
                 subjects = repo.subject_set.all()
+                # Canonicalised list: each preprint counted under whichever
+                # of its subjects sorts first by name, so subjects whose
+                # preprints are all canonicalised elsewhere don't get an
+                # empty sub-sitemap.
                 has_subjects_with_preprints = any(
-                    s.published_preprints().exists() for s in subjects
+                    logic._canonical_preprints_for_subject(s).exists() for s in subjects
                 )
                 has_orphans = logic._preprints_without_subject(repo).exists()
 
@@ -101,7 +105,7 @@ class Command(ProfiledCommand):
                     logic.write_repository_sitemap(repo)
                     logic.write_pages_sitemap(repo)
                     for subject in tqdm(list(subjects)):
-                        if subject.published_preprints().exists():
+                        if logic._canonical_preprints_for_subject(subject).exists():
                             logic.write_subject_sitemap(subject)
                     if has_orphans:
                         logic.write_not_in_any_subject_sitemap(repo)

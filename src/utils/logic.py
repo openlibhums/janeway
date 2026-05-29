@@ -405,7 +405,7 @@ def _canonical_journal_links(journal):
         links.append((_site_url_for(journal, "journal_articles"), "Articles", None))
     if journal.nav_issues:
         links.append((_site_url_for(journal, "journal_issues"), "Issues", None))
-    if journal.nav_news and journal.active_news_items.exists():
+    if journal.active_news_items.exists():
         links.append((_site_url_for(journal, "core_news_list"), "News", None))
     if journal.nav_sub:
         links.append(
@@ -489,6 +489,31 @@ def _preprints_without_subject(repo):
     )
 
 
+def _canonical_preprints_for_subject(subject):
+    """Published preprints whose first-by-name subject is `subject`.
+
+    A preprint can be tagged with multiple subjects; sitemap.org best practice
+    is for each URL to appear in only one sitemap.  Canonicalise each preprint
+    to whichever of its subjects sorts first alphabetically, so each preprint
+    appears in exactly one subject sub-sitemap.  Matches the alphabetical-first
+    choice made by `page_sitemap_url` for the footer link.
+    """
+    from django.db.models import OuterRef, Subquery
+
+    canonical_pk = Subquery(
+        repo_models.Subject.objects.filter(
+            preprint=OuterRef("pk"),
+        )
+        .order_by("name")
+        .values("pk")[:1]
+    )
+    return (
+        subject.published_preprints()
+        .annotate(_canonical_subject_pk=canonical_pk)
+        .filter(_canonical_subject_pk=subject.pk)
+    )
+
+
 def build_pages_sitemap_context(owner):
     """Pages sub-sitemap context: canonicals + CMS pages, deduped by URL,
     sorted case-insensitively by label.
@@ -512,15 +537,15 @@ def build_pages_sitemap_context(owner):
         else []
     )
 
+    # On URL collision the CMS page wins both label and lastmod: it is what
+    # the URL actually serves, so its display_name and edited date describe
+    # the real content. The canonical's label only applies when no CMS page
+    # exists at that URL.
     by_url = {}
     for url, label, lastmod in canonical:
         by_url[url] = (label, lastmod)
     for url, label, lastmod in cms_entries:
-        if url in by_url:
-            existing_label, _ = by_url[url]
-            by_url[url] = (existing_label, lastmod)
-        else:
-            by_url[url] = (label, lastmod)
+        by_url[url] = (label, lastmod)
 
     entries = [
         {"url": url, "title": label, "lastmod": lastmod, "date": lastmod}
@@ -626,7 +651,7 @@ def build_subject_sitemap_context(subject_or_none, repo):
     'Not in any subject' virtual sitemap.
     """
     if subject_or_none is not None:
-        qs = subject_or_none.published_preprints()
+        qs = _canonical_preprints_for_subject(subject_or_none)
         page_title = f"Sitemap - {subject_or_none.name}, {repo.name}"
         sitemap_level = "subject"
     else:
@@ -799,7 +824,7 @@ def build_repo_index_context(repo):
         }
     ]
     for subject in repo.subject_set.all().order_by("name"):
-        if subject.published_preprints().exists():
+        if _canonical_preprints_for_subject(subject).exists():
             child_sitemaps.append(
                 {
                     "loc": (
