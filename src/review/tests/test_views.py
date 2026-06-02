@@ -1251,3 +1251,44 @@ class ReviewTests(TestCase):
                 SERVER_NAME=self.journal_one.domain,
             )
         self.assertEqual(response.status_code, 200)
+
+
+class InReviewActionsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(cls.journal_one)
+        review_models.ReviewRound.objects.create(
+            article=cls.article,
+            round_number=1,
+        )
+
+    def test_rolled_back_article_offers_decision_actions(self):
+        # Acceptance leaves a historical ArticleStageLog entry that
+        # keeps is_accepted() True even after rollback.
+        self.article.stage = submission_models.STAGE_ACCEPTED
+        self.article.date_accepted = timezone.now()
+        self.article.save()
+        self.article.stage = submission_models.STAGE_UNDER_REVIEW
+        self.article.date_accepted = None
+        self.article.date_declined = None
+        self.article.save()
+        self.assertTrue(self.article.is_accepted())
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "review_in_review",
+                kwargs={"article_id": self.article.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "New Review Round")
+        self.assertContains(
+            response,
+            reverse("decision_helper", kwargs={"article_id": self.article.pk}),
+        )
+        self.assertNotContains(response, "Move to Next Stage")

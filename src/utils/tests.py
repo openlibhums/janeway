@@ -1299,6 +1299,12 @@ class TestORCiDRecord(TestCase):
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
 
+    @mock.patch("utils.orcid.get_orcid_record", return_value=None)
+    def test_record_details_empty_on_lookup_failure(self, mock_record):
+        details = get_orcid_record_details("0000-0000-0000-0000")
+        self.assertFalse(details)
+        self.assertEqual(len(details), 0)
+
     @override_settings(URL_CONFIG="domain")
     @mock.patch("utils.logic.get_current_request")
     def test_redirect_uri(self, get_current_request):

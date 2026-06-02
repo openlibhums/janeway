@@ -1,2 +1,33 @@
-<h2>{% trans 'Platform: Janeway' %}</h2>
-<p>janeway a11y text</p>
+<h2>{% trans 'Janeway' %}</h2>
+    <p>
+        {% blocktrans %}
+            This site is built on Janeway, a web-based platform for publishing journals, 
+            preprints, conference proceedings, and books.  
+        {% endblocktrans%}
+    </p>
+    <p>
+        {% blocktrans %}
+            Janeway is in the second part of a three phase accessibility improvement plan.
+            The first phase focused on the pages that can be viewed without needing an account (we call this the "Front of House").
+            This included an overhaul of our tables, landmarks and headings, a new alt-text system, 
+            and developing an accessibility mode.  We are now in Phase 2 where we are updating the account-only pages (the "Back Office").  
+            In Phase 3 we intend to develop tools for improving the accessiblity of user content.
+        {% endblocktrans%} 
+    </p>
+    <p> 
+        {% blocktrans %}
+            Janeway conformance data is stored within the codebase, so that its history can be tracked. 
+            We audit our platform on a rolling-basis with a combination of manual- and automated-testing alongside reviewing the codebase.  
+            The primary purpose of each audit is to identify accessibility improvements and specify them for development.
+            We audit against WCAG 2.2 AA standard, and each success criterion is crosslinked to any work that needs to be done on Github. 
+        {% endblocktrans%} 
+    </p>
+    <p>
+        {% trans 'Full details of the work done and that planned are in our' %}
+        <a href="https://github.com/orgs/openlibhums/projects/49/views/1?pane=info" target="_blank">
+            {% trans 'Accessibility Project.' %}
+            {% include "elements/icons/link_external.html" %}
+        </a>
+    </p>
+
+

@@ -382,6 +382,13 @@ a:hover .article-title {
     text-decoration: underline;
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 .feature-article-image {
     width: 100%;
     object-fit: cover;
