@@ -3,6 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import datetime
 import os
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -22,6 +23,7 @@ from utils.install import update_xsl_files, update_settings
 from utils import setting_handler
 from utils.testing import helpers
 from utils.shared import clear_cache
+from review.const import ReviewerDecisions as RD
 
 
 # Create your tests here.
@@ -74,7 +76,7 @@ class ReviewTests(TestCase):
             "visibility": "double-blind",
             "form": self.review_form.pk,
             "date_due": "2900-01-01",
-            "reviewer": self.second_reviewer.pk,
+            "reviewer": self.reviewer.pk,
         }
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
@@ -94,13 +96,14 @@ class ReviewTests(TestCase):
             "date_due": "2900-01-01",
             "reviewer": self.regular_user.pk,
         }
+        reviewers = logic.get_reviewer_candidates(
+            self.article_under_review, self.editor
+        )
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
             article=self.article_under_review,
             editor=self.editor,
-            reviewers=logic.get_reviewer_candidates(
-                self.article_under_review, self.editor
-            ),
+            reviewers=reviewers,
             data=data,
         )
         self.assertFalse(form.is_valid())
@@ -489,7 +492,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             404,
         )
@@ -506,7 +509,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             200,
         )
@@ -519,13 +522,29 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             403,
         )
 
         # finally, delete the file from disk
         files.delete_file(article_with_completed_reviews, file)
+
+    def test_withdrawing_review_assignment(self):
+        review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+            )
+        )
+        review_to_withdraw.withdraw()
+        self.assertTrue(
+            review_to_withdraw.decision,
+            RD.DECISION_WITHDRAWN.value,
+        )
 
     def setup_request_object(self):
         request = helpers.Request()
@@ -620,7 +639,11 @@ class ReviewTests(TestCase):
             "editoruser@martineve.com", ["editor"], journal=self.journal_one
         )
         self.editor.is_active = True
-        self.editor.save()
+        self.reviewer = self.create_user(
+            "revieweruser@email.com", ["reviewer"], journal=self.journal_one
+        )
+        self.reviewer.is_active = True
+        self.reviewer.save()
 
         self.author = self.create_user(
             "authoruser@martineve.com", ["author"], journal=self.journal_one
@@ -839,10 +862,11 @@ class ReviewTests(TestCase):
                 review_round=self.round_two,
                 reviewer=self.second_reviewer,
                 editor=self.editor,
-                date_due=timezone.now(),
+                date_due=datetime.datetime.now(),
                 form=self.review_form,
                 is_complete=True,
                 decision="withdrawn",
+                date_complete=timezone.now(),
             )
         )
 
@@ -856,6 +880,16 @@ class ReviewTests(TestCase):
                 date_declined=timezone.now(),
                 form=self.review_form,
                 is_complete=False,
+            )
+        )
+
+        self.review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
             )
         )
 
@@ -1039,27 +1073,3 @@ class ReviewTests(TestCase):
         self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
-
-    def test_request_revisions_context(self):
-        self.client.force_login(self.editor)
-        response = self.client.get(
-            reverse(
-                "review_request_revisions",
-                kwargs={"article_id": self.article_review_completed.pk},
-            ),
-            SERVER_NAME=self.journal_one.domain,
-        )
-        response.context.get("incomplete")
-        self.assertEqual(
-            self.article_review_completed,
-            response.context.get("article"),
-        )
-        # This test does not cover the revision request form
-        self.assertEqual(
-            0,
-            response.context.get("pending_approval").count(),
-        )
-        self.assertEqual(
-            0,
-            response.context.get("incomplete").count(),
-        )

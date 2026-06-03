@@ -6,4 +6,5 @@ marshmallow
 freezegun
 snakeviz
 django-browser-reload
-ruff
+tox
+ruff==0.14.14

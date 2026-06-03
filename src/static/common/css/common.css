@@ -327,3 +327,59 @@ a.twitter-x{
   font-weight: bold;
   line-height: 1.25;
 }
+
+.list-inline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+/* Remove specific OLH-theme list styling */
+#content aside ul.list-inline li:before {
+  content: "";
+  height: 0;
+  width: 0;
+}
+
+.list-inline li {
+  display: inline;
+}
+
+.list-inline li:not(:first-child) {
+  margin-left: 0.3rem;
+}
+
+.comma-sep li:not(:last-child)::after {
+  content: ",";
+}
+
+.comma-and-sep li:not(:last-child):not(:nth-last-child(2))::after,
+.comma-ampersand-sep li:not(:last-child):not(:nth-last-child(2))::after {
+  content: ",";
+}
+
+.comma-and-sep li:nth-last-child(2)::after {
+    content: " and";
+}
+
+.comma-ampersand-sep li:nth-last-child(2)::after {
+    content: " &";
+}
+
+.bar-sep li:not(:last-child)::after {
+    content: " | ";
+}
+
+.list-no-bullet{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+/* Remove specific OLH-theme list styling */
+#content aside ul.list-no-bullet li:before {
+  content: "";
+  height: 0;
+  width: 0;
+}
+#content aside ul.list-no-bullet li {
+  margin-bottom: 4px;
+}

@@ -436,11 +436,13 @@ def register(request, orcid_token=None):
                 new_user = form.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-                    for orcid_affil in orcid_details.get("affiliations", []):
+                    orcid_affils = orcid_details.get("affiliations", [])
+                    if orcid_affils:
                         orcid_affil_form = forms.OrcidAffiliationForm(
-                            orcid_affiliation=orcid_affil,
+                            orcid_affiliation=orcid_affils[0],
                             tzinfo=new_user.preferred_timezone,
                             data={"account": new_user},
+                            journal=request.journal,
                         )
                         if orcid_affil_form.is_valid():
                             orcid_affil_form.save()
@@ -462,7 +464,11 @@ def register(request, orcid_token=None):
                 new_user = form.save()
 
             if request.journal:
-                new_user.add_account_role("author", request.journal)
+                submission_limited = request.journal.get_setting(
+                    "general", "limit_access_to_submission"
+                )
+                if not submission_limited:
+                    new_user.add_account_role("author", request.journal)
             logic.send_confirmation_link(request, new_user)
 
             messages.add_message(
@@ -766,6 +772,7 @@ def affiliation_update_from_orcid(request, how_many="primary"):
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"account": request.user},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))
@@ -857,7 +864,8 @@ def dashboard(request):
         "is_reviewer": request.user.is_reviewer(request),
         "section_editor_articles": section_editor_articles,
         "active_submission_count": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(stage=submission_models.STAGE_UNSUBMITTED)
         .count(),
@@ -936,7 +944,8 @@ def dashboard(request):
             typesetter=request.user,
         ).count(),
         "active_submissions": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(
             stage__in=[
@@ -3013,9 +3022,7 @@ class FilteredArticlesListView(GenericFacetedListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        raise DeprecationWarning(
-            "This view is deprecated. Use GenericFacetedListView instead."
-        )
+        warnings.warn("This view is deprecated. Use GenericFacetedListView instead.")
 
 
 @method_decorator(editor_user_required, name="dispatch")

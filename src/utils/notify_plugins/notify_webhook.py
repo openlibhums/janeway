@@ -1,11 +1,24 @@
 import requests
 import threading
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+def _post_and_check(url, data, headers):
+    try:
+        response = requests.post(url, data=data, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as error:
+        logger.error("Webhook POST to %s failed: %s", url, error)
+
 
 def send_message(hook_url, message, headers=None):
-    # this sends a non-blocking post to a web URL
+    # Fire and forget call to avoid blocking
+    # TODO: use a queue and worker
     hook_thread = threading.Thread(
-        target=requests.post, args=(hook_url, message, headers), kwargs={}
+        target=_post_and_check, args=(hook_url, message, headers or {})
     )
     hook_thread.start()
 

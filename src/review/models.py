@@ -2,15 +2,21 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+import os
 
 from django.db import models
 from django.utils import timezone
 from django.db.models import Max, Q, Value
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from core import files
 from core import model_utils
+from core import models as core_models
 
 from review.const import (
     EditorialDecisions as ED,
@@ -36,6 +42,7 @@ def all_review_decisions():
         (RD.DECISION_MAJOR.value, "Major Revisions Required"),
         (RD.DECISION_REJECT.value, "Reject"),
         (RD.DECISION_NO_RECOMMENDATION.value, "No Recommendation"),
+        (RD.DECISION_WITHDRAWN.value, "Withdrawn"),
     )
 
 
@@ -287,7 +294,9 @@ class ReviewAssignment(models.Model):
             "frozen_element__order"
         )
 
-    def save_review_form(self, review_form, assignment):
+    def save_review_form(self, review_form, assignment, req_files=None):
+        if not req_files:
+            req_files = {}
         for k, v in review_form.cleaned_data.items():
             form_element = ReviewFormElement.objects.get(
                 reviewform=assignment.form, pk=k
@@ -300,6 +309,13 @@ class ReviewAssignment(models.Model):
                     "answer": v,
                 },
             )
+            if k in req_files:
+                answer_file, _ = ReviewAssignmentAnswerFile.objects.get_or_create(
+                    answer=answer,
+                    edited=False,
+                )
+                answer_file.save_file(req_files[k])
+
             form_element.snapshot(answer)
 
     @property
@@ -385,7 +401,11 @@ class ReviewAssignment(models.Model):
 
     def request_decision_status(self):
         if self.decision == RD.DECISION_WITHDRAWN.value:
-            return f"Withdrawn {self.date_complete.date()}"
+            if self.date_complete:
+                date = self.date_complete.date()
+            else:
+                date = "[unknown date]"
+            return f"Withdrawn {date}"
         elif self.date_complete and self.date_accepted:
             return f"Complete {self.date_complete.date()}"
         elif self.date_accepted:
@@ -398,6 +418,12 @@ class ReviewAssignment(models.Model):
         if self.for_author_consumption:
             return _("available for the author to access")
         return _("not available for the author to access")
+
+    def withdraw(self):
+        self.date_complete = timezone.now()
+        self.decision = RD.DECISION_WITHDRAWN.value
+        self.is_complete = True
+        self.save()
 
     def __str__(self):
         if self.reviewer:
@@ -525,6 +551,89 @@ class ReviewAssignmentAnswer(models.Model):
             return (
                 "element"  # this is a fallback incase the two links above are removed.
             )
+
+    def render_answer(self, edited=False):
+        to_render = self.answer
+        if edited:
+            to_render = self.edited_answer
+
+        answer_file = self.files.filter(edited=edited).first()
+        if answer_file and answer_file.file:
+            uri = reverse(
+                "review_attachment_download",
+                kwargs={
+                    "assignment_id": self.assignment.id,
+                    "file_uuid": answer_file.file.uuid_filename,
+                },
+            )
+            to_render = f"<a href={uri}>{to_render}</a>"
+
+        return mark_safe(to_render)
+
+    def render_edited_answer(self):
+        return self.render_answer(edited=True)
+
+
+class ReviewAssignmentAnswerFile(models.Model):
+    LABEL = "Reviewer Attachment"
+    answer = models.ForeignKey(
+        "review.ReviewAssignmentAnswer", on_delete=models.CASCADE, related_name="files"
+    )
+    file = models.ForeignKey(
+        "core.File",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="review_attchments",
+    )
+    edited = models.BooleanField(
+        default=False, help_text="This file is an edit, rather than the original answer"
+    )
+
+    class Meta:
+        # Ensure a single file per answer for reviewer and for editor
+        unique_together = ("answer", "edited")
+
+    @property
+    def reviews_path(self):
+        return os.path.join("reviews", str(self.answer.assignment.id))
+
+    @property
+    def dir_path(self):
+        return os.path.join(
+            settings.BASE_DIR,
+            "files",
+            "articles",
+            str(self.answer.assignment.article.id),
+            self.reviews_path,
+        )
+
+    @property
+    def file_path(self):
+        if not self.file:
+            return ""
+        return os.path.join(
+            self.dir_path,
+            str(self.file.uuid_filename),
+        )
+
+    def save_file(self, file_to_save, owner=None):
+        label = self.LABEL
+        if self.edited:
+            label = f"{label} (edited)"
+
+        if self.file:
+            files.overwrite_file(file_to_save, self.file, self.dir_path)
+        else:
+            file_obj = files.save_file_to_article(
+                file_to_save,
+                self.answer.assignment.article,
+                owner or self.answer.assignment.reviewer,
+                label=label,
+                subdir=self.dir_path,
+            )
+            self.file = file_obj
+            self.save()
 
 
 class FrozenReviewFormElement(BaseReviewFormElement):

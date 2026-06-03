@@ -31,7 +31,7 @@
                         Authors
                       {% endblocktrans %}
                     </small>
-                    {% include "common/elements/journal/article_authors_br.html" %}
+                    {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                 </div>
             </div>
         </section>
@@ -61,7 +61,7 @@
                                     Authors
                                   {% endblocktrans %}
                                 </p>
-                                {% include "common/elements/journal/article_authors_br.html" %}
+                                {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                             </div>
                         </div>
                     </li>
@@ -101,14 +101,6 @@
                                     </li>
                                     <li><a href="javascript:resizeText(-1)" aria-label="{% trans 'decrease text size' %}">A-</a></li>
                                     <li><a href="javascript:resizeText(1)" aria-label="{% trans 'increase text size' %}">A+</a></li>
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}" >
-                                                <i aria-hidden="true" class="fa fa-envelope email-link"></i>
-                                                <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
-                                            </a>
-                                        </li>
-                                    {% endif %}
                                     <li><a href="#" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</a></li>
                                     <li>
                                         <a href="#">
@@ -147,7 +139,7 @@
                           Authors
                         {% endblocktrans %}
                       </small>
-                      {% include "common/elements/journal/article_authors_br.html" %}
+                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                     </div>
                 <hr aria-hidden="true" />
                 {% endif %}
@@ -300,6 +292,10 @@
                             {% endif %}
 
                             {% include "elements/journal/share.html" %}
+                            <div class="section">
+                              <h3>Author details</h3>
+                              {% include "elements/journal/article_authors_full.html" %}
+                            </div>
                             <div class="section">
                                 {% if article.is_published or proofing %}
                                     <h2>{% trans "Downloads" %}</h2>

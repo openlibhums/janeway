@@ -11,7 +11,7 @@
         {% for issue in all_issues %}
             <set>
                 <setSpec>{{ issue.journal.code }}:{{ issue.issue_type.code }}:{{ issue.pk }}</setSpec>
-                <setName>{{ issue.non_pretty_issue_identifier }}</setName>
+                <setName>{{ issue.non_pretty_issue_identifier|force_escape }}</setName>
             </set>
         {% endfor %}
         {% for section in sections %}

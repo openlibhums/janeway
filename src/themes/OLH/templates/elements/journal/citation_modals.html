@@ -50,18 +50,30 @@
         <p>{% for author in article.frozenauthor_set.all %}{% if forloop.last %}{% if not forloop.first %}
             &amp; {% endif %}{% endif %}{{ author.last_name }},
             {{ author.first_name|slice:"1" }}{% if forloop.last %}.{% endif %} {% endfor %}
-            ({{ article.date_published.year }}, {{ article.date_published.month }} {{ article.date_published.day }}). {{ article.title|safe }}.
+          ({{ article.date_published.year }}). {{ article.title|safe }}.
+          {% spaceless %}
       <i>{% if journal.name %}{{ journal.name }}{% else %}{{ request.press.name }} {% trans 'Preprints' %}{% endif %}</i>
             {% if article.issue and article.issue.issue and article.issue.volume %}
-                {{ article.issue.volume }}({{ article.issue.issue }})
+              <i>, {{ article.issue.volume }}</i>
+              <span>({{ article.issue.issue }})</span>
             {% elif article.issue and article.issue.issue %}
-                {{ article.issue.issue }}
+              <span>, {{ article.issue.issue }}</span>
             {% elif article.issue and article.issue.volume %}
-                {{ article.issue.volume }}{% endif %}
-            {% if article.page_range %}:{{ article.page_range }}.{% endif %}
-            {% if article.identifier.id_type == 'doi' %}doi: {{ article.identifier.identifier }}{% endif %}</p>
-        <p>Show: <a data-open="HarvardModal">{% trans 'Harvard Citation Style' %}</a> | <a data-open="VancouverModal">{% trans 'Vancouver
-            Citation Style' %}</a></p>
+              <i>, {{ article.issue.volume }}</i>
+            {% endif %}
+            {% if article.page_range %}
+              <span>, {{ article.page_range }}</span>
+            {% endif %}
+            <span>.</span>
+          {% endspaceless %}
+          {% if article.identifier.is_doi %}
+            {{ article.get_doi_url }}
+          {% endif %}
+        </p>
+        <p>
+          Show: <a data-open="HarvardModal">{% trans 'Harvard Citation Style' %}</a> |
+          <a data-open="VancouverModal">{% trans 'Vancouver Citation Style' %}</a>
+        </p>
         <button class="close-button" data-close aria-label="Close modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>

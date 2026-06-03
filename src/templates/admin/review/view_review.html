@@ -97,13 +97,13 @@
                                     <div class="callout" style="padding-bottom:0px;">
                                         <b>{{ answer.element.name }}</b>
                                         <br/>
-                                        {{ answer.answer|safe|linebreaksbr }}
+                                        {{ answer.render_answer|linebreaksbr }}
                                         <br/>
                                         {% if answer.edited_answer %}
                                             <br/>
                                             <b>{% trans 'Edited Answer' %}</b>
                                             <br/>
-                                            {{ answer.edited_answer|safe|linebreaksbr }}
+                                            {{ answer.render_edited_answer|linebreaksbr }}
                                             <br/>
                                         {% endif %}
                                         <br/>

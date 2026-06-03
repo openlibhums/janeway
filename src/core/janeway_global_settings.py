@@ -228,7 +228,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "/db/janeway.sqlite3",
+            "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
         }
     }
 
@@ -585,8 +585,8 @@ OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 if ENABLE_OIDC:
     AUTHENTICATION_BACKENDS = (
-        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
         "django.contrib.auth.backends.ModelBackend",
+        "utils.oidc.JanewayOIDCAB",
     )
 
 CORE_FILETEXT_MODEL = "core.FileText"
@@ -713,3 +713,9 @@ JATS_ARTICLE_TYPES = (
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
+
+# Chunks ROR bulk_create() inserts so they fit within MySQL's
+# default max_allowed_packet (16MB on older servers) and avoid
+# 'Server has gone away' errors on large dumps. Operators on a MySQL server
+# with a smaller max_allowed_packet may need to lower this value in their local settings.
+ROR_BULK_BATCH_SIZE = 1000

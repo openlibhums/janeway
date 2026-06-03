@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 # we need this for strict type checking on the event destroyer
+import warnings
+
 from submission import models as submission_models
 from django.conf import settings
 
@@ -312,7 +314,7 @@ class Events:
         :return: None
         """
         if event_name in Events.DEPRECATED_EVENTS and settings.DEBUG:
-            raise DeprecationWarning(f"{event_name} is deprecated.")
+            warnings.warn(f"{event_name} is deprecated.")
 
         if settings.DEBUG:
             print("Firing event {}".format(event_name))

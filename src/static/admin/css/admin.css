@@ -967,7 +967,8 @@ ul.menu {
 
 .small-form {
   display: grid;
-  grid-template-columns: min(calc(100vw - (2 * var(--small-inline-margin))), 24rem);
+  column-gap: 2rem;
+  grid-template-columns: repeat(auto-fit, min(calc(100vw - (2 * var(--small-inline-margin))), 24rem));
   justify-content: center;
 }
 

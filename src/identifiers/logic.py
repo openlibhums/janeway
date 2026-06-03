@@ -10,6 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import itertools
+import warnings
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -658,7 +659,7 @@ def preview_registration_information(article):
 
 
 def get_preprint_tempate_context(request, identifier):
-    raise DeprecationWarning("Not used.")
+    warnings.warn("Not used.")
     article = identifier.article
 
     template_context = {
@@ -704,7 +705,7 @@ def register_preprint_doi(request, crossref_enabled, identifier):
     :param identifier: Identifier object
     :return: Nothing
     """
-    raise DeprecationWarning("Not used.")
+    warnings.warn("Not used.")
     if not crossref_enabled:
         messages.add_message(
             request,

@@ -39,7 +39,7 @@
                     <div class="{{ answer.element.width }}">
                         <b>{{ answer.element.name }}</b>
                         <br />
-                        {{ answer.answer|safe|linebreaksbr}}
+                        {{ answer.render_answer|linebreaksbr}}
                         <br /><br />
                     </div>
                 {% endfor %}
