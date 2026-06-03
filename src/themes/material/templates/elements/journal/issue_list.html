@@ -4,15 +4,34 @@
         <div class="card horizontal">
             <div class="card-image">
                 {% if level == "deep" %}
-                    <h3 class="sr-only">{{ issue.display_title }}</h3>
+                    <h3 id="issue-{{ issue.id }}" class="sr-only">{{ issue.display_title }}</h3>
                 {% else %}
-                    <h2 class="sr-only">{{ issue.display_title }}</h2>
+                    <h2 id="issue-{{ issue.id }}" class="sr-only">{{ issue.display_title }}</h2>
                 {% endif %}
-                <a href="{% url 'journal_issue' issue.id %}"><img
-                        class="issue_image" src="
-                        {% if issue.cover_image %}{{ issue.cover_image.url }}{% elif journal.default_cover_image %}{{ journal.default_cover_image.url }}{% else %}{% static "common/img/sample/issue_cover.png" %}{% endif %}"
-                        alt="{{ issue.display_title }}"
-                        class="img-fluid"></a>
+                {% if issue.cover_image %}
+                  {% get_alt_text obj=issue file_path=issue.cover_image as alt_text %}
+                  <a href="{% url 'journal_issue' issue.id %}">
+                    <img
+                            class="issue_image img-fluid"
+                            src="{{ issue.cover_image.url }}"
+                            alt="{{ alt_text }}">
+                  </a>
+                {% elif journal.default_cover_image %}
+                  {% get_alt_text obj=journal file_path=journal.default_cover_image as alt_text %}
+                  <a href="{% url 'journal_issue' issue.id %}">
+                    <img
+                            class="issue_image img-fluid"
+                            src="{{ journal.default_cover_image.url }}"
+                            alt="{{ alt_text }}">
+                  </a>
+                {% else %}
+                  <a href="{% url 'journal_issue' issue.id %}">
+                    <img
+                            class="issue_image img-fluid"
+                            src="{% static 'common/img/sample/issue_cover.png' %}"
+                            alt="Default issue cover">
+                  </a>
+                {% endif %}
             </div>
             <div class="card-stacked card">
                 <div class="card-content">
@@ -34,9 +53,15 @@
                     <span class="grey-text text-darken-4">{{ issue.issue_title }}</span>
                 </div>
                 <div class="card-action">
-                    <a href="{% url 'journal_issue' issue.id %}">{% trans "View Issue" %}</a>
+                    <a href="{% url 'journal_issue' issue.id %}"
+                        aria-describedby="issue-{{ issue.id }}"
+                        >
+                        {% trans "View Issue" %}
+                    </a>
                     {% if request.user and request.user.is_staff or user_is_editor %}
-                        <a href="{% url 'manage_issues_id' issue.pk %}">
+                        <a href="{% url 'manage_issues_id' issue.pk %}"
+                            aria-describedby="issue-{{ issue.id }}"
+                            >
                             <i aria-hidden="true" class="fa fa-edit">&nbsp;</i>
                             <span class="sr-only">{% trans "Edit Issue" %}</span>
                         </a>

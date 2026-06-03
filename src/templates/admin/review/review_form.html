@@ -123,6 +123,14 @@
                 <div class="title-area">
                         <h2>File Upload</h2>
                     </div>
+                      {% if assignment.visibility == 'double-blind' or assignment.visibility == 'blind' %}
+                        <div class="content">
+                            <small>
+                                Please check that all comments and files have been fully anonymised before uploading your review.
+                            </small>
+                        </div>
+                      {% endif %}
+                  
                     <div class="content">
                         <div class="large-12 columns">
                             {{ journal_settings.general.peer_review_upload_text|safe }}

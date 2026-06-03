@@ -165,6 +165,7 @@ TEMPLATES = [
             ],
             "builtins": [
                 "core.templatetags.fqdn",
+                "core.templatetags.alt_text",
                 "security.templatetags.securitytags",
                 "django.templatetags.i18n",
             ],
@@ -188,6 +189,7 @@ SETTINGS_EXPORT = [
     "HIJACK_USERS_ENABLED",
     "ENABLE_OIDC",
     "OIDC_SERVICE_NAME",
+    "HERO_IMAGE_FALLBACK",
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -228,7 +230,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+            "NAME": os.environ.get("DB_NAME", os.path.join(PROJECT_DIR, "db.sqlite3")),
         }
     }
 
@@ -719,3 +721,13 @@ ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=new
 # 'Server has gone away' errors on large dumps. Operators on a MySQL server
 # with a smaller max_allowed_packet may need to lower this value in their local settings.
 ROR_BULK_BATCH_SIZE = 1000
+# Last-resort hero image (a.k.a. large image), loadable as a static file
+HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
+# The default crop size, used mainly for hero / large images.
+# Note that the provided theme CSS expects a default crop size of (1500, 648)
+# and may not work properly with a different size.
+DEFAULT_CROP_SIZE = (1500, 648)
+
+# This setting should only be enabled where CORS is properly
+# configured to stop misuse of this endpoint.
+API_ENABLE_ACCOUNT_ENDPOINTS = False

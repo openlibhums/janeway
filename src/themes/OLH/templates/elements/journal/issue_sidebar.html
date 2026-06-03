@@ -8,8 +8,8 @@
                     <h2 id="downloads-title">{% trans 'Downloads' %}</h2>
                     <p>
                         <a href="{% url 'journal_issue_download_galley' issue.pk issue.galley.pk %}">
-                            <i aria-hidden="true"  class="fa fa-download">&nbsp</i>
-                            {% trans "Download Issue" %} (PDF)
+                            (PDF)
+                            {% include "elements/icons/link_download.html" %} 
                         </a>
                     </p>
                 </section>

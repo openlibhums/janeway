@@ -22,13 +22,16 @@
         {% for item in journal.press.navigation_items %}
             {% if item.for_footer and item.extend_to_journals %}
                 <li>
-                    <a
-                        href="{{ item.link }}"
-                        {% if item.is_external %}
-                            target="_blank"
-                        {% endif %}>
-                        {{ item.link_name }}
-                    </a>
+                    {% if item.is_external %}
+                        <a href="{{ item.link }}" target="_blank">
+                            {{ item.link_name }}
+                            {% include "elements/icons/link_external.html" %} 
+                        </a>
+                    {% else %}
+                        <a href="{{ item.link }}">
+                            {{ item.link_name }}
+                        </a>
+                    {% endif %}
                 </li>
             {% endif %}
         {% endfor %}
@@ -38,6 +41,7 @@
         <li><a href="{% url 'cms_page' "privacy" %}">{% trans "Privacy Policy" %}</a></li>
       {% endif %}
         <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
         {% if not request.user.is_authenticated %}
           <li>
             <a href="{% url 'core_login' %}">

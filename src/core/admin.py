@@ -737,6 +737,22 @@ class ControlledAffiliationAdmin(admin.ModelAdmin):
             return ""
 
 
+class AltTextAdmin(admin.ModelAdmin):
+    list_display = (
+        "content_type",
+        "object_id",
+        "file_path",
+        "alt_text",
+        "created",
+        "updated",
+    )
+    search_fields = (
+        "alt_text",
+        "file_path",
+    )
+    list_filter = ("content_type",)
+
+
 admin_list = [
     (models.AccountRole, AccountRoleAdmin),
     (models.Account, AccountAdmin),
@@ -773,6 +789,7 @@ admin_list = [
     (models.OrganizationName, OrganizationNameAdmin),
     (models.Location, LocationAdmin),
     (models.ControlledAffiliation, ControlledAffiliationAdmin),
+    (models.AltText, AltTextAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

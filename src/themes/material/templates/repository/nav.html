@@ -59,7 +59,7 @@
                     <a
                         class="dropdown-trigger"
                         href="#!"
-                        data-target="dropdown1">
+                        data-target="sidenav-account">
                         {% trans "Account" %}
                         <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
@@ -80,11 +80,11 @@
 </nav>
 
 {% if request.user.is_authenticated %}
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="sidenav-account" class="dropdown-content">
          <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user in request.repository.managers.all %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}
@@ -97,7 +97,7 @@
         <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user in request.repository.managers.all %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}

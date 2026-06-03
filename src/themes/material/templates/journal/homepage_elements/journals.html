@@ -13,9 +13,14 @@
                 </div>
                 <div class="card-content journal-card-content">
                     {% if current_journal.is_remote %}
-                        <a href="{{ current_journal.remote_view_url }}">
+                        <a href="{{ current_journal.remote_view_url }}" target="_blank">
+                            {{ current_journal.name }}
+                            {% include "elements/icons/link_external.html" %} 
+                        </a>
                     {% else %}
                         <a href="{{ current_journal.site_url }}">
+                            {{ current_journal.name }}
+                        </a>
                     {% endif %}
                     <h3>{{ current_journal.name }}</h3>
                     </a>

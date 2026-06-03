@@ -59,7 +59,6 @@ def process_js():
         os.path.join(settings.BASE_DIR, "themes/OLH/assets/js/app.js"),
         os.path.join(settings.BASE_DIR, "themes/OLH/assets/js/footnotes.js"),
         os.path.join(settings.BASE_DIR, "themes/OLH/assets/js/table_of_contents.js"),
-        os.path.join(settings.BASE_DIR, "themes/OLH/assets/js/text_resize.js"),
         os.path.join(settings.BASE_DIR, "themes/OLH/assets/js/toastr.js"),
     ]
     dest_path = os.path.join(settings.BASE_DIR, "static/OLH/js/app.js")

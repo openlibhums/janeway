@@ -61,6 +61,9 @@
   &.auto {
     grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size, 16rem), 1fr));
   }
+  &.auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(var(--auto-grid-min-size, 16rem), 1fr));
+  }
   &.auto-flow-40 {
     grid-template-columns: repeat(2, 40rem);
     grid-auto-flow: row dense;
@@ -166,6 +169,9 @@
 /* Margin */
 .margin-block-end-10 {
   margin-block-end: 10rem;
+}
+.margin-block-0 {
+  margin-block: 0;
 }
 
 /* Font sizes */

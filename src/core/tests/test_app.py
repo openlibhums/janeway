@@ -470,7 +470,7 @@ class CoreTests(TestCase):
             SERVER_NAME="testserver",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Reviews")
+        self.assertNotContains(response, "<h2>Reviews</h2>")
 
     @override_settings(URL_CONFIG="domain")
     def test_peer_reviews_for_author_consumption_overrides_hide_review_data(self):

@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load dates %}
+{% load pages %}
 
 {% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
 
@@ -12,10 +13,10 @@
         </div>
         {% for item in news_items %}
             <div class="col-md-12">
-                <h2>{{ item.title|safe }}</h2>
+                <h2 id="news-item-{{ item.pk }}">{{ item.title|safe }}</h2>
                 <p class="byline">{{ item.byline }} on {{ item.posted|date_human }}</p>
                 <p>{{ item.body|truncatewords_html:50|safe }}</p>
-                <a href="{% url 'core_news_item' item.pk %}">{% trans 'Read More' %}</a>
+                <p><a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-item-{{ item.pk }}">{% trans 'Read More' %}</a></p>
                 <hr aria-hidden="true" />
             </div>
         {% empty %}
@@ -23,7 +24,7 @@
         {% endfor %}
     </div>
     <section aria-label="pagination">
-        <div class="pagination-block">
+        <div class="pagination-block site-pagination">
             <ul class="d-flex justify-content-center list-inline">
                 {% if news_items.has_previous %}
                     <li class="list-inline-item">
@@ -35,21 +36,25 @@
                     </li>
                 {% endif %}
 
-                {% for page in news_items.paginator.page_range %}
-                    {% if news_items.number == page %}
+                {% for page in news_items|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
                         <li class="list-inline-item">
-                            <a href="?page={{ page }}"
+                            <span class="btn btn-outline-secondary" disabled>...</span>
+                        </li>
+                    {% elif news_items.number == page.number %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
                                 class="btn btn-primary"
                                 >
-                                <span class="sr-only">{% trans 'current page' %}</span>{{ page }}
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page.number }}
                             </a>
                         </li>
                     {% else %}
                         <li class="list-inline-item">
-                            <a href="?page={{ page }}"
+                            <a href="?page={{ page.number }}"
                                 class="btn btn-outline-primary"
                                 >
-                                <span class="sr-only">{% trans 'page' %}</span>{{ page }}
+                                <span class="sr-only">{% trans 'page' %}</span>{{ page.number }}
                             </a>
                         </li>
                     {% endif %}

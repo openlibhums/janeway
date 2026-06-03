@@ -20,10 +20,14 @@
                                 alt="{{ item.title|striptags|unescape }}"/></a>
                         </div>
                         <div class="large-7 columns">
-                            <h2>{{ item.title }}</h2>
-                            <p class="byline">Posted by {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human}}</p>
+                            <h2 id="news-{{ item.pk }}">{{ item.title }}</h2>
+                            <p class="byline">{% trans 'Posted by' %} {{ item.posted_by.full_name }} {% trans "on" %} {{ item.posted|date_human}}</p>
                             <p>{{ item.body|striptags|truncatesmart:400 }}</p>
-                            <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                            <a class="button" href="{% url 'core_news_item' item.pk %}"
+                                aria-describedby="news-{{ item.pk }}"
+                                >
+                                {% trans "Read More" %}
+                            </a>
                         </div>
                     </div>
 

@@ -1,4 +1,9 @@
 {% extends "core/base.html" %}
+
+{% comment %}
+  This template is deprecated. Preprint templates are in templates/repository/.
+{% endcomment %}
+
 {% load static %}
 {% load i18n %}
 
@@ -23,13 +28,15 @@
                             {% if user.enable_public_profile %}
                                 <a href="{% url 'core_public_profile' editor.uuid %}"
                                    class="btn-floating halfway-fab waves-effect waves-light red"
+                                   aria-describedby="editor-{{ editor.uuid }}"
                                    >
                                    <i class="fa fa-user" aria-hidden="true"></i>
                                    <span class="sr-only">{% trans "User profile" %}</span>
-                                </a>{% endif %}
+                                </a>
+                            {% endif %}
                         </div>
                         <div class="card-content" style="min-height: 180px;">
-                            <span class="card-title">{{ editor.full_name }}</span>
+                            <span id="editor-{{ editor.uuid }}" class="card-title">{{ editor.full_name }}</span>
                             <p>
                                 <small>{{ editor.affiliation }}</small>
                             </p>

@@ -17,7 +17,7 @@
                         {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                             <div class="card-image">
                                 <img src="{{ item.best_image_url }}"
-                                     alt="{{ item.title|striptags|unescape }}"/>
+                                     alt="{{ item.best_large_image_alt_text }}"/>
                                 <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title }}
@@ -28,14 +28,21 @@
                     {% endif %}
                     <div class="card-content">
 
-                        <h3 class="card-title">{{ item.title|safe }}</h3>
-                        <p class="byline">{{ item.byline }} on
-                            {{ item.posted|date_human }}</p>
+                        <h3 id="news-{{ item.pk }}" class="card-title">{{ item.title|safe }}</h3>
+                        <p class="byline">
+                            {{ item.byline }}
+                            {% trans 'on'%}
+                            {{ item.posted|date_human }}
+                        </p>
                         <p>{{ item.body|striptags|truncatesmart:400 }}</p>
 
                     </div>
                     <div class="card-action">
-                        <a href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                        <a href="{% url 'core_news_item' item.pk %}"
+                            aria-describedby="news-{{ item.pk }}"
+                            >
+                            {% trans "Read More" %}
+                        </a>
                     </div>
                     <div class="divider"></div>
                 {% endfor %}

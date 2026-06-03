@@ -12,15 +12,11 @@ import time
 import itertools
 import warnings
 
-from django.urls import reverse
 from django.template.loader import render_to_string
-from django.utils.http import urlencode
 from django.utils.html import strip_tags
 from django.conf import settings
-from django.contrib import messages
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
-import sys
 from utils import models as util_models
 from utils.function_cache import cache
 from utils.logger import get_logger
@@ -29,6 +25,8 @@ from utils import setting_handler, render_template
 from crossref.restful import Depositor
 from identifiers import models
 from submission import models as submission_models
+from repository import models as repository_models
+from journal import models as journal_models
 
 logger = get_logger(__name__)
 
@@ -39,11 +37,16 @@ def register_crossref_doi(identifier):
     return register_batch_of_crossref_dois([identifier.article])
 
 
-def register_batch_of_crossref_dois(articles, **kwargs):
+def check_deposits_from_same_journal(articles):
     journals = set([article.journal for article in articles])
     if len(journals) > 1:
-        status = "Articles must all be from the same journal"
-        error = True
+        return "Articles must all be from the same journal", True, journals
+    return "All articles from same journal", False, journals
+
+
+def register_batch_of_crossref_dois(articles, **kwargs):
+    status, error, journals = check_deposits_from_same_journal(articles)
+    if error:
         logger.debug(status)
         return status, error
     else:
@@ -113,20 +116,33 @@ def check_crossref_settings(journal):
 
 
 @cache(30)
-def get_poll_settings(journal):
-    test_mode = (
-        setting_handler.get_setting(
-            "Identifiers", "crossref_test", journal
+def get_poll_settings(parent_object):
+    if isinstance(parent_object, journal_models.Journal):
+        test_mode = (
+            setting_handler.get_setting(
+                "Identifiers",
+                "crossref_test",
+                parent_object,
+            ).processed_value
+            or settings.DEBUG
+        )
+        username = setting_handler.get_setting(
+            "Identifiers",
+            "crossref_username",
+            parent_object,
         ).processed_value
-        or settings.DEBUG
-    )
-    username = setting_handler.get_setting(
-        "Identifiers", "crossref_username", journal
-    ).processed_value
-    password = setting_handler.get_setting(
-        "Identifiers", "crossref_password", journal
-    ).processed_value
-    return test_mode, username, password
+        password = setting_handler.get_setting(
+            "Identifiers",
+            "crossref_password",
+            parent_object,
+        ).processed_value
+        return test_mode, username, password
+    elif isinstance(parent_object, repository_models.Repository):
+        return (
+            parent_object.crossref_test_mode,
+            parent_object.crossref_username,
+            parent_object.crossref_password,
+        )
 
 
 def get_dois_for_articles(articles, create=False):
@@ -261,6 +277,18 @@ def register_crossref_component(article, xml, supp_file):
         util_models.LogEntry.add_entry(
             "Submission", "Deposited DOI.", "Info", target=article
         )
+
+
+def create_crossref_preprint_doi_batch_context(repository, identifiers):
+    versions = [
+        ident.preprint_version for ident in identifiers if ident.preprint_version
+    ]
+    return {
+        "batch_id": uuid4(),
+        "now": datetime.datetime.now(),
+        "repository": repository,
+        "versions": versions,
+    }
 
 
 def create_crossref_doi_batch_context(journal, identifiers):
@@ -786,3 +814,41 @@ def auto_assign_issue_doi(issue):
 
 def on_article_assign_to_issue(article, issue, user):
     auto_assign_issue_doi(issue)
+
+
+def get_object_by_content_type(content_type, object_id, request):
+    """
+    Fetches either an Article or a Preprint based on the content type.
+    """
+    if content_type == "article":
+        return get_object_or_404(
+            submission_models.Article,
+            pk=object_id,
+            journal=request.journal,
+        )
+    else:
+        return get_object_or_404(
+            repository_models.Preprint,
+            pk=object_id,
+            repository=request.repository,
+        )
+
+
+def get_identifier_by_content_type(content_type, obj, identifier_id, id_type=None):
+    """
+    Fetches the Identifier for either an Article or a Preprint.
+    """
+    if content_type == "article":
+        return get_object_or_404(
+            models.Identifier,
+            pk=identifier_id,
+            article=obj,
+            **({"id_type": id_type} if id_type else {}),
+        )
+    else:
+        return get_object_or_404(
+            models.Identifier,
+            pk=identifier_id,
+            preprint_version__preprint=obj,
+            **({"id_type": id_type} if id_type else {}),
+        )

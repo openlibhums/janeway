@@ -81,6 +81,13 @@ a {
   color: var(--link-color);
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 #toc a, aside a {
   color: var(--toc-link-color);
 }
@@ -252,7 +259,7 @@ header {
       right: 20px;
       padding: 0;
 
-      a {
+      button {
         padding: rem-calc(10px);
       }
     }
@@ -614,12 +621,42 @@ div.caption span.label {
     li {
       a {
         color: $dark-gray;
+        padding: 0.5rem 0;
+        display: block;
+        text-decoration: none;
+        
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
+      }
+      button {
+        color: $dark-gray;
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: left;
+        display: block;
+        width: 100%;
+        
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
       }
       &:hover {
         background: $medium-gray;
       }
       i {
         margin-top: rem-calc(-5px);
+        margin-right: 0.5rem;
+        vertical-align: middle;
+      }
+
+      // Dropdown menu items should stay on single line
+      .menu.vertical li {
+        white-space: nowrap;
       }
     }
   }
@@ -1247,8 +1284,21 @@ button.list-group-item-danger.active:focus {
 
 .reveal {
   user-select: text;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
@@ -1309,7 +1359,13 @@ button.list-group-item-danger.active:focus {
   float:right;
 }
 
-.is-drilldown{overflow-y: scroll}
+.is-drilldown {
+  overflow-y: scroll;
+  .is-dropdown-submenu-parent,
+  .is-drilldown-submenu-parent {
+    position: static;
+  }
+}
 
 .homepage-element-about {
   margin-top: 30px;
@@ -1399,4 +1455,387 @@ button.list-group-item-danger.active:focus {
 
 .no-pad{
   padding: 0;
+}
+
+.tags-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.tags-list li{
+  display: inline-block;
+}
+.tags-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.icon-recede{
+    opacity: 70%;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    margin-left: 0.5rem;
+    background-color: var(--menu-alternative-background-color);
+    color: var(--menu-foreground-color);
+    border: 1px solid var(--menu-foreground-color);
+    padding: 0 10px;
+    min-width: 7rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + div .btn-background {
+    height: 2.77778rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+/* Banner for hero / large image */
+.olh-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.olh-banner .olh-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+.olh-banner-heading {
+  color: #fefefe;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+}
+.olh-banner-heading h1 {
+  font-size: 1.75rem;
+}
+.olh-banner-heading p {
+  margin: 0;
+}
+.olh-banner-heading a {
+  color: #fefefe;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #fefefe;
+}
+.olh-banner-heading .uppercase {
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (min-width: 640px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 432px;
+  }
+}
+@media (min-width: 1024px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+.medium-4 .olh-banner,
+.large-4 .olh-banner {
+  max-height: 216px;
+}
+.medium-6 .olh-banner,
+.medium-8 .olh-banner,
+.large-6 .olh-banner,
+.large-8 .olh-banner {
+  max-height: 288px;
+}
+
+section.invisible-landmark{
+  padding: 0;
+  margin: 0;
+}
+
+// carousel style overrides
+.orbit-bullets button{
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.orbit-caption{
+  color: var(--primary-light-color);
+  background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
+}
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+:root {
+    --focus-light: #F9F9F9;
+    --focus-dark: #193146;
+    --focus-ring-size: 4px;
+}
+
+/* Prevent layout shifts */
+    /* Inline links override to prevent layout shifts without affecting typography */
+    p a,
+    span a, 
+    li a {
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        box-sizing: border-box;
+    }
+
+    p a,
+    span a {
+      display: inline-block;
+    }
+
+  
+/* General */
+*:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* focus bounding boxes */
+a:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: inline-block;
+    white-space: normal;
+}
+
+input[type="text"]:focus-visible ,
+input[type="textarea"].tinymce:focus-visible ,
+input[type="email"]:focus-visible ,
+input[type="password"]:focus-visible ,
+input[type="search"]:focus-visible ,
+input[type="number"]:focus-visible ,
+input[type="date"]:focus-visible ,
+input[type="datetime-local"]:focus-visible ,
+input[type="file"]:focus-visible ,
+input[type="submit"]:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
+
+.preprint-section {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa; /* Light grey background to separate preprints */
+    border-left: 3px solid #007bff; /* Blue left border for emphasis */
+}
+
+.preprint-list {
+    list-style-type: disc; /* Ensure preprints have bullet points */
+    padding-left: 1.5rem;  /* Proper indentation */
+    font-size: 0.9rem; /* Slightly smaller font for preprints */
+}
+
+.view-all-preprints {
+    margin-top: 0.5rem;
+    font-weight: bold;
+}
+
+.submission-type-pill {
+    display: inline-block;
+    background-color: transparent;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Organisational Unit hierarchy */
+.ou-container {
+    .ou-block {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        height: 100%;
+    }
+
+    .ou-info-box {
+        background-color: #EFF6FF;
+        border-left: 4px solid #3B82F6;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 2rem;
+    }
+
+    .ou-info-box p {
+        margin-bottom: 0;
+    }
+
+    .ou-tree {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .ou-tree ul {
+        list-style: none;
+        padding-left: 0rem;
+        margin-top: 0.25rem;
+    }
+
+    .ou-tree-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+    }
+
+    .ou-tree-first-list {
+        margin-left: 0;
+    }
+
+    .ou-tree-item.selected {
+        background-color: #DBEAFE;
+        color: #1E40AF;
+        font-weight: 500;
+    }
+
+    .ou-tree-item-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 0.25rem;
+        color: #6B7280;
+    }
+
+    .ou-tree-item-link {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ou-tree-item-count {
+        font-size: 0.875rem;
+        color: #6B7280;
+    }
+
+    .ou-selected-unit {
+        border-bottom: 1px solid #E5E7EB;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ou-selected-unit-count {
+        font-size: 0.875rem;
+        font-weight: normal;
+        color: #6B7280;
+        margin-left: 0.5rem;
+    }
+
+    .ou-preprints-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .ou-preprints-header-title {
+        flex: 1;
+    }
+
+    .ou-preprint-list {
+        border: 1px solid #E5E7EB;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .ou-preprint-item {
+        padding: 1rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .ou-preprint-item:last-child {
+        border-bottom: none;
+    }
+
+    .ou-preprint-item:hover {
+        background-color: #F9FAFB;
+    }
+
+    .ou-preprint-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .ou-preprint-meta-separator {
+        margin: 0 0.5rem;
+    }
+
+    .ou-preprint-abstract {
+        font-size: 0.9rem;
+    }
+
+    .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .flex-between .title-wrap {
+        flex-grow: 1;
+        margin-right: 1rem;
+        min-width: 0;
+    }
+
+    .flex-between .pill-wrap {
+        flex-shrink: 0;
+    }
 }

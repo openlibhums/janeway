@@ -29,10 +29,12 @@ from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.template import Context, Template
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.functional import cached_property
 from django.utils.translation import gettext
+from django.utils.html import strip_tags
 
 from core import (
     files,
@@ -47,6 +49,7 @@ from core.model_utils import (
     JanewayBleachField,
     JanewayBleachCharField,
 )
+from core.templatetags import alt_text
 from press import models as press_models
 from submission import models as submission_models
 from utils import (
@@ -951,8 +954,24 @@ class Issue(AbstractLastModifiedModel):
             return self.large_image.url
         elif self.journal.default_large_image:
             return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for hero_image_url that is used by the carousel templates.
+        """
+        return self.hero_image_url
+
+    @property
+    def best_large_image_alt_text(self):
+        return alt_text.get_alt_text(
+            file_path=self.best_large_image_url,
+            default=strip_tags(self.display_title),
+        )
 
     @property
     def date_published(self):
@@ -1042,7 +1061,10 @@ class Issue(AbstractLastModifiedModel):
         if journal.display_issue_number and self.issue and self.issue != "0":
             issue = "{%% trans 'Issue' %%} %s" % self.issue
         if journal.display_issue_year and self.date:
-            year = "{}".format(self.date.year)
+            try:
+                year = "{}".format(self.date.year)
+            except AttributeError:
+                year = ""
         if journal.display_issue_title:
             issue_title = self.issue_title
         if journal.display_article_number and article and article.article_number:
@@ -1103,7 +1125,7 @@ class Issue(AbstractLastModifiedModel):
             )
 
             for article in articles:
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
 
             section_article_dict[ordered_section.section] = article_list
@@ -1131,7 +1153,7 @@ class Issue(AbstractLastModifiedModel):
         articles = self.articles.all().order_by("section")
 
         for article in articles:
-            if not article.section in ordered_sections:
+            if article.section not in ordered_sections:
                 ordered_sections.append(article.section)
 
         return ordered_sections
@@ -1196,7 +1218,7 @@ class Issue(AbstractLastModifiedModel):
                 article_list.append(order.article)
 
             for article in articles.filter(section=section):
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
             structure[section] = article_list
 

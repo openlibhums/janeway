@@ -1,0 +1,23 @@
+{% regroup preprints by submission_type as grouped_preprints %}
+
+{% if preprints %}
+  <style>
+    {% for group in grouped_preprints %}
+      {% if group.grouper %}
+          .submission-type-pill--{{ group.grouper.slug }} {
+              color: {{ group.grouper.pill_colour }};
+              border: 1px solid{{ group.grouper.pill_colour }};
+              background-color: transparent;
+          }
+      {% endif %}
+    {% endfor %}
+  </style>
+{% elif preprint %}
+  <style>
+      .submission-type-pill--{{ preprint.submission_type.slug }} {
+          color: {{ preprint.submission_type.pill_colour }};
+          border: 1px solid{{ preprint.submission_type.pill_colour }};
+          background-color: transparent;
+      }
+  </style>
+{% endif %}

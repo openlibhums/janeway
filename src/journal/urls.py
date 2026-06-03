@@ -287,6 +287,8 @@ urlpatterns = [
     re_path(r"^reviewer/$", views.become_reviewer, name="become_reviewer"),
     # Contact
     re_path(r"^contact/$", views.contact, name="contact"),
+    # Accessibility
+    re_path(r"^accessibility/$", views.accessibility, name="accessibility"),
     # Editorial team
     re_path(r"^editorialteam/$", views.editorial_team, name="editorial_team"),
     # Editorial team

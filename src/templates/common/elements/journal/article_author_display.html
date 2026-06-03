@@ -30,11 +30,7 @@
         <span class="sr-only show-for-sr">
           {% trans 'Email' %} {{ author.full_name }}.
         </span>
-        <span
-          aria-hidden="true"
-          class="fa fa-lg fa-envelope"
-          title="{% trans 'compose email' %}">
-        </span>
+        {% include "elements/icons/link_email.html" %}
         <span class="sr-only show-for-sr">
           {% trans "(compose email, opens in email app.)" %}
         </span>

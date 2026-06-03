@@ -18,14 +18,17 @@
                         <div class="large-5 columns">
                             <a href="{% url 'core_news_item' item.pk %}"><img class="news-image"
                                 src="{{ item.best_image_url }}"
-                                alt="{{ item.title|striptags|unescape }}"/></a>
+                                alt="{{ item.best_large_image_alt_text }}"/></a>
                         </div>
                         {% endif %}
                         <div class="large-7 columns">
-                            <h2>{{ item.title|safe }}</h2>
+                            <h2 id="news-{{ item.pk }}">{{ item.title|safe }}</h2>
                             <p class="byline">{{ item.byline }} {% trans "on" %} {{ item.posted|date_human }}</p>
                             <p>{{ item.body|truncatewords_html:50|safe}}</p>
-                            <a class="button" href="{% url 'core_news_item' item.pk %}">{% trans "Read More" %}</a>
+                            <a class="button" href="{% url 'core_news_item' item.pk %}"
+                                aria-describedby="news-{{ item.pk }}">
+                                {% trans "Read More" %}
+                            </a>
                         </div>
                     </div>
 

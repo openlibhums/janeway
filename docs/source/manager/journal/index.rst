@@ -108,6 +108,22 @@ Favicon
 Default Profile Image
     The default image used when editorial team groups have "Display profile images" enabled. The image is also used on the public profile page when a user has enabled it.
 
+Alt Text
+--------
+Most images in the Images settings page have an **Edit alt text** button. Clicking it opens a popup where you can enter descriptive alt text for that image. Alt text is saved immediately when you click **Save alt text** — there is no need to submit the main form afterwards.
+
+Alt text is available for images that appear in page content and can be described meaningfully:
+
+- Header image
+- Default large image
+- Default cover image
+- Default thumbnail
+- Default profile image (only when a custom image is uploaded; the built-in fallback image has its own alt text)
+- Press override image (only when an override image is uploaded; the press logo is used by default)
+- Issue cover images and large images
+
+The **Favicon** does not have an alt text option. Favicons appear in the browser tab, not in the page content, so they do not support alt text.
+
 Styling
 -------
 This page displays some general settings for controlling the styling of your journal.
@@ -148,3 +164,4 @@ Setting values can be accessed inside templates using **{{ journal_settings.grou
 In Django they can be accessed with **get_setting**::
 
     request.journal.get_setting('group_name', 'setting_name')
+

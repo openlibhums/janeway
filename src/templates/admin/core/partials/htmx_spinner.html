@@ -1,0 +1,17 @@
+<script>
+  document.body.addEventListener("htmx:beforeRequest", function (event) {
+    var indicator = event.detail.elt.getAttribute("hx-indicator");
+    if (indicator) {
+      var el = document.querySelector(indicator);
+      if (el) el.style.display = "inline-block";
+    }
+  });
+
+  document.body.addEventListener("htmx:afterRequest", function (event) {
+    var indicator = event.detail.elt.getAttribute("hx-indicator");
+    if (indicator) {
+      var el = document.querySelector(indicator);
+      if (el) el.style.display = "none";
+    }
+  });
+</script>

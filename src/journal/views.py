@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import os
 import re
 import warnings
 
@@ -1478,7 +1479,10 @@ def manage_issues(request, issue_id=None, event=None):
                 save_issue.journal = request.journal
                 save_issue.save()
                 if request.FILES and save_issue.large_image:
-                    resize_and_crop(save_issue.large_image.path, [750, 324])
+                    resize_and_crop(
+                        save_issue.large_image.path,
+                        field_name="Large image",
+                    )
                 if issue:
                     return redirect(
                         reverse("manage_issues_id", kwargs={"issue_id": issue.pk})
@@ -2123,6 +2127,93 @@ def contact(request):
 
 
 @decorators.frontend_enabled
+def accessibility(request):
+    """
+    Displays the accessibility information page.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    if request.journal and request.journal.disable_front_end:
+        template = "admin/core/a11y.html"
+    elif request.journal:
+        template = "core/a11y.html"
+    else:
+        template = "press/a11y.html"
+
+    # Load a11y conformance data
+    try:
+        json_path = os.path.join(settings.BASE_DIR, "a11y", "conformance_data.json")
+        with open(json_path, "r") as f:
+            raw_data = json.load(f)
+
+        # Parse markdown links: [text](url) -> {text: ..., url: ...}
+        def parse_audit_link(audit_str):
+            if not audit_str:
+                return {"text": "", "url": ""}
+            match = re.match(r"\[([^\]]+)\]\(([^)]+)\)", audit_str)
+            if match:
+                return {"text": match.group(1), "url": match.group(2)}
+            return {"text": audit_str, "url": ""}
+
+        # Process data for each theme
+        vpat_data = {}
+        for theme_key, theme_info in raw_data.get("area", {}).items():
+            vpat_data[theme_key] = {
+                "name": theme_info.get("name"),
+                "audit_results": [
+                    {
+                        "criterion_id": crit_id,
+                        "criterion_name": raw_data["criteria"]
+                        .get(crit_id, {})
+                        .get("criterion_name"),
+                        "level": raw_data["criteria"].get(crit_id, {}).get("level"),
+                        "conformance": result.get("conformance"),
+                        "remarks": result.get("remarks"),
+                        "audit": parse_audit_link(result.get("audit")),
+                    }
+                    for crit_id, result in theme_info.get("audit_results", {}).items()
+                ],
+            }
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        vpat_data = {}
+
+    # For press a11y page, identify themes in use by journals
+    journal_themes = {}
+    if not request.journal:  # This is the press-level page
+        from core.models import SettingValue, Setting
+
+        press = request.press
+        all_journals = press.journals()
+
+        # Check all themes used by journals (including defaults)
+        try:
+            journal_theme_settings = (
+                SettingValue.objects.filter(
+                    journal__in=all_journals,
+                    setting__name="journal_theme",
+                    setting__group__name="general",
+                )
+                .values_list("value", flat=True)
+                .distinct()
+            )
+            themes_in_use = set(journal_theme_settings)
+        except (SettingValue.DoesNotExist, Setting.DoesNotExist):
+            themes_in_use = set()
+
+        # make lower case and include all journal themes
+        for theme in themes_in_use:
+            theme_lower = theme.lower()
+            journal_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
+
+    context = {
+        "vpat_data": vpat_data,
+        "journal_themes": journal_themes,
+    }
+    return render(request, template, context)
+
+
+@decorators.frontend_enabled
 def editorial_team(request, group_id=None):
     """
     Displays a list of editorial team members at the journal level,
@@ -2221,6 +2312,7 @@ def full_text_search(request):
     search_term, keyword, sort, form, redir = logic.handle_search_controls(
         request,
     )
+
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
@@ -2230,10 +2322,25 @@ def full_text_search(request):
             site=request.site_object,
         )
 
+    paginate_by = request.GET.get("paginate_by", 25)
+    if paginate_by == "all":
+        paginate_by = articles.count() if articles else 25
+
+    paginator = Paginator(articles, paginate_by)
+    page_number = request.GET.get("page")
+
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
     template = "journal/full-text-search.html"
     context = {
-        "articles": articles,
-        "article_search": search_term,
+        "articles": page_obj,
+        "page_obj": page_obj,
+        "is_paginated": page_obj.has_other_pages(),
+        "paginate_by": paginate_by,
+        "search_term": search_term,
         "keyword": keyword,
         "form": form,
     }
@@ -2258,7 +2365,6 @@ def old_search(request):
 
     if redir:
         return redir
-    from itertools import chain
 
     if search_term:
         escaped = re.escape(search_term)
@@ -2987,6 +3093,18 @@ class PublishedArticlesListView(FacetedArticlesListView):
             },
         }
         return self.filter_facets_if_journal(facets)
+
+    def get_facet_queryset(self):
+        queryset = super().get_facet_queryset()
+        return queryset.filter(
+            date_published__lte=timezone.now(),
+            stage=submission_models.STAGE_PUBLISHED,
+        )
+
+    def get_order_by(self):
+        order_by = self.request.GET.get("order_by", "-date_published")
+        order_by_choices = self.get_order_by_choices()
+        return order_by if order_by in dict(order_by_choices) else ""
 
     def get_order_by_choices(self):
         return [

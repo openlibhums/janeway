@@ -61,7 +61,7 @@ Large Image
 -----------
 Large images are used on article pages, on issue pages, and in any carousel on the journal homepage that draws on these elements. You can set them individually, and you can set a default to be used in all other cases. You can set large images for articles in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`. The default can be changed through :ref:`Journal Settings<journal_settings>`.
 
-The large image has a maximum height of 260px for the material theme and 400px for the OLH theme. Any image larger than 750x324 pixels will be compressed to fit those dimensions, and then it will be cropped horizontally to fit the user's screen size. For this reason, very wide landscape images work best for this element.
+The large image should be at least 1500px wide and 648px tall. Any image wider than 1500px will be resized to that width, and any image taller than 648px will be cropped, keeping the top portion of the image. For this reason, very wide landscape images work best for this element.
 
 .. figure:: /_static/image_guidelines/article_large_image.png
     :alt: Example of large image: material theme
@@ -69,12 +69,8 @@ The large image has a maximum height of 260px for the material theme and 400px f
 
     Example of large image: material theme
 
-
 .. tip::
-    In the material theme, the large image width maxes out at 750px on wide screens.
-
-.. tip::
-    In the OLH theme, the large image spans across the entire width of the screen.
+    In an earlier version of Janeway, large images were cropped to 750px x 324px on upload, and they were sometimes blurry or skewed. To improve the display of old images, please re-upload a higher-resolution file.
 
 .. tip::
     The article images can be disabled entirely in the Manager under :ref:`Articles and Issues<articles_issues_guidelines>`.

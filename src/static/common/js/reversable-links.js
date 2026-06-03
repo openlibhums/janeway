@@ -103,6 +103,11 @@ function initialiseCrossRefs(){
     document.querySelectorAll('#reflist li').forEach(entry => {
         const links = Array.from(document.querySelectorAll(`.xref-bibr[href="#${entry.id}"]`));
 
+        // Add aria-describedby attribute to all bibliography links
+        links.forEach(link => {
+            link.setAttribute('aria-describedby', 'reference-header');
+        });
+
         // Always create an ordered list, even for single items
         const ol = document.createElement('ol');
         ol.className = 'back-links-list';
@@ -119,8 +124,9 @@ function initialiseCrossRefs(){
 
             const sectionLink = document.createElement('a');
             sectionLink.href = `#${containerId}`;
-            sectionLink.textContent = '---^';
+            sectionLink.innerHTML = '<span aria-hidden="true">---^<span>';
             sectionLink.setAttribute('aria-label', `${heading.title}, ${link.textContent}`);
+            sectionLink.setAttribute('role', "doc-backlink");
             sectionLink.className = 'section-link';
             sectionLink.title = `${heading.title}`;
             sectionLink.dataset.citationId = link.id;
@@ -153,7 +159,8 @@ function initialiseCrossRefs(){
 
                 const sectionLink = document.createElement('a');
                 sectionLink.href = `#${containerId}`;
-                sectionLink.textContent = `---^(${i + 1})`;
+                sectionLink.innerHTML = `<span aria-hidden="true">---^(${i + 1})</span>`;
+                sectionLink.setAttribute('role', "doc-backlink");
                 sectionLink.className = 'section-link';
                 sectionLink.title = `${heading.title}`;
                 sectionLink.dataset.citationId = link.id;

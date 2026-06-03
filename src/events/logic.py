@@ -79,7 +79,7 @@ class Events:
     # raised when an editor accepts or accepts an article
     ON_ARTICLE_ACCEPTED = "on_article_accepted"
 
-    # kwargs: article, revision, request, user_message_content, skip (boolean)
+    # kwargs: article, revision, request
     # raised when a revision request is created
     ON_REVISIONS_REQUESTED = "on_revisions_requested"
 
@@ -259,6 +259,10 @@ class Events:
     # raised when a new comment is submitted for a preprint
     ON_PREPRINT_COMMENT = "on_preprint_comment"
 
+    # kwargs: request, preprint, comment
+    # raised when a preprint comment is approved and made public
+    ON_PREPRINT_COMMENT_PUBLISHED = "on_preprint_comment_published"
+
     # kwargs: request, pending_update, action, reason (optional)
     # raised when an PreprintVersion is approved or declined
     ON_PREPRINT_VERSION_UPDATE = "on_preprint_version_update"
@@ -270,6 +274,10 @@ class Events:
     # kwargs: request, review, status_change [accept, delcine, withdraw, complete]
     # raised when a Review changes status
     ON_PREPRINT_REVIEW_STATUS_CHANGE = "on_preprint_review_status_change"
+
+    # kwargs: request, new_version, preprint
+    # raised when a preprint author uploads a new version
+    ON_PREPRINT_NEW_VERSION = "on_preprint_new_version"
 
     # kwargs: handshake_url, request, article, switch_stage (optional)
     # raised when a workflow element completes to hand over to the next one

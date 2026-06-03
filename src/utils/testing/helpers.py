@@ -413,13 +413,19 @@ def create_repository(press, managers, subject_editors, domain="repo.domain.com"
     return repository, subject
 
 
-def create_preprint(repository, author, subject, title="This is a Test Preprint"):
+def create_preprint(
+    repository,
+    author,
+    subject,
+    title="This is a Test Preprint",
+    abstract="This is a fake abstract.",
+):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
         owner=author,
         stage=repo_models.STAGE_PREPRINT_REVIEW,
         title=title,
-        abstract="This is a fake abstract.",
+        abstract=abstract,
         comments_editor="",
         date_submitted=timezone.now(),
     )
@@ -444,6 +450,12 @@ def create_preprint(repository, author, subject, title="This is a Test Preprint"
         preprint_author=preprint_author,
     )
     return preprint
+
+
+def render_widget(widget, choices, value=""):
+    """Render a widget with the given choices and return the HTML string."""
+    widget.choices = choices
+    return widget.render("field", value)
 
 
 class Request(HttpRequest):

@@ -306,6 +306,36 @@ class TestViews(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
+    @freeze_time(FROZEN_DATETIME)
+    def test_accept_preprint_with_user_timezone(self):
+        # Regression for #3392: when a user's preferred_timezone is set,
+        # date_published should be correctly converted to UTC and not end up
+        # in the future relative to the server.
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        path = reverse(
+            "repository_manager_article",
+            kwargs={"preprint_id": self.preprint_one.pk},
+        )
+        self.client.force_login(self.repo_manager)
+        # User is in Asia/Karachi (UTC+5). FROZEN_DATETIME is 15:00 UTC,
+        # so their local time is 20:00. They submit their local time with
+        # their correct timezone — date_published should equal FROZEN_DATETIME.
+        self.client.post(
+            path,
+            data={
+                "accept": "",
+                "datetime": "2024-03-25T20:00",
+                "timezone": "Asia/Karachi",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        preprint = rm.Preprint.objects.get(pk=self.preprint_one.pk)
+        self.assertEqual(
+            preprint.date_published.timestamp(),
+            FROZEN_DATETIME.timestamp(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME, tz_offset=5)
     def test_accept_preprint_bad_date(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
@@ -378,3 +408,71 @@ class TestViews(TestCase):
             )
             content = response.content.decode()
             self.assertIn("/login/?next=", content)
+
+
+class TestHierarchyView(TestCase):
+    """Tests for the rou_hierarchy_view introduced in iowa-and-isolinear."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.server_name = "hierarchy-test.domain.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=cls.server_name
+        )
+        cls.root = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Research",
+            code="research",
+        )
+        cls.child = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Applied",
+            code="applied",
+            parent=cls.root,
+        )
+        cls.author = helpers.create_user("hierarchy.author@janeway.systems")
+        cls.preprint = helpers.create_preprint(cls.repository, cls.author, cls.subject)
+        cls.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now()
+        cls.preprint.save()
+        cls.preprint.organisation_units.add(cls.root)
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_root_view_returns_200(self):
+        """The hierarchy root page (no ROU selected) returns HTTP 200."""
+        path = reverse("rou_hierarchy")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_root_view_lists_top_level_rous(self):
+        """The root hierarchy page contains the top-level ROU name."""
+        path = reverse("rou_hierarchy")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertContains(response, "Research")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_rou_view_returns_200(self):
+        """Navigating to a specific ROU returns HTTP 200."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_rou_view_shows_preprints(self):
+        """The selected-ROU page lists preprints belonging to that unit."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertContains(response, self.preprint.title)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_unknown_rou_code_returns_404(self):
+        """A request for a non-existent ROU code returns HTTP 404."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": "does-not-exist"})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 404)

@@ -11,18 +11,19 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
-from urllib.parse import unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.template.loader import get_template
 from django.db.models import Q
-from django.http import JsonResponse, QueryDict
+from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from core import forms, models, files, plugin_installed_apps
 from utils.function_cache import cache
@@ -148,9 +149,20 @@ def send_confirmation_link(request, new_user):
     )
 
 
-def resize_and_crop(img_path, size, crop_type="middle"):
+def resize_and_crop(
+    img_path,
+    size=settings.DEFAULT_CROP_SIZE,
+    crop_type="middle",
+    field_name="",
+    original_filename="",
+):
     """
     Resize and crop an image to fit the specified size.
+    :param img_path: filepath to saved image
+    :param size: tuple with (width, height) in pixels
+    :param crop_type: "top", "middle", or "bottom"
+    :param field_name: human-readable field name for help messages
+    :param original_filename: the original filename for help messages
     """
 
     # If height is higher we resize vertically, if not we resize horizontally
@@ -163,9 +175,30 @@ def resize_and_crop(img_path, size, crop_type="middle"):
         # Could be an SVG
         return
 
+    # Warn if the image is not large enough
+    request = utils_logic.get_current_request()
+    filename = original_filename.split("/")[-1] or img_path.split("/")[-1]
+    if img.size[0] < size[0]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[0]} pixels wide, "
+            f"but it should be at least {size[0]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
+    if img.size[1] < size[1]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[1]} pixels tall, "
+            f"but it should be at least {size[1]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
+
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
+
     # The image is scaled/cropped vertically or horizontally depending on the ratio
     if ratio > img_ratio:
         img = img.resize(
@@ -638,6 +671,8 @@ def get_settings_to_edit(display_group, journal, user):
             "from_address",
             "replyto_address",
             "use_credit",
+            "a11y_public_info",
+            "feeds",
         ]
 
         group_of_settings = process_setting_list(journal_settings, "general", journal)
@@ -802,8 +837,11 @@ def handle_article_large_image_file(uploaded_file, article, request):
         )
         article.large_image_file = new_file
         article.save()
-
-    resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+    resize_and_crop(
+        new_file.self_article_path(),
+        field_name="Large image",
+        original_filename=uploaded_file.name,
+    )
 
 
 def handle_article_thumb_image_file(uploaded_file, article, request):
@@ -1244,3 +1282,39 @@ def create_organization_name(request):
             % {"organization": organization_name},
         )
         return organization_name
+
+
+def resolve_alt_text_target(request):
+    """
+    Resolve the content_type, object_id, file_path, and object instance
+    from the request data (POST or GET). Expects 'model', 'pk', and/or 'file_path'.
+
+    Returns:
+        (content_type, object_id, file_path, obj)
+
+    Raises:
+        ValidationError if model or pk is invalid.
+    """
+    data = request.POST or request.GET
+
+    model = data.get("model")
+    pk = data.get("pk")
+    file_path = data.get("file_path")
+
+    content_type = None
+    object_id = None
+    obj = None
+
+    if model and pk:
+        if "." not in model:
+            raise ValidationError("Model should be in the form 'app_label.model_name'.")
+
+        app_label, model_name = model.split(".")
+        content_type = ContentType.objects.get(
+            app_label=app_label,
+            model=model_name,
+        )
+        object_id = int(pk)
+        obj = content_type.get_object_for_this_type(pk=object_id)
+
+    return content_type, object_id, file_path, obj

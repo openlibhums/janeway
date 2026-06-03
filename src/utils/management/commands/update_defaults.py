@@ -43,6 +43,12 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        confirmation = input(
+            "journal_defaults.json will be rewritten with values from the database. OK? (y/n)".lower()
+        )
+        if confirmation != "y":
+            return
+
         translation.activate("en")
         journal_code = options.get("journal_code", None)
         group_name = options.get("group_name", None)

@@ -11,8 +11,9 @@
             {% if 'svg' in request.press_cover %}
                 {% svg request.press_cover %}
             {% else %}
+                {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
                 <img class="top-bar-image" src="{% url 'press_cover_download' %}"
-                                 alt="{{ request.press.name }}">
+                                 alt="{{ press_logo_alt }}">
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
@@ -34,7 +35,7 @@
             {% endfor %}
 
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li><a href="{% url 'press_journals' %}" class="nav-link">{% trans 'Journals' %}</a></li>
             {% endif %}
 
             {% if request.press.enable_preprints %}
@@ -94,7 +95,7 @@
                 {% endif %}
             {% endfor %}
             {% if request.press.publishes_journals and not request.press.disable_journals %}
-                <li><a href="{% url 'press_journals' %}" class="nav-link">Journals</a></li>
+                <li><a href="{% url 'press_journals' %}" class="nav-link">{% trans 'Journals' %}</a></li>
             {% endif %}
             {% if request.press.enable_preprints %}
                 <li>
@@ -113,7 +114,7 @@
                     <a
                         class="dropdown-trigger"
                         href="#!"
-                        data-target="dropdown1">
+                        data-target="sidenav-account">
                         {% trans "Account" %}
                         <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
@@ -142,7 +143,7 @@
 </nav>
 
 {% if request.user.is_authenticated %}
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="sidenav-account" class="dropdown-content">
         {% if request.user.is_staff %}
             <li><a class="dropdown-item" href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
         {% endif %}
