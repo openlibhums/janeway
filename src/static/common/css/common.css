@@ -295,29 +295,46 @@ article .list-romanupper {
 .skip-container {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     justify-content: center;
     align-items: center;
     height: 0;
     overflow: hidden;
 }
 
+/* Shared visible appearance so the skip link and the accessibility toggle
+   read as the same kind of control rather than a link beside plain text. */
 .skip-to-content,
-.skip-to-nav {
+.skip-to-nav,
+button.skip-to-content {
     position: absolute;
     left: -999px;
-}
-
-.skip-to-content:focus,
-.skip-to-nav:focus {
-    position: relative;
-    left: 0;
-    margin-block-start: 10px;
-    margin-block-end: 10px;
+    display: inline-block;
+    padding: 8px 12px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    background: #fff;
+    color: #00417a;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .skip-container:focus-within {
     height: auto;
     overflow: visible;
+}
+
+/* Reveal the skip link and the accessibility toggle together and side by
+   side, so moving focus between them never changes the layout height. */
+.skip-container:focus-within .skip-to-content,
+.skip-container:focus-within .skip-to-nav,
+.skip-container:focus-within .skip-to-content-form {
+    position: relative;
+    left: 0;
+    margin-block-start: 10px;
+    margin-block-end: 10px;
 }
 
 /* Accessibility mode toggle */
@@ -528,15 +545,11 @@ article .list-romanupper {
     padding: 0;
 }
 
-.skip-to-content-form:focus-within {
-    position: relative;
-    left: 0;
-}
-
-button.skip-to-content {
-    border: 0;
-    cursor: pointer;
-    font: inherit;
+/* The toggle button sits in a relatively positioned form, so reset its own
+   off-screen offset and let the shared .skip-to-content style do the rest. */
+.skip-to-content-form button.skip-to-content {
+    position: static;
+    left: auto;
 }
 
 a.twitter-x{
