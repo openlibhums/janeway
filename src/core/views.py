@@ -2682,7 +2682,11 @@ def toggle_accessibility_mode(request):
             require_https=request.is_secure(),
         ):
             return redirect(referer)
-        logger.warning("Failed to redirect to disallowed url: %s", referer)
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Failed to redirect to disallowed url: %s") % referer,
+        )
 
     return redirect("/")
 
