@@ -76,7 +76,7 @@ class ReviewTests(TestCase):
             "visibility": "double-blind",
             "form": self.review_form.pk,
             "date_due": "2900-01-01",
-            "reviewer": self.second_reviewer.pk,
+            "reviewer": self.reviewer.pk,
         }
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
@@ -96,13 +96,14 @@ class ReviewTests(TestCase):
             "date_due": "2900-01-01",
             "reviewer": self.regular_user.pk,
         }
+        reviewers=logic.get_reviewer_candidates(
+            self.article_under_review, self.editor
+        )
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
             article=self.article_under_review,
             editor=self.editor,
-            reviewers=logic.get_reviewer_candidates(
-                self.article_under_review, self.editor
-            ),
+            reviewers=reviewers,
             data=data,
         )
         self.assertFalse(form.is_valid())
@@ -638,7 +639,11 @@ class ReviewTests(TestCase):
             "editoruser@martineve.com", ["editor"], journal=self.journal_one
         )
         self.editor.is_active = True
-        self.editor.save()
+        self.reviewer = self.create_user(
+            "revieweruser@email.com", ["reviewer"], journal=self.journal_one
+        )
+        self.reviewer.is_active = True
+        self.reviewer.save()
 
         self.author = self.create_user(
             "authoruser@martineve.com", ["author"], journal=self.journal_one
