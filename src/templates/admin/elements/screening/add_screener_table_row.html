@@ -1,0 +1,29 @@
+{% load i18n %}
+<td>
+    <input
+            type="radio"
+            name="screener"
+            id="screener_{{ screener.pk }}"
+            value="{{ screener.pk }}"
+            aria-label="{% blocktrans with name=screener.full_name %}Select {{ name }} as the screener{% endblocktrans %}"
+            {% if screener.pk == form.cleaned_data.screener.pk %}checked{% endif %}>
+</td>
+<td>
+    <label for="screener_{{ screener.pk }}">
+        {{ screener.full_name }}
+        {% if screener.pk == request.user.pk %}
+            <span class="label warning">{% trans "You" %}</span>
+        {% endif %}
+    </label>
+</td>
+<td>{{ screener.email }}</td>
+<td>
+    {% for role in screener.role_labels %}
+        <span class="label secondary">{{ role }}</span>
+    {% endfor %}
+    {% for group in screener.group_labels %}
+        <span class="label primary">{{ group }}</span>
+    {% endfor %}
+</td>
+<td>{{ screener.active_screenings_count|default_if_none:0 }}</td>
+<td>{{ screener.last_screening_completed|date:"Y-m-d"|default:"—" }}</td>

@@ -1,0 +1,115 @@
+{% extends "admin/core/base.html" %}
+{% load files %}
+
+{% block title %}Screening Revision{% endblock title %}
+{% block title-section %}Screening Revision{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Revision #{{ revision.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-8 columns end">
+        <p>
+            <a href="{% url 'screening_article' article.pk %}" class="button secondary">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+        </p>
+
+        {% if revision.is_cancelled %}
+            <div class="callout alert">
+                <p class="no-bottom-margin">
+                    <i class="fa fa-ban"></i>
+                    <strong>This revision request was withdrawn</strong> on
+                    {{ revision.date_cancelled|date:"Y-m-d H:i" }}. The author was
+                    notified that no response is required.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="box">
+            <div class="title-area">
+                <h2>Request</h2>
+            </div>
+            <div class="content">
+                <dl>
+                    {% include "admin/elements/layout/key_value_above.html" with key="Requested by" value=revision.editor.full_name %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date requested" value=revision.date_requested|date:"Y-m-d" %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date due" value=revision.date_due %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Type" value=revision.get_type_display %}
+                    {% include "admin/elements/layout/key_value_above.html" with key="Date completed" value=revision.date_completed|date:"Y-m-d H:i" %}
+                    {% if revision.is_cancelled %}
+                        {% include "admin/elements/layout/key_value_above.html" with key="Date withdrawn" value=revision.date_cancelled|date:"Y-m-d H:i" %}
+                    {% endif %}
+                </dl>
+            </div>
+
+            <div class="title-area">
+                <h2>Note to the author</h2>
+            </div>
+            <div class="content">
+                {{ revision.editor_note|safe|default:"<small>No note provided.</small>" }}
+            </div>
+
+            {% if revision.is_complete %}
+                <div class="title-area">
+                    <h2>Author's covering letter</h2>
+                </div>
+                <div class="content">
+                    {{ revision.author_note|safe|default:"<small>No covering letter provided.</small>" }}
+                </div>
+            {% endif %}
+
+            <div class="title-area">
+                <h2>Article files</h2>
+            </div>
+            <div class="content">
+                <p>
+                    <small>
+                        The files currently attached to the article. Files replaced by
+                        the author during revision show their latest version.
+                    </small>
+                </p>
+                <table class="scroll small">
+                    <thead>
+                        <tr>
+                            <th>Label</th>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Uploaded</th>
+                            <th>Size</th>
+                            <th>Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in article.manuscript_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td>Manuscript</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                                <td>{% file_size file article %}</td>
+                                <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download"></i></a></td>
+                            </tr>
+                        {% endfor %}
+                        {% for file in article.data_figure_files.all %}
+                            <tr>
+                                <td>{{ file.label }}</td>
+                                <td>{{ file.original_filename }}</td>
+                                <td>Data/Figure</td>
+                                <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
+                                <td>{% file_size file article %}</td>
+                                <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download"></i></a></td>
+                            </tr>
+                        {% empty %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

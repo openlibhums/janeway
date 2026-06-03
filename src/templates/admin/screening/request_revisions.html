@@ -1,0 +1,41 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Request Revisions{% endblock title %}
+{% block title-section %}Request Revisions{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Request Revisions</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Request Revisions from the Author</h2>
+            </div>
+            <div class="content">
+                <p>
+                    Use this action to ask the corresponding author to revise their submission
+                    in response to screening. The author will be notified by email and lands on
+                    a dedicated revision page where they can replace each of the files they
+                    uploaded at submission and add a covering letter. Submitting the revisions
+                    opens a fresh screening round automatically.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" class="success button">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                        Send Revision Request
+                    </button>
+                    <a href="{% url 'screening_article' article.pk %}" class="button secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

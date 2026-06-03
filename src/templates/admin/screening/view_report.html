@@ -1,0 +1,96 @@
+{% extends "admin/core/base.html" %}
+{% load securitytags %}
+
+{% block title %}Screening Report{% endblock title %}
+{% block title-section %}Screening Report{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Report #{{ assignment.pk }}</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-8 columns end">
+            <p>
+                <a href="{{ back_url }}" class="button secondary">
+                    <i class="fa fa-arrow-left"></i> Back
+                </a>
+            </p>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Screener</h2>
+                </div>
+                <div class="content">
+                    <dl>
+                        {% include "admin/elements/layout/key_value_above.html" with key="Screener" value=assignment.screener.full_name|se_can_see_pii:article %}
+                        {% include "admin/elements/layout/key_value_above.html" with key="Date due" value=assignment.date_due %}
+                        {% include "admin/elements/layout/key_value_above.html" with key="Date completed" value=assignment.date_complete|date:"Y-m-d H:i" %}
+                        {% include "admin/elements/layout/key_value_above.html" with key="Anonymity to author" value=assignment.anonymous_to_author|yesno:"Anonymous,Open" %}
+                        {% include "admin/elements/layout/key_value_above.html" with key="Anonymity to co-screeners" value=assignment.anonymous_to_coscreeners|yesno:"Anonymous,Open" %}
+                    </dl>
+                </div>
+
+                <div class="title-area">
+                    <h2>Recommendation</h2>
+                </div>
+                <div class="content">
+                    <p>
+                        <strong>{{ assignment.get_recommendation_display|default:"—" }}</strong>
+                    </p>
+                </div>
+
+                {% if assignment.suggested_reviewers %}
+                    <div class="title-area">
+                        <h2>Suggested Reviewers</h2>
+                    </div>
+                    <div class="content">
+                        <p><small>Hidden from the author.</small></p>
+                        <p>{{ assignment.suggested_reviewers|linebreaksbr }}</p>
+                    </div>
+                {% endif %}
+
+                {% if assignment.comments_for_editor %}
+                    <div class="title-area">
+                        <h2>Comments for the Editor</h2>
+                    </div>
+                    <div class="content">
+                        <p><small>Hidden from the author.</small></p>
+                        <p>{{ assignment.comments_for_editor|safe }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="title-area">
+                    <h2>Screening Form Answers</h2>
+                </div>
+                <div class="content">
+                    {% if answers %}
+                        <table class="scroll small">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for answer in answers %}
+                                    <tr>
+                                        <td>{{ answer.best_label }}</td>
+                                        <td>{{ answer.answer|safe|default:"—" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p><small>The screener completed this report without a form, or no answers were recorded.</small></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

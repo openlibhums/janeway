@@ -63,6 +63,11 @@
                                     {% endif %}
                                 {% endfor %}
 
+                                {% for screening_revision in article.active_screening_revision_requests %}
+                                    <a class="small button" href="{% url 'do_screening_revisions' screening_revision.pk %}">Screening
+                                        Revision</a>
+                                {% endfor %}
+
                                 {% for review in article.active_author_copyedits %}
                                     <a class="small button" href="{% url 'author_copyedit' article.pk review.pk %}">Copyediting
                                         Review </a>

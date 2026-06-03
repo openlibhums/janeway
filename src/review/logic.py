@@ -41,6 +41,15 @@ from review.const import EditorialDecisions as ED
 from events import logic as event_logic
 from submission import models as submission_models
 
+# Editor-assignment logic helpers live in the editor_assignment app. They are
+# re-exported here so existing imports (e.g. `from review.logic import
+# assign_editor` in core.workflow) continue to resolve. See bau#271.
+from editor_assignment.logic import (  # noqa: E402, F401
+    assign_editor,
+    get_assignment_context,
+    get_unassignment_context,
+)
+
 
 def get_reviewers(article, candidate_queryset, exclude_pks):
     prefetch_review_assignment = Prefetch(
@@ -194,20 +203,6 @@ def get_previous_round_reviewers(article):
     )
 
 
-def get_assignment_context(request, article, editor, assignment):
-    review_in_review_url = request.journal.site_url(
-        reverse("review_in_review", kwargs={"article_id": article.pk})
-    )
-    email_context = {
-        "article": article,
-        "editor": editor,
-        "assignment": assignment,
-        "review_in_review_url": review_in_review_url,
-    }
-
-    return email_context
-
-
 def get_review_url(request, review_assignment):
     review_url = request.journal.site_url(
         path=reverse("do_review", kwargs={"assignment_id": review_assignment.id})
@@ -297,16 +292,6 @@ def get_withdrawal_notification_context(request, review_assignment):
         "review_assignment": review_assignment,
         "editor": request.user,
     }
-    return email_context
-
-
-def get_unassignment_context(request, assignment):
-    email_context = {
-        "article": assignment.article,
-        "assignment": assignment,
-        "editor": request.user,
-    }
-
     return email_context
 
 
@@ -836,65 +821,6 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
         form.cleaned_data["body"],
         log_dict=log_dict,
     )
-
-
-def assign_editor(
-    article,
-    editor,
-    assignment_type,
-    request=None,
-    skip=True,
-    automate_email=False,
-):
-    from core.forms import SettingEmailForm
-
-    assignment, created = models.EditorAssignment.objects.get_or_create(
-        article=article,
-        editor=editor,
-        editor_type=assignment_type,
-    )
-    if request and created and automate_email:
-        email_context = get_assignment_context(
-            request,
-            article,
-            editor,
-            assignment,
-        )
-        form = SettingEmailForm(
-            setting_name="editor_assignment",
-            email_context=email_context,
-            request=request,
-        )
-        post_data = {
-            "subject": form.fields["subject"].initial,
-            "body": form.fields["body"].initial,
-        }
-        form = SettingEmailForm(
-            post_data,
-            setting_name="editor_assignment",
-            email_context=email_context,
-            request=request,
-        )
-
-        if form.is_valid():
-            kwargs = {
-                "email_data": form.as_dataclass(),
-                "editor_assignment": assignment,
-                "request": request,
-                "skip": skip,
-                "acknowledgement": False,
-            }
-            event_logic.Events.raise_event(
-                event_logic.Events.ON_ARTICLE_ASSIGNED,
-                task_object=article,
-                **kwargs,
-            )
-            if not skip:
-                event_logic.Events.raise_event(
-                    event_logic.Events.ON_ARTICLE_ASSIGNED_ACKNOWLEDGE,
-                    **kwargs,
-                )
-    return assignment, created
 
 
 def process_reviewer_csv(path, request, article, form):

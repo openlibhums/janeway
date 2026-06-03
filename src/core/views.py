@@ -52,6 +52,8 @@ from utils.forms import clean_orcid_id
 from review import models as review_models
 from copyediting import models as copyedit_models
 from production import models as production_models
+from screening import models as screening_models
+from screening.const import ScreeningRecommendations
 from journal import models as journal_models
 from proofing import logic as proofing_logic
 from proofing import models as proofing_models
@@ -827,9 +829,6 @@ def dashboard(request):
         "new_proofing_typesetting": new_proofing_typesetting.count(),
         "completed_proofing_typesetting": completed_proofing_typesetting.count(),
         "active_proofing_typesetting": active_proofing_typesetting.count(),
-        "unassigned_articles_count": submission_models.Article.objects.filter(
-            stage=submission_models.STAGE_UNASSIGNED, journal=request.journal
-        ).count(),
         "assigned_articles_count": submission_models.Article.objects.filter(
             Q(stage=submission_models.STAGE_ASSIGNED)
             | Q(stage=submission_models.STAGE_UNDER_REVIEW)
@@ -855,6 +854,7 @@ def dashboard(request):
         "is_editor": request.user.is_editor(request),
         "is_author": request.user.is_author(request),
         "is_reviewer": request.user.is_reviewer(request),
+        "journal_has_screening": request.journal.element_in_workflow("screening"),
         "section_editor_articles": section_editor_articles,
         "active_submission_count": submission_models.Article.objects.filter(
             owner=request.user, journal=request.journal
@@ -885,6 +885,26 @@ def dashboard(request):
             & Q(reviewer=request.user)
             & Q(date_declined__isnull=True),
             article__journal=request.journal,
+        ).count(),
+        "assigned_screenings_for_user_count": screening_models.ScreeningAssignment.objects.filter(
+            screener=request.user,
+            article__journal=request.journal,
+            date_accepted__isnull=True,
+            date_declined__isnull=True,
+            is_complete=False,
+        ).count(),
+        "assigned_screenings_for_user_accepted_count": screening_models.ScreeningAssignment.objects.filter(
+            screener=request.user,
+            article__journal=request.journal,
+            date_accepted__isnull=False,
+            is_complete=False,
+        )
+        .exclude(recommendation=ScreeningRecommendations.WITHDRAWN.value)
+        .count(),
+        "assigned_screenings_for_user_completed_count": screening_models.ScreeningAssignment.objects.filter(
+            screener=request.user,
+            article__journal=request.journal,
+            is_complete=True,
         ).count(),
         "copyeditor_requests": copyedit_models.CopyeditAssignment.objects.filter(
             Q(copyeditor=request.user)
@@ -2283,6 +2303,11 @@ def kanban(request):
         journal=request.journal,
     ).order_by("-date_submitted")
 
+    screening_articles = submission_models.Article.objects.filter(
+        stage=submission_models.STAGE_SCREENING,
+        journal=request.journal,
+    ).order_by("-date_submitted")
+
     articles_in_workflow_plugins = workflow.articles_in_workflow_plugins(request)
 
     context = {
@@ -2295,6 +2320,7 @@ def kanban(request):
         "proofing_assigned": proof_assigned_articles,
         "typesetting": typesetting_articles,
         "prepubs": prepub,
+        "screening_articles": screening_articles,
         "articles_in_workflow_plugins": articles_in_workflow_plugins,
         "workflow": request.journal.workflow(),
     }

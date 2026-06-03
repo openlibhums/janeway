@@ -1,0 +1,21 @@
+{% load foundation %}
+
+<div class="reveal small" id="item" data-reveal data-animation-in="slide-in-up"
+     data-animation-out="slide-out-down">
+    <div class="card">
+        <div class="card-divider">
+            <h4>{% if modal %}<i class="fa fa-edit">&nbsp;</i>Edit Item{% else %}<i class="fa fa-plus">&nbsp;</i>Add New Item{% endif %}</h4>
+        </div>
+        <div class="card-section">
+            {% include "elements/forms/errors.html" with form=item_form %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ item_form|foundation }}
+                <button type="submit" name="item" class="button success">{% if modal %}<i class="fa fa-edit">&nbsp;</i>Save Item{% else %}<i class="fa fa-plus">&nbsp;</i>Save New Item{% endif %}</button>
+            </form>
+        </div>
+    </div>
+    <a href="{% url 'edit_screening_checklist_template' edit_template.pk %}" class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </a>
+</div>

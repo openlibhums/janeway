@@ -603,6 +603,7 @@ def get_jats_article_types():
 
 STAGE_UNSUBMITTED = "Unsubmitted"
 STAGE_UNASSIGNED = "Unassigned"
+STAGE_SCREENING = "Screening"
 STAGE_ASSIGNED = "Assigned"
 STAGE_UNDER_REVIEW = "Under Review"
 STAGE_UNDER_REVISION = "Under Revision"
@@ -658,6 +659,7 @@ PUBLISHED_STAGES = {
 STAGE_CHOICES = [
     (STAGE_UNSUBMITTED, "Unsubmitted"),
     (STAGE_UNASSIGNED, "Unassigned"),
+    (STAGE_SCREENING, "Screening"),
     (STAGE_ASSIGNED, "Assigned to Editor"),
     (STAGE_UNDER_REVIEW, "Peer Review"),
     (STAGE_UNDER_REVISION, "Revision"),
@@ -2245,6 +2247,12 @@ class Article(AbstractLastModifiedModel):
 
     def completed_revision_requests(self):
         return self.revisionrequest_set.filter(date_completed__isnull=False)
+
+    def active_screening_revision_requests(self):
+        return self.screeningrevisionrequest_set.filter(
+            date_completed__isnull=True,
+            date_cancelled__isnull=True,
+        )
 
     def active_author_copyedits(self):
         author_copyedits = []

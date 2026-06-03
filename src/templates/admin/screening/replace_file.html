@@ -1,0 +1,43 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Replace File{% endblock title %}
+{% block title-section %}Replace "{{ file.label }}"{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'do_screening_revisions' revision.pk %}">Screening Revisions</a></li>
+    <li>Replace File</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-8 columns end">
+        <div class="box">
+            <div class="title-area">
+                <h2>Replace "{{ file.label }}"</h2>
+            </div>
+            <div class="content">
+                <p>
+                    The current file is <strong>{{ file.original_filename }}</strong>.
+                    Upload a replacement below; the old file is retained in the article
+                    history but the new file becomes the active version.
+                </p>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label>
+                        Label
+                        <input type="text" name="label" value="{{ file.label }}">
+                    </label>
+                    <label>
+                        Replacement file
+                        <input type="file" name="replacement-file" required>
+                    </label>
+                    <button type="submit" class="success button">
+                        <i class="fa fa-cloud-upload"></i> Upload Replacement
+                    </button>
+                    <a href="{% url 'do_screening_revisions' revision.pk %}" class="button secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

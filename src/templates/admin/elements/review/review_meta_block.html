@@ -18,7 +18,6 @@
 {{ review_request.article.abstract|safe }}
 <br />
 <p><strong>Keywords</strong></p>
-{{ article.keywords.all }}
 <p>
     {% for keyword in review_request.article.keywords.all %}
         {{ keyword.word }}{% if not forloop.last %}, {% endif %}

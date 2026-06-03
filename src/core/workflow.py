@@ -18,6 +18,8 @@ logger = get_logger(__name__)
 
 
 ELEMENT_STAGES = {
+    "editor_assignment": [submission_models.STAGE_UNASSIGNED],
+    "screening": [submission_models.STAGE_SCREENING],
     "review": submission_models.REVIEW_STAGES,
     "copyediting": submission_models.COPYEDITING_STAGES,
     "production": [submission_models.STAGE_TYPESETTING],
@@ -27,6 +29,8 @@ ELEMENT_STAGES = {
 }
 
 STAGES_ELEMENTS = {
+    submission_models.STAGE_UNASSIGNED: "editor_assignment",
+    submission_models.STAGE_SCREENING: "screening",
     submission_models.STAGE_ASSIGNED: "review",
     submission_models.STAGE_UNDER_REVIEW: "review",
     submission_models.STAGE_UNDER_REVISION: "review",
@@ -39,6 +43,21 @@ STAGES_ELEMENTS = {
     submission_models.STAGE_READY_FOR_PUBLICATION: "prepublication",
     submission_models.STAGE_TYPESETTING_PLUGIN: "typesetting",
 }
+
+EDITOR_ASSIGNMENT_ELEMENT_NAME = "editor_assignment"
+
+
+def get_next_workflow_element(journal, current_element_name):
+    """Return the WorkflowElement immediately after ``current_element_name``
+    in ``journal``'s workflow, or None if that element is last (or not
+    present). Used by stage-exit actions to route an article on to whichever
+    element the journal has placed next in its workflow.
+    """
+    elements = list(journal.workflow().elements.order_by("order"))
+    for index, element in enumerate(elements):
+        if element.element_name == current_element_name:
+            return elements[index + 1] if index + 1 < len(elements) else None
+    return None
 
 
 def workflow_element_complete(**kwargs):
@@ -171,8 +190,9 @@ def create_default_workflow(journal):
 
     workflow, c = models.Workflow.objects.get_or_create(journal=journal)
 
-    # Add the first 4 workflow elements (review, copyediting, typesetting and prepub)
-    for index, element in enumerate(models.BASE_ELEMENTS[0:4]):
+    # Add the first 5 workflow elements (editor assignment, review,
+    # copyediting, typesetting and prepub).
+    for index, element in enumerate(models.BASE_ELEMENTS[0:5]):
         e, c = models.WorkflowElement.objects.get_or_create(
             journal=journal,
             element_name=element.get("name"),
@@ -238,6 +258,14 @@ def remove_element(request, journal_workflow, element):
     :param element:
     :return:
     """
+    if element.element_name == EDITOR_ASSIGNMENT_ELEMENT_NAME:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            "Editor Assignment is required and cannot be removed from the workflow.",
+        )
+        return
+
     stages = ELEMENT_STAGES.get(element.element_name, None)
 
     articles = submission_models.Article.objects.filter(

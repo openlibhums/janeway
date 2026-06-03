@@ -9,6 +9,7 @@ from utils import transactional_emails, workflow_tasks
 from journal import logic as journal_logic
 from identifiers import logic as id_logic, reviews
 from typesetting.notifications import emails
+from screening import notifications as screening_notifications
 
 # wire up event notifications
 # Submission
@@ -306,6 +307,43 @@ event_logic.Events.register_for_event(
 event_logic.Events.register_for_event(
     event_logic.Events.ON_TYPESETTING_ASSIGN_DECISION,
     emails.send_typesetting_assign_decision,
+)
+
+# Screening Events (bau#271)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENER_REQUESTED,
+    screening_notifications.send_screener_requested,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_COMPLETE,
+    screening_notifications.send_screening_complete,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_PASSED,
+    screening_notifications.send_screening_passed,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_REVISIONS_REQUESTED,
+    screening_notifications.send_screening_revisions_requested,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_REVISIONS_COMPLETED,
+    screening_notifications.send_screening_revisions_completed,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_WITHDRAWN,
+    screening_notifications.send_screening_withdrawn,
+)
+
+event_logic.Events.register_for_event(
+    event_logic.Events.ON_SCREENING_REVISION_WITHDRAWN,
+    screening_notifications.send_screening_revision_withdrawn,
 )
 
 event_logic.Events.register_for_event(

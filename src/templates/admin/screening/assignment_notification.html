@@ -1,0 +1,42 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load settings %}
+
+{% block css %}<link href="{% static "common/css/jquery-te-1.4.0.css" %}" rel="stylesheet">{% endblock %}
+
+{% block title %}Notify Screener{% endblock title %}
+{% block title-section %}Notify Screener{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+    <li><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></li>
+    <li>Notify Screener</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Notify the Screener</h2>
+            </div>
+            <div class="content">
+                <p>Review and edit the invitation email before sending it. Use Skip to leave the assignment in place without sending an email.</p>
+                <div class="card">
+                    <div class="card-divider">
+                        <h4>To {{ assignment.screener.full_name }}</h4>
+                        <h5>From {{ request.user.full_name }}</h5>
+                    </div>
+                    {% include "admin/elements/email_form.html" with form=form skip=1 %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    {{ form.media.js }}
+{% endblock js %}

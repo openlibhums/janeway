@@ -1,0 +1,72 @@
+{% extends "admin/core/base.html" %}
+{% load foundation %}
+
+{% block title %}Edit Screening Form{% endblock title %}
+{% block title-section %}Edit Screening Form{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'screening_forms' %}">Screening Forms</a></li>
+    <li><a href="{% url 'edit_screening_form' edit_form.pk %}">{{ edit_form.name }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Form's Elements</h2>
+                <a href="#" data-open="element" class="button">Add Element</a>
+            </div>
+            <div class="content">
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <ul class="list-group">
+                        {% for element in edit_form.elements.all %}
+                            <li class="list-group-item" id="element-{{ element.pk }}">
+                                {{ element.name }}
+                                <small>({{ element.kind }})</small>
+                                <div class="float-right">
+                                    <a class="tiny warning button"
+                                       href="{% url 'edit_screening_form_element' edit_form.pk element.pk %}"><i
+                                            class="fa fa-edit"></i></a>
+                                    <button type="submit" name="delete" value="{{ element.pk }}"
+                                            class="tiny alert button"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><small>No elements on this form yet.</small></li>
+                        {% endfor %}
+                    </ul>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="large-6 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Edit Form Detail</h2>
+            </div>
+            <div class="content">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|foundation }}
+                    <button type="submit" name="screening_form" class="success button">Save Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include "elements/screening/element_form.html" %}
+
+{% endblock body %}
+
+{% block js %}
+    {% if modal %}
+        {% include "admin/elements/open_modal.html" with target=modal %}
+    {% endif %}
+{% endblock %}

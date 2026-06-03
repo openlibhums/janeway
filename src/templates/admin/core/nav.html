@@ -64,16 +64,10 @@
             <li class="subtitle">
                 <a href="#">Workflow</a>
             </li>
-            <li>
-                <a href="{% url 'review_unassigned' %}">
-                    <i class="fa fa-angle-right">&nbsp;</i> Unassigned
-                </a>
-            </li>
-
             {% for element in request.journal.workflow.elements.all %}
                 <li>
                     <a href="{% url element.handshake_url %}">
-                        <i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}
+                        <i class="fa fa-angle-right">&nbsp;</i> {{ element.display_name }}
                     </a>
                 </li>
             {% endfor %}
@@ -85,7 +79,7 @@
                 {% if element.element_name == 'review' or element.element_name == 'copyediting' %}
                     <li>
                         <a href="{% url element.handshake_url %}">
-                            <i class="fa fa-angle-right">&nbsp;</i> {{ element|capfirst }}
+                            <i class="fa fa-angle-right">&nbsp;</i> {{ element.display_name }}
                         </a>
                     </li>
                 {% endif %}

@@ -5672,5 +5672,271 @@
             "editor",
             "journal-manager"
         ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to a screener when they are invited to screen an article.",
+            "is_translatable": true,
+            "name": "subject_screening_invitation",
+            "pretty_name": "Screening Invitation",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening Invitation"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to a screener when they are invited to screen an article.",
+            "is_translatable": true,
+            "name": "screening_invitation",
+            "pretty_name": "Screening Invitation",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ screening_assignment.screener.salutation_name }},<br/><br/>We are inviting you to provide a screening report on \"{{ article.safe_title }}\" in {{ article.journal.name }} ahead of any peer review. <br/><br/>You can view the invitation and respond at your screening dashboard: {{ screening_requests_url }}<br/><br/>Regards,<br/>{{ request.user.signature|safe }}"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the managing editor when a screener submits their report.",
+            "is_translatable": true,
+            "name": "subject_screening_complete",
+            "pretty_name": "Screening Report Complete",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening Report Complete"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the managing editor when a screener submits their report.",
+            "is_translatable": true,
+            "name": "screening_complete",
+            "pretty_name": "Screening Report Complete",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ screening_assignment.editor.salutation_name }},<br/><br/>{{ screening_assignment.screener.full_name }} has submitted a screening report for \"{{ article.safe_title }}\" in {{ article.journal.name }} with this recommendation: {{ screening_assignment.get_recommendation_display }}.<br/><br/>You can view the report and the rest of the screening round at: {{ screening_article_url }}<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the corresponding author when their submission passes screening.",
+            "is_translatable": true,
+            "name": "subject_screening_passed",
+            "pretty_name": "Screening Passed",
+            "type": "char"
+        },
+        "value": {
+            "default": "Your submission has passed screening"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the corresponding author when their submission passes screening into the next workflow stage.",
+            "is_translatable": true,
+            "name": "screening_passed",
+            "pretty_name": "Screening Passed",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.salutation_name }},<br/><br/>Your submission \"{{ article.safe_title }}\" to {{ article.journal.name }} has passed our screening process and is now moving into the next stage of our editorial workflow{% if next_workflow_element %} ({{ next_workflow_element.display_name }}){% endif %}.<br/><br/>You will hear from us again as the article progresses.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the author when an editor requests screening revisions.",
+            "is_translatable": true,
+            "name": "subject_screening_revisions_requested",
+            "pretty_name": "Screening Revisions Requested",
+            "type": "char"
+        },
+        "value": {
+            "default": "Revisions requested following screening"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the corresponding author when an editor requests revisions following screening.",
+            "is_translatable": true,
+            "name": "screening_revisions_requested",
+            "pretty_name": "Screening Revisions Requested",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.salutation_name }},<br/><br/>Following screening of your submission \"{{ article.safe_title }}\" to {{ article.journal.name }}, the editorial team has asked for revisions before peer review can proceed.<br/><br/>Please follow the link below to read the editor's notes and upload your revised manuscript:<br/><br/><a href=\"{{ do_revisions_url }}\">{{ do_revisions_url }}</a><br/><br/>Revisions are due by {{ screening_revision.date_due }}.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the editor when an author submits screening revisions.",
+            "is_translatable": true,
+            "name": "subject_screening_revisions_completed",
+            "pretty_name": "Screening Revisions Completed",
+            "type": "char"
+        },
+        "value": {
+            "default": "Author has submitted screening revisions"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the editor when the author submits their screening revisions.",
+            "is_translatable": true,
+            "name": "screening_revisions_completed",
+            "pretty_name": "Screening Revisions Completed",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ screening_revision.editor.salutation_name }},<br/><br/>{{ article.correspondence_author.full_name }} has submitted revisions to \"{{ article.safe_title }}\" following your screening request.<br/><br/>A new screening round has been opened automatically. Open the article to review the revisions and invite screeners:<br/><br/><a href=\"{{ article_url }}\">{{ article_url }}</a><br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the screener when the editor withdraws their screening assignment.",
+            "is_translatable": true,
+            "name": "subject_screening_withdrawn",
+            "pretty_name": "Screening Withdrawn",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening assignment withdrawn"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the screener when the editor withdraws their screening assignment.",
+            "is_translatable": true,
+            "name": "screening_withdrawn",
+            "pretty_name": "Screening Withdrawn",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ screening_assignment.screener.salutation_name }},<br/><br/>Your screening assignment for \"{{ article.safe_title }}\" has been withdrawn by the editorial team. You no longer need to take any action on this submission.<br/><br/>Thank you for your time.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for email sent to the author when the editor cancels a screening revision request.",
+            "is_translatable": true,
+            "name": "subject_screening_revision_withdrawn",
+            "pretty_name": "Screening Revision Withdrawn",
+            "type": "char"
+        },
+        "value": {
+            "default": "Screening revision request cancelled"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to the author when the editor cancels a screening revision request.",
+            "is_translatable": true,
+            "name": "screening_revision_withdrawn",
+            "pretty_name": "Screening Revision Withdrawn",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ article.correspondence_author.salutation_name }},<br/><br/>The revision request for \"{{ article.safe_title }}\" has been cancelled by the editorial team. You no longer need to submit a response.<br/><br/>The editorial team will be in touch if any further action is needed.<br/><br/>Regards"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
     }
 ]

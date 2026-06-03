@@ -2,8 +2,8 @@
 {% load static roles i18n securitytags hooks %}
 
 
-{% block title %}Unassigned {{ article.title }}{% endblock %}
-{% block title-section %}Unassigned{% endblock %}
+{% block title %}Editor Assignment {{ article.title }}{% endblock %}
+{% block title-section %}Editor Assignment{% endblock %}
 {% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block breadcrumbs %}
@@ -278,9 +278,16 @@
                     {% endif %}
                     {% if article.editors %}
                         <ul class="menu vertical actions">
-                            <li>
-                                <a href="{% url 'review_move_to_review' article.pk %}?return={% url 'review_in_review' article.pk %}"><i
-                                        class="fa fa-check action-icon">&nbsp;</i>Move to Review</a></li>
+                            {% if next_workflow_element %}
+                                <li>
+                                    <form method="post" action="{% url 'editor_assignment_move_to_next_stage' article.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="link-button">
+                                            <i class="fa fa-check action-icon">&nbsp;</i>Move to {{ next_workflow_element.display_name }}
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
                             <li><a href="{% url 'review_decision' article.id 'accept' %}"><i
                                     class="fa fa-check-circle action-icon">&nbsp;</i>Accept Article</a></li>
                             <li><a href="{% url 'review_decision' article.id 'decline' %}"><i

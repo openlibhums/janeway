@@ -1,0 +1,57 @@
+{% extends "admin/core/base.html" %}
+{% load securitytags %}
+
+{% block title %}Screening{% endblock %}
+{% block title-section %}Screening{% endblock %}
+{% block title-sub %}Articles awaiting screening{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screening_base.html" %}
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Screening</h2>
+            </div>
+            <div class="content">
+                <table class="small scroll" id="screening">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Submitted</th>
+                            <th>Main Author</th>
+                            <th>Section</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                            <tr>
+                                <td>{{ article.pk }}</td>
+                                <td><a href="{% url 'screening_article' article.pk %}">{{ article.safe_title }}</a></td>
+                                <td>{{ article.date_submitted }}</td>
+                                <td>{{ article.correspondence_author.full_name|se_can_see_pii:article }}</td>
+                                <td>{{ article.section.name }}</td>
+                                <td><a href="{% url 'screening_article' article.pk %}">View</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No articles in this stage</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    {% include "admin/elements/datatables.html" with target="#screening" sort=2 order='asc' %}
+{% endblock js %}

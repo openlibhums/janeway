@@ -1,0 +1,103 @@
+<div id="screening-checklist-panel" aria-live="polite">
+{% if checklist %}
+    {% with items=checklist.items.all %}
+    <div class="box">
+        <div class="title-area">
+            <h2>Technical Checklist</h2>
+            {% if checklist_templates %}
+                <a class="button" data-open="switch-checklist-template">
+                    <i class="fa fa-exchange">&nbsp;</i>Change Template
+                </a>
+            {% endif %}
+        </div>
+        <div class="content">
+            <p>
+                <small>
+                    Editorial-only — not visible to screeners or authors.
+                    {% if checklist.template %}Template: <strong>{{ checklist.template.name }}</strong>.{% endif %}
+                </small>
+            </p>
+            <table class="small scroll">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Item</th>
+                        <th>Comment</th>
+                        <th>Completed by</th>
+                    </tr>
+                </thead>
+                <tbody aria-live="polite">
+                    {% for item in items %}
+                        {% include "admin/screening/elements/checklist_item_row.html" %}
+                    {% empty %}
+                        <tr><td colspan="4">This checklist has no items.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% for item in items %}
+        <div class="reveal small" id="comment-{{ item.pk }}" data-reveal
+             data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-comment">&nbsp;</i>Comment on "{{ item.label }}"</h4>
+                </div>
+                <div class="card-section">
+                    <form hx-post="{% url 'save_checklist_item_comment' item.pk %}"
+                          hx-target="#checklist-item-{{ item.pk }}"
+                          hx-swap="outerHTML"
+                          hx-on::after-request="if (event.detail.successful) { $('#comment-{{ item.pk }}').foundation('close'); }">
+                        {% csrf_token %}
+                        <label for="comment-input-{{ item.pk }}">Comment</label>
+                        <textarea id="comment-input-{{ item.pk }}" name="comment" maxlength="500" rows="4">{{ item.comment }}</textarea>
+                        <button type="submit" class="success button">Save</button>
+                        <button type="button" class="button secondary" data-close>Cancel</button>
+                    </form>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    {% if checklist_templates %}
+        <div class="reveal small" id="switch-checklist-template" data-reveal>
+            <div class="card">
+                <div class="card-divider">
+                    <h4><i class="fa fa-exchange">&nbsp;</i>Change Checklist Template</h4>
+                </div>
+                <div class="card-section">
+                    <p>
+                        <small>
+                            Switching the template re-seeds the checklist from the chosen template's items.
+                            <strong>Existing tick states and comments will be discarded.</strong>
+                        </small>
+                    </p>
+                    <form hx-post="{% url 'switch_checklist_template' article.pk %}"
+                          hx-target="#screening-checklist-panel"
+                          hx-swap="outerHTML"
+                          hx-on::before-request="$('#switch-checklist-template').foundation('close'); $('.reveal-overlay').remove();">
+                        {% csrf_token %}
+                        {% for tpl in checklist_templates %}
+                            <label>
+                                <input type="radio" name="template_id" value="{{ tpl.pk }}"
+                                       {% if checklist.template_id == tpl.pk %}checked{% endif %}/>
+                                {{ tpl.name }}{% if tpl.is_default %} <small><em>(default)</em></small>{% endif %}
+                            </label>
+                        {% endfor %}
+                        <button type="submit" class="success button">Apply Template</button>
+                        <button type="button" class="button secondary" data-close>Cancel</button>
+                    </form>
+                </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+    {% endwith %}
+{% endif %}
+</div>

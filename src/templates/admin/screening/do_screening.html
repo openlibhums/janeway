@@ -1,0 +1,131 @@
+{% extends "admin/core/base.html" %}
+{% load foundation hooks static %}
+
+{% block title %}Screening {{ article.title }}{% endblock title %}
+{% block title-section %}Screening{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "elements/breadcrumbs/screener_base.html" %}
+    <li>Screening Form</li>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Anonymity</h2>
+                </div>
+                <div class="content">
+                    <div class="bs-callout bs-callout-info">
+                        <small>
+                            {% if assignment.anonymous_to_author %}
+                                <strong>Anonymity:</strong> your identity will not be shown to the author when this report is shared.
+                            {% else %}
+                                <strong>Anonymity:</strong> your identity will be visible to the author when this report is shared.
+                            {% endif %}
+                            {% if assignment.anonymous_to_coscreeners %}
+                                Other screeners on this round will not see your identity either.
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="title-area">
+                    <h2>Metadata</h2>
+                </div>
+                <div class="content">
+                    {% include "admin/elements/review/review_meta_block.html" with review_request=assignment %}
+                </div>
+            </div>
+
+            <div class="box">
+                {% include "elements/author_summary_table.html" with article=article %}
+            </div>
+
+            <div class="box">
+                <div class="title-area">
+                    <h2>Files</h2>
+                </div>
+                <div class="content">
+                    <table class="scroll small">
+                        <thead>
+                            <tr>
+                                <th>Label</th>
+                                <th>Filename</th>
+                                <th>Type</th>
+                                <th>Uploaded</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in article.manuscript_files.all %}
+                                <tr>
+                                    <td>{{ file.label }}</td>
+                                    <td>{{ file.original_filename }}</td>
+                                    <td>Manuscript</td>
+                                    <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
+                                    <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download"></i></a></td>
+                                </tr>
+                            {% endfor %}
+                            {% for file in article.data_figure_files.all %}
+                                <tr>
+                                    <td>{{ file.label }}</td>
+                                    <td>{{ file.original_filename }}</td>
+                                    <td>Data/Figure</td>
+                                    <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
+                                    <td><a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i class="fa fa-download"></i></a></td>
+                                </tr>
+                            {% empty %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="box">
+                {% if assignment.form.intro %}
+                    <div class="title-area">
+                        <h2>Information for this Form</h2>
+                    </div>
+                    <div class="content">
+                        <small>{{ assignment.form.intro|safe }}</small>
+                    </div>
+                {% endif %}
+
+                {% hook 'screening_form_guidelines' %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if screening_form %}
+                        <div class="title-area">
+                            <h2>Screening Form</h2>
+                        </div>
+                        <div class="content">
+                            {{ screening_form|foundation }}
+                        </div>
+                    {% endif %}
+
+                    <div class="title-area">
+                        <h2>Recommendation</h2>
+                    </div>
+                    <div class="content" id="recommendation-form-wrap">
+                        {{ recommendation_form|foundation }}
+                        <button type="submit" class="success button">Submit Report</button>
+                        <a href="{{ back_url }}" class="button secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'admin/js/screening.js' %}"></script>
+{% endblock js %}
