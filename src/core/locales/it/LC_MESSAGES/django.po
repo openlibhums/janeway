@@ -2,20 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Janeway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-03 09:30+0000\n"
+"POT-Creation-Date: 2026-06-03 13:09+0000\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: POEditor.com\n"
-
-#: plugtemp/consortial_billing/templates/consortial_billing/supporter_list.html:23
+"X-Generator: POEditor.com"
 #: src/themes/OLH/templates/journal/article_list.html:15
 #: src/themes/OLH/templates/journal/articles.html:22
 msgid "Show Filter Options"
 msgstr ""
-
-#: plugtemp/consortial_billing/templates/consortial_billing/supporter_list_search.html:2
 #: src/templates/admin/submission/edit/author_metadata.html:51
 #: src/templates/admin/submission/submit_authors.html:68
 #: src/themes/OLH/templates/core/base.html:91
@@ -43,29 +39,23 @@ msgstr ""
 #: src/themes/material/templates/journal/search.html:59
 msgid "Search"
 msgstr "Ricerca"
-
 #: src/comms/models.py:139
-#| msgid "Posted by"
+#| msgid "Posted by {byline}"
 msgid "Posted by {byline}"
 msgstr "Pubblicato da"
-
 #: src/comms/models.py:140
-#| msgid "Posted by"
+#| msgid "Posted by  {byline}"
 msgid "Posted by  {byline}"
 msgstr "Pubblicato da"
-
 #: src/copyediting/forms.py:17
 msgid "Are you sure you want to create a copyediting assignment?"
 msgstr ""
-
 #: src/copyediting/forms.py:103
 msgid "Are you sure you want to ask the author to review copyedits?"
 msgstr ""
-
 #: src/copyediting/forms.py:148
 msgid "Are you sure you want to complete the copyedit task?"
 msgstr ""
-
 #: src/core/forms/forms.py:123 src/core/forms/forms.py:171
 #: src/templates/admin/core/accounts/orcid_registration.html:31
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:36
@@ -74,11 +64,9 @@ msgstr ""
 #: src/themes/clean/templates/core/login.html:38
 msgid "Password"
 msgstr "Password"
-
 #: src/core/forms/forms.py:132 src/core/forms/forms.py:179
 msgid "Repeat Password"
 msgstr "Ripeti la password"
-
 #: src/core/forms/forms.py:157 src/core/models.py:446
 #: src/submission/models.py:2610
 #: src/templates/admin/core/accounts/orcid_registration.html:27
@@ -94,167 +82,124 @@ msgstr "Ripeti la password"
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:25
 msgid "Email"
 msgstr "Email"
-
 #: src/core/forms/forms.py:189
 msgid ""
 "Check this box if you would like to receive notifications of new articles "
 "published in this journal"
 msgstr ""
-
 #: src/core/forms/forms.py:659
 msgid "E-mail"
 msgstr "Email"
-
 #: src/core/forms/forms.py:855
 #: src/templates/admin/core/affiliation_update_from_orcid.html:63
 msgid "Are you sure?"
 msgstr ""
-
 #: src/core/forms/forms.py:886
 #, python-format
 msgid ""
 "The account belonging to %(email)s has not yet been activated, so the "
 "recipient of this assignment may not be able to log in and view it."
 msgstr ""
-
 #: src/core/homepage_elements/about/hooks.py:25
 msgid "About this Journal"
 msgstr "Informazioni su questa rivista"
-
 #: src/core/homepage_elements/carousel/models.py:9
 msgid "Off"
 msgstr "Off"
-
 #: src/core/homepage_elements/carousel/models.py:10
 msgid "Latest Articles"
 msgstr "Articoli recenti"
-
 #: src/core/homepage_elements/carousel/models.py:11
 msgid "Latest News"
 msgstr "Ultime notizie"
-
 #: src/core/homepage_elements/carousel/models.py:12
 msgid "Selected Articles"
 msgstr "Articoli selezionati"
-
 #: src/core/homepage_elements/carousel/models.py:13
 msgid "Latest Articles and News"
 msgstr "Ultimi articoli e notizie"
-
 #: src/core/homepage_elements/carousel/models.py:14
 msgid "Selected Articles and News"
 msgstr "Articoli e notizie selezionati"
-
 #: src/core/homepage_elements/carousel/models.py:30
 msgid "If enabled, the selectors below will behave as an exclusion list"
 msgstr ""
-
 #: src/core/homepage_elements/carousel/models.py:70
-#| msgid "View Collection"
 msgid "Issues and Collections"
 msgstr "Visualizza raccolta"
-
 #: src/core/janeway_global_settings.py:252
-#| msgid "English"
 msgid "English"
 msgstr "inglese"
-
 #: src/core/janeway_global_settings.py:253
-#| msgid "English"
 msgid "English (US)"
 msgstr "inglese"
-
 #: src/core/janeway_global_settings.py:254
 msgid "French"
 msgstr "francese"
-
 #: src/core/janeway_global_settings.py:255
 msgid "German"
 msgstr "tedesco"
-
 #: src/core/janeway_global_settings.py:256
 msgid "Dutch"
 msgstr ""
-
 #: src/core/janeway_global_settings.py:257
 msgid "Welsh"
 msgstr "Gallese"
-
 #: src/core/janeway_global_settings.py:258
 msgid "Spanish"
 msgstr ""
-
 #: src/core/logic.py:1021
 msgid "Your password must be {} characters long"
 msgstr ""
-
 #: src/core/logic.py:1029
 msgid "An uppercase character is required"
 msgstr ""
-
 #: src/core/logic.py:1035
 msgid "A number is required"
 msgstr ""
-
 #: src/core/logic.py:1238
 #, python-format
 msgid "Custom organization created: %(organization)s"
 msgstr ""
-
 #: src/core/models.py:96
 msgid "Miss"
 msgstr ""
-
 #: src/core/models.py:97
 msgid "Ms"
 msgstr ""
-
 #: src/core/models.py:98
-#| msgid "Metrics"
 msgid "Mrs"
 msgstr "Metrica"
-
 #: src/core/models.py:99
 msgid "Mr"
 msgstr ""
-
 #: src/core/models.py:100
 msgid "Mx"
 msgstr ""
-
 #: src/core/models.py:101
 msgid "Dr"
 msgstr ""
-
 #: src/core/models.py:102
-#| msgid "Profile"
 msgid "Prof."
 msgstr "Profilo"
-
 #: src/core/models.py:447
 msgid "Username"
 msgstr "Nome utente"
-
 #: src/core/models.py:453
 msgid "First name"
 msgstr "Nome"
-
 #: src/core/models.py:459
 msgid "Middle name"
 msgstr "Secondo nome"
-
 #: src/core/models.py:465
 msgid "Last name"
 msgstr "Cognome"
-
 #: src/core/models.py:475
 msgid "Salutation"
 msgstr "Titolo"
-
 #: src/core/models.py:481
 msgid "Name suffix"
 msgstr ""
-
 #: src/core/models.py:486 src/submission/models.py:2599
 #: src/templates/admin/submission/edit/author.html:143
 #: src/themes/OLH/templates/core/accounts/public_profile.html:41
@@ -262,137 +207,101 @@ msgstr ""
 #: src/themes/material/templates/core/accounts/public_profile.html:18
 msgid "Biography"
 msgstr "Biografia"
-
 #: src/core/models.py:489
 msgid "ORCiD"
 msgstr "ORCID"
-
 #: src/core/models.py:492
-#| msgid "Twitter"
 msgid "Twitter Handle"
 msgstr "Twitter"
-
 #: src/core/models.py:495
-#| msgid "Facebook"
 msgid "Facebook Handle"
 msgstr "Facebook"
-
 #: src/core/models.py:498
-#| msgid "Edit Profile"
 msgid "Linkedin Profile"
 msgstr "Modifica il profilo"
-
 #: src/core/models.py:501
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:8
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:8
 msgid "Website"
 msgstr "Sito web"
-
 #: src/core/models.py:504
-#| msgid "Username"
 msgid "Github Username"
 msgstr "Nome utente"
-
 #: src/core/models.py:519
-#| msgid "Information"
 msgid "Confirmation Code"
 msgstr "Informazioni"
-
 #: src/core/models.py:525
 msgid "Signature"
 msgstr ""
-
 #: src/core/models.py:534
 msgid "Preferred Timezone"
 msgstr ""
-
 #: src/core/models.py:543
 msgid "Enable Digest"
 msgstr ""
-
 #: src/core/models.py:547
 msgid "If enabled, your basic profile will be available to the public."
 msgstr ""
-
 #: src/core/models.py:548
 msgid "Enable public profile"
 msgstr ""
-
 #: src/core/models.py:965 src/core/models.py:979
 msgid "Expires on"
 msgstr ""
-
 #: src/core/models.py:1241 src/core/models.py:1560
-#| msgid "Article"
 msgid "Article PK"
 msgstr "Articolo"
-
 #: src/core/models.py:1248 src/core/models.py:1567 src/repository/models.py:863
 #: src/templates/admin/submission/submit_files.html:43
 #: src/templates/admin/submission/submit_files.html:83
 #: src/templates/admin/submission/submit_review.html:110
 msgid "Label"
 msgstr "Etichetta"
-
 #: src/core/models.py:1251 src/core/models.py:1570
 msgid "Description"
 msgstr "Descrizione"
-
 #: src/core/models.py:1264
 msgid "Remote URL of file"
 msgstr ""
-
 #: src/core/models.py:1597
 msgid "Other"
 msgstr ""
-
 #: src/core/models.py:1598
 msgid "Image"
 msgstr ""
-
 #: src/core/models.py:1993 src/templates/admin/journal/contact.html:38
 #: src/themes/OLH/templates/journal/contact.html:30
 #: src/themes/OLH/templates/press/journal/contact.html:22
 #: src/themes/clean/templates/journal/contact.html:27
 msgid "Who would you like to contact?"
 msgstr "Chi vorresti contattare?"
-
 #: src/core/models.py:1996
 msgid "Your contact email address"
 msgstr "Il tuo indirizzo email"
-
 #: src/core/models.py:1998
 msgid "Subject"
 msgstr "Argomento"
-
 #: src/core/models.py:1999
 msgid "Your message"
 msgstr "Il tuo messaggio"
-
 #: src/core/models.py:2800
 msgid "Active"
 msgstr ""
-
 #: src/core/models.py:2801
 msgid "Inactive"
 msgstr ""
-
 #: src/core/models.py:2802 src/templates/admin/review/view_review.html:62
 msgid "Withdrawn"
 msgstr ""
-
 #: src/core/models.py:2803
 msgid "Unknown"
 msgstr ""
-
 #: src/core/models.py:3024
 msgid "Title, position, or role"
 msgstr ""
-
 #: src/core/models.py:3029
 msgid "Department, unit, or team"
 msgstr ""
-
 #: src/core/validators.py:18
 #, python-brace-format
 msgid ""
@@ -401,7 +310,6 @@ msgid ""
 msgstr ""
 "L'estensione {extension} non è consentita. Le estensioni consentite sono: "
 "{validator.extensions}"
-
 #: src/core/validators.py:22
 #, python-brace-format
 msgid ""
@@ -409,142 +317,106 @@ msgid ""
 msgstr ""
 "Il tipo MIME {mimetype} non è valido. I tipi validi sono: {validator."
 "mimetypes}"
-
 #: src/core/views.py:87
 msgid "You have been banned from logging in due to failed attempts."
 msgstr ""
-
 #: src/core/views.py:131
 msgid ""
 "Password reset process has been initiated, please check your inbox for a "
 "reset request link."
 msgstr ""
-
 #: src/core/views.py:142
 msgid ""
 "Wrong email/password combination or your email address has not been "
 "confirmed yet."
 msgstr ""
-
 #: src/core/views.py:194
 msgid "ORCID is not enabled.Please log in with your username and password."
 msgstr ""
-
 #: src/core/views.py:294
 msgid "You have been logged out."
 msgstr ""
-
 #: src/core/views.py:318
 msgid "If your account was found, an email has been sent to you."
 msgstr ""
-
 #: src/core/views.py:478
 msgid ""
 "Your account has been created. Please follow the instructions in the email "
 "that has been sent to you."
 msgstr ""
-
 #: src/core/views.py:533
-#| msgid "Account"
 msgid "Account activated"
 msgstr "Account"
-
 #: src/core/views.py:583
 msgid "An account with that email address already exists."
 msgstr ""
-
 #: src/core/views.py:589
-#| msgid "Email Address"
 msgid "Email address is not valid."
 msgstr "Indirizzo email"
-
 #: src/core/views.py:604
-#| msgid "Password Guide"
 msgid "Password updated."
 msgstr "Guida password"
-
 #: src/core/views.py:613
 msgid "Passwords do not match"
 msgstr ""
-
 #: src/core/views.py:618
 msgid "Old password is not correct."
 msgstr ""
-
 #: src/core/views.py:629
-#| msgid "Register for"
 msgid "Successfully subscribed to article notifications."
 msgstr "Registrati per"
-
 #: src/core/views.py:637
 msgid "Successfully unsubscribed from article notifications."
 msgstr ""
-
 #: src/core/views.py:739
 msgid ""
 "Your account does not have an ORCID. Please log in with ORCID and try again."
 msgstr ""
-
 #: src/core/views.py:755 src/submission/views.py:1622
 #, python-format
 msgid ""
 "No affiliations were found on your public ORCID record for ID %(orcid_id)s. "
 "Please update your affiliations on orcid.org and try again."
 msgstr ""
-
 #: src/core/views.py:789 src/submission/views.py:1658
-#| msgid "Configuration updated."
 msgid "Affiliations updated."
 msgstr "Configurazione aggiornata."
-
 #: src/core/views.py:2414
 msgid ""
 "You cannot remove a section that contains articles. Remove articles from the "
 "section if you want to delete it."
 msgstr ""
-
 #: src/core/views.py:2838
 msgid "The form did not validate: "
 msgstr ""
-
 #: src/core/views.py:3068 src/journal/forms.py:24 src/journal/views.py:3006
 msgid "Newest"
 msgstr ""
-
 #: src/core/views.py:3069 src/journal/forms.py:25 src/journal/views.py:3007
 msgid "Oldest"
 msgstr ""
-
 #: src/core/views.py:3070
-#| msgid "Last name"
 msgid "Last name A-Z"
 msgstr "Cognome"
-
 #: src/core/views.py:3071
-#| msgid "Last name"
 msgid "Last name Z-A"
 msgstr "Cognome"
-
 #: src/core/views.py:3225 src/submission/views.py:1358
 #, python-format
 msgid "Custom organization updated: %(organization)s"
 msgstr ""
-
 #: src/core/views.py:3274 src/submission/views.py:1427
 #, python-format
 msgid "Affiliation created: %(affiliation)s"
 msgstr ""
-
 #: src/core/views.py:3321 src/submission/views.py:1491
 #, python-format
 msgid "Affiliation updated: %(affiliation)s"
 msgstr ""
-
 #: src/core/views.py:3360 src/submission/views.py:1546
 #, python-format
 msgid "Affiliation removed: %(affiliation)s"
 msgstr ""
-
 #: src/discussion/models.py:27
 msgid "Max. 300 characters."
 msgstr ""
@@ -553,244 +425,181 @@ msgstr ""
 #: src/journal/forms.py:21
 msgid "Relevance"
 msgstr ""
-
 #: src/journal/forms.py:22 src/journal/views.py:3008
-#| msgid "Title"
 msgid "Titles A-Z"
 msgstr "Titolo"
-
 #: src/journal/forms.py:23 src/journal/views.py:3009
-#| msgid "Title"
 msgid "Titles Z-A"
 msgstr "Titolo"
-
 #: src/journal/forms.py:102
 #: src/themes/clean/templates/core/homepage_elements/search_bar.html:20
-#| msgid "Search"
 msgid "Search term"
 msgstr "Ricerca"
-
 #: src/journal/forms.py:104
-#| msgid "Search preprints"
 msgid "Search Titles"
 msgstr "Cerca preprints"
-
 #: src/journal/forms.py:106
-#| msgid "Abstract"
 msgid "Search Abstract"
 msgstr "Abstract"
-
 #: src/journal/forms.py:109
-#| msgid "Search for Existing Authors"
 msgid "Search Authors"
 msgstr "Cerca gli autori esistenti"
-
 #: src/journal/forms.py:112
-#| msgid "Keywords"
 msgid "Search Keywords"
 msgstr "Parole chiave"
-
 #: src/journal/forms.py:115
 msgid "Search Full Text"
 msgstr ""
-
 #: src/journal/forms.py:117
-#| msgid "Search"
 msgid "Search ORCIDs"
 msgstr "Ricerca"
-
 #: src/journal/forms.py:119 src/templates/common/elements/sorting.html:16
 #: src/themes/clean/templates/elements/sorting.html:17
 #: src/themes/material/templates/elements/sorting.html:31
-#| msgid "Your article title"
 msgid "Sort results by"
 msgstr "Il titolo dell'articolo"
-
 #: src/journal/logic.py:215
 msgid "Articles without a section cannot be added to an issue."
 msgstr ""
 "Gli articoli senza una sezione non possono essere aggiunti ad una "
 "pubblicazione."
-
 #: src/journal/models.py:105
 msgid ""
 "Short acronym for the journal. Used as part of the journal URLin path mode "
 "and to uniquely identify the journal"
 msgstr ""
-
 #: src/journal/models.py:130
 msgid ""
 "The default thumbnail for articles, not to be confused with 'Default cover "
 "image'."
 msgstr ""
-
 #: src/journal/models.py:139
 msgid "Replaces the press logo in the footer."
 msgstr ""
-
 #: src/journal/models.py:147
 msgid ""
 "The default cover image for journal issues and for the journal's listing on "
 "the press-level website."
 msgstr ""
-
 #: src/journal/models.py:157
-#| msgid "The default language of articles when lang is hidden"
 msgid "The default background image for article openers and carousel items."
 msgstr "La lingua predefinita degli articoli quando la lingua è nascosta"
-
 #: src/journal/models.py:166
 msgid ""
 "The logo-sized image at the top of all pages, typically used for journal "
 "logos."
 msgstr ""
-
 #: src/journal/models.py:176
 msgid ""
 "The tiny round or square image appearing in browser tabs before the webpage "
 "title"
 msgstr ""
-
 #: src/journal/models.py:186
 msgid ""
 "A default image displayed on the profile and editorial team pages when the "
 "user has no set profile image."
 msgstr ""
-
 #: src/journal/models.py:208
-#| msgid "This article has been peer reviewed."
 msgid "This field has been deprecated in v1.4.3"
 msgstr "Questo articolo è stato soggetto a peer review."
-
 #: src/journal/models.py:219
 msgid "When enabled, the journal is marked as not hosted in Janeway."
 msgstr ""
-
 #: src/journal/models.py:232
 msgid "If the journal is remote you can link to its submission page."
 msgstr ""
-
 #: src/journal/models.py:238
 msgid "If the journal is remote you can link to its home page."
 msgstr ""
-
 #: src/journal/models.py:242
 msgid "Enables a \"View PDF\" link on article pages."
 msgstr ""
-
 #: src/journal/models.py:285
 msgid ""
 "Whether to display article numbers. Article numbers are distinct from "
 "article ID and can be set in Edit Metadata."
 msgstr ""
-
 #: src/journal/models.py:680
 msgid "Please add as much detail as you can."
 msgstr ""
-
 #: src/journal/models.py:821
-#| msgid "Subtitle of the article display format; Title: Subtitle"
 msgid "Autogenerated cache of the display format of an issue title"
 msgstr ""
 "Sottotitoli del formato di visualizzazione dell'articolo; Titolo: sottotitolo"
-
 #: src/journal/models.py:842
 msgid "Image representing the cover of a printed issue or volume"
 msgstr ""
-
 #: src/journal/models.py:850
 msgid "landscape hero image used in the carousel and issue page"
 msgstr ""
-
 #: src/journal/models.py:872
 msgid ""
 "An optional alphanumeric code (Slug) used to generate a verbose  url for "
 "this issue. e.g: 'winter-special-issue'."
 msgstr ""
-
 #: src/journal/models.py:894
 msgid ""
 "An ISBN is relevant for non-serial collections such as conference proceedings"
 msgstr ""
-
 #: src/journal/models.py:936
 #: src/themes/OLH/templates/press/press_journals.html:71
 #: src/themes/clean/templates/press/press_journals.html:42
 #: src/themes/material/templates/press/press_journals.html:46
 msgid "Current Issue"
 msgstr "Pubblicazione corrente"
-
 #: src/journal/models.py:993
 msgid "pages"
 msgstr ""
-
 #: src/journal/models.py:995
 msgid "page"
 msgstr ""
-
 #: src/journal/views.py:795
 msgid "No file uploaded"
 msgstr "Nessun file caricato"
-
 #: src/journal/views.py:1127
 msgid "Issue not in this journal’s issue list."
 msgstr ""
-
 #: src/journal/views.py:1174
 msgid ""
 "Publication date set to {article.date_published.strftime('%Y-%m-%d %H:%M "
 "%Z')} "
 msgstr ""
-
 #: src/journal/views.py:1180
-#| msgid "Publication Fees"
 msgid "Publication date unset"
 msgstr "Tariffe di pubblicazione"
-
 #: src/journal/views.py:1187
 msgid "Something went wrong when trying to save the form. "
 msgstr ""
-
 #: src/journal/views.py:1268
 msgid "Article set for publication."
 msgstr "Articolo pronto per la pubblicazione."
-
 #: src/journal/views.py:1608
 msgid "You cannot move the first section up the order list"
 msgstr "Non puoi spostare la prima sezione più in su nell'ordine"
-
 #: src/journal/views.py:1644
 msgid "You cannot move the last section down the order list"
 msgstr "Non puoi spostare l'ultima sezione più in giù nell'ordine"
-
 #: src/journal/views.py:1651
 msgid "This page accepts post requests only."
 msgstr "Questa pagina accetta solo richieste di post."
-
 #: src/journal/views.py:1719
 msgid "User is already a guest editor."
 msgstr "L'utente è già un guest editor."
-
 #: src/journal/views.py:1725
 msgid "This user is not a member of this journal."
 msgstr "L'utente non è un membro di questa rivista."
-
 #: src/journal/views.py:1777
 msgid "Editor removed from Issue."
 msgstr "L'editore è stato rimosso da questa pubblicazione."
-
 #: src/journal/views.py:1783
 msgid "Issue Editor not found."
 msgstr "Editore della pubblicazione non trovato."
-
 #: src/journal/views.py:1789
 msgid "No Issue Editor ID supplied."
 msgstr "ID dell'editore della pubblicazione non fornito."
-
 #: src/journal/views.py:1940
 msgid "Uploaded file is not UTF-8 encoded"
 msgstr "Il file caricato non è codificato in UTF-8"
-
 #: src/journal/views.py:2039
 msgid ""
 "You must login before you can become a reviewer. Click the button below to "
@@ -798,7 +607,6 @@ msgid ""
 msgstr ""
 "È necessario accedere prima di poter diventare un revisore. Fai clic sul "
 "pulsante qui sotto per accedere."
-
 #: src/journal/views.py:2050
 msgid ""
 "You are not yet a reviewer for this journal. Click the button below to "
@@ -806,138 +614,63 @@ msgid ""
 msgstr ""
 "Non sei ancora un revisore per questa rivista. Fai clic sul pulsante qui "
 "sotto per diventare un revisore."
-
 #: src/journal/views.py:2060
 msgid "You are already a reviewer."
 msgstr "Sei già un revisore."
-
 #: src/journal/views.py:2067
 msgid "You are now a reviewer"
 msgstr "Ora sei un revisore"
-
 #: src/journal/views.py:2107
 msgid "Your message has been sent."
 msgstr "Il tuo messaggio è stato inviato."
-
 #: src/journal/views.py:2607
-#| msgid "Production file uploaded."
 msgid "Manuscript file uploaded."
 msgstr "File per la produzione caricato."
-
 #: src/journal/views.py:2625
-#| msgid "Proofing file uploaded."
 msgid "Data/figure file uploaded."
 msgstr "File caricato per la correzione."
-
 #: src/journal/views.py:2637
 msgid "Production file uploaded."
 msgstr "File per la produzione caricato."
-
 #: src/journal/views.py:2648
-#| msgid "No file uploaded"
 msgid "Galley file uploaded."
 msgstr "Nessun file caricato"
-
 #: src/journal/views.py:2686
 msgid "Proofing file uploaded."
 msgstr "File caricato per la correzione."
-
 #: src/journal/views.py:2692
-#| msgid "Upload files"
 msgid "Saved file."
 msgstr "Carica files"
-
 #: src/journal/views.py:2703
-#| msgid "Supplementary Files"
 msgid "Supplementary file uploaded."
 msgstr "File supplementari"
-
 #: src/journal/views.py:2714
-#| msgid "Proofing file uploaded."
 msgid "Typesetting source file uploaded."
 msgstr "File caricato per la correzione."
-
 #: src/journal/views.py:2989
-#| msgid "Published"
 msgid "Published after"
 msgstr "Pubblicato"
-
 #: src/journal/views.py:2993
-#| msgid "Published on"
 msgid "Published before"
 msgstr "Pubblicato su"
-
 #: src/journal/views.py:2998
 #: src/templates/admin/submission/submit_review.html:70
 msgid "Section"
 msgstr "Sezione"
-
 #: src/journal/views.py:3010 src/themes/OLH/templates/repository/list.html:83
 #: src/themes/material/templates/preprints/list.html:83
 #: src/themes/material/templates/repository/list.html:61
 msgid "Author Name"
 msgstr "Nome dell'autore"
-
 #: src/journal/views.py:3011
 msgid "Volume"
 msgstr ""
-
-#: src/plugins/typesetting/forms.py:16 src/typesetting/forms.py:13
-#| msgid "Enter your new password twice to complete the reset process"
-msgid "Are you sure you want to create a typesetting assignment?"
-msgstr ""
-"Inserisci la nuova password due volte per completare la procedura di "
-"ripristino"
-
-#: src/plugins/typesetting/forms.py:90 src/typesetting/forms.py:126
-#| msgid "Enter your new password twice to complete the reset process"
-msgid "Are you sure you want to create a proofreading assignment?"
-msgstr ""
-"Inserisci la nuova password due volte per completare la procedura di "
-"ripristino"
-
-#: src/plugins/typesetting/forms.py:160 src/typesetting/forms.py:199
-msgid "Text to show as the download link on the article page"
-msgstr ""
-
-#: src/plugins/typesetting/forms.py:199 src/typesetting/forms.py:240
-#| msgid "Enter your new password twice to complete the reset process"
-msgid "Are you sure you want to complete the proofreading task?"
-msgstr ""
-"Inserisci la nuova password due volte per completare la procedura di "
-"ripristino"
-
-#: src/plugins/typesetting/forms.py:224 src/typesetting/forms.py:260
-msgid "You have not proofed some galleys:"
-msgstr ""
-
-#: src/plugins/typesetting/logic.py:165 src/typesetting/logic.py:199
-msgid "Article has no typeset files"
-msgstr ""
-
-#: src/plugins/typesetting/logic.py:166 src/typesetting/logic.py:200
-msgid "One or more typeset files are missing images"
-msgstr ""
-
-#: src/plugins/typesetting/logic.py:168 src/typesetting/logic.py:201
-msgid "One or more typesetting or proofing tasks haven't been completed"
-msgstr ""
-
-#: src/plugins/typesetting/templates/typesetting/typesetting_proofreading_assignment.html:116
-#: src/typesetting/templates/typesetting/typesetting_proofreading_assignment.html:116
-msgid "Mark Task as Complete"
-msgstr ""
-
 #: src/press/views.py:403
-#| msgid "Description"
 msgid "Description deleted."
 msgstr "Descrizione"
-
 #: src/press/views.py:416
-#| msgid "Description"
 msgid "Description saved."
 msgstr "Descrizione"
-
 #: src/repository/forms.py:42 src/submission/forms.py:102
 #: src/templates/admin/core/manager/sections/section_articles.html:30
 #: src/templates/admin/submission/submit_review.html:46
@@ -949,258 +682,200 @@ msgstr "Descrizione"
 #: src/themes/material/templates/repository/list.html:59
 msgid "Title"
 msgstr "Titolo"
-
 #: src/repository/forms.py:44
 msgid "Enter your article's abstract here"
 msgstr "Inserisci l'abstract del tuo articolo qui"
-
 #: src/repository/models.py:140
 msgid "Used for outputs including DC and Citation metadata"
 msgstr ""
-
 #: src/repository/models.py:146
 msgid ""
 "The contents of this field are output into the JS areaat the foot of every "
 "Repository page."
 msgstr ""
-
 #: src/repository/models.py:154
 msgid ""
 "If set to True, this will require all file uploads fromauthors to be PDF "
 "files."
 msgstr ""
-
 #: src/repository/models.py:382
 msgid ""
 "If this field is to be output as a dc metadata field you can addthe type "
 "here."
 msgstr ""
-
 #: src/repository/models.py:431 src/repository/models.py:1049
 #: src/repository/models.py:1199 src/submission/models.py:1014
 msgid "Your article title"
 msgstr "Il titolo dell'articolo"
-
 #: src/repository/models.py:1011 src/submission/models.py:2616
 #: src/templates/admin/elements/author_summary_table.html:24
 #: src/templates/admin/elements/current_authors_inner.html:106
 #: src/templates/admin/submission/edit/author.html:150
 msgid "ORCID"
 msgstr ""
-
 #: src/repository/models.py:1261
 msgid "Approved"
 msgstr ""
-
 #: src/repository/models.py:1263
-#| msgid "Peer Review"
 msgid "Under Review"
 msgstr "Peer review"
-
 #: src/repository/models.py:1265 src/templates/admin/review/view_review.html:64
-#| msgid "Disciplines"
 msgid "Declined"
 msgstr "Discipline"
-
 #: src/repository/views.py:1121
-#| msgid "Author Information"
 msgid "Author information saved"
 msgstr "Informazioni sull'autore"
-
 #: src/review/forms.py:249
 msgid "Are you sure you want to request revisions?"
 msgstr ""
-
 #: src/review/forms.py:298
-#| msgid "Enter your new password twice to complete the reset process"
 msgid "Are you sure you want to complete the revision request?"
 msgstr ""
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
-
 #: src/review/forms.py:435
 msgid "Author can access this review"
 msgstr ""
-
 #: src/review/forms.py:436
 msgid "Author can access review file"
 msgstr ""
-
 #: src/review/forms.py:455
 #, python-format
 msgid "Author can see ‘%(name)s’"
 msgstr ""
-
 #: src/review/models.py:249
 msgid "Anonymity"
 msgstr ""
-
 #: src/review/models.py:419
 msgid "available for the author to access"
 msgstr ""
-
 #: src/review/models.py:420
 msgid "not available for the author to access"
 msgstr ""
-
 #: src/review/views.py:1788
-#| msgid "This article has been peer reviewed."
 msgid "This article has already been accepted or declined."
 msgstr "Questo articolo è stato soggetto a peer review."
-
 #: src/security/templatetags/securitytags.py:107
 #: src/templates/admin/elements/author_summary_table.html:93
 #: src/templates/admin/elements/author_summary_table.html:101
 msgid "[Anonymised data]"
 msgstr ""
-
 #: src/submission/decorators.py:22
 msgid "This page can only be accessed on Journals."
 msgstr "Questa pagina è accessibile solo tramite Riviste."
-
 #: src/submission/decorators.py:33
 msgid "Submission is disabled for this journal."
 msgstr "L'invio di contributi non è consentito per questa rivista."
-
 #: src/submission/forms.py:103
 #: src/templates/admin/submission/submit_review.html:48
 msgid "Subtitle"
 msgstr "Sottotitolo"
-
 #: src/submission/logic.py:116
 msgid "You must upload a file that is either a Doc, Docx, RTF or ODT."
 msgstr ""
-
 #: src/submission/logic.py:364
 #, python-format
 msgid "%(author_name)s is now in position %(position)s."
 msgstr ""
-
 #: src/submission/logic.py:374
 #, python-format
 msgid "%(author_name)s is already in position %(position)s."
 msgstr ""
-
 #: src/submission/logic.py:478
 #, python-format
 msgid "%(author_name)s is now an author."
 msgstr ""
-
 #: src/submission/logic.py:487
 #, python-format
 msgid "%(author_name)s is already an author."
 msgstr ""
-
 #: src/submission/logic.py:496
-#| msgid "No author found with those details."
+#| msgid "No author found with search term: \"%(search_term)s\"."
 msgid "No author found with search term: \"%(search_term)s\"."
 msgstr "Nessun autore trovato con quei dettagli."
-
 #: src/submission/logic.py:525
 msgid "Could not add the author manually."
 msgstr ""
-
 #: src/submission/logic.py:532
-#| msgid "{author_name} added to the article."
+#| msgid "%(author_name)s (%(email)s) added to the article."
 msgid "%(author_name)s (%(email)s) added to the article."
 msgstr "{author_name} aggiunto all'articolo."
-
 #: src/submission/logic.py:549
 #, python-format
 msgid "%(author_name)s (%(email)s) made correspondence author."
 msgstr ""
-
 #: src/submission/logic.py:592
 #, python-format
 msgid "%(author_name)s now has role %(role)s."
 msgstr ""
-
 #: src/submission/logic.py:618
 #, python-format
 msgid "%(author_name)s no longer has the role %(role)s."
 msgstr ""
-
 #: src/submission/models.py:718
 msgid "Additional information regarding this funding entry"
 msgstr ""
-
 #: src/submission/models.py:1021
 msgid "Do not use--deprecated in version 1.4.1 and later."
 msgstr ""
-
 #: src/submission/models.py:1041
 msgid "The primary language of the article"
 msgstr "La lingua principale dell'articolo"
-
 #: src/submission/models.py:1162
 msgid "Custom page range. e.g.: 'I-VII' or 1-3,4-8"
 msgstr ""
-
 #: src/submission/models.py:1188
 msgid "Add any comments you'd like the editor to consider here."
 msgstr ""
-
 #: src/submission/models.py:1224
 msgid ""
 "Custom 'how to cite' text. To be used only if the block generated by Janeway "
 "is not suitable."
 msgstr ""
-
 #: src/submission/models.py:1234 src/submission/models.py:1244
 msgid ""
 "Name of the publisher who published this article Only relevant to migrated "
 "articles from a different publisher"
 msgstr ""
-
 #: src/submission/models.py:1253
 msgid ""
 "Original ISSN of this article's journal when published Only relevant for "
 "back content published under a different title"
 msgstr ""
-
 #: src/submission/models.py:2572
 msgid "Optional name prefix (e.g: Prof or Dr)"
 msgstr ""
-
 #: src/submission/models.py:2578
 msgid "Optional name suffix (e.g.: Jr or III)"
 msgstr ""
-
 #: src/submission/models.py:2618
 msgid "ORCID to be displayed when no account is associated with this author."
 msgstr ""
-
 #: src/submission/models.py:2624
 msgid ""
 "Whether to display this author's email address on the published article."
 msgstr ""
-
 #: src/submission/models.py:3247
 #: src/templates/admin/submission/submit_files.html:72
 msgid "Figures and Data Files"
 msgstr "Figure e file di dati"
-
 #: src/submission/models.py:3254
 msgid "The default license applied when no option is presented"
 msgstr ""
 "La licenza predefinita applicata quando non viene presentata alcuna opzione"
-
 #: src/submission/models.py:3262
 msgid "The default language of articles when lang is hidden"
 msgstr "La lingua predefinita degli articoli quando la lingua è nascosta"
-
 #: src/submission/models.py:3268
 msgid "The default section of articles when no option is presented"
 msgstr ""
 "La sezione predefinita degli articoli quando non viene selezionata alcuna "
 "opzione"
-
 #: src/submission/views.py:307
 msgid ""
 "The article does not have a correspondence author. Please select a "
 "correspondence author to continue."
 msgstr ""
-
 #: src/submission/views.py:514
 #, python-format
 msgid ""
@@ -1208,12 +883,10 @@ msgid ""
 "Please add another author with an email address before removing "
 "%(author_name)s."
 msgstr ""
-
 #: src/submission/views.py:535
-#| msgid "{author_name} added to the article."
+#| msgid "%(author_name)s (%(email)s) removed from the article."
 msgid "%(author_name)s (%(email)s) removed from the article."
 msgstr "{author_name} aggiunto all'articolo."
-
 #: src/submission/views.py:575
 #, python-format
 msgid ""
@@ -1221,94 +894,73 @@ msgid ""
 "Please add another author who has a user account before removing "
 "%(author_name)s."
 msgstr ""
-
 #: src/submission/views.py:598
 #, python-format
 msgid "%(author_name)s (%(email)s) is no longer an author."
 msgstr ""
-
 #: src/submission/views.py:662
 msgid "File deleted"
 msgstr "File eliminato"
-
 #: src/submission/views.py:722
 msgid "You must upload a manuscript file."
 msgstr ""
-
 #: src/submission/views.py:791
 #, python-brace-format
 msgid "Article {title} submitted"
 msgstr "L'articolo {title} è stato inviato"
-
 #: src/submission/views.py:880
 msgid "Metadata updated."
 msgstr "Metadati aggiornati."
-
 #: src/submission/views.py:970
 #, python-format
 msgid ""
 "You are editing the name, bio, and identifiers for %(author_name)s. Select "
 "\"Save\" when you are finished editing."
 msgstr ""
-
 #: src/submission/views.py:988
 msgid "Name, bio, and identifiers saved."
 msgstr ""
-
 #: src/submission/views.py:1141
 msgid "License saved."
 msgstr "Licenza salvata."
-
 #: src/submission/views.py:1182
 #, python-brace-format
 msgid "License {license_name} deleted."
 msgstr "Licenza {license_name} eliminata."
-
 #: src/submission/views.py:1218
 msgid "Configuration updated."
 msgstr "Configurazione aggiornata."
-
 #: src/submission/views.py:1603
 #, python-format
 msgid ""
 "%(author_name)s (%(email)s) does not have an ORCID. Please re-add them by "
 "searching for their ORCID and try again."
 msgstr ""
-
 #: src/templates/admin/cms/submission_item_form.html:15
 #: src/templates/admin/cms/submission_item_form.html:22
-#| msgid "Edit Submissions Page"
 msgid "Editing Submission Page Item"
 msgstr "Modifica la pagina per le proposte"
-
 #: src/templates/admin/cms/submission_item_form.html:15
 #: src/templates/admin/cms/submission_item_form.html:22
-#| msgid "Edit Submissions Page"
 msgid "Add a Submission Page Item"
 msgstr "Modifica la pagina per le proposte"
-
 #: src/templates/admin/cms/submission_item_list.html:58
-#| msgid "Sections submission information"
 msgid "No submission items found"
 msgstr "Informazione per l'invio delle sezioni"
-
 #: src/templates/admin/comms/news_list.html:27
 msgid ""
 "\n"
 "\n"
 "                    "
 msgstr ""
-
 #: src/templates/admin/copyediting/author_review.html:86
 msgid ""
 "You can add a note to the editor. They can pass any requests on to the "
 "copyeditor."
 msgstr ""
-
 #: src/templates/admin/copyediting/author_review.html:92
 msgid "Complete Copyedit Task"
 msgstr ""
-
 #: src/templates/admin/core/accounts/activate_account.html:5
 #: src/templates/admin/core/accounts/activate_account.html:10
 #: src/templates/admin/core/accounts/activate_account.html:16
@@ -1324,23 +976,17 @@ msgstr ""
 #: src/themes/material/templates/core/accounts/activate_account.html:23
 msgid "Activate Account"
 msgstr "Attiva l'account"
-
 #: src/templates/admin/core/accounts/activate_account.html:18
-#| msgid "Account"
 msgid "No account to activate"
 msgstr "Account"
-
 #: src/templates/admin/core/accounts/activate_account.html:26
-#| msgid ""
-#| "You can complete the activation process by clicking the button below."
 msgid ""
 "\n"
 "      You can complete the activation process by clicking the button\n"
 "      below.\n"
 "    "
-msgstr ""
+msgstr "\n"
 "Puoi completare il processo di attivazione cliccando il tasto di sotto."
-
 #: src/templates/admin/core/accounts/activate_account.html:34
 msgid ""
 "\n"
@@ -1349,7 +995,6 @@ msgid ""
 "      already. You can check if it is active by attempting to log in.\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/accounts/activate_account.html:40
 #: src/templates/admin/core/accounts/login.html:5
 #: src/templates/admin/core/accounts/login.html:13
@@ -1379,7 +1024,6 @@ msgstr ""
 #: src/themes/material/templates/repository/nav.html:39
 msgid "Log in"
 msgstr "Accedi"
-
 #: src/templates/admin/core/accounts/edit_profile.html:9
 #: src/templates/admin/core/accounts/edit_profile.html:17
 #: src/templates/admin/elements/breadcrumbs/edit_profile_base.html:3
@@ -1388,24 +1032,13 @@ msgstr "Accedi"
 #: src/themes/material/templates/core/accounts/edit_profile.html:8
 msgid "Edit Profile"
 msgstr "Modifica il profilo"
-
 #: src/templates/admin/core/accounts/edit_profile.html:26
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:12
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:12
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:12
 msgid "Change Your Email Address"
 msgstr "Cambia il tuo indirizzo email"
-
 #: src/templates/admin/core/accounts/edit_profile.html:28
-#| msgid ""
-#| "\n"
-#| "                <p>If you want to change your email address you may do so "
-#| "below, however, you will be logged out and your\n"
-#| "                account will be marked as inactive until you follow the "
-#| "instructions in the verfication email. <strong>Note: </strong>\n"
-#| "                Changing your email address will also change your "
-#| "username as these are one and the same.</p>\n"
-#| "                "
 msgid ""
 "\n"
 "        <p>If you want to change your email address you may do so below,\n"
@@ -1424,37 +1057,29 @@ msgstr ""
 "                Cambiando il tuo indirizzo email cambierai anche il tuo nome "
 "utente in quanto questi corrispondono. </ P>\n"
 "                "
-
 #: src/templates/admin/core/accounts/edit_profile.html:36
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:18
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:18
-#| msgid "Email Address"
 msgid "Current Email Address"
 msgstr "Indirizzo email"
-
 #: src/templates/admin/core/accounts/edit_profile.html:43
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:21
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:24
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:22
-#| msgid "Email Address"
 msgid "New Email Address"
 msgstr "Indirizzo email"
-
 #: src/templates/admin/core/accounts/edit_profile.html:50
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:23
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:31
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:24
 msgid "Update Email Address"
 msgstr "Aggiorna l'indirizzo email"
-
 #: src/templates/admin/core/accounts/edit_profile.html:58
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:33
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:44
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:33
-#| msgid "Register for"
 msgid "Register for Article Notifications"
 msgstr "Registrati per"
-
 #: src/templates/admin/core/accounts/edit_profile.html:61
 msgid ""
 "\n"
@@ -1463,21 +1088,18 @@ msgid ""
 "            published in this journal.\n"
 "          "
 msgstr ""
-
 #: src/templates/admin/core/accounts/edit_profile.html:68
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:42
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:53
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:43
 msgid "Unsubscribe from Article Notifications"
 msgstr ""
-
 #: src/templates/admin/core/accounts/edit_profile.html:72
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:46
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:57
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:47
 msgid "Subscribe to Article Notifications"
 msgstr ""
-
 #: src/templates/admin/core/accounts/edit_profile.html:80
 #: src/templates/admin/core/accounts/edit_profile.html:115
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:57
@@ -1488,51 +1110,39 @@ msgstr ""
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:88
 msgid "Update Password"
 msgstr "Aggiorna la password"
-
 #: src/templates/admin/core/accounts/edit_profile.html:82
-#| msgid ""
-#| "You can update your password by entering your existing password plus your "
-#| "new password."
 msgid ""
 "\n"
 "        You can update your password by entering your existing\n"
 "        password plus your new password.\n"
 "      "
-msgstr ""
+msgstr "\n"
 "Puoi aggiornare la password inserendo la password esistente e la nuova "
 "password."
-
 #: src/templates/admin/core/accounts/edit_profile.html:91
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:63
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:77
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:76
 msgid "Current Password"
 msgstr "Password attuale"
-
 #: src/templates/admin/core/accounts/edit_profile.html:98
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:67
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:80
 msgid "New Password"
 msgstr "Nuova password"
-
 #: src/templates/admin/core/accounts/edit_profile.html:105
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:71
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:84
 msgid "Enter Password Again"
 msgstr "Inserisci di nuovo la password"
-
 #: src/templates/admin/core/accounts/edit_profile.html:122
 #: src/templates/admin/elements/current_authors_inner.html:112
 #: src/templates/admin/submission/edit/author.html:158
-#| msgid "Affiliation"
 msgid "Affiliations"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/accounts/edit_profile.html:128
-#| msgid "Profile Image"
 msgid "Profile Details"
 msgstr "Foto profilo"
-
 #: src/templates/admin/core/accounts/edit_profile.html:138
 #: src/templates/admin/core/accounts/reset_password.html:33
 #: src/templates/admin/elements/button_save.html:12
@@ -1542,14 +1152,11 @@ msgstr "Foto profilo"
 #: src/templates/admin/submission/edit/author.html:127
 msgid "Save"
 msgstr ""
-
 #: src/templates/admin/core/accounts/get_reset_token.html:5
 #: src/templates/admin/core/accounts/get_reset_token.html:10
 #: src/templates/admin/core/accounts/get_reset_token.html:15
-#| msgid "Reset Password"
 msgid "Reset password"
 msgstr "Resetta la password"
-
 #: src/templates/admin/core/accounts/get_reset_token.html:22
 msgid ""
 "\n"
@@ -1557,45 +1164,36 @@ msgid ""
 "email.\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/accounts/get_reset_token.html:29
-#| msgid "Request Token"
 msgid "Request link"
 msgstr "Richiedi un token"
-
 #: src/templates/admin/core/accounts/login.html:35
 #: src/themes/OLH/templates/core/login.html:32
 #: src/themes/clean/templates/core/login.html:20
 #: src/themes/material/templates/core/login.html:22
 msgid "Log in with ORCiD"
 msgstr "Accedi con ORCiD"
-
 #: src/templates/admin/core/accounts/login.html:44
-#| msgid "Login with ORCiD"
 msgid "Log in with"
 msgstr "Accedi con ORCiD"
-
 #: src/templates/admin/core/accounts/login.html:53
 #: src/themes/OLH/templates/core/login.html:31
 #: src/themes/OLH/templates/press/core/login.html:29
 #: src/themes/clean/templates/core/login.html:18
 msgid "Log in with your account"
 msgstr "Accedi con il tuo account"
-
 #: src/templates/admin/core/accounts/login.html:58
 #: src/templates/admin/core/accounts/orcid_registration.html:45
 #: src/themes/OLH/templates/core/login.html:48
 #: src/themes/clean/templates/core/login.html:48
 msgid "Forgotten your password?"
 msgstr "Hai dimenticato la password?"
-
 #: src/templates/admin/core/accounts/login.html:63
 #: src/templates/admin/core/accounts/orcid_registration.html:50
 #: src/themes/OLH/templates/core/login.html:49
 #: src/themes/clean/templates/core/login.html:52
 msgid "Register a new account"
 msgstr "Crea un nuovo account"
-
 #: src/templates/admin/core/accounts/orcid_registration.html:5
 #: src/templates/admin/core/accounts/orcid_registration.html:10
 #: src/templates/admin/core/accounts/orcid_registration.html:15
@@ -1605,12 +1203,7 @@ msgstr "Crea un nuovo account"
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:13
 msgid "Unregistered ORCiD"
 msgstr "ORCiD non registrato"
-
 #: src/templates/admin/core/accounts/orcid_registration.html:21
-#| msgid ""
-#| "The ORCiD you logged in with is not currently linked with an account in "
-#| "our system. You can either register a new account, or login with an "
-#| "existing account to link your ORCiD for future use."
 msgid ""
 "\n"
 "    The ORCiD you logged in with is not currently linked with an\n"
@@ -1618,11 +1211,10 @@ msgid ""
 "with\n"
 "    an existing account to link your ORCiD for future use.\n"
 "  "
-msgstr ""
+msgstr "\n"
 "L'ORCiD con cui hai fatto il log in non è al momento connesso con un account "
 "sul nostro sistema. Puoi creare un nuovo account, o fare il log in con un "
 "account già esistente a cui connettere il tuo ORCiD per uso futuro."
-
 #: src/templates/admin/core/accounts/password_guide.html:11
 #: src/themes/OLH/templates/core/accounts/register.html:110
 #: src/themes/OLH/templates/core/accounts/reset_password.html:52
@@ -1632,38 +1224,25 @@ msgstr ""
 #: src/themes/material/templates/core/accounts/reset_password.html:43
 msgid "Password Guide"
 msgstr "Guida password"
-
 #: src/templates/admin/core/accounts/password_guide.html:15
-#| msgid "When it comes to passwords, length is better than complexity."
 msgid ""
 "\n"
 "        When it comes to passwords, length is better than complexity.\n"
 "      "
-msgstr ""
+msgstr "\n"
 "Quando si tratta di password, la lunghezza è preferibile alla complessità."
-
 #: src/templates/admin/core/accounts/password_guide.html:18
-#| msgid ""
-#| "Its a common myth that a short and complex password (Jfjfy&65^87) is more "
-#| "secure than a long and uncomplicated password (our awesome moon base "
-#| "rocks)."
 msgid ""
 "\n"
 "        Its a common myth that a short and complex password\n"
 "        (Jfjfy&65^87) is more secure than a long and uncomplicated password\n"
 "        (our awesome moon base rocks).\n"
 "      "
-msgstr ""
+msgstr "\n"
 "È un mito comune che una password breve e complessa (Jfjfy e 65 ^ 87) sia "
 "più sicura di una password lunga e semplice (le nostre fantastiche rocce "
 "dalla base lunare)."
-
 #: src/templates/admin/core/accounts/password_guide.html:23
-#| msgid ""
-#| "We recommend selecting a long, but easy to remember password such as our "
-#| "awesome moon base rocks which would take an estimated septillion years to "
-#| "crack as opposed to a complex one like Jfjfy&65^87 which would take just "
-#| "over 600 years on a standard computer."
 msgid ""
 "\n"
 "        We recommend selecting a long, but easy to remember\n"
@@ -1673,20 +1252,17 @@ msgid ""
 "        Jfjfy&65^87 which would take just over 600 years on a standard\n"
 "        computer.\n"
 "      "
-msgstr ""
+msgstr "\n"
 "Ti consigliamo di selezionare una password lunga ma facile da ricordare come "
 "\"le nostre fantastiche rocce dalla base lunare\", che richiederebbe circa "
 "un settilione di anni per essere decifrata, nvece di una complessa come "
 "\"Jfjfy&65^87\" che richiederebbe poco più di 600 anni su un computer "
 "standard."
-
 #: src/templates/admin/core/accounts/register.html:5
 #: src/templates/admin/core/accounts/register.html:10
 #: src/templates/admin/core/accounts/register.html:15
-#| msgid "Register for"
 msgid "Register for an account"
 msgstr "Registrati per"
-
 #: src/templates/admin/core/accounts/register.html:41
 #: src/templates/admin/core/accounts/reset_password.html:21
 #: src/themes/OLH/templates/core/accounts/register.html:31
@@ -1695,10 +1271,8 @@ msgstr "Registrati per"
 #: src/themes/clean/templates/core/accounts/reset_password.html:21
 #: src/themes/material/templates/core/accounts/register.html:24
 #: src/themes/material/templates/core/accounts/reset_password.html:21
-#| msgid "Password Guide"
 msgid "Password Rules"
 msgstr "Guida password"
-
 #: src/templates/admin/core/accounts/register.html:45
 #: src/templates/admin/core/accounts/reset_password.html:25
 msgid ""
@@ -1707,14 +1281,12 @@ msgid ""
 "    data-open=\"password-modal\">password guide</a>.\n"
 "  "
 msgstr ""
-
 #: src/templates/admin/core/accounts/register.html:57
 #: src/themes/OLH/templates/core/accounts/register.html:91
 #: src/themes/clean/templates/core/accounts/register.html:31
 #: src/themes/material/templates/core/accounts/register.html:37
 msgid "By registering an account you agree to our"
 msgstr "Registrando un account accetti il ​​nostro"
-
 #: src/templates/admin/core/accounts/register.html:68
 #: src/templates/admin/journal/submissions.html:37
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:52
@@ -1743,21 +1315,16 @@ msgstr "Registrando un account accetti il ​​nostro"
 #: src/themes/material/templates/repository/nav.html:69
 msgid "Register"
 msgstr "Iscrizione"
-
 #: src/templates/admin/core/accounts/reset_password.html:5
 #: src/templates/admin/core/accounts/reset_password.html:10
 #: src/templates/admin/core/accounts/reset_password.html:15
-#| msgid "Enter New Password"
 msgid "Enter your new password"
 msgstr "Inserisci la nuova password"
-
 #: src/templates/admin/core/affiliation_confirm_remove.html:11
 #: src/templates/admin/core/organizationname_form.html:20
 #: src/templates/admin/core/organizationname_form.html:35
-#| msgid "Affiliation"
 msgid "Edit Affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_confirm_remove.html:18
 #: src/templates/admin/submission/edit/author_confirm_remove.html:8
 #, python-format
@@ -1766,7 +1333,6 @@ msgid ""
 "      Remove \"%(thing_to_delete)s\"\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/affiliation_form.html:7
 #: src/templates/admin/core/affiliation_form.html:19
 #: src/templates/admin/core/affiliation_form.html:51
@@ -1776,7 +1342,6 @@ msgid ""
 "      Edit \"%(affiliation)s\"\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/affiliation_form.html:11
 #: src/templates/admin/core/affiliation_form.html:23
 #: src/templates/admin/core/affiliation_form.html:55
@@ -1786,7 +1351,6 @@ msgid ""
 "      Create affiliation with \"%(organization)s\"\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/affiliation_form.html:36
 #: src/templates/admin/core/affiliation_form.html:45
 #: src/templates/admin/core/organization_search.html:6
@@ -1794,15 +1358,11 @@ msgstr ""
 #: src/templates/admin/core/organization_search.html:20
 #: src/templates/admin/core/organizationname_form.html:26
 #: src/templates/admin/core/organizationname_form.html:41
-#| msgid "Affiliation"
 msgid "Add Affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_form.html:66
-#| msgid "Publication Fees"
 msgid "Affiliation details"
 msgstr "Tariffe di pubblicazione"
-
 #: src/templates/admin/core/affiliation_form.html:71
 msgid ""
 "\n"
@@ -1810,7 +1370,6 @@ msgid ""
 "strong>.</p>\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/affiliation_form.html:75
 msgid ""
 "\n"
@@ -1818,76 +1377,53 @@ msgid ""
 "strong> to create the affiliation.</p>\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:21
-#| msgid "Affiliation"
 msgid "Edit affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:23
-#| msgid "Affiliation"
 msgid "Remove affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:28
-#| msgid "Affiliation"
 msgid "No affiliations."
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:44
 msgid "Get primary affiliation from ORCID"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:50
 msgid "Update all affiliations from ORCID"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_list_display_with_actions.html:62
 #: src/templates/admin/core/organization_search.html:75
-#| msgid "Affiliation"
 msgid "Add affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:6
 #: src/templates/admin/core/affiliation_update_from_orcid.html:10
 msgid "Update affiliations from ORCiD"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:20
 #: src/templates/admin/elements/current_authors_inner.html:74
-#| msgid "Publication Fees"
 msgid "Edit author details"
 msgstr "Tariffe di pubblicazione"
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:25
 msgid "Update affiliations from ORCID"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:37
 msgid "Old affiliations to be removed"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:49
 msgid "New affiliations to be added"
 msgstr ""
-
 #: src/templates/admin/core/affiliation_update_from_orcid.html:71
-#| msgid "Save and Continue"
 msgid "Yes, continue"
 msgstr "Salva e continua"
-
 #: src/templates/admin/core/manager/sections/manage_section.html:15
 #: src/templates/admin/core/manager/sections/manage_section.html:22
-#| msgid "Section"
 msgid "Editing Section"
 msgstr "Sezione"
-
 #: src/templates/admin/core/manager/sections/manage_section.html:15
 #: src/templates/admin/core/manager/sections/manage_section.html:22
-#| msgid "Section"
 msgid "Add a Section"
 msgstr "Sezione"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:6
 #: src/templates/admin/core/manager/sections/section_articles.html:7
 #: src/templates/admin/core/manager/sections/section_articles.html:12
@@ -1895,7 +1431,6 @@ msgstr "Sezione"
 #: src/themes/clean/templates/elements/sections_block.html:1
 msgid "Sections"
 msgstr "Sezioni"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:11
 #: src/templates/admin/press/edit_press_journal_description.html:10
 #: src/themes/OLH/templates/core/nav.html:71
@@ -1911,7 +1446,6 @@ msgstr "Sezioni"
 #: src/themes/material/templates/press/nav.html:158
 msgid "Manager"
 msgstr "Manager"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:13
 #: src/templates/admin/core/manager/sections/section_articles.html:20
 #: src/themes/OLH/templates/core/nav.html:25
@@ -1936,50 +1470,35 @@ msgstr "Manager"
 #: src/themes/material/templates/journal/search.html:19
 msgid "Articles"
 msgstr "Articoli"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:21
 #: src/templates/admin/elements/a_back.html:11
 msgid "Back"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_articles.html:25
 msgid "Articles that belong to the"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_articles.html:25
-#| msgid "Articles that use this keyword are listed below."
 msgid "section are listed below."
 msgstr "Gli articoli che utilizzano questa parola chiave sono elencati sotto."
-
 #: src/templates/admin/core/manager/sections/section_articles.html:31
-#| msgid "Submitted"
 msgid "D/T Submitted"
 msgstr "Inviato"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:32
 msgid "Stage"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_articles.html:33
-#| msgid "Author"
 msgid "Main Author"
 msgstr "Autore"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:34
 #: src/themes/OLH/templates/repository/list.html:90
 msgid "Editors"
 msgstr "Editori"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:35
-#| msgid "Article Files"
 msgid "Article Archive"
 msgstr "File degli articoli"
-
 #: src/templates/admin/core/manager/sections/section_articles.html:50
-#| msgid "This journal has no issues"
 msgid "This section has no articles."
 msgstr "Questa rivista non ha pubblicazioni"
-
 #: src/templates/admin/core/manager/sections/section_list.html:26
 msgid ""
 "\n"
@@ -1989,11 +1508,9 @@ msgid ""
 "the \n"
 "\t\t\t\t\t\t\t\t\t"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_list.html:30
 msgid "handles on the left of each row"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_list.html:31
 msgid ""
 "\n"
@@ -2002,99 +1519,70 @@ msgid ""
 "sections to the top.\n"
 "\t\t\t\t\t\t\t\t\t"
 msgstr ""
-
 #: src/templates/admin/core/manager/sections/section_list.html:36
 msgid ""
 "You cannot delete a Section that contains articles. Remove the articles from "
 "the section if you want to delete it."
 msgstr ""
-
 #: src/templates/admin/core/manager/users/edit.html:44
 msgid "Email and account access"
 msgstr ""
-
 #: src/templates/admin/core/manager/users/edit.html:61
-#| msgid "Profile Image"
 msgid "Profile details"
 msgstr "Foto profilo"
-
 #: src/templates/admin/core/manager/users/list.html:17
-#| msgid "Journals"
 msgid "Journal Users"
 msgstr "Riviste"
-
 #: src/templates/admin/core/manager/users/list.html:19
-#| msgid "All Preprints"
 msgid "All Users"
 msgstr "Tutti i preprint"
-
 #: src/templates/admin/core/manager/users/list.html:53
-#| msgid "Username"
 msgid "Users"
 msgstr "Nome utente"
-
 #: src/templates/admin/core/manager/users/list.html:83
-#| msgid "No articles to display."
 msgid "No accounts to display."
 msgstr "Nessun articolo da mostrare."
-
 #: src/templates/admin/core/organization_search.html:28
-#| msgid "Search for an article"
 msgid "Search for organization"
 msgstr "Cerca un articolo"
-
 #: src/templates/admin/core/organization_search.html:81
-#| msgid "No articles to display."
 msgid "No organizations to display."
 msgstr "Nessun articolo da mostrare."
-
 #: src/templates/admin/core/organization_search.html:84
 msgid "Organization not found?"
 msgstr ""
-
 #: src/templates/admin/core/organization_search.html:90
 msgid "Create organization"
 msgstr ""
-
 #: src/templates/admin/core/organizationname_form.html:6
 #: src/templates/admin/core/organizationname_form.html:10
 #: src/templates/admin/core/organizationname_form.html:46
 msgid "Custom organization"
 msgstr ""
-
 #: src/templates/admin/core/organizationname_form.html:54
-#| msgid "Last name"
 msgid "Custom name"
 msgstr "Cognome"
-
 #: src/templates/admin/core/request_submission_access.html:14
 msgid "requires that you request permission to make a submission."
 msgstr ""
-
 #: src/templates/admin/core/request_submission_access.html:17
-#| msgid "You must select a main author."
 msgid "You are already enrolled as an author."
 msgstr "Devi selezionare un autore principale."
-
 #: src/templates/admin/core/request_submission_access.html:33
 msgid "You have an active access request that was submitted on: "
 msgstr ""
-
 #: src/templates/admin/elements/a_cancel.html:11
 msgid "Cancel"
 msgstr ""
-
 #: src/templates/admin/elements/a_create.html:14
 msgid "Create"
 msgstr ""
-
 #: src/templates/admin/elements/a_delete.html:11
 #: src/templates/admin/repository/article.html:224
 #: src/templates/admin/repository/submit/authors.html:79
 #: src/templates/admin/submission/submit_funding.html:71
 msgid "Delete"
 msgstr ""
-
 #: src/templates/admin/elements/a_edit.html:11
 #: src/templates/admin/press/edit_press_journal_description.html:11
 #: src/templates/admin/press/edit_press_journal_description.html:17
@@ -2105,17 +1593,14 @@ msgstr ""
 #: src/themes/OLH/templates/elements/edit_author.html:8
 msgid "Edit"
 msgstr "Modifica"
-
 #: src/templates/admin/elements/a_no_go_back.html:7
 #: src/templates/admin/elements/confirm_modal.html:25
 #: src/templates/admin/elements/review/draft_decisions_js.html:34
 msgid "No, go back"
 msgstr ""
-
 #: src/templates/admin/elements/a_remove.html:11
 msgid "Remove"
 msgstr ""
-
 #: src/templates/admin/elements/accounts/user_form.html:4
 #: src/templates/admin/elements/author_summary_table.html:19
 #: src/templates/admin/repository/article.html:220
@@ -2126,21 +1611,18 @@ msgstr ""
 #: src/templates/common/elements/funder_info_for_readers.html:4
 msgid "Name"
 msgstr "Nome"
-
 #: src/templates/admin/elements/accounts/user_form.html:13
 #: src/themes/OLH/templates/elements/accounts/user_form.html:45
 #: src/themes/clean/templates/elements/accounts/user_form.html:42
 #: src/themes/material/templates/elements/accounts/user_form.html:39
 msgid "Social Media and Accounts"
 msgstr "Social media e account"
-
 #: src/templates/admin/elements/accounts/user_form.html:23
 #: src/themes/OLH/templates/elements/accounts/user_form.html:69
 #: src/themes/clean/templates/elements/accounts/user_form.html:66
 #: src/themes/material/templates/elements/accounts/user_form.html:63
 msgid "Biography and Signature"
 msgstr "Biografia e firma"
-
 #: src/templates/admin/elements/accounts/user_form.html:33
 #: src/templates/admin/elements/accounts/user_form.html:36
 #: src/themes/OLH/templates/elements/accounts/user_form.html:78
@@ -2148,21 +1630,18 @@ msgstr "Biografia e firma"
 #: src/themes/material/templates/elements/accounts/user_form.html:72
 msgid "Review Interests"
 msgstr "Revisiona i tuoi interessi"
-
 #: src/templates/admin/elements/accounts/user_form.html:43
 #: src/themes/OLH/templates/elements/accounts/user_form.html:79
 #: src/themes/clean/templates/elements/accounts/user_form.html:76
 #: src/themes/material/templates/elements/accounts/user_form.html:73
 msgid "Hit Enter to add a new interest"
 msgstr "Premi Invio per aggiungere un nuovo interesse"
-
 #: src/templates/admin/elements/accounts/user_form.html:46
 #: src/themes/OLH/templates/elements/accounts/user_form.html:83
 #: src/themes/clean/templates/elements/accounts/user_form.html:80
 #: src/themes/material/templates/elements/accounts/user_form.html:77
 msgid "Profile Image"
 msgstr "Foto profilo"
-
 #: src/templates/admin/elements/accounts/user_form.html:62
 #: src/themes/OLH/templates/elements/accounts/user_form.html:99
 #: src/themes/OLH/templates/journal/article.html:86
@@ -2171,7 +1650,6 @@ msgstr "Foto profilo"
 #: src/themes/material/templates/elements/accounts/user_form.html:93
 msgid "Options"
 msgstr "Opzioni"
-
 #: src/templates/admin/elements/author_summary_table.html:7
 #: src/templates/admin/repository/submit/authors.html:67
 #: src/themes/OLH/templates/journal/authors.html:4
@@ -2186,36 +1664,27 @@ msgstr "Opzioni"
 #: src/themes/material/templates/repository/preprint.html:152
 msgid "Authors"
 msgstr "Autori"
-
 #: src/templates/admin/elements/author_summary_table.html:18
 msgid "Order"
 msgstr ""
-
 #: src/templates/admin/elements/author_summary_table.html:25
 #: src/templates/admin/repository/article.html:222
 #: src/templates/admin/repository/author_article.html:93
 #: src/templates/admin/repository/submit/authors.html:78
 msgid "Affiliation"
 msgstr "Affiliazione"
-
 #: src/templates/admin/elements/author_summary_table.html:47
-#| msgid "Publications"
 msgid "Public"
 msgstr "Pubblicazioni"
-
 #: src/templates/admin/elements/author_summary_table.html:52
 msgid "Hidden"
 msgstr ""
-
 #: src/templates/admin/elements/author_summary_table.html:59
 msgid "Correspondence"
 msgstr ""
-
 #: src/templates/admin/elements/author_summary_table.html:69
-#| msgid "Send Message"
 msgid "Send email"
 msgstr "Invia messaggio"
-
 #: src/templates/admin/elements/breadcrumbs/edit_author_base.html:9
 #, python-format
 msgid ""
@@ -2223,7 +1692,6 @@ msgid ""
 "        Edit \"%(author_name)s\"\n"
 "      "
 msgstr ""
-
 #: src/templates/admin/elements/breadcrumbs/edit_author_base.html:16
 #, python-format
 msgid ""
@@ -2231,19 +1699,15 @@ msgid ""
 "      Edit \"%(author_name)s\"\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/elements/breadcrumbs/submit_authors_base.html:3
 #: src/templates/admin/submission/start.html:7
 #: src/templates/admin/submission/submit_authors.html:16
 msgid "Submit an Article"
 msgstr "Invia un articolo"
-
 #: src/templates/admin/elements/breadcrumbs/submit_authors_base.html:8
 #: src/templates/admin/submission/submit_authors.html:20
-#| msgid "Author Information"
 msgid "Author information"
 msgstr "Informazioni sull'autore"
-
 #: src/templates/admin/elements/button_submit_warning.html:14
 #: src/themes/OLH/templates/core/nav.html:66
 #: src/themes/OLH/templates/elements/right_hand_menu.html:11
@@ -2260,16 +1724,12 @@ msgstr "Informazioni sull'autore"
 #: src/themes/material/templates/repository/nav.html:55
 msgid "Submit"
 msgstr "Invia"
-
 #: src/templates/admin/elements/button_yes_delete.html:12
-#| msgid "File deleted"
 msgid "Yes, delete"
 msgstr "File eliminato"
-
 #: src/templates/admin/elements/button_yes_remove.html:12
 msgid "Yes, remove"
 msgstr ""
-
 #: src/templates/admin/elements/confirm_delete.html:6
 #: src/templates/admin/elements/confirm_delete.html:12
 #, python-format
@@ -2278,25 +1738,24 @@ msgid ""
 "    Delete \"%(thing_to_delete)s\"\n"
 "  "
 msgstr ""
-
 #: src/templates/admin/elements/confirm_delete.html:25
 #: src/templates/admin/elements/confirm_modal.html:7
 #: src/templates/admin/elements/confirm_remove.html:25
 #: src/templates/admin/elements/review/draft_decisions_js.html:13
-#| msgid "Information"
 msgid "Confirmation"
 msgstr "Informazioni"
-
 #: src/templates/admin/elements/confirm_delete.html:30
-#| msgid "Enter your new password twice to complete the reset process"
+#| msgid ""
+#| "\n"
+#| "      Are you sure you want to delete \"%(thing_to_delete)s\"?\n"
+#| "    "
 msgid ""
 "\n"
 "      Are you sure you want to delete \"%(thing_to_delete)s\"?\n"
 "    "
-msgstr ""
+msgstr "\n"
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
-
 #: src/templates/admin/elements/confirm_modal.html:22
 #: src/templates/admin/elements/review/draft_decisions_js.html:27
 #: src/templates/admin/review/decision_helper.html:111
@@ -2312,7 +1771,6 @@ msgstr ""
 #: src/utils/forms.py:190
 msgid "Yes"
 msgstr ""
-
 #: src/templates/admin/elements/confirm_remove.html:6
 #: src/templates/admin/elements/confirm_remove.html:12
 #, python-format
@@ -2321,7 +1779,6 @@ msgid ""
 "    Remove \"%(thing_to_delete)s\"\n"
 "  "
 msgstr ""
-
 #: src/templates/admin/elements/confirm_remove.html:30
 #, python-format
 msgid ""
@@ -2329,21 +1786,15 @@ msgid ""
 "      Are you sure you want to remove \"%(thing_to_delete)s\"?\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/elements/current_authors_inner.html:14
-#| msgid "Current Authors"
 msgid "Current authors"
 msgstr "Autori correnti"
-
 #: src/templates/admin/elements/current_authors_inner.html:53
-#| msgid "Account"
 msgid "Link Account"
 msgstr "Account"
-
 #: src/templates/admin/elements/current_authors_inner.html:78
 msgid "Remove author"
 msgstr ""
-
 #: src/templates/admin/elements/current_authors_inner.html:85
 #, python-format
 msgid ""
@@ -2355,18 +1806,14 @@ msgid ""
 "                              log in and edit their user profile.\n"
 "                            "
 msgstr ""
-
 #: src/templates/admin/elements/current_authors_inner.html:92
 #: src/templates/admin/submission/submit_correspondence_author.html:82
 msgid "Copy link to share"
 msgstr ""
-
 #: src/templates/admin/elements/current_authors_inner.html:93
 #: src/templates/admin/submission/submit_correspondence_author.html:83
-#| msgid "Linkedin"
 msgid "Link copied"
 msgstr "Linkedin"
-
 #: src/templates/admin/elements/current_authors_inner.html:95
 msgid ""
 "\n"
@@ -2375,17 +1822,12 @@ msgid ""
 "                              them to the author list via the search.\n"
 "                            "
 msgstr ""
-
 #: src/templates/admin/elements/current_authors_inner.html:108
-#| msgid "Register an Account"
 msgid "Has user account"
 msgstr "Registra un account"
-
 #: src/templates/admin/elements/current_authors_inner.html:123
-#| msgid "This journal has no issues"
 msgid "This author has no affiliations."
 msgstr "Questa rivista non ha pubblicazioni"
-
 #: src/templates/admin/elements/current_authors_inner.html:129
 #: src/templates/admin/submission/edit/author.html:165
 #: src/themes/OLH/templates/core/accounts/public_profile.html:15
@@ -2393,12 +1835,9 @@ msgstr "Questa rivista non ha pubblicazioni"
 #: src/themes/material/templates/core/accounts/public_profile.html:13
 msgid "Roles"
 msgstr "Ruoli"
-
 #: src/templates/admin/elements/current_authors_inner.html:146
-#| msgid "This article has no summary"
 msgid "This article has no authors."
 msgstr "Questo articolo non ha un riassunto"
-
 #: src/templates/admin/elements/current_authors_inner.html:158
 msgid ""
 "\n"
@@ -2407,216 +1846,166 @@ msgid ""
 "          published.\n"
 "        "
 msgstr ""
-
 #: src/templates/admin/elements/forms/field.html:13
 msgid "translatable"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_article.html:5
 msgid "A set of controls for how things display on the article page"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_article.html:19
 msgid ""
 "Settings to control the display of view and download links on article pages"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_article.html:28
 msgid ""
 "If you don't want to display metrics you can disable them all, or you can "
 "disable the display of citation metrics below"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_article.html:37
 msgid "Enable the display of the dates an article was submitted and accepted."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal.html:32
 msgid ""
 "You can set the from address your journal will use to send emails and the "
 "base signature that will be included."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal.html:42
 msgid ""
 "Where you have a journal in your press that is not hosted on Janeway you can "
 "link directly to the journal and submit pages."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal.html:49
 msgid "Slack/Discord Integration"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal.html:52
 msgid ""
 "You can integrate Janeway into Slack (and Discord as they support the same "
 "endpoints) by setting it up below."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal.html:58
-#| msgid "Export"
 msgid "Support"
 msgstr "Esportare"
-
 #: src/templates/admin/elements/forms/group_journal.html:61
 msgid "How should editors and staff members get help with Janeway?"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal_images.html:11
 msgid ""
 "For details about where each image appears, see the Janeway documentation: "
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_journal_news.html:5
 msgid "You can use this setting to overwrite the title of the news section."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_review.html:5
 msgid ""
 "You can set review file guidance and default review settings below. Review "
 "forms can be managed in the"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_review.html:5
 msgid "Review Form manager"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_review.html:28
 msgid "Settings here determine the review form experience."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_review.html:40
 msgid "Settings here determine the review experience for editors."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_review.html:48
 msgid "Settings here determine the review experience for authors."
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_styling.html:3
 msgid "Full Width Navbar only applies to the Material theme"
 msgstr ""
-
 #: src/templates/admin/elements/forms/group_submission.html:39
 msgid ""
 "The text below make up the Submission page as well as the Submission "
 "Agreement that authors accept."
 msgstr ""
-
 #: src/templates/admin/elements/forms/messages_in_callout.html:11
 msgid "Problems processing the form"
 msgstr ""
-
 #: src/templates/admin/elements/fundref/fundref.html:22
 msgid "Funder"
 msgstr "Finanziatore"
-
 #: src/templates/admin/elements/fundref/fundref.html:23
 #: src/templates/admin/submission/submit_funding.html:67
 #: src/templates/common/elements/funder_info_for_readers.html:5
-#| msgid "Funder DOI"
 msgid "FundRef ID"
 msgstr "DOI del finanziatore"
-
 #: src/templates/admin/elements/fundref/fundref.html:24
-#| msgid "Add funder"
 msgid "Add Funder"
 msgstr "Aggiungi finanziatore"
-
 #: src/templates/admin/elements/fundref/fundref.html:39
 #: src/templates/admin/submission/submit_funding.html:115
 #: src/templates/admin/submission/submit_funding.html:122
 msgid "Add funder"
 msgstr "Aggiungi finanziatore"
-
 #: src/templates/admin/elements/history_modal.html:8
 msgid "History"
 msgstr ""
-
 #: src/templates/admin/elements/issue/sort_toc.html:6
 msgid ""
 "You can automatically sort the articles in your issue by Title "
 "(Alphabetically) or by date published using the form below. Note, this will "
 "not affect the order of the Sections (Article Types)"
 msgstr ""
-
 #: src/templates/admin/elements/issue/sort_toc.html:17
-#| msgid "Your article title"
 msgid "Sort Articles"
 msgstr "Il titolo dell'articolo"
-
 #: src/templates/admin/elements/list_filters.html:7
-#| msgid "Sort and Filter"
 msgid "Search and filter"
 msgstr "Ordina e filtra"
-
 #: src/templates/admin/elements/list_filters.html:28
 #: src/themes/OLH/templates/elements/journal/article_list_filters.html:9
 #: src/themes/clean/templates/elements/journal/article_list_filters.html:10
 msgid "Apply"
 msgstr ""
-
 #: src/templates/admin/elements/list_filters.html:32
 #: src/themes/OLH/templates/elements/journal/article_list_filters.html:10
 #: src/themes/clean/templates/elements/journal/article_list_filters.html:11
 #: src/themes/material/templates/elements/journal/article_list_filters.html:15
-#| msgid "Clear Filters"
 msgid "Clear all"
 msgstr "Rimuovi filtri"
-
 #: src/templates/admin/elements/metadata.html:144
 #: src/templates/admin/submission/edit/metadata.html:185
 #: src/templates/admin/submission/submit_funding.html:69
 #: src/templates/common/elements/funder_info_for_readers.html:7
 msgid "Funding Statement"
 msgstr ""
-
 #: src/templates/admin/elements/move_to_next_modal.html:7
 msgid "Workflow Info"
 msgstr ""
-
 #: src/templates/admin/elements/move_to_next_modal.html:28
 msgid "Move to"
 msgstr ""
-
 #: src/templates/admin/elements/move_to_next_modal.html:31
 msgid "Keep in"
 msgstr ""
-
 #: src/templates/admin/elements/nitty_gritty.html:23
 msgid "Related info"
 msgstr ""
-
 #: src/templates/admin/elements/orcid_display.html:11
 msgid "Opens in new tab."
 msgstr ""
-
 #: src/templates/admin/elements/publisher_notes.html:34
 msgid "Add A Publisher Note"
 msgstr "Aggiungi un commento editoriale"
-
 #: src/templates/admin/elements/publisher_notes.html:43
 msgid "Add Publisher Note"
 msgstr "Aggiungi un commento editoriale"
-
 #: src/templates/admin/elements/publisher_notes.html:54
 msgid "Edit A Publisher Note"
 msgstr "Modifica un commento editoriale"
-
 #: src/templates/admin/elements/publisher_notes.html:63
 msgid "Save Publisher Note"
 msgstr "Salva il commento editoriale"
-
 #: src/templates/admin/elements/repository/metadata_form.html:39
 #: src/templates/admin/repository/submit/start.html:71 src/utils/forms.py:69
 msgid "Hit Enter to add a new keyword."
 msgstr "Premi Invio per aggiungere una nuova parola chiave."
-
 #: src/templates/admin/elements/repository/metadata_form.html:50
 #: src/templates/admin/elements/submission/additional_fields.html:4
 msgid "Additional Fields"
 msgstr "Campi aggiuntivi"
-
 #: src/templates/admin/elements/submit/author.html:8
 #: src/templates/admin/repository/submit/authors.html:62
 #: src/templates/admin/repository/submit/authors.html:113
@@ -2624,54 +2013,45 @@ msgstr "Campi aggiuntivi"
 #: src/themes/OLH/templates/elements/submit/author.html:8
 msgid "Add New Author"
 msgstr "Aggiungi un nuovo autore"
-
 #: src/templates/admin/elements/submit/author.html:64
 #: src/themes/OLH/templates/elements/submit/author.html:64
 msgid "Add Author"
 msgstr "Aggiungi un autore"
-
 #: src/templates/admin/elements/submit/file.html:9
 #: src/themes/OLH/templates/elements/submit/file.html:6
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:6
 msgid "Add New File"
 msgstr "Aggiungi un nuovo file"
-
 #: src/templates/admin/elements/submit/file.html:33
 #: src/themes/OLH/templates/elements/submit/file.html:25
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:25
 msgid "Add File"
 msgstr "Aggiungi file"
-
 #: src/templates/admin/hijack/notification.html:5
 #, python-format
 msgid "You are currently working on behalf of %(user)s."
 msgstr "Attualmente stai lavorando per conto di %(user)s."
-
 #: src/templates/admin/hijack/notification.html:9
 #, python-format
 msgid "release %(user)s"
 msgstr "rilascia %(user)s"
-
 #: src/templates/admin/journal/contact.html:18
 #: src/themes/OLH/templates/journal/contact.html:12
 #: src/themes/material/templates/journal/contact.html:14
 msgid "Journal Representatives"
 msgstr "Rappresentanti delle riviste"
-
 #: src/templates/admin/journal/contact.html:20
 #: src/themes/OLH/templates/journal/contact.html:14
 #: src/themes/OLH/templates/press/journal/contact.html:11
 #: src/themes/material/templates/journal/contact.html:16
 msgid "Press Representatives"
 msgstr "Rappresentanti stampa"
-
 #: src/templates/admin/journal/contact.html:27
 #: src/themes/OLH/templates/journal/contact.html:21
 #: src/themes/clean/templates/journal/contact.html:16
 #: src/themes/material/templates/journal/contact.html:25
 msgid "Contact Information"
 msgstr "Contatti"
-
 #: src/templates/admin/journal/contact.html:32
 #: src/themes/OLH/templates/core/nav.html:42
 #: src/themes/OLH/templates/elements/journal_footer.html:30
@@ -2695,7 +2075,6 @@ msgstr "Contatti"
 #: src/themes/material/templates/press/nav.html:110
 msgid "Contact"
 msgstr "Contatto"
-
 #: src/templates/admin/journal/contact.html:52
 #: src/themes/OLH/templates/journal/contact.html:39
 #: src/themes/OLH/templates/press/journal/contact.html:30
@@ -2703,51 +2082,36 @@ msgstr "Contatto"
 #: src/themes/material/templates/journal/contact.html:45
 msgid "Send Message"
 msgstr "Invia messaggio"
-
 #: src/templates/admin/journal/manage/archive_article.html:25
-#| msgid "Edit Article"
 msgid "Edit Article Images"
 msgstr "Modifica articolo"
-
 #: src/templates/admin/journal/manage/archive_article.html:27
-#| msgid "Publications"
 msgid "Edit Publication Info"
 msgstr "Pubblicazioni"
-
 #: src/templates/admin/journal/manage/archive_article.html:29
-#| msgid "Latest Articles & News"
 msgid "Remote Article View"
 msgstr "Ultimi articoli e news"
-
 #: src/templates/admin/journal/manage/archive_article.html:179
 msgid "Undo Article Rejection"
 msgstr ""
-
 #: src/templates/admin/journal/manage/archive_article.html:183
 msgid "Review"
 msgstr "Revisione"
-
 #: src/templates/admin/journal/manage/archive_article.html:185
-#| msgid "Assign"
 msgid "Unassigned"
 msgstr "Assegna"
-
 #: src/templates/admin/journal/manage/archive_article.html:187
 #, python-format
 msgid ""
 "You will have the opportunity to send an email to the author, and then the "
 "article will move back to the %(stage)s stage."
 msgstr ""
-
 #: src/templates/admin/journal/manage/issues.html:86
 msgid "Issue date is in the future."
 msgstr ""
-
 #: src/templates/admin/journal/manage/issues.html:88
-#| msgid "User is already a guest editor."
 msgid "Issue is already set as the current issue."
 msgstr "L'utente è già un guest editor."
-
 #: src/templates/admin/journal/manage/languages.html:21
 msgid ""
 "\n"
@@ -2755,7 +2119,6 @@ msgid ""
 "languages and set the languages that are available for this journal.\n"
 "                 "
 msgstr ""
-
 #: src/templates/admin/journal/submissions.html:43
 #: src/templates/admin/submission/start.html:77
 #: src/themes/OLH/templates/core/nav.html:47
@@ -2765,62 +2128,47 @@ msgstr ""
 #: src/themes/material/templates/journal/submissions.html:41
 msgid "Start Submission"
 msgstr "Inizia la proposta"
-
 #: src/templates/admin/journal/submissions.html:45
-#| msgid "Contact"
 msgid "Contact Us"
 msgstr "Contatto"
-
 #: src/templates/admin/journal/submissions.html:52
 #: src/themes/OLH/templates/journal/submissions.html:46
 msgid "Licences"
 msgstr "Licenze"
-
 #: src/templates/admin/journal/submissions.html:53
 #: src/templates/admin/submission/submit_info.html:105
 #: src/themes/OLH/templates/journal/submissions.html:47
 #: src/themes/clean/templates/journal/submissions.html:33
 #: src/themes/material/templates/journal/submissions.html:52
-#| msgid "allows the following licences for submission"
 msgid "The following licences are allowed:"
 msgstr "consente le seguenti licenze per l'invio"
-
 #: src/templates/admin/press/edit_press_journal_description.html:5
 #: src/templates/admin/press/edit_press_journal_description.html:6
 msgid "Journal Description for Press Site"
 msgstr ""
-
 #: src/templates/admin/press/edit_press_journal_description.html:11
 #: src/templates/admin/press/edit_press_journal_description.html:17
 msgid "'s Description for Press Site"
 msgstr ""
-
 #: src/templates/admin/press/edit_press_journal_description.html:20
 msgid ""
 "Here you can add a press-specific description of the journal that will be "
 "used on the journal list page. If this is left empty, the journal's main "
 "description is used."
 msgstr ""
-
 #: src/templates/admin/press/edit_press_journal_description.html:25
-#| msgid "Description"
 msgid "Clear Description"
 msgstr "Descrizione"
-
 #: src/templates/admin/proofing/proofing_article.html:273
 msgid "Each proofing round is limited to"
 msgstr "Ogni round di correzione ha un limite di"
-
 #: src/templates/admin/proofing/proofing_article.html:273
 msgid "proofreaders"
 msgstr "Revisori"
-
 #: src/templates/admin/repository/article.html:247
 #: src/templates/admin/repository/submit/authors.html:94
-#| msgid "No funders added."
 msgid "No authors added."
 msgstr "Nessun finanziatore aggiunto."
-
 #: src/templates/admin/repository/edit_authors.html:28
 msgid ""
 "\n"
@@ -2830,41 +2178,32 @@ msgid ""
 "existing user, that user will be added\n"
 "                            to the"
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:8
-#| msgid "Add authors to"
 msgid "Add Authors to"
 msgstr "Aggiungi autori a"
-
 #: src/templates/admin/repository/submit/authors.html:20
 #: src/themes/clean/templates/journal/article.html:177
 msgid "Information"
 msgstr "Informazioni"
-
 #: src/templates/admin/repository/submit/authors.html:24
 msgid ""
 "You can add yourself as an author using the button below. This will copy "
 "metadata from your profile to create a"
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:24
 msgid "author record."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:25
 msgid ""
 "You can search the database of existing authors and add them as authors."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:26
 msgid "You can create a new record for an author using the form below."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:31
 #: src/templates/admin/submission/submit_authors.html:45
 msgid "Add Self as Author"
 msgstr "Aggiungi te stesso come autore"
-
 #: src/templates/admin/repository/submit/authors.html:34
 msgid ""
 "By default, your account is the owner of this submission, but is not an "
@@ -2873,23 +2212,17 @@ msgstr ""
 "Per impostazione predefinita, il tuo account è il proprietario di questa "
 "proposta, ma non è un autore registrato. Puoi aggiungerti usando il pulsante "
 "qui sotto."
-
 #: src/templates/admin/repository/submit/authors.html:42
-#| msgid "Search for Existing Authors"
 msgid "Search for an Author"
 msgstr "Cerca gli autori esistenti"
-
 #: src/templates/admin/repository/submit/authors.html:45
 msgid ""
 "You can search by email or ORCiD. eg. person@example.com or "
 "0000-0003-2126-266X."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:58
-#| msgid "Add Author"
 msgid "Add an Author"
 msgstr "Aggiungi un autore"
-
 #: src/templates/admin/repository/submit/authors.html:61
 msgid ""
 "If you cannot find the author record by searching, and you are not the only "
@@ -2899,82 +2232,61 @@ msgstr ""
 "Se non riesci a trovare il record dell'autore effettuando una ricerca e non "
 "sei l'unico autore, puoi aggiungerne uno facendo clic sul pulsante in basso. "
 "Questo aprirà una finestra popup per completare i loro dettagli."
-
 #: src/templates/admin/repository/submit/authors.html:70
 msgid ""
 "You can reorder the authors by dragging and dropping rows in the table below."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:100
 msgid "Once you have added all of your authors you can complete this stage."
 msgstr ""
-
 #: src/templates/admin/repository/submit/authors.html:103
 msgid "Complete Step 2 of 4"
 msgstr ""
-
 #: src/templates/admin/repository/submit/files.html:8
-#| msgid "Upload files"
 msgid "Upload Files for"
 msgstr "Carica files"
-
 #: src/templates/admin/repository/submit/files.html:25
 msgid "You can use the form below to select and upload your manuscript file."
 msgstr ""
-
 #: src/templates/admin/repository/submit/files.html:43
-#| msgid "Supplementary Files"
 msgid "Supplementary files"
 msgstr "File supplementari"
-
 #: src/templates/admin/repository/submit/files.html:46
 msgid "Optional links to externaly hosted supplementary files."
 msgstr ""
-
 #: src/templates/admin/repository/submit/files.html:47
 #: src/templates/admin/repository/submit/files.html:97
 #: src/templates/admin/repository/submit/files.html:104
 #: src/templates/admin/repository/supp_files_body.html:53
-#| msgid "Supplementary Files"
 msgid "Add New Supplementary File"
 msgstr "File supplementari"
-
 #: src/templates/admin/repository/submit/files.html:56
 msgid ""
 "If you want to change this file you can upload a new one and it will be "
 "overwritten."
 msgstr ""
-
 #: src/templates/admin/repository/submit/files.html:89
 msgid "Complete Step 3 of 4"
 msgstr ""
-
 #: src/templates/admin/repository/submit/files.html:116
-#| msgid "Sections submission information"
 msgid "Submission Information"
 msgstr "Informazione per l'invio delle sezioni"
-
 #: src/templates/admin/repository/submit/start.html:24
-#| msgid "Submission Started"
 msgid "Submission Agreement"
 msgstr "Proposta iniziata"
-
 #: src/templates/admin/repository/submit/start.html:36
 #: src/themes/OLH/templates/repository/preprint.html:125
 #: src/themes/material/templates/preprints/article.html:121
 msgid "Metadata"
 msgstr "Metadati"
-
 #: src/templates/admin/repository/submit/start.html:92
 msgid "Complete Step 1 of 4"
 msgstr ""
-
 #: src/templates/admin/repository/version_queue.html:19
 msgid ""
 "The following updates are ready for moderation. By default the lists are "
 "show the oldest request first."
 msgstr ""
-
 #: src/templates/admin/review/add_review_assignment.html:27
 msgid ""
 "\n"
@@ -2995,17 +2307,14 @@ msgid ""
 "                                email).\n"
 "                            "
 msgstr ""
-
 #: src/templates/admin/review/decision.html:57
 msgid ""
 "Note: This article has completed reviews that have not been made available "
 "to the author:"
 msgstr ""
-
 #: src/templates/admin/review/decision_helper.html:101
 msgid "Review is visible to the author:"
 msgstr ""
-
 #: src/templates/admin/review/decision_helper.html:112
 #: src/themes/OLH/templates/elements/section_block.html:21
 #: src/themes/OLH/templates/elements/section_block.html:32
@@ -3016,35 +2325,27 @@ msgstr ""
 #: src/themes/material/templates/elements/sections_display.html:31
 #: src/themes/material/templates/elements/sections_display.html:42
 #: src/utils/forms.py:191
-#| msgid "Note"
 msgid "No"
 msgstr "Commento"
-
 #: src/templates/admin/review/in_review.html:24
-#| msgid "This article has not been peer reviewed."
 msgid "This article is not yet in the review stage"
 msgstr "Questo articolo non è stato sottoposto a peer review."
-
 #: src/templates/admin/review/in_review.html:26
 msgid "Before you can move this paper into review you need to"
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:27
 msgid "assign an editor"
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:40
 #: src/templates/admin/review/unassigned_article.html:275
 msgid ""
 "This paper has not had an automatic plagiarism check. If you wish to do so "
 "you can run a"
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:40
 #: src/templates/admin/review/unassigned_article.html:275
 msgid "Similarity Check via iThenticate"
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:67
 #, python-format
 msgid ""
@@ -3053,7 +2354,6 @@ msgid ""
 "sent out to reviewers in Round %(round.round_number)s of review.\n"
 "                                            "
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:216
 msgid ""
 "\n"
@@ -3062,19 +2362,15 @@ msgid ""
 "the latest versions from the authors.\n"
 "                                "
 msgstr ""
-
 #: src/templates/admin/review/in_review.html:286
 msgid "Move to Next Stage"
 msgstr ""
-
 #: src/templates/admin/review/projected_issue.html:27
 msgid "Save Projected Issue"
 msgstr "Salva la pubblicazione selezionata"
-
 #: src/templates/admin/review/projected_issue.html:37
 msgid "What is this for?"
 msgstr "A cosa serve?"
-
 #: src/templates/admin/review/projected_issue.html:38
 msgid ""
 "The projected issue field can be used internally to keep track of plans and "
@@ -3082,42 +2378,31 @@ msgid ""
 "displaying anything publicly. It is helpful for journals that add articles "
 "to issues on a rolling basis and publish them individually."
 msgstr ""
-
 #: src/templates/admin/review/projected_issue.html:39
 msgid ""
 "You can assign articles directly to issues in the prepublication stage or "
 "through "
 msgstr ""
-
 #: src/templates/admin/review/projected_issue.html:39
 msgid "issue management"
 msgstr ""
-
 #: src/templates/admin/review/projected_issue.html:40
 msgid "How does it work?"
 msgstr "Come funziona?"
-
 #: src/templates/admin/review/projected_issue.html:41
-#| msgid ""
-#| "Select an issue from the drop down on the left and press save, this "
-#| "articles projected issue will now be set."
 msgid ""
 "Select an issue from the drop down on the left and press save. This "
 "article's projected issue will now be set."
 msgstr ""
 "Seleziona una pubblicazione dal menù a sinistra e clicca \"Salva\". "
 "L'articolo verrà pubblicato nella pubblicazione selezionata."
-
 #: src/templates/admin/review/projected_issue.html:42
 msgid "Can I unset a projected issue?"
 msgstr "Posso rimuovere la pubblicazione selezionata?"
-
 #: src/templates/admin/review/projected_issue.html:43
-#| msgid "Yes, simply select the blank option (-------) from the drop down."
 msgid "Yes, you can select the blank option (-------) from the dropdown."
 msgstr ""
 "Sì, seleziona semplicemente l'opzione vuota (-------) nel menù a discesa"
-
 #: src/templates/admin/review/revision/do_revision.html:127
 msgid ""
 "When you have completed your revisions and finished writing your covering "
@@ -3125,23 +2410,18 @@ msgid ""
 "that you will not be able to make any further changes to your letter or "
 "revisions once you click 'Submit Revisions'"
 msgstr ""
-
 #: src/templates/admin/review/unassigned_article.html:100
 msgid "Assign"
 msgstr "Assegna"
-
 #: src/templates/admin/review/unassigned_article.html:100
 msgid "Projected Issue"
 msgstr "Seleziona una pubblicazione"
-
 #: src/templates/admin/review/unassigned_article.html:105
 msgid "This article is projected to be published as part of"
 msgstr "Questo articolo verrà pubblicato in"
-
 #: src/templates/admin/review/unassigned_article.html:107
 msgid "This article is not projected to be published as part of any issue."
 msgstr "La pubblicazione di cui l'articolo farà parte non è stata selezionata."
-
 #: src/templates/admin/review/unassigned_article.html:120
 msgid ""
 "To check an article for possible plagiarism, you can send an article for an "
@@ -3149,7 +2429,6 @@ msgid ""
 "report then takes a few minutes to be generated, so refresh this page; "
 "results will be displayed under Similarity Check when ready."
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:22
 #, python-format
 msgid ""
@@ -3157,12 +2436,9 @@ msgid ""
 "                        Review #%(review_id)s by %(reviewer_full_name)s\n"
 "                    "
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:30
-#| msgid "Section"
 msgid "Edit in Admin"
 msgstr "Sezione"
-
 #: src/templates/admin/review/view_review.html:36
 msgid ""
 "\n"
@@ -3174,7 +2450,6 @@ msgid ""
 "available.\n"
 "                    "
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:43
 msgid ""
 "\n"
@@ -3184,82 +2459,57 @@ msgid ""
 "element\n"
 "                    "
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:50
-#| msgid "Review"
 msgid "Reviewer"
 msgstr "Revisione"
-
 #: src/templates/admin/review/view_review.html:51
-#| msgid "Request Token"
 msgid "Requested"
 msgstr "Richiedi un token"
-
 #: src/templates/admin/review/view_review.html:52
-#| msgid "Request Token"
 msgid "Request Decision"
 msgstr "Richiedi un token"
-
 #: src/templates/admin/review/view_review.html:53
 msgid "Due"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:54
 msgid "Access Code"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:55
 msgid "Recommendation"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:58
-#| msgid "Peer Reviewed"
 msgid "Email peer reviewer"
 msgstr "Peer reviewed"
-
 #: src/templates/admin/review/view_review.html:63
 msgid "Accepted"
 msgstr "Accettato"
-
 #: src/templates/admin/review/view_review.html:65
 msgid "Awaiting acknowledgement"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:79
 msgid "Summary of Review"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:83
 msgid "No review was undertaken."
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:89
-#| msgid "Review"
 msgid "Review File"
 msgstr "Revisione"
-
 #: src/templates/admin/review/view_review.html:104
-#| msgid "Edit Issue"
 msgid "Edited Answer"
 msgstr "Modifica pubblicazione"
-
 #: src/templates/admin/review/view_review.html:122
 msgid "Reset"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:133
-#| msgid "Comments to the Editor"
 msgid "Comments for the Editor"
 msgstr "Commenti per l'editore"
-
 #: src/templates/admin/review/view_review.html:149
 msgid "Review Availability Controls"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:155
 msgid "Review Visibility"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:160
 #, python-format
 msgid ""
@@ -3270,11 +2520,9 @@ msgid ""
 "before they can access the review file.\n"
 "                                        "
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:173
 msgid "Answer Visibility"
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:177
 msgid ""
 "\n"
@@ -3287,33 +2535,24 @@ msgid ""
 "                                                toggle above.\n"
 "                                            "
 msgstr ""
-
 #: src/templates/admin/review/view_review.html:202
-#| msgid "Peer Reviewed"
 msgid "Suggested Reviewers"
 msgstr "Peer reviewed"
-
 #: src/templates/admin/submission/edit/author.html:32
-#| msgid "Search for Existing Authors"
 msgid "Back to all authors"
 msgstr "Cerca gli autori esistenti"
-
 #: src/templates/admin/submission/edit/author.html:40
 msgid "Name, bio, and identifiers"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:51
 msgid "Edit name, bio, identifiers"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:140
 msgid "Is corporate"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:148
 msgid "Display email"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:172
 #, python-format
 msgid ""
@@ -3322,13 +2561,10 @@ msgid ""
 "          <a href=\"%(author_list_url)s\">page listing all authors</a>.\n"
 "        "
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:180
 #: src/themes/material/templates/preprints/editors.html:28
-#| msgid "Edit Profile"
 msgid "User profile"
 msgstr "Modifica il profilo"
-
 #: src/templates/admin/submission/edit/author.html:183
 #, python-format
 msgid ""
@@ -3339,7 +2575,6 @@ msgid ""
 "          <i>%(journal_title)s</i>, which can be edited at any time.\n"
 "        "
 msgstr ""
-
 #: src/templates/admin/submission/edit/author.html:196
 #, python-format
 msgid ""
@@ -3348,21 +2583,16 @@ msgid ""
 "%(journal_title)s</i>.\n"
 "        "
 msgstr ""
-
 #: src/templates/admin/submission/edit/author_metadata.html:13
 msgid "Edit author metadata"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author_metadata.html:24
 msgid "Back to workflow"
 msgstr ""
-
 #: src/templates/admin/submission/edit/author_metadata.html:33
 #: src/templates/admin/submission/submit_authors.html:30
-#| msgid "Add Authors"
 msgid "Add more authors"
 msgstr "Aggiungi autori"
-
 #: src/templates/admin/submission/edit/author_metadata.html:38
 #: src/templates/admin/submission/submit_authors.html:55
 #, python-format
@@ -3379,13 +2609,10 @@ msgid ""
 "                the author list.\n"
 "              "
 msgstr ""
-
 #: src/templates/admin/submission/edit/author_metadata.html:61
 #: src/templates/admin/submission/submit_authors.html:78
-#| msgid "Add authors to"
 msgid "Add author from search"
 msgstr "Aggiungi autori a"
-
 #: src/templates/admin/submission/edit/author_metadata.html:69
 #: src/templates/admin/submission/submit_authors.html:86
 msgid ""
@@ -3394,13 +2621,10 @@ msgid ""
 "              you can add them manually.\n"
 "            "
 msgstr ""
-
 #: src/templates/admin/submission/edit/author_metadata.html:96
 #: src/templates/admin/submission/submit_authors.html:113
-#| msgid "Add funder manually"
 msgid "Add author manually"
 msgstr "Aggiungi il finanziatore manualmente"
-
 #: src/templates/admin/submission/edit/metadata.html:136
 msgid ""
 "\n"
@@ -3410,7 +2634,6 @@ msgid ""
 "funders.\n"
 "                        "
 msgstr ""
-
 #: src/templates/admin/submission/manager/delete_license.html:25
 msgid ""
 "This license is currently used by the following articles. If you delete it "
@@ -3418,68 +2641,53 @@ msgid ""
 msgstr ""
 "Questa licenza è attualmente utilizzata dai seguenti articoli. Se la "
 "elimini, questi articoli non avranno più una licenza."
-
 #: src/templates/admin/submission/manager/delete_license.html:26
-#| msgid ""
-#| "You should only delete this license if you are absolutley sure you want "
-#| "to remove it."
 msgid ""
 "You should only delete this license if you are absolutely sure you want to "
 "remove it."
 msgstr ""
 "Elimina la licenza solo se sei completamente sicuro di volerla rimuovere."
-
 #: src/templates/admin/submission/start.html:9
 msgid "Author Agreement"
 msgstr "Contratto di edizione"
-
 #: src/templates/admin/submission/start.html:11
 msgid ""
 "Please carefully read through the statements below before checking items"
 msgstr ""
 "Si prega di leggere attentamente le dichiarazioni sottostanti prima di "
 "selezionare ciascuna voce"
-
 #: src/templates/admin/submission/start.html:29
 msgid ""
 "All authors must agree to the below statements in order to submit an article "
 "to"
 msgstr ""
-
 #: src/templates/admin/submission/start.html:29
 msgid ""
 "If you do not agree with these terms you will be unable to proceed with your "
 "submission."
 msgstr ""
-
 #: src/templates/admin/submission/start.html:34
 msgid "Publication Fees"
 msgstr "Tariffe di pubblicazione"
-
 #: src/templates/admin/submission/start.html:41
 msgid "Author(s) agrees to the above statement"
 msgstr "L'autore/i è d'accordo con la dichiarazione di cui sopra"
-
 #: src/templates/admin/submission/start.html:47
 msgid "Submission Checklist"
 msgstr "Checklist per la proposta"
-
 #: src/templates/admin/submission/start.html:53
 msgid "Author(s) confirms that this article adheres to the above requirements"
 msgstr ""
 "L'autore/i conferma che questo articolo rispetta i requisiti di cui sopra"
-
 #: src/templates/admin/submission/start.html:59
 msgid "Copyright Notice"
 msgstr "Avviso sul copyright"
-
 #: src/templates/admin/submission/start.html:71
 #: src/themes/OLH/templates/journal/article.html:374
 #: src/themes/clean/templates/journal/article.html:225
 #: src/themes/material/templates/journal/article.html:385
 msgid "Competing Interests"
 msgstr "Conflitto di interessi"
-
 #: src/templates/admin/submission/submit_author_order.html:15
 #, python-format
 msgid ""
@@ -3487,7 +2695,6 @@ msgid ""
 "              Move %(author_name)s to top\n"
 "            "
 msgstr ""
-
 #: src/templates/admin/submission/submit_author_order.html:28
 #, python-format
 msgid ""
@@ -3495,7 +2702,6 @@ msgid ""
 "              Move %(author_name)s up\n"
 "            "
 msgstr ""
-
 #: src/templates/admin/submission/submit_author_order.html:41
 #, python-format
 msgid ""
@@ -3503,7 +2709,6 @@ msgid ""
 "              Move %(author_name)s down\n"
 "            "
 msgstr ""
-
 #: src/templates/admin/submission/submit_author_order.html:54
 #, python-format
 msgid ""
@@ -3511,52 +2716,38 @@ msgid ""
 "              Move %(author_name)s to bottom\n"
 "            "
 msgstr ""
-
 #: src/templates/admin/submission/submit_authors.html:9
 #: src/templates/admin/submission/timeline.html:29
 #: src/templates/admin/submission/timeline.html:30
 msgid "Author Information"
 msgstr "Informazioni sull'autore"
-
 #: src/templates/admin/submission/submit_authors.html:37
-#| msgid "Add Author"
 msgid "Are you an author?"
 msgstr "Aggiungi un autore"
-
 #: src/templates/admin/submission/submit_authors.html:126
 msgid "Proceed to next step"
 msgstr ""
-
 #: src/templates/admin/submission/submit_authors.html:129
 msgid ""
 "\n"
 "            Is the author information complete?\n"
 "          "
 msgstr ""
-
 #: src/templates/admin/submission/submit_authors.html:140
-#| msgid "Save and Continue"
 msgid "Save and continue"
 msgstr "Salva e continua"
-
 #: src/templates/admin/submission/submit_correspondence_author.html:14
-#| msgid "Current Authors"
 msgid "Correspondence author"
 msgstr "Autori correnti"
-
 #: src/templates/admin/submission/submit_correspondence_author.html:16
 msgid "No correspondence author"
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:29
 msgid "Change correspondence"
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:31
-#| msgid "Select main author"
 msgid "Select correspondence author"
 msgstr "Seleziona l'autore principale"
-
 #: src/templates/admin/submission/submit_correspondence_author.html:38
 msgid ""
 "\n"
@@ -3565,12 +2756,9 @@ msgid ""
 "      for work on the article during the review and publication process.\n"
 "    "
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:47
-#| msgid "Select main author"
 msgid "Select a new correspondence author:"
 msgstr "Seleziona l'autore principale"
-
 #: src/templates/admin/submission/submit_correspondence_author.html:65
 #, python-format
 msgid ""
@@ -3578,12 +2766,9 @@ msgid ""
 "                    (%(email)s)\n"
 "                  "
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:69
-#| msgid "Email Address"
 msgid "(no email address)"
 msgstr "Indirizzo email"
-
 #: src/templates/admin/submission/submit_correspondence_author.html:76
 msgid ""
 "\n"
@@ -3592,7 +2777,6 @@ msgid ""
 "          First invite a co-author to register for an account.\n"
 "        "
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:86
 msgid ""
 "\n"
@@ -3600,7 +2784,6 @@ msgid ""
 "            above their author record letting you link up their account.\n"
 "          "
 msgstr ""
-
 #: src/templates/admin/submission/submit_correspondence_author.html:91
 msgid ""
 "\n"
@@ -3608,7 +2791,6 @@ msgid ""
 "            them to the author list via the search.\n"
 "          "
 msgstr ""
-
 #: src/templates/admin/submission/submit_credit_roles.html:24
 #, python-format
 msgid ""
@@ -3616,71 +2798,54 @@ msgid ""
 "                    Remove %(credit_role)s\n"
 "                  "
 msgstr ""
-
 #: src/templates/admin/submission/submit_credit_roles.html:37
-#| msgid "This journal has no issues"
 msgid "This author has no contributor roles."
 msgstr "Questa rivista non ha pubblicazioni"
-
 #: src/templates/admin/submission/submit_credit_roles.html:61
-#| msgid "Add File"
 msgid "Add role"
 msgstr "Aggiungi file"
-
 #: src/templates/admin/submission/submit_credit_roles.html:70
-#| msgid "Selected Articles"
 msgid "Select a role:"
 msgstr "Articoli selezionati"
-
 #: src/templates/admin/submission/submit_credit_roles.html:91
 msgid "Learn about CRediT roles."
 msgstr ""
-
 #: src/templates/admin/submission/submit_credit_roles.html:92
 #: src/templates/common/elements/affiliation_inner_li_details.html:28
 #: src/templates/common/elements/journal/article_author_display.html:52
 #: src/templates/common/elements/journal/article_author_display.html:77
 msgid "(opens in new tab)"
 msgstr ""
-
 #: src/templates/admin/submission/submit_files.html:5
 msgid "Upload files"
 msgstr "Carica files"
-
 #: src/templates/admin/submission/submit_files.html:36
 #: src/templates/admin/submission/submit_files.html:77
 msgid "Upload"
 msgstr "Carica"
-
 #: src/templates/admin/submission/submit_files.html:44
 #: src/templates/admin/submission/submit_files.html:84
 #: src/templates/admin/submission/submit_review.html:111
 msgid "File Name"
 msgstr "Nome del file"
-
 #: src/templates/admin/submission/submit_files.html:62
 #: src/templates/admin/submission/submit_files.html:100
 msgid "No files uploaded"
 msgstr "Nessun file caricato"
-
 #: src/templates/admin/submission/submit_files.html:115
 #: src/templates/admin/submission/submit_funding.html:105
 #: src/templates/admin/submission/submit_info.html:89
 msgid "Save and Continue"
 msgstr "Salva e continua"
-
 #: src/templates/admin/submission/submit_funding.html:7
-#| msgid "License Information"
 msgid "Funding Information"
 msgstr "Informazioni sulla licenza"
-
 #: src/templates/admin/submission/submit_funding.html:19
 #: src/templates/admin/submission/timeline.html:45
 #: src/templates/admin/submission/timeline.html:46
 #: src/templates/common/elements/funder_info_for_readers.html:3
 msgid "Funding"
 msgstr "Finanziamento"
-
 #: src/templates/admin/submission/submit_funding.html:24
 msgid ""
 "\n"
@@ -3690,49 +2855,37 @@ msgid ""
 "necessary.\n"
 "                    "
 msgstr ""
-
 #: src/templates/admin/submission/submit_funding.html:30
 msgid "Add Funding Source"
 msgstr "Aggiungi una fonte di finanziamento"
-
 #: src/templates/admin/submission/submit_funding.html:41
 msgid "Search for funder"
 msgstr "Cerca un finanzatore"
-
 #: src/templates/admin/submission/submit_funding.html:47
 msgid "Add funder manually"
 msgstr "Aggiungi il finanziatore manualmente"
-
 #: src/templates/admin/submission/submit_funding.html:58
 msgid "Current Funders"
 msgstr "Finanziatori attuali"
-
 #: src/templates/admin/submission/submit_funding.html:68
 msgid "Grant Number"
 msgstr "Numero del fondo di finanziamento"
-
 #: src/templates/admin/submission/submit_funding.html:94
 msgid "No funders added."
 msgstr "Nessun finanziatore aggiunto."
-
 #: src/templates/admin/submission/submit_info.html:6
 #: src/templates/admin/submission/submit_review.html:43
 msgid "Article Info"
 msgstr "Informazioni sull'articolo"
-
 #: src/templates/admin/submission/submit_info.html:23
 msgid "This article is a preprint"
 msgstr "Questo articolo è un preprint"
-
 #: src/templates/admin/submission/submit_info.html:27
-#| msgid "Information"
 msgid "Basic Information"
 msgstr "Informazioni"
-
 #: src/templates/admin/submission/submit_info.html:64
 msgid "View license information"
 msgstr "Visualizza le informazioni sulla licenza"
-
 #: src/templates/admin/submission/submit_info.html:73
 #: src/themes/OLH/templates/journal/article.html:149
 #: src/themes/OLH/templates/journal/keywords.html:6
@@ -3757,20 +2910,16 @@ msgstr "Visualizza le informazioni sulla licenza"
 #: src/themes/material/templates/repository/preprint.html:175
 msgid "Keywords"
 msgstr "Parole chiave"
-
 #: src/templates/admin/submission/submit_info.html:102
 msgid "License Information"
 msgstr "Informazioni sulla licenza"
-
 #: src/templates/admin/submission/submit_review.html:7
 #: src/templates/admin/submission/timeline.html:52
 #: src/templates/admin/submission/timeline.html:53
 #: src/templates/admin/submission/timeline.html:60
 #: src/templates/admin/submission/timeline.html:61
-#| msgid "Review Preprint Submission"
 msgid "Review your submission"
 msgstr "Revisiona il Preprint"
-
 #: src/templates/admin/submission/submit_review.html:21
 msgid ""
 "Please review your submission use the details below. If you need to make "
@@ -3779,26 +2928,18 @@ msgid ""
 "this page to complete the submission process, you will then receive a "
 "receipt email. "
 msgstr ""
-
 #: src/templates/admin/submission/submit_review.html:25
-#| msgid "Author Agreement"
 msgid "Agreements"
 msgstr "Contratto di edizione"
-
 #: src/templates/admin/submission/submit_review.html:29
-#| msgid "Publication Fees"
 msgid "Agreed to Publication Fees statement"
 msgstr "Tariffe di pubblicazione"
-
 #: src/templates/admin/submission/submit_review.html:33
-#| msgid "Submission Checklist"
 msgid "Agreed to Submission Checklist"
 msgstr "Checklist per la proposta"
-
 #: src/templates/admin/submission/submit_review.html:37
 msgid "Agreed to Copyright statement"
 msgstr ""
-
 #: src/templates/admin/submission/submit_review.html:59
 #: src/themes/OLH/templates/journal/article.html:146
 #: src/themes/OLH/templates/journal/print.html:25
@@ -3810,50 +2951,38 @@ msgstr ""
 #: src/themes/material/templates/repository/preprint.html:160
 msgid "Abstract"
 msgstr "Abstract"
-
 #: src/templates/admin/submission/submit_review.html:68
 msgid "Language"
 msgstr "Lingua"
-
 #: src/templates/admin/submission/submit_review.html:72
 #: src/themes/material/templates/journal/article.html:369
 msgid "Licence"
 msgstr "Licenza"
-
 #: src/templates/admin/submission/submit_review.html:107
 #: src/templates/admin/submission/timeline.html:37
 #: src/templates/admin/submission/timeline.html:38
 msgid "Article Files"
 msgstr "File degli articoli"
-
 #: src/templates/admin/submission/submit_review.html:112
-#| msgid "File Name"
 msgid "File Type"
 msgstr "Nome del file"
-
 #: src/templates/admin/submission/submit_review.html:118
-#| msgid "Manuscript File"
 msgid "Manuscript"
 msgstr "File manoscritto"
-
 #: src/templates/admin/submission/submit_review.html:126
 msgid "Figure/Data"
 msgstr "Figura/data"
-
 #: src/templates/admin/submission/submit_review.html:136
 msgid "Comments to the Editor"
 msgstr "Commenti per l'editore"
-
 #: src/templates/admin/submission/submit_review.html:139
 msgid ""
 "Before submitting you have the option to add additional comments for the "
 "editor using the field below. Only the editor will see anything you add here."
 msgstr ""
-
 #: src/templates/admin/submission/submit_review.html:145
 msgid "Complete"
 msgstr "Completa"
-
 #: src/templates/admin/submission/submit_review.html:145
 #: src/themes/OLH/templates/core/nav.html:41
 #: src/themes/clean/templates/core/nav.html:48
@@ -3861,17 +2990,14 @@ msgstr "Completa"
 #: src/themes/material/templates/core/nav.html:107
 msgid "Submission"
 msgstr "Proposta"
-
 #: src/templates/admin/submission/timeline.html:6
 msgid "Submission Started"
 msgstr "Proposta iniziata"
-
 #: src/templates/admin/submission/timeline.html:15
 #: src/templates/admin/submission/timeline.html:18
 #: src/templates/admin/submission/timeline.html:21
 msgid "Article Information"
 msgstr "Informazioni sull'articolo"
-
 #: src/templates/common/accounts/register_privacy_policy.html:3
 #: src/templates/common/accounts/register_privacy_policy.html:7
 #: src/templates/common/accounts/register_privacy_policy.html:11
@@ -3886,44 +3012,31 @@ msgstr "Informazioni sull'articolo"
 #: src/themes/material/templates/elements/journal_footer.html:28
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
-
 #: src/templates/common/elements/affiliation_inner_li_details.html:25
 msgid "View ROR record for"
 msgstr ""
-
 #: src/templates/common/elements/funder_info_for_readers.html:6
-#| msgid "Funding"
 msgid "Funding ID"
 msgstr "Finanziamento"
-
 #: src/templates/common/elements/journal/article_author_display.html:16
-#| msgid "Edit Profile"
 msgid "View profile of"
 msgstr "Modifica il profilo"
-
 #: src/templates/common/elements/journal/article_author_display.html:21
-#| msgid "Edit Profile"
 msgid "user profile"
 msgstr "Modifica il profilo"
-
 #: src/templates/common/elements/journal/article_author_display.html:36
 msgid "compose email"
 msgstr ""
-
 #: src/templates/common/elements/journal/article_author_display.html:39
 msgid "(compose email, opens in email app.)"
 msgstr ""
-
 #: src/templates/common/elements/journal/article_author_display.html:49
-#| msgid "Edit Profile"
 msgid "ORCID profile."
 msgstr "Modifica il profilo"
-
 #: src/templates/common/elements/journal/article_authors_compact.html:9
 #: src/themes/OLH/templates/elements/journal/authors_block.html:11
 msgid "others"
 msgstr ""
-
 #: src/templates/common/elements/journal/article_issue_list.html:4
 #: src/themes/OLH/templates/core/nav.html:26
 #: src/themes/OLH/templates/journal/issues.html:5
@@ -3935,7 +3048,6 @@ msgstr ""
 #: src/themes/material/templates/journal/issues.html:5
 msgid "Issues"
 msgstr "Pubblicazioni"
-
 #: src/templates/common/elements/journal/article_issue_list.html:4
 #: src/themes/OLH/templates/403.html:4
 #: src/themes/OLH/templates/journal/issue.html:9
@@ -3944,33 +3056,25 @@ msgstr "Pubblicazioni"
 #: src/themes/material/templates/journal/issue.html:8
 msgid "Issue"
 msgstr "Pubblicazione"
-
 #: src/templates/common/elements/journal/article_issue_list.html:10
 msgid "Primary: "
 msgstr ""
-
 #: src/templates/common/elements/journal/article_issue_list.html:21
 msgid "This article is not a part of any issues"
 msgstr "Questo articolo non è parte di alcuna pubblicazione."
-
 #: src/templates/common/elements/orcid_registration.html:17
-#| msgid "Login with ORCiD"
 msgid "Register with ORCiD"
 msgstr "Accedi con ORCiD"
-
 #: src/templates/common/elements/password_rules.html:2
 #, python-format
 msgid "Your password should be %(password_length)s characters long."
 msgstr ""
-
 #: src/templates/common/elements/password_rules.html:6
 msgid "Your password should contain at least one upper case letter."
 msgstr ""
-
 #: src/templates/common/elements/password_rules.html:11
 msgid "Your password should contain at least one number."
 msgstr ""
-
 #: src/templates/common/elements/profile_affiliations.html:4
 msgid ""
 "\n"
@@ -3982,12 +3086,10 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/templates/common/elements/skip_to_main_content.html:3
 #: src/themes/clean/templates/500.html:21
 msgid "Skip to main content"
 msgstr ""
-
 #: src/templates/common/elements/sorting.html:7
 #: src/themes/clean/templates/elements/sorting.html:7
 #: src/themes/material/templates/elements/sorting.html:7
@@ -4002,25 +3104,20 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/OLH/templates/403.html:13 src/themes/clean/templates/403.html:11
 msgid "Maintenance Mode"
 msgstr ""
-
 #: src/themes/OLH/templates/403.html:16 src/themes/clean/templates/403.html:14
 msgid "Permission Denied"
 msgstr "Permesso negato"
-
 #: src/themes/OLH/templates/404.html:9 src/themes/clean/templates/404.html:12
 #: src/themes/material/templates/404.html:9
 msgid "Page Not Found"
 msgstr "Pagina non trovata"
-
 #: src/themes/OLH/templates/404.html:10 src/themes/clean/templates/404.html:13
 #: src/themes/material/templates/404.html:10
 msgid "Sorry, the page you were looking for was not found."
 msgstr "Siamo spiacenti, la pagina che stavi cercando non è stata trovata."
-
 #: src/themes/OLH/templates/500.html:10 src/themes/OLH/templates/500.html:28
 #: src/themes/clean/templates/500.html:11
 #: src/themes/clean/templates/500.html:26
@@ -4028,12 +3125,10 @@ msgstr "Siamo spiacenti, la pagina che stavi cercando non è stata trovata."
 #: src/themes/material/templates/500.html:24
 msgid "Server Error"
 msgstr "Errore del server"
-
 #: src/themes/OLH/templates/500.html:29
 #: src/themes/material/templates/500.html:25
 msgid "A server error has occurred"
 msgstr ""
-
 #: src/themes/OLH/templates/cms/page.html:22
 #: src/themes/clean/templates/cms/page.html:19
 #: src/themes/clean/templates/journal/article.html:304
@@ -4042,20 +3137,17 @@ msgstr ""
 #: src/themes/material/templates/journal/submissions.html:78
 msgid "Table of Contents"
 msgstr "Sommario"
-
 #: src/themes/OLH/templates/core/accounts/activate_account.html:29
 #: src/themes/clean/templates/core/accounts/activate_account.html:20
 #: src/themes/material/templates/core/accounts/activate_account.html:21
 msgid "You can complete the activation process by clicking the button below."
 msgstr ""
 "Puoi completare il processo di attivazione cliccando il tasto di sotto."
-
 #: src/themes/OLH/templates/core/accounts/activate_account.html:33
 #: src/themes/clean/templates/core/accounts/activate_account.html:24
 #: src/themes/material/templates/core/accounts/activate_account.html:27
 msgid "Error"
 msgstr "Errore"
-
 #: src/themes/OLH/templates/core/accounts/activate_account.html:35
 msgid ""
 "There was no inactive account with this activation code found. It is "
@@ -4063,33 +3155,28 @@ msgid ""
 msgstr ""
 "Nessun account inattivo trovato con questo codice di attivazione. E' "
 "possibile che il tuo account sia già attivo, puoi verificarlo provando a"
-
 #: src/themes/OLH/templates/core/accounts/activate_account.html:36
 #: src/themes/clean/templates/core/accounts/activate_account.html:26
 #: src/themes/material/templates/core/accounts/activate_account.html:30
 msgid "login"
 msgstr "accesso"
-
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:9
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:91
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:109
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:104
 msgid "Update"
 msgstr "Aggiorna"
-
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:29
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:20
 #: src/themes/material/templates/core/accounts/get_reset_token.html:20
 msgid "Enter your email address to begin the reset process"
 msgstr ""
 "Inserisci il tuo indirizzo email per iniziare il processo di ripristino"
-
 #: src/themes/OLH/templates/core/accounts/get_reset_token.html:31
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:24
 #: src/themes/material/templates/core/accounts/get_reset_token.html:25
 msgid "Request Token"
 msgstr "Richiedi un token"
-
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:24
 msgid ""
 "The ORCiD you logged in with is not currently linked with an account in our "
@@ -4099,7 +3186,6 @@ msgstr ""
 "L'ORCiD con cui hai fatto il log in non è al momento connesso con un account "
 "sul nostro sistema. Puoi creare un nuovo account, o fare il log in con un "
 "account già esistente a cui connettere il tuo ORCiD per uso futuro."
-
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:32
 #: src/themes/OLH/templates/core/login.html:10
 #: src/themes/OLH/templates/press/core/login.html:9
@@ -4110,18 +3196,15 @@ msgstr ""
 #: src/themes/material/templates/repository/nav.html:68
 msgid "Login"
 msgstr "Accesso"
-
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:40
 #: src/themes/OLH/templates/press/core/login.html:40
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:33
 msgid "Log In"
 msgstr "Accesso"
-
 #: src/themes/OLH/templates/core/accounts/orcid_registration.html:41
 #: src/themes/OLH/templates/press/core/login.html:41
 msgid "Forgot your password?"
 msgstr "Hai dimenticato la password?"
-
 #: src/themes/OLH/templates/core/accounts/public_profile.html:5
 #: src/themes/OLH/templates/core/nav.html:86
 #: src/themes/OLH/templates/elements/right_hand_menu.html:40
@@ -4138,36 +3221,28 @@ msgstr "Hai dimenticato la password?"
 #: src/themes/material/templates/press/nav.html:163
 msgid "Profile"
 msgstr "Profilo"
-
 #: src/themes/OLH/templates/core/accounts/public_profile.html:23
-#| msgid "Editorial Team"
 msgid "Editorial groups"
 msgstr "Team editoriale"
-
 #: src/themes/OLH/templates/core/accounts/public_profile.html:31
 msgid "Staff roles"
 msgstr ""
-
 #: src/themes/OLH/templates/core/accounts/public_profile.html:47
 #: src/themes/clean/templates/core/accounts/public_profile.html:24
 #: src/themes/material/templates/core/accounts/public_profile.html:24
 msgid "Publications"
 msgstr "Pubblicazioni"
-
 #: src/themes/OLH/templates/core/accounts/register.html:29
 #: src/themes/clean/templates/core/accounts/register.html:21
 #: src/themes/material/templates/core/accounts/register.html:19
-#| msgid "Register for"
 msgid "Register for an account with"
 msgstr "Registrati per"
-
 #: src/themes/OLH/templates/core/accounts/register.html:35
 #: src/themes/OLH/templates/core/accounts/reset_password.html:36
 msgid ""
 "For more information read our <a href=\"#\" data-open=\"password-modal"
 "\">password guide</a>."
 msgstr ""
-
 #: src/themes/OLH/templates/core/accounts/register.html:111
 #: src/themes/OLH/templates/core/accounts/reset_password.html:53
 #: src/themes/clean/templates/core/accounts/reset_password.html:53
@@ -4176,7 +3251,6 @@ msgstr ""
 msgid "When it comes to passwords, length is better than complexity."
 msgstr ""
 "Quando si tratta di password, la lunghezza è preferibile alla complessità."
-
 #: src/themes/OLH/templates/core/accounts/register.html:112
 #: src/themes/OLH/templates/core/accounts/reset_password.html:54
 #: src/themes/material/templates/core/accounts/register.html:55
@@ -4188,7 +3262,6 @@ msgstr ""
 "È un mito comune che una password breve e complessa (Jfjfy e 65 ^ 87) sia "
 "più sicura di una password lunga e semplice (le nostre fantastiche rocce "
 "dalla base lunare)."
-
 #: src/themes/OLH/templates/core/accounts/register.html:113
 #: src/themes/OLH/templates/core/accounts/reset_password.html:55
 msgid ""
@@ -4202,7 +3275,6 @@ msgstr ""
 "un settilione di anni per essere decifrata, nvece di una complessa come "
 "\"Jfjfy&65^87\" che richiederebbe poco più di 600 anni su un computer "
 "standard."
-
 #: src/themes/OLH/templates/core/accounts/reset_password.html:10
 #: src/themes/OLH/templates/core/accounts/reset_password.html:42
 #: src/themes/clean/templates/core/accounts/get_reset_token.html:8
@@ -4213,7 +3285,6 @@ msgstr ""
 #: src/themes/material/templates/core/accounts/reset_password.html:31
 msgid "Reset Password"
 msgstr "Resetta la password"
-
 #: src/themes/OLH/templates/core/accounts/reset_password.html:30
 #: src/themes/clean/templates/core/accounts/reset_password.html:20
 #: src/themes/material/templates/core/accounts/reset_password.html:20
@@ -4221,7 +3292,6 @@ msgid "Enter your new password twice to complete the reset process"
 msgstr ""
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
-
 #: src/themes/OLH/templates/core/base.html:57
 #: src/themes/OLH/templates/core/nav.html:8
 #: src/themes/OLH/templates/press/nav.html:7
@@ -4237,15 +3307,12 @@ msgstr ""
 #: src/themes/material/templates/repository/nav.html:51
 msgid "Home"
 msgstr "Home"
-
 #: src/themes/OLH/templates/core/login.html:35
 #: src/themes/OLH/templates/press/core/login.html:32
 #: src/themes/clean/templates/core/login.html:24
 #: src/themes/material/templates/core/login.html:26
-#| msgid "Login with ORCiD"
 msgid "Login with"
 msgstr "Accedi con ORCiD"
-
 #: src/themes/OLH/templates/core/nav.html:55
 #: src/themes/OLH/templates/journal/become_reviewer.html:6
 #: src/themes/OLH/templates/journal/become_reviewer.html:11
@@ -4261,7 +3328,6 @@ msgstr "Accedi con ORCiD"
 #: src/themes/material/templates/journal/become_reviewer.html:23
 msgid "Become a Reviewer"
 msgstr "Diventa un revisore"
-
 #: src/themes/OLH/templates/core/nav.html:61
 #: src/themes/OLH/templates/press/nav.html:44
 #: src/themes/clean/templates/press/nav.html:62
@@ -4272,7 +3338,6 @@ msgstr "Diventa un revisore"
 #: src/themes/material/templates/repository/nav.html:63
 msgid "Account"
 msgstr "Account"
-
 #: src/themes/OLH/templates/core/nav.html:64
 #: src/themes/OLH/templates/elements/right_hand_menu.html:5
 #: src/themes/OLH/templates/repository/elements/right_hand_menu.html:5
@@ -4283,7 +3348,6 @@ msgstr "Account"
 #: src/themes/material/templates/repository/nav.html:97
 msgid "Dashboard"
 msgstr "Dashboard"
-
 #: src/themes/OLH/templates/core/nav.html:70
 #: src/themes/OLH/templates/elements/right_hand_menu.html:7
 #: src/themes/clean/templates/core/nav.html:90
@@ -4291,7 +3355,6 @@ msgstr "Dashboard"
 #: src/themes/material/templates/core/nav.html:188
 msgid "Kanban"
 msgstr "Kanban"
-
 #: src/themes/OLH/templates/core/nav.html:73
 #: src/themes/OLH/templates/elements/right_hand_menu.html:27
 #: src/themes/clean/templates/core/nav.html:93
@@ -4299,7 +3362,6 @@ msgstr "Kanban"
 #: src/themes/material/templates/core/nav.html:206
 msgid "Edit Article"
 msgstr "Modifica articolo"
-
 #: src/themes/OLH/templates/core/nav.html:76
 #: src/themes/OLH/templates/elements/right_hand_menu.html:30
 #: src/themes/material/templates/core/nav.html:175
@@ -4307,13 +3369,11 @@ msgstr "Modifica articolo"
 #: src/themes/material/templates/elements/journal/issue_list.html:36
 msgid "Edit Issue"
 msgstr "Modifica pubblicazione"
-
 #: src/themes/OLH/templates/core/nav.html:79
 #: src/themes/OLH/templates/elements/right_hand_menu.html:33
 #: src/themes/material/templates/core/nav.html:212
 msgid "Edit News Item"
 msgstr "Modifica la notizia"
-
 #: src/themes/OLH/templates/core/nav.html:83
 #: src/themes/OLH/templates/elements/right_hand_menu.html:37
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:8
@@ -4329,7 +3389,6 @@ msgstr "Modifica la notizia"
 #: src/themes/material/templates/repository/nav.html:104
 msgid "Admin"
 msgstr "Admin"
-
 #: src/themes/OLH/templates/core/nav.html:87
 #: src/themes/OLH/templates/elements/right_hand_menu.html:41
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:13
@@ -4345,13 +3404,11 @@ msgstr "Admin"
 #: src/themes/material/templates/repository/nav.html:106
 msgid "Logout"
 msgstr "Esci"
-
 #: src/themes/OLH/templates/core/news/index.html:12
 #: src/themes/material/templates/core/news/index.html:12
 #: src/themes/material/templates/press/core/news/index.html:11
 msgid "Filtering tag"
 msgstr "Tag filtrante"
-
 #: src/themes/OLH/templates/core/news/index.html:25
 #: src/themes/OLH/templates/core/news/item.html:25
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:28
@@ -4364,7 +3421,6 @@ msgstr "Tag filtrante"
 #: src/themes/material/templates/press/core/news/item.html:18
 msgid "on"
 msgstr "su"
-
 #: src/themes/OLH/templates/core/news/index.html:27
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:30
 #: src/themes/OLH/templates/press/core/news/index.html:25
@@ -4375,40 +3431,25 @@ msgstr "su"
 #: src/themes/material/templates/press/core/news/index.html:25
 msgid "Read More"
 msgstr "Leggi di più"
-
 #: src/themes/OLH/templates/core/news/index.html:34
 #: src/themes/material/templates/press/core/news/index.html:30
 msgid "This journal currently has no news items to display."
 msgstr "Al momento questa rivista non ha notizie da mostrare."
-
 #: src/themes/OLH/templates/core/news/item.html:41
 #: src/themes/clean/templates/core/news/item.html:20
-#| msgid "Tags"
 msgid "Tags "
 msgstr "Tag"
-
 #: src/themes/OLH/templates/core/news/item.html:48
 #: src/themes/clean/templates/core/news/item.html:22
 #: src/themes/material/templates/core/news/item.html:44
 msgid "Back to"
 msgstr ""
-
 #: src/themes/OLH/templates/core/news/item.html:48
 #: src/themes/clean/templates/core/news/item.html:22
 #: src/themes/material/templates/core/news/item.html:44
 msgid "List"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:13
-#| msgid ""
-#| "\n"
-#| "                <p>If you want to change your email address you may do so "
-#| "below, however, you will be logged out and your\n"
-#| "                account will be marked as inactive until you follow the "
-#| "instructions in the verfication email. <strong>Note: </strong>\n"
-#| "                Changing your email address will also change your "
-#| "username as these are one and the same.</p>\n"
-#| "                "
 msgid ""
 "\n"
 "                <p>If you want to change your email address you may do so "
@@ -4427,14 +3468,12 @@ msgstr ""
 "                Cambiando il tuo indirizzo email cambierai anche il tuo nome "
 "utente in quanto questi corrispondono. </ P>\n"
 "                "
-
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:36
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:47
 msgid ""
 "Use the button below to register to receive notifications of new articles\n"
 "                            published in this journal "
 msgstr ""
-
 #: src/themes/OLH/templates/elements/accounts/edit_profile_body_block.html:58
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:70
 msgid ""
@@ -4443,61 +3482,48 @@ msgid ""
 msgstr ""
 "Puoi aggiornare la password inserendo la password esistente e la nuova "
 "password."
-
 #: src/themes/OLH/templates/elements/accounts/user_form.html:9
 #: src/themes/clean/templates/elements/accounts/user_form.html:9
 #: src/themes/material/templates/elements/accounts/user_form.html:6
 msgid "Core Data"
 msgstr "Dati principali"
-
 #: src/themes/OLH/templates/elements/edit_author.html:9
 msgid "NB."
 msgstr ""
-
 #: src/themes/OLH/templates/elements/edit_author.html:9
-#| msgid ""
-#| "You are editing the frozen metadata record for this author, not their "
-#| "live user profile"
 msgid ""
 "You are editing the frozen metadata record for this author, not their live "
 "user profile."
 msgstr ""
 "Stai modificando la voce di metadati bloccata per questo autore, non il suo "
 "profilo utente live"
-
 #: src/themes/OLH/templates/elements/edit_author.html:14
 msgid "Save Metadata"
 msgstr "Salva i metadati"
-
 #: src/themes/OLH/templates/elements/forms/errors.html:2
 #: src/themes/material/templates/elements/forms/errors.html:2
 msgid "Form errors"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/forms/errors.html:5
 #: src/themes/material/templates/elements/forms/errors.html:5
 msgid "Non Field Errors"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:6
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/clean/templates/journal/articles.html:50
 #: src/themes/material/templates/journal/articles.html:82
 msgid "Show"
 msgstr "Mostra"
-
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:16
 #: src/themes/clean/templates/journal/articles.html:60
 #: src/themes/material/templates/journal/articles.html:85
 msgid "Sort"
 msgstr "Ordina"
-
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:19
 #: src/themes/clean/templates/journal/articles.html:63
 #: src/themes/material/templates/journal/articles.html:88
 msgid "Date"
 msgstr "Data"
-
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:26
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:35
 #: src/themes/OLH/templates/elements/journal/article_list_filters.html:6
@@ -4514,33 +3540,27 @@ msgstr "Data"
 #: src/themes/material/templates/press/press_journals.html:59
 msgid "Filter"
 msgstr "Filtro"
-
 #: src/themes/OLH/templates/elements/journal/article_filter_form.html:37
 #: src/themes/clean/templates/journal/articles.html:85
 #: src/themes/material/templates/journal/articles.html:109
 msgid "Clear Filters"
 msgstr "Rimuovi filtri"
-
 #: src/themes/OLH/templates/elements/journal/box_article.html:23
 msgid "Pinned"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/box_article.html:28
 msgid "externally hosted article"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/box_article.html:41
 #: src/themes/clean/templates/elements/article_listing.html:52
 #: src/themes/material/templates/elements/article_listing.html:43
 msgid "Also a part of:"
 msgstr "Anche parte di:"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:5
 #: src/themes/clean/templates/elements/journal/citation_modals.html:6
 #: src/themes/clean/templates/journal/article.html:266
 msgid "Harvard-style Citation"
 msgstr "Citazione Harvard Style"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:9
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:30
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:55
@@ -4548,58 +3568,48 @@ msgstr "Citazione Harvard Style"
 #: src/themes/material/templates/preprints/about.html:9
 msgid "Preprints"
 msgstr "Preprint"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:75
 #: src/themes/OLH/templates/journal/article.html:111
 msgid "Vancouver Citation Style"
 msgstr "Citazione Vancouver Style"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:19
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
 #: src/themes/OLH/templates/journal/article.html:112
 msgid "APA Citation Style"
 msgstr "Citazione APA Style"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:27
 #: src/themes/clean/templates/elements/journal/citation_modals.html:28
 #: src/themes/clean/templates/journal/article.html:267
 msgid "Vancouver-style Citation"
 msgstr "Citazione Vancouver-Style"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:40
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:74
 #: src/themes/OLH/templates/journal/article.html:110
 msgid "Harvard Citation Style"
 msgstr "Citazione Harvard Style"
-
 #: src/themes/OLH/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/elements/journal/citation_modals.html:49
 #: src/themes/clean/templates/journal/article.html:268
 msgid "APA-style Citation"
 msgstr "Citazione APA-Style"
-
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:17
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:17
 #: src/themes/clean/templates/journal/article.html:255
 msgid "Twitter"
 msgstr "Twitter"
-
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:26
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:26
 msgid "Facebook"
 msgstr "Facebook"
-
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:35
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:35
 msgid "Github"
 msgstr "Github"
-
 #: src/themes/OLH/templates/elements/journal/editorial_social_content.html:44
 #: src/themes/clean/templates/elements/journal/editorial_social_content.html:44
 msgid "Linkedin"
 msgstr "Linkedin"
-
 #: src/themes/OLH/templates/elements/journal/issue_list.html:16
 #: src/themes/clean/templates/elements/journal/issue_list.html:5
 #: src/themes/clean/templates/journal/issues.html:14
@@ -4607,11 +3617,9 @@ msgstr "Linkedin"
 #: src/themes/material/templates/elements/journal/issue_list.html:20
 msgid "items"
 msgstr "elementi"
-
 #: src/themes/OLH/templates/elements/journal/issue_list.html:24
 msgid "There are no issues published in this journal yet."
 msgstr "Non ci sono ancora pubblicazioni di questa rivista."
-
 #: src/themes/OLH/templates/elements/journal/issue_list_by_decade.html:3
 #: src/themes/material/templates/elements/journal/issue_list_by_decade.html:3
 msgid ""
@@ -4621,7 +3629,6 @@ msgid ""
 "            published during that decade.\n"
 "        "
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:7
 #: src/themes/OLH/templates/journal/article.html:178
 #: src/themes/OLH/templates/journal/article.html:216
@@ -4641,18 +3648,15 @@ msgstr ""
 #: src/themes/material/templates/repository/preprint.html:214
 msgid "Downloads"
 msgstr "Download"
-
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:11
 #: src/themes/clean/templates/elements/journal/issue_sidebar.html:10
 msgid "Download Issue"
 msgstr "Scarica la pubblicazione"
-
 #: src/themes/OLH/templates/elements/journal/issue_sidebar.html:16
 #: src/themes/clean/templates/elements/journal/issue_sidebar.html:15
 #: src/themes/material/templates/elements/journal/issue_sidebar.html:14
 msgid "Issue Archive"
 msgstr "Archivio pubblicazioni"
-
 #: src/themes/OLH/templates/elements/journal/keywords_block.html:4
 #: src/themes/clean/templates/elements/journal/keywords_block.html:4
 msgid ""
@@ -4662,23 +3666,18 @@ msgstr ""
 "Le parole chiave usate negli articoli di questa rivista solo elencate di "
 "sotto. Seleziona una parola chiave per visualizzare gli articoli che la "
 "utilizzano."
-
 #: src/themes/OLH/templates/elements/journal/keywords_block.html:10
 #: src/themes/clean/templates/elements/journal/keywords_block.html:10
 msgid "This journal has no keywords to display."
 msgstr "Questa rivista non ha parole chiave da mostrare."
-
 #: src/themes/OLH/templates/elements/journal/search_form.html:6
 #: src/themes/clean/templates/journal/search.html:38
-#| msgid "Search for Existing Authors"
 msgid "Search titles, keywords, and authors"
 msgstr "Cerca gli autori esistenti"
-
 #: src/themes/OLH/templates/elements/journal/search_form.html:9
 #: src/themes/clean/templates/journal/full-text-search.html:39
 msgid "You are currently browsing by keyword"
 msgstr "Stai attualmente visualizzando gli articoli per parola chiave"
-
 #: src/themes/OLH/templates/elements/journal/search_form.html:10
 #: src/themes/OLH/templates/journal/full-text-search.html:64
 #: src/themes/clean/templates/journal/article_list.html:36
@@ -4686,39 +3685,31 @@ msgstr "Stai attualmente visualizzando gli articoli per parola chiave"
 #: src/themes/clean/templates/journal/search.html:42
 msgid "Search for an article"
 msgstr "Cerca un articolo"
-
 #: src/themes/OLH/templates/elements/journal/search_form.html:14
 #: src/themes/clean/templates/journal/search.html:55
 #: src/themes/material/templates/journal/new_search.html:36
 #: src/themes/material/templates/journal/search.html:44
-#| msgid "Your article title"
 msgid "Sort articles by"
 msgstr "Il titolo dell'articolo"
-
 #: src/themes/OLH/templates/elements/journal/share.html:3
 #: src/themes/clean/templates/elements/journal/share.html:2
 #: src/themes/material/templates/elements/journal/share.html:1
 msgid "Share"
 msgstr "Condividi"
-
 #: src/themes/OLH/templates/elements/journal/share.html:5
 #: src/themes/clean/templates/elements/journal/share.html:4
 #: src/themes/material/templates/elements/journal/share.html:4
-#| msgid "Article"
 msgid "Article URL"
 msgstr "Articolo"
-
 #: src/themes/OLH/templates/elements/journal/share.html:18
 #: src/themes/clean/templates/elements/journal/share.html:17
 #: src/themes/material/templates/elements/journal/share.html:14
 msgid "Copy Share Link"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/share.html:20
 #: src/themes/clean/templates/elements/journal/share.html:19
 msgid "Copy"
 msgstr ""
-
 #: src/themes/OLH/templates/elements/journal/summary_modal.html:3
 #: src/themes/OLH/templates/journal/article.html:383
 #: src/themes/clean/templates/elements/journal/summary_modal.html:6
@@ -4727,20 +3718,16 @@ msgstr ""
 #: src/themes/material/templates/journal/article.html:362
 msgid "Non Specialist Summary"
 msgstr "Riepilogo non specializzato"
-
 #: src/themes/OLH/templates/elements/journal/summary_modal.html:7
 #: src/themes/clean/templates/elements/journal/summary_modal.html:15
 #: src/themes/material/templates/elements/summary_modal.html:9
 msgid "This article has no summary"
 msgstr "Questo articolo non ha un riassunto"
-
 #: src/themes/OLH/templates/elements/journal_footer.html:7
 #: src/themes/clean/templates/elements/journal_footer.html:9
 #: src/themes/material/templates/elements/journal_footer.html:6
-#| msgid "Published"
 msgid "Published by"
 msgstr "Pubblicato"
-
 #: src/themes/OLH/templates/elements/public_reviews.html:25
 #, python-format
 msgid ""
@@ -4751,41 +3738,33 @@ msgid ""
 "document.</p>\n"
 "                    "
 msgstr ""
-
 #: src/themes/OLH/templates/elements/right_hand_menu.html:17
 #: src/themes/material/templates/core/nav.html:196
 msgid "Edit Submissions Page"
 msgstr "Modifica la pagina per le proposte"
-
 #: src/themes/OLH/templates/elements/right_hand_menu.html:18
 #: src/themes/material/templates/core/nav.html:197
 msgid "Edit Journal Info"
 msgstr "Modifica le informazioni sulla rivista"
-
 #: src/themes/OLH/templates/elements/right_hand_menu.html:21
 #: src/themes/OLH/templates/press/elements/right_hand_menu.html:10
 #: src/themes/material/templates/core/nav.html:200
 msgid "Edit Page"
 msgstr "Modifica la pagina"
-
 #: src/themes/OLH/templates/elements/right_hand_menu.html:24
 #: src/themes/material/templates/core/nav.html:203
 msgid "Manage Editorial Team"
 msgstr "Gestisci il team editoriale"
-
 #: src/themes/OLH/templates/elements/section_block.html:5
 #: src/themes/clean/templates/elements/sections_block.html:7
 #: src/themes/material/templates/elements/sections_display.html:4
-#| msgid "Your article title"
 msgid "Section or article type"
 msgstr "Il titolo dell'articolo"
-
 #: src/themes/OLH/templates/elements/section_block.html:6
 #: src/themes/clean/templates/elements/sections_block.html:8
 #: src/themes/material/templates/elements/sections_display.html:5
 msgid "Public Submissions"
 msgstr "Proposte pubbliche"
-
 #: src/themes/OLH/templates/elements/section_block.html:7
 #: src/themes/OLH/templates/journal/article.html:250
 #: src/themes/clean/templates/elements/sections_block.html:9
@@ -4793,13 +3772,11 @@ msgstr "Proposte pubbliche"
 #: src/themes/material/templates/elements/sections_display.html:6
 msgid "Peer Reviewed"
 msgstr "Peer reviewed"
-
 #: src/themes/OLH/templates/elements/section_block.html:8
 #: src/themes/clean/templates/elements/sections_block.html:10
 #: src/themes/material/templates/elements/sections_display.html:7
 msgid "Indexed"
 msgstr "Indicizzato"
-
 #: src/themes/OLH/templates/elements/submit/file.html:8
 msgid ""
 "Please supply any original figure files or supporting information. The "
@@ -4811,12 +3788,7 @@ msgstr ""
 "in modo che gli possa essere assegnato un DOI, ma questo non è "
 "obbligatorio.\n"
 "."
-
 #: src/themes/OLH/templates/elements/submit/file.html:11
-#| msgid ""
-#| "Please upload your manuscript file, it should be in RTF, ODT or DOC/X "
-#| "format. LaTeX may be accepted later in the process but a simple, readable "
-#| "file is required at this stage."
 msgid ""
 "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X "
 "format. LaTeX may be accepted later in the process but a simple, readable "
@@ -4825,7 +3797,6 @@ msgstr ""
 "Si prega di caricare il file manoscritto, dovrebbe essere in formato RTF, "
 "ODT o DOC / X. LaTeX può essere accettata più avanti nel processo, ma in "
 "questa fase è richiesto un file semplice e leggibile."
-
 #: src/themes/OLH/templates/elements/submit/file.html:13
 msgid ""
 "Please upload your manuscript file, it should be in RTF, ODT or DOC/X "
@@ -4835,32 +3806,26 @@ msgstr ""
 "Si prega di caricare il file manoscritto, dovrebbe essere in formato RTF, "
 "ODT o DOC / X. LaTeX può essere accettata più avanti nel processo, ma in "
 "questa fase è richiesto un file semplice e leggibile."
-
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:8
 msgid "Please supply any supporting information or data files."
 msgstr "Si prega di fornire qualsiasi informazione di supporto o file di dati."
-
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:11
 msgid "Please upload your manuscript file, it should be in PDF format."
 msgstr "Si prega di caricare il file manoscritto in formato PDF."
-
 #: src/themes/OLH/templates/elements/submit/preprint_file.html:13
 msgid ""
 "Please upload your manuscript file, it should be in PDF, RTF, ODT or DOC/X "
 "format."
 msgstr ""
 "Si prega di caricare il file manoscritto in formato PDF, RTF, ODT o DOC/X."
-
 #: src/themes/OLH/templates/journal/article.html:6
 #: src/themes/material/templates/journal/article.html:7
 msgid "Preprint"
 msgstr "Preprint"
-
 #: src/themes/OLH/templates/journal/article.html:6
 #: src/themes/material/templates/journal/article.html:7
 msgid "Article"
 msgstr "Articolo"
-
 #: src/themes/OLH/templates/journal/article.html:27
 msgid ""
 "\n"
@@ -4872,7 +3837,6 @@ msgid_plural ""
 "                      "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/OLH/templates/journal/article.html:57
 msgid ""
 "\n"
@@ -4884,34 +3848,24 @@ msgid_plural ""
 "                                  "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/OLH/templates/journal/article.html:98
-#| msgid "Edit Article"
 msgid "Print article"
 msgstr "Modifica articolo"
-
 #: src/themes/OLH/templates/journal/article.html:101
 msgid "decrease text size"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:102
 msgid "increase text size"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:103
-#| msgid "Dyslexia"
 msgid "Dyslexia mode"
 msgstr "Dislessia"
-
 #: src/themes/OLH/templates/journal/article.html:103
 msgid "Dyslexia"
 msgstr "Dislessia"
-
 #: src/themes/OLH/templates/journal/article.html:107
-#| msgid "Edit Article"
 msgid "Cite article"
 msgstr "Modifica articolo"
-
 #: src/themes/OLH/templates/journal/article.html:113
 #: src/themes/OLH/templates/journal/article.html:181
 #: src/themes/OLH/templates/journal/article.html:294
@@ -4929,12 +3883,9 @@ msgstr "Modifica articolo"
 #: src/themes/material/templates/repository/preprint.html:190
 msgid "Download"
 msgstr "Download"
-
 #: src/themes/OLH/templates/journal/article.html:114
-#| msgid "Download"
 msgid " Download"
 msgstr "Download"
-
 #: src/themes/OLH/templates/journal/article.html:135
 msgid ""
 "\n"
@@ -4946,7 +3897,6 @@ msgid_plural ""
 "                        "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/OLH/templates/journal/article.html:154
 #: src/themes/OLH/templates/journal/print.html:30
 #: src/themes/clean/templates/journal/article.html:73
@@ -4954,25 +3904,20 @@ msgstr[1] ""
 #: src/themes/material/templates/journal/article.html:92
 msgid "How to Cite"
 msgstr "Come citare"
-
 #: src/themes/OLH/templates/journal/article.html:161
 #: src/themes/clean/templates/journal/article.html:79
 #: src/themes/material/templates/journal/article.html:102
 msgid "Rights"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:166
 #: src/themes/clean/templates/journal/article.html:113
 #: src/themes/material/templates/journal/article.html:111
 msgid "Publisher Notes"
 msgstr "Note dell'editore"
-
 #: src/themes/OLH/templates/journal/article.html:184
 #: src/themes/OLH/templates/journal/article.html:298
-#| msgid "View"
 msgid "View PDF"
 msgstr "Vista"
-
 #: src/themes/OLH/templates/journal/article.html:195
 #: src/themes/OLH/templates/journal/article.html:311
 #: src/themes/clean/templates/journal/article.html:103
@@ -4981,7 +3926,6 @@ msgstr "Vista"
 #: src/themes/material/templates/journal/article.html:278
 msgid "Downloads are not available for this article."
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:208
 #: src/themes/OLH/templates/repository/preprint.html:158
 #: src/themes/clean/templates/journal/article.html:250
@@ -4990,20 +3934,17 @@ msgstr ""
 #: src/themes/material/templates/repository/preprint.html:213
 msgid "Views"
 msgstr "Visualizzazioni"
-
 #: src/themes/OLH/templates/journal/article.html:224
 #: src/themes/clean/templates/journal/article.html:261
 #: src/themes/material/templates/journal/article.html:204
 msgid "Citations"
 msgstr "Citazioni"
-
 #: src/themes/OLH/templates/journal/article.html:238
 #: src/themes/clean/templates/journal/article.html:191
 #: src/themes/material/templates/journal/article.html:334
 #: src/themes/material/templates/preprints/article.html:123
 msgid "Published on"
 msgstr "Pubblicato su"
-
 #: src/themes/OLH/templates/journal/article.html:258
 #: src/themes/OLH/templates/repository/preprint.html:130
 #: src/themes/clean/templates/journal/article.html:215
@@ -5011,99 +3952,77 @@ msgstr "Pubblicato su"
 #: src/themes/material/templates/repository/preprint.html:200
 msgid "License"
 msgstr "Licenza"
-
 #: src/themes/OLH/templates/journal/article.html:314
 msgid "Downloads are not available until this article is published "
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:323
 #: src/themes/material/templates/journal/article.html:395
 msgid "Identifiers"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:333
 #: src/themes/material/templates/journal/article.html:288
-#| msgid "Publication Fees"
 msgid "Publication details"
 msgstr "Tariffe di pubblicazione"
-
 #: src/themes/OLH/templates/journal/article.html:336
 #: src/themes/clean/templates/journal/article.html:195
 #: src/themes/material/templates/journal/article.html:292
 msgid "Pages"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:339
 #: src/themes/clean/templates/journal/article.html:198
-#| msgid "Grant Number"
 msgid "Article Number"
 msgstr "Numero del fondo di finanziamento"
-
 #: src/themes/OLH/templates/journal/article.html:342
 #: src/themes/clean/templates/journal/article.html:201
 #: src/themes/material/templates/journal/article.html:304
-#| msgid "Published"
 msgid "Publisher"
 msgstr "Pubblicato"
-
 #: src/themes/OLH/templates/journal/article.html:345
 #: src/themes/clean/templates/journal/article.html:204
-#| msgid "Publications"
 msgid "Original Publication"
 msgstr "Pubblicazioni"
-
 #: src/themes/OLH/templates/journal/article.html:348
 #: src/themes/clean/templates/journal/article.html:207
 #: src/themes/material/templates/journal/article.html:316
 msgid "Original ISSN"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:351
 #: src/themes/clean/templates/journal/article.html:181
 #: src/themes/material/templates/journal/article.html:322
-#| msgid "Submitted"
 msgid "Submitted on"
 msgstr "Inviato"
-
 #: src/themes/OLH/templates/journal/article.html:354
 #: src/themes/clean/templates/journal/article.html:186
 #: src/themes/material/templates/journal/article.html:328
 msgid "Accepted on"
 msgstr "Accettato "
-
 #: src/themes/OLH/templates/journal/article.html:362
 #: src/themes/clean/templates/journal/article.html:169
 #: src/themes/material/templates/journal/article.html:348
 #: src/themes/material/templates/repository/preprint.html:143
 msgid "Supplementary Files"
 msgstr "File supplementari"
-
 #: src/themes/OLH/templates/journal/article.html:385
 #: src/themes/material/templates/journal/article.html:363
 msgid "View Summary"
 msgstr "Visualizza riepilogo"
-
 #: src/themes/OLH/templates/journal/article.html:393
 msgid "Jump to"
 msgstr "Vai a"
-
 #: src/themes/OLH/templates/journal/article.html:419
 #: src/themes/clean/templates/journal/article.html:286
 #: src/themes/material/templates/journal/article.html:450
 msgid "File Checksums"
 msgstr "Checksum dei file"
-
 #: src/themes/OLH/templates/journal/article.html:429
 #: src/themes/clean/templates/journal/article.html:296
 #: src/themes/material/templates/journal/article.html:461
 msgid "File Checksums are not available for this article."
 msgstr ""
-
 #: src/themes/OLH/templates/journal/article.html:436
 #: src/themes/material/templates/journal/article.html:407
 msgid "Peer Review"
 msgstr "Peer review"
-
 #: src/themes/OLH/templates/journal/article_list.html:27
 #: src/themes/clean/templates/journal/article_list.html:19
 #: src/themes/material/templates/journal/article_list.html:26
@@ -5112,15 +4031,12 @@ msgstr "Peer review"
 #: src/themes/material/templates/journal/search.html:23
 msgid "No articles to display."
 msgstr "Nessun articolo da mostrare."
-
 #: src/themes/OLH/templates/journal/articles.html:30
 msgid "Pinned Articles"
 msgstr "Articoli appuntati"
-
 #: src/themes/OLH/templates/journal/articles.html:39
 msgid "There are no articles published in this journal yet"
 msgstr "Non ci sono ancora articoli pubblicati su questa rivista"
-
 #: src/themes/OLH/templates/journal/collections.html:28
 #: src/themes/OLH/templates/journal/issue.html:7
 #: src/themes/clean/templates/journal/issue.html:6
@@ -5128,32 +4044,25 @@ msgstr "Non ci sono ancora articoli pubblicati su questa rivista"
 #: src/themes/material/templates/journal/issue.html:6
 msgid "Collection"
 msgstr "Raccolta"
-
 #: src/themes/OLH/templates/journal/collections.html:29
 #: src/themes/OLH/templates/repository/preprint.html:127
 msgid "Published"
 msgstr "Pubblicato"
-
 #: src/themes/OLH/templates/journal/full-text-search.html:26
 #: src/themes/clean/templates/journal/articles.html:24
 #: src/themes/clean/templates/journal/full-text-search.html:26
 #: src/themes/clean/templates/journal/search.html:26
-#| msgid "No articles to display."
 msgid "No articles to display"
 msgstr "Nessun articolo da mostrare."
-
 #: src/themes/OLH/templates/journal/homepage_elements/carousel.html:27
-#| msgid "Published on"
 msgid "Published in: "
 msgstr "Pubblicato su"
-
 #: src/themes/OLH/templates/journal/homepage_elements/featured.html:6
 #: src/themes/clean/templates/journal/homepage_elements/featured.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:9
 #: src/themes/material/templates/journal/homepage_elements/featured.html:6
 msgid "Featured Articles"
 msgstr "Articoli in primo piano"
-
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:5
 #: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:7
 #: src/themes/clean/templates/journal/homepage_elements/journals.html:4
@@ -5162,42 +4071,34 @@ msgstr "Articoli in primo piano"
 #: src/themes/material/templates/press/homepage_elements/journals_and_html.html:5
 msgid "Featured Journals"
 msgstr "Riviste in primo piano"
-
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:23
 #: src/themes/OLH/templates/journal/homepage_elements/journals.html:28
 #: src/themes/OLH/templates/press/homepage_elements/journals_and_html.html:30
 msgid "Unnamed Journal"
 msgstr "Rivista senza nome"
-
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:10
 #: src/themes/clean/templates/journal/homepage_elements/news.html:8
 #: src/themes/material/templates/journal/homepage_elements/news.html:12
-#| msgid "Dates"
 msgid "Latest"
 msgstr "Date"
-
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:10
 #: src/themes/clean/templates/journal/homepage_elements/news.html:8
 #: src/themes/material/templates/journal/homepage_elements/news.html:12
 msgid "Posts"
 msgstr ""
-
 #: src/themes/OLH/templates/journal/homepage_elements/news.html:36
 #: src/themes/clean/templates/press/core/news/index.html:21
 msgid "This journal currently has no news items to display"
 msgstr "Al momento questa rivista non ha notizie da mostrare"
-
 #: src/themes/OLH/templates/journal/homepage_elements/popular.html:6
 #: src/themes/clean/templates/journal/homepage_elements/popular.html:7
 #: src/themes/material/templates/journal/homepage_elements/popular.html:6
 msgid "Most Popular Articles"
 msgstr "Articoli più popolari"
-
 #: src/themes/OLH/templates/journal/homepage_elements/preprints.html:6
 #: src/themes/clean/templates/journal/homepage_elements/preprints.html:6
 msgid "Featured Preprints"
 msgstr "Preprints in evidenza"
-
 #: src/themes/OLH/templates/journal/keyword.html:6
 #: src/themes/OLH/templates/journal/keyword.html:12
 #: src/themes/OLH/templates/journal/search.html:23
@@ -5209,19 +4110,16 @@ msgstr "Preprints in evidenza"
 #: src/themes/material/templates/journal/search.html:14
 msgid "Keyword"
 msgstr "Parola chiave"
-
 #: src/themes/OLH/templates/journal/keyword.html:14
 #: src/themes/clean/templates/journal/keyword.html:10
 #: src/themes/material/templates/journal/keyword.html:9
 msgid "Back to Keywords List"
 msgstr "Torna alla lista delle parole chiave"
-
 #: src/themes/OLH/templates/journal/keyword.html:16
 #: src/themes/clean/templates/journal/keyword.html:12
 #: src/themes/material/templates/journal/keyword.html:10
 msgid "Articles that use this keyword are listed below."
 msgstr "Gli articoli che utilizzano questa parola chiave sono elencati sotto."
-
 #: src/themes/OLH/templates/journal/print.html:17
 #: src/themes/clean/templates/journal/print.html:16
 msgid ""
@@ -5234,14 +4132,12 @@ msgid_plural ""
 "    "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/OLH/templates/journal/search.html:21
 #: src/themes/material/templates/journal/full-text-search.html:15
 #: src/themes/material/templates/journal/new_search.html:12
 #: src/themes/material/templates/journal/search.html:12
 msgid "Searching for"
 msgstr "Stai cercando"
-
 #: src/themes/OLH/templates/journal/submissions.html:6
 #: src/themes/OLH/templates/journal/submissions.html:23
 #: src/themes/clean/templates/journal/submissions.html:6
@@ -5250,11 +4146,9 @@ msgstr "Stai cercando"
 #: src/themes/material/templates/journal/submissions.html:24
 msgid "Submissions"
 msgstr "Proposte"
-
 #: src/themes/OLH/templates/press/core/login.html:30
 msgid "Login with ORCiD"
 msgstr "Accedi con ORCiD"
-
 #: src/themes/OLH/templates/press/core/news/index.html:6
 #: src/themes/OLH/templates/press/core/news/index.html:11
 #: src/themes/OLH/templates/press/core/news/item.html:6
@@ -5266,35 +4160,29 @@ msgstr "Accedi con ORCiD"
 #: src/themes/material/templates/press/core/news/item.html:6
 msgid "News"
 msgstr "Notizie"
-
 #: src/themes/OLH/templates/press/core/news/index.html:32
 msgid "This press currently has no news items to display."
 msgstr "Questa casa editrice al momento non ha notizie da mostrare."
-
 #: src/themes/OLH/templates/press/core/news/item.html:34
 #: src/themes/material/templates/press/core/news/index.html:21
 #: src/themes/material/templates/press/core/news/item.html:18
 msgid "Posted by"
 msgstr "Pubblicato da"
-
 #: src/themes/OLH/templates/press/core/news/item.html:41
 #: src/themes/clean/templates/press/core/news/item.html:16
 #: src/themes/material/templates/core/news/item.html:36
 #: src/themes/material/templates/press/core/news/item.html:23
 msgid "Tags"
 msgstr "Tag"
-
 #: src/themes/OLH/templates/press/core/news/item.html:46
 #: src/themes/clean/templates/press/core/news/item.html:18
 #: src/themes/material/templates/press/core/news/item.html:31
 msgid "Back to News List"
 msgstr "Torna all'elenco delle notizie"
-
 #: src/themes/OLH/templates/press/elements/press_footer.html:15
 #: src/themes/clean/templates/elements/press_footer.html:18
 msgid "Sitemap"
 msgstr "Mappa del sito"
-
 #: src/themes/OLH/templates/press/nav.html:24
 #: src/themes/OLH/templates/press/press_journals.html:5
 #: src/themes/clean/templates/press/nav.html:38
@@ -5302,28 +4190,23 @@ msgstr "Mappa del sito"
 #: src/themes/material/templates/press/press_journals.html:9
 msgid "Journals"
 msgstr "Riviste"
-
 #: src/themes/OLH/templates/press/nav.html:27
 msgid "Conferences"
 msgstr "Conferenze"
-
 #: src/themes/OLH/templates/press/nav.html:31
 #: src/themes/clean/templates/press/nav.html:44
 #: src/themes/material/templates/press/nav.html:46
 #: src/themes/material/templates/press/nav.html:105
 msgid "Repositories"
 msgstr ""
-
 #: src/themes/OLH/templates/press/nav.html:40
 #: src/themes/material/templates/preprints/editors.html:5
 #: src/themes/material/templates/preprints/editors.html:6
 msgid "Editorial Team"
 msgstr "Team editoriale"
-
 #: src/themes/OLH/templates/press/press_journals.html:48
 msgid "Disciplines"
 msgstr "Discipline"
-
 #: src/themes/OLH/templates/press/press_journals.html:61
 #: src/themes/OLH/templates/press/press_journals.html:68
 #: src/themes/clean/templates/journal/article.html:152
@@ -5334,7 +4217,6 @@ msgstr "Discipline"
 #: src/themes/material/templates/press/press_journals.html:43
 msgid "View"
 msgstr "Vista"
-
 #: src/themes/OLH/templates/repository/about.html:15
 #: src/themes/OLH/templates/repository/nav.html:4
 #: src/themes/material/templates/preprints/about.html:4
@@ -5345,117 +4227,90 @@ msgstr "Vista"
 #: src/themes/material/templates/repository/nav.html:52
 msgid "About"
 msgstr "Info"
-
 #: src/themes/OLH/templates/repository/home.html:31
 #: src/themes/material/templates/repository/home.html:37
 msgid "Read about"
 msgstr "Leggi su"
-
 #: src/themes/OLH/templates/repository/home.html:32
 #: src/themes/material/templates/repository/home.html:38
 msgid "or view list of"
 msgstr "o visualizzare l'elenco di"
-
 #: src/themes/OLH/templates/repository/home.html:38
 msgid "Latest Preprints"
 msgstr "Ultime preprints"
-
 #: src/themes/OLH/templates/repository/home.html:45
 #: src/themes/OLH/templates/repository/list.html:101
 msgid "Filter by Subject"
 msgstr "Filtra per argomento"
-
 #: src/themes/OLH/templates/repository/list.html:7
 msgid "All"
 msgstr "Tutti"
-
 #: src/themes/OLH/templates/repository/list.html:75
 msgid "Search preprints"
 msgstr "Cerca preprints"
-
 #: src/themes/OLH/templates/repository/list.html:79
 msgid "Searching by"
 msgstr "Ricerca per"
-
 #: src/themes/OLH/templates/repository/list.html:84
 #: src/themes/material/templates/repository/list.html:62
 msgid "Author Affiliation"
 msgstr "Affiliazione dell'autore"
-
 #: src/themes/OLH/templates/repository/nav.html:6
 #: src/themes/material/templates/repository/nav.html:22
 #: src/themes/material/templates/repository/nav.html:54
 #: src/themes/material/templates/repository/preprint.html:171
-#| msgid "Subject"
 msgid "Subjects"
 msgstr "Argomento"
-
 #: src/themes/OLH/templates/repository/preprint.html:53
 #: src/themes/material/templates/preprints/article.html:51
-#| msgid "Preprint"
 msgid "Preprint Body"
 msgstr "Preprint"
-
 #: src/themes/OLH/templates/repository/preprint.html:62
 #: src/themes/material/templates/preprints/article.html:63
 #: src/themes/material/templates/repository/preprint.html:89
 msgid "Comments"
 msgstr "Commenti"
-
 #: src/themes/OLH/templates/repository/preprint.html:68
 #: src/themes/material/templates/preprints/article.html:69
-#| msgid "Comments"
 msgid "Add Comment"
 msgstr "Commenti"
-
 #: src/themes/OLH/templates/repository/preprint.html:106
 msgid ""
 "There are no comments or no comments have been made public for this article."
 msgstr ""
 "Non ci sono commenti o i commenti sono stati resi pubblici per questo "
 "articolo."
-
 #: src/themes/OLH/templates/repository/preprint.html:128
-#| msgid "Update"
 msgid "Last Updated"
 msgstr "Aggiorna"
-
 #: src/themes/OLH/templates/repository/preprint.html:141
 #: src/themes/material/templates/preprints/article.html:135
 msgid "Versions"
 msgstr "Versioni"
-
 #: src/themes/OLH/templates/repository/preprint.html:147
-#| msgid "Versions"
 msgid "Version"
 msgstr "Versioni"
-
 #: src/themes/OLH/templates/repository/preprint.html:150
 msgid "This is the only version of the preprint."
 msgstr "Questa è l'unica versione del preprint."
-
 #: src/themes/OLH/templates/repository/preprint.html:156
 #: src/themes/clean/templates/journal/article.html:248
 #: src/themes/material/templates/preprints/article.html:130
 #: src/themes/material/templates/repository/preprint.html:212
 msgid "Metrics"
 msgstr "Metrica"
-
 #: src/themes/OLH/templates/repository/preprint.html:164
 #: src/themes/material/templates/preprints/article.html:152
 #: src/themes/material/templates/preprints/list.html:6
 #: src/themes/material/templates/preprints/list.html:14
 msgid "All Preprints"
 msgstr "Tutti i preprint"
-
 #: src/themes/clean/templates/403.html:18
 msgid "You do not have permission to view this page"
 msgstr ""
-
 #: src/themes/clean/templates/500.html:27
 msgid "A server error has occurred."
 msgstr ""
-
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:14
 msgid ""
 "The ORCiD you logged in with is not currently linked with an account in our "
@@ -5466,26 +4321,16 @@ msgstr ""
 "L'ORCiD con cui hai fatto il log in non è al momento connesso con un account "
 "sul nostro sistema. Puoi creare un nuovo account, o fare il log in con un "
 "account già esistente a cui connettere il tuo ORCiD per uso futuro."
-
 #: src/themes/clean/templates/core/accounts/orcid_registration.html:34
 msgid "Forgot your password"
 msgstr "Password dimenticata"
-
 #: src/themes/clean/templates/core/accounts/register.html:26
 #: src/themes/clean/templates/core/accounts/reset_password.html:26
 msgid ""
 "For more information read our <a href=\"#\" data-toggle=\"modal\" data-"
 "target=\"#passwordmodal\">password guide</a>."
 msgstr ""
-
 #: src/themes/clean/templates/core/accounts/register.html:60
-#| msgid ""
-#| "We recommend selecting a long, but easy to remember password such as "
-#| "<em>our awesome moon base\n"
-#| "                        rocks</em> which would take an estimated "
-#| "septillion years to crack as opposed to a complex one\n"
-#| "                        like <em>Jfjfy&65^87</em> which would take just "
-#| "over 600 years on a standard computer."
 msgid ""
 "\n"
 "                    <p class=\"lead\">When it comes to passwords, length is "
@@ -5501,13 +4346,12 @@ msgid ""
 "                        like <em>Jfjfy&65^87</em> which would take just over "
 "600 years on a standard computer.</p>\n"
 "                    "
-msgstr ""
+msgstr "\n"
 "Ti consigliamo di selezionare una password lunga ma facile da ricordare come "
 "<em>le nostre fantastiche rocce dalla base lunare</em>, che richiederebbe "
 "circa un settilione di anni per essere decifrata, invece di una complessa "
 "come <em>Jfjfy&65^87</em> che richiederebbe poco più di 600 anni su un "
 "computer standard."
-
 #: src/themes/clean/templates/core/accounts/reset_password.html:54
 msgid ""
 "Its a common myth that a short and complex password (Jfjfy&65^87) is more "
@@ -5517,7 +4361,6 @@ msgstr ""
 "E' un mito comune che una password breve e complessa (Jfjfy&65^87) sia più "
 "sicura di una lunga e semplice (le nostre fantastiche rocce dalla base "
 "lunare)."
-
 #: src/themes/clean/templates/core/accounts/reset_password.html:56
 msgid ""
 "We recommend selecting a long, but easy to remember password such as <em>our "
@@ -5532,12 +4375,9 @@ msgstr ""
 "circa un settilione di anni per essere decifrata, invece di una complessa "
 "come <em>Jfjfy&65^87</em> che richiederebbe poco più di 600 anni su un "
 "computer standard."
-
 #: src/themes/clean/templates/core/nav.html:83
-#| msgid "Account"
 msgid "Account "
 msgstr "Account"
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:13
 msgid ""
 "If you want to change your email address you may do so\n"
@@ -5549,11 +4389,9 @@ msgstr ""
 "Se vuoi cambiare il tuo indirizzo email puoi farlo di seguito, tuttavia, "
 "verrai disconnesso e il tuo account sarà contrassegnato come inattivo fino a "
 "quando non seguirai le istruzioni nell'e-mail di verifica."
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:17
 msgid "Note"
 msgstr "Commento"
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:18
 msgid ""
 "Changing your email address will also change your username\n"
@@ -5561,12 +4399,9 @@ msgid ""
 msgstr ""
 "Cambiando il tuo indirizzo email cambierai anche il tuo nome utente poiché i "
 "due corrispondono."
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:23
-#| msgid "Your contact email address"
 msgid "Current email address"
 msgstr "Il tuo indirizzo email"
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:72
 msgid ""
 "You can update your password by entering your existing password plus your "
@@ -5574,29 +4409,23 @@ msgid ""
 msgstr ""
 "Puoi aggiornare la tua password inserendo la tua password esistente e la tua "
 "nuova password"
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:81
 msgid "Enter New Password"
 msgstr "Inserisci la nuova password"
-
 #: src/themes/clean/templates/elements/accounts/edit_profile_body_block.html:85
 msgid "Enter New Password Again"
 msgstr "Inserisci di nuovo la nuova password"
-
 #: src/themes/clean/templates/elements/article_listing.html:25
 msgid "Externally hosted article"
 msgstr ""
-
 #: src/themes/clean/templates/elements/article_listing.html:34
 #: src/themes/clean/templates/elements/journal/authors_block.html:8
 #: src/themes/material/templates/elements/article_listing.html:25
 msgid "and"
 msgstr ""
-
 #: src/themes/clean/templates/elements/journal/issue_list.html:8
 msgid "This journal has no issues"
 msgstr "Questa rivista non ha pubblicazioni"
-
 #: src/themes/clean/templates/elements/journal/issue_list_by_decade.html:2
 msgid ""
 "\n"
@@ -5604,7 +4433,6 @@ msgid ""
 "        published during that decade.\n"
 "    "
 msgstr ""
-
 #: src/themes/clean/templates/elements/journal/table_modal.html:12
 #: src/themes/clean/templates/elements/public_reviews.html:35
 #: src/themes/material/templates/core/accounts/register.html:61
@@ -5612,16 +4440,12 @@ msgstr ""
 #: src/themes/material/templates/elements/summary_modal.html:13
 msgid "Close"
 msgstr "Chiudi"
-
 #: src/themes/clean/templates/elements/journal_footer.html:8
 msgid "Print ISSN"
 msgstr ""
-
 #: src/themes/clean/templates/elements/pagination.html:62
-#| msgid "All"
 msgid "all"
 msgstr "Tutti"
-
 #: src/themes/clean/templates/elements/public_reviews.html:28
 #, python-format
 msgid ""
@@ -5632,99 +4456,73 @@ msgid ""
 "document.</p>\n"
 "                    "
 msgstr ""
-
 #: src/themes/clean/templates/elements/sections_block.html:4
 msgid "Sections submission information"
 msgstr "Informazione per l'invio delle sezioni"
-
 #: src/themes/clean/templates/journal/article.html:64
-#| msgid "Keyword"
 msgid "Keyword:"
 msgstr "Parola chiave"
-
 #: src/themes/clean/templates/journal/article.html:238
-#| msgid "Peer Review"
 msgid "Open Peer Reviews"
 msgstr "Peer review"
-
 #: src/themes/clean/templates/journal/article.html:257
 #: src/themes/material/templates/journal/article.html:187
 msgid "Wikipedia"
 msgstr "Wikipedia"
-
 #: src/themes/clean/templates/journal/article.html:259
 #: src/themes/material/templates/journal/article.html:195
 msgid "Reddit"
 msgstr "Reddit"
-
 #: src/themes/clean/templates/journal/article.html:264
 #: src/themes/material/templates/preprints/article.html:145
 msgid "Citation"
 msgstr "Citazione"
-
 #: src/themes/clean/templates/journal/article.html:330
 msgid "View Larger Table"
 msgstr ""
-
 #: src/themes/clean/templates/journal/articles.html:48
 msgid "Sort and Filter"
 msgstr "Ordina e filtra"
-
 #: src/themes/clean/templates/journal/articles.html:71
-#| msgid "Sections"
 msgid "Section Filters"
 msgstr "Sezioni"
-
 #: src/themes/clean/templates/journal/authors.html:26
 #: src/themes/material/templates/journal/authors.html:31
 #: src/themes/material/templates/journal/editorial_team.html:34
-#| msgid "Edit Profile"
 msgid "View Profile"
 msgstr "Modifica il profilo"
-
 #: src/themes/clean/templates/journal/collections.html:35
 #: src/themes/material/templates/journal/collections.html:38
 msgid "There are no collections to display"
 msgstr "Non ci sono raccolte da mostrare"
-
 #: src/themes/clean/templates/journal/contact.html:10
 msgid "Journal Contacts"
 msgstr "Contatti della rivista"
-
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:5
 msgid "Latest Articles & News"
 msgstr "Ultimi articoli e news"
-
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:32
 msgid "Previous"
 msgstr "Precedente"
-
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:36
 msgid "Next"
 msgstr "Seguente"
-
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:41
 msgid "Play"
 msgstr "Play"
-
 #: src/themes/clean/templates/journal/homepage_elements/carousel.html:45
 msgid "Pause"
 msgstr ""
-
 #: src/themes/clean/templates/journal/issues.html:14
 msgid "The current issue is"
 msgstr "La pubblicazione corrente è"
-
 #: src/themes/clean/templates/press/press_journals.html:52
-#| msgid "This journal has no issues"
 msgid "No journals to list"
 msgstr "Questa rivista non ha pubblicazioni"
-
 #: src/themes/clean/templates/press/press_journals.html:57
 #: src/themes/material/templates/press/press_journals.html:60
 msgid "Start typing to filter."
 msgstr ""
-
 #: src/themes/material/templates/core/accounts/activate_account.html:29
 msgid ""
 "There was no inactive account with this activation code found. It is "
@@ -5732,14 +4530,12 @@ msgid ""
 msgstr ""
 "Nessun account inattivo trovato con questo codice di attivazione. E' "
 "possibile che il tuo account sia già attivo, puoi verificarlo provando a "
-
 #: src/themes/material/templates/core/accounts/register.html:29
 #: src/themes/material/templates/core/accounts/reset_password.html:26
 msgid ""
 "For more information read our <a href=\"#\" data-target=\"passwordmodal\" "
 "class=\"modal-trigger\">password guide</a>."
 msgstr ""
-
 #: src/themes/material/templates/core/accounts/register.html:56
 #: src/themes/material/templates/core/accounts/reset_password.html:46
 msgid ""
@@ -5755,31 +4551,23 @@ msgstr ""
 "circa un settilione di anni per essere decifrata, invece di una complessa "
 "come <i>Jfjfy&65^87</i> che richiederebbe poco più di 600 anni su un "
 "computer standard."
-
 #: src/themes/material/templates/core/login.html:19
-#| msgid "Log in with your account"
 msgid "Login with your account"
 msgstr "Accedi con il tuo account"
-
 #: src/themes/material/templates/core/login.html:49
 msgid "Register an Account"
 msgstr "Registra un account"
-
 #: src/themes/material/templates/core/login.html:52
 msgid "Reset Your Password"
 msgstr "Reimposta la tua password"
-
 #: src/themes/material/templates/core/nav.html:157
 #: src/themes/material/templates/press/nav.html:139
 #: src/themes/material/templates/repository/nav.html:77
 msgid "Open navigation menu"
 msgstr ""
-
 #: src/themes/material/templates/core/news/index.html:40
-#| msgid "This journal currently has no news items to display."
 msgid "This journal currently has no items to display."
 msgstr "Al momento questa rivista non ha notizie da mostrare."
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:13
 msgid ""
 "If you want to change your email address you may do so below, however, you "
@@ -5789,11 +4577,9 @@ msgstr ""
 "Se desideri modificare il tuo indirizzo e-mail puoi farlo qui sotto, ma nota "
 "che verrai disconnesso e il tuo account verrà contrassegnato come inattivo "
 "fino a quando non avrai seguito le istruzioni nell'e-mail di verifica."
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:14
 msgid "Note:"
 msgstr "Commento:"
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:15
 msgid ""
 "Changing your email address will also change your username as these are one "
@@ -5801,51 +4587,38 @@ msgid ""
 msgstr ""
 "Cambiando il tuo indirizzo e-mail cambierà anche il tuo nome utente in "
 "quanto questi corrispondono."
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:36
 msgid ""
 "Use the button below to register to receive notifications of new articles\n"
 "                                published in this journal "
 msgstr ""
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:54
 msgid "Data Export"
 msgstr "Esportazione dati"
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:55
 msgid "You may export your data into a JSON file for reuse."
 msgstr "Puoi esportare i tuoi dati in un file JSON per riutilizzarli."
-
 #: src/themes/material/templates/elements/accounts/edit_profile_body_block.html:58
 msgid "Export"
 msgstr "Esportare"
-
 #: src/themes/material/templates/elements/journal/issue_list.html:27
-#| msgid "Close"
 msgid "Close."
 msgstr "Chiudi"
-
 #: src/themes/material/templates/elements/journal/issue_list.html:32
 msgid "View Issue"
 msgstr "Visualizza la pubblicazione"
-
 #: src/themes/material/templates/elements/license_block.html:5
 msgid "External link to "
 msgstr ""
-
 #: src/themes/material/templates/elements/pagination.html:18
-#| msgid "Previous"
 msgid "Previous page."
 msgstr "Precedente"
-
 #: src/themes/material/templates/elements/pagination.html:45
 msgid "Next page."
 msgstr ""
-
 #: src/themes/material/templates/journal/article.html:179
 msgid "Tweets"
 msgstr "Tweets"
-
 #: src/themes/material/templates/journal/article.html:239
 msgid ""
 "\n"
@@ -5857,30 +4630,22 @@ msgid_plural ""
 "                          "
 msgstr[0] ""
 msgstr[1] ""
-
 #: src/themes/material/templates/journal/article.html:298
-#| msgid "Article Info"
 msgid "Article No."
 msgstr "Informazioni sull'articolo"
-
 #: src/themes/material/templates/journal/article.html:310
-#| msgid "Publications"
 msgid "Publication"
 msgstr "Pubblicazioni"
-
 #: src/themes/material/templates/journal/article.html:411
 msgid "This article has been peer reviewed."
 msgstr "Questo articolo è stato soggetto a peer review."
-
 #: src/themes/material/templates/journal/collections.html:33
 msgid "View Collection"
 msgstr "Visualizza raccolta"
-
 #: src/themes/material/templates/journal/new_search.html:26
 #: src/themes/material/templates/journal/search.html:28
 msgid "Searching"
 msgstr "Ricerca"
-
 #: src/themes/material/templates/preprints/article.html:19
 msgid ""
 "This article is a preprint, it has not been peer reviewed or had any "
@@ -5888,95 +4653,101 @@ msgid ""
 msgstr ""
 "Questo articolo è in preprint, non è stato sottoposto ad una peer review o "
 "ad una supervisione editoriale estensiva."
-
 #: src/themes/material/templates/preprints/article.html:147
-#| msgid "Harvard Citation Style"
 msgid "Harvard Citation"
 msgstr "Citazione Harvard Style"
-
 #: src/themes/material/templates/preprints/article.html:148
-#| msgid "Vancouver Citation Style"
 msgid "Vancouver Citation"
 msgstr "Citazione Vancouver Style"
-
 #: src/themes/material/templates/preprints/article.html:149
-#| msgid "APA Citation Style"
 msgid "APA Citation"
 msgstr "Citazione APA Style"
-
 #: src/themes/material/templates/preprints/editors.html:10
 msgid "Subject Area Editors"
 msgstr "Editori dell'area tematica"
-
 #: src/themes/material/templates/preprints/list.html:40
 msgid "There are no preprints to display"
 msgstr "Non ci sono preprints da visualizzare"
-
 #: src/themes/material/templates/preprints/list.html:74
 #: src/themes/material/templates/repository/list.html:52
 msgid "Search Preprints"
 msgstr "Cerca Preprint"
-
 #: src/themes/material/templates/preprints/list.html:77
 #: src/themes/material/templates/repository/list.html:55
 msgid "You can search by:"
 msgstr "Puoi cercare per:"
-
 #: src/themes/material/templates/preprints/list.html:84
 msgid "Author Institution"
 msgstr "Istituzione dell'autore"
-
 #: src/themes/material/templates/repository/home.html:34
-#| msgid "Start Submission"
 msgid "Start New Submission"
 msgstr "Inizia la proposta"
-
 #: src/themes/material/templates/repository/preprint.html:71
-#| msgid "Comments"
 msgid "Add a Comment"
 msgstr "Commenti"
-
+#: src/typesetting/forms.py:13
+msgid "Are you sure you want to create a typesetting assignment?"
+msgstr ""
+"Inserisci la nuova password due volte per completare la procedura di "
+"ripristino"
 #: src/typesetting/forms.py:119
-#| msgid "Enter your new password twice to complete the reset process"
 msgid "Are you sure you want to save the typesetting assignment?"
 msgstr ""
 "Inserisci la nuova password due volte per completare la procedura di "
 "ripristino"
-
+#: src/typesetting/forms.py:126
+msgid "Are you sure you want to create a proofreading assignment?"
+msgstr ""
+"Inserisci la nuova password due volte per completare la procedura di "
+"ripristino"
+#: src/typesetting/forms.py:199
+msgid "Text to show as the download link on the article page"
+msgstr ""
+#: src/typesetting/forms.py:240
+msgid "Are you sure you want to complete the proofreading task?"
+msgstr ""
+"Inserisci la nuova password due volte per completare la procedura di "
+"ripristino"
+#: src/typesetting/forms.py:260
+msgid "You have not proofed some galleys:"
+msgstr ""
+#: src/typesetting/logic.py:199
+msgid "Article has no typeset files"
+msgstr ""
+#: src/typesetting/logic.py:200
+msgid "One or more typeset files are missing images"
+msgstr ""
+#: src/typesetting/logic.py:201
+msgid "One or more typesetting or proofing tasks haven't been completed"
+msgstr ""
+#: src/typesetting/templates/typesetting/typesetting_proofreading_assignment.html:116
+msgid "Mark Task as Complete"
+msgstr ""
 #: src/utils/forms.py:114
 #| msgid "What is %(num1)i %(operator)s %(num2)i? "
 msgid "What is %(num1)i %(operator)s %(num2)i? "
 msgstr "Cos'è % (num1)i% (operatore)s %(num2)i? "
-
 #: src/utils/forms.py:115
 msgid "Answer this question: "
 msgstr "Rispondi a questa domanda: "
-
 #: src/utils/forms.py:159
 msgid "HTML is not allowed in this field"
 msgstr ""
-
 #: src/utils/models.py:417
 msgid "Ongoing"
 msgstr ""
-
 #: src/utils/models.py:418
 msgid "Unnecessary"
 msgstr ""
-
 #: src/utils/models.py:419
 msgid "Successful"
 msgstr ""
-
 #: src/utils/models.py:420
 msgid "Failed"
 msgstr ""
-
 #: src/utils/transactional_emails.py:389
-#| msgid "Accepted"
 msgid "accepted"
 msgstr "Accettato"
-
 #: src/utils/transactional_emails.py:399
 msgid "declined"
 msgstr ""
