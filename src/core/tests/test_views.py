@@ -959,6 +959,14 @@ class AccessibilityModeToggleViewTests(TestCase):
     def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_toggle@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
 
     def setUp(self):
         clear_script_prefix()
@@ -1041,10 +1049,10 @@ class AccessibilityModeToggleViewTests(TestCase):
         self.assertFalse(user.accessibility_mode)
 
     @override_settings(URL_CONFIG="domain")
-    def test_authenticated_post_ignores_session_flag(self):
-        # An anonymous toggle leaves a session flag; once the user logs in
-        # and toggles, the user attribute is the canonical source and the
-        # session flag is not consulted by the resolver.
+    def test_login_migrates_session_preference_to_account(self):
+        # Enabling accessibility mode while anonymous stores a session flag.
+        # On login that preference must be carried onto the account and the
+        # session flag cleared, so the two sources can never disagree.
         anon_response = self.client.post(
             reverse("toggle_accessibility_mode"),
             {},
@@ -1053,12 +1061,42 @@ class AccessibilityModeToggleViewTests(TestCase):
         self.assertEqual(anon_response.status_code, 302)
         self.assertTrue(self.client.session.get("accessibility_mode"))
 
-        user = helpers.create_regular_user()
-        self.client.force_login(user)
+        logged_in = self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+        )
+        self.assertTrue(logged_in)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_mode_can_be_disabled_after_enabling_then_logging_in(self):
+        # Regression test for the reported bug: enabling accessibility mode
+        # while anonymous and then logging in must leave the mode disableable.
+        # Previously the stale session flag shadowed the account flag, so the
+        # toggle re-enabled the account flag instead of disabling the mode.
         self.client.post(
             reverse("toggle_accessibility_mode"),
             {},
             SERVER_NAME=self.journal_one.domain,
         )
-        user.refresh_from_db()
-        self.assertTrue(user.accessibility_mode)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+        )
+        # The preference has migrated onto the account and the mode is active.
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accessibility_mode)
+
+        # A single toggle now disables the mode for good.
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))

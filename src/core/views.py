@@ -2650,8 +2650,17 @@ def toggle_accessibility_mode(request):
             raise Http404()
 
     if request.user.is_authenticated:
-        request.user.accessibility_mode = not request.user.accessibility_mode
+        # Base the new value on the effective state rather than the account
+        # flag alone: an anonymous preference carried in the session can make
+        # the mode read as active while the account flag is still False.
+        # Toggling the account flag in isolation would then enable it instead
+        # of disabling it, leaving the mode impossible to turn off.
+        current = logic.accessibility_mode_active(request)
+        request.user.accessibility_mode = not current
         request.user.save(update_fields=["accessibility_mode"])
+        # Drop any stale anonymous session flag so it cannot shadow the
+        # account preference on subsequent requests.
+        request.session.pop("accessibility_mode", None)
     else:
         current = bool(request.session.get("accessibility_mode"))
         request.session["accessibility_mode"] = not current
