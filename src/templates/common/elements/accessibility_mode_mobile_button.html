@@ -4,6 +4,6 @@
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
     <button type="submit" class="a11y-mobile-button{% if button_class %} {{ button_class }}{% endif %}"
             aria-pressed="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
-        {% if accessibility_mode_active %}{% trans 'Disable accessibility mode' %}{% else %}{% trans 'Enable accessibility mode' %}{% endif %}
+        {% if accessibility_mode_active %}{% trans 'Accessibility mode: On' %}{% else %}{% trans 'Accessibility mode: Off' %}{% endif %}
     </button>
 </form>

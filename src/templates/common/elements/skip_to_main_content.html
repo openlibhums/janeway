@@ -5,9 +5,9 @@
   </a>
   {% if journal_settings.general.accessibility_mode or not request.journal %}
   {% if accessibility_mode_active %}
-    {% trans 'Disable accessibility mode' as a11y_skip_label %}
+    {% trans 'Accessibility mode: On' as a11y_skip_label %}
   {% else %}
-    {% trans 'Enable accessibility mode' as a11y_skip_label %}
+    {% trans 'Accessibility mode: Off' as a11y_skip_label %}
   {% endif %}
   <form method="post"
         action="{% url 'toggle_accessibility_mode' %}"
