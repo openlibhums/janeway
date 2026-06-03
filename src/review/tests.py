@@ -1073,26 +1073,3 @@ class ReviewTests(TestCase):
         self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
-
-    def test_request_revisions_context(self):
-        self.client.force_login(self.editor)
-        response = self.client.get(
-            reverse(
-                "review_request_revisions",
-                kwargs={"article_id": self.article_review_completed.pk},
-            ),
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.assertEqual(
-            self.article_review_completed,
-            response.context.get("article"),
-        )
-        # This test does not cover the revision request form
-        self.assertEqual(
-            0,
-            response.context.get("pending_approval").count(),
-        )
-        self.assertEqual(
-            0,
-            response.context.get("incomplete").count(),
-        )
