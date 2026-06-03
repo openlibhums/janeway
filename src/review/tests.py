@@ -96,7 +96,7 @@ class ReviewTests(TestCase):
             "date_due": "2900-01-01",
             "reviewer": self.regular_user.pk,
         }
-        reviewers=logic.get_reviewer_candidates(
+        reviewers = logic.get_reviewer_candidates(
             self.article_under_review, self.editor
         )
         form = forms.ReviewAssignmentForm(
