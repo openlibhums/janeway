@@ -2675,12 +2675,14 @@ def toggle_accessibility_mode(request):
         return redirect(next_url)
 
     referer = request.META.get("HTTP_REFERER")
-    if referer and url_has_allowed_host_and_scheme(
-        url=referer,
-        allowed_hosts={host},
-        require_https=request.is_secure(),
-    ):
-        return redirect(referer)
+    if referer:
+        if url_has_allowed_host_and_scheme(
+            url=referer,
+            allowed_hosts={host},
+            require_https=request.is_secure(),
+        ):
+            return redirect(referer)
+        logger.warning("Failed to redirect to disallowed url: %s", referer)
 
     return redirect("/")
 
