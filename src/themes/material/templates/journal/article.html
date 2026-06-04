@@ -284,48 +284,9 @@
                                         {% endif %}
                                     </li>
                                 {% endfor %}
-                            </ul>    
+                            </ul>
                         {% endif %}
-
-                        <div class="spacer">
-                            <div class="divider"></div>
-                        </div>
-                        {% if article.is_published or proofing %}
-                            <h2>
-                                {% trans "Files" %}
-                            </h2>
-                            {% if galleys %}
-                                <ul>
-                                    {% for galley in galleys %}
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
-                                                    {% trans "View" %} {{ galley.label }}
-                                                    {% include "elements/icons/link_new_tab.html" %} 
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                        <li>
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                                {{ galley.label }}
-                                                {% include "elements/icons/link_download.html" %} 
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                                {% if proofing %}
-                                    <p id="note_to_proofreader_2">
-                                        <i aria-hidden="true" class="fa fa-info-circle" ></i>
-                                        Note to proofreader: Download links on this page begin to work when the article is published.
-                                    </p>
-                                {% endif %}
-                                <div class="spacer">
-                                    <div class="divider"></div>
-                                </div>
-                            {% else %}
-                                <p> {% trans 'Downloads are not available for this article.' %}</p>
-                            {% endif %}
-                        {% endif %}
+                    {% endif %}
 
                         {% include "elements/journal/article_issue_list.html" %}
                         <div class="spacer">

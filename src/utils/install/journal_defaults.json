@@ -5319,19 +5319,6 @@
     }
   },
   {
-    "value": {"default": "Production Complete"},
-    "setting": {
-        "type": "char",
-        "pretty_name": "Production Complete",
-        "is_translatable": true,
-        "description": "Subject for Email sent to Editors when Production is Complete.",
-        "name": "subject_production_complete"
-    },
-    "group": {
-        "name": "email_subject"
-    }
-  },
-  {
     "group": {
         "name": "email"
     },
@@ -5663,6 +5650,18 @@
             "is_translatable": false,
             "name": "author_affiliation_dates",
             "pretty_name": "Author Affiliation Dates",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
