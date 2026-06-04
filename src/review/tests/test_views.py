@@ -1077,6 +1077,77 @@ class ReviewTests(TestCase):
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
 
+    def test_open_review_name_and_review_id_visibility(self):
+        """
+        Open reviews show the reviewer's name to the author (keyed off
+        review.visibility == 'open' in the template) while double-blind
+        reviews keep it hidden, and reviewers can see the ID of their own
+        review, the same ID that is visible to authors.
+        """
+        self.second_user.first_name = "Jane"
+        self.second_user.last_name = "Reviewer"
+        self.second_user.save()
+
+        self.client.force_login(self.author)
+        for visibility, name_visible in (("open", True), ("double-blind", False)):
+            article = helpers.create_article(
+                self.journal_one,
+                **{
+                    "owner": self.author,
+                    "title": "{} Review Article".format(visibility),
+                    "stage": submission_models.STAGE_UNDER_REVIEW,
+                },
+            )
+            self.author.snapshot_as_author(article)
+            review_round, _ = review_models.ReviewRound.objects.get_or_create(
+                article=article, round_number=1
+            )
+            review_models.ReviewAssignment.objects.create(
+                article=article,
+                review_round=review_round,
+                reviewer=self.second_user,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+                is_complete=True,
+                date_complete=timezone.now(),
+                decision="accept",
+                for_author_consumption=True,
+                visibility=visibility,
+            )
+            response = self.client.get(
+                reverse("review_author_view", kwargs={"article_id": article.pk}),
+                SERVER_NAME=self.journal_one.domain,
+            )
+            if name_visible:
+                self.assertContains(
+                    response,
+                    self.second_user.full_name(),
+                    msg_prefix="Open review should display reviewer name to author",
+                )
+            else:
+                self.assertNotContains(
+                    response,
+                    self.second_user.full_name(),
+                    msg_prefix="Double-blind review must not display reviewer name to author",
+                )
+
+        self.client.force_login(self.second_user)
+        response = self.client.get(
+            reverse("do_review", kwargs={"assignment_id": self.review_assignment.pk}),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(
+            response,
+            "Review ID",
+            msg_prefix="Reviewer should see their review ID on the review form",
+        )
+        self.assertContains(
+            response,
+            str(self.review_assignment.pk),
+            msg_prefix="Reviewer should see the correct review ID on the review form",
+        )
+
     # assignment_notification tests
 
     def _make_editor_assignment(self, notified=False):
