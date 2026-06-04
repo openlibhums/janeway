@@ -3,12 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import codecs
 import io
+import json
 import os
 
 from bs4 import BeautifulSoup
 
 from django.apps import apps
+from django.conf import settings
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
@@ -1603,3 +1606,71 @@ class CheckMailgunStatCommandTests(TestCase):
         call_command("check_mailgun_stat")
         self.log_entry.refresh_from_db()
         self.assertEqual(self.log_entry.message_status, "accepted")
+
+
+class DefaultSettingsIntegrityTests(TestCase):
+    """Guards against malformed entries in journal_defaults.json.
+
+    A botched merge once fused two setting entries together, producing
+    duplicate JSON keys. The file still parsed, but the duplicated keys
+    silently dropped a setting, which only surfaced as DoesNotExist errors
+    deep in unrelated tests. These checks fail fast and point at the file.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.file_path = os.path.join(
+            settings.BASE_DIR,
+            "utils/install/journal_defaults.json",
+        )
+        with codecs.open(cls.file_path, encoding="utf-8") as json_data:
+            cls.raw = json_data.read()
+
+    def reject_duplicate_keys(self, pairs):
+        keys = [key for key, value in pairs]
+        duplicates = [key for key in set(keys) if keys.count(key) > 1]
+        if duplicates:
+            raise AssertionError(
+                "Duplicate keys {} in journal_defaults.json object {}".format(
+                    duplicates, dict(pairs)
+                )
+            )
+        return dict(pairs)
+
+    def test_no_duplicate_keys(self):
+        # object_pairs_hook runs for every object, so a duplicate key
+        # anywhere in the file raises rather than silently winning.
+        json.loads(self.raw, object_pairs_hook=self.reject_duplicate_keys)
+
+    def test_every_setting_is_well_formed(self):
+        default_data = json.loads(self.raw)
+        for item in default_data:
+            self.assertIn("group", item)
+            self.assertIn("setting", item)
+            self.assertIn("value", item)
+            self.assertTrue(item["group"].get("name"))
+            self.assertTrue(item["setting"].get("name"))
+            self.assertTrue(item["setting"].get("type"))
+
+    def test_setting_names_are_unique_within_group(self):
+        default_data = json.loads(self.raw)
+        seen = set()
+        for item in default_data:
+            key = (item["group"]["name"], item["setting"]["name"])
+            self.assertNotIn(
+                key,
+                seen,
+                msg="Duplicate setting {} in journal_defaults.json".format(key),
+            )
+            seen.add(key)
+
+    def test_author_affiliation_dates_setting_present(self):
+        # Regression check for the specific setting dropped by the merge.
+        default_data = json.loads(self.raw)
+        matches = [
+            item
+            for item in default_data
+            if item["group"]["name"] == "metadata"
+            and item["setting"]["name"] == "author_affiliation_dates"
+        ]
+        self.assertEqual(len(matches), 1)
