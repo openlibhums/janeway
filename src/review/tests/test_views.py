@@ -1340,6 +1340,79 @@ class ReviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class DefaultReviewVisibleToAuthorTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.reviewer = helpers.create_second_user(cls.journal_one)
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.review_form = helpers.create_review_form(cls.journal_one)
+        cls.form_element = review_models.ReviewFormElement.objects.create(
+            name="Review",
+            kind="textarea",
+            required=True,
+            order=1,
+        )
+        cls.review_form.elements.add(cls.form_element)
+
+    def make_assignment(self):
+        article = helpers.create_article(self.journal_one)
+        article.stage = submission_models.STAGE_UNDER_REVIEW
+        article.save()
+        review_round = helpers.create_round(article)
+        return helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article,
+            reviewer=self.reviewer,
+            editor=self.editor,
+            review_form=self.review_form,
+            review_round=review_round,
+            is_complete=False,
+            decision=None,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_setting_enabled_marks_review_visible(self):
+        assignment = self.make_assignment()
+        self.client.force_login(self.reviewer)
+        with janeway_setting_override(
+            "general",
+            "default_review_visible_to_author",
+            journal=self.journal_one,
+            value="on",
+        ):
+            helpers.submit_review(
+                self.client,
+                assignment,
+                self.form_element,
+                self.journal_one,
+            )
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.is_complete)
+        self.assertTrue(assignment.for_author_consumption)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_setting_disabled_leaves_review_hidden(self):
+        assignment = self.make_assignment()
+        self.client.force_login(self.reviewer)
+        with janeway_setting_override(
+            "general",
+            "default_review_visible_to_author",
+            journal=self.journal_one,
+            value="",
+        ):
+            helpers.submit_review(
+                self.client,
+                assignment,
+                self.form_element,
+                self.journal_one,
+            )
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.is_complete)
+        self.assertFalse(assignment.for_author_consumption)
+
+
 class InReviewActionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):

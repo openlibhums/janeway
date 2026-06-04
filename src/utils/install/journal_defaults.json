@@ -4008,6 +4008,25 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, completed reviews will default to being visible to authors. Editors can still override visibility on individual reviews.",
+            "is_translatable": false,
+            "name": "default_review_visible_to_author",
+            "pretty_name": "Default Review Visible to Author",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "news"
         },
         "setting": {
