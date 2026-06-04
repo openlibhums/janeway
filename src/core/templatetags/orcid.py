@@ -1,3 +1,5 @@
+import warnings
+
 from django import template
 
 from core.logic import reverse_with_next
@@ -14,9 +16,7 @@ def orcid_redirect_uri(context, action="login"):
     Its logic now handled in core.views.user_login_orcid
     rather than templates.
     """
-    raise DeprecationWarning(
-        "This template tag is deprecated. See core.views.user_login_orcid."
-    )
+    warnings.warn("This template tag is deprecated. See core.views.user_login_orcid.")
     request = context.get("request")
     if request:
         return build_redirect_uri(request.site_type, action=action)

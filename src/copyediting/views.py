@@ -697,7 +697,7 @@ def delete_author_review(request, article_id, copyedit_id, author_review_id):
         pk=author_review_id,
         assignment__article__journal=request.journal,
     )
-    article = (author_review.assignment.article,)
+    article = author_review.assignment.article
     copyedit = author_review.assignment
 
     email_context = logic.get_author_copyedit_message_context(

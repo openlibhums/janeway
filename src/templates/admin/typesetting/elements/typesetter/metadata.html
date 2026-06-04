@@ -50,22 +50,26 @@
         </tr>
         <tr>
             <td colspan="4">
-                {% if article.competing_interests %}{{ article.non_specialist_summary|safe }}
+                {% if article.non_specialist_summary %}
+                    {{ article.non_specialist_summary|safe }}
                 {% else %}
                     No Summary Supplied
                 {% endif %}
             </td>
         </tr>
     {% endif %}
-    {% if journal_settings.general.submission_competing_interests %}
-        <tr>
-            <th colspan="4">Competing Interests</th>
-        </tr>
-        <tr>
-            <td colspan="4">
-                {% if article.competing_interests %}{{ article.competing_interests }}{% else %}No CI{% endif %}</td>
-        </tr>
-    {% endif %}
+    <tr>
+      <th colspan="4">Competing Interests</th>
+    </tr>
+    <tr>
+      <td colspan="4">
+        {% if article.competing_interests %}
+          {{ article.competing_interests }}
+        {% else %}
+          No CI
+        {% endif %}
+      </td>
+    </tr>
     <tr>
         <th colspan="4">Peer Reviewed?</th>
     </tr>

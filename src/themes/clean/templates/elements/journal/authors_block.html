@@ -1,5 +1,8 @@
+{% comment %}
+  Deprecated. Use common/elements/journal/article_authors_compact.html.
+{% endcomment %}
 <ul class="list-inline ampersand-sep">
     {% for author in article.frozen_authors.all %}
         <li>{{ author.full_name }}</li>
     {% endfor %}
-</ul>   
+</ul>

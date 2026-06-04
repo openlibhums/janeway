@@ -163,6 +163,7 @@ def save_file_to_article(
     replace=None,
     is_galley=False,
     save=True,
+    subdir="",
 ):
     """Save a file into an article's folder with appropriate mime type and permissions.
 
@@ -172,6 +173,7 @@ def save_file_to_article(
     :param label: the file's label (or title)
     :param description: the description of the item
     :param replace: the file to which this is a revision or None
+    :param subdir: a str represnting a subdir path (e.g "/reviews/1/")
     :return: a File object that has been saved in the database
     """
 
@@ -185,6 +187,8 @@ def save_file_to_article(
     folder_structure = os.path.join(
         settings.BASE_DIR, "files", "articles", str(article.id)
     )
+    if subdir:
+        folder_structure = os.path.join(folder_structure, subdir)
 
     if not os.path.exists(folder_structure):
         mkdirs(folder_structure)
@@ -609,9 +613,12 @@ def overwrite_file(uploaded_file, file_to_replace, path_parts=()):
 
     # N.B. os.path.splitext[1] always returns the final file extension, even in a multi-dotted (.txt.html etc.) input
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR, "files", *(str(part) for part in path_parts)
-    )
+    if isinstance(path_parts, str):
+        folder_structure = path_parts
+    else:
+        folder_structure = os.path.join(
+            settings.BASE_DIR, "files", *(str(part) for part in path_parts)
+        )
 
     save_file_to_disk(uploaded_file, filename, folder_structure)
 

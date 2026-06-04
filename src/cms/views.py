@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse, Http404
 from django.urls import reverse
-from django.utils import translation
+from django.utils import timezone, translation
 from django.views.decorators.http import require_POST
 
 from security.decorators import editor_user_required
