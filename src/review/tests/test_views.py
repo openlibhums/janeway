@@ -641,6 +641,7 @@ class ReviewTests(TestCase):
             "editoruser@martineve.com", ["editor"], journal=self.journal_one
         )
         self.editor.is_active = True
+        self.editor.save()
         self.reviewer = self.create_user(
             "revieweruser@email.com", ["reviewer"], journal=self.journal_one
         )

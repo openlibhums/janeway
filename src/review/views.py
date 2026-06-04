@@ -431,7 +431,7 @@ def assignment_notification(request, article_id, editor_id):
 
     template = "review/assignment_notification.html"
     context = {
-        "article": article_id,
+        "article": article,
         "editor": editor,
         "assignment": assignment,
         "form": form,
