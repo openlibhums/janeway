@@ -29,7 +29,10 @@ from core import (
 )
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from review.const import EditorialDecisions as ED
+from review.const import (
+    EditorialDecisions as ED,
+    ReviewerDecisions as RD,
+)
 from security.decorators import (
     editor_user_required,
     reviewer_user_required,
@@ -1028,6 +1031,7 @@ def do_review(request, assignment_id):
             decision_required = True
         form = forms.GeneratedForm(
             request.POST,
+            request.FILES,
             review_assignment=assignment,
             fields_required=fields_required,
         )
@@ -1040,7 +1044,7 @@ def do_review(request, assignment_id):
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
-            assignment.save_review_form(form, assignment)
+            assignment.save_review_form(form, assignment, request.FILES)
             if "save_progress" in request.POST:
                 messages.add_message(
                     request,
@@ -1509,12 +1513,20 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     form = forms.GeneratedForm(answer=answer)
 
     if request.POST:
-        form = forms.GeneratedForm(request.POST, answer=answer)
+        form = forms.GeneratedForm(request.POST, request.FILES, answer=answer)
         if form.is_valid():
             # Form element keys are posted as str
             element_key = str(answer.element.pk)
             answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
+            if request.FILES and element_key in request.FILES:
+                answer_file, _ = (
+                    models.ReviewAssignmentAnswerFile.objects.get_or_create(
+                        answer=answer,
+                        edited=True,
+                    )
+                )
+                answer_file.save_file(request.FILES[element_key])
 
             return redirect(
                 reverse(
@@ -1701,11 +1713,6 @@ def withdraw_review(request, article_id, review_id):
             request=request,
         )
         if form.is_valid() or skip:
-            review.date_complete = timezone.now()
-            review.decision = models.RD.DECISION_WITHDRAWN.value
-            review.is_complete = True
-            review.save()
-
             kwargs = {
                 "review_assignment": review,
                 "request": request,
@@ -1716,7 +1723,7 @@ def withdraw_review(request, article_id, review_id):
                 event_logic.Events.ON_REVIEW_WITHDRAWL,
                 **kwargs,
             )
-
+            review.withdraw()
             messages.add_message(request, messages.SUCCESS, "Review withdrawn")
             return redirect(
                 reverse(
@@ -1796,7 +1803,7 @@ def review_decision(request, article_id, decision):
         request, article, decision, author_review_url
     )
     setting_name = "review_decision_{0}".format(decision)
-    if article.stage == submission_models.STAGE_UNASSIGNED:
+    if article.stage == submission_models.STAGE_UNASSIGNED and decision == "decline":
         setting_name = "review_decision_desk_reject"
 
     form = core_forms.SettingEmailForm(
@@ -2043,9 +2050,16 @@ def request_revisions(request, article_id):
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
-    pending_approval = review_round.active_reviews().filter(
-        is_complete=True,
-        for_author_consumption=False,
+    pending_approval = (
+        review_round.active_reviews()
+        .filter(
+            is_complete=True,
+            for_author_consumption=False,
+            date_declined__isnull=True,
+        )
+        .exclude(
+            decision=RD.DECISION_WITHDRAWN.value,
+        )
     )
     incomplete = review_round.active_reviews().filter(
         is_complete=False,
@@ -3387,3 +3401,13 @@ def reviewer_shared_review_download(request, article_id, review_id):
             )
 
     raise Http404("You do not have permission to download this file.")
+
+
+def review_attachment_download(request, assignment_id, file_uuid):
+    answer_file = get_object_or_404(
+        models.ReviewAssignmentAnswerFile,
+        answer__assignment__id=assignment_id,
+        file__uuid_filename=file_uuid,
+    )
+
+    return files.serve_file_to_browser(answer_file.file_path, answer_file.file)

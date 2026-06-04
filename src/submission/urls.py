@@ -28,6 +28,11 @@ urlpatterns = [
         views.delete_frozen_author,
         name="submission_delete_frozen_author",
     ),
+    re_path(
+        r"^(?P<article_id>\d+)/authors/(?P<author_id>\d+)/link_to_account/$",
+        views.link_author_to_account,
+        name="submission_link_author_to_account",
+    ),
     # Affiliations
     re_path(
         r"^(?P<article_id>\d+)/author/(?P<author_id>\d+)/organization/search/$",

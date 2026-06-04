@@ -1,3 +1,7 @@
+{% load securitytags %}
+
+{% is_editor as user_is_editor %}
+
 {% if account %}
   {% include "admin/elements/layout/key_value_above.html" with key="User" value=account.full_name %}
   {% include "admin/elements/layout/key_value_above.html" with key="Email" value=account.email %}
@@ -10,4 +14,39 @@
 {% if article %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.safe_title %}
+{% endif %}
+{% if author %}
+  {% if user_is_editor or request.user.is_staff %}
+    <div class="title-area">
+      <h2>Related settings</h2>
+    </div>
+    <ul>
+      <li>Job titles are turned
+        {{ journal_settings.metadata.author_job_title|yesno:"on,off" }}.
+        <a
+          target="_blank"
+          href="{% url 'core_edit_setting' 'metadata' 'author_job_title' %}">
+          [change]
+        </a>
+      </li>
+      <li>
+        Department names are turned
+        {{ journal_settings.metadata.author_department|yesno:"on,off" }}.
+        <a
+          target="_blank"
+          href="{% url 'core_edit_setting' 'metadata' 'author_department' %}">
+          [change]
+        </a>
+      </li>
+      <li>
+        Affiliation dates are turned
+        {{ journal_settings.metadata.author_affiliation_dates|yesno:"on,off" }}.
+        <a
+          target="_blank"
+          href="{% url 'core_edit_setting' 'metadata' 'author_affiliation_dates' %}">
+          [change]
+        </a>
+      </li>
+    </ul>
+  {% endif %}
 {% endif %}
