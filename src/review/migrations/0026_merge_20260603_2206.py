@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('review', '0025_alter_revisionrequest_actions'),
-        ('review', '0025_reviewassignmentanswerfile'),
+        ("review", "0025_alter_revisionrequest_actions"),
+        ("review", "0025_reviewassignmentanswerfile"),
     ]
 
-    operations = [
-    ]
+    operations = []

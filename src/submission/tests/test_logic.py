@@ -308,4 +308,4 @@ class TestSubmitAuthorsLogic(TestCase):
         self.assertEqual(
             self.article.frozenauthor_set.count(),
             starting_author_count,
-    )
+        )

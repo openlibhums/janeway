@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0110_alttext'),
-        ('core', '0110_one_click_review_on_by_default'),
+        ("core", "0110_alttext"),
+        ("core", "0110_one_click_review_on_by_default"),
     ]
 
-    operations = [
-    ]
+    operations = []
