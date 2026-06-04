@@ -618,6 +618,8 @@ def create_reminder(journal=None, reminder_type=None):
     )
     setting_handler.save_setting("email", reminder.template_name, journal, "Test body")
 
+    return reminder
+
 
 def submit_review(client, assignment, form_element, journal):
     return client.post(
@@ -632,8 +634,6 @@ def submit_review(client, assignment, form_element, journal):
         },
         SERVER_NAME=journal.domain,
     )
-
-    return reminder
 
 
 def create_editor_assignment(article, editor, **kwargs):
