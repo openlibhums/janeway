@@ -358,6 +358,21 @@ button.skip-to-content {
     line-height: 1;
 }
 
+/* Materialize (material theme) centres nav-item content via the navbar
+   line-height rather than flex, and floats each li to the top of the bar.
+   Scoped to its desktop nav list (hide-on-med-and-down is a Materialize
+   helper class), let the host li join that line box so the summary centres
+   vertically in navbars of any height. */
+nav .hide-on-med-and-down li.a11y-toggle-host {
+    display: list-item;
+    line-height: inherit;
+}
+
+nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
+    line-height: inherit;
+    vertical-align: middle;
+}
+
 .a11y-toggle-host .a11y-toggle-summary {
     display: inline-flex;
     align-items: center;
@@ -385,6 +400,12 @@ button.skip-to-content {
 }
 
 .a11y-toggle-host .a11y-toggle-summary .fa {
+    /* Materialize's `nav i` rule sets display: block and a 64px height and
+       line-height, which pushes the icon out of the 36px summary box on the
+       material theme's desktop nav. Pin the icon's box here so the control
+       renders the same on every theme. */
+    display: inline-block;
+    height: auto;
     font-size: 1.25rem;
     line-height: 1;
 }
@@ -656,6 +677,18 @@ button.skip-to-content {
 .skip-to-content-form button.skip-to-content {
     position: static;
     left: auto;
+}
+
+/* The skip-row toggle combines the shared pill (.skip-to-content) with the
+   switch control (.a11y-switch). Reconcile the two where they conflict: the
+   pill's inline-block would break the track layout, the switch base sets
+   width: 100%, and a switch with a sliding track should not read as a link. */
+button.skip-to-content.a11y-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: auto;
+    text-decoration: none;
 }
 
 a.twitter-x{
