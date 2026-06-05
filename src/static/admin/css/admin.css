@@ -1212,6 +1212,8 @@ ul.menu {
   padding: 2rem;
   text-align: center;
   color: #888;
+}
+
 .custom-radio-group {
     display: flex;
     flex-direction: column;
