@@ -60,7 +60,7 @@ class TestAccount(TestCase):
             "last_name": "Eve",
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.username, email.lower())
+        self.assertEqual(obj.username, email.lower())
 
     def test_username_normalised_quick_form(self):
         email = "QUICK@test.com"
@@ -74,7 +74,7 @@ class TestAccount(TestCase):
         }
         form = forms.QuickUserForm(data=data)
         acc = form.save()
-        self.assertEquals(acc.username, email.lower())
+        self.assertEqual(acc.username, email.lower())
 
     def test_email_normalised(self):
         email = "TEST@TEST.com"
@@ -83,7 +83,7 @@ class TestAccount(TestCase):
             "email": email,
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.email, expected)
+        self.assertEqual(obj.email, expected)
 
     def test_no_duplicates(self):
         email_a = "TEST@TEST.com"
@@ -205,7 +205,11 @@ class TestAccount(TestCase):
         )
         self.assertEqual("Sky", author.full_name())
 
-    def test_snapshot_as_author_first_time(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_first_time(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -220,7 +224,11 @@ class TestAccount(TestCase):
             "Bob",
         )
 
-    def test_snapshot_as_author_second_time_with_force_update(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_second_time_with_force_update(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -241,7 +249,11 @@ class TestAccount(TestCase):
             "Robert",
         )
 
-    def test_snapshot_as_author_second_time_without_force_update(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_second_time_without_force_update(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -262,7 +274,44 @@ class TestAccount(TestCase):
             "Bob",
         )
 
-    def test_credits(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_affiliations(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
+        account = helpers.create_user(
+            "zg76jqnz0fdlgbrgtrxk@example.org",
+        )
+        organization = models.Organization.objects.create(ror_id="02mb95055")
+        models.ControlledAffiliation.objects.create(
+            account=account,
+            title="Professor",
+            organization=organization,
+            start=date.fromisoformat("2018-01-01"),
+        )
+        frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
+            author=account,
+            article=self.article_one,
+        )
+        account.snapshot_affiliations(frozen_author)
+        self.assertEqual(
+            account.primary_affiliation().organization,
+            frozen_author.primary_affiliation().organization,
+        )
+        self.assertEqual(
+            account.primary_affiliation().title,
+            frozen_author.primary_affiliation().title,
+        )
+        self.assertEqual(
+            account.primary_affiliation().start,
+            frozen_author.primary_affiliation().start,
+        )
+
+    @patch("utils.logic.get_current_request")
+    def test_credits(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         account = helpers.create_author(self.journal_one)
         author = account.snapshot_as_author(self.article_one)
         author.add_credit("conceptualization")

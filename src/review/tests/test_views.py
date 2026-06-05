@@ -1,3 +1,9 @@
+__copyright__ = "Copyright 2017 Birkbeck, University of London"
+__author__ = "Martin Paul Eve & Andy Byers"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+import datetime
 import os
 
 from django.core import mail
@@ -19,6 +25,7 @@ from utils import setting_handler
 from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
+from review.const import ReviewerDecisions as RD
 
 
 # Create your tests here.
@@ -71,7 +78,7 @@ class ReviewTests(TestCase):
             "visibility": "double-blind",
             "form": self.review_form.pk,
             "date_due": "2900-01-01",
-            "reviewer": self.second_reviewer.pk,
+            "reviewer": self.reviewer.pk,
         }
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
@@ -91,13 +98,14 @@ class ReviewTests(TestCase):
             "date_due": "2900-01-01",
             "reviewer": self.regular_user.pk,
         }
+        reviewers = logic.get_reviewer_candidates(
+            self.article_under_review, self.editor
+        )
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
             article=self.article_under_review,
             editor=self.editor,
-            reviewers=logic.get_reviewer_candidates(
-                self.article_under_review, self.editor
-            ),
+            reviewers=reviewers,
             data=data,
         )
         self.assertFalse(form.is_valid())
@@ -486,7 +494,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             404,
         )
@@ -503,7 +511,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             200,
         )
@@ -516,13 +524,29 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             403,
         )
 
         # finally, delete the file from disk
         files.delete_file(article_with_completed_reviews, file)
+
+    def test_withdrawing_review_assignment(self):
+        review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+            )
+        )
+        review_to_withdraw.withdraw()
+        self.assertTrue(
+            review_to_withdraw.decision,
+            RD.DECISION_WITHDRAWN.value,
+        )
 
     def setup_request_object(self):
         request = helpers.Request()
@@ -618,6 +642,11 @@ class ReviewTests(TestCase):
         )
         self.editor.is_active = True
         self.editor.save()
+        self.reviewer = self.create_user(
+            "revieweruser@email.com", ["reviewer"], journal=self.journal_one
+        )
+        self.reviewer.is_active = True
+        self.reviewer.save()
 
         self.author = self.create_user(
             "authoruser@martineve.com", ["author"], journal=self.journal_one
@@ -836,10 +865,11 @@ class ReviewTests(TestCase):
                 review_round=self.round_two,
                 reviewer=self.second_reviewer,
                 editor=self.editor,
-                date_due=timezone.now(),
+                date_due=datetime.datetime.now(),
                 form=self.review_form,
                 is_complete=True,
                 decision="withdrawn",
+                date_complete=timezone.now(),
             )
         )
 
@@ -853,6 +883,16 @@ class ReviewTests(TestCase):
                 date_declined=timezone.now(),
                 form=self.review_form,
                 is_complete=False,
+            )
+        )
+
+        self.review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
             )
         )
 
@@ -1037,28 +1077,75 @@ class ReviewTests(TestCase):
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
 
-    def test_request_revisions_context(self):
-        self.client.force_login(self.editor)
+    def test_open_review_name_and_review_id_visibility(self):
+        """
+        Open reviews show the reviewer's name to the author (keyed off
+        review.visibility == 'open' in the template) while double-blind
+        reviews keep it hidden, and reviewers can see the ID of their own
+        review, the same ID that is visible to authors.
+        """
+        self.second_user.first_name = "Jane"
+        self.second_user.last_name = "Reviewer"
+        self.second_user.save()
+
+        self.client.force_login(self.author)
+        for visibility, name_visible in (("open", True), ("double-blind", False)):
+            article = helpers.create_article(
+                self.journal_one,
+                **{
+                    "owner": self.author,
+                    "title": "{} Review Article".format(visibility),
+                    "stage": submission_models.STAGE_UNDER_REVIEW,
+                },
+            )
+            self.author.snapshot_as_author(article)
+            review_round, _ = review_models.ReviewRound.objects.get_or_create(
+                article=article, round_number=1
+            )
+            review_models.ReviewAssignment.objects.create(
+                article=article,
+                review_round=review_round,
+                reviewer=self.second_user,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+                is_complete=True,
+                date_complete=timezone.now(),
+                decision="accept",
+                for_author_consumption=True,
+                visibility=visibility,
+            )
+            response = self.client.get(
+                reverse("review_author_view", kwargs={"article_id": article.pk}),
+                SERVER_NAME=self.journal_one.domain,
+            )
+            if name_visible:
+                self.assertContains(
+                    response,
+                    self.second_user.full_name(),
+                    msg_prefix="Open review should display reviewer name to author",
+                )
+            else:
+                self.assertNotContains(
+                    response,
+                    self.second_user.full_name(),
+                    msg_prefix="Double-blind review must not display reviewer name to author",
+                )
+
+        self.client.force_login(self.second_user)
         response = self.client.get(
-            reverse(
-                "review_request_revisions",
-                kwargs={"article_id": self.article_review_completed.pk},
-            ),
+            reverse("do_review", kwargs={"assignment_id": self.review_assignment.pk}),
             SERVER_NAME=self.journal_one.domain,
         )
-        response.context.get("incomplete")
-        self.assertEqual(
-            self.article_review_completed,
-            response.context.get("article"),
+        self.assertContains(
+            response,
+            "Review ID",
+            msg_prefix="Reviewer should see their review ID on the review form",
         )
-        # This test does not cover the revision request form
-        self.assertEqual(
-            0,
-            response.context.get("pending_approval").count(),
-        )
-        self.assertEqual(
-            0,
-            response.context.get("incomplete").count(),
+        self.assertContains(
+            response,
+            str(self.review_assignment.pk),
+            msg_prefix="Reviewer should see the correct review ID on the review form",
         )
 
     # assignment_notification tests
@@ -1251,6 +1338,79 @@ class ReviewTests(TestCase):
                 SERVER_NAME=self.journal_one.domain,
             )
         self.assertEqual(response.status_code, 200)
+
+
+class DefaultReviewVisibleToAuthorTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.reviewer = helpers.create_second_user(cls.journal_one)
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.review_form = helpers.create_review_form(cls.journal_one)
+        cls.form_element = review_models.ReviewFormElement.objects.create(
+            name="Review",
+            kind="textarea",
+            required=True,
+            order=1,
+        )
+        cls.review_form.elements.add(cls.form_element)
+
+    def make_assignment(self):
+        article = helpers.create_article(self.journal_one)
+        article.stage = submission_models.STAGE_UNDER_REVIEW
+        article.save()
+        review_round = helpers.create_round(article)
+        return helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article,
+            reviewer=self.reviewer,
+            editor=self.editor,
+            review_form=self.review_form,
+            review_round=review_round,
+            is_complete=False,
+            decision=None,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_setting_enabled_marks_review_visible(self):
+        assignment = self.make_assignment()
+        self.client.force_login(self.reviewer)
+        with janeway_setting_override(
+            "general",
+            "default_review_visible_to_author",
+            journal=self.journal_one,
+            value="on",
+        ):
+            helpers.submit_review(
+                self.client,
+                assignment,
+                self.form_element,
+                self.journal_one,
+            )
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.is_complete)
+        self.assertTrue(assignment.for_author_consumption)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_setting_disabled_leaves_review_hidden(self):
+        assignment = self.make_assignment()
+        self.client.force_login(self.reviewer)
+        with janeway_setting_override(
+            "general",
+            "default_review_visible_to_author",
+            journal=self.journal_one,
+            value="",
+        ):
+            helpers.submit_review(
+                self.client,
+                assignment,
+                self.form_element,
+                self.journal_one,
+            )
+        assignment.refresh_from_db()
+        self.assertTrue(assignment.is_complete)
+        self.assertFalse(assignment.for_author_consumption)
 
 
 class InReviewActionsTests(TestCase):

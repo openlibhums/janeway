@@ -11,6 +11,8 @@ from django.test.client import RequestFactory
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
+from django.template.loader import get_template
+from django.utils import timezone
 
 from core import models as core_models
 from core import middleware as core_middleware
@@ -1229,3 +1231,205 @@ class AccessibilityModePersistenceTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        ror_svg_template = get_template("common/svg/ror-mono.svg")
+        cls.ror_svg = ror_svg_template.render({})
+
+    def test_all_custom(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        org = core_models.Organization.objects.create()
+        core_models.OrganizationName(
+            value="Birkbeck",
+            custom_label_for=org,
+        )
+        country, _ = core_models.Country.objects.get_or_create(
+            code="GB",
+            defaults={"name": "United Kingdom"},
+        )
+        location, _ = core_models.Location.objects.get_or_create(
+            name="London",
+            country=country,
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+            title="Reader",
+            department="English",
+            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
+            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+          <li>Reader</li>
+          <li>English</li>
+          <li itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+              <span itemprop="name">
+                  <span>Birkbeck</span>
+              </span>
+          </li>
+          <li>London, United Kingdom</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_title(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        context = {
+            "affiliation": core_models.ControlledAffiliation.objects.create(
+                account=self.user,
+                title="Reader",
+            ),
+        }
+        expected = """
+          <li>Reader</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_department(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        context = {
+            "affiliation": core_models.ControlledAffiliation.objects.create(
+                account=self.user,
+                department="English",
+            ),
+        }
+        expected = """
+          <li>English</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_controlled_org(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        org, _ = core_models.Organization.objects.get_or_create(
+            ror_id="02mb95055",
+        )
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = f"""
+          <li itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+            <span itemprop="name">
+              <span>Birkbeck, University of London</span>
+            </span>
+            <a href="https://ror.org/02mb95055" itemprop="url" target="_blank">
+              <span class="sr-only show-for-sr">
+                View ROR record for Birkbeck, University of London.
+              </span>
+              <span class="show-for-sr sr-only">(opens in new tab)</span>
+              {self.ror_svg}
+            </a>
+          </li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_custom_org(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        org = core_models.Organization.objects.create()
+        core_models.OrganizationName(
+            value="Birkbeck",
+            custom_label_for=org,
+        )
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+          <li itemprop="worksFor" itemscope itemtype="http://schema.org/CollegeOrUniversity">
+            <span itemprop="name">
+              <span>Birkbeck</span>
+            </span>
+          </li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_location_city(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        org = core_models.Organization.objects.create()
+        location, _ = core_models.Location.objects.get_or_create(
+            name="London",
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+          <li>London</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_location_country(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        org = core_models.Organization.objects.create()
+        country, _ = core_models.Country.objects.get_or_create(
+            code="GB",
+            defaults={"name": "United Kingdom"},
+        )
+        location, _ = core_models.Location.objects.get_or_create(
+            country=country,
+        )
+        org.locations.add(location)
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            organization=org,
+        )
+        context = {
+            "affiliation": affil,
+        }
+        expected = """
+          <li>United Kingdom</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_start(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            title="Independent scholar",
+            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+            "include_dates": True,
+        }
+        expected = """
+          <li>Independent scholar</li>
+          <li>May 2010&ndash;</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))
+
+    def test_end(self):
+        template = get_template("common/elements/affiliation_inner_li_details.html")
+        affil = core_models.ControlledAffiliation.objects.create(
+            account=self.user,
+            title="Independent scholar",
+            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+        )
+        context = {
+            "affiliation": affil,
+            "include_dates": True,
+        }
+        expected = """
+          <li>Independent scholar</li>
+          <li>&ndash;Oct 2016</li>
+        """
+        self.assertHTMLEqual(expected, template.render(context))

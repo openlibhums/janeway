@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0110_alttext"),
+        ("core", "0111_merge_20260603_2206"),
     ]
 
     operations = [

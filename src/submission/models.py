@@ -1053,7 +1053,12 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def jats_article_type(self):
-        return self.jats_article_type_override or self.section.jats_article_type
+        if self.jats_article_type_override:
+            return self.jats_article_type_override
+        elif self.section:
+            return self.section.jats_article_type
+        else:
+            return None
 
     license = models.ForeignKey(
         "Licence", blank=True, null=True, on_delete=models.SET_NULL
@@ -1458,25 +1463,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def carousel_subtitle(self):
-        carousel_text = ""
-
-        idx = 0
-
-        for author in self.frozenauthor_set.all():
-            if idx > 0:
-                idx = 1
-                carousel_text += ", "
-
-            if author.institution:
-                carousel_text += author.full_name() + " ({0})".format(
-                    author.institution
-                )
-            else:
-                carousel_text += author.full_name()
-
-            idx = 1
-
-        return carousel_text
+        return self.author_list
 
     @property
     def carousel_title(self):
@@ -2179,7 +2166,7 @@ class Article(AbstractLastModifiedModel):
         :param article: (deprecated) should not pass this argument
         :param force_update: (bool) Whether or not to update existing records
         """
-        raise DeprecationWarning("Use FrozenAuthor directly instead.")
+        warnings.warn("Use FrozenAuthor directly instead.")
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=self, author__id=models.OuterRef("id")
@@ -2299,7 +2286,7 @@ class Article(AbstractLastModifiedModel):
             os.unlink(path)
 
     def next_author_sort(self):
-        raise DeprecationWarning("Use FrozenAuthor instead.")
+        warnings.warn("Use FrozenAuthor instead.")
         current_orders = [
             order.order for order in ArticleAuthorOrder.objects.filter(article=self)
         ]
@@ -3406,19 +3393,13 @@ class SubmissionConfiguration(models.Model):
 @receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
     """
+    This signal is triggered before a FrozenAuthor is deleted.
     This signal will remove an author from a paper if the user deletes the
     frozen author record to ensure they are in sync.
     :param sender: FrozenAuthor class
     :param instance: FrozenAuthor instance
     :return: None
     """
-    if (not instance.article.authors.exists()) and (
-        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
-    ):
-        # Return early so long as deprecated models and fields are not being used.
-        # This avoids triggering the deprecation warning in development.
-        return
-    raise DeprecationWarning("Authorship is now exclusively handled via FrozenAuthor.")
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,
@@ -3434,7 +3415,8 @@ def remove_author_from_article(sender, instance, **kwargs):
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
-    instance.article.authors.remove(instance.author)
+    if instance.article and instance.author in instance.article.authors.all():
+        instance.article.authors.remove(instance.author)
 
 
 def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -3462,22 +3444,28 @@ def backwards_compat_authors(
     sender, instance, action, reverse, model, pk_set, **kwargs
 ):
     """A signal to make the Article.authors backwards compatible
+    This signal is triggered when the Article-Account many-to-many table changes.
     As part of #4755, the dependency of Article on Account for author linking
     was removed. This signal is a backwards compatibility measure to ensure
     FrozenAuthor records are being updated correctly.
     """
-    accounts = core_models.Account.objects.filter(pk__in=pk_set)
     if action == "post_add":
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=instance, author__id=models.OuterRef("id")
             ).values_list("order")
         )
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
         accounts = accounts.annotate(order=subq).order_by("order")
         for account in accounts:
             account.snapshot_as_author(instance)
-    if action in ["post_remove", "post_clear"]:
-        instance.frozen_authors.filter(author__in=pk_set).delete()
+
+    if action == "post_remove":
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
+        instance.frozen_authors().filter(author__in=pk_set).delete()
+
+    if action == "post_clear":
+        instance.frozen_authors().delete()
 
 
 m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)

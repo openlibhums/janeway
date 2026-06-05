@@ -667,7 +667,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if `use_crossref` if off.",
+            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if \"use_crossref\" is off.",
             "is_translatable": false,
             "name": "register_doi_at_acceptance",
             "pretty_name": "Register DOI at acceptance",
@@ -4027,6 +4027,25 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, completed reviews will default to being visible to authors. Editors can still override visibility on individual reviews.",
+            "is_translatable": false,
+            "name": "default_review_visible_to_author",
+            "pretty_name": "Default Review Visible to Author",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "news"
         },
         "setting": {
@@ -5338,19 +5357,6 @@
     }
   },
   {
-    "value": {"default": "Production Complete"},
-    "setting": {
-        "type": "char",
-        "pretty_name": "Production Complete",
-        "is_translatable": true,
-        "description": "Subject for Email sent to Editors when Production is Complete.",
-        "name": "subject_production_complete"
-    },
-    "group": {
-        "name": "email_subject"
-    }
-  },
-  {
     "group": {
         "name": "email"
     },
@@ -5629,6 +5635,63 @@
         },
         "value": {
             "default": "Decision on Your Submission "
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include job titles?",
+            "is_translatable": false,
+            "name": "author_job_title",
+            "pretty_name": "Author Job Title",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include department names?",
+            "is_translatable": false,
+            "name": "author_department",
+            "pretty_name": "Author Department",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include start and end dates?",
+            "is_translatable": false,
+            "name": "author_affiliation_dates",
+            "pretty_name": "Author Affiliation Dates",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
         },
         "editable_by": [
             "editor",

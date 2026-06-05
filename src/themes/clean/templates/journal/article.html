@@ -135,28 +135,24 @@
                 {% endif %}
 
                 {% if article.is_published or proofing %}
-                    {% include "elements/journal/share.html" %}
-                    <h2>{% trans "Files" %}</h2>
+                  {% include "elements/journal/share.html" %}
+                {% endif %}
+                <h2>Author details</h2>
+                {% include "elements/journal/article_authors_full.html" %}
+                {% if article.is_published or proofing %}
+                    <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}
                         <ul>
                             {% for galley in galleys %}
                                 {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
-                                    
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            &nbsp;
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
-                                                    {% trans "View" %} {{ galley.label }}
-                                                    {% include "elements/icons/link_new_tab.html" %}
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                        <li>
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                                {{ galley.label }}
-                                                {% include "elements/icons/link_download.html" %}
-                                            </a>
+                                <li>
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                         </li>
+                                        <li>
+                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                    {% endif %}
+                                </li>
                                 {% endif %}
                             {% endfor %}
                         </ul>
@@ -169,6 +165,7 @@
                     {% else %}
                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                     {% endif %}
+                    {% include "elements/journal/share.html" %}
                 {% endif %}
                 {% if article.supplementary_files.all %}
                     <h3>{% trans "Supplementary Files" %}</h3>

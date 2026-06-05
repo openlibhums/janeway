@@ -34,7 +34,7 @@ def add_user_as_author(user, article, give_role=True):
     :param article: An instance of submission.models.Article
     :param give_role: If true, the user is given the author role in the journal
     """
-    raise DeprecationWarning("Use FrozenAuthor instead.")
+    warnings.warn("Use FrozenAuthor instead.")
     if give_role:
         submission_requires_authorisation = article.journal.get_setting(
             group_name="general",
@@ -166,7 +166,7 @@ def add_keywords(soup, article):
 
 
 def import_from_jats_xml(path, journal, first_author_is_primary=False):
-    raise DeprecationWarning("Use the JATS importer in the imports plugin instead.")
+    warnings.warn("Use the JATS importer in the imports plugin instead.")
     with open(path) as file:
         soup = BeautifulSoup(file, "lxml-xml")
         title = get_text(soup, "article-title")
@@ -309,7 +309,7 @@ def order_fields(request, fields):
 
 
 def save_author_order(request, article):
-    raise DeprecationWarning("Use save_frozen_author_order instead.")
+    warnings.warn("Use save_frozen_author_order instead.")
     author_pks = [int(pk) for pk in request.POST.getlist("authors[]")]
     for author in article.authors.all():
         order = author_pks.index(author.pk)
@@ -460,6 +460,7 @@ def add_author_affiliation_from_orcid(author, orcid_details, request):
             orcid_affiliation=orcid_affils[0],
             tzinfo=tzinfo,
             data={"frozen_author": author},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             affiliation = orcid_affil_form.save()
@@ -638,3 +639,26 @@ def remove_credit_role(request, article):
         },
     )
     return author
+
+
+def get_current_authors(article, request):
+    authors = []
+    for author, credits in article.authors_and_credits().items():
+        # Prepare CREDiT form
+        credit_form = get_credit_form(request, author)
+
+        # Detected unlinked accounts
+        unlinked_account = None
+        if author.email and not author.author:
+            try:
+                unlinked_account = core_models.Account.objects.get(
+                    email__iexact=author.email,
+                    accountrole__role__slug="author",
+                )
+            except (
+                core_models.Account.DoesNotExist,
+                core_models.Account.MultipleObjectsReturned,
+            ):
+                pass
+        authors.append((author, credits, credit_form, unlinked_account))
+    return authors
