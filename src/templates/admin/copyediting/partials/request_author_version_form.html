@@ -1,0 +1,49 @@
+{% extends "admin/core/partials/modal.html" %}
+{% load i18n %}
+
+{% block modal_id %}request-author-version-modal{% endblock modal_id %}
+
+{% block modal_title %}
+  {% trans "Request Author Version" %}
+{% endblock %}
+
+{% block modal_description %}
+  {% if author %}
+    {% blocktrans trimmed with author_name=author.full_name %}
+      Select the files you would like {{ author_name }} to replace with a new
+      version. A completed copyedit assignment and an author review task will
+      be created, and you can edit the notification email on the next page.
+    {% endblocktrans %}
+  {% else %}
+    {% blocktrans trimmed %}
+      This article does not have a correspondence author, so an author
+      version cannot be requested.
+    {% endblocktrans %}
+  {% endif %}
+{% endblock modal_description %}
+
+{% block modal_content %}
+  {% if author %}
+    <form
+        method="post"
+        hx-post="{% url 'copyedit_request_author_version' article.pk %}"
+        hx-target="#request-author-version-modal"
+        hx-swap="outerHTML"
+        hx-indicator="#request-author-version-spinner"
+    >
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% include "admin/elements/forms/field.html" with field=form.files %}
+      <div class="form-actions">
+        <button type="submit" class="success button">
+          <i class="fa fa-envelope-o">&nbsp;</i>{% trans "Create and Notify Author" %}
+        </button>
+        <i
+            id="request-author-version-spinner"
+            class="fa fa-circle-o-notch fa-spin"
+            style="display: none;"
+        ></i>
+      </div>
+    </form>
+  {% endif %}
+{% endblock %}
