@@ -327,12 +327,15 @@ button.skip-to-content {
 }
 
 /* Reveal the skip link and the accessibility toggle together and side by
-   side, so moving focus between them never changes the layout height. */
+   side, so moving focus between them never changes the layout height.
+   Both controls become flex items in the .skip-container row, rather than
+   absolutely positioned off-screen, so they sit neatly beside each other. */
 .skip-container:focus-within .skip-to-content,
 .skip-container:focus-within .skip-to-nav,
 .skip-container:focus-within .skip-to-content-form {
-    position: relative;
-    left: 0;
+    position: static;
+    left: auto;
+    flex: 0 0 auto;
     margin-block-start: 10px;
     margin-block-end: 10px;
 }
