@@ -293,7 +293,16 @@ def user_logout(request):
     :return: HttpResponse object
     """
     messages.info(request, _("You have been logged out."))
+    # Capture the account preference before logout() flushes the session, then
+    # re-seed it so accessibility mode is sticky across logout: an account with
+    # the mode on stays on; off leaves no session key and so stays off.
+    accessibility_mode = bool(
+        request.user.is_authenticated
+        and getattr(request.user, "accessibility_mode", False)
+    )
     logout(request)
+    if accessibility_mode:
+        request.session["accessibility_mode"] = True
     return redirect(reverse("website_index"))
 
 

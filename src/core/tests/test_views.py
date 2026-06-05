@@ -1100,3 +1100,132 @@ class AccessibilityModeToggleViewTests(TestCase):
         self.user.refresh_from_db()
         self.assertFalse(self.user.accessibility_mode)
         self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+@override_settings(URL_CONFIG="domain")
+class AccessibilityModePersistenceTests(TestCase):
+    """Login and logout persistence for the accessibility-mode preference.
+
+    These cover the truth tables agreed in review of PR #5314: on login the
+    anonymous session preference wins only when the visitor explicitly toggled
+    (key present), otherwise the account value stands; on logout the mode is
+    sticky and reflects the account's saved value.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_persist@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    def seed_anonymous_session(self, value):
+        """Seed the anonymous session flag.
+
+        ``None`` leaves the session untouched (no key, i.e. the visitor never
+        toggled); ``True``/``False`` records an explicit anonymous choice.
+        """
+        if value is None:
+            return
+        session = self.client.session
+        session["accessibility_mode"] = value
+        session.save()
+
+    def login_after(self, anonymous, account):
+        """Apply an anonymous session state and account flag, then log in."""
+        self.user.accessibility_mode = account
+        self.user.save()
+        self.seed_anonymous_session(anonymous)
+        self.assertTrue(
+            self.client.login(
+                username=self.user_email,
+                password=self.user_password,
+            )
+        )
+        self.user.refresh_from_db()
+
+    def assertLoginResult(self, anonymous, account, expected_account):
+        self.login_after(anonymous=anonymous, account=account)
+        self.assertEqual(self.user.accessibility_mode, expected_account)
+        # The session flag is always cleared so it can never shadow the
+        # account preference on later requests.
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+    def test_login_row_1_untouched_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_2_untouched_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_3_explicit_on_account_off_writes_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=False,
+            expected_account=True,
+        )
+
+    def test_login_row_4_explicit_on_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_5_explicit_off_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=False,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_6_explicit_off_account_on_writes_off(self):
+        # The key fix: an explicit anonymous off disables a previously enabled
+        # account preference, rather than being indistinguishable from
+        # "untouched" and leaving the account on.
+        self.assertLoginResult(
+            anonymous=False,
+            account=True,
+            expected_account=False,
+        )
+
+    def test_logout_row_1_account_on_stays_on(self):
+        self.user.accessibility_mode = True
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Logout flushes the session; the account value is re-seeded so the
+        # mode is sticky for the now-anonymous visitor.
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+    def test_logout_row_2_account_off_stays_off(self):
+        self.user.accessibility_mode = False
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
