@@ -675,6 +675,15 @@ def create_copyedit_assignment(article, copyeditor, **kwargs):
     return assignment
 
 
+def create_author_review(assignment, author, **kwargs):
+    review = copyediting_models.AuthorReview.objects.create(
+        assignment=assignment,
+        author=author,
+        **kwargs,
+    )
+    return review
+
+
 def create_access_request(journal, user, role, **kwargs):
     role = core_models.Role.objects.get(slug=role)
     access_request, created = core_models.AccessRequest.objects.get_or_create(
