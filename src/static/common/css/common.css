@@ -538,6 +538,109 @@ button.skip-to-content {
     color: inherit;
 }
 
+.a11y-switch {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.625rem 1rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.95rem;
+    height: auto;
+    min-height: 0;
+    line-height: 1.4;
+    vertical-align: middle;
+    text-align: left;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.a11y-switch:hover,
+.a11y-switch:focus,
+.a11y-switch:focus-visible {
+    background: #f0f0f0;
+    color: #1a1a1a;
+    outline: 2px solid #1a1a1a;
+    outline-offset: -2px;
+}
+
+.a11y-mobile-button.a11y-switch {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0.5rem 1rem;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.dropdown-menu .a11y-mobile-button.a11y-switch {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.sidenav .a11y-mobile-button.a11y-switch {
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+.a11y-switch-label {
+    flex: 1 1 auto;
+    white-space: nowrap;
+}
+
+.a11y-switch-track {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    background: transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.a11y-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    transition: left 0.15s ease;
+}
+
+.a11y-switch[aria-checked="true"] .a11y-switch-track,
+.a11y-switch--on .a11y-switch-track {
+    background: #1a7a3c;
+    border-color: #1a7a3c;
+}
+
+.a11y-switch[aria-checked="true"] .a11y-switch-thumb,
+.a11y-switch--on .a11y-switch-thumb {
+    left: 22px;
+    background: #ffffff;
+}
+
+.a11y-switch-state {
+    flex: 0 0 auto;
+    min-width: 1.75rem;
+    text-align: right;
+    font-weight: bold;
+}
+
 .skip-to-content-form {
     position: absolute;
     left: -999px;

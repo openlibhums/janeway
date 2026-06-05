@@ -1,10 +1,5 @@
 {% load i18n %}
 {% if journal_settings.general.accessibility_mode or not request.journal %}
-{% if accessibility_mode_active %}
-  {% trans 'Accessibility mode: On' as a11y_toggle_label %}
-{% else %}
-  {% trans 'Accessibility mode: Off' as a11y_toggle_label %}
-{% endif %}
 <details class="a11y-toggle-dropdown{% if accessibility_mode_active %} a11y-toggle-dropdown--on{% endif %}">
   <summary class="a11y-toggle-summary">
     <span class="a11y-toggle-icon" aria-hidden="true">
@@ -25,9 +20,16 @@
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
-                class="a11y-toggle-button{% if accessibility_mode_active %} a11y-toggle-button--on{% endif %}"
-                aria-pressed="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
-          {{ a11y_toggle_label }}
+                class="a11y-switch{% if accessibility_mode_active %} a11y-switch--on{% endif %}"
+                role="switch"
+                aria-checked="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
+          <span class="a11y-switch-label">{% trans 'Accessibility mode' %}</span>
+          <span class="a11y-switch-track" aria-hidden="true">
+            <span class="a11y-switch-thumb"></span>
+          </span>
+          <span class="a11y-switch-state" aria-hidden="true">
+            {% if accessibility_mode_active %}{% trans 'On' %}{% else %}{% trans 'Off' %}{% endif %}
+          </span>
         </button>
       </form>
     </li>
