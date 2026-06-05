@@ -972,6 +972,10 @@ class AccessibilityModeToggleViewTests(TestCase):
 
     def setUp(self):
         clear_script_prefix()
+        # accessibility_mode_active reads journal settings through
+        # function_cache, which uses the Django cache. Clear it so stale
+        # values left by earlier test classes cannot shadow the database.
+        django_cache.clear()
         self.client = Client()
 
     @override_settings(URL_CONFIG="domain")

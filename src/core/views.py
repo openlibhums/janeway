@@ -2672,8 +2672,14 @@ def toggle_accessibility_mode(request):
         # flag alone: an anonymous preference carried in the session can make
         # the mode read as active while the account flag is still False.
         # Toggling the account flag in isolation would then enable it instead
-        # of disabling it, leaving the mode impossible to turn off.
-        current = logic.accessibility_mode_active(request)
+        # of disabling it, leaving the mode impossible to turn off. Read both
+        # sources directly rather than via logic.accessibility_mode_active,
+        # whose journal-setting consult is served from a cache that may lag
+        # the database; the journal setting has already been checked,
+        # uncached, above.
+        current = bool(request.user.accessibility_mode) or bool(
+            request.session.get("accessibility_mode")
+        )
         request.user.accessibility_mode = not current
         request.user.save(update_fields=["accessibility_mode"])
         # Drop any stale anonymous session flag so it cannot shadow the
