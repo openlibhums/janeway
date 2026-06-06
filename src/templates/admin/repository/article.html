@@ -37,7 +37,7 @@
                         <th>Type</th>
                     </tr>
                     <tr>
-                        <td>{{ preprint.owner.full_name }}</td>
+                        <td>{{ preprint.owner.full_name }} ({{ preprint.owner.email }})</td>
                         <td>{{ preprint.license.short_name }}</td>
                         <td>{{ preprint.submission_type.name|default:"No submission type set" }}</td>
                     </tr>
@@ -89,15 +89,15 @@
                         <th colspan="4">Comments to Editor</th>
                     </tr>
                     <tr>
-                        <td colspan="4">{% if preprint.comments_editor %}{{ preprint.comments_editor }}{% else %}No
+                        <td colspan="3">{% if preprint.comments_editor %}{{ preprint.comments_editor }}{% else %}No
                             comments{% endif %}</td>
                     </tr>
                     {% for field_answer in preprint.additional_field_answers %}
                         <tr>
-                            <th colspan="4">{{ field_answer.field.name }}</th>
+                            <th colspan="3">{{ field_answer.field.name }}</th>
                         </tr>
                         <tr>
-                            <td colspan="4">{{ field_answer.answer }}</td>
+                            <td colspan="3">{{ field_answer.answer }}</td>
                         </tr>
                     {% endfor %}
                 </table>
