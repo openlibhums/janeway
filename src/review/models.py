@@ -691,6 +691,14 @@ class DecisionDraft(models.Model):
         help_text="Provide the section editor with a rationale for declining their drafted decision.",
         verbose_name="Rationale for Declining Draft Decision",
     )
+    editor_note = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Note to Author",
+        help_text="This note is shown to the author on the revision page, "
+                  "above the reviews, and is inserted into the decision email. "
+                  "Required when requesting revisions.",
+    )
 
     def __str__(self):
         return "{0}: {1}".format(self.article.title,

@@ -54,6 +54,10 @@
                         {{ form.revision_request_due_date|foundation }}
                     </div>
 
+                    <div id="div_editor_note" style="display: none">
+                        {{ form.editor_note|foundation }}
+                    </div>
+
                     {% if draft %}<div style="display: none">{% endif %}
                     {{ form.message_to_editor|foundation }}
                     {% if draft %}</div>{% endif %}

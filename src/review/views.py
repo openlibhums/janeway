@@ -2385,7 +2385,7 @@ def draft_decision_text(request, article_id):
             type=decision,
             date_requested=timezone.now,
             date_due=date.strftime("%Y-%m-%d"),
-            editor_note="[[Add Editor Note Here]]",
+            editor_note="{{ revision.editor_note }}",
         )
         decision_text = logic.get_revision_request_content(
             request=request,

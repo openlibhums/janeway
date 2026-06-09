@@ -481,7 +481,7 @@ def handle_decision_action(article, draft, request):
         revision = models.RevisionRequest.objects.create(
             article=article,
             editor=draft.section_editor,
-            editor_note='',
+            editor_note=request.POST.get('editor_note') or draft.editor_note or '',
             type=draft.decision,
             date_due=draft.revision_request_due_date
         )
@@ -494,7 +494,7 @@ def handle_decision_action(article, draft, request):
         ))
         revision_rendered_template = render_template.get_message_content(
             request,
-            {'do_revisions_url': do_revisions_url},
+            {'do_revisions_url': do_revisions_url, 'revision': revision},
             user_message,
             template_is_setting=True,
         )

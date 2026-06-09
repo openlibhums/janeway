@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+from datetime import timedelta
+from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
@@ -865,3 +867,136 @@ class ReviewTests(TestCase):
             0,
             response.context.get('incomplete').count(),
         )
+
+
+@override_settings(URL_CONFIG='domain')
+class TestDraftDecisionEditorNote(TestCase):
+    """Covers the editor note captured on a draft revision decision, held as a
+    placeholder until the editor approves, then propagated to the
+    RevisionRequest and resolved into the author email."""
+
+    @classmethod
+    def setUpTestData(cls):
+        update_settings()
+        update_xsl_files()
+        helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(['editor', 'section-editor', 'author'])
+
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.section_editor = helpers.create_section_editor(cls.journal_one)
+
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            with_author=True,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.author = cls.article.owner
+        cls.article.correspondence_author = cls.author
+        cls.article.save()
+        helpers.create_editor_assignment(cls.article, cls.editor)
+
+    def make_form_data(self, decision, editor_note=''):
+        return {
+            'decision': decision,
+            'editor': self.editor.pk,
+            'revision_request_due_date': (
+                timezone.now() + timedelta(days=14)
+            ).strftime('%Y-%m-%d'),
+            'message_to_editor': 'Editor, please review this draft.',
+            'email_message': 'Dear author,',
+            'editor_note': editor_note,
+        }
+
+    def build_form(self, decision, editor_note=''):
+        return forms.DraftDecisionForm(
+            data=self.make_form_data(decision, editor_note=editor_note),
+            editors=core_models.Account.objects.filter(pk=self.editor.pk),
+        )
+
+    def test_editor_note_required_for_minor_revisions(self):
+        form = self.build_form('minor_revisions')
+        self.assertFalse(form.is_valid())
+        self.assertIn('editor_note', form.errors)
+
+    def test_editor_note_required_for_major_revisions(self):
+        form = self.build_form('major_revisions')
+        self.assertFalse(form.is_valid())
+        self.assertIn('editor_note', form.errors)
+
+    def test_editor_note_not_required_for_accept(self):
+        form = self.build_form('accept')
+        self.assertTrue(form.is_valid(), msg=form.errors)
+
+    def test_editor_note_not_required_for_decline(self):
+        form = self.build_form('decline')
+        self.assertTrue(form.is_valid(), msg=form.errors)
+
+    def test_minor_revisions_valid_with_editor_note(self):
+        form = self.build_form(
+            'minor_revisions',
+            editor_note='Please clarify the methods section.',
+        )
+        self.assertTrue(form.is_valid(), msg=form.errors)
+
+    def test_accept_draft_propagates_editor_note_to_revision(self):
+        note = 'Please expand the discussion of limitations.'
+        draft = review_models.DecisionDraft.objects.create(
+            article=self.article,
+            section_editor=self.section_editor,
+            editor=self.editor,
+            decision='minor_revisions',
+            editor_note=note,
+            revision_request_due_date=timezone.now() + timedelta(days=14),
+            email_message='{{ revision.editor_note }}',
+        )
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                'review_manage_draft',
+                kwargs={'article_id': self.article.pk, 'draft_id': draft.pk},
+            ),
+            data={
+                'accept_draft': '',
+                'email_message': '{{ revision.editor_note }}',
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        revision = review_models.RevisionRequest.objects.get(
+            article=self.article,
+        )
+        self.assertEqual(revision.editor_note, note)
+
+    @mock.patch(
+        'utils.transactional_emails.notify_helpers.send_email_with_body_from_user'
+    )
+    def test_accept_draft_resolves_editor_note_in_author_email(self, send_mock):
+        note = 'Please add a paragraph on related work.'
+        draft = review_models.DecisionDraft.objects.create(
+            article=self.article,
+            section_editor=self.section_editor,
+            editor=self.editor,
+            decision='minor_revisions',
+            editor_note=note,
+            revision_request_due_date=timezone.now() + timedelta(days=14),
+            email_message='{{ revision.editor_note }}',
+        )
+        self.client.force_login(self.editor)
+        self.client.post(
+            reverse(
+                'review_manage_draft',
+                kwargs={'article_id': self.article.pk, 'draft_id': draft.pk},
+            ),
+            data={
+                'accept_draft': '',
+                'email_message': '{{ revision.editor_note }}',
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertTrue(
+            send_mock.called,
+            msg='The author revision email was not dispatched.',
+        )
+        # The rendered email body is the 4th positional argument.
+        sent_body = send_mock.call_args.args[3]
+        self.assertIn(note, sent_body)

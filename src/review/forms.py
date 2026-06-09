@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from django.template.defaultfilters import linebreaksbr
 
 from review import models, logic
+from review.const import EditorialDecisions as ED
 from core import models as core_models, forms as core_forms
 from core.widgets import JanewayFileInput
 from utils import setting_handler
@@ -45,6 +46,21 @@ class DraftDecisionForm(forms.ModelForm):
         if not newly_created:
             self.fields['message_to_editor'].widget = forms.HiddenInput()
             self.fields['editor'].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        decision = cleaned_data.get('decision')
+        editor_note = cleaned_data.get('editor_note')
+        if decision in (
+            ED.MINOR_REVISIONS.value,
+            ED.MAJOR_REVISIONS.value,
+        ) and not editor_note:
+            self.add_error(
+                'editor_note',
+                'Please provide a note to the author when requesting '
+                'revisions.',
+            )
+        return cleaned_data
 
 
 class ReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableIfErrorsForm):

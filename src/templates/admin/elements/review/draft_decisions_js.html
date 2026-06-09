@@ -84,9 +84,11 @@
             $("#id_email_message").jqteVal('')
         } else if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
             $('#div_due_date').show();
+            $('#div_editor_note').show();
             get_decision_text(decision_selector, date)
         } else {
             $('#div_due_date').hide();
+            $('#div_editor_note').hide();
             get_decision_text(decision_selector, null)
         }
     }
@@ -105,6 +107,7 @@
         decision_selector = $('#id_decision');
         if ((decision_selector.val() === 'minor_revisions') || (decision_selector.val() === 'major_revisions')) {
             $('#div_due_date').show();
+            $('#div_editor_note').show();
         }
     });
 </script>
