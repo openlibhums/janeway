@@ -937,20 +937,6 @@ p + .btn-background {
     -ms-transition: all 1s ease;
 }
 
-#reading-options{
-  display: flex;
-  gap: 1rem;
-  padding: 0 .75rem;
-  justify-content: flex-end;
-  min-height: fit-content;
-  box-sizing: border-box;
-}
-
-#reading-sticky{
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
 
 .btn-opt {
     border: 1px solid #00897b;
@@ -959,23 +945,263 @@ p + .btn-background {
     color: inherit;
 }
 
-.dyslexia-friendly {
-    font-family: Verdana !important;
-    color: #4c4c4c;
-    background-color: #F5F5DC;
+/*
+   Reading Options bar — shared reading_options_bar.html
+   styles the bar itself, includes custom fonts, css for applying the custom styles
+   and finally hides incompatible elements (due to theme differences).
+*/
+
+/* styling the options bar */
+
+#article_opener > .m12 > .card {
+  margin-bottom: 0;
 }
 
-.dyslexia-friendly em,
-.dyslexia-friendly i {
-    background-color: #FAFAC8;
-    font-style: normal;
+.reading-bar-col {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.dyslexia-friendly a {
-    font-family: inherit;
-    color: inherit;
-    text-decoration: underline;
+.reading-bar-col > .row {
+  margin-left: 0;
+  margin-right: 0;
 }
+
+.mini-bar {
+  width: 100%;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 1rem;
+}
+
+.mini-bar .row,
+.mini-bar #options-menu,
+.mini-bar #options-menu > div,
+.mini-bar #options-menu > div > div {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu.medium-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0.75rem;
+}
+
+.mini-bar ul.menu.medium-horizontal > li {
+  position: relative; /* anchor for the dropdown panes */
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button,
+.mini-bar ul.menu.medium-horizontal > li > a {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 0.75rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #8a8a8a;
+  font: inherit;
+  line-height: normal;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button:hover,
+.mini-bar ul.menu.medium-horizontal > li > a:hover,
+.mini-bar ul.menu.medium-horizontal > li > button:focus,
+.mini-bar ul.menu.medium-horizontal > li > a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.mini-bar ul.menu i {
+  margin-right: 0.4rem;
+}
+.mini-bar ul.menu .fa-caret-down {
+  margin-left: 0.4rem;
+  margin-right: 0;
+}
+
+/* Dropdown panes (font, colour scheme, citation). Hidden until the parent item
+   is hovered or contains focus. */
+.mini-bar ul.menu.medium-horizontal > li > ul.menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 12rem;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25rem 0;
+  background: #fff;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  z-index: 1001;
+}
+
+.mini-bar ul.menu.medium-horizontal > li:hover > ul.menu,
+.mini-bar ul.menu.medium-horizontal > li:focus-within > ul.menu {
+  display: flex;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button,
+.mini-bar ul.menu.medium-horizontal ul.menu li a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #8a8a8a;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li button:focus,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Hidden items (the custom-colour swatches until "Customise" is chosen). */
+.mini-bar ul.menu li[hidden] {
+  display: none;
+}
+
+
+/* Custom colour swatches. */
+.mini-bar input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin-right: 0.25rem;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* Icon toggles (Dark mode, Italics) carry a tick badge when active. */
+.mini-bar .tf-icon-toggle .tf-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.mini-bar .tf-icon-toggle .tf-tick {
+  display: none;
+  position: absolute;
+  right: -9px;
+  bottom: -3px;
+  font-size: 0.6em;
+  line-height: 1;
+  color: #00897b;
+  background: #fff;
+  border-radius: 50%;
+}
+.mini-bar .tf-icon-toggle .tf-tick i {
+  margin: 0;
+}
+.mini-bar .tf-icon-toggle[aria-pressed="true"] .tf-tick {
+  display: inline-flex;
+}
+
+/* Colour scheme scoping to cards only */
+#article.text-format-region.tf-has-colour,
+#article.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+}
+#article.text-format-region.tf-has-colour .card {
+  background-color: var(--tf-bg) !important;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+#article.text-format-region.tf-has-colour .draw-attention,
+#article.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* Fonts */
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+.text-format-region.tf-has-font *:not([class*="fa"]) {
+  font-family: var(--tf-font) !important;
+}
+
+/* Apply to the region and every descendant.*/
+.text-format-region.tf-has-colour,
+.text-format-region.tf-has-colour * {
+  background-color: var(--tf-bg) !important;
+  color: var(--tf-fg) !important;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+.text-format-region.tf-has-colour .draw-attention,
+.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* Interactive controls now share the region background, so give them a
+   foreground-coloured border to stay visually delineated. */
+.text-format-region.tf-has-colour button,
+.text-format-region.tf-has-colour .button,
+.text-format-region.tf-has-colour input,
+.text-format-region.tf-has-colour select,
+.text-format-region.tf-has-colour textarea {
+  border-color: var(--tf-fg) !important;
+}
+
+.text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+/* Hide incompatible elements */
+
+.mini-bar .title-bar {
+  display: none;
+}
+
+/* no citation modals on material */
+.mini-bar li.tf-cite {
+  display: none;
+}
+
+/* end of reading options */
 
 /* Banner for hero / large image */
 .material-banner {

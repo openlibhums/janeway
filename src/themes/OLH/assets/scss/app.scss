@@ -634,9 +634,11 @@ div.caption span.label {
       a {
         color: $dark-gray;
         padding: 0.5rem 0;
-        display: block;
+        display: flex;
+        align-items: center;
         text-decoration: none;
-        
+        height: rem-calc(44px);
+
         @include breakpoint(medium) {
           padding: 0.5rem 1rem;
         }
@@ -650,9 +652,11 @@ div.caption span.label {
         cursor: pointer;
         text-decoration: none;
         text-align: left;
-        display: block;
+        display: flex;
+        align-items: center;
         width: 100%;
-        
+        height: rem-calc(44px);
+
         @include breakpoint(medium) {
           padding: 0.5rem 1rem;
         }
@@ -672,6 +676,160 @@ div.caption span.label {
       }
     }
   }
+}
+
+/* Text-format controls in the reading options bar:
+   compact, grey, symbol-led to match the existing print/cite icons. */
+.mini-bar {
+  ul.menu {
+    // Keep all controls on one line across the bar (don't wrap to the right)
+    @include breakpoint(medium) {
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    li {
+      // Hidden items (the custom-colour swatches until "Customise") must stay
+      // hidden. Foundation sets an explicit display on .menu li, which beats
+      // the UA [hidden] rule, so re-assert it here with higher specificity.
+      &[hidden] {
+        display: none;
+      }
+
+      // Drop the legacy icon nudge so icons sit on the row's middle line.
+      i {
+        margin-top: 0;
+        vertical-align: middle;
+      }
+
+      // Font / colour-scheme dropdowns sit next to a leading icon.
+      &.tf-field {
+        white-space: nowrap;
+
+        i {
+          color: $dark-gray;
+        }
+      }
+
+      // Dropdown indicators (caret icons)
+      .fa-caret-down {
+        margin-left: 0.5rem;
+      }
+
+      // Dropdowns styled to match the grey bar (no default white chrome)
+      select {
+        color: $dark-gray;
+        background: transparent;
+        border: none;
+        font: inherit;
+        cursor: pointer;
+        padding: 0 0.25rem;
+        max-width: rem-calc(144px);
+        vertical-align: middle;
+        height: rem-calc(44px);
+        line-height: rem-calc(44px);
+      }
+
+      // Custom colour swatches
+      input[type="color"] {
+        width: rem-calc(28px);
+        height: rem-calc(28px);
+        padding: 0;
+        margin-right: 0.25rem;
+        border: 1px solid $medium-gray;
+        background: none;
+        cursor: pointer;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  // Icon toggles (Dark mode, Italics) carry a tick badge when active
+  .tf-icon-toggle {
+    color: $dark-gray;
+    height: rem-calc(44px);
+    line-height: rem-calc(44px);
+    padding: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+
+    .tf-icon {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .tf-tick {
+      display: none;
+      position: absolute;
+      right: rem-calc(-2px);
+      bottom: rem-calc(-2px);
+      font-size: 0.6em;
+      line-height: 1;
+      color: $primary-color;
+      background: $light-gray;
+      border-radius: 50%;
+
+      i {
+        margin: 0;
+      }
+    }
+
+    &[aria-pressed="true"] .tf-tick {
+      display: inline;
+    }
+  }
+}
+
+/* Reading Options Bar fonts */
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../../common/fonts/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../../common/fonts/opendyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* reading options bar apply user custom styles */
+.text-format-region.tf-has-font *:not([class*="fa"]) {
+  font-family: var(--tf-font) !important;
+}
+
+/* Apply to the region and every descendant.*/
+.text-format-region.tf-has-colour,
+.text-format-region.tf-has-colour * {
+  background-color: var(--tf-bg) !important;
+  color: var(--tf-fg) !important;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+.text-format-region.tf-has-colour .draw-attention,
+.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* Interactive controls now share the region background, so give them a
+   foreground-coloured border to stay visually delineated. */
+.text-format-region.tf-has-colour button,
+.text-format-region.tf-has-colour .button,
+.text-format-region.tf-has-colour input,
+.text-format-region.tf-has-colour select,
+.text-format-region.tf-has-colour textarea {
+  border-color: var(--tf-fg) !important;
+}
+
+.text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
 }
 
 #content {
@@ -1139,36 +1297,6 @@ button.list-group-item-danger.active:focus {
 
 .orbit-no-padding{
   padding: 0 !important;
-}
-
-.dyslexia-friendly {
-    font-family: Verdana !important;
-    color: #4c4c4c;
-    background-color: #F5F5DC;
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-family: Verdana !important;
-      color: #4c4c4c;
-    }
-
-    i, em {
-        font-style: normal;
-        background-color: #FAFAC8;
-    }
-
-    .summary {
-        .top {
-            background-color: #F5F5DC;
-        }
-        .bottom {
-            background-color: #F5F5DC;
-        }
-    }
 }
 
 .pagination-block {
