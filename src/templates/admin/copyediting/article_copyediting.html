@@ -143,31 +143,31 @@
                             </li>
                             <li>
                                 <button type="button" class="choice-row"
+                                        aria-haspopup="dialog"
                                         hx-get="{% url 'copyedit_upload_editor_version' article.pk %}"
                                         hx-target="#upload-editor-version-modal"
                                         hx-swap="outerHTML">
                                     <i class="fa fa-upload fa-2x choice-icon" aria-hidden="true"></i>
                                     <span class="choice-body">
-                                        <span class="choice-title">Upload Editor Version</span>
+                                        <span class="choice-title">Upload Editor Version&hellip;</span>
                                         <span class="choice-description">Upload a copyedited file yourself.
                                             A completed assignment is created in your name, ready for
                                             author review.</span>
                                     </span>
-                                    <i class="fa fa-chevron-right choice-chevron" aria-hidden="true"></i>
                                 </button>
                             </li>
                             <li>
                                 <button type="button" class="choice-row"
+                                        aria-haspopup="dialog"
                                         hx-get="{% url 'copyedit_request_author_version' article.pk %}"
                                         hx-target="#request-author-version-modal"
                                         hx-swap="outerHTML">
                                     <i class="fa fa-user fa-2x choice-icon" aria-hidden="true"></i>
                                     <span class="choice-body">
-                                        <span class="choice-title">Request Author Version</span>
+                                        <span class="choice-title">Request Author Version&hellip;</span>
                                         <span class="choice-description">Ask the author to upload a new
                                             version of the files you select.</span>
                                     </span>
-                                    <i class="fa fa-chevron-right choice-chevron" aria-hidden="true"></i>
                                 </button>
                             </li>
                         </ul>
