@@ -417,6 +417,11 @@ urlpatterns = [
     ),
     re_path(r"^set-timezone/$", core_views.set_session_timezone, name="set_timezone"),
     re_path(
+        r"^accessibility-mode/toggle/$",
+        core_views.toggle_accessibility_mode,
+        name="toggle_accessibility_mode",
+    ),
+    re_path(
         r"^jsi18n/$",
         cache_page(60 * 60, key_prefix="jsi18n_catalog")(JavaScriptCatalog.as_view()),
         name="javascript-catalog",

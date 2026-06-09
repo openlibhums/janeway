@@ -99,6 +99,11 @@
                   </a>
                 </li>
             {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-toggle-host">
+                {% include "common/elements/accessibility_mode_toggle.html" %}
+            </li>
+            {% endif %}
         </ul>
 
         <ul class="sidenav" id="nav-mobile">
@@ -167,6 +172,13 @@
                     {% trans "Register" %}
                   </a>
                 </li>
+            {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-mobile-item" aria-hidden="true"><div class="divider"></div></li>
+            <li class="a11y-mobile-item">
+                {% include "common/elements/accessibility_mode_mobile_button.html" %}
+            </li>
+            <li class="a11y-mobile-item"><a href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a></li>
             {% endif %}
         </ul>
     </div>

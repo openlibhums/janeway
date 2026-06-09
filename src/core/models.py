@@ -537,6 +537,14 @@ class Account(AbstractBaseUser, PermissionsMixin):
         help_text=_("If enabled, your basic profile will be available to the public."),
         verbose_name=_("Enable public profile"),
     )
+    accessibility_mode = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If enabled, the site is presented using the Clarity "
+            "accessibility-focused theme."
+        ),
+        verbose_name=_("Accessibility mode"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 

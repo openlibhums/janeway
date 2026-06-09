@@ -295,29 +295,400 @@ article .list-romanupper {
 .skip-container {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     justify-content: center;
     align-items: center;
     height: 0;
     overflow: hidden;
 }
 
+/* Shared visible appearance so the skip link and the accessibility toggle
+   read as the same kind of control rather than a link beside plain text. */
 .skip-to-content,
-.skip-to-nav {
+.skip-to-nav,
+button.skip-to-content {
     position: absolute;
     left: -999px;
-}
-
-.skip-to-content:focus,
-.skip-to-nav:focus {
-    position: relative;
-    left: 0;
-    margin-block-start: 10px;
-    margin-block-end: 10px;
+    display: inline-block;
+    padding: 8px 12px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    background: #fff;
+    color: #00417a;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .skip-container:focus-within {
     height: auto;
     overflow: visible;
+}
+
+/* Reveal the skip link and the accessibility toggle together and side by
+   side, so moving focus between them never changes the layout height.
+   Both controls become flex items in the .skip-container row, rather than
+   absolutely positioned off-screen, so they sit neatly beside each other. */
+.skip-container:focus-within .skip-to-content,
+.skip-container:focus-within .skip-to-nav,
+.skip-container:focus-within .skip-to-content-form {
+    position: static;
+    left: auto;
+    flex: 0 0 auto;
+    margin-block-start: 10px;
+    margin-block-end: 10px;
+}
+
+/* Accessibility mode toggle */
+.a11y-toggle-host,
+.a11y-toggle-host * {
+    box-sizing: border-box;
+}
+
+.a11y-toggle-host {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.a11y-toggle-host .a11y-toggle-dropdown {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+/* Materialize (material theme) centres nav-item content via the navbar
+   line-height rather than flex, and floats each li to the top of the bar.
+   Scoped to its desktop nav list (hide-on-med-and-down is a Materialize
+   helper class), let the host li join that line box so the summary centres
+   vertically in navbars of any height. */
+nav .hide-on-med-and-down li.a11y-toggle-host {
+    display: list-item;
+    line-height: inherit;
+}
+
+nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
+    line-height: inherit;
+    vertical-align: middle;
+}
+
+.a11y-toggle-host .a11y-toggle-summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    list-style: none;
+}
+
+.a11y-toggle-host .a11y-toggle-summary::-webkit-details-marker {
+    display: none;
+}
+
+.a11y-toggle-host .a11y-toggle-summary::marker {
+    content: "";
+}
+
+.a11y-toggle-host .a11y-toggle-summary .fa {
+    /* Materialize's `nav i` rule sets display: block and a 64px height and
+       line-height, which pushes the icon out of the 36px summary box on the
+       material theme's desktop nav. Pin the icon's box here so the control
+       renders the same on every theme. */
+    display: inline-block;
+    height: auto;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.a11y-toggle-host .a11y-toggle-summary:hover,
+.a11y-toggle-host .a11y-toggle-summary:focus,
+.a11y-toggle-host .a11y-toggle-summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.a11y-toggle-host .a11y-toggle-dropdown--on .a11y-toggle-summary {
+    background: currentColor;
+}
+
+.a11y-toggle-host .a11y-toggle-dropdown--on .a11y-toggle-summary .a11y-toggle-icon {
+    filter: invert(1);
+}
+
+.a11y-toggle-host .a11y-toggle-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.a11y-toggle-host .a11y-toggle-indicator {
+    position: absolute;
+    right: -8px;
+    bottom: -8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    color: #1a1a1a;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+.a11y-toggle-host .a11y-toggle-indicator .fa {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.a11y-toggle-host .a11y-toggle-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1000;
+    min-width: 16rem;
+    margin: 0;
+    padding: 0.25rem 0;
+    list-style: none;
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    line-height: 1.4;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.a11y-toggle-host .a11y-toggle-menu li {
+    display: list-item;
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    list-style: none;
+    background: transparent;
+}
+
+.a11y-toggle-host .a11y-toggle-menu li + li {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.a11y-toggle-host .a11y-toggle-form {
+    margin: 0;
+    padding: 0;
+    display: block;
+    line-height: 1.4;
+}
+
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-info {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0.625rem 1rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #1a1a1a;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: left;
+    text-decoration: none;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:hover,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-info:hover {
+    background: #f0f0f0;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:focus,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-info:focus,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:focus-visible,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-info:focus-visible {
+    background: #f0f0f0;
+    color: #1a1a1a;
+    text-decoration: none;
+    outline: 2px solid #1a1a1a;
+    outline-offset: -2px;
+}
+
+@media (max-width: 991px) {
+    .a11y-toggle-host {
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .a11y-mobile-item {
+        display: none !important;
+    }
+}
+
+.a11y-mobile-form {
+    margin: 0;
+    padding: 0;
+}
+
+.a11y-mobile-button {
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+}
+
+.a11y-switch {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.625rem 1rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.95rem;
+    height: auto;
+    min-height: 0;
+    line-height: 1.4;
+    vertical-align: middle;
+    text-align: left;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.a11y-switch:hover,
+.a11y-switch:focus,
+.a11y-switch:focus-visible {
+    background: #f0f0f0;
+    color: #1a1a1a;
+    outline: 2px solid #1a1a1a;
+    outline-offset: -2px;
+}
+
+.a11y-mobile-button.a11y-switch {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0.5rem 1rem;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.dropdown-menu .a11y-mobile-button.a11y-switch {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.sidenav .a11y-mobile-button.a11y-switch {
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+.a11y-switch-label {
+    flex: 1 1 auto;
+    white-space: nowrap;
+}
+
+.a11y-switch-track {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    background: transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.a11y-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    transition: left 0.15s ease;
+}
+
+.a11y-switch[aria-checked="true"] .a11y-switch-track,
+.a11y-switch--on .a11y-switch-track {
+    background: #1a7a3c;
+    border-color: #1a7a3c;
+}
+
+.a11y-switch[aria-checked="true"] .a11y-switch-thumb,
+.a11y-switch--on .a11y-switch-thumb {
+    left: 22px;
+    background: #ffffff;
+}
+
+.a11y-switch-state {
+    flex: 0 0 auto;
+    min-width: 1.75rem;
+    text-align: right;
+    font-weight: bold;
+}
+
+.skip-to-content-form {
+    position: absolute;
+    left: -999px;
+    margin: 0;
+    padding: 0;
+}
+
+/* The toggle button sits in a relatively positioned form, so reset its own
+   off-screen offset and let the shared .skip-to-content style do the rest. */
+.skip-to-content-form button.skip-to-content {
+    position: static;
+    left: auto;
+}
+
+/* The skip-row toggle combines the shared pill (.skip-to-content) with the
+   switch control (.a11y-switch). Reconcile the two where they conflict: the
+   pill's inline-block would break the track layout, the switch base sets
+   width: 100%, and a switch with a sliding track should not read as a link. */
+button.skip-to-content.a11y-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: auto;
+    text-decoration: none;
 }
 
 a.twitter-x{

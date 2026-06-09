@@ -4,7 +4,10 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
+from types import SimpleNamespace
 from uuid import uuid4
+from django.core.cache import cache as django_cache
+from django.test.client import RequestFactory
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
@@ -12,8 +15,10 @@ from django.template.loader import get_template
 from django.utils import timezone
 
 from core import models as core_models
+from core import middleware as core_middleware
 from core import views as core_views
-from utils import orcid
+from utils import orcid, setting_handler
+from utils.template_override_middleware import Loader
 from utils.testing import helpers
 
 
@@ -859,6 +864,377 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         self.assertEqual(
             self.user.primary_affiliation(as_object=False), "California Digital Library"
         )
+
+
+class AccessibilityModeLoaderTests(TestCase):
+    """Tests for the Clarity-override branch in the template Loader."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        # Configure the journal to use a non-Clarity theme so we can confirm
+        # the accessibility-mode flag overrides the journal setting.
+        setting_handler.save_setting(
+            "general", "journal_theme", cls.journal_one, "material"
+        )
+
+    def setUp(self):
+        # The Loader memoises journal_theme/base_theme via function_cache,
+        # which uses the Django cache. Clear it so each test starts fresh.
+        django_cache.clear()
+        self.factory = RequestFactory()
+        # The loader only ever reads `engine.dirs`, so a stub object is
+        # sufficient for unit-testing get_theme_dirs.
+        self.loader = Loader(engine=SimpleNamespace(dirs=[]))
+
+    def build_request(self, session=None, query=None):
+        request = self.factory.get("/", data=query or {})
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.session = session or {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        return request
+
+    def test_accessibility_mode_session_serves_clarity(self):
+        self.build_request(session={"accessibility_mode": True})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+    def test_accessibility_mode_off_serves_journal_theme(self):
+        self.build_request(session={})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/material/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    @override_settings(DEBUG=True)
+    def test_debug_theme_query_param_wins_over_session(self):
+        self.build_request(
+            session={"accessibility_mode": True},
+            query={"theme": "OLH"},
+        )
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/OLH/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    def test_journal_setting_off_disables_loader_override(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            self.build_request(session={"accessibility_mode": True})
+            dirs = self.loader.get_theme_dirs()
+            joined = " ".join(dirs)
+            self.assertIn("/themes/material/templates", joined)
+            self.assertNotIn("/themes/clarity/templates", joined)
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    def test_authenticated_user_attribute_serves_clarity(self):
+        user = helpers.create_regular_user()
+        user.accessibility_mode = True
+        user.save()
+        request = self.factory.get("/")
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.user = user
+        request.session = {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+
+class AccessibilityModeToggleViewTests(TestCase):
+    """Tests for the toggle_accessibility_mode view."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_toggle@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        # accessibility_mode_active reads journal settings through
+        # function_cache, which uses the Django cache. Clear it so stale
+        # values left by earlier test classes cannot shadow the database.
+        django_cache.clear()
+        self.client = Client()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_anonymous_post_flips_session_value_true_then_false(self):
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        self.assertFalse(self.client.session.get("accessibility_mode"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_safe_next_url_is_followed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "/about/"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/about/")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unsafe_next_url_falls_back_to_safe_redirect(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "https://evil.example.com/steal/"},
+            HTTP_REFERER="https://evil.example.com/steal/",
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Both `next` and the referer point to a different host, so the view
+        # falls back to the root path.
+        self.assertEqual(response["Location"], "/")
+        self.assertNotIn("evil.example.com", response["Location"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_method_is_not_allowed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(response.status_code, 405)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_setting_off_returns_404(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            url = reverse("toggle_accessibility_mode")
+            response = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+            self.assertEqual(response.status_code, 404)
+            self.assertFalse(self.client.session.get("accessibility_mode"))
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_authenticated_post_flips_user_attribute_not_session(self):
+        user = helpers.create_regular_user()
+        self.client.force_login(user)
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        user.refresh_from_db()
+        self.assertTrue(user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        user.refresh_from_db()
+        self.assertFalse(user.accessibility_mode)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_login_migrates_session_preference_to_account(self):
+        # Enabling accessibility mode while anonymous stores a session flag.
+        # On login that preference must be carried onto the account and the
+        # session flag cleared, so the two sources can never disagree.
+        anon_response = self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(anon_response.status_code, 302)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        logged_in = self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+        )
+        self.assertTrue(logged_in)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_mode_can_be_disabled_after_enabling_then_logging_in(self):
+        # Regression test for the reported bug: enabling accessibility mode
+        # while anonymous and then logging in must leave the mode disableable.
+        # Previously the stale session flag shadowed the account flag, so the
+        # toggle re-enabled the account flag instead of disabling the mode.
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+        )
+        # The preference has migrated onto the account and the mode is active.
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accessibility_mode)
+
+        # A single toggle now disables the mode for good.
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+@override_settings(URL_CONFIG="domain")
+class AccessibilityModePersistenceTests(TestCase):
+    """Login and logout persistence for the accessibility-mode preference.
+
+    These cover the truth tables agreed in review of PR #5314: on login the
+    anonymous session preference wins only when the visitor explicitly toggled
+    (key present), otherwise the account value stands; on logout the mode is
+    sticky and reflects the account's saved value.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_persist@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    def seed_anonymous_session(self, value):
+        """Seed the anonymous session flag.
+
+        ``None`` leaves the session untouched (no key, i.e. the visitor never
+        toggled); ``True``/``False`` records an explicit anonymous choice.
+        """
+        if value is None:
+            return
+        session = self.client.session
+        session["accessibility_mode"] = value
+        session.save()
+
+    def login_after(self, anonymous, account):
+        """Apply an anonymous session state and account flag, then log in."""
+        self.user.accessibility_mode = account
+        self.user.save()
+        self.seed_anonymous_session(anonymous)
+        self.assertTrue(
+            self.client.login(
+                username=self.user_email,
+                password=self.user_password,
+            )
+        )
+        self.user.refresh_from_db()
+
+    def assertLoginResult(self, anonymous, account, expected_account):
+        self.login_after(anonymous=anonymous, account=account)
+        self.assertEqual(self.user.accessibility_mode, expected_account)
+        # The session flag is always cleared so it can never shadow the
+        # account preference on later requests.
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+    def test_login_row_1_untouched_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_2_untouched_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_3_explicit_on_account_off_writes_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=False,
+            expected_account=True,
+        )
+
+    def test_login_row_4_explicit_on_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_5_explicit_off_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=False,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_6_explicit_off_account_on_writes_off(self):
+        # The key fix: an explicit anonymous off disables a previously enabled
+        # account preference, rather than being indistinguishable from
+        # "untouched" and leaving the account on.
+        self.assertLoginResult(
+            anonymous=False,
+            account=True,
+            expected_account=False,
+        )
+
+    def test_logout_row_1_account_on_stays_on(self):
+        self.user.accessibility_mode = True
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Logout flushes the session; the account value is re-seeded so the
+        # mode is sticky for the now-anonymous visitor.
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+    def test_logout_row_2_account_off_stays_off(self):
+        self.user.accessibility_mode = False
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
 
 
 class ControlledAffiliationDisplayTests(CoreViewTestsWithData):

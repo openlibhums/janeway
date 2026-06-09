@@ -190,6 +190,24 @@
                     {% endif %}
                 </ul>
             </li>
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="is-dropdown-submenu-parent show-for-small-only">
+                <a href="#" data-options="is_hover:true; hover_timeout:5000"
+                   role="button"
+                   aria-expanded="false"
+                   aria-controls="menu-nav-a11y">
+                    {% trans 'Accessibility' %}
+                </a>
+                <ul class="menu vertical medium-horizontal" id="menu-nav-a11y">
+                    <li>
+                        {% include "common/elements/accessibility_mode_mobile_button.html" %}
+                    </li>
+                    <li>
+                        <a href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </nav>
