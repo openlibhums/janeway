@@ -69,79 +69,13 @@
         </div>
     {% endif %}
 
-        <div data-sticky-container class="row">
-            <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
-                <div class="row">
-                    <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
-                        <button class="title-bar-title" type="button" data-toggle>
-                            <span class="menu-icon"> </span>
-                            {% trans 'Article Options' %}
-                        </button>
-                    </div>
-                    <div id="options-menu">
-                        <div class="small-12s medium-9 medium-offset-3 large-10 large-offset-2 columns">
-                            <div class = "float-right">
-                                <ul class="menu vertical medium-horizontal"
-                                    data-responsive-menu="dropdown">
-                                    {% hook 'article_buttons' %}
-                                    <li>
-                                        <a href="{{ article.local_url }}print/" title="{% trans 'Printer friendly version' %}" >
-                                            <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
-                                            <span class="sr-only">{% trans 'Printer friendly version.' %}</span>
-                                        </a>
-                                    </li>
-                                    <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}">A-</button></li>
-                                    <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}">A+</button></li>
-                                    {% if author.display_email and not journal_settings.article.hide_author_email_links %}
-                                        <li>
-                                            <a href="mailto:{{ article.correspondence_author.email }}" >
-                                                <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
-                                                {% include "elements/icons/link_email.html" %}
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                    <li><button onclick="toggleDyslexia();" id="dyslexia-mode" aria-label="{% trans 'Dyslexia mode' %}">{% trans "Dyslexia" %}</button></li>
-                                    <li>
-                                        <button type="button" data-toggle aria-expanded="false" aria-haspopup="true">
-                                            <i aria-hidden="true" class="fa fa-comments">&nbsp;</i>
-                                            <span class="sr-only">{% trans 'Cite article' %}</span>
-                                        </button>
-                                        <ul class="menu vertical">
-                                            <li><a href="#" data-open="HarvardModal">
-                                                {% trans "Harvard Citation Style" %}
-                                                {% include "elements/icons/link_modal.html" %} 
-                                            </a></li>
-                                            <li><a href="#" data-open="VancouverModal">
-                                                {% trans "Vancouver Citation Style" %}
-                                                {% include "elements/icons/link_modal.html" %} 
-                                            </a></li>
-                                            <li><a href="#" data-open="APAModal">
-                                                {% trans "APA Citation Style" %}
-                                                {% include "elements/icons/link_modal.html" %} 
-                                            </a></li>
-                                            <li><a href="{% url 'serve_article_ris' 'id' article.pk %}">
-                                                RIS
-                                                {% include "elements/icons/link_download.html" %} 
-                                            </a></li>
-                                            <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">
-                                                BibTeX
-                                                {% include "elements/icons/link_download.html" %} 
-                                            </a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "common/elements/journal/reading_options_bar.html" %}
 
         <section id="content" class="no-padding">
             <div class="row">
                 <div class="large-8 columns border-right">
                     <div class="row">
-                        <div id="article" class="large-10 columns">
+                        <div id="article" class="large-10 columns text-format-region">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>
@@ -560,5 +494,4 @@
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
-    <script src="{% static "common/js/text_readability.js" %}"></script>
 {% endblock js %}
