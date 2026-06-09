@@ -1,0 +1,144 @@
+{% load i18n %}
+{% load hooks %}
+{% load static %}
+{% comment %}
+    Front of House self contained drop in.
+    Include only once per page as would otherwise load resources twice.
+    add marker class `.text-format-region` to define the target parent(s).
+{% endcomment %}
+<div data-sticky-container class="row">
+    <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+        <div class="row">
+            <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">
+                <button class="title-bar-title" type="button" data-toggle>
+                    <span class="menu-icon"> </span>
+                    {% trans 'Reading Options' %}
+                </button>
+            </div>
+            <div id="options-menu">
+                <div class="small-12s medium-9 medium-offset-3 large-10 large-offset-2 columns">
+                    <div class="float-right">
+                        <ul class="menu vertical medium-horizontal"
+                            data-responsive-menu="dropdown">
+                            {% if article %}{% hook 'article_buttons' %}{% endif %}
+                            <li>
+                                <button type="button" class="tf-font-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-font-menu">
+                                    <span class="tf-label">{% trans 'Default Font' %}</span>
+                                    <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="menu vertical" id="tf-font-menu">
+                                    <li><button type="button" onclick="state.setFont('default'); event.stopPropagation();">{% trans 'Default Font' %}</button></li>
+                                    <li><button type="button" onclick="state.setFont('sans-serif'); event.stopPropagation();">{% trans 'Sans-serif' %}</button></li>
+                                    <li><button type="button" onclick="state.setFont('serif'); event.stopPropagation();">{% trans 'Serif' %}</button></li>
+                                    <li><button type="button" onclick="state.setFont('monospace'); event.stopPropagation();">{% trans 'Monospace' %}</button></li>
+                                    <li><button type="button" onclick="state.setFont('opendyslexic'); event.stopPropagation();">{% trans 'OpenDyslexic' %}</button></li>
+                                </ul>
+                            </li>
+                            <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}" title="{% trans 'Decrease text size' %}">A-</button></li>
+                            <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}" title="{% trans 'Increase text size' %}">A+</button></li>
+                            <li>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="italics"
+                                    aria-pressed="true"
+                                    aria-label="{% trans 'Italics' %}"
+                                    title="{% trans 'Toggle italics' %}"
+                                    onclick="state.toggleNoItalics()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-italic"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="tf-scheme-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-scheme-menu">
+                                    <span class="tf-label">{% trans 'Default Colour' %}</span>
+                                    <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="menu vertical" id="tf-scheme-menu">
+                                    <li><button type="button" onclick="state.setScheme('default'); event.stopPropagation();">{% trans 'Default Colour' %}</button></li>
+                                    <li><button type="button" onclick="state.setScheme('yellow'); event.stopPropagation();">{% trans 'Yellow' %}</button></li>
+                                    <li><button type="button" onclick="state.setScheme('blue'); event.stopPropagation();">{% trans 'Blue' %}</button></li>
+                                    <li><button type="button" onclick="state.setScheme('green'); event.stopPropagation();">{% trans 'Green' %}</button></li>
+                                    <li><button type="button" onclick="state.setScheme('customise'); event.stopPropagation();">{% trans 'Customise' %}</button></li>
+                                </ul>
+                            </li>
+                            <li class="tf-custom-colours tf-field" hidden>
+                                <input type="color" class="tf-custom-light" value="#ffffff" aria-label="{% trans 'Light colour' %}" onchange="state.setCustomLight(this.value)">
+                                <input type="color" class="tf-custom-dark" value="#1a1a1a" aria-label="{% trans 'Dark colour' %}" onchange="state.setCustomDark(this.value)">
+                            </li>
+                            <li>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="mode"
+                                    aria-pressed="false"
+                                    aria-label="{% trans 'Dark mode' %}"
+                                    title="{% trans 'Toggle dark mode' %}"
+                                    onclick="state.toggleDarkMode()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-moon-o"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
+
+                            {% if article %}
+                                {% comment %}
+                                    css uses id to exclude the cite menu from Material as doesn't have citation modals.
+                                {% endcomment %}
+                                <li class="tf-cite">
+                                    <button type="button" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-cite-menu" title="{% trans 'Citation formats' %}">
+                                        <i aria-hidden="true" class="fa fa-comments"></i>
+                                        <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                        <span class="sr-only">{% trans 'Cite article' %}</span>
+                                    </button>
+                                    <ul class="menu vertical" id="tf-cite-menu">
+                                        <li><a href="#" data-open="HarvardModal" data-toggle="modal" data-target="#HarvardModal">
+                                            {% trans "Harvard Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="#" data-open="VancouverModal" data-toggle="modal" data-target="#VancouverModal">
+                                            {% trans "Vancouver Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="#" data-open="APAModal" data-toggle="modal" data-target="#APAModal">
+                                            {% trans "APA Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}">
+                                            RIS
+                                            {% include "elements/icons/link_download.html" %}
+                                        </a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">
+                                            BibTeX
+                                            {% include "elements/icons/link_download.html" %}
+                                        </a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="mailto:{{ article.correspondence_author.email }}" title="{% trans 'Email author' %}">
+                                        <span class="sr-only">{% trans 'Email' %} {{ article.correspondence_author.full_name }}.</span>
+                                        {% include "elements/icons/link_email.html" %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ article.local_url }}print/" title="{% trans 'Print article' %}">
+                                        <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
+                                        <span class="sr-only">{% trans 'Printer friendly version.' %}</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="{% static 'common/css/text_readability.css' %}" rel="stylesheet">
+<script src="{% static 'common/js/text_readability.js' %}"></script>
