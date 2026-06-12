@@ -7,10 +7,14 @@
     {% include "press/nav.html" %}
 {% endblock navbar %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
 	<section id="content">
 		<div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12 text-format-region">
                 <h1>{{ page.display_name }}</h1>
                 <hr aria-hidden="true" />
                 {{ page.content|safe }}

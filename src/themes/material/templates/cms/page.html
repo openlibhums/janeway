@@ -5,9 +5,13 @@
 
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row">
-        <div class="col {% if page.display_toc %}m9 s12{% else %}m12{% endif %}">
+        <div class="col {% if page.display_toc %}m9 s12{% else %}m12{% endif %} text-format-region">
             <div class="card">
                 <div id="cms-title" class="card-content">
                     <h1 class="no-bottom-margin">{{ page.display_name }}</h1>

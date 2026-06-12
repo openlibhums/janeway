@@ -5,10 +5,14 @@
 
 {% block page_title %}{{ page.display_name }}{% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <section id="content" aria-labelledby="cms-title">
         <div class="row">
-            <div class="{% if page.display_toc %}col-md-8 col-sm-12{% else %}col-md-12{% endif %}">
+            <div class="{% if page.display_toc %}col-md-8 col-sm-12{% else %}col-md-12{% endif %} text-format-region">
                 <h1 id="cms-title">{{ page.display_name }}</h1>
                 <hr aria-hidden="true" />
                 <div id="main_article">{{ page.content|safe }}</div>
