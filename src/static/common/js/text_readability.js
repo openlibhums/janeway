@@ -105,8 +105,8 @@ var state = {
 
 // Action Functions
 
-function getRegion() {
-  return document.querySelector('.text-format-region');
+function getRegions() {
+  return document.querySelectorAll('.text-format-region');
 }
 
 function initialise() {
@@ -146,15 +146,15 @@ function applyToRegion(textFunction) {
   if (!isInitialised) {
     initialise();
   }
-  var region = getRegion();
-  if (!region) return;
-  var allElements = region.querySelectorAll(
-    'h1, h2, h3, h4, h5, h6, ' +
-    'blockquote, div, p, pre, ' +
-    'li, caption, table, tbody, td, tfoot, th, thead, tr, ' +
-    'a, b, em, i, label, small, span, strong, code'
-  );
-  allElements.forEach(textFunction);
+  getRegions().forEach(function (region) {
+    var allElements = region.querySelectorAll(
+      'h1, h2, h3, h4, h5, h6, ' +
+      'blockquote, div, p, pre, ' +
+      'li, caption, table, tbody, td, tfoot, th, thead, tr, ' +
+      'a, b, em, i, label, small, span, strong, code'
+    );
+    allElements.forEach(textFunction);
+  });
 }
 
 
@@ -165,9 +165,14 @@ function applyPreferences() {
     return false;
   }
 
-  var region = getRegion();
-  if (!region) return true;  // state is valid; nothing on the page to paint yet
+  getRegions().forEach(paintRegion);
+  // Reflect the applied state onto every control copy and report success.
+  return syncControls();
+}
 
+// Write the current preferences onto a single region as CSS custom properties
+// and presence classes; its descendants inherit them via the stylesheet rules.
+function paintRegion(region) {
   // Font
   var font = FONTS[state.font];
   var fontStack = font ? font.value : null;
@@ -199,9 +204,6 @@ function applyPreferences() {
   } else {
     region.classList.remove('tf-no-italics');
   }
-
-  // Reflect the applied state onto every control copy and report success.
-  return syncControls();
 }
 
 // The toggle buttons swap their label between two strings of different length.
