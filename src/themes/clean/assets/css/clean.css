@@ -699,15 +699,12 @@ span + .btn-background {
   margin-bottom: 0 !important;
 }
 
-.reading-bar-row {
+.reading-options-bar {
   position: sticky;
   top: 0;
   z-index: 1000;
-}
 
-.reading-bar-row > .row {
-  margin-left: 0;
-  margin-right: 0;
+  margin: -20px -20px 0;
 }
 
 .mini-bar {
@@ -761,7 +758,7 @@ span + .btn-background {
   margin: 0;
   background: none;
   border: none;
-  color: #8a8a8a;
+  color: #595959;
   font: inherit;
   line-height: normal;
   text-transform: none;
@@ -774,7 +771,7 @@ span + .btn-background {
 .mini-bar ul.menu.medium-horizontal > li > button:focus,
 .mini-bar ul.menu.medium-horizontal > li > a:focus {
   background: rgba(0, 0, 0, 0.06);
-  color: #8a8a8a;
+  color: #595959;
 }
 
 .mini-bar ul.menu i {
@@ -817,7 +814,7 @@ span + .btn-background {
   margin: 0;
   background: none;
   border: none;
-  color: #8a8a8a;
+  color: #595959;
   font: inherit;
   text-align: left;
   text-transform: none;
@@ -831,7 +828,7 @@ span + .btn-background {
 .mini-bar ul.menu.medium-horizontal ul.menu li button:focus,
 .mini-bar ul.menu.medium-horizontal ul.menu li a:focus {
   background: rgba(0, 0, 0, 0.06);
-  color: #8a8a8a;
+  color: #595959;
 }
 
 /* Hidden items (the custom-colour swatches until "Customise" is chosen). */
@@ -894,6 +891,11 @@ span + .btn-background {
 }
 
 /* applying customised reading options */
+
+.text-format-region {
+  padding: 1rem;
+}
+
 .text-format-region.tf-has-font *:not([class*="fa"]) {
   font-family: var(--tf-font) !important;
 }

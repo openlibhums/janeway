@@ -13,6 +13,10 @@
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
@@ -35,10 +39,6 @@
     {% endif %}
 
     </div>
-
-        <div class="reading-bar-row">
-            {% include "common/elements/journal/reading_options_bar.html" %}
-        </div>
 
     <div id="article_metadata" class="row">
 

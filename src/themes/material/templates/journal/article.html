@@ -16,6 +16,10 @@
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div id="article_opener" class="row">
       <div class="padding-inline-0-75 m12">
@@ -36,10 +40,6 @@
           {% endif %}
         </div>
       </div>
-
-        <div class="col s12 reading-bar-col">
-            {% include "common/elements/journal/reading_options_bar.html" %}
-        </div>
 
         <div id="article" class="col m8 s12 text-format-region">
             <div class="card">
