@@ -1142,6 +1142,11 @@ p + .btn-background {
 }
 #article.text-format-region.tf-has-colour .card {
   background-color: var(--tf-bg) !important;
+  transition: background-color 0.4s ease-out;
+}
+/* Longer card transition when crossing to/from the default */
+#article.text-format-region.tf-default-transition .card {
+  transition: background-color 0.6s ease-out;
 }
 
 /* Handles draw-attention by inverting when custom colours are active */
@@ -1177,11 +1182,22 @@ p + .btn-background {
   font-family: var(--tf-font) !important;
 }
 
-/* Apply to the region and every descendant.*/
-.text-format-region.tf-has-colour,
-.text-format-region.tf-has-colour * {
+.text-format-region.tf-has-colour {
   background-color: var(--tf-bg) !important;
   color: var(--tf-fg) !important;
+  /* Ease colour-scheme changes so switching so is not jarring. */
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+/* Moving to/from the default is a bigger jump, so longer transition */
+.text-format-region.tf-default-transition,
+.text-format-region.tf-default-transition * {
+  transition: background-color 0.6s ease-out, color 0.6s ease-out;
 }
 
 /* Handles draw-attention by inverting when custom colours are active */

@@ -186,16 +186,23 @@ function paintRegion(region) {
 
   // dark/light is swapping bg/fg.
   var pair = state.scheme === 'customise' ? state.custom : COLOURS[state.scheme];
-  if ((state.scheme === 'default' && !state.darkmode ) || !pair) {
-    region.style.removeProperty('--tf-bg');
-    region.style.removeProperty('--tf-fg');
-    region.classList.remove('tf-has-colour');
-  } else {
+  var wantColour = !((state.scheme === 'default' && !state.darkmode) || !pair);
+
+  region.classList.toggle(
+    'tf-default-transition',
+    wantColour !== region.classList.contains('tf-has-colour')
+  );
+
+  if (wantColour) {
     var background = state.darkmode ? pair.dark : pair.light;
     var foreground = state.darkmode ? pair.light : pair.dark;
     region.style.setProperty('--tf-bg', background);
     region.style.setProperty('--tf-fg', foreground);
     region.classList.add('tf-has-colour');
+  } else {
+    region.style.removeProperty('--tf-bg');
+    region.style.removeProperty('--tf-fg');
+    region.classList.remove('tf-has-colour');
   }
 
   // Italics
