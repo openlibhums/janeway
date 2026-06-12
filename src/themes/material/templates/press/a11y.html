@@ -6,7 +6,12 @@
 
 {% block title %}{% trans "Accessibility" %}{% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
+<div class="text-format-region">
 <h1> {% trans "Accessibility" %} </h1>
     {% include "common/elements/a11y/press.html" %}
     {% include "common/elements/a11y/janeway.html" %}
@@ -50,5 +55,5 @@
             {% include "elements/icons/link_external.html" %}
         </a>
     </p>
-
+</div>
 {% endblock body %}
