@@ -15,6 +15,10 @@
     {% include "common/metadata/preprint_citation.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row preprint-content">
       <div class="col m12">
@@ -43,7 +47,7 @@
                     This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
                 </p>
                 {% if preprint.current_version_file_type == 'html' %}
-                    <div class="card">
+                    <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
                             {{ preprint.current_version.html|safe }}

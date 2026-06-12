@@ -11,6 +11,10 @@
   {% include "common/repository/style/submission_type_pills.html" with preprint=preprint %}
 {% endblock css %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
 
     <div class="row">
@@ -48,16 +52,20 @@
                     {% endfor %}
                 </p>
             </div>
-            <h2>{% trans "Abstract" %}</h2>
-            <div class="truncatejs">
-                <p>
-                    {{ preprint.abstract|safe }}
-                </p>
+            <div class="text-format-region">
+                <h2>{% trans "Abstract" %}</h2>
+                <div class="truncatejs">
+                    <p>
+                        {{ preprint.abstract|safe }}
+                    </p>
+                </div>
             </div>
             <div itemprop="articleBody" id="pdf">
                 {% if preprint.current_version_file_type == 'html' %}
-                    <h2>{% trans 'Preprint Body' %}</h2>
-                    {{ html|safe }}
+                    <div class="text-format-region">
+                        <h2>{% trans 'Preprint Body' %}</h2>
+                        {{ html|safe }}
+                    </div>
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
