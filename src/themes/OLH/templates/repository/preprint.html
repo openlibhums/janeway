@@ -64,7 +64,7 @@
                 {% if preprint.current_version_file_type == 'html' %}
                     <div class="text-format-region">
                         <h2>{% trans 'Preprint Body' %}</h2>
-                        {{ html|safe }}
+                        {{ preprint.current_version.html|safe }}
                     </div>
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
