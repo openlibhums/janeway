@@ -2,11 +2,15 @@
 
 {% block title %}{% trans "Accessibility" %}{% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <section id="content" aria-labelledby="cms-title">
         <div class="row">
             <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
-                <div id="main_article">  
+                <div id="main_article" class="text-format-region">
                     <h1 id="cms-title">{% trans "Accessibility" %} </h1>
                     <hr aria-hidden="true" />
                     {% include "common/elements/a11y/press.html" %}
