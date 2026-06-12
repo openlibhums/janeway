@@ -56,6 +56,11 @@
 {% endblock navbar %}
 </header>
 <main id="main-content">
+    <div class="reading-bar-band">
+        <div class="container">
+            {% block reading_options_bar %}{% endblock reading_options_bar %}
+        </div>
+    </div>
     <div class="container">
         <div class="section">
             {% block body %}{% endblock %}

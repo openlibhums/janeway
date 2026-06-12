@@ -632,7 +632,7 @@ div.caption span.label {
 
     li {
       a {
-        color: $dark-gray;
+        color: #595959;
         padding: 0.5rem 0;
         display: flex;
         align-items: center;
@@ -644,7 +644,7 @@ div.caption span.label {
         }
       }
       button {
-        color: $dark-gray;
+        color: #595959;
         background: none;
         border: none;
         padding: 0.5rem 0;
@@ -707,7 +707,7 @@ div.caption span.label {
         white-space: nowrap;
 
         i {
-          color: $dark-gray;
+          color: #595959;
         }
       }
 
@@ -718,7 +718,7 @@ div.caption span.label {
 
       // Dropdowns styled to match the grey bar (no default white chrome)
       select {
-        color: $dark-gray;
+        color: #595959;
         background: transparent;
         border: none;
         font: inherit;
@@ -746,7 +746,7 @@ div.caption span.label {
 
   // Icon toggles (Dark mode, Italics) carry a tick badge when active
   .tf-icon-toggle {
-    color: $dark-gray;
+    color: #595959;
     height: rem-calc(44px);
     line-height: rem-calc(44px);
     padding: 0 0.5rem;
@@ -811,6 +811,10 @@ div.caption span.label {
   color: var(--tf-fg) !important;
 }
 
+.text-format-region {
+  padding: rem-calc(20px);
+}
+
 /* Handles draw-attention by inverting when custom colours are active */
 .text-format-region.tf-has-colour .draw-attention,
 .text-format-region.tf-has-colour .draw-attention * {
@@ -829,6 +833,27 @@ div.caption span.label {
 }
 
 .text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+.reading-options-bar .columns {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.reading-options-landmark + section {
+  padding-top: 0;
+}
+
+.text-format-region.tf-has-colour .reading-options-bar,
+.text-format-region.tf-has-colour .reading-options-bar * {
+  background-color: $light-gray !important;
+  color: $dark-gray !important;
+}
+.text-format-region.tf-has-font .reading-options-bar *:not([class*="fa"]) {
+  font-family: $body-font-family !important;
+}
+.text-format-region.tf-no-italics .reading-options-bar *:not([class*="fa"]) {
   font-style: normal !important;
 }
 

@@ -15,6 +15,10 @@
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
 
     <section>
@@ -68,8 +72,6 @@
         {% endfor %}
         </div>
     {% endif %}
-
-        {% include "common/elements/journal/reading_options_bar.html" %}
 
         <section id="content" class="no-padding">
             <div class="row">

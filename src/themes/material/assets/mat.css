@@ -957,15 +957,26 @@ p + .btn-background {
   margin-bottom: 0;
 }
 
-.reading-bar-col {
+.reading-bar-band {
   position: sticky;
   top: 0;
   z-index: 1000;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
 }
 
-.reading-bar-col > .row {
-  margin-left: 0;
-  margin-right: 0;
+.reading-bar-band .mini-bar {
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reading-bar-band + .container > .section {
+  padding-top: 0;
+}
+
+.reading-options-bar {
+  margin: 0;
 }
 
 .mini-bar {
@@ -1012,7 +1023,7 @@ p + .btn-background {
   margin: 0;
   background: none;
   border: none;
-  color: #8a8a8a;
+  color: #595959;
   font: inherit;
   line-height: normal;
   text-transform: none;
@@ -1066,7 +1077,7 @@ p + .btn-background {
   margin: 0;
   background: none;
   border: none;
-  color: #8a8a8a;
+  color: #595959;
   font: inherit;
   text-align: left;
   text-transform: none;
@@ -1156,6 +1167,10 @@ p + .btn-background {
   font-weight: bold;
   font-style: normal;
   font-display: swap;
+}
+
+.text-format-region {
+  padding: 1rem;
 }
 
 .text-format-region.tf-has-font *:not([class*="fa"]) {

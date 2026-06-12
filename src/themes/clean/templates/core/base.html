@@ -76,6 +76,7 @@
         {% endif %}
     </header>
     <main id="main-content">
+        {% block reading_options_bar %}{% endblock reading_options_bar %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
                 <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
