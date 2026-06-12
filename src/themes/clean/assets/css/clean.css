@@ -702,7 +702,7 @@ span + .btn-background {
 .reading-options-bar {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 800;
 
   margin: -20px -20px 0;
 }
