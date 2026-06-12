@@ -892,7 +892,7 @@ span + .btn-background {
 
 /* applying customised reading options */
 
-.text-format-region {
+.text-format-region.tf-has-colour {
   padding: 1rem;
 }
 

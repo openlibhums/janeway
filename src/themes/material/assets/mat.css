@@ -1169,7 +1169,7 @@ p + .btn-background {
   font-display: swap;
 }
 
-.text-format-region {
+.text-format-region.tf-has-colour {
   padding: 1rem;
 }
 
