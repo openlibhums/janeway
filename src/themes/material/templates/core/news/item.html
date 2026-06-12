@@ -10,6 +10,10 @@
 {% include "elements/social_meta.html" %}
 {% endblock head %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row">
         <div class="col m12">
@@ -26,10 +30,10 @@
                 </div>
                 <div class="card-content">
                     {% if not news_item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
-                        <h1 class="no-top-margin">{{ news_item.title|safe }}</h1>
+                        <h1 class="no-top-margin text-format-region">{{ news_item.title|safe }}</h1>
                     {% endif %}
-                    <p class="byline">{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
-                    <p>{{ news_item.body|safe }}</p>
+                    <p class="byline text-format-region">{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
+                    <div class="text-format-region">{{ news_item.body|safe }}</div>
                     {% if news_item.tags.all %}
                         <br />
                         <h2>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>

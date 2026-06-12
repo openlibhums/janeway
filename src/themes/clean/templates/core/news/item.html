@@ -9,6 +9,10 @@
 {% include "elements/social_meta.html" %}
 {% endblock head %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row">
         <div class="col-md-12">
@@ -20,11 +24,11 @@
                 alt="{{ news_item.best_image_alt_text }}">
             </div>
           {% endif %}
-          <h1 class="padding-block-1">{{ news_item.title|safe }}</h1>
+          <h1 class="padding-block-1 text-format-region">{{ news_item.title|safe }}</h1>
         </div>
         <div class="col-md-12">
-            <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
-            <p>{{ news_item.body|safe }}</p>
+            <p class="byline text-format-region">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
+            <div class="text-format-region">{{ news_item.body|safe }}</div>
             <br />
             {% if news_item.tags.all %}
                 <h2>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>

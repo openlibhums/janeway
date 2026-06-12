@@ -10,17 +10,23 @@
 {% include "elements/social_meta.html" %}
 {% endblock head %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
 	<section id="content" class="">
 		<div class="row column medium-12">
             {% if news_item.best_image_url %}
               {% include "elements/news_item_banner.html" %}
             {% else %}
-                <h1>{{ news_item.title|safe }}</h1>
-			    <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human }}</p>
+                <div class="text-format-region">                
+                    <h1>{{ news_item.title|safe }}</h1>
+                    <p class="byline">{{ news_item.byline }} on {{ news_item.posted|date_human }}</p>
+                </div>
             {% endif %}
             <div class="row">
-                <div class="large-9 columns">
+                <div class="large-9 columns text-format-region">
                     {{ news_item.body|safe }}
                 </div>
                 {% if news_item.tags.all %}
