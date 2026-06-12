@@ -6,6 +6,10 @@
 
 {% block title %}{% trans "News" %} - {{ news_item.title }}{% endblock title %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row">
         <div class="col m12">
@@ -17,7 +21,7 @@
                 </div>
                 <div class="card-content">
                     <p class="byline">{% trans "Posted by" %} {{ news_item.posted_by.full_name }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
-                    <p>{{ news_item.body|safe }}</p>
+                    <div class="text-format-region">{{ news_item.body|safe }}</div>
                     {% if news_item.tags.all %}
                         <br />
                         <h2>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
