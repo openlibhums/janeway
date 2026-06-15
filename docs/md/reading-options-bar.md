@@ -25,6 +25,35 @@ Adding the bar is two steps:
 That's it — the bar is a self-contained drop-in. It loads its own CSS and JS, so
 you do **not** need to add anything to the template's `head` or `js` blocks.
 
+## How preferences persist
+
+A reader's choices (font, colour scheme, dark mode, italics, text size) are
+stored **server-side** and restored on the next page load:
+
+- **Logged-in readers** — on the `Account.text_format_preferences` JSON field.
+- **Anonymous readers** — in the session. On login, a choice the reader made
+  while anonymous is written back to their account (an untouched session leaves
+  the account value standing).
+
+The bar template seeds the stored values into the page as JSON
+(`{{ text_format_preferences|json_script:"tf-preferences" }}`). The JS reads them
+in `loadPreferences()` before the first apply, and `savePreferences()` POSTs the
+whole `state` object back — debounced, best-effort — to the
+`save_text_format_preferences` endpoint.
+
+**Why this matters when extending:** the save endpoint runs every value through
+`clean_text_format_preferences()` in `src/core/logic.py`, which **drops anything
+it doesn't recognise**. A new font or colour scheme therefore needs its key added
+to the matching server-side allow-list (`TEXT_FORMAT_FONTS` /
+`TEXT_FORMAT_SCHEMES`) or it will apply *live* but never *persist*. The steps
+below call this out.
+
+Adding a brand-new *kind* of setting (not just another font or colour) is three
+matching edits: a field on the JS `state` object, a validation branch in
+`clean_text_format_preferences()`, and nothing else on the wire —
+`serialiseState()` already sends every non-function property of `state`
+automatically.
+
 ## Extending the Reading text-format options
 
 ### Adding a font
@@ -52,22 +81,44 @@ custom face:
 
 #### 2. Register the font stack (JS)
 
-Add an entry to `FONTS` in `src/static/common/js/text_readability.js`. The
-key is an arbitrary slug; the value is the CSS `font-family` stack (always end
-with a generic family as a fallback):
+Add an entry to `FONTS` in `src/static/common/js/text_readability.js`. The key
+is an arbitrary slug; the value is an object with a `label` (the name shown on
+the Font button) and a `value` — the CSS `font-family` stack, which should always
+end with a generic family as a fallback (`null` means "use the theme's own
+font").
 
-#### 3. Add the menu option (shared bar)
+#### 3. Allow the value server-side (Python)
+
+So the choice persists (see **How preferences persist** above), add the same slug
+to `TEXT_FORMAT_FONTS` in `src/core/logic.py`:
+
+```python
+TEXT_FORMAT_FONTS = {
+    "default",
+    "sans-serif",
+    "serif",
+    "monospace",
+    "opendyslexic",
+    "myfont",  # must match the FONTS key in text_readability.js
+}
+```
+
+Skip this and the font still applies in the current page, but
+`clean_text_format_preferences()` drops it on save, so it won't survive a reload
+or login.
+
+#### 4. Add the menu option (shared bar)
 
 Add the font to the **Font** button menu in the shared
 `reading_options_bar.html` — one edit covers all three themes. The
-`setFont(...)` key must match the `FONTS` key; wrap the label in
+`state.setFont(...)` key must match the `FONTS` key; wrap the label in
 `{% trans %}`:
 
 ```html
-<li><button type="button" onclick="setFont('myfont'); event.stopPropagation();">{% trans 'My Font' %}</button></li>
+<li><button type="button" onclick="state.setFont('myfont'); event.stopPropagation();">{% trans 'My Font' %}</button></li>
 ```
 
-#### 4. Rebuild and test
+#### 5. Rebuild and test
 
 Rebuild assets, open an article, pick the new font, and confirm:
 - the body text changes font;
@@ -90,19 +141,33 @@ serves as text in one of the two modes. For WCAG 2.2AA compliance go for 1:4.5 m
 
 #### 1. Register the scheme (JS)
 
-Add an entry to `COLOURS` in `src/static/common/js/text_readability.js`:
+Add an entry to `COLOURS` in `src/static/common/js/text_readability.js`. The key
+is an arbitrary slug; the value is an object with a `label` (the name shown on
+the Colour scheme button) and the scheme's two colours, `light` and `dark`.
 
-#### 2. Add the menu option (shared bar)
+#### 2. Allow the value server-side (Python)
+
+So the choice persists (see **How preferences persist** above), add the same slug
+to `TEXT_FORMAT_SCHEMES` in `src/core/logic.py` (it sits beside
+`TEXT_FORMAT_FONTS`):
+
+```python
+TEXT_FORMAT_SCHEMES = {"default", "yellow", "blue", "green", "customise", "pink"}
+```
+
+As with fonts, an unlisted scheme still applies live but is dropped on save.
+
+#### 3. Add the menu option (shared bar)
 
 Add the scheme to the **Colour scheme** button menu in the shared
 `reading_options_bar.html`, **before** the `customise` option — one edit covers
-all three themes. The `setScheme(...)` key must match the `COLOUR_SCHEMES` key:
+all three themes. The `state.setScheme(...)` key must match the `COLOURS` key:
 
 ```html
-<li><button type="button" onclick="setScheme('pink'); event.stopPropagation();">{% trans 'Pink' %}</button></li>
+<li><button type="button" onclick="state.setScheme('pink'); event.stopPropagation();">{% trans 'Pink' %}</button></li>
 ```
 
-#### 3. Rebuild and test
+#### 4. Rebuild and test
 
 Rebuild, then for the new scheme verify Light **and** Dark, and confirm the
 nested cards / `.summary` panel and interactive buttons all recolour (the colour

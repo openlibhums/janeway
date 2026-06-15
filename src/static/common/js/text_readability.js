@@ -11,9 +11,10 @@ if (document.readyState === 'loading') {
 }
 
 // Variables
-var cumulativeResize = 0;
 var minResize = -3;
 var maxResize = 6;
+// initial apply does not POST the just-loaded value straight back to the server.
+var isLoading = false;
 
 var FONTS = {
   'default': { label: 'Default Font', value: null },
@@ -32,12 +33,13 @@ var COLOURS = {
 };
 
 
-// In-memory reader preferences. 
+// In-memory reader preferences.
 var state = {
   font: 'default',
   scheme: 'default',
   darkmode: false,
   noItalics: false,
+  textSize: 0,
   custom: { light: '#ffffff', dark: '#1a1a1a' },
 
   _assign: function (changes) {
@@ -61,6 +63,8 @@ var state = {
     var previous = this._assign(changes);
     if (!applyPreferences()) {
       this._assign(previous);
+    } else if (!isLoading) {
+      savePreferences();
     }
   },
 
@@ -114,32 +118,32 @@ function initialise() {
   isInitialised = true;
   applyToRegion(function (element) {
     var computedStyle = window.getComputedStyle(element);
-    var currentFontSize = parseFloat(computedStyle.fontSize);
-    element.style.fontSize = currentFontSize + "px";
+    element.dataset.tfBaseSize = parseFloat(computedStyle.fontSize);
   });
 }
 
-function resizeText(multiplier) {  
-  // Calculate new cumulative value
-  var newCumulative = cumulativeResize + multiplier;
-
-  // Check if the new value would be within bounds
-  if (newCumulative < minResize || newCumulative > maxResize) {
+function resizeText(multiplier) {
+  var next = state.textSize + multiplier;
+  // Ignore steps that would take us out of bounds.
+  if (next < minResize || next > maxResize) {
     return;
   }
 
-  // Update cumulative value and proceed with resize
-  cumulativeResize = newCumulative;
+  state._set({ textSize: next });
+}
 
-  function resize(element) {
-    var computedStyle = window.getComputedStyle(element);
-    var currentFontSize = parseFloat(computedStyle.fontSize);
-    var newFontSize = Math.ceil(currentFontSize + (multiplier * 0.2 * currentFontSize));
-    element.style.setProperty('font-size', newFontSize + "px", 'important');
-  }
-
-  applyToRegion(resize);
-
+function applyFontSize() {
+  var step = state.textSize || 0;
+  applyToRegion(function (element) {
+    var base = parseFloat(element.dataset.tfBaseSize);
+    if (!base) return;
+    if (step === 0) {
+      element.style.removeProperty('font-size');
+    } else {
+      var size = Math.ceil(base * (1 + 0.2 * step));
+      element.style.setProperty('font-size', size + 'px', 'important');
+    }
+  });
 }
 
 function applyToRegion(textFunction) {
@@ -166,6 +170,7 @@ function applyPreferences() {
   }
 
   getRegions().forEach(paintRegion);
+  applyFontSize();
   // Reflect the applied state onto every control copy and report success.
   return syncControls();
 }
@@ -290,20 +295,63 @@ function syncControls() {
   return true;
  }
 
-// Stub seam for the later persistence phase (account field + session flag
-// resolved server-side) to seed `state` before the first apply. A server-rendered context
-// (account field for logged-in readers, session flag for anonymous readers)
-// will seed `state` here before the first apply.
-// All preferences live in an in-memory `state` object. Every change funnels
-// through `applyPreferences()`, the single apply point that writes CSS custom
-// properties and presence classes onto the target region.
-//
-// Seed `state` via state._set({...}) rather than assigning fields directly: that
-// routes a saved/server value through the same validate-and-rollback path as the
-// live controls, so a stale or tampered font/scheme can't lodge an unresolvable
-// value in `state`.
+// Persistence. Preferences are stored server-side (Account field for logged-in
+// readers, session for anonymous ones), resolved in core/logic.py and seeded
+// into the page as JSON by the reading options bar template.
+
+function getConfig() {
+  return document.getElementById('tf-config');
+}
+
+// The serialisable preference data: every non-function property of `state`. 
+// New settings added to `state` are persisted automatically
+function serialiseState() {
+  var data = {};
+  Object.keys(state).forEach(function (key) {
+    if (typeof state[key] !== 'function') {
+      data[key] = state[key];
+    }
+  });
+  return data;
+}
+
+// Seed `state` from the server-rendered JSON before the first apply.
 function loadPreferences() {
-  return;
+  var seed = document.getElementById('tf-preferences');
+  if (!seed) return;
+  var saved;
+  try {
+    saved = JSON.parse(seed.textContent);
+  } catch (e) {
+    return;
+  }
+  if (!saved || typeof saved !== 'object' || !Object.keys(saved).length) {
+    return;
+  }
+  isLoading = true;
+  state._set(saved);
+  isLoading = false;
+}
+
+// Persist the current state. Debounced so rapid changes.
+var saveTimer = null;
+function savePreferences() {
+  var config = getConfig();
+  if (!config || !config.dataset.saveUrl) return;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+  }
+  saveTimer = setTimeout(function () {
+    fetch(config.dataset.saveUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': config.dataset.csrf || ''
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(serialiseState())
+    }).catch(function () { /* persistence is best-effort */ });
+  }, 400);
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -91,3 +91,8 @@ def version(request):
 def accessibility_mode(request):
     """Expose the resolved accessibility-mode flag in template context."""
     return {"accessibility_mode_active": logic.accessibility_mode_active(request)}
+
+
+def text_format_preferences(request):
+    """Expose the reader's stored reading-options preferences to templates."""
+    return {"text_format_preferences": logic.text_format_preferences(request)}

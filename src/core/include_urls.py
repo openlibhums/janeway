@@ -462,6 +462,11 @@ urlpatterns = [
         name="toggle_accessibility_mode",
     ),
     re_path(
+        r"^reading-options/preferences/$",
+        core_views.save_text_format_preferences,
+        name="save_text_format_preferences",
+    ),
+    re_path(
         r"^jsi18n/$",
         cache_page(60 * 60, key_prefix="jsi18n_catalog")(JavaScriptCatalog.as_view()),
         name="javascript-catalog",
