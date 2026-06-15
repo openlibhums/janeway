@@ -140,5 +140,9 @@
         </div>
     </div>
 </div>
+{{ text_format_preferences|json_script:"tf-preferences" }}
+<div id="tf-config" hidden
+     data-save-url="{% url 'save_text_format_preferences' %}"
+     data-csrf="{{ csrf_token }}"></div>
 <script src="{% static 'common/js/text_readability.js' %}"></script>
 </section>

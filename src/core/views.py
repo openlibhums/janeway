@@ -20,7 +20,7 @@ from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
@@ -293,16 +293,12 @@ def user_logout(request):
     :return: HttpResponse object
     """
     messages.info(request, _("You have been logged out."))
-    # Capture the account preference before logout() flushes the session, then
-    # re-seed it so accessibility mode is sticky across logout: an account with
-    # the mode on stays on; off leaves no session key and so stays off.
-    accessibility_mode = bool(
-        request.user.is_authenticated
-        and getattr(request.user, "accessibility_mode", False)
-    )
+    # Capture the account's reader preferences before logout() flushes the
+    # session, then re-seed them into the fresh session so they are sticky
+    # across logout: a non-default value stays, a default leaves no key.
+    account_values = logic.capture_account_preferences(request.user)
     logout(request)
-    if accessibility_mode:
-        request.session["accessibility_mode"] = True
+    logic.reseed_session_preferences(request.session, account_values)
     return redirect(reverse("website_index"))
 
 
@@ -2788,6 +2784,32 @@ def toggle_accessibility_mode(request):
         )
 
     return redirect("/")
+
+
+@require_POST
+def save_text_format_preferences(request):
+    """Persist the reader's reading-options preferences.
+
+    Authenticated users have the preferences stored on
+    Account.text_format_preferences; anonymous users in the session.
+    """
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (ValueError, TypeError, UnicodeDecodeError):
+        return JsonResponse({"error": "invalid payload"}, status=400)
+
+    cleaned = logic.clean_text_format_preferences(payload)
+
+    if request.user.is_authenticated:
+        request.user.text_format_preferences = cleaned
+        request.user.save(update_fields=["text_format_preferences"])
+        # Drop any stale anonymous session copy so it cannot shadow the account
+        # preference on later requests.
+        request.session.pop("text_format_preferences", None)
+    else:
+        request.session["text_format_preferences"] = cleaned
+
+    return JsonResponse({"preferences": cleaned})
 
 
 @login_required

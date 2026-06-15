@@ -548,6 +548,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
         ),
         verbose_name=_("Accessibility mode"),
     )
+    text_format_preferences = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Reading options (e.g. font, colour scheme,) chosen via the "
+            "reading options bar, stored so they persist between visits."
+        ),
+        verbose_name=_("Reading options preferences"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 

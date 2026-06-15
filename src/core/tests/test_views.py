@@ -3,6 +3,7 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import json
 from mock import patch
 from types import SimpleNamespace
 from uuid import uuid4
@@ -17,6 +18,7 @@ from django.urls.base import clear_script_prefix
 from django.utils import timezone
 
 from core import models as core_models
+from core import logic as core_logic
 from core import middleware as core_middleware
 from core import views as core_views
 from utils import orcid, setting_handler
@@ -1237,6 +1239,280 @@ class AccessibilityModePersistenceTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+class CleanTextFormatPreferencesTests(TestCase):
+    """Unit tests for the reading-options payload sanitiser."""
+
+    def test_non_dict_payload_returns_empty(self):
+        self.assertEqual(core_logic.clean_text_format_preferences(None), {})
+        self.assertEqual(core_logic.clean_text_format_preferences("nope"), {})
+        self.assertEqual(core_logic.clean_text_format_preferences([1, 2]), {})
+
+    def test_known_values_are_kept(self):
+        payload = {
+            "font": "serif",
+            "scheme": "yellow",
+            "darkmode": True,
+            "noItalics": False,
+            "custom": {"light": "#ffffff", "dark": "#1a1a1a"},
+            "textSize": 2,
+        }
+        self.assertEqual(core_logic.clean_text_format_preferences(payload), payload)
+
+    def test_unknown_font_and_scheme_are_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"font": "comic-sans", "scheme": "rainbow"}
+        )
+        self.assertEqual(cleaned, {})
+
+    def test_unknown_keys_are_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"font": "serif", "evil": "<script>"}
+        )
+        self.assertEqual(cleaned, {"font": "serif"})
+
+    def test_non_bool_flags_are_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"darkmode": "yes", "noItalics": 1}
+        )
+        self.assertEqual(cleaned, {})
+
+    def test_invalid_custom_hex_is_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"custom": {"light": "red", "dark": "#1a1a1a"}}
+        )
+        self.assertEqual(cleaned, {"custom": {"dark": "#1a1a1a"}})
+
+    def test_custom_with_no_valid_colours_is_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"custom": {"light": "red", "dark": "blue"}}
+        )
+        self.assertEqual(cleaned, {})
+
+    def test_text_size_out_of_range_is_dropped(self):
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": 99}), {}
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": -99}), {}
+        )
+
+    def test_text_size_bounds_are_inclusive(self):
+        self.assertEqual(
+            core_logic.clean_text_format_preferences(
+                {"textSize": core_logic.TEXT_FORMAT_SIZE_MIN}
+            ),
+            {"textSize": core_logic.TEXT_FORMAT_SIZE_MIN},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences(
+                {"textSize": core_logic.TEXT_FORMAT_SIZE_MAX}
+            ),
+            {"textSize": core_logic.TEXT_FORMAT_SIZE_MAX},
+        )
+
+    def test_bool_text_size_is_dropped(self):
+        # bool is a subclass of int; True must not be accepted as a size.
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": True}), {}
+        )
+
+
+@override_settings(URL_CONFIG="domain")
+class SaveTextFormatPreferencesViewTests(TestCase):
+    """Tests for the save_text_format_preferences POST endpoint."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "tf_save@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.url = reverse("save_text_format_preferences")
+        self.valid = {"font": "serif", "scheme": "yellow", "textSize": 2}
+
+    def post_preferences(self, payload):
+        return self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def test_get_method_is_not_allowed(self):
+        response = self.client.get(self.url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(response.status_code, 405)
+
+    def test_invalid_json_returns_400(self):
+        response = self.client.post(
+            self.url,
+            data="not json",
+            content_type="application/json",
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_anonymous_save_stores_cleaned_in_session(self):
+        response = self.post_preferences(self.valid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.client.session.get("text_format_preferences"), self.valid
+        )
+
+    def test_tampered_payload_is_sanitised_before_storage(self):
+        response = self.post_preferences(
+            {"font": "comic-sans", "scheme": "yellow", "evil": "x"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.client.session.get("text_format_preferences"),
+            {"scheme": "yellow"},
+        )
+
+    def test_authenticated_save_stores_on_account_not_session(self):
+        self.client.force_login(self.user)
+        response = self.post_preferences(self.valid)
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.text_format_preferences, self.valid)
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
+
+
+@override_settings(URL_CONFIG="domain")
+class TextFormatPreferencesPersistenceTests(TestCase):
+    """Login and logout persistence for the reading-options preferences.
+
+    The dict analogue of the accessibility-mode boolean matrix: on
+    login an explicit anonymous change wins and is written back to the account;
+    an untouched anonymous session leaves the account value standing; on logout
+    a stored preference is sticky for the now-anonymous visitor.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "tf_persist@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+        cls.anon_prefs = {"font": "serif"}
+        cls.account_prefs = {"scheme": "yellow"}
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    def seed_anonymous_session(self, value):
+        """Seed the anonymous session preferences.
+
+        ``None`` leaves the session untouched (no key, i.e. the visitor never
+        changed a setting); a dict records an explicit anonymous choice.
+        """
+        if value is None:
+            return
+        session = self.client.session
+        session["text_format_preferences"] = value
+        session.save()
+
+    def login_after(self, anonymous, account):
+        """Apply an anonymous session state and account value, then log in."""
+        self.user.text_format_preferences = account
+        self.user.save()
+        self.seed_anonymous_session(anonymous)
+        self.assertTrue(
+            self.client.login(
+                username=self.user_email,
+                password=self.user_password,
+            )
+        )
+        self.user.refresh_from_db()
+
+    def assertLoginResult(self, anonymous, account, expected_account):
+        self.login_after(anonymous=anonymous, account=account)
+        self.assertEqual(self.user.text_format_preferences, expected_account)
+        # The session copy is always cleared so it can never shadow the
+        # account preference on later requests.
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
+
+    def test_login_untouched_empty_account_stays_empty(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account={},
+            expected_account={},
+        )
+
+    def test_login_untouched_account_applied(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=self.account_prefs,
+            expected_account=self.account_prefs,
+        )
+
+    def test_login_explicit_empty_account_writes_back(self):
+        self.assertLoginResult(
+            anonymous=self.anon_prefs,
+            account={},
+            expected_account=self.anon_prefs,
+        )
+
+    def test_login_explicit_overwrites_account(self):
+        self.assertLoginResult(
+            anonymous=self.anon_prefs,
+            account=self.account_prefs,
+            expected_account=self.anon_prefs,
+        )
+
+    def test_login_explicit_clear_disables_account(self):
+        # An explicit anonymous reset (empty dict present) clears a previously
+        # stored account preference, rather than being read as "untouched".
+        self.assertLoginResult(
+            anonymous={},
+            account=self.account_prefs,
+            expected_account={},
+        )
+
+    def test_logout_account_value_is_sticky(self):
+        self.user.text_format_preferences = self.account_prefs
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Logout flushes the session; the account value is re-seeded so the
+        # preference stays for the now-anonymous visitor.
+        self.assertEqual(
+            self.client.session.get("text_format_preferences"),
+            self.account_prefs,
+        )
+
+    def test_logout_empty_account_leaves_no_session_key(self):
+        self.user.text_format_preferences = {}
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
 
 
 class ControlledAffiliationDisplayTests(CoreViewTestsWithData):

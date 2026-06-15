@@ -27,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from core import forms, models, files, plugin_installed_apps
+from core.const import Sentinel
 from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
@@ -814,19 +815,9 @@ def accessibility_mode_active(request):
     if request is None:
         return False
 
-    user = getattr(request, "user", None)
-    if user is not None and getattr(user, "is_authenticated", False):
-        user_flag = bool(getattr(user, "accessibility_mode", False))
-    else:
-        user_flag = False
-
-    if not user_flag:
-        session = getattr(request, "session", None)
-        session_flag = bool(session.get("accessibility_mode")) if session else False
-    else:
-        session_flag = False
-
-    if not (user_flag or session_flag):
+    # Read account-or-session via the generic store, then apply the
+    # a11y-specific journal-setting gate below.
+    if not bool(get_preference(request, ACCESSIBILITY_MODE_DESCRIPTOR)):
         return False
 
     # Only consult the journal-level setting when a preference has been
@@ -847,6 +838,193 @@ def accessibility_mode_active(request):
             return False
 
     return True
+
+
+# --- Generic reader-preference store ---------------------------------------
+#
+# A small registry of reader-preference descriptors plus three feature-agnostic
+# functions that operate on it: login migration, logout stickiness, and read.
+# A11y-mode and reading options both run this identical code path; any future
+# persisted reader preference registers a descriptor and inherits the same
+# anonymous<->account semantics. The store is unowned: features read/write keys.
+
+class PreferenceDescriptor:
+    """A single persisted reader preference.
+
+    ``session_key``/``account_field`` are the matching session key and Account
+    field. ``default`` is the value that means "not set" (no session re-seed on
+    logout). ``clean`` sanitises a stored/incoming value; identity for a bool,
+    ``clean_text_format_preferences`` for the reading-options dict.
+    """
+
+    def __init__(self, session_key, account_field, default, clean=None):
+        self.session_key = session_key
+        self.account_field = account_field
+        self.default = default
+        self.clean = clean or (lambda value: value)
+
+
+def get_preference(request, descriptor):
+    """Read a preference: account if authenticated, else session."""
+    if request is None:
+        return descriptor.default
+
+    user = getattr(request, "user", None)
+    if user is not None and getattr(user, "is_authenticated", False):
+        return getattr(user, descriptor.account_field, descriptor.default)
+
+    session = getattr(request, "session", None)
+    if session is None:
+        return descriptor.default
+    return session.get(descriptor.session_key, descriptor.default)
+
+
+def migrate_session_preferences(request, user):
+    """Carry explicit anonymous preferences onto the account on login.
+
+    The session key is present only when the visitor explicitly changed the
+    setting; its value records that choice. For each descriptor we pop the key
+    and, when present, write the cleaned value back to the account if it differs.
+    An absent key means "untouched" — the account value stands. Generalises the
+    a11y-mode login migration; value-type-agnostic so a bool and a dict both
+    work.
+    """
+    if request is None:
+        return
+
+    session = getattr(request, "session", None)
+    if session is None:
+        return
+
+    for descriptor in PREFERENCE_DESCRIPTORS:
+        value = session.pop(descriptor.session_key, Sentinel.UNSET)
+        if value is Sentinel.UNSET:
+            continue
+        cleaned = descriptor.clean(value)
+        if getattr(user, descriptor.account_field) != cleaned:
+            setattr(user, descriptor.account_field, cleaned)
+            user.save(update_fields=[descriptor.account_field])
+
+
+def reseed_session_preferences(session, account_values):
+    """Re-seed account preferences into a fresh post-logout session.
+
+    ``account_values`` are captured before ``logout()`` flushes the session.
+    Each non-default value is written back under its session key so the
+    preference is sticky across logout; a default value leaves no key and so
+    stays off/unset. Generalises the a11y-mode logout re-seed.
+    """
+    for descriptor in PREFERENCE_DESCRIPTORS:
+        value = account_values.get(descriptor.session_key, descriptor.default)
+        if value != descriptor.default:
+            session[descriptor.session_key] = value
+
+
+def capture_account_preferences(user):
+    """Snapshot an account's stored preferences keyed by session key.
+
+    Called before ``logout()`` flushes the session so the values survive to be
+    re-seeded afterwards by ``reseed_session_preferences``.
+    """
+    if user is None or not getattr(user, "is_authenticated", False):
+        return {}
+    return {
+        d.session_key: getattr(user, d.account_field, d.default)
+        for d in PREFERENCE_DESCRIPTORS
+    }
+
+
+# --- Reading options preferences -------------------------------------------
+
+# Allowed values for the reading options bar preferences. Kept in step with the
+# FONTS/COLOURS maps and the resize bounds in static/common/js/text_readability.js.
+# Server-side validation means a stale or tampered stored value can never lodge
+# an unresolvable preference (the same guarantee the JS rollback gives live).
+TEXT_FORMAT_FONTS = {
+    "default",
+    "sans-serif",
+    "serif",
+    "monospace",
+    "opendyslexic",
+}
+TEXT_FORMAT_SCHEMES = {"default", "yellow", "blue", "green", "customise"}
+TEXT_FORMAT_SIZE_MIN = -3
+TEXT_FORMAT_SIZE_MAX = 6
+_HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def clean_text_format_preferences(payload):
+    """Return a sanitised copy of reading-options preferences.
+
+    Drops anything unrecognised so only known, in-range values are ever stored
+    or seeded into the client. To add a new persisted setting, validate its key
+    here (and add the matching field to the JS `state`).
+    """
+    if not isinstance(payload, dict):
+        return {}
+
+    cleaned = {}
+
+    if payload.get("font") in TEXT_FORMAT_FONTS:
+        cleaned["font"] = payload["font"]
+
+    if payload.get("scheme") in TEXT_FORMAT_SCHEMES:
+        cleaned["scheme"] = payload["scheme"]
+
+    for flag in ("darkmode", "noItalics"):
+        if isinstance(payload.get(flag), bool):
+            cleaned[flag] = payload[flag]
+
+    custom = payload.get("custom")
+    if isinstance(custom, dict):
+        colours = {}
+        for key in ("light", "dark"):
+            value = custom.get(key)
+            if isinstance(value, str) and _HEX_COLOUR_RE.match(value):
+                colours[key] = value
+        if colours:
+            cleaned["custom"] = colours
+
+    size = payload.get("textSize")
+    # bool is a subclass of int, so exclude it explicitly.
+    if (
+        isinstance(size, int)
+        and not isinstance(size, bool)
+        and TEXT_FORMAT_SIZE_MIN <= size <= TEXT_FORMAT_SIZE_MAX
+    ):
+        cleaned["textSize"] = size
+
+    return cleaned
+
+
+def text_format_preferences(request):
+    """Resolve the reader's stored reading-options preferences.
+
+    Reads via the generic store (account if authenticated, else session) and
+    returns a sanitised dict (empty when nothing is stored).
+    """
+    stored = get_preference(request, TEXT_FORMAT_PREFERENCES_DESCRIPTOR)
+    return clean_text_format_preferences(stored or {})
+
+
+# Registered descriptors. accessibility_mode's request-time resolver applies an
+# additional journal-setting gate (kept in accessibility_mode_active, not here).
+ACCESSIBILITY_MODE_DESCRIPTOR = PreferenceDescriptor(
+    session_key="accessibility_mode",
+    account_field="accessibility_mode",
+    default=False,
+    clean=bool,
+)
+TEXT_FORMAT_PREFERENCES_DESCRIPTOR = PreferenceDescriptor(
+    session_key="text_format_preferences",
+    account_field="text_format_preferences",
+    default={},
+    clean=clean_text_format_preferences,
+)
+PREFERENCE_DESCRIPTORS = [
+    ACCESSIBILITY_MODE_DESCRIPTOR,
+    TEXT_FORMAT_PREFERENCES_DESCRIPTOR,
+]
 
 
 def handle_default_thumbnail(request, journal, attr_form):
