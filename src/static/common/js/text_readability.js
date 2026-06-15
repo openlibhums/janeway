@@ -180,9 +180,12 @@ function paintRegion(region) {
   var pair = state.scheme === 'customise' ? state.custom : COLOURS[state.scheme];
   var wantColour = !((state.scheme === 'default' && !state.darkmode) || !pair);
 
+  // Animate the colour change only for a live toggle, not the initial apply of
+  // a restored preference — a new page should load already in its colour, not
+  // fade into it.
   region.classList.toggle(
     'tf-default-transition',
-    wantColour !== region.classList.contains('tf-has-colour')
+    !isLoading && wantColour !== region.classList.contains('tf-has-colour')
   );
 
   if (wantColour) {
@@ -344,5 +347,9 @@ function savePreferences() {
 document.addEventListener('DOMContentLoaded', function () {
   loadPreferences();
   applyPreferences();
+  var preload = document.getElementById('tf-preload');
+  if (preload) {
+    preload.remove();
+  }
   lockToggleButtonWidths();
 });
