@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.utils.encoding import force_str
+from django.utils.safestring import mark_safe
 
 from cms import models as cms_models
 from core import logic, text_format
@@ -96,8 +97,20 @@ def accessibility_mode(request):
 
 
 def text_format_preferences(request):
-    """Expose the reader's stored reading-options preferences to templates."""
-    return {"text_format_preferences": logic.text_format_preferences(request)}
+    """Expose the reader's stored reading-options preferences to templates.
+
+    ``text_format_initial_style`` is server-rendered CSS that paints the reading
+    region in a restored colour scheme on first paint, so there is no flash of
+    the default colour before text_readability.js runs. Safe: the helper only
+    emits validated hex values.
+    """
+    preferences = logic.text_format_preferences(request)
+    return {
+        "text_format_preferences": preferences,
+        "text_format_initial_style": mark_safe(
+            text_format.initial_region_colour_css(preferences)
+        ),
+    }
 
 
 def text_format_options(request):

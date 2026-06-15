@@ -141,5 +141,6 @@
 <div id="tf-config" hidden
      data-save-url="{% url 'save_text_format_preferences' %}"
      data-csrf="{{ csrf_token }}"></div>
+{% if text_format_initial_style %}<style id="tf-preload">{{ text_format_initial_style }}</style>{% endif %}
 <script src="{% static 'common/js/text_readability.js' %}"></script>
 </section>

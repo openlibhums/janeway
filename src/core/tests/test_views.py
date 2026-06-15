@@ -1367,6 +1367,67 @@ class SizeBoundsTests(TestCase):
         )
 
 
+class InitialRegionColourCssTests(TestCase):
+    """Unit tests for the no-flash bootstrap CSS resolver."""
+
+    def css(self, preferences):
+        return core_text_format.initial_region_colour_css(preferences)
+
+    def test_non_dict_and_empty_yield_nothing(self):
+        self.assertEqual(self.css(None), "")
+        self.assertEqual(self.css("nope"), "")
+        self.assertEqual(self.css({}), "")
+
+    def test_default_scheme_light_has_no_override(self):
+        # The default scheme in light mode shows the theme's own colours.
+        self.assertEqual(self.css({"scheme": "default"}), "")
+        self.assertEqual(self.css({"scheme": "default", "darkmode": False}), "")
+
+    def test_default_scheme_dark_applies_dark_pair(self):
+        css = self.css({"scheme": "default", "darkmode": True})
+        # Dark mode swaps: the dark colour becomes the background.
+        self.assertIn("background-color:#1a1a1a", css)
+        self.assertIn("color:#ffffff", css)
+
+    def test_preset_scheme_light(self):
+        css = self.css({"scheme": "yellow"})
+        self.assertIn(".text-format-region", css)
+        self.assertIn("background-color:#F5F5DC", css)
+        self.assertIn("color:#4c4c4c", css)
+        self.assertIn("padding:20px", css)
+
+    def test_preset_scheme_dark_swaps_pair(self):
+        css = self.css({"scheme": "yellow", "darkmode": True})
+        self.assertIn("background-color:#4c4c4c", css)
+        self.assertIn("color:#F5F5DC", css)
+
+    def test_customise_uses_custom_hex(self):
+        css = self.css(
+            {"scheme": "customise", "custom": {"light": "#abcdef", "dark": "#123456"}}
+        )
+        self.assertIn("background-color:#abcdef", css)
+        self.assertIn("color:#123456", css)
+
+    def test_unknown_scheme_yields_nothing(self):
+        self.assertEqual(self.css({"scheme": "not-a-real-scheme"}), "")
+
+    def test_non_hex_values_are_rejected(self):
+        # A tampered custom colour must never reach the emitted CSS.
+        self.assertEqual(
+            self.css({"scheme": "customise", "custom": {"light": "red", "dark": "#000000"}}),
+            "",
+        )
+        self.assertEqual(
+            self.css(
+                {
+                    "scheme": "customise",
+                    "custom": {"light": "#fff;}body{display:none", "dark": "#000000"},
+                }
+            ),
+            "",
+        )
+
+
 @override_settings(URL_CONFIG="domain")
 class SaveTextFormatPreferencesViewTests(TestCase):
     """Tests for the save_text_format_preferences POST endpoint."""

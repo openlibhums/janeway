@@ -1,7 +1,11 @@
 # Single source of truth for the reading-options bar: the reader-selectable
-# fonts and colour schemes, plus the text-size step bounds. 
+# fonts and colour schemes, plus the text-size step bounds.
+
+import re
 
 from django.utils.translation import gettext_lazy as _
+
+_HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 # Global default text-size step bounds. 
 DEFAULT_SIZE_BOUNDS = {"min": -3, "max": 6}
@@ -35,3 +39,36 @@ def size_bounds(font=None):
     if isinstance(entry, dict) and isinstance(entry.get("size"), dict):
         return entry["size"]
     return DEFAULT_SIZE_BOUNDS
+
+
+def initial_region_colour_css(preferences):
+    """CSS that paints .text-format-region in the reader's saved scheme."""
+    if not isinstance(preferences, dict):
+        return ""
+
+    scheme = preferences.get("scheme", "default")
+    darkmode = bool(preferences.get("darkmode"))
+    if scheme == "customise":
+        pair = preferences.get("custom") or {}
+        light, dark = pair.get("light"), pair.get("dark")
+    else:
+        entry = COLOUR_SCHEMES.get(scheme) or {}
+        light, dark = entry.get("light"), entry.get("dark")
+
+    # No override for the default scheme in light mode (the theme's own colours
+    # show); a scheme without a usable pair is treated as no colour.
+    if (scheme == "default" and not darkmode) or not (light and dark):
+        return ""
+
+    background = dark if darkmode else light
+    foreground = light if darkmode else dark
+    # Defensive: only emit values we recognise as hex, so the resolved
+    # preference can never inject arbitrary CSS.
+    if not (_HEX_COLOUR_RE.match(background) and _HEX_COLOUR_RE.match(foreground)):
+        return ""
+
+    return (
+        '.text-format-region,.text-format-region *:not([class*="fa"])'
+        "{background-color:%s!important;color:%s!important}"
+        ".text-format-region{padding:20px}"
+    ) % (background, foreground)
