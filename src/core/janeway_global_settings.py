@@ -158,6 +158,7 @@ TEMPLATES = [
                 "core.context_processors.version",
                 "core.context_processors.accessibility_mode",
                 "core.context_processors.text_format_preferences",
+                "core.context_processors.text_format_options",
                 "django_settings_export.settings_export",
                 "django.template.context_processors.i18n",
             ],

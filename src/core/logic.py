@@ -26,7 +26,7 @@ from django.utils.translation import get_language, gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
-from core import forms, models, files, plugin_installed_apps
+from core import forms, models, files, plugin_installed_apps, text_format
 from core.const import Sentinel
 from utils.function_cache import cache
 from review import models as review_models
@@ -936,20 +936,10 @@ def capture_account_preferences(user):
 
 # --- Reading options preferences -------------------------------------------
 
-# Allowed values for the reading options bar preferences. Kept in step with the
-# FONTS/COLOURS maps and the resize bounds in static/common/js/text_readability.js.
-# Server-side validation means a stale or tampered stored value can never lodge
-# an unresolvable preference (the same guarantee the JS rollback gives live).
-TEXT_FORMAT_FONTS = {
-    "default",
-    "sans-serif",
-    "serif",
-    "monospace",
-    "opendyslexic",
-}
-TEXT_FORMAT_SCHEMES = {"default", "yellow", "blue", "green", "customise"}
-TEXT_FORMAT_SIZE_MIN = -3
-TEXT_FORMAT_SIZE_MAX = 6
+# Allowed fonts, schemes and size bounds derive from the text_format registry,
+# the single source of truth shared with the bar template and the JS. Server-side
+# validation means a stale or tampered stored value can never lodge an
+# unresolvable preference (the same guarantee the JS rollback gives live).
 _HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
@@ -965,10 +955,10 @@ def clean_text_format_preferences(payload):
 
     cleaned = {}
 
-    if payload.get("font") in TEXT_FORMAT_FONTS:
+    if payload.get("font") in text_format.FONTS:
         cleaned["font"] = payload["font"]
 
-    if payload.get("scheme") in TEXT_FORMAT_SCHEMES:
+    if payload.get("scheme") in text_format.COLOUR_SCHEMES:
         cleaned["scheme"] = payload["scheme"]
 
     for flag in ("darkmode", "noItalics"):
@@ -986,11 +976,12 @@ def clean_text_format_preferences(payload):
             cleaned["custom"] = colours
 
     size = payload.get("textSize")
+    bounds = text_format.size_bounds(payload.get("font"))
     # bool is a subclass of int, so exclude it explicitly.
     if (
         isinstance(size, int)
         and not isinstance(size, bool)
-        and TEXT_FORMAT_SIZE_MIN <= size <= TEXT_FORMAT_SIZE_MAX
+        and bounds["min"] <= size <= bounds["max"]
     ):
         cleaned["textSize"] = size
 

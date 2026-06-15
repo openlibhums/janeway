@@ -3,8 +3,10 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.utils.encoding import force_str
+
 from cms import models as cms_models
-from core import logic
+from core import logic, text_format
 from utils.logic import get_janeway_version
 
 
@@ -96,3 +98,20 @@ def accessibility_mode(request):
 def text_format_preferences(request):
     """Expose the reader's stored reading-options preferences to templates."""
     return {"text_format_preferences": logic.text_format_preferences(request)}
+
+
+def text_format_options(request):
+    """Expose the reading-options registry (fonts, schemes, size bounds)."""
+
+    def resolve(entries):
+        return {
+            slug: {**entry, "label": force_str(entry["label"])}
+            for slug, entry in entries.items()
+        }
+
+    options = {
+        "fonts": resolve(text_format.FONTS),
+        "schemes": resolve(text_format.COLOUR_SCHEMES),
+        "sizeBounds": text_format.DEFAULT_SIZE_BOUNDS,
+    }
+    return {"text_format_options": options}

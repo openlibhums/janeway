@@ -20,6 +20,7 @@ from django.utils import timezone
 from core import models as core_models
 from core import logic as core_logic
 from core import middleware as core_middleware
+from core import text_format as core_text_format
 from core import views as core_views
 from utils import orcid, setting_handler
 from utils.template_override_middleware import Loader
@@ -1266,6 +1267,26 @@ class CleanTextFormatPreferencesTests(TestCase):
         )
         self.assertEqual(cleaned, {})
 
+    def test_allow_lists_track_the_registry(self):
+        # Every registry slug validates; a slug absent from the registry does not.
+        for slug in core_text_format.FONTS:
+            self.assertEqual(
+                core_logic.clean_text_format_preferences({"font": slug}),
+                {"font": slug},
+            )
+        for slug in core_text_format.COLOUR_SCHEMES:
+            self.assertEqual(
+                core_logic.clean_text_format_preferences({"scheme": slug}),
+                {"scheme": slug},
+            )
+        self.assertNotIn("not-a-registered-font", core_text_format.FONTS)
+        self.assertEqual(
+            core_logic.clean_text_format_preferences(
+                {"font": "not-a-registered-font"}
+            ),
+            {},
+        )
+
     def test_unknown_keys_are_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(
             {"font": "serif", "evil": "<script>"}
@@ -1299,23 +1320,50 @@ class CleanTextFormatPreferencesTests(TestCase):
         )
 
     def test_text_size_bounds_are_inclusive(self):
+        bounds = core_text_format.size_bounds()
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["min"]}),
+            {"textSize": bounds["min"]},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["max"]}),
+            {"textSize": bounds["max"]},
+        )
+
+    def test_text_size_validates_via_size_bounds(self):
+        # One step outside the resolved bounds is dropped.
+        bounds = core_text_format.size_bounds()
         self.assertEqual(
             core_logic.clean_text_format_preferences(
-                {"textSize": core_logic.TEXT_FORMAT_SIZE_MIN}
+                {"textSize": bounds["min"] - 1}
             ),
-            {"textSize": core_logic.TEXT_FORMAT_SIZE_MIN},
+            {},
         )
         self.assertEqual(
             core_logic.clean_text_format_preferences(
-                {"textSize": core_logic.TEXT_FORMAT_SIZE_MAX}
+                {"textSize": bounds["max"] + 1}
             ),
-            {"textSize": core_logic.TEXT_FORMAT_SIZE_MAX},
+            {},
         )
 
     def test_bool_text_size_is_dropped(self):
         # bool is a subclass of int; True must not be accepted as a size.
         self.assertEqual(
             core_logic.clean_text_format_preferences({"textSize": True}), {}
+        )
+
+
+class SizeBoundsTests(TestCase):
+    """Unit tests for the text_format size-bounds accessor."""
+
+    def test_global_default_is_returned(self):
+        self.assertEqual(
+            core_text_format.size_bounds(),
+            core_text_format.DEFAULT_SIZE_BOUNDS,
+        )
+        self.assertEqual(
+            core_text_format.size_bounds("serif"),
+            core_text_format.DEFAULT_SIZE_BOUNDS,
         )
 
 
