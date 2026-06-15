@@ -28,11 +28,9 @@
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
                                 </button>
                                 <ul class="menu vertical" id="tf-font-menu">
-                                    <li><button type="button" onclick="state.setFont('default'); event.stopPropagation();">{% trans 'Default Font' %}</button></li>
-                                    <li><button type="button" onclick="state.setFont('sans-serif'); event.stopPropagation();">{% trans 'Sans-serif' %}</button></li>
-                                    <li><button type="button" onclick="state.setFont('serif'); event.stopPropagation();">{% trans 'Serif' %}</button></li>
-                                    <li><button type="button" onclick="state.setFont('monospace'); event.stopPropagation();">{% trans 'Monospace' %}</button></li>
-                                    <li><button type="button" onclick="state.setFont('opendyslexic'); event.stopPropagation();">{% trans 'OpenDyslexic' %}</button></li>
+                                    {% for slug, font in text_format_options.fonts.items %}
+                                        <li><button type="button" onclick="state.setFont('{{ slug }}'); event.stopPropagation();">{{ font.label }}</button></li>
+                                    {% endfor %}
                                 </ul>
                             </li>
                             <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}" title="{% trans 'Decrease text size' %}">A-</button></li>
@@ -59,11 +57,9 @@
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
                                 </button>
                                 <ul class="menu vertical" id="tf-scheme-menu">
-                                    <li><button type="button" onclick="state.setScheme('default'); event.stopPropagation();">{% trans 'Default Colour' %}</button></li>
-                                    <li><button type="button" onclick="state.setScheme('yellow'); event.stopPropagation();">{% trans 'Yellow' %}</button></li>
-                                    <li><button type="button" onclick="state.setScheme('blue'); event.stopPropagation();">{% trans 'Blue' %}</button></li>
-                                    <li><button type="button" onclick="state.setScheme('green'); event.stopPropagation();">{% trans 'Green' %}</button></li>
-                                    <li><button type="button" onclick="state.setScheme('customise'); event.stopPropagation();">{% trans 'Customise' %}</button></li>
+                                    {% for slug, scheme in text_format_options.schemes.items %}
+                                        <li><button type="button" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
+                                    {% endfor %}
                                 </ul>
                             </li>
                             <li class="tf-custom-colours tf-field" hidden>
@@ -141,6 +137,7 @@
     </div>
 </div>
 {{ text_format_preferences|json_script:"tf-preferences" }}
+{{ text_format_options|json_script:"tf-options" }}
 <div id="tf-config" hidden
      data-save-url="{% url 'save_text_format_preferences' %}"
      data-csrf="{{ csrf_token }}"></div>

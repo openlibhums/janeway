@@ -11,26 +11,13 @@ if (document.readyState === 'loading') {
 }
 
 // Variables
-var minResize = -3;
-var maxResize = 6;
 // initial apply does not POST the just-loaded value straight back to the server.
 var isLoading = false;
 
-var FONTS = {
-  'default': { label: 'Default Font', value: null },
-  'sans-serif': { label: 'Sans-serif', value: 'Arial, Verdana, sans-serif' },
-  'serif': { label: 'Serif', value: 'Georgia, "Times New Roman", serif' },
-  'monospace': { label: 'Monospace', value: '"Courier New", monospace' },
-  'opendyslexic': { label: 'OpenDyslexic', value: '"OpenDyslexic", Verdana, sans-serif' }
-};
-
-var COLOURS = {
-  'default': { label: 'Default Colour', light: '#ffffff', dark: '#1a1a1a' },
-  'yellow': { label: 'Yellow', light: '#F5F5DC', dark: '#4c4c4c' },
-  'blue': { label: 'Blue', light: '#45E9F2', dark: '#302F31' },
-  'green': { label: 'Green', light: '#00EA9A', dark: '#003407' },
-  'customise': { label: 'Customise', light: null, dark: null }
-};
+var options = JSON.parse(document.getElementById('tf-options').textContent);
+var FONTS = options.fonts;
+var COLOURS = options.schemes;
+var sizeBounds = options.sizeBounds;
 
 
 // In-memory reader preferences.
@@ -125,7 +112,7 @@ function initialise() {
 function resizeText(multiplier) {
   var next = state.textSize + multiplier;
   // Ignore steps that would take us out of bounds.
-  if (next < minResize || next > maxResize) {
+  if (next < sizeBounds.min || next > sizeBounds.max) {
     return;
   }
 

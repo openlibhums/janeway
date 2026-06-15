@@ -8,13 +8,6 @@ scheme** (with custom colours and a Light/Dark swap) — without changing the re
 of the page. On article pages it also carries the article-only options
 (citation formats, email author, print).
 
-This guide is for developers adding the bar to a **new template** — another theme's
-article page, or a non-article page such as a CMS page.
-
-> For adding a new **font** or **colour scheme** to the controls themselves, see
-> `extending-text-format-options.md` instead. This guide only covers placing the
-> bar and choosing what it targets.
-
 ### The two things you must do
 
 Adding the bar is two steps:
@@ -43,10 +36,10 @@ whole `state` object back — debounced, best-effort — to the
 
 **Why this matters when extending:** the save endpoint runs every value through
 `clean_text_format_preferences()` in `src/core/logic.py`, which **drops anything
-it doesn't recognise**. A new font or colour scheme therefore needs its key added
-to the matching server-side allow-list (`TEXT_FORMAT_FONTS` /
-`TEXT_FORMAT_SCHEMES`) or it will apply *live* but never *persist*. The steps
-below call this out.
+it doesn't recognise**. Validation derives its allow-lists from the
+`src/core/text_format.py` registry — the single source of truth — so a font or
+scheme present in the registry persists automatically. The steps below show the
+one registry edit that covers validation, the menu, and the JS.
 
 Adding a brand-new *kind* of setting (not just another font or colour) is three
 matching edits: a field on the JS `state` object, a validation branch in
@@ -79,46 +72,28 @@ custom face:
 
    Add a second block with `font-weight: bold` for the bold face if you have one.
 
-#### 2. Register the font stack (JS)
+#### 2. Register the font (one registry edit)
 
-Add an entry to `FONTS` in `src/static/common/js/text_readability.js`. The key
-is an arbitrary slug; the value is an object with a `label` (the name shown on
-the Font button) and a `value` — the CSS `font-family` stack, which should always
-end with a generic family as a fallback (`null` means "use the theme's own
-font").
-
-#### 3. Allow the value server-side (Python)
-
-So the choice persists (see **How preferences persist** above), add the same slug
-to `TEXT_FORMAT_FONTS` in `src/core/logic.py`:
+Add an entry to `FONTS` in `src/core/text_format.py`. The key is an arbitrary
+slug; the value is an object with a `label` (the name shown on the Font button,
+wrapped in `gettext_lazy` as `_`) and a `value` — the CSS `font-family` stack,
+which should always end with a generic family as a fallback (`None` means "use
+the theme's own font").
 
 ```python
-TEXT_FORMAT_FONTS = {
-    "default",
-    "sans-serif",
-    "serif",
-    "monospace",
-    "opendyslexic",
-    "myfont",  # must match the FONTS key in text_readability.js
+FONTS = {
+    # ...existing entries...
+    "myfont": {"label": _("My Font"), "value": '"MyFont", Verdana, sans-serif'},
 }
 ```
 
-Skip this and the font still applies in the current page, but
-`clean_text_format_preferences()` drops it on save, so it won't survive a reload
-or login.
+That single edit feeds the menu, server-side validation, and the JS — the bar
+loops the registry for its `<li>`s, `clean_text_format_preferences()` derives its
+allow-list from it, and `text_readability.js` reads the (translated) labels and
+font stacks from the `#tf-options` blob. There is nothing to add to the JS, the
+template, or `core/logic.py`.
 
-#### 4. Add the menu option (shared bar)
-
-Add the font to the **Font** button menu in the shared
-`reading_options_bar.html` — one edit covers all three themes. The
-`state.setFont(...)` key must match the `FONTS` key; wrap the label in
-`{% trans %}`:
-
-```html
-<li><button type="button" onclick="state.setFont('myfont'); event.stopPropagation();">{% trans 'My Font' %}</button></li>
-```
-
-#### 5. Rebuild and test
+#### 3. Rebuild and test
 
 Rebuild assets, open an article, pick the new font, and confirm:
 - the body text changes font;
@@ -139,35 +114,27 @@ background and which is foreground:
 So pick two colours with **good contrast against each other**, because each one
 serves as text in one of the two modes. For WCAG 2.2AA compliance go for 1:4.5 minimum.
 
-#### 1. Register the scheme (JS)
+#### 1. Register the scheme (one registry edit)
 
-Add an entry to `COLOURS` in `src/static/common/js/text_readability.js`. The key
-is an arbitrary slug; the value is an object with a `label` (the name shown on
-the Colour scheme button) and the scheme's two colours, `light` and `dark`.
-
-#### 2. Allow the value server-side (Python)
-
-So the choice persists (see **How preferences persist** above), add the same slug
-to `TEXT_FORMAT_SCHEMES` in `src/core/logic.py` (it sits beside
-`TEXT_FORMAT_FONTS`):
+Add an entry to `COLOUR_SCHEMES` in `src/core/text_format.py`, **before** the
+`customise` entry (insertion order is the menu order, and `customise` stays
+last). The key is an arbitrary slug; the value is an object with a `label`
+(wrapped in `gettext_lazy` as `_`) and the scheme's two colours, `light` and
+`dark`.
 
 ```python
-TEXT_FORMAT_SCHEMES = {"default", "yellow", "blue", "green", "customise", "pink"}
+COLOUR_SCHEMES = {
+    # ...existing entries...
+    "pink": {"label": _("Pink"), "light": "#ffd6e8", "dark": "#3a0b22"},
+    "customise": {"label": _("Customise"), "light": None, "dark": None},
+}
 ```
 
-As with fonts, an unlisted scheme still applies live but is dropped on save.
+As with fonts, that one edit covers the menu, validation, and the JS data — there
+is nothing to change in the template, `core/logic.py`, or
+`text_readability.js`.
 
-#### 3. Add the menu option (shared bar)
-
-Add the scheme to the **Colour scheme** button menu in the shared
-`reading_options_bar.html`, **before** the `customise` option — one edit covers
-all three themes. The `state.setScheme(...)` key must match the `COLOURS` key:
-
-```html
-<li><button type="button" onclick="state.setScheme('pink'); event.stopPropagation();">{% trans 'Pink' %}</button></li>
-```
-
-#### 4. Rebuild and test
+#### 2. Rebuild and test
 
 Rebuild, then for the new scheme verify Light **and** Dark, and confirm the
 nested cards / `.summary` panel and interactive buttons all recolour (the colour
