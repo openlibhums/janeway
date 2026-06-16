@@ -26,6 +26,7 @@ var state = {
   scheme: 'default',
   darkmode: false,
   noItalics: false,
+  hideReadingBar: false,
   textSize: 0,
   custom: { light: '#ffffff', dark: '#1a1a1a' },
 
@@ -77,6 +78,10 @@ var state = {
     this._toggle('noItalics');
   },
 
+  toggleReadingBar: function () {
+    this._toggle('hideReadingBar');
+  },
+
   setCustomColours: function (lightColour, darkColour) {
     this._set({ custom: { light: lightColour, dark: darkColour } });
   },
@@ -98,6 +103,28 @@ var state = {
 
 function getRegions() {
   return document.querySelectorAll('.text-format-region');
+}
+
+function getBar() {
+  return document.getElementById('tf-bar');
+}
+
+// Show or hide the whole reading options bar. The server renders it already
+// hidden (inline style) when the saved preference says so, so this only has to
+// keep it in step with live toggles.
+function applyBarVisibility() {
+  var bar = getBar();
+  if (!bar) {
+    return;
+  }
+  var wasHidden = bar.style.display === 'none';
+  bar.style.display = state.hideReadingBar ? 'none' : '';
+  // Foundation's sticky plugin measured the bar while it was hidden (zero
+  // width), so it ends up mis-sized and shoved left when first revealed. A
+  // resize makes Foundation recalculate its dimensions.
+  if (wasHidden && !state.hideReadingBar) {
+    window.dispatchEvent(new Event('resize'));
+  }
 }
 
 function initialise() {
@@ -138,6 +165,7 @@ function applyToRegion(textFunction) {
     initialise();
   }
   getRegions().forEach(function (region) {
+    textFunction(region);
     var allElements = region.querySelectorAll(
       'h1, h2, h3, h4, h5, h6, ' +
       'blockquote, div, p, pre, ' +
@@ -158,6 +186,7 @@ function applyPreferences() {
 
   getRegions().forEach(paintRegion);
   applyFontSize();
+  applyBarVisibility();
   // Reflect the applied state onto every control copy and report success.
   return syncControls();
 }
@@ -171,9 +200,13 @@ function paintRegion(region) {
   if (fontStack) {
     region.style.setProperty('--tf-font', fontStack);
     region.classList.add('tf-has-font');
+
+    // FontAwesome keeps its glyphs via its own !important.
+    region.style.setProperty('font-family', fontStack, 'important');
   } else {
     region.style.removeProperty('--tf-font');
     region.classList.remove('tf-has-font');
+    region.style.removeProperty('font-family');
   }
 
   // dark/light is swapping bg/fg.
@@ -282,6 +315,19 @@ function syncControls() {
       button.setAttribute('aria-label', newLabel);
     }
   });
+  // The reading-bar switch lives in the nav accessibility menu; "on" means the
+  // bar is shown. Translated On/Off labels come from data attributes.
+  document.querySelectorAll('[data-tf-bar-toggle]').forEach(function (button) {
+    var shown = !state.hideReadingBar;
+    button.setAttribute('aria-checked', shown);
+    button.classList.toggle('a11y-switch--on', shown);
+    var stateLabel = button.querySelector('.a11y-switch-state');
+    if (stateLabel) {
+      stateLabel.textContent = shown
+        ? (button.dataset.labelOn || 'On')
+        : (button.dataset.labelOff || 'Off');
+    }
+  });
   return true;
  }
 
@@ -344,6 +390,17 @@ function savePreferences() {
   }, 400);
 }
 
+// The reading-bar switch is rendered (disabled) in the global nav on every
+// page; only enable and wire it where this script — and so the bar — is loaded.
+function enableBarToggle() {
+  document.querySelectorAll('[data-tf-bar-toggle]').forEach(function (button) {
+    button.disabled = false;
+    button.addEventListener('click', function () {
+      state.toggleReadingBar();
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   loadPreferences();
   applyPreferences();
@@ -351,5 +408,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (preload) {
     preload.remove();
   }
+  enableBarToggle();
   lockToggleButtonWidths();
 });

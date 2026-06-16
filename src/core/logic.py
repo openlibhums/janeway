@@ -961,7 +961,7 @@ def clean_text_format_preferences(payload):
     if payload.get("scheme") in text_format.COLOUR_SCHEMES:
         cleaned["scheme"] = payload["scheme"]
 
-    for flag in ("darkmode", "noItalics"):
+    for flag in ("darkmode", "noItalics", "hideReadingBar"):
         if isinstance(payload.get(flag), bool):
             cleaned[flag] = payload[flag]
 
