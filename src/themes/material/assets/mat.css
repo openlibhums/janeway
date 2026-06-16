@@ -1475,11 +1475,7 @@ nav .a11y-toggle-host .a11y-toggle-summary {
   line-height: 1;
   text-transform: none;
   letter-spacing: normal;
-  box-shadow: none;
-}
 
-nav .a11y-toggle-host .a11y-toggle-summary:hover {
-  box-shadow: none;
 }
 
 nav .a11y-toggle-host .a11y-toggle-icon {

@@ -410,9 +410,7 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     line-height: 1;
 }
 
-.a11y-toggle-host .a11y-toggle-summary:hover,
-.a11y-toggle-host .a11y-toggle-summary:focus,
-.a11y-toggle-host .a11y-toggle-summary:focus-visible {
+.a11y-toggle-host .a11y-toggle-summary:hover {
     outline: 2px solid currentColor;
     outline-offset: 2px;
 }
@@ -526,7 +524,6 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     text-transform: none;
     letter-spacing: normal;
     cursor: pointer;
-    box-shadow: none;
 }
 
 .a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:hover,
@@ -536,6 +533,9 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     text-decoration: none;
 }
 
+/* Focus highlight only — the focus-visible outline/ring is owned by each theme's
+   global :focus-visible rules, so the menu items (a button and a link) get an
+   identical indicator. No bespoke outline here. */
 .a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:focus,
 .a11y-toggle-host .a11y-toggle-menu .a11y-toggle-info:focus,
 .a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:focus-visible,
@@ -543,8 +543,6 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     background: #f0f0f0;
     color: #1a1a1a;
     text-decoration: none;
-    outline: 2px solid #1a1a1a;
-    outline-offset: -2px;
 }
 
 @media (max-width: 991px) {
@@ -598,13 +596,12 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     appearance: none;
 }
 
+/* Highlight only; focus-visible outline/ring comes from the theme (see above). */
 .a11y-switch:hover,
 .a11y-switch:focus,
 .a11y-switch:focus-visible {
     background: #f0f0f0;
     color: #1a1a1a;
-    outline: 2px solid #1a1a1a;
-    outline-offset: -2px;
 }
 
 /* The reading-bar switch is disabled on pages without a reading bar (no JS to
