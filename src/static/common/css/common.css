@@ -498,6 +498,10 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.a11y-toggle-host .a11y-toggle-menu li[hidden] {
+    display: none;
+}
+
 .a11y-toggle-host .a11y-toggle-form {
     margin: 0;
     padding: 0;
@@ -543,6 +547,19 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     background: #f0f0f0;
     color: #1a1a1a;
     text-decoration: none;
+}
+
+/* "Show reading options" stays in the menu but is disabled while the bar is
+   shown. Make that clearly non-interactive (no hover highlight). */
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:disabled:hover,
+.a11y-toggle-host .a11y-toggle-menu .a11y-toggle-button:disabled:focus {
+    background: transparent;
+    color: #1a1a1a;
 }
 
 @media (max-width: 991px) {
@@ -602,20 +619,6 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
 .a11y-switch:focus-visible {
     background: #f0f0f0;
     color: #1a1a1a;
-}
-
-/* The reading-bar switch is disabled on pages without a reading bar (no JS to
-   enable it). Make that state clearly non-interactive. */
-.a11y-switch:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.a11y-switch:disabled:hover,
-.a11y-switch:disabled:focus {
-    background: transparent;
-    color: inherit;
-    outline: 0;
 }
 
 .a11y-mobile-button.a11y-switch {

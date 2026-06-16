@@ -33,26 +33,16 @@
         </button>
       </form>
     </li>
-    <li>
+    <li class="a11y-bar-show-item" hidden>
       {% comment %}
-        Disabled by default; text_readability.js enables and wires it only on
-        pages that actually carry the reading options bar. "On" means shown.
+        Hidden by default; text_readability.js reveals and wires this only on
+        pages that carry the reading options bar. 
       {% endcomment %}
       <button type="button"
-              class="a11y-switch a11y-bar-switch{% if not text_format_preferences.hideReadingBar %} a11y-switch--on{% endif %}"
-              data-tf-bar-toggle
-              role="switch"
-              aria-checked="{% if text_format_preferences.hideReadingBar %}false{% else %}true{% endif %}"
-              data-label-on="{% trans 'On' %}"
-              data-label-off="{% trans 'Off' %}"
+              class="a11y-toggle-button a11y-bar-show"
+              data-tf-bar-show
               disabled>
-        <span class="a11y-switch-label">{% trans 'Reading options bar' %}</span>
-        <span class="a11y-switch-track" aria-hidden="true">
-          <span class="a11y-switch-thumb"></span>
-        </span>
-        <span class="a11y-switch-state" aria-hidden="true">
-          {% if text_format_preferences.hideReadingBar %}{% trans 'Off' %}{% else %}{% trans 'On' %}{% endif %}
-        </span>
+        {% trans 'Show reading options' %}
       </button>
     </li>
     <li>

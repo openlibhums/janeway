@@ -129,6 +129,15 @@
                                     </a>
                                 </li>
                             {% endif %}
+                            <li class="tf-close">
+                                <button type="button"
+                                        class="tf-close-button"
+                                        aria-label="{% trans 'Hide reading options bar' %}"
+                                        title="{% trans 'Hide the reading options bar' %}"
+                                        onclick="state.setReadingBarHidden(true)">
+                                    <i aria-hidden="true" class="fa fa-times"></i>
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>
