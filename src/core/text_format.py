@@ -26,6 +26,10 @@ COLOUR_SCHEMES = {
     "yellow": {"label": _("Yellow"), "light": "#F5F5DC", "dark": "#4c4c4c"},
     "blue": {"label": _("Blue"), "light": "#45E9F2", "dark": "#302F31"},
     "green": {"label": _("Green"), "light": "#00EA9A", "dark": "#003407"},
+    # Custom-colour scheme. The full code path is intact (validation, paint
+    # logic, JS custom state), but the bar template intentionally does NOT offer
+    # "customise" in the colour menu for now — it is planned to return as an
+    # accessible modal colour picker. See reading_options_bar.html.
     "customise": {"label": _("Customise"), "light": None, "dark": None},
 }
 

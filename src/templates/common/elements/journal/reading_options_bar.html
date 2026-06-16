@@ -57,15 +57,25 @@
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
                                 </button>
                                 <ul class="menu vertical" id="tf-scheme-menu">
+                                    {% comment %}
+                                        "customise" is intentionally not offered in the menu for now (the
+                                        full code path remains — registry, validation, JS custom state and
+                                        paint logic). It is planned to return as an accessible modal colour
+                                        picker; drop the slug filter below to re-expose it.
+                                    {% endcomment %}
                                     {% for slug, scheme in text_format_options.schemes.items %}
-                                        <li><button type="button" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
+                                        {% if slug != 'customise' %}
+                                            <li><button type="button" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
+                                        {% endif %}
                                     {% endfor %}
                                 </ul>
                             </li>
-                            <li class="tf-custom-colours tf-field" hidden>
-                                <input type="color" class="tf-custom-light" value="#ffffff" aria-label="{% trans 'Light colour' %}" onchange="state.setCustomLight(this.value)">
-                                <input type="color" class="tf-custom-dark" value="#1a1a1a" aria-label="{% trans 'Dark colour' %}" onchange="state.setCustomDark(this.value)">
-                            </li>
+                            {% comment %}
+                                The custom-colour picker UI (inline swatches) lived here and has been
+                                removed for now; "customise" is also filtered out of the colour menu
+                                above. The code path is otherwise intact — it will return as an
+                                accessible modal colour picker.
+                            {% endcomment %}
                             <li>
                                 <button
                                     type="button"
