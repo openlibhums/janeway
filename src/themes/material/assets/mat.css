@@ -300,7 +300,7 @@ a:hover .article-title {
 .toc-sticky{
     position: sticky;
     top: 0;
-    z-index: 999;
+    z-index: 700;
 }
 
 .wide-button {
@@ -960,7 +960,7 @@ p + .btn-background {
 .reading-bar-band {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 800;
   background: #e6e6e6;
   border-bottom: 1px solid #d5d5d5;
 }

@@ -1295,9 +1295,19 @@ class CleanTextFormatPreferencesTests(TestCase):
 
     def test_non_bool_flags_are_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(
-            {"darkmode": "yes", "noItalics": 1}
+            {"darkmode": "yes", "noItalics": 1, "hideReadingBar": "true"}
         )
         self.assertEqual(cleaned, {})
+
+    def test_hide_reading_bar_bool_is_kept(self):
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"hideReadingBar": True}),
+            {"hideReadingBar": True},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"hideReadingBar": False}),
+            {"hideReadingBar": False},
+        )
 
     def test_invalid_custom_hex_is_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(

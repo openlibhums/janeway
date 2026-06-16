@@ -7,7 +7,7 @@
     add marker class `.text-format-region` to define the target parent(s).
 {% endcomment %}
 <section aria-label="{% trans 'Reading options' %}" class="invisible-landmark reading-options-landmark">
-<div data-sticky-container class="row reading-options-bar">
+<div id="tf-bar" data-sticky-container class="row reading-options-bar"{% if text_format_preferences.hideReadingBar %} style="display:none"{% endif %}>
     <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
         <div class="row">
             <div class="title-bar" data-responsive-toggle="options-menu" data-hide-for="medium">

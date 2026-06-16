@@ -507,7 +507,7 @@ header svg {
     max-height: 100vh;
     overflow-y: auto;
     top: 60px;
-    z-index: 999;
+    z-index: 700;
 }
 
 .card.no-image {
@@ -699,6 +699,14 @@ span + .btn-background {
   margin-bottom: 0 !important;
 }
 
+/* The reading-options landmark wraps only the bar, so it must not form the
+   sticky containing block — otherwise .reading-options-bar (position: sticky)
+   has no room to stick. display: contents drops the section's box while keeping
+   its ARIA landmark, so the bar sticks within <main>. */
+.reading-options-landmark {
+  display: contents;
+}
+
 .reading-options-bar {
   position: sticky;
   top: 0;
@@ -796,7 +804,9 @@ span + .btn-background {
   background: #fff;
   border: 1px solid #e5e5e5;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
-  z-index: 1001;
+  /* Below the Bootstrap nav dropdowns (z-index 1000) so the reading bar's own
+     flyout menus never cover the navigation. */
+  z-index: 999;
 }
 
 .mini-bar ul.menu.medium-horizontal > li:hover > ul.menu,
