@@ -78,8 +78,8 @@ var state = {
     this._toggle('noItalics');
   },
 
-  toggleReadingBar: function () {
-    this._toggle('hideReadingBar');
+  setReadingBarHidden: function (hidden) {
+    this._set({ hideReadingBar: hidden });
   },
 
   setCustomColours: function (lightColour, darkColour) {
@@ -347,18 +347,9 @@ function syncControls() {
       button.setAttribute('aria-label', newLabel);
     }
   });
-  // The reading-bar switch lives in the nav accessibility menu; "on" means the
-  // bar is shown. Translated On/Off labels come from data attributes.
-  document.querySelectorAll('[data-tf-bar-toggle]').forEach(function (button) {
-    var shown = !state.hideReadingBar;
-    button.setAttribute('aria-checked', shown);
-    button.classList.toggle('a11y-switch--on', shown);
-    var stateLabel = button.querySelector('.a11y-switch-state');
-    if (stateLabel) {
-      stateLabel.textContent = shown
-        ? (button.dataset.labelOn || 'On')
-        : (button.dataset.labelOff || 'Off');
-    }
+
+  document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
+    button.disabled = !state.hideReadingBar;
   });
   return true;
  }
@@ -422,13 +413,17 @@ function savePreferences() {
   }, 400);
 }
 
-// The reading-bar switch is rendered (disabled) in the global nav on every
-// page; only enable and wire it where this script — and so the bar — is loaded.
-function enableBarToggle() {
-  document.querySelectorAll('[data-tf-bar-toggle]').forEach(function (button) {
-    button.disabled = false;
+// The "Show reading options" item is rendered (hidden) in the global nav on
+// every page; reveal and wire it only where this script — and so the bar — is
+// loaded. It then stays in the menu; syncControls enables it only while the bar
+// is hidden, so it doesn't vanish under the cursor when clicked.
+function enableBarShow() {
+  document.querySelectorAll('.a11y-bar-show-item').forEach(function (item) {
+    item.hidden = false;
+  });
+  document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
     button.addEventListener('click', function () {
-      state.toggleReadingBar();
+      state.setReadingBarHidden(false);
     });
   });
 }
@@ -440,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (preload) {
     preload.remove();
   }
-  enableBarToggle();
+  enableBarShow();
   lockToggleButtonWidths();
   lockSelectLabelWidths();
 });
