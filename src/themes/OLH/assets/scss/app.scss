@@ -745,6 +745,16 @@ div.caption span.label {
   .bottom {
     background: var(--primary-light-color);
   }
+
+
+  #license {
+    max-width: 100%;
+
+    p {
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+  }
 }
 
 footer {
