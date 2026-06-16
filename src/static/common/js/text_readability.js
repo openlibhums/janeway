@@ -267,6 +267,38 @@ function lockToggleButtonWidths() {
   });
 }
 
+function lockSelectLabelWidths() {
+  var groups = [
+    { selector: '.tf-font-select', options: FONTS },
+    { selector: '.tf-scheme-select', options: COLOURS }
+  ];
+  groups.forEach(function (group) {
+    var labels = Object.keys(group.options).map(function (key) {
+      return group.options[key].label;
+    });
+    if (labels.length < 2) return;
+    document.querySelectorAll(group.selector).forEach(function (button) {
+      var label = button.querySelector('.tf-label');
+      if (!label) return;
+      // inline-block so min-width reserves space even in themes (OLH) where the
+      // label would otherwise be an inline span.
+      label.style.display = 'inline-block';
+      var current = label.textContent;
+      var widest = 0;
+      labels.forEach(function (text) {
+        label.textContent = text;
+        if (label.offsetWidth > widest) {
+          widest = label.offsetWidth;
+        }
+      });
+      label.textContent = current;
+      if (widest) {
+        label.style.minWidth = widest + 'px';
+      }
+    });
+  });
+}
+
   // Reflect state back onto controls.
 function syncControls() {
   document.querySelectorAll('.tf-font-select').forEach(function (button) {
@@ -410,4 +442,5 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   enableBarToggle();
   lockToggleButtonWidths();
+  lockSelectLabelWidths();
 });
