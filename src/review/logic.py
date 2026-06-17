@@ -832,11 +832,11 @@ def send_review_reminder(request, form, review_assignment, reminder_type):
         "target": review_assignment.article,
     }
 
-    notify_helpers.send_email_with_body_from_user(
+    email.send_email(
+        review_assignment.reviewer,
+        form.as_dataclass(),
         request,
-        form.cleaned_data["subject"],
-        review_assignment.reviewer.email,
-        form.cleaned_data["body"],
+        article=review_assignment.article,
         log_dict=log_dict,
     )
 
