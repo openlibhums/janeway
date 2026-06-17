@@ -1269,6 +1269,69 @@ class ReviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class SendReviewReminderTests(TestCase):
+    """Regression tests for the review request reminder email screen (#5305)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.review_assignment = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            article=cls.article,
+            editor=cls.editor,
+            is_complete=False,
+        )
+        cls.review_assignment.decision = ""
+        cls.review_assignment.save()
+
+    def reminder_url(self, reminder_type="request"):
+        return reverse(
+            "review_send_reminder",
+            kwargs={
+                "article_id": self.article.pk,
+                "review_id": self.review_assignment.pk,
+                "reminder_type": reminder_type,
+            },
+        )
+
+    def test_reminder_form_renders_cc_and_bcc_fields(self):
+        """The reminder screen exposes the cc and bcc email options."""
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            self.reminder_url(),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="cc"')
+        self.assertContains(response, 'name="bcc"')
+
+    def test_reminder_post_sends_with_cc_and_bcc(self):
+        """A valid POST sends the reminder, carrying the cc and bcc addresses."""
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            self.reminder_url(),
+            {
+                "cc": "cc@example.com",
+                "bcc": "bcc@example.com",
+                "subject": "Review Request Reminder",
+                "body": "A gentle reminder to complete your review.",
+                "request_reminder": "request_reminder",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.review_assignment.reviewer.email, mail.outbox[0].to)
+        self.assertIn("cc@example.com", mail.outbox[0].cc)
+        self.assertIn("bcc@example.com", mail.outbox[0].bcc)
+
+
 class InReviewActionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):

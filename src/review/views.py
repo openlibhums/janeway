@@ -603,7 +603,7 @@ def send_review_reminder(request, article_id, review_id, reminder_type):
     form = forms.ReviewReminderForm(initial=form_initials)
 
     if request.POST:
-        form = forms.ReviewReminderForm(request.POST)
+        form = forms.ReviewReminderForm(request.POST, request.FILES)
         if form.is_valid():
             logic.send_review_reminder(request, form, review_assignment, reminder_type)
             messages.add_message(request, messages.SUCCESS, "Email sent")
