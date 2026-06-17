@@ -1,12 +1,10 @@
 import re
 
 from collections.abc import Iterable
-from email.utils import parseaddr
+from email.utils import formataddr
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail.message import sanitize_address
-from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
 from utils import setting_handler
@@ -50,7 +48,7 @@ def send_email(
         else:
             to = [to]
     elif isinstance(to, Iterable):
-        to = [email for email in to if not settings.DUMMY_EMAIL_DOMAIN in email]
+        to = [email for email in to if settings.DUMMY_EMAIL_DOMAIN not in email]
 
     if (
         request
@@ -59,27 +57,15 @@ def send_email(
         and request.user.email not in to
     ):
         reply_to = [request.user.email]
-        full_from_string = '"{0}" <{1}>'.format(
-            sanitize_from(request.user.full_name()),
-            from_email,
-        )
+        from_name = request.user.full_name()
     else:
         reply_to = []
-        if request:
-            full_from_string = '"{0}" <{1}>'.format(
-                sanitize_from(request.site_type.name), from_email
-            )
-        else:
-            full_from_string = from_email
+        from_name = request.site_type.name if request else None
 
-    # handle django 3.2 raising an exception when invalid characters are found
-    # during sanitization (call ported from Django 1.11)
-    full_from_string = parseaddr(force_str(full_from_string))
-    # As per #3545, not all backends sanitize from string before .send()
-    full_from_string = sanitize_address(
-        full_from_string,
-        settings.DEFAULT_CHARSET,
-    )
+    if from_name:
+        full_from_string = formataddr((sanitize_from(from_name), from_email))
+    else:
+        full_from_string = from_email
 
     # if a replyto is passed to this function, use that.
     if replyto:
@@ -186,7 +172,7 @@ def notify_hook(**kwargs):
 
     log_dict = kwargs.get("log_dict", None)
 
-    if not type(to) in [list, tuple, set]:
+    if type(to) not in [list, tuple, set]:
         to = [to]
 
     if log_dict:
