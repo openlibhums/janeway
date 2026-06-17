@@ -51,7 +51,6 @@ from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
-from utils.management.commands import check_mailgun_stat
 
 from journal import (
     models as journal_models,
@@ -926,6 +925,54 @@ class NotifyEmail(TestCase):
         ) as msg:
             notify_email.send_email(*args, **kwargs)
             self.assertIn(kwargs["replyto"], msg.call_args.kwargs["reply_to"])
+
+    def test_from_header_robust_to_weird_display_names(self):
+        """
+        Tests that long, non-ASCII and otherwise awkward display ames must produce
+        a valid, single-line, ASCII-safe From header.
+        """
+        long_name = (
+            "Some Very Long Journal Name That Easily Exceeds Seventy "
+            "Eight Characters Per Line Indeed"
+        )
+        weird_names = [
+            "Journal of Things",
+            long_name,
+            "A" * 120,
+            "Jöurnal of Ünicøde",
+            "Ö" + long_name,
+            "人文学期刊",
+            "Journal \U0001f600 of Fun",
+            "Real Name\r\nBcc: attacker@example.com",
+            "Real Name\nX-Evil: 1",
+            'He said "<hello>" today',
+            "Smith, John, Editor in Chief",
+            "Tabbed\tName",
+            "Re: Important: Journal",
+            "    ",
+            "é" * 120,
+        ]
+
+        for name in weird_names:
+            with self.subTest(name=name):
+                mail.outbox = []
+                request = mock.Mock()
+                request.FILES = None
+                request.site_type.name = name
+
+                notify_email.send_email(
+                    "subject",
+                    "to@example.com",
+                    "html_body",
+                    self.journal_one,
+                    request,
+                )
+
+                self.assertEqual(len(mail.outbox), 1)
+                from_header = mail.outbox[0].message()["From"]
+                self.assertNotIn("\n", from_header)
+                self.assertNotIn("\r", from_header)
+                from_header.encode("ascii")
 
 
 class TestOIDC(TestCase):
