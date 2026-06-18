@@ -24,12 +24,13 @@
                             {% if article %}{% hook 'article_buttons' %}{% endif %}
                             <li>
                                 <button type="button" class="tf-font-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-font-menu">
+                                    <span class="sr-only">{% trans 'Font' %}: </span>
                                     <span class="tf-label">{% trans 'Default Font' %}</span>
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
                                 </button>
                                 <ul class="menu vertical" id="tf-font-menu">
                                     {% for slug, font in text_format_options.fonts.items %}
-                                        <li><button type="button" onclick="state.setFont('{{ slug }}'); event.stopPropagation();">{{ font.label }}</button></li>
+                                        <li><button type="button" data-tf-font-option="{{ slug }}" onclick="state.setFont('{{ slug }}'); event.stopPropagation();">{{ font.label }}</button></li>
                                     {% endfor %}
                                 </ul>
                             </li>
@@ -53,6 +54,7 @@
                             </li>
                             <li>
                                 <button type="button" class="tf-scheme-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-scheme-menu">
+                                    <span class="sr-only">{% trans 'Colour' %}: </span>
                                     <span class="tf-label">{% trans 'Default Colour' %}</span>
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
                                 </button>
@@ -65,7 +67,7 @@
                                     {% endcomment %}
                                     {% for slug, scheme in text_format_options.schemes.items %}
                                         {% if slug != 'customise' %}
-                                            <li><button type="button" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
+                                            <li><button type="button" data-tf-scheme-option="{{ slug }}" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
                                         {% endif %}
                                     {% endfor %}
                                 </ul>

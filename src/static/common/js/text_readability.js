@@ -301,17 +301,17 @@ function lockSelectLabelWidths() {
 
   // Reflect state back onto controls.
 function syncControls() {
-  document.querySelectorAll('.tf-font-select').forEach(function (button) {
-    var label = button.querySelector('.tf-label');
-    if (label) {
-      label.textContent = (FONTS[state.font] || FONTS['default']).label;
-    }
+  // Keep the menu-button labels in step with the selection. 
+  setLabelText('.tf-font-select', (FONTS[state.font] || FONTS['default']).label);
+  setLabelText('.tf-scheme-select', (COLOURS[state.scheme] || COLOURS['default']).label);
+  document.querySelectorAll('.tf-custom-colours').forEach(function (block) {
+    block.hidden = state.scheme !== 'customise';
   });
-  document.querySelectorAll('.tf-scheme-select').forEach(function (button) {
-    var label = button.querySelector('.tf-label');
-    if (label) {
-      label.textContent = (COLOURS[state.scheme] || COLOURS['default']).label;
-    }
+  document.querySelectorAll('.tf-custom-light').forEach(function (input) {
+    input.value = state.custom.light;
+  });
+  document.querySelectorAll('.tf-custom-dark').forEach(function (input) {
+    input.value = state.custom.dark;
   });
   document.querySelectorAll('.tf-custom-colours').forEach(function (block) {
     block.hidden = state.scheme !== 'customise';
@@ -324,35 +324,64 @@ function syncControls() {
   });
   document.querySelectorAll('[data-tf-toggle="mode"]').forEach(function (button) {
     var dark = state.darkmode;
-    var newLabel = dark ? 'Dark mode on' : 'Dark mode off';
-    var oldLabel = button.getAttribute('aria-label');
     if (button.dataset.labelToDark || button.dataset.labelToLight) {
       // Text themes (clean/material): swap the label to the next action.
       button.textContent = dark ? button.dataset.labelToLight : button.dataset.labelToDark;
     } else {
-      // Icon themes (OLH): aria-pressed carries state and drives the tick.
-      button.setAttribute('aria-pressed', dark);
-      button.setAttribute('aria-label', newLabel);
+      setToggleState(button, dark);
     }
   });
   document.querySelectorAll('[data-tf-toggle="italics"]').forEach(function (button) {
+    // aria-pressed (and the tick) mean italics are present, the default state.
     var italicsPresent = !state.noItalics;
-    var newLabel = italicsPresent ? 'Italics on' : 'Italics off';
-    var oldLabel = button.getAttribute('aria-label');
     if (button.dataset.labelRemove || button.dataset.labelShow) {
       button.textContent = state.noItalics ? button.dataset.labelShow : button.dataset.labelRemove;
     } else {
-      // Tick shows when italics are present (the default state).
-      button.setAttribute('aria-pressed', italicsPresent);
-      button.setAttribute('aria-label', newLabel);
+      setToggleState(button, italicsPresent);
     }
   });
+
+  // Mark the active font/colour as "current" for aria.
+  syncCurrentOption('[data-tf-font-option]', 'tfFontOption', state.font);
+  syncCurrentOption('[data-tf-scheme-option]', 'tfSchemeOption', state.scheme);
 
   document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
     button.disabled = !state.hideReadingBar;
   });
   return true;
  }
+
+// Set the visible (and accessible) label of a select-style menu button
+function setLabelText(selector, text) {
+  document.querySelectorAll(selector).forEach(function (button) {
+    var label = button.querySelector('.tf-label');
+    if (label && label.textContent !== text) {
+      label.textContent = text;
+    }
+  });
+}
+
+// Reflect a toggle button's state through aria-pressed
+function setToggleState(button, isOn) {
+  var pressed = isOn ? 'true' : 'false';
+  if (button.getAttribute('aria-pressed') !== pressed) {
+    button.setAttribute('aria-pressed', pressed);
+  }
+}
+
+function syncCurrentOption(selector, datasetKey, activeValue) {
+  document.querySelectorAll(selector).forEach(function (button) {
+    var shouldBeCurrent = button.dataset[datasetKey] === activeValue;
+    if (shouldBeCurrent === (button.getAttribute('aria-current') === 'true')) {
+      return;
+    }
+    if (shouldBeCurrent) {
+      button.setAttribute('aria-current', 'true');
+    } else {
+      button.removeAttribute('aria-current');
+    }
+  });
+}
 
 // Persistence. Preferences are stored server-side (Account field for logged-in
 // readers, session for anonymous ones), resolved in core/logic.py and seeded
