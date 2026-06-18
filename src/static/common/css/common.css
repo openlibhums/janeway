@@ -719,7 +719,7 @@ a.twitter-x{
     padding: 0;
 }
 /* Remove specific OLH-theme list styling */
-#content aside ul.list-inline li:before {
+#content .side-info ul.list-inline li:before {
   content: "";
   height: 0;
   width: 0;
@@ -756,12 +756,12 @@ a.twitter-x{
     padding: 0;
 }
 /* Remove specific OLH-theme list styling */
-#content aside ul.list-no-bullet li:before {
+#content .side-info ul.list-no-bullet li:before {
   content: "";
   height: 0;
   width: 0;
 }
-#content aside ul.list-no-bullet li {
+#content .side-info ul.list-no-bullet li {
   margin-bottom: 4px;
 }
 
