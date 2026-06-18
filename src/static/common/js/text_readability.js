@@ -127,6 +127,34 @@ function applyBarVisibility() {
   }
 }
 
+
+// After closing the bar, move focus to the accessibility menu
+// ensures keyboard/sr aren't focused on nothing.
+function hideReadingBar() {
+  state.setReadingBarHidden(true);
+  focusAccessibilityMenu();
+}
+
+function focusAccessibilityMenu() {
+  var button = document.querySelector('.a11y-toggle-summary');
+  if (button) {
+    button.focus();
+  }
+}
+
+// On show, move focus to the first visible control in the bar 
+function focusBar() {
+  var bar = getBar();
+  if (!bar) return;
+  var candidates = bar.querySelectorAll('button, a[href], input');
+  for (var i = 0; i < candidates.length; i++) {
+    if (candidates[i].offsetParent !== null) {
+      candidates[i].focus();
+      return;
+    }
+  }
+}
+
 function initialise() {
   if (isInitialised) return; // Prevent double initialisation
   isInitialised = true;
@@ -453,9 +481,17 @@ function enableBarShow() {
   document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
     button.addEventListener('click', function () {
       state.setReadingBarHidden(false);
+      // Close the accessibility menu we opened to reach this button, then move
+      // focus into the now-visible bar.
+      var details = button.closest('details');
+      if (details) {
+        details.open = false;
+      }
+      focusBar();
     });
   });
 }
+
 
 document.addEventListener('DOMContentLoaded', function () {
   loadPreferences();
