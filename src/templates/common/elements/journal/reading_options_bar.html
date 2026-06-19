@@ -20,11 +20,10 @@
             <div id="options-menu">
                 <div class="small-12s medium-9 medium-offset-3 large-10 large-offset-2 columns">
                     <div class="float-right">
-                        <ul class="menu vertical medium-horizontal"
-                            data-responsive-menu="dropdown">
+                        <ul class="menu vertical medium-horizontal">
                             {% if article %}{% hook 'article_buttons' %}{% endif %}
                             <li>
-                                <button type="button" class="tf-font-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-font-menu">
+                                <button type="button" class="tf-font-select" aria-expanded="false" aria-haspopup="true" aria-controls="tf-font-menu">
                                     <span class="sr-only">{% trans 'Font' %}: </span>
                                     <span class="tf-label">{% trans 'Default Font' %}</span>
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
@@ -54,7 +53,7 @@
                                 </button>
                             </li>
                             <li>
-                                <button type="button" class="tf-scheme-select" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-scheme-menu">
+                                <button type="button" class="tf-scheme-select" aria-expanded="false" aria-haspopup="true" aria-controls="tf-scheme-menu">
                                     <span class="sr-only">{% trans 'Colour' %}: </span>
                                     <span class="tf-label">{% trans 'Default Colour' %}</span>
                                     <i aria-hidden="true" class="fa fa-caret-down"></i>
@@ -101,7 +100,7 @@
                                     css uses id to exclude the cite menu from Material as doesn't have citation modals.
                                 {% endcomment %}
                                 <li class="tf-cite">
-                                    <button type="button" data-toggle aria-expanded="false" aria-haspopup="true" aria-controls="tf-cite-menu" title="{% trans 'Citation formats' %}">
+                                    <button type="button" aria-expanded="false" aria-haspopup="true" aria-controls="tf-cite-menu" title="{% trans 'Citation formats' %}">
                                         <i aria-hidden="true" class="fa fa-comments"></i>
                                         <i aria-hidden="true" class="fa fa-caret-down"></i>
                                         <span class="sr-only">{% trans 'Cite article' %}</span>
@@ -158,6 +157,10 @@
         </div>
     </div>
 </div>
+{% comment %}
+    Assertive live region: short sr-only message for state changes
+{% endcomment %}
+<div id="tf-announce" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 {{ text_format_preferences|json_script:"tf-preferences" }}
 {{ text_format_options|json_script:"tf-options" }}
 <div id="tf-config" hidden

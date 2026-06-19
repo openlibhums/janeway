@@ -18,6 +18,7 @@ var options = JSON.parse(document.getElementById('tf-options').textContent);
 var FONTS = options.fonts;
 var COLOURS = options.schemes;
 var sizeBounds = options.sizeBounds;
+var STRINGS = options.strings || {};
 
 
 // In-memory reader preferences.
@@ -47,35 +48,47 @@ var state = {
     return previous;
   },
 
+  // Returns true when the change applied cleanly (false rolls state back).
   _set: function (changes) {
     var previous = this._assign(changes);
     if (!applyPreferences()) {
       this._assign(previous);
-    } else if (!isLoading) {
+      return false;
+    }
+    if (!isLoading) {
       savePreferences();
     }
+    return true;
   },
 
   _toggle: function (key) {
     var changes = {};
     changes[key] = !this[key];
-    this._set(changes);
+    return this._set(changes);
   },
 
   setFont: function (fontKey) {
-    this._set({ font: fontKey });
+    if (this._set({ font: fontKey })) {
+      announce(format(STRINGS.font, (FONTS[fontKey] || FONTS['default']).label));
+    }
   },
 
   setScheme: function (schemeKey) {
-    this._set({ scheme: schemeKey });
+    if (this._set({ scheme: schemeKey })) {
+      announce(format(STRINGS.colour, (COLOURS[schemeKey] || COLOURS['default']).label));
+    }
   },
 
   toggleDarkMode: function () {
-    this._toggle('darkmode');
+    if (this._toggle('darkmode')) {
+      announce(this.darkmode ? STRINGS.darkModeOn : STRINGS.darkModeOff);
+    }
   },
 
   toggleNoItalics: function () {
-    this._toggle('noItalics');
+    if (this._toggle('noItalics')) {
+      announce(this.noItalics ? STRINGS.italicsRemoved : STRINGS.italicsShown);
+    }
   },
 
   setReadingBarHidden: function (hidden) {
@@ -100,6 +113,26 @@ var state = {
 
 
 // Action Functions
+
+// Announce a reader's change through the assertive live region to screen readers
+var announceTimer = null;
+function announce(message) {
+  if (isLoading || !message) return;
+  var region = document.getElementById('tf-announce');
+  if (!region) return;
+  if (announceTimer) {
+    clearTimeout(announceTimer);
+  }
+  region.textContent = '';
+  announceTimer = window.setTimeout(function () {
+    region.textContent = message;
+  }, 120);
+}
+
+// Fill the single %(value)s placeholder in a translated message template.
+function format(template, value) {
+  return (template || '').replace('%(value)s', value);
+}
 
 function getRegions() {
   return document.querySelectorAll('.text-format-region');
@@ -169,7 +202,11 @@ function resizeText(multiplier) {
     return;
   }
 
-  state._set({ textSize: next });
+  if (state._set({ textSize: next })) {
+    // Mirror applyFontSize's 1 + 0.2*step scaling for percentage announcement
+    var percent = Math.round((1 + 0.2 * next) * 100);
+    announce(format(STRINGS.textSize, percent + '%'));
+  }
 }
 
 function applyFontSize() {
@@ -371,9 +408,8 @@ function syncControls() {
     }
   });
 
-  // Mark the active font/colour as "current" for aria.
-  syncCurrentOption('[data-tf-font-option]', 'tfFontOption', state.font);
-  syncCurrentOption('[data-tf-scheme-option]', 'tfSchemeOption', state.scheme);
+  syncActiveOption('[data-tf-font-option]', 'tfFontOption', state.font, '.tf-font-select');
+  syncActiveOption('[data-tf-scheme-option]', 'tfSchemeOption', state.scheme, '.tf-scheme-select');
 
   document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
     button.disabled = !state.hideReadingBar;
@@ -403,17 +439,16 @@ function setToggleState(button, isOn) {
   }
 }
 
-function syncCurrentOption(selector, datasetKey, activeValue) {
-  document.querySelectorAll(selector).forEach(function (button) {
-    var shouldBeCurrent = button.dataset[datasetKey] === activeValue;
-    if (shouldBeCurrent === (button.getAttribute('aria-current') === 'true')) {
-      return;
+
+function syncActiveOption(optionSelector, datasetKey, activeValue, buttonSelector) {
+  document.querySelectorAll(optionSelector).forEach(function (option) {
+    var li = option.closest('li');
+    if (li) {
+      li.hidden = option.dataset[datasetKey] === activeValue;
     }
-    if (shouldBeCurrent) {
-      button.setAttribute('aria-current', 'true');
-    } else {
-      button.removeAttribute('aria-current');
-    }
+  });
+  document.querySelectorAll(buttonSelector).forEach(function (button) {
+    button.setAttribute('aria-current', 'true');
   });
 }
 
@@ -507,14 +542,15 @@ function wireReadingOptionsToggle() {
   if (!button) return;
   button.addEventListener('click', function (e) {
     e.preventDefault();
+    // Stop the click reaching OLH app.js's global [aria-expanded] click handler
+    e.stopPropagation();
     state.setReadingBarHidden(!state.hideReadingBar);
   });
 }
 
-// In-bar dropdowns (Font, Colour, Cite) for themes without Foundation.
+// In-bar dropdowns (Font, Colour, Cite) on all themes
 // CSS reveals the menu on the button's aria-expanded="true".
 function wireBarDropdowns() {
-  if (window.Foundation) return;
   var bar = getBar();
   if (!bar) return;
   var toggles = bar.querySelectorAll('[aria-haspopup="true"][aria-controls]');
@@ -534,6 +570,8 @@ function wireBarDropdowns() {
 
     toggle.addEventListener('click', function (e) {
       e.preventDefault();
+      // Stop the click reaching OLH app.js's global [aria-expanded] click handler
+      e.stopPropagation();
       var open = toggle.getAttribute('aria-expanded') === 'true';
       closeAll(toggle); // only one open at a time
       toggle.setAttribute('aria-expanded', open ? 'false' : 'true');

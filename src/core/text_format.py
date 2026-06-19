@@ -23,14 +23,25 @@ FONTS = {
 
 COLOUR_SCHEMES = {
     "default": {"label": _("Default Colour"), "light": "#ffffff", "dark": "#1a1a1a"},
-    "yellow": {"label": _("Yellow"), "light": "#F5F5DC", "dark": "#4c4c4c"},
-    "blue": {"label": _("Blue"), "light": "#45E9F2", "dark": "#302F31"},
+        "yellow": {"label": _("Yellow"), "light": "#F5F5DC", "dark": "#4c4c4c"},
+        "blue": {"label": _("Blue"), "light": "#45E9F2", "dark": "#302F31"},
     "green": {"label": _("Green"), "light": "#00EA9A", "dark": "#003407"},
     # Custom-colour scheme. The full code path is intact (validation, paint
     # logic, JS custom state), but the bar template intentionally does NOT offer
     # "customise" in the colour menu for now — it is planned to return as an
     # accessible modal colour picker. See reading_options_bar.html.
     "customise": {"label": _("Customise"), "light": None, "dark": None},
+}
+
+# Messages announced to screen-reader user on change of state
+ANNOUNCEMENTS = {
+    "font": _("Font: %(value)s"),
+    "colour": _("Colour: %(value)s"),
+    "textSize": _("Text size %(value)s"),
+    "darkModeOn": _("Dark mode on"),
+    "darkModeOff": _("Dark mode off"),
+    "italicsRemoved": _("Italics removed"),
+    "italicsShown": _("Italics shown"),
 }
 
 
