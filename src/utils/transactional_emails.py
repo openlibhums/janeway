@@ -1142,6 +1142,7 @@ def send_production_complete(**kwargs):
             "Article Production Complete",
             task.typesetter.email,
             user_content_message,
+            log_dict=log_dict,
         )
 
     context = {
