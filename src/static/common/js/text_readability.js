@@ -109,16 +109,14 @@ function getBar() {
   return document.getElementById('tf-bar');
 }
 
-// Show or hide the whole reading options bar. The server renders it already
-// hidden (inline style) when the saved preference says so, so this only has to
-// keep it in step with live toggles.
+// Show or hide the whole reading options bar. 
 function applyBarVisibility() {
   var bar = getBar();
   if (!bar) {
     return;
   }
-  var wasHidden = bar.style.display === 'none';
-  bar.style.display = state.hideReadingBar ? 'none' : '';
+  var wasHidden = bar.classList.contains('tf-bar-hidden');
+  bar.classList.toggle('tf-bar-hidden', state.hideReadingBar);
   // Foundation's sticky plugin measured the bar while it was hidden (zero
   // width), so it ends up mis-sized and shoved left when first revealed. A
   // resize makes Foundation recalculate its dimensions.
@@ -280,6 +278,7 @@ function lockToggleButtonWidths() {
       data.labelToDark, data.labelToLight, data.labelRemove, data.labelShow
     ].filter(Boolean);
     if (labels.length < 2) return;
+    button.style.minWidth = '';
     var current = button.textContent;
     var widest = 0;
     labels.forEach(function (text) {
@@ -311,6 +310,9 @@ function lockSelectLabelWidths() {
       // inline-block so min-width reserves space even in themes (OLH) where the
       // label would otherwise be an inline span.
       label.style.display = 'inline-block';
+      // Clear any previous lock so a re-measure (e.g. after webfonts load)
+      // starts from the natural width, not a stale, possibly-too-small minimum.
+      label.style.minWidth = '';
       var current = label.textContent;
       var widest = 0;
       labels.forEach(function (text) {
@@ -375,6 +377,10 @@ function syncControls() {
 
   document.querySelectorAll('[data-tf-bar-show]').forEach(function (button) {
     button.disabled = !state.hideReadingBar;
+  });
+  // The mobile toggle's expanded state mirrors the shared hideReadingBar state.
+  document.querySelectorAll('.title-bar-title').forEach(function (button) {
+    button.setAttribute('aria-expanded', state.hideReadingBar ? 'false' : 'true');
   });
   return true;
  }
@@ -493,6 +499,24 @@ function enableBarShow() {
 }
 
 
+// layouts stay in sync (rotate a device: shown<->expanded, hidden<->collapsed).
+function wireReadingOptionsToggle() {
+  var bar = getBar();
+  if (!bar) return;
+  var button = bar.querySelector('.title-bar-title');
+  if (!button) return;
+  button.addEventListener('click', function (e) {
+    e.preventDefault();
+    state.setReadingBarHidden(!state.hideReadingBar);
+  });
+}
+
+// Lock the variable-width controls so they don't resize as their label changes.
+function lockControlWidths() {
+  lockToggleButtonWidths();
+  lockSelectLabelWidths();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   loadPreferences();
   applyPreferences();
@@ -501,6 +525,9 @@ document.addEventListener('DOMContentLoaded', function () {
     preload.remove();
   }
   enableBarShow();
-  lockToggleButtonWidths();
-  lockSelectLabelWidths();
+  lockControlWidths();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(lockControlWidths);
+  }
+  wireReadingOptionsToggle();
 });

@@ -868,6 +868,46 @@ div.caption span.label {
   font-style: normal !important;
 }
 
+// OLH keeps the Foundation hamburger (.menu-icon) on the Reading Options toggle,
+// so hide the caret meant for the other themes.
+.mini-bar .title-bar-title .tf-options-caret {
+  display: none;
+}
+
+// The Reading Options toggle is now wired by text_readability.js (not foundation)
+.mini-bar .title-bar {
+  display: none;
+}
+
+
+@media screen and (min-width: 640px) {
+  .reading-options-bar.tf-bar-hidden {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 639px) {
+  .reading-options-bar {
+    height: auto !important;
+  }
+
+  .mini-bar .title-bar {
+    display: flex;
+  }
+
+  .reading-options-bar.tf-bar-hidden #options-menu {
+    display: none;
+  }
+
+  .mini-bar .tf-close {
+    display: none;
+  }
+
+  .a11y-bar-show-item {
+    display: none;
+  }
+}
+
 #content {
   .columns {
     padding-top: rem-calc(20px);
@@ -2074,3 +2114,4 @@ input[type="submit"]:focus-visible {
     outline: 2px solid #1779ba;
     outline-offset: -2px;
 }
+

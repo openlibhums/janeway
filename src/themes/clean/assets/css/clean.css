@@ -950,9 +950,69 @@ span + .btn-background {
   font-style: normal !important;
 }
 
-/* Hide incompatible elements */
+/* The "Reading Options" toggle is hidden on desktop (the full bar shows). On
+   mobile it becomes the disclosure that expands/collapses the options panel. */
 .mini-bar .title-bar {
   display: none;
+}
+
+.mini-bar .title-bar-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  padding: 0 0.75rem;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The .menu-icon is a Foundation hamburger sprite; clean has no Foundation, so
+   hide it and let the template's caret (.tf-options-caret) be the indicator. */
+.mini-bar .title-bar-title .menu-icon {
+  display: none;
+}
+
+.mini-bar .title-bar-title .tf-options-caret {
+  margin-left: auto;
+}
+
+.mini-bar .title-bar-title[aria-expanded="true"] .tf-options-caret {
+  transform: rotate(180deg);
+}
+
+/* One state (.tf-bar-hidden) drives both layouts. Desktop: a full hide. */
+@media (min-width: 768px) {
+  .reading-options-bar.tf-bar-hidden {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Mobile: the bar is not sticky and is never fully hidden — the toggle stays
+     visible and .tf-bar-hidden just collapses the options (expanded by
+     default). The close button is desktop-only. */
+  .reading-options-bar {
+    position: static;
+  }
+
+  .mini-bar .title-bar {
+    display: block;
+  }
+
+  .reading-options-bar.tf-bar-hidden #options-menu {
+    display: none;
+  }
+
+  .mini-bar .tf-close {
+    display: none;
+  }
+
+  .a11y-bar-show-item {
+    display: none;
+  }
 }
 
 /* end of reading options bar */
