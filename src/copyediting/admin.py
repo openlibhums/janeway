@@ -67,9 +67,7 @@ class AuthorAdmin(admin.ModelAdmin):
         "assignment__editor_note",
         "assignment__copyeditor_note",
     )
-    raw_id_fields = ("author", "assignment")
-    filter_horizontal = ("files_updated",)
-    exclude = ("files_updated",)
+    raw_id_fields = ("author", "assignment", "files_updated")
 
     def _journal(self, obj):
         return obj.assignment.article.journal.code if obj else ""
