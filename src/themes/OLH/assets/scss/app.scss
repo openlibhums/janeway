@@ -225,13 +225,20 @@ header {
 
   @include breakpoint(medium) {
     .main.top-bar {
-      // Allow the right-hand controls (search + a11y toggle) to wrap onto a
-      // second line when the medium-width row is too narrow, instead of
-      // overflowing off the right edge. min-height keeps the bar from
-      // clipping the wrapped row.
+      display: flex;
       flex-wrap: wrap;
+      align-items: center;
       min-height: $topbar-height;
       background-color: var(--topbar-background-color);
+
+      .header-image-bar {
+        margin-right: auto;
+      }
+
+      .top-bar-left,
+      .top-bar-right {
+        height: auto;
+      }
     }
 
     .top-bar-image {
@@ -1851,6 +1858,12 @@ input[type="submit"]:focus-visible {
     align-items: center;
     padding: 0 0.5rem;
     flex: 0 0 auto;
+}
+
+@include breakpoint(medium) {
+    .top-bar-right.a11y-toggle-host {
+        display: inline-flex !important;
+    }
 }
 
 .a11y-toggle-host .a11y-toggle-summary {
