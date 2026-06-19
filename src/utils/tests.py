@@ -616,6 +616,48 @@ class CopyeditingEmailSubjectTests(UtilsTests):
 
 
 class PrepubEmailTests(UtilsTests):
+    def test_send_author_publication_notification_logs_all_recipients(self):
+        article = self.article_under_review
+        helpers.create_editor_assignment(
+            article,
+            self.section_editor,
+            assignment_type="section-editor",
+        )
+        reviewer = helpers.create_peer_reviewer(self.journal_one)
+        review_assignment = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article,
+            reviewer=reviewer,
+            editor=self.editor,
+        )
+        review_assignment.is_complete = True
+        review_assignment.date_declined = None
+        review_assignment.decision = "yes"
+        review_assignment.save()
+
+        send_author_publication_notification(
+            request=self.base_kwargs["request"],
+            article=article,
+            user_message=self.test_message,
+            section_editors=True,
+            peer_reviewers=True,
+        )
+
+        for recipient in [
+            self.author.email,
+            self.section_editor.email,
+            reviewer.email,
+        ]:
+            self.assertTrue(
+                models.LogEntry.objects.filter(
+                    is_email=True,
+                    types="Article Published",
+                    addressee__field="to",
+                    addressee__email=recipient,
+                ).exists(),
+                msg="No email log entry for {0}".format(recipient),
+            )
+
     def test_send_prepub_notifications(self):
         request = self.base_kwargs["request"]
         article = self.article_under_review
