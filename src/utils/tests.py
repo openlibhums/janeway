@@ -392,15 +392,18 @@ class TransactionalReviewEmailTests(UtilsTests):
         # #4511: both acknowledgement emails must be recorded in the email log,
         # one to the reviewer and one to the editor.
         for recipient in [expected_recipient_one, expected_recipient_two]:
-            self.assertTrue(
-                models.LogEntry.objects.filter(
-                    is_email=True,
-                    types="Review Complete",
-                    addressee__field="to",
-                    addressee__email=recipient,
-                ).exists(),
+            entry = models.LogEntry.objects.filter(
+                is_email=True,
+                types="Review Complete",
+                addressee__field="to",
+                addressee__email=recipient,
+            ).first()
+            self.assertIsNotNone(
+                entry,
                 msg="No email log entry for {0}".format(recipient),
             )
+            # the action text records the recipient's name, not a bound method repr
+            self.assertNotIn("bound method", entry.subject)
 
     def test_send_reviewer_accepted_or_decline_acknowledgements(self):
         kwargs = dict(**self.base_kwargs)
