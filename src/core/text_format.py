@@ -23,9 +23,14 @@ FONTS = {
 
 COLOUR_SCHEMES = {
     "default": {"label": _("Default Colour"), "light": "#ffffff", "dark": "#1a1a1a"},
-        "yellow": {"label": _("Yellow"), "light": "#F5F5DC", "dark": "#4c4c4c"},
-        "blue": {"label": _("Blue"), "light": "#45E9F2", "dark": "#302F31"},
-    "green": {"label": _("Green"), "light": "#00EA9A", "dark": "#003407"},
+    "high_contrast": {"label": _("High Contrast"), "light": "#FFFB00", "dark": "#001E57"},
+    "yellow_grey": {"label": _("Gentle Contrast"), "light": "#F5F5DC", "dark": "#4c4c4c"},
+    "red": {"label": _("Red"), "light": "#FFF5F5", "dark": "#A31800"},
+    "blue": {"label": _("Blue"), "light": "#CAF0FE", "dark": "#101F9C"},
+    "green": {"label": _("Green"), "light": "#E0EDD4", "dark": "#003F09"},
+    "jw-white-blue": {"label": _("White:Blue"), "light": "#FDFEFF", "dark": "#36565F"},
+    "jw-white-red": {"label": _("White:Red"), "light": "#FDFEFF", "dark": "#BB4E30"},
+    "jw-mustard-black": {"label": _("Mustard"), "light": "#C08031", "dark": "#202124"},
     # Custom-colour scheme. The full code path is intact (validation, paint
     # logic, JS custom state), but the bar template intentionally does NOT offer
     # "customise" in the colour menu for now — it is planned to return as an
@@ -35,8 +40,8 @@ COLOUR_SCHEMES = {
 
 # Messages announced to screen-reader user on change of state
 ANNOUNCEMENTS = {
-    "font": _("Font: %(value)s"),
-    "colour": _("Colour: %(value)s"),
+    "font": _("Reading font: %(value)s"),
+    "colour": _("Reading folour: %(value)s"),
     "textSize": _("Text size %(value)s"),
     "darkModeOn": _("Dark mode on"),
     "darkModeOff": _("Dark mode off"),
