@@ -841,11 +841,20 @@ def handle_email_change(request, email_address, next_url=""):
         context,
         "user_email_change",
     )
+    log_dict = {
+        "level": "Info",
+        "action_text": "Email change confirmation sent to {0}".format(
+            request.user.email,
+        ),
+        "types": "Email Change Confirmation",
+        "target": request.user,
+    }
     notify_helpers.send_email_with_body_from_user(
         request,
         "subject_user_email_change",
         request.user.email,
         message,
+        log_dict=log_dict,
     )
 
     logout(request)
