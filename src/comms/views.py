@@ -3,6 +3,7 @@ import urllib
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.urls import reverse
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
 from django.utils import translation
@@ -218,7 +219,9 @@ def news_list(request, tag=None, presswide=False):
                 hide_from_press=False,
             )
         ]
+        journal_type = ContentType.objects.get(app_label="journal", model="journal")
         news_objects = news_objects.filter(
+            content_type=journal_type,
             object_id__in=press_visible_journal_pks,
         )
     else:
