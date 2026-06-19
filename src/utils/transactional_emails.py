@@ -381,6 +381,19 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
     editor_context = context
     editor_context["review_in_review_url"] = review_in_review_url
 
+    reviewer_log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Review Acknowledgement",
+        "target": article,
+    }
+    editor_log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Reviewer Acknowledgement",
+        "target": article,
+    }
+
     # send to slack
     notify_helpers.send_slack(request, description, ["slack_editors"])
 
@@ -393,6 +406,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
             "subject_review_accept_acknowledgement",
             review_assignment.reviewer.email,
             reviewer_context,
+            log_dict=reviewer_log_dict,
         )
 
     else:
@@ -403,6 +417,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
             "subject_review_decline_acknowledgement",
             review_assignment.reviewer.email,
             reviewer_context,
+            log_dict=reviewer_log_dict,
         )
 
     # send to editor
@@ -414,6 +429,7 @@ def send_reviewer_accepted_or_decline_acknowledgements(**kwargs):
             "subject_reviewer_acknowledgement",
             editor.email,
             editor_context,
+            log_dict=editor_log_dict,
         )
 
 
