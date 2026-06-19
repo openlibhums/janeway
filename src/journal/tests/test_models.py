@@ -2,11 +2,14 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.urls.base import clear_script_prefix
+from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 
 from core.middleware import SiteSettingsMiddleware
-from journal import models
+from journal import models, logic
 from journal.tests.utils import make_test_journal
 from press.models import Press
+from utils import models as utils_models
 from utils.testing import helpers
 
 
@@ -134,3 +137,50 @@ class TestIssueModel(TestCase):
         issue = models.Issue.objects.get(id=issue.id)
         expected = "Volume 1 &bull; 2022 &bull; Test Issue from Utils Testing Helpers"
         self.assertEqual(issue.display_title, expected)
+
+
+class TestNotificationLogic(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(["editor", "author"])
+        cls.author = helpers.create_author(cls.journal_one)
+        cls.recipient = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(
+            journal=cls.journal_one,
+            correspondence_author=cls.author,
+        )
+        cls.notification = models.Notifications.objects.create(
+            journal=cls.journal_one,
+            user=cls.recipient,
+            domain=cls.author.email.split("@")[1],
+            type="submission",
+            active=True,
+        )
+        cls.request = helpers.Request()
+        cls.request.journal = cls.journal_one
+        cls.request.press = cls.press
+        cls.request.site_type = cls.journal_one
+        cls.request.user = cls.recipient
+        cls.request.model_content_type = ContentType.objects.get_for_model(
+            cls.journal_one,
+        )
+
+    def test_handle_notification_logs_email(self):
+        logic.handle_notification(
+            models.Notifications.objects.filter(pk=self.notification.pk),
+            "submission",
+            request=self.request,
+            article=self.article,
+        )
+
+        self.assertTrue(
+            utils_models.LogEntry.objects.filter(
+                is_email=True,
+                types="Article Notification",
+                addressee__field="to",
+                addressee__email=self.recipient.email,
+            ).exists(),
+        )

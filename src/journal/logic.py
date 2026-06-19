@@ -557,12 +557,22 @@ def handle_notification(notifications, type, **kwargs):
 
     for notification in notifications:
         if notification.domain == domain:
+            log_dict = {
+                "level": "Info",
+                "action_text": "{0} notification sent to {1}".format(
+                    type,
+                    notification.user.full_name(),
+                ),
+                "types": "Article Notification",
+                "target": article,
+            }
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 "notification_{0}".format(type),
                 "Article Notification",
                 notification.user.email,
                 {"article": article, "notification": notification},
+                log_dict=log_dict,
             )
 
 
