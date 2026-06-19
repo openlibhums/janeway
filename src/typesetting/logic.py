@@ -1,6 +1,7 @@
 import time
 import uuid
 import datetime
+import warnings
 
 from django.db import transaction
 from django.db.models import Q, ExpressionWrapper, BooleanField
@@ -15,7 +16,7 @@ from events import logic as event_logic
 from identifiers import logic as ident_logic
 from identifiers.models import DOI_RE
 from production import logic
-from utils import setting_handler, render_template
+from utils import setting_handler
 
 from typesetting import models
 from typesetting.notifications import notify
@@ -29,7 +30,7 @@ def production_ready_files(article, file_objects=False):
     :param file_objects: Boolean
     :return: a list of File type objects
     """
-    raise DeprecationWarning("Use get_typesetting_files instead.")
+    warnings.warn("Use get_typesetting_files instead.")
     submitted_ms_files = article.manuscript_files.filter(is_galley=False)
     copyeditted_files = logic.get_copyedit_files(article)
 
@@ -120,34 +121,6 @@ def get_proofreaders(article, round, assignment=None):
         pk__in=pks,
     ).exclude(
         pk__in=current_proofer_pks,
-    )
-
-
-def get_typesetter_notification(assignment, article, request):
-    url = request.journal.site_url(reverse("typesetting_assignments"))
-    context = {
-        "article": article,
-        "assignment": assignment,
-        "typesetting_assignments_url": url,
-    }
-    return render_template.get_message_content(
-        request,
-        context,
-        "typesetting_notify_typesetter",
-    )
-
-
-def get_proofreader_notification(assignment, article, request):
-    url = request.journal.site_url(reverse("typesetting_proofreading_assignments"))
-    context = {
-        "article": article,
-        "assignment": assignment,
-        "typesetting_assignments_url": url,
-    }
-    return render_template.get_message_content(
-        request,
-        context,
-        "typesetting_notify_proofreader",
     )
 
 

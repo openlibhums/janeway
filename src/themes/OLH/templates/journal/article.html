@@ -31,7 +31,7 @@
                         Authors
                       {% endblocktrans %}
                     </small>
-                    {% include "common/elements/journal/article_authors_br.html" %}
+                    {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                 </div>
             </div>
         </section>
@@ -96,7 +96,7 @@
                                         <li>
                                             <a href="mailto:{{ article.correspondence_author.email }}" >
                                                 <span class="sr-only">{% trans 'Email' %} {{ author.full_name }}.</span>
-                                                {% include "elements/icons/link_email.html" %} 
+                                                {% include "elements/icons/link_email.html" %}
                                             </a>
                                         </li>
                                     {% endif %}
@@ -153,7 +153,7 @@
                           Authors
                         {% endblocktrans %}
                       </small>
-                      {% include "common/elements/journal/article_authors_br.html" %}
+                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                     </div>
                 <hr aria-hidden="true" />
                 {% endif %}
@@ -329,6 +329,10 @@
                             {% endif %}
 
                             {% include "elements/journal/share.html" %}
+                            <div class="section">
+                              <h3>Author details</h3>
+                              {% include "elements/journal/article_authors_full.html" %}
+                            </div>
                             <div class="section">
                                 {% if article.is_published or proofing %}
                                     <h2>{% trans "Files" %}</h2>

@@ -48,6 +48,15 @@ main a {
     text-decoration: underline;
 }
 
+/* Do not automatically underline links that contain font-awesome icons */
+main a:has(.fa) {
+  text-decoration: none;
+}
+
+main a:focus {
+    color: #4F637D;
+}
+
 main a:focus,
 main a:hover {
     color: #4F637D;
@@ -529,6 +538,13 @@ a {
     overflow-wrap: break-word;
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 .section-link {
     white-space: nowrap;
 }
@@ -593,7 +609,7 @@ a {
     font-weight: inherit;
     border: 0;
 }
-        
+
 .background-button{
     border: 0;
     background: transparent;

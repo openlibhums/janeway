@@ -10,6 +10,7 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
+import warnings
 
 from core import models as core_models, logic
 from review import models as review_models
@@ -142,7 +143,13 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal and request.user in request.journal.editor_list():
+        if request.user.is_staff:
+            return func(request, *args, **kwargs)
+
+        if request.journal and (
+            request.user.is_editor(request)
+            or request.user.is_journal_manager(request.journal)
+        ):
             return func(request, *args, **kwargs)
 
         if request.repository and request.user in request.repository.managers.all():
@@ -501,6 +508,9 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get("article_id", None)
+        galley_id = kwargs.get("galley_id", None)
+
         if (
             request.user.is_typesetter(request)
             or request.user.is_production(request)
@@ -508,8 +518,24 @@ def typesetting_user_or_production_user_or_editor_required(func):
             or request.user.is_staff
         ):
             return func(request, *args, **kwargs)
-        else:
-            deny_access(request)
+
+        elif article_id:
+            article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+            if request.user in article.section_editors():
+                return func(request, *args, **kwargs)
+        elif galley_id:
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+            )
+            if request.user in galley.article.section_editors():
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
@@ -803,7 +829,7 @@ def article_stage_accepted_or_later_or_staff_required(func):
 
 
 def article_edit_user_required(func):
-    raise DeprecationWarning("Use user_can_edit_article instead.")
+    warnings.warn("Use user_can_edit_article instead.")
     return user_can_edit_article(func)
 
 

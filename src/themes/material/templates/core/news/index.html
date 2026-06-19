@@ -42,22 +42,22 @@
         {% endfor %}
     </div>
     <div class="pagination-block">
-        <ul class="d-flex justify-content-center">
+        <ul class="list-inline d-flex justify-content-center">
             {% if news_items.has_previous %}
-                <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                <li><a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
                     {% include "elements/icons/page_previous.html" %}
                 </a>
-                &nbsp;{% endif %}
+                &nbsp;</li>{% endif %}
             {{ news_items.page.page_range }}
             {% for page in news_items.paginator.page_range %}
-                <a href="?page={{ page }}"
+                <li><a href="?page={{ page }}"
                    class="btn {% if news_items.number == page %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ page }}</a>
-                &nbsp;
+                &nbsp;</li>
             {% endfor %}
             {% if news_items.has_next %}
-                <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                <li><a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
                     {% include "elements/icons/page_next.html" %}
-                </a>
+                </a></li>
             {% endif %}
         </ul>
     </div>

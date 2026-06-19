@@ -10,12 +10,14 @@ import statistics
 import json
 from datetime import timedelta
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 import pytz
 from hijack.signals import hijack_started, hijack_ended
 import warnings
 import zipfile
 
 from bs4 import BeautifulSoup
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -841,20 +843,35 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def snapshot_affiliations(self, frozen_author):
         """
         Delete any outdated affiliations on the frozen author and then
-        assign copies of account affiliations to the frozen author.
+        create copies of account affiliations for the frozen author.
         """
+        # Avoid circular imports
+        from submission.forms import AuthorAffiliationForm
+
+        request = utils_logic.get_current_request()
         frozen_author.affiliations.delete()
         for affiliation in self.affiliations:
-            affiliation.pk = None
-            affiliation.account = None
-            affiliation.frozen_author = frozen_author
-            affiliation.save()
+            form = AuthorAffiliationForm(
+                {
+                    "frozen_author": frozen_author,
+                    "title": affiliation.title,
+                    "department": affiliation.department,
+                    "organization": affiliation.organization,
+                    "start": affiliation.start,
+                    "end": affiliation.end,
+                },
+                journal=request.journal if request else None,
+                frozen_author=frozen_author,
+                organization=affiliation.organization,
+            )
+            if form.is_valid():
+                form.save()
 
     def snapshot_self(self, article, force_update=True):
         """
         Old function name for snapshot_as_author.
         """
-        raise DeprecationWarning("Use snapshot_as_author instead.")
+        warnings.warn("Use snapshot_as_author instead.")
         return self.snapshot_as_author(article, force_update)
 
     def snapshot_as_author(self, article, force_update=True):
@@ -1683,7 +1700,7 @@ class Galley(AbstractLastModifiedModel):
             # iterate over all found elements of each type in the elements dictionary
             for idx, val in enumerate(images):
                 # attempt to pull a URL from the specified attribute
-                url = os.path.basename(val.get(attribute, None))
+                url = os.path.basename(val.get(attribute, ""))
 
                 if show_all:
                     missing_elements.append(url)
@@ -2356,7 +2373,10 @@ class OrganizationNameManager(models.Manager):
                 if "acronym" in name.get("types"):
                     kwargs["acronym_for"] = organization
                 organization_names.append(OrganizationName(**kwargs))
-        return OrganizationName.objects.bulk_create(organization_names)
+        return OrganizationName.objects.bulk_create(
+            organization_names,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2627,7 +2647,10 @@ class OrganizationManager(models.Manager):
                     )
                 )
 
-        Organization.locations.through.objects.bulk_create(organization_location_links)
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
@@ -2649,7 +2672,10 @@ class OrganizationManager(models.Manager):
                     website=website,
                 )
             )
-        return self.bulk_create(new_organizations)
+        return self.bulk_create(
+            new_organizations,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2707,13 +2733,15 @@ class OrganizationManager(models.Manager):
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode="r") as zip_ref:
             for file_info in zip_ref.infolist():
-                if file_info.filename.endswith("v2.json"):
+                if file_info.filename.endswith(".json"):
                     string = zip_ref.read(file_info).decode()
                     if limit:
                         records = json.loads(string)[:limit]
                     else:
                         records = json.loads(string)
                     break
+            else:
+                raise ValueError(f"No ROR data file found in {ror_import.zip_path}")
 
         new_records = ror_import.filter_new_records(
             records,
@@ -2721,10 +2749,11 @@ class OrganizationManager(models.Manager):
         )
         if new_records:
             try:
-                Location.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_link_locations_from_ror(new_records)
-                OrganizationName.objects.bulk_create_from_ror(new_records)
+                with transaction.atomic():
+                    Location.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_link_locations_from_ror(new_records)
+                    OrganizationName.objects.bulk_create_from_ror(new_records)
             except Exception as error:
                 message = f"{type(error)}: {error}"
                 RORImportError.objects.create(
@@ -2934,7 +2963,7 @@ class Organization(models.Model):
                     )
                     # If there is an institution name, we should only match organizations
                     # with that as a custom label.
-                    if institution:
+                    if institution and institution != " ":
                         query &= models.Q(custom_label__value=institution)
                     organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2943,7 +2972,7 @@ class Organization(models.Model):
                     created = True
 
         # Set custom label if organization is not controlled by ROR
-        if institution and not organization.ror_id:
+        if institution and institution != " " and not organization.ror_id:
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={"value": institution},
                 custom_label_for=organization,
@@ -3036,10 +3065,46 @@ class ControlledAffiliation(models.Model):
         ]
         ordering = ["-is_primary", "-pk"]
 
+    @property
+    def journal(self):
+        if self.frozen_author and self.frozen_author.article:
+            return self.frozen_author.article.journal
+
+    @property
+    def title_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_job_title"
+        ):
+            return ""
+        else:
+            return self.title
+
+    @property
+    def department_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_department"
+        ):
+            return ""
+        else:
+            return self.department
+
+    @property
+    def date_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_affiliation_dates"
+        ):
+            return ""
+        elif not self.start and not self.end:
+            return ""
+        else:
+            start = self.start.strftime("%b %Y") if self.start else ""
+            end = self.end.strftime("%b %Y") if self.end else ""
+            return mark_safe(f"{start}&ndash;{end}")
+
     def title_department(self):
         elements = [
-            self.title,
-            self.department,
+            self.title_display,
+            self.department_display,
         ]
         return ", ".join([element for element in elements if element])
 
@@ -3214,7 +3279,10 @@ class LocationManager(models.Manager):
                         )
                     )
                     current_geonames_ids.add(geonames_id)
-        return Location.objects.bulk_create(new_locations)
+        return Location.objects.bulk_create(
+            new_locations,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):

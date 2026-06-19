@@ -4,7 +4,7 @@
 {% block title %}Editor Review Copyedit{% endblock %}
 {% block title-section %}Review Copyedit Assignment #{{ copyedit.id }} by
     {{ copyedit.copyeditor.full_name }}{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -32,6 +32,10 @@
                             <td>{{ file.label }}</td>
                             <td>{{ file.original_filename }}</td>
                             <td><a href="{% url 'editor_file_download' article.pk file.pk %}"><i class="fa fa-download">&nbsp;</i></a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No files were sent to the copyeditor.</td>
                         </tr>
                     {% endfor %}
                 </table>

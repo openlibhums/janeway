@@ -1,0 +1,42 @@
+{% extends "admin/core/partials/modal.html" %}
+{% load i18n %}
+
+{% block modal_id %}upload-editor-version-modal{% endblock modal_id %}
+
+{% block modal_title %}
+  {% trans "Upload Editor Version" %}
+{% endblock %}
+
+{% block modal_description %}
+  {% blocktrans trimmed %}
+    Upload a copyedited version of the manuscript. A completed copyedit
+    assignment will be created in your name, ready to be sent out for
+    author review.
+  {% endblocktrans %}
+{% endblock modal_description %}
+
+{% block modal_content %}
+  <form
+      method="post"
+      hx-post="{% url 'copyedit_upload_editor_version' article.pk %}"
+      hx-encoding="multipart/form-data"
+      hx-target="#upload-editor-version-modal"
+      hx-swap="outerHTML"
+      hx-indicator="#upload-editor-version-spinner"
+  >
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% include "admin/elements/forms/field.html" with field=form.label %}
+    {% include "admin/elements/forms/field.html" with field=form.file %}
+    <div class="form-actions">
+      <button type="submit" class="success button">
+        <i class="fa fa-upload">&nbsp;</i>{% trans "Upload and Create Assignment" %}
+      </button>
+      <i
+          id="upload-editor-version-spinner"
+          class="fa fa-circle-o-notch fa-spin"
+          style="display: none;"
+      ></i>
+    </div>
+  </form>
+{% endblock %}

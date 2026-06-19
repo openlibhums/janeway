@@ -14,6 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.shortcuts import reverse
 from django.conf import settings
+from django.core import mail
 
 from typesetting import models, security
 from submission import models as submission_models
@@ -376,6 +377,143 @@ class TestTypesetting(TestCase):
         self.article_in_typesetting.date_published = None
         self.article_in_typesetting.save()
         self.assertEqual(proofing, published)
+
+    def test_notify_typesetter_get_renders_email_form(self):
+        """
+        The notify typesetter page renders the shared EmailForm with the
+        subject and body pre-populated from journal settings.
+        """
+        core_models.WorkflowElement.objects.filter(
+            pk=self.workflow_element.pk,
+        ).update(
+            handshake_url="typesetting_articles",
+            jump_url="typesetting_article",
+        )
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_notify_typesetter",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "assignment_id": self.typesetting_assignment.pk,
+            },
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="subject"')
+        self.assertContains(response, 'name="body"')
+        self.assertContains(response, 'name="cc"')
+        self.assertContains(response, 'name="bcc"')
+
+    def test_notify_typesetter_send_dispatches_email(self):
+        """
+        Posting the EmailForm sends the email and marks the assignment notified.
+        """
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_notify_typesetter",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "assignment_id": self.typesetting_assignment.pk,
+            },
+        )
+        data = {
+            "cc": [""],
+            "bcc": [""],
+            "subject": ["Typesetting requested"],
+            "body": ["Please typeset this article."],
+            "attachments": [""],
+            "send": ["send"],
+        }
+        response = self.client.post(
+            url,
+            data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+        self.typesetting_assignment.refresh_from_db()
+        self.assertTrue(self.typesetting_assignment.notified)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.typesetter.email, mail.outbox[0].to)
+
+    def test_notify_typesetter_skip_does_not_email(self):
+        """
+        Skipping does not send an email or mark the assignment notified.
+        """
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_notify_typesetter",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "assignment_id": self.typesetting_assignment.pk,
+            },
+        )
+        data = {
+            "cc": [""],
+            "bcc": [""],
+            "subject": ["Typesetting requested"],
+            "body": ["Please typeset this article."],
+            "attachments": [""],
+            "skip": ["skip"],
+        }
+        self.client.post(url, data, SERVER_NAME=self.journal_one.domain)
+
+        self.typesetting_assignment.refresh_from_db()
+        self.assertFalse(self.typesetting_assignment.notified)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_notify_proofreader_send_dispatches_email(self):
+        """
+        Posting the EmailForm sends the proofreader email and marks notified.
+        """
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_notify_proofreader",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "assignment_id": self.galley_proofing.pk,
+            },
+        )
+        data = {
+            "cc": [""],
+            "bcc": [""],
+            "subject": ["Proofing requested"],
+            "body": ["Please proof this article."],
+            "attachments": [""],
+            "send": ["send"],
+        }
+        self.client.post(url, data, SERVER_NAME=self.journal_one.domain)
+
+        self.galley_proofing.refresh_from_db()
+        self.assertTrue(self.galley_proofing.notified)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.proofreader.email, mail.outbox[0].to)
+
+    def test_notify_proofreader_skip_does_not_email(self):
+        """
+        Skipping does not send a proofreader email or mark notified.
+        """
+        self.client.force_login(self.editor)
+        url = reverse(
+            "typesetting_notify_proofreader",
+            kwargs={
+                "article_id": self.article_in_typesetting.pk,
+                "assignment_id": self.galley_proofing.pk,
+            },
+        )
+        data = {
+            "cc": [""],
+            "bcc": [""],
+            "subject": ["Proofing requested"],
+            "body": ["Please proof this article."],
+            "attachments": [""],
+            "skip": ["skip"],
+        }
+        self.client.post(url, data, SERVER_NAME=self.journal_one.domain)
+
+        self.galley_proofing.refresh_from_db()
+        self.assertFalse(self.galley_proofing.notified)
+        self.assertEqual(len(mail.outbox), 0)
 
     @classmethod
     def setUpTestData(self):

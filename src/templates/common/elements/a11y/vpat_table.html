@@ -1,0 +1,33 @@
+<h4>WCAG 2.2 Level {{ wcag_level }}</h4>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Success Criterion</th>
+        <th>Conformance</th>
+        <th>Remarks</th>
+        <th>Audit</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in theme_data.audit_results %}
+        {% if item.level == wcag_level %}
+        <tr>
+        <th>{{ item.criterion_id }} </th>
+        <td>{{ item.criterion_name }}</td>
+        <td>{{ item.conformance }}</td>
+        <td>{{ item.remarks }}</td>
+        <td>
+            {% if item.audit.url %}
+                <a href="{{ item.audit.url }}" target="_blank">
+                    {{ item.audit.text }}{% include "elements/icons/link_external.html" %}
+                </a>
+            {% else %}
+                {{ item.audit.text }}
+            {% endif %}
+        </td>        
+        </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>

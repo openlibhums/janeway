@@ -306,6 +306,36 @@ class TestViews(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
+    @freeze_time(FROZEN_DATETIME)
+    def test_accept_preprint_with_user_timezone(self):
+        # Regression for #3392: when a user's preferred_timezone is set,
+        # date_published should be correctly converted to UTC and not end up
+        # in the future relative to the server.
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        path = reverse(
+            "repository_manager_article",
+            kwargs={"preprint_id": self.preprint_one.pk},
+        )
+        self.client.force_login(self.repo_manager)
+        # User is in Asia/Karachi (UTC+5). FROZEN_DATETIME is 15:00 UTC,
+        # so their local time is 20:00. They submit their local time with
+        # their correct timezone — date_published should equal FROZEN_DATETIME.
+        self.client.post(
+            path,
+            data={
+                "accept": "",
+                "datetime": "2024-03-25T20:00",
+                "timezone": "Asia/Karachi",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        preprint = rm.Preprint.objects.get(pk=self.preprint_one.pk)
+        self.assertEqual(
+            preprint.date_published.timestamp(),
+            FROZEN_DATETIME.timestamp(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME, tz_offset=5)
     def test_accept_preprint_bad_date(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)

@@ -51,6 +51,28 @@ def get_user_from_post(request):
         return None
 
 
+def create_complete_copyedit_assignment(article, editor, copyeditor=None):
+    """
+    Shorthand-creates a CopyeditAssignment that is already complete,
+    for use by the editor shortcut flows.
+    :param article: an Article object
+    :param editor: the Account undertaking the editor role
+    :param copyeditor: an optional Account to record as copyeditor,
+    defaulting to the editor themselves
+    :return: a completed CopyeditAssignment object
+    """
+    now = timezone.now()
+    return models.CopyeditAssignment.objects.create(
+        article=article,
+        copyeditor=copyeditor or editor,
+        editor=editor,
+        notified=True,
+        decision="accept",
+        date_decided=now,
+        copyeditor_completed=now,
+    )
+
+
 def get_copyeditor_notification_context(request, article, copyedit):
     """
     Takes a set of variables and renders a template into a string.

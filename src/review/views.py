@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-from uuid import uuid4
 from collections import Counter
 from datetime import timedelta
 
@@ -30,7 +29,10 @@ from core import (
 )
 from events import logic as event_logic
 from review import models, logic, forms, hypothesis
-from review.const import EditorialDecisions as ED
+from review.const import (
+    EditorialDecisions as ED,
+    ReviewerDecisions as RD,
+)
 from security.decorators import (
     editor_user_required,
     reviewer_user_required,
@@ -386,6 +388,7 @@ def assignment_notification(request, article_id, editor_id):
     )
 
     email_context = logic.get_assignment_context(request, article, editor, assignment)
+
     form = core_forms.SettingEmailForm(
         setting_name="editor_assignment",
         email_context=email_context,
@@ -400,17 +403,22 @@ def assignment_notification(request, article_id, editor_id):
             email_context=email_context,
             request=request,
         )
-        if form.is_valid():
+        skip = request.POST.get("skip")
+        form_valid = form.is_valid()
+        if skip or form_valid:
             kwargs = {
                 "editor_assignment": assignment,
                 "request": request,
-                "skip": request.POST.get("skip"),
+                "skip": skip,
                 "email_data": form.as_dataclass(),
             }
 
             event_logic.Events.raise_event(
                 event_logic.Events.ON_EDITOR_MANUALLY_ASSIGNED, **kwargs
             )
+
+            assignment.notified = True
+            assignment.save()
 
             if request.GET.get("return", None):
                 return redirect(request.GET.get("return"))
@@ -423,7 +431,7 @@ def assignment_notification(request, article_id, editor_id):
 
     template = "review/assignment_notification.html"
     context = {
-        "article": article_id,
+        "article": article,
         "editor": editor,
         "assignment": assignment,
         "form": form,
@@ -595,7 +603,7 @@ def send_review_reminder(request, article_id, review_id, reminder_type):
     form = forms.ReviewReminderForm(initial=form_initials)
 
     if request.POST:
-        form = forms.ReviewReminderForm(request.POST)
+        form = forms.ReviewReminderForm(request.POST, request.FILES)
         if form.is_valid():
             logic.send_review_reminder(request, form, review_assignment, reminder_type)
             messages.add_message(request, messages.SUCCESS, "Email sent")
@@ -749,7 +757,7 @@ def remove_file(request, article_id, round_id, file_id):
         messages.add_message(
             request,
             messages.INFO,
-            "Cannot remove a file from a closed review round.".format(file.label),
+            "Cannot remove a file from a closed review round.",
         )
     return redirect(reverse("review_in_review", kwargs={"article_id": article_id}))
 
@@ -1023,6 +1031,7 @@ def do_review(request, assignment_id):
             decision_required = True
         form = forms.GeneratedForm(
             request.POST,
+            request.FILES,
             review_assignment=assignment,
             fields_required=fields_required,
         )
@@ -1035,7 +1044,7 @@ def do_review(request, assignment_id):
 
         if form.is_valid() and decision_form.is_valid():
             decision_form.save()
-            assignment.save_review_form(form, assignment)
+            assignment.save_review_form(form, assignment, request.FILES)
             if "save_progress" in request.POST:
                 messages.add_message(
                     request,
@@ -1322,24 +1331,30 @@ def notify_reviewer(request, article_id, review_id):
     email_context = logic.get_reviewer_notification_context(
         request, article, request.user, review
     )
+    one_click_access = setting_handler.get_setting(
+        "general", "enable_one_click_access", request.journal
+    ).value
+    expected_url = email_context["review_url"] if one_click_access else None
 
-    form = core_forms.SettingEmailForm(
+    form = forms.ReviewerNotificationForm(
         setting_name="review_assignment",
         email_context=email_context,
+        expected_url=expected_url,
         request=request,
     )
 
     if request.POST:
         skip = request.POST.get("skip")
-        form = core_forms.SettingEmailForm(
+        form = forms.ReviewerNotificationForm(
             request.POST,
             request.FILES,
             setting_name="review_assignment",
             email_context=email_context,
+            expected_url=expected_url,
             request=request,
         )
-
-        if form.is_valid() or skip:
+        form.is_valid()
+        if skip or form.is_confirmed():
             kwargs = {
                 "email_data": form.as_dataclass(),
                 "review_assignment": review,
@@ -1354,7 +1369,26 @@ def notify_reviewer(request, article_id, review_id):
             review.date_requested = timezone.now()
             review.save()
 
-        return redirect(reverse("review_in_review", kwargs={"article_id": article_id}))
+            if skip:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "{} added as a reviewer (notification skipped).".format(
+                        review.reviewer.full_name()
+                    ),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "{} added as a reviewer and notified.".format(
+                        review.reviewer.full_name()
+                    ),
+                )
+
+            return redirect(
+                reverse("review_in_review", kwargs={"article_id": article_id})
+            )
 
     template = "review/notify_reviewer.html"
     context = {
@@ -1479,12 +1513,20 @@ def edit_review_answer(request, article_id, review_id, answer_id):
     form = forms.GeneratedForm(answer=answer)
 
     if request.POST:
-        form = forms.GeneratedForm(request.POST, answer=answer)
+        form = forms.GeneratedForm(request.POST, request.FILES, answer=answer)
         if form.is_valid():
             # Form element keys are posted as str
             element_key = str(answer.element.pk)
             answer.edited_answer = form.cleaned_data[element_key]
             answer.save()
+            if request.FILES and element_key in request.FILES:
+                answer_file, _ = (
+                    models.ReviewAssignmentAnswerFile.objects.get_or_create(
+                        answer=answer,
+                        edited=True,
+                    )
+                )
+                answer_file.save_file(request.FILES[element_key])
 
             return redirect(
                 reverse(
@@ -1671,11 +1713,6 @@ def withdraw_review(request, article_id, review_id):
             request=request,
         )
         if form.is_valid() or skip:
-            review.date_complete = timezone.now()
-            review.decision = models.RD.DECISION_WITHDRAWN.value
-            review.is_complete = True
-            review.save()
-
             kwargs = {
                 "review_assignment": review,
                 "request": request,
@@ -1686,7 +1723,7 @@ def withdraw_review(request, article_id, review_id):
                 event_logic.Events.ON_REVIEW_WITHDRAWL,
                 **kwargs,
             )
-
+            review.withdraw()
             messages.add_message(request, messages.SUCCESS, "Review withdrawn")
             return redirect(
                 reverse(
@@ -1766,7 +1803,7 @@ def review_decision(request, article_id, decision):
         request, article, decision, author_review_url
     )
     setting_name = "review_decision_{0}".format(decision)
-    if article.stage == submission_models.STAGE_UNASSIGNED:
+    if article.stage == submission_models.STAGE_UNASSIGNED and decision == "decline":
         setting_name = "review_decision_desk_reject"
 
     form = core_forms.SettingEmailForm(
@@ -2013,9 +2050,16 @@ def request_revisions(request, article_id):
     review_round = models.ReviewRound.latest_article_round(
         article=article,
     )
-    pending_approval = review_round.active_reviews().filter(
-        is_complete=True,
-        for_author_consumption=False,
+    pending_approval = (
+        review_round.active_reviews()
+        .filter(
+            is_complete=True,
+            for_author_consumption=False,
+            date_declined__isnull=True,
+        )
+        .exclude(
+            decision=RD.DECISION_WITHDRAWN.value,
+        )
     )
     incomplete = review_round.active_reviews().filter(
         is_complete=False,
@@ -2593,10 +2637,12 @@ def draft_decision(request, article_id):
     drafts = models.DecisionDraft.objects.filter(article=article)
     message_to_editor = logic.get_draft_email_message(request, article)
     editors = request.journal.editors()
+    assigned_editors = article.editor_list()
 
     form = forms.DraftDecisionForm(
         message_to_editor=message_to_editor,
         editors=editors,
+        assigned_editors=assigned_editors,
         initial={
             "revision_request_due_date": timezone.now() + timedelta(days=14),
         },
@@ -2620,6 +2666,7 @@ def draft_decision(request, article_id):
             form = forms.DraftDecisionForm(
                 request.POST,
                 editors=editors,
+                assigned_editors=assigned_editors,
                 message_to_editor=message_to_editor,
             )
 
@@ -2777,9 +2824,11 @@ def edit_draft_decision(request, article_id, draft_id):
     draft = get_object_or_404(models.DecisionDraft, pk=draft_id)
     drafts = models.DecisionDraft.objects.filter(article=article)
     editors = request.journal.editors()
+    assigned_editors = article.editor_list()
     form = forms.DraftDecisionForm(
         instance=draft,
         editors=editors,
+        assigned_editors=assigned_editors,
     )
 
     if request.POST:
@@ -2787,6 +2836,7 @@ def edit_draft_decision(request, article_id, draft_id):
             request.POST,
             instance=draft,
             editors=editors,
+            assigned_editors=assigned_editors,
         )
 
         if form.is_valid():
@@ -3351,3 +3401,13 @@ def reviewer_shared_review_download(request, article_id, review_id):
             )
 
     raise Http404("You do not have permission to download this file.")
+
+
+def review_attachment_download(request, assignment_id, file_uuid):
+    answer_file = get_object_or_404(
+        models.ReviewAssignmentAnswerFile,
+        answer__assignment__id=assignment_id,
+        file__uuid_filename=file_uuid,
+    )
+
+    return files.serve_file_to_browser(answer_file.file_path, answer_file.file)

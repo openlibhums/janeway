@@ -4,12 +4,23 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import re
 import uuid
 import json
+from dateutil import parser as dateparser
+import warnings
 import csv
 
-from django.db import models
-from django.db.models import Q
+from django.db import connection, DEFAULT_DB_ALIAS, models
+from django.db.models import Q, Max, Subquery, OuterRef
+from django.db.models.query import RawQuerySet
+from django.db.models.sql.query import get_order_dir
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    SearchVectorField,
+)
 from django.utils import timezone
 from django.conf import settings
 from django.utils.html import mark_safe
@@ -18,11 +29,13 @@ from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.template import Template, Context
+from django.utils import timezone
 from django.utils.html import format_html
 from django.core.validators import RegexValidator
 
-from simple_history.models import HistoricalRecords
 from openpyxl import load_workbook
+from simple_history.models import HistoricalRecords
+import swapper
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
@@ -576,7 +589,208 @@ class RepositoryFieldAnswer(models.Model):
         return "{}: {}".format(self.preprint, self.answer)
 
 
+class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
+    SORT_KEYS = {
+        "-title",
+        "title",
+        "date_published",
+        "-date_published",
+    }
+
+    def search(self, *args, **kwargs):
+        queryset = super().search(*args, **kwargs)
+        if not isinstance(queryset, RawQuerySet):
+            queryset = queryset.filter(
+                date_published__lte=timezone.now(),
+                date_published__isnull=False,
+            )
+        return queryset
+
+    def _search(self, search_term, search_filters, sort=None, site=None, queryset=None):
+        """SQLite-compatible search across preprint fields.
+
+        The base implementation targets Article's ``frozenauthor`` relation,
+        which Preprint does not have, so we mirror the Postgres/MySQL author
+        lookups against the ``preprintauthor`` relation here.
+        """
+        preprints = queryset or self.get_queryset()
+        if search_term:
+            escaped = re.escape(search_term)
+            split_term = [re.escape(word) for word in search_term.split(" ")]
+            split_term.append(escaped)
+            search_regex = "^({})$".format("|".join({name for name in split_term}))
+            q_object = Q()
+            if search_filters.get("title"):
+                q_object = q_object | Q(title__icontains=search_term)
+            if search_filters.get("abstract"):
+                q_object = q_object | Q(abstract__icontains=search_term)
+            if search_filters.get("keywords"):
+                q_object = q_object | Q(keywords__word=search_term)
+            if search_filters.get("authors"):
+                q_object = q_object | (
+                    Q(preprintauthor__account__first_name__iregex=search_regex)
+                    | Q(preprintauthor__account__last_name__iregex=search_regex)
+                )
+            preprints = preprints.filter(q_object)
+            if site:
+                preprints = preprints.filter(repository=site)
+        return preprints.distinct()
+
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
+        if not search_term or not any(search_filters.values()):
+            return queryset
+        querysets = []
+        if search_filters.get("title"):
+            querysets.append(self.get_queryset().filter(title__search=search_term))
+        if search_filters.get("authors"):
+            querysets.append(
+                self.get_queryset().filter(
+                    preprintauthor__account__first_name__search=search_term
+                )
+            )
+            querysets.append(
+                self.get_queryset().filter(
+                    preprintauthor__account__last_name__search=search_term
+                )
+            )
+        if search_filters.get("abstract"):
+            querysets.append(self.get_queryset().filter(abstract__search=search_term))
+        if search_filters.get("keywords"):
+            querysets.append(
+                self.get_queryset().filter(keywords__word__search=search_term)
+            )
+        if search_filters.get("full_text"):
+            querysets.append(
+                self.get_queryset().filter(
+                    preprintversion__preprintfile__file__text__contents__search=search_term,
+                    preprintversion__id__in=self._latest_version_subq(),
+                )
+            )
+        for search_queryset in querysets:
+            queryset |= search_queryset
+
+        if sort in self.SORT_KEYS:
+            queryset = queryset.order_by(sort)
+
+        return queryset
+
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
+        if not search_term or not any(search_filters.values()):
+            return queryset.none()
+        queryset = queryset.filter(
+            date_published__lte=timezone.now(),
+            date_published__isnull=False,
+        )
+        if site:
+            queryset = queryset.filter(repository=site)
+        lookups, annotations = self.build_postgres_lookups(search_term, search_filters)
+        if annotations:
+            queryset = queryset.annotate(**annotations)
+        if lookups:
+            queryset = queryset.filter(**lookups)
+        if search_filters.get("full_text"):
+            queryset = queryset.filter(
+                preprintversion__pk__in=self._latest_version_subq()
+            )
+
+        if not sort or sort not in self.SORT_KEYS:
+            sort = "-relevance"
+
+        queryset = queryset.order_by("id").distinct("id")
+
+        inner_sql = self.stringify_queryset(queryset)
+
+        if "relevance" in sort:
+            return self.model.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search ORDER BY relevance DESC"
+            )
+        else:
+            order_by_sql = self.build_order_by_sql(sort)
+            return self.model.objects.raw(
+                f"SELECT * from ({inner_sql}) AS search {order_by_sql}"
+            )
+
+    def _latest_version_subq(self):
+        return Subquery(
+            PreprintVersion.objects.filter(
+                preprint=OuterRef("pk"),
+            )
+            .order_by("-version")
+            .values("pk")[:1]
+        )
+
+    def build_order_by_sql(self, sort_key):
+        sorted_qs = self.none().order_by(sort_key)
+        sql_compiler = sorted_qs._query.get_compiler(DEFAULT_DB_ALIAS)
+        order_by = sql_compiler.query.order_by
+        order_strings = []
+        for field in order_by:
+            order_strings.append("%s %s" % get_order_dir(field, "ASC"))
+        return "ORDER BY %s" % ", ".join(order_strings)
+
+    def build_postgres_lookups(self, search_term, search_filters):
+        lookups = {}
+        annotations = {"relevance": models.Value(1.0, models.FloatField())}
+        vectors = []
+        if search_filters.get("title"):
+            vectors.append(SearchVector("title", weight="A"))
+        if search_filters.get("keywords"):
+            vectors.append(SearchVector("keywords__word", weight="B"))
+        if search_filters.get("authors"):
+            vectors.append(
+                SearchVector("preprintauthor__account__last_name", weight="B")
+            )
+            vectors.append(
+                SearchVector("preprintauthor__account__first_name", weight="B")
+            )
+        if search_filters.get("abstract"):
+            vectors.append(SearchVector("abstract", weight="C"))
+        if search_filters.get("full_text"):
+            FileTextModel = swapper.load_model("core", "FileText")
+            field_type = FileTextModel._meta.get_field("contents")
+            if isinstance(field_type, SearchVectorField):
+                vectors.append(
+                    model_utils.SearchVector(
+                        "preprintversion__file__text__contents",
+                        weight="D",
+                    )
+                )
+            else:
+                vectors.append(
+                    SearchVector(
+                        "peprintversion_set__submission_file__text__contents",
+                        weight="D",
+                    )
+                )
+        if vectors:
+            vector = vectors[0]
+            for v in vectors[1:]:
+                vector += v
+            query = SearchQuery(search_term)
+            relevance = SearchRank(vector, query)
+            annotations["relevance"] = relevance
+            lookups["relevance__gte"] = 0.01
+
+        if search_filters.get("ORCID"):
+            lookups["preprintauthor__account__orcid"] = search_term
+        return lookups, annotations
+
+    @staticmethod
+    def stringify_queryset(queryset):
+        sql, params = queryset.query.sql_with_params()
+        with connection.cursor() as cursor:
+            return cursor.mogrify(sql, params).decode()
+
+
 class Preprint(models.Model):
+    objects = PreprintSearchManager()
+
     repository = models.ForeignKey(
         Repository,
         null=True,
@@ -783,7 +997,8 @@ class Preprint(models.Model):
                 preprint_author=preprint_author,
                 title=affiliation.title,
                 department=affiliation.department,
-                organization=affiliation.is_primary,
+                organization=affiliation.organization,
+                is_primary=affiliation.is_primary,
                 start=affiliation.start,
                 end=affiliation.end,
             )
@@ -1026,6 +1241,14 @@ class PreprintFile(models.Model):
     )
     size = models.PositiveIntegerField(default=0)
 
+    text = models.OneToOneField(
+        swapper.get_model_name("core", "FileText"),
+        blank=True,
+        null=True,
+        related_name="preprint_file",
+        on_delete=models.SET_NULL,
+    )
+
     def __str__(self):
         return self.original_filename
 
@@ -1060,6 +1283,31 @@ class PreprintFile(models.Model):
         contents = file.read()
         file.close()
         return contents
+
+    def index_full_text(self):
+        indexed = False
+        parser = files.MIME_TO_TEXT_PARSER.get(self.get_file_mime_type())
+        if not parser:
+            # No support for this mime type
+            return indexed
+
+        parsed = parser(self.file.path)
+
+        FileTextModel = swapper.load_model("core", "FileText")
+        preprocessed_text = FileTextModel.preprocess_contents(parsed)
+        if self.text:
+            self.text.update_contents(preprocessed_text)
+            indexed = True
+        else:
+            file_text = FileTextModel.objects.create(
+                preprint_file=self,
+                contents=preprocessed_text,
+            )
+            self.text = file_text
+            self.save()
+            indexed = True
+
+        return indexed
 
 
 class PreprintSupplementaryFile(models.Model):
@@ -1221,7 +1469,7 @@ class Author(models.Model):
     )
 
     def __init__(self, *args, **kwargs):
-        raise DeprecationWarning("Use PreprintAuthor instead.")
+        warnings.warn("Use PreprintAuthor instead.")
         super().__init__(*args, **kwargs)
 
     @property
@@ -1957,3 +2205,12 @@ def add_email_setting_defaults(sender, instance, **kwargs):
                         repository=repo,
                         name=default,
                     )
+
+
+@receiver(models.signals.post_save, sender=PreprintFile)
+def update_preprint_file_index(sender, instance, created, **kwargs):
+    """Updates file indexes in the DB"""
+    if not instance.pk or not instance.file:
+        return
+
+    instance.index_full_text()

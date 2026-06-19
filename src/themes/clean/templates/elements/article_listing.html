@@ -75,6 +75,11 @@
                         <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
                     </a>
                     {% endif %}
+                    {% if article.section %}
+                    <span>
+                        <i aria-hidden="true" class="fa fa-tag"></i> {{ article.section.name }}
+                    </span>
+                    {% endif %}
                 </p>
                  {% if article.issues.count > 1 %}
                   <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>

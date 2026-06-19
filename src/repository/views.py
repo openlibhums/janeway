@@ -9,6 +9,7 @@ from dateutil import tz
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Q, Count
+from django.db.models.query import RawQuerySet
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -362,7 +363,7 @@ def redirect_old_subject(request, subject_id):
 
 
 def repository_list(request):
-    form = forms.PreprintFilterForm(request.GET, repository=request.repository)
+    form = forms.PreprintFilterForm(repository=request.repository)
 
     preprints = (
         models.Preprint.objects.filter(
@@ -373,10 +374,16 @@ def repository_list(request):
         .prefetch_related("organisation_units")
     )
 
+    if request.GET:
+        form = forms.PreprintFilterForm(request.GET, repository=request.repository)
     if form.is_valid():
         subject = form.cleaned_data.get("subject")
         submission_type = form.cleaned_data.get("submission_type")
         search_term = form.cleaned_data.get("search_term", "").strip()
+        sort = form.cleaned_data.get("sort", "")
+
+        if search_term:
+            search_filters = form.search_filters()
 
         if subject:
             preprints = preprints.filter(subject=subject)
@@ -384,26 +391,22 @@ def repository_list(request):
         if submission_type:
             preprints = preprints.filter(submission_type=submission_type)
 
-        if search_term:
-            split_terms = [term for term in search_term.split() if term]
-
-            keyword_filter = Q(keywords__word__in=split_terms)
-            title_abstract_filter = Q(title__icontains=search_term) | Q(
-                abstract__icontains=search_term
+        if search_filters:
+            preprints = models.Preprint.objects.search(
+                search_term,
+                search_filters,
+                sort=sort or None,
+                site=request.repository,
+                queryset=preprints,
             )
 
-            author_filter = (
-                Q(preprintauthor__account__first_name__in=split_terms)
-                | Q(preprintauthor__account__middle_name__in=split_terms)
-                | Q(preprintauthor__account__last_name__in=split_terms)
-                | Q(preprintauthor__account__institution__icontains=search_term)
-            )
-
-            preprints = preprints.filter(
-                title_abstract_filter | keyword_filter | author_filter
-            ).distinct()
-
-    paginator = Paginator(preprints.order_by("-date_published"), 15)
+    if isinstance(preprints, RawQuerySet):
+        # RawQuerySets (used for postgres relevance sort) don't support .order_by() or pagination
+        preprints_list = list(preprints)
+        paginator = Paginator(preprints_list, 15)
+    else:
+        preprints = preprints.order_by("-date_published")
+        paginator = Paginator(preprints, 15)
     page = request.GET.get("page", 1)
 
     try:

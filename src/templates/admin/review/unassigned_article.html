@@ -4,7 +4,7 @@
 
 {% block title %}Unassigned {{ article.title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -299,6 +299,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include "admin/elements/contacts_box.html" %}
     </div>
 
 
@@ -306,4 +307,5 @@
 
 {% block js %}
     {% include "admin/elements/datatables.html" with target="#editors" page_length=5 %}
+     <script type="text/javascript" src="{% static 'admin/js/popup.js' %}"></script>
 {% endblock js %}

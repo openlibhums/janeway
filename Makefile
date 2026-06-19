@@ -117,6 +117,9 @@ format:	## Run the ruff formatter against the codebase
 	$(COMPOSE_CMD) run $(NO_DEPS) --entrypoint ruff --rm janeway-web format .
 check:		## Runs janeway's test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
+	tox
+tox:		## Runs python version tests with tox
+	$(COMPOSE_CMD) run --entrypoint=tox --rm janeway-web
 migrate:		## Runs Django's migrate command
 	bash -c "make command CMD=migrate"
 makemigrations:		## Runs Django's makemigrations command
