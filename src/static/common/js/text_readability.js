@@ -511,6 +511,67 @@ function wireReadingOptionsToggle() {
   });
 }
 
+// In-bar dropdowns (Font, Colour, Cite) for themes without Foundation.
+// CSS reveals the menu on the button's aria-expanded="true".
+function wireBarDropdowns() {
+  if (window.Foundation) return;
+  var bar = getBar();
+  if (!bar) return;
+  var toggles = bar.querySelectorAll('[aria-haspopup="true"][aria-controls]');
+
+  function closeAll(except) {
+    toggles.forEach(function (toggle) {
+      if (toggle !== except) {
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  toggles.forEach(function (toggle) {
+    var item = toggle.parentNode; // the <li> wrapping button + menu
+    var menu = document.getElementById(toggle.getAttribute('aria-controls'));
+    if (!menu) return;
+
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = toggle.getAttribute('aria-expanded') === 'true';
+      closeAll(toggle); // only one open at a time
+      toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+
+    menu.querySelectorAll('button, a').forEach(function (entry) {
+      entry.addEventListener('click', function () {
+        toggle.setAttribute('aria-expanded', 'false');
+        if (entry.tagName === 'BUTTON') {
+          toggle.focus();
+        }
+      });
+    });
+
+    // Tabbing or clicking out of the whole control closes it.
+    item.addEventListener('focusout', function (e) {
+      if (!item.contains(e.relatedTarget)) {
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Escape closes and returns focus to the button.
+    item.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+    });
+  });
+
+  // A click anywhere outside the bar closes any open dropdown.
+  document.addEventListener('click', function (e) {
+    if (!bar.contains(e.target)) {
+      closeAll(null);
+    }
+  });
+}
+
 // Lock the variable-width controls so they don't resize as their label changes.
 function lockControlWidths() {
   lockToggleButtonWidths();
@@ -530,4 +591,5 @@ document.addEventListener('DOMContentLoaded', function () {
     document.fonts.ready.then(lockControlWidths);
   }
   wireReadingOptionsToggle();
+  wireBarDropdowns();
 });
