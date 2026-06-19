@@ -565,6 +565,32 @@ class CopyeditingEmailSubjectTests(UtilsTests):
     production and typesetting (not being actively developed)
     """
 
+    def test_send_author_copyedit_complete_is_logged(self):
+        copyedit = helpers.create_copyedit_assignment(
+            article=self.article_under_review,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+        )
+        author_review = copyediting_models.AuthorReview.objects.create(
+            author=self.author,
+            assignment=copyedit,
+        )
+
+        send_author_copyedit_complete(
+            request=self.base_kwargs["request"],
+            copyedit=copyedit,
+            author_review=author_review,
+        )
+
+        self.assertTrue(
+            models.LogEntry.objects.filter(
+                is_email=True,
+                types="Copyedit Complete",
+                addressee__field="to",
+                addressee__email=self.editor.email,
+            ).exists(),
+        )
+
     def test_copyediting_email_subjects(self):
         for email_function, subject_setting_name in (
             (send_copyedit_assignment, "subject_copyeditor_assignment_notification"),

@@ -1667,6 +1667,12 @@ def send_author_copyedit_complete(**kwargs):
         "author_review": author_review,
         "editor_review_url": editor_review_url,
     }
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Copyedit Complete",
+        "target": copyedit.article,
+    }
     notify_helpers.send_slack(request, description, ["slack_editors"])
     notify_helpers.send_email_with_body_from_setting_template(
         request,
@@ -1674,6 +1680,7 @@ def send_author_copyedit_complete(**kwargs):
         "subject_author_copyedit_complete",
         copyedit.editor.email,
         context,
+        log_dict=log_dict,
     )
 
 
