@@ -1460,12 +1460,20 @@ def send_proofing_ack(**kwargs):
         request.user, model_name, model_object.actor().full_name(), article.title
     )
 
+    log_dict = {
+        "level": "Info",
+        "action_text": description,
+        "types": "Proofing Acknowledgement",
+        "target": article,
+    }
+
     if not skip:
         notify_helpers.send_email_with_body_from_user(
             request,
             "Proofing Acknowledgement",
             model_object.actor().email,
             user_message,
+            log_dict=log_dict,
         )
         notify_helpers.send_slack(request, description, ["slack_editors"])
 
