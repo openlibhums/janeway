@@ -868,6 +868,40 @@ div.caption span.label {
   font-style: normal !important;
 }
 
+// Reading-bar dropdowns are decoupled from Foundation's menu JS. 
+.mini-bar ul.menu.medium-horizontal {
+  > li {
+    position: relative; // anchor for the flyout
+  }
+
+  > li > ul.menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: rem-calc(192px);
+    flex-direction: column;
+    align-items: stretch;
+    background: #fff;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    z-index: 1000;
+  }
+
+  > li > button[aria-expanded="true"] + ul.menu {
+    display: flex;
+  }
+}
+
+// On small screens the bar's menu stacks vertically, so reveal the submenu
+// inline below its button rather than as an absolute flyout that would overlap.
+@include breakpoint(small only) {
+  .mini-bar ul.menu.medium-horizontal > li > ul.menu {
+    position: static;
+    min-width: 0;
+    box-shadow: none;
+  }
+}
+
 // OLH keeps the Foundation hamburger (.menu-icon) on the Reading Options toggle,
 // so hide the caret meant for the other themes.
 .mini-bar .title-bar-title .tf-options-caret {
