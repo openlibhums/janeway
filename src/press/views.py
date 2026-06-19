@@ -143,7 +143,7 @@ def conferences(request):
     """
     template = "press/press_journals.html"
 
-    journal_objects = request.press.apply_journal_ordering(
+    journal_objects = journal_models.Journal.objects._apply_ordering(
         journal_models.Journal.objects.filter(
             hide_from_press=False,
             is_conference=True,
