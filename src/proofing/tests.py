@@ -115,6 +115,25 @@ class TestLogic(TestCase):
             ).exists(),
         )
 
+    def test_send_proofing_ack_is_logged(self):
+        transactional_emails.send_proofing_ack(
+            request=self.request,
+            user_message="Thank you for proofing.",
+            article=self.active_article,
+            model_object=self.active_proofing_task,
+            model_name="proofing task",
+            skip=False,
+        )
+
+        self.assertTrue(
+            utils_models.LogEntry.objects.filter(
+                is_email=True,
+                types="Proofing Acknowledgement",
+                addressee__field="to",
+                addressee__email=self.proofreader.email,
+            ).exists(),
+        )
+
     def test_archive_stage_hides_task(self):
         self.client.force_login(self.proofreader)
         response = self.client.get(reverse("proofing_requests"))
