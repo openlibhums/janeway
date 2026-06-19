@@ -437,6 +437,18 @@ class TransactionalReviewEmailTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[3].subject)
 
+        # all four emails should be recorded in the email log against this article
+        article_type = ContentType.objects.get_for_model(self.article_under_review)
+        self.assertEqual(
+            4,
+            models.LogEntry.objects.filter(
+                is_email=True,
+                types__in=["Review Acknowledgement", "Reviewer Acknowledgement"],
+                content_type=article_type,
+                object_id=self.article_under_review.pk,
+            ).count(),
+        )
+
     def test_send_submission_acknowledgement(self):
         """
         Tests whether subjects are correct, nothing else.
