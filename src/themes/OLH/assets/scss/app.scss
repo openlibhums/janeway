@@ -225,7 +225,12 @@ header {
 
   @include breakpoint(medium) {
     .main.top-bar {
-      height: $topbar-height;
+      // Allow the right-hand controls (search + a11y toggle) to wrap onto a
+      // second line when the medium-width row is too narrow, instead of
+      // overflowing off the right edge. min-height keeps the bar from
+      // clipping the wrapped row.
+      flex-wrap: wrap;
+      min-height: $topbar-height;
       background-color: var(--topbar-background-color);
     }
 
