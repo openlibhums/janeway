@@ -1567,6 +1567,7 @@ def send_author_publication_notification(**kwargs):
                 "subject_section_editor_pub_notification",
                 editor.email,
                 {"article": article, "editor": editor},
+                log_dict=log_dict,
             )
 
     if peer_reviewers:
@@ -1581,6 +1582,7 @@ def send_author_publication_notification(**kwargs):
                 "subject_peer_reviewer_pub_notification",
                 reviewer.email,
                 {"article": article, "reviewer": reviewer},
+                log_dict=log_dict,
             )
 
 
