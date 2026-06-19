@@ -809,8 +809,8 @@ span + .btn-background {
   z-index: 999;
 }
 
-.mini-bar ul.menu.medium-horizontal > li:hover > ul.menu,
-.mini-bar ul.menu.medium-horizontal > li:focus-within > ul.menu {
+/* Open only when the menu button is activated (JS toggles aria-expanded)*/
+.mini-bar ul.menu.medium-horizontal > li > button[aria-expanded="true"] + ul.menu {
   display: flex;
 }
 
