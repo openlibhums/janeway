@@ -1,8 +1,11 @@
 from django.test import TestCase
 from django.shortcuts import reverse
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 
 from proofing import models
+from utils import models as utils_models
+from utils import transactional_emails
 from utils.testing import helpers
 from submission import models as submission_models
 
@@ -85,6 +88,31 @@ class TestLogic(TestCase):
             proofing_task=cls.archived_proofing_task,
             typesetter=cls.typesetter,
             task="Active Correction",
+        )
+
+        cls.request = helpers.Request()
+        cls.request.journal = cls.journal_one
+        cls.request.press = cls.journal_one.press
+        cls.request.site_type = cls.journal_one
+        cls.request.user = cls.editor
+        cls.request.model_content_type = ContentType.objects.get_for_model(
+            cls.journal_one,
+        )
+
+    def test_send_proofreader_complete_notification_is_logged(self):
+        transactional_emails.send_proofreader_complete_notification(
+            request=self.request,
+            proofing_task=self.active_proofing_task,
+            article=self.active_article,
+        )
+
+        self.assertTrue(
+            utils_models.LogEntry.objects.filter(
+                is_email=True,
+                types="Proofing Complete",
+                addressee__field="to",
+                addressee__email=self.editor.email,
+            ).exists(),
         )
 
     def test_archive_stage_hides_task(self):
