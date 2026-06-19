@@ -389,6 +389,19 @@ class TransactionalReviewEmailTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
 
+        # #4511: both acknowledgement emails must be recorded in the email log,
+        # one to the reviewer and one to the editor.
+        for recipient in [expected_recipient_one, expected_recipient_two]:
+            self.assertTrue(
+                models.LogEntry.objects.filter(
+                    is_email=True,
+                    types="Review Complete",
+                    addressee__field="to",
+                    addressee__email=recipient,
+                ).exists(),
+                msg="No email log entry for {0}".format(recipient),
+            )
+
     def test_send_reviewer_accepted_or_decline_acknowledgements(self):
         kwargs = dict(**self.base_kwargs)
         kwargs["review_assignment"] = self.review_assignment
