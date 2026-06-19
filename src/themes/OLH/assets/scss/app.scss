@@ -892,16 +892,6 @@ div.caption span.label {
   }
 }
 
-// On small screens the bar's menu stacks vertically, so reveal the submenu
-// inline below its button rather than as an absolute flyout that would overlap.
-@include breakpoint(small only) {
-  .mini-bar ul.menu.medium-horizontal > li > ul.menu {
-    position: static;
-    min-width: 0;
-    box-shadow: none;
-  }
-}
-
 // OLH keeps the Foundation hamburger (.menu-icon) on the Reading Options toggle,
 // so hide the caret meant for the other themes.
 .mini-bar .title-bar-title .tf-options-caret {
@@ -938,7 +928,22 @@ div.caption span.label {
     display: none;
   }
 
-  .mini-bar .tf-close {
+  // Match clean/material: keep the bar horizontal.
+  .mini-bar ul.menu.medium-horizontal {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .mini-bar ul.menu.medium-horizontal > li > button,
+  .mini-bar ul.menu.medium-horizontal > li > a {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  // Hide the close button on mobile — the Reading Options toggle handles
+  .mini-bar ul.menu.medium-horizontal > li.tf-close {
     display: none;
   }
 
