@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("press", "0036_remove_press_password_reset_text_and_more"),
+        ("press", "0037_press_allow_journal_a11y_info_press_ally_info"),
     ]
 
     operations = [
