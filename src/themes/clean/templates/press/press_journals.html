@@ -5,40 +5,51 @@
 {% block title %}{{ request.press.name }} | Journals{% endblock title %}
 
 {% block body %}
-<div class="row">
+  <div class="row">
     <div class="col-md-12">
-        <h1>{% trans 'Journals' %}</h1>
+      <h1>{% trans 'Journals' %}</h1>
     </div>
-    {% if coming_soon_journals.exists %}
-      <div class="col-md-12">
-        <h2>{% trans "Coming Soon" %}</h2>
-      </div>
-      {% include "press/press_journal_set.html" with journals=coming_soon_journals level="deep" %}
-    {% endif %}
-    {% if archived_journals.exists or coming_soon_journals.exists %}
-      <div class="col-md-12">
-        <h2>{% trans "Active" %}</h2>
-      </div>
-      {% include "press/press_journal_set.html" with journals=active_journals level="deep" %}
-    {% else %}
-      {% include "press/press_journal_set.html" with journals=active_journals level="shallow" %}
-    {% endif %}
-    {% if archived_journals.exists %}
-      <div class="col-md-12">
-        <h2>{% trans "Archived" %}</h2>
-      </div>
-      {% include "press/press_journal_set.html" with journals=archived_journals level="deep" %}
-    {% endif %}
-    <div class="col-lg-4 col-md-2">
-        <section aria-labelledby="filter-title">
-            <label><span id="filter-title">{% trans "Filter" %}</span>
-                <input type="text" placeholder="{% trans "Start typing to filter." %}" id="filter" name="filter">
-            </label>
-        </section>
+    <div class="col-lg-8 col-md-10 journal-container">
+      {% if archived_journals.exists or coming_soon_journals.exists %}
+        {% comment %}
+          The press is using at least one "Archived" or "Coming soon" status, so
+          we subdivide with h2s.
+        {% endcomment %}
+        {% if coming_soon_journals.exists %}
+          <div class="row">
+            <div class="col-md-12">
+              <h2>{% trans "Coming Soon" %}</h2>
+            </div>
+          </div>
+          {% include "press/press_journal_set.html" with journals=coming_soon_journals level="deep" %}
+        {% endif %}
+        {% if active_journals.exists %}
+          <div class="row">
+            <div class="col-md-12">
+              <h2>{% trans "Active" %}</h2>
+            </div>
+          </div>
+          {% include "press/press_journal_set.html" with journals=active_journals level="deep" %}
+        {% endif %}
+        {% if archived_journals.exists %}
+          <div class="row">
+            <div class="col-md-12">
+              <h2>{% trans "Archived" %}</h2>
+            </div>
+          </div>
+          {% include "press/press_journal_set.html" with journals=archived_journals level="deep" %}
+        {% endif %}
+      {% else %}
+        {% comment %}
+          All journals are active by default, so don't subdivide with h2s.
+        {% endcomment %}
+        {% include "press/press_journal_set.html" with journals=active_journals level="shallow" %}
+      {% endif %}
     </div>
-</div>
+    {% include "press/press_journal_filter.html" %}
+  </div>
 {% endblock body %}
 
 {% block js %}
-    <script src="{% static 'common/js/journal_filter.js' %}"></script>
+  <script src="{% static 'common/js/journal_filter.js' %}"></script>
 {% endblock %}

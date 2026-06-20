@@ -141,7 +141,7 @@ def conferences(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    template = "press/press_journals.html"
+    template = "press/conferences.html"
 
     journal_objects = journal_models.Journal.objects._apply_ordering(
         journal_models.Journal.objects.filter(
@@ -150,7 +150,7 @@ def conferences(request):
         )
     )
 
-    context = {"journals": journal_objects}
+    context = {"conferences": journal_objects}
 
     return render(request, template, context)
 

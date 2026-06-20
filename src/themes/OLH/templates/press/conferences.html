@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block page_title %}{% trans "Conferences" %}{% endblock page_title %}
+
+{% block title %}{{ press.name }}{% endblock title %}
+
+{% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
+
+{% block body %}
+  <section id="content" class="no-padding">
+    <div class="row">
+      <div class="large-8 columns">
+        <h1>{{ press.name }} {% trans 'Conferences' %}</h1>
+        {% include "press/press_journal_set.html" with journals=conferences level="shallow" %}
+      </div>
+      {% include "press/press_journal_filter.html" %}
+    </div>
+  </section>
+{% endblock body %}
+
+{% block js %}
+  <script src="{% static 'common/js/journal_filter.js' %}"></script>
+{% endblock %}
