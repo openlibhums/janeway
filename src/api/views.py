@@ -645,9 +645,12 @@ def kbart(request, tsv=True):
 
             # The date that the last issue that we have was published,
             # this is should only be populated if the article has ceased
-            # publication OR if the article  publishes content after a
+            # publication OR if the article publishes content after a
             # period of embargo
-            if journal.is_archived or kbart_embargo:
+            if (
+                journal.status == journal_models.Journal.PublishingStatus.ARCHIVED
+                or kbart_embargo
+            ):
                 journal_line["date_last_issue_online"] = "{:%Y-%m-%d}".format(
                     last_issue.date
                 )

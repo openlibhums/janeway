@@ -10,6 +10,7 @@ import collections
 import uuid
 import os
 import re
+import warnings
 
 from django.apps import apps
 from django.conf import settings
@@ -300,10 +301,6 @@ class Journal(AbstractSiteModel):
     )
 
     disable_metrics_display = models.BooleanField(default=False)
-    disable_article_images = models.BooleanField(
-        default=False,
-        help_text=gettext("This field has been deprecated in v1.4.3"),
-    )
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(
         default=False,
@@ -317,11 +314,6 @@ class Journal(AbstractSiteModel):
         ),
     )
     is_conference = models.BooleanField(default=False)
-    is_archived = models.BooleanField(
-        default=False,
-        help_text="The journal is no longer publishing. This is only used as "
-        "part of the journal metadata.",
-    )
     remote_submit_url = models.URLField(
         blank=True,
         null=True,
@@ -406,6 +398,17 @@ class Journal(AbstractSiteModel):
 
     disable_front_end = models.BooleanField(default=False)
 
+    # Deprecated fields
+
+    disable_article_images = models.BooleanField(
+        default=False,
+        help_text=gettext("This field has been deprecated in v1.4.3"),
+    )
+    is_archived = models.BooleanField(
+        default=False,
+        help_text="The 'is_archived' field is deprecated. Use 'journal.status' instead.",
+    )
+
     objects = JournalManager()
 
     class Meta:
@@ -419,6 +422,21 @@ class Journal(AbstractSiteModel):
             return "{0}: {1}".format(self.code, self.domain)
         else:
             return self.code
+
+    def __getattribute__(self, name):
+        if name == "disable_article_images":
+            warnings.warn(
+                "This field has been deprecated in v1.4.3",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if name == "is_archived":
+            warnings.warn(
+                "The 'is_archived' field is deprecated. Use 'journal.status' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
     @staticmethod
     def override_cover(request, absolute=True):
