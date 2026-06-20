@@ -522,6 +522,7 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
         model = journal_models.Journal
         fields = (
             "contact_info",
+            "is_conference",
             "is_remote",
             "remote_view_url",
             "remote_submit_url",

@@ -8,6 +8,7 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_description %}
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.print_issn %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.is_conference %}
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
     {% if edit_form.journal_base_theme %}
         {% include "admin/elements/forms/field.html" with field=edit_form.journal_base_theme %}
@@ -66,6 +67,15 @@
 </div>
 
 <div class="title-area">
+    <h2>{% trans 'Visibility' %}</h2>
+</div>
+<div class="content">
+    <p>You can control the visibility of the journal and its articles, issues, and news items here. Journals that are archived or coming soon will be listed separately on the press-level <a href="{% stateless_site_url request.press url_name='press_journals' %}" target="_blank">Journals</a> page. For journals that are used for testing and training, use the test status, and always select <strong>Hide from press</strong>.</p>
+    {% include "admin/elements/forms/field.html" with field=attr_form.status %}
+    {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
+</div>
+
+<div class="title-area">
     <h2>Other</h2>
 </div>
 <div class="content">
@@ -78,10 +88,6 @@
     <p>You can include a google analytics code here if you want to track user visits.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.google_analytics_code %}
     {% include "admin/elements/forms/field.html" with field=edit_form.use_ga_four %}
-
-    <p>You can control the visibility of the journal and its articles, issues, and news items here. Journals that are archived or coming soon will be listed separately on the press-level <a href="{% stateless_site_url request.press url_name='press_journals' %}" target="_blank">Journals</a> page. For journals that are used for testing and training, use the test status, and always select <strong>Hide from press</strong>.</p>
-    {% include "admin/elements/forms/field.html" with field=attr_form.status %}
-    {% include "admin/elements/forms/field.html" with field=attr_form.hide_from_press %}
 
     <p>If you want to display a special message on the login page you can add it here.</p>
     {% include "admin/elements/forms/field.html" with field=edit_form.display_login_page_notice %}

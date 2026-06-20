@@ -9,46 +9,39 @@
 {% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
 
 {% block body %}
-
-    <section id="content" class="no-padding">
-        <div class="row">
-            <div class="large-8 columns">
-                <h1> {{ press.name }} {% trans 'Journals' %} </h1>
-                {% if coming_soon_journals.exists %}
-                  <h2>{% trans "Coming Soon" %}</h2>
-                  {% include "press/press_journal_set.html" with journals=coming_soon_journals level="deep" %}
-                {% endif %}
-                {% if archived_journals.exists or coming_soon_journals.exists %}
-                  <h2>{% trans "Active" %}</h2>
-                  {% include "press/press_journal_set.html" with journals=active_journals level="deep" %}
-                {% else %}
-                  {% include "press/press_journal_set.html" with journals=active_journals level="shallow" %}
-                {% endif %}
-                {% if archived_journals.exists %}
-                  <h2>{% trans "Archived" %}</h2>
-                  {% include "press/press_journal_set.html" with journals=archived_journals level="deep" %}
-                {% endif %}
-            </div>
-            <div class="large-4 columns">
-                <section aria-label="{% trans 'Filter' %}">
-                <div>
-                    <form>
-                        <div class="section">
-                            <label>{% trans "Filter" %}
-                                <input type="text" placeholder="{% trans "Filter" %}" id="filter" name="filter">
-                            </label>
-                        </div>
-                    </form>
-                </div>
-            </section>
-            </div>
-
-        </div>
-
-    </section>
-
+  <section id="content" class="no-padding">
+    <div class="row">
+      <div class="large-8 columns">
+        <h1>{{ press.name }} {% trans 'Journals' %}</h1>
+        {% if archived_journals.exists or coming_soon_journals.exists %}
+          {% comment %}
+            The press is using at least one "Archived" or "Coming soon" status,
+            so we subdivide with h2s.
+          {% endcomment %}
+          {% if coming_soon_journals.exists %}
+            <h2>{% trans "Coming Soon" %}</h2>
+            {% include "press/press_journal_set.html" with journals=coming_soon_journals level="deep" %}
+          {% endif %}
+          {% if active_journals.exists %}
+            <h2>{% trans "Active" %}</h2>
+            {% include "press/press_journal_set.html" with journals=active_journals level="deep" %}
+          {% endif %}
+          {% if archived_journals.exists %}
+            <h2>{% trans "Archived" %}</h2>
+            {% include "press/press_journal_set.html" with journals=archived_journals level="deep" %}
+          {% endif %}
+        {% else %}
+          {% comment %}
+            All journals are active by default, so don't subdivide with h2s.
+          {% endcomment %}
+          {% include "press/press_journal_set.html" with journals=active_journals level="shallow" %}
+        {% endif %}
+      </div>
+      {% include "press/press_journal_filter.html" %}
+    </div>
+  </section>
 {% endblock body %}
 
 {% block js %}
-    <script src="{% static 'common/js/journal_filter.js' %}"></script>
+  <script src="{% static 'common/js/journal_filter.js' %}"></script>
 {% endblock %}
