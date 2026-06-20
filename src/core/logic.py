@@ -1419,6 +1419,12 @@ def send_contact_message(contact_form, request):
         "actor_email": contact_form.cleaned_data["sender"],
     }
 
+    # Avoid sending request.user through the logging system,
+    # because the contact page is public-facing and logged-in users
+    # will not expect it to record their account email as the LogEntry.actor
+    # rather than the email they put in the From field.
+    request.user = None
+
     notify_helpers.send_email_with_body_from_setting_template(
         request=request,
         template="contact_message",
