@@ -27,6 +27,27 @@ from utils.template_override_middleware import Loader
 from utils.testing import helpers
 
 
+def a_registered_font():
+    """A real, non-default font slug from the registry."""
+    for slug, entry in core_text_format.FONTS.items():
+        if slug != "default" and entry.get("value"):
+            return slug
+    raise AssertionError("text_format.FONTS has no usable non-default font")
+
+
+def a_preset_scheme():
+    """A real preset colour scheme (slug, entry) from the registry.
+
+    Skips "default" (no light-mode) and "customise" (user-supplied colours)
+    """
+    for slug, entry in core_text_format.COLOUR_SCHEMES.items():
+        if slug in ("default", "customise"):
+            continue
+        if entry.get("light") and entry.get("dark"):
+            return slug, entry
+    raise AssertionError("text_format.COLOUR_SCHEMES has no usable preset scheme")
+
+
 class CoreViewTestsWithData(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -1251,9 +1272,10 @@ class CleanTextFormatPreferencesTests(TestCase):
         self.assertEqual(core_logic.clean_text_format_preferences([1, 2]), {})
 
     def test_known_values_are_kept(self):
+        scheme, _entry = a_preset_scheme()
         payload = {
-            "font": "serif",
-            "scheme": "yellow",
+            "font": a_registered_font(),
+            "scheme": scheme,
             "darkmode": True,
             "noItalics": False,
             "custom": {"light": "#ffffff", "dark": "#1a1a1a"},
@@ -1286,10 +1308,11 @@ class CleanTextFormatPreferencesTests(TestCase):
         )
 
     def test_unknown_keys_are_dropped(self):
+        font = a_registered_font()
         cleaned = core_logic.clean_text_format_preferences(
-            {"font": "serif", "evil": "<script>"}
+            {"font": font, "evil": "<script>"}
         )
-        self.assertEqual(cleaned, {"font": "serif"})
+        self.assertEqual(cleaned, {"font": font})
 
     def test_non_bool_flags_are_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(
@@ -1374,7 +1397,7 @@ class SizeBoundsTests(TestCase):
             core_text_format.DEFAULT_SIZE_BOUNDS,
         )
         self.assertEqual(
-            core_text_format.size_bounds("serif"),
+            core_text_format.size_bounds(a_registered_font()),
             core_text_format.DEFAULT_SIZE_BOUNDS,
         )
 
@@ -1396,22 +1419,27 @@ class InitialRegionColourCssTests(TestCase):
         self.assertEqual(self.css({"scheme": "default", "darkmode": False}), "")
 
     def test_default_scheme_dark_applies_dark_pair(self):
+        default = core_text_format.COLOUR_SCHEMES["default"]
         css = self.css({"scheme": "default", "darkmode": True})
         # Dark mode swaps: the dark colour becomes the background.
-        self.assertIn("background-color:#1a1a1a", css)
-        self.assertIn("color:#ffffff", css)
+        self.assertIn("background-color:%s" % default["dark"], css)
+        self.assertIn("color:%s" % default["light"], css)
 
     def test_preset_scheme_light(self):
-        css = self.css({"scheme": "yellow"})
+        scheme, entry = a_preset_scheme()
+        css = self.css({"scheme": scheme})
         self.assertIn(".text-format-region", css)
-        self.assertIn("background-color:#F5F5DC", css)
-        self.assertIn("color:#4c4c4c", css)
+        # Light mode: the scheme's light colour is the background, dark the text.
+        self.assertIn("background-color:%s" % entry["light"], css)
+        self.assertIn("color:%s" % entry["dark"], css)
         self.assertIn("padding:20px", css)
 
     def test_preset_scheme_dark_swaps_pair(self):
-        css = self.css({"scheme": "yellow", "darkmode": True})
-        self.assertIn("background-color:#4c4c4c", css)
-        self.assertIn("color:#F5F5DC", css)
+        scheme, entry = a_preset_scheme()
+        css = self.css({"scheme": scheme, "darkmode": True})
+        # Dark mode swaps the pair: dark becomes background, light becomes text.
+        self.assertIn("background-color:%s" % entry["dark"], css)
+        self.assertIn("color:%s" % entry["light"], css)
 
     def test_customise_uses_custom_hex(self):
         css = self.css(
@@ -1463,7 +1491,12 @@ class SaveTextFormatPreferencesViewTests(TestCase):
         clear_script_prefix()
         self.client = Client()
         self.url = reverse("save_text_format_preferences")
-        self.valid = {"font": "serif", "scheme": "yellow", "textSize": 2}
+        self.scheme, _entry = a_preset_scheme()
+        self.valid = {
+            "font": a_registered_font(),
+            "scheme": self.scheme,
+            "textSize": 2,
+        }
 
     def post_preferences(self, payload):
         return self.client.post(
@@ -1492,13 +1525,15 @@ class SaveTextFormatPreferencesViewTests(TestCase):
         self.assertEqual(self.client.session.get("text_format_preferences"), self.valid)
 
     def test_tampered_payload_is_sanitised_before_storage(self):
+        # An unregistered font and an unknown key are dropped; the valid scheme
+        # survives sanitisation.
         response = self.post_preferences(
-            {"font": "comic-sans", "scheme": "yellow", "evil": "x"}
+            {"font": "comic-sans", "scheme": self.scheme, "evil": "x"}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             self.client.session.get("text_format_preferences"),
-            {"scheme": "yellow"},
+            {"scheme": self.scheme},
         )
 
     def test_authenticated_save_stores_on_account_not_session(self):
@@ -1532,8 +1567,8 @@ class TextFormatPreferencesPersistenceTests(TestCase):
         )
         cls.user.is_active = True
         cls.user.save()
-        cls.anon_prefs = {"font": "serif"}
-        cls.account_prefs = {"scheme": "yellow"}
+        cls.anon_prefs = {"font": a_registered_font()}
+        cls.account_prefs = {"scheme": a_preset_scheme()[0]}
 
     def setUp(self):
         clear_script_prefix()
