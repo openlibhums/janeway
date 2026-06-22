@@ -1489,6 +1489,7 @@ class CheckMailgunStatCommandTests(TestCase):
         self.log_entry.refresh_from_db()
         self.assertEqual(self.log_entry.message_status, "accepted")
 
+
 class DefaultSettingsIntegrityTests(TestCase):
     """Guards against malformed entries in journal_defaults.json.
 
