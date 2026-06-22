@@ -144,12 +144,14 @@
                                         </a></li>
                                     </ul>
                                 </li>
-                                <li>
-                                    <a href="mailto:{{ article.correspondence_author.email }}" title="{% trans 'Email author' %}">
-                                        <span class="sr-only">{% trans 'Email' %} {{ article.correspondence_author.full_name }}.</span>
-                                        {% include "elements/icons/link_email.html" %}
-                                    </a>
-                                </li>
+                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                    <li>
+                                        <a href="mailto:{{ article.correspondence_author.email }}" title="{% trans 'Email author' %}">
+                                            <span class="sr-only">{% trans 'Email' %} {{ article.correspondence_author.full_name }}.</span>
+                                            {% include "elements/icons/link_email.html" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 <li>
                                     <a href="{{ article.local_url }}print/" title="{% trans 'Print article' %}">
                                         <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
