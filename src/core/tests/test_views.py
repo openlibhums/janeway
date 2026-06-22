@@ -1281,9 +1281,7 @@ class CleanTextFormatPreferencesTests(TestCase):
             )
         self.assertNotIn("not-a-registered-font", core_text_format.FONTS)
         self.assertEqual(
-            core_logic.clean_text_format_preferences(
-                {"font": "not-a-registered-font"}
-            ),
+            core_logic.clean_text_format_preferences({"font": "not-a-registered-font"}),
             {},
         )
 
@@ -1309,6 +1307,16 @@ class CleanTextFormatPreferencesTests(TestCase):
             {"hideReadingBar": False},
         )
 
+    def test_no_attention_bool_is_kept(self):
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"noAttention": True}),
+            {"noAttention": True},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"noAttention": False}),
+            {"noAttention": False},
+        )
+
     def test_invalid_custom_hex_is_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(
             {"custom": {"light": "red", "dark": "#1a1a1a"}}
@@ -1322,9 +1330,7 @@ class CleanTextFormatPreferencesTests(TestCase):
         self.assertEqual(cleaned, {})
 
     def test_text_size_out_of_range_is_dropped(self):
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"textSize": 99}), {}
-        )
+        self.assertEqual(core_logic.clean_text_format_preferences({"textSize": 99}), {})
         self.assertEqual(
             core_logic.clean_text_format_preferences({"textSize": -99}), {}
         )
@@ -1344,15 +1350,11 @@ class CleanTextFormatPreferencesTests(TestCase):
         # One step outside the resolved bounds is dropped.
         bounds = core_text_format.size_bounds()
         self.assertEqual(
-            core_logic.clean_text_format_preferences(
-                {"textSize": bounds["min"] - 1}
-            ),
+            core_logic.clean_text_format_preferences({"textSize": bounds["min"] - 1}),
             {},
         )
         self.assertEqual(
-            core_logic.clean_text_format_preferences(
-                {"textSize": bounds["max"] + 1}
-            ),
+            core_logic.clean_text_format_preferences({"textSize": bounds["max"] + 1}),
             {},
         )
 
@@ -1424,7 +1426,9 @@ class InitialRegionColourCssTests(TestCase):
     def test_non_hex_values_are_rejected(self):
         # A tampered custom colour must never reach the emitted CSS.
         self.assertEqual(
-            self.css({"scheme": "customise", "custom": {"light": "red", "dark": "#000000"}}),
+            self.css(
+                {"scheme": "customise", "custom": {"light": "red", "dark": "#000000"}}
+            ),
             "",
         )
         self.assertEqual(
@@ -1485,9 +1489,7 @@ class SaveTextFormatPreferencesViewTests(TestCase):
     def test_anonymous_save_stores_cleaned_in_session(self):
         response = self.post_preferences(self.valid)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            self.client.session.get("text_format_preferences"), self.valid
-        )
+        self.assertEqual(self.client.session.get("text_format_preferences"), self.valid)
 
     def test_tampered_payload_is_sanitised_before_storage(self):
         response = self.post_preferences(

@@ -94,6 +94,22 @@
                                     </span>
                                 </button>
                             </li>
+                            <li class="tf-attention-toggle" hidden>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="attention"
+                                    aria-pressed="true"
+                                    aria-label="{% trans 'Highlight jumped-to text' %}"
+                                    title="{% trans 'Toggle highlight when jumping to a link' %}"
+                                    onclick="state.toggleNoAttention()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-bullseye"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
 
                             {% if article %}
                                 {% comment %}
