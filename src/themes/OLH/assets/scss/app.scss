@@ -941,7 +941,8 @@ div.caption span.label {
 
 @media screen and (max-width: 639px) {
   .mini-bar.sticky {
-    position: static !important;
+    position: relative !important;
+    z-index: 999;
     max-width: none !important;
   }
 
@@ -969,6 +970,15 @@ div.caption span.label {
   .mini-bar ul.menu.medium-horizontal > li > a {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+  }
+
+  .mini-bar ul.menu.medium-horizontal > li > #tf-font-menu {
+    left: 0;
+    right: auto;
+  }
+  .mini-bar ul.menu.medium-horizontal > li > ul.menu li > button,
+  .mini-bar ul.menu.medium-horizontal > li > ul.menu li > a {
+    padding-left: 0.75rem;
   }
 
   // Hide the close button on mobile — the Reading Options toggle handles
