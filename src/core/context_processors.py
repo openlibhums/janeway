@@ -127,8 +127,7 @@ def text_format_options(request):
         "schemes": resolve(text_format.COLOUR_SCHEMES),
         "sizeBounds": text_format.DEFAULT_SIZE_BOUNDS,
         "strings": {
-            key: force_str(value)
-            for key, value in text_format.ANNOUNCEMENTS.items()
+            key: force_str(value) for key, value in text_format.ANNOUNCEMENTS.items()
         },
     }
     return {"text_format_options": options}
