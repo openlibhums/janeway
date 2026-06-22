@@ -8,6 +8,13 @@ scheme** (with custom colours and a Light/Dark swap) — without changing the re
 of the page. On article pages it also carries the article-only options
 (citation formats, email author, print).
 
+On pages that load `reversable-links.js` (article pages), the bar also shows a
+**highlight-on-jump** toggle. The draw-attention feature flashes a highlight on
+the block a reader jumps to via an internal link; the toggle suppresses that
+highlight colour (the scroll and focus jump are kept). The button is hidden on
+pages where `drawUserAttention` is not defined, so it is only offered where it
+does something.
+
 ### The two things you must do
 
 Adding the bar is two steps:

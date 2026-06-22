@@ -27,6 +27,7 @@ var state = {
   scheme: 'default',
   darkmode: false,
   noItalics: false,
+  noAttention: false,
   hideReadingBar: false,
   textSize: 0,
   custom: { light: '#ffffff', dark: '#1a1a1a' },
@@ -88,6 +89,12 @@ var state = {
   toggleNoItalics: function () {
     if (this._toggle('noItalics')) {
       announce(this.noItalics ? STRINGS.italicsRemoved : STRINGS.italicsShown);
+    }
+  },
+
+  toggleNoAttention: function () {
+    if (this._toggle('noAttention')) {
+      announce(this.noAttention ? STRINGS.attentionRemoved : STRINGS.attentionShown);
     }
   },
 
@@ -302,6 +309,13 @@ function paintRegion(region) {
   } else {
     region.classList.remove('tf-no-italics');
   }
+
+  // Draw-attention highlight on jump
+  if (state.noAttention) {
+    region.classList.add('tf-no-attention');
+  } else {
+    region.classList.remove('tf-no-attention');
+  }
 }
 
 // The toggle buttons swap their label between two strings of different length.
@@ -406,6 +420,11 @@ function syncControls() {
     } else {
       setToggleState(button, italicsPresent);
     }
+  });
+
+  document.querySelectorAll('[data-tf-toggle="attention"]').forEach(function (button) {
+    // aria-pressed (and the tick) mean the jump highlight is present, the default state.
+    setToggleState(button, !state.noAttention);
   });
 
   syncActiveOption('[data-tf-font-option]', 'tfFontOption', state.font, '.tf-font-select');
@@ -534,6 +553,15 @@ function enableBarShow() {
 }
 
 
+// The draw-attention highlight only fires on pages that load reversable-links.js
+function enableAttentionToggle() {
+  if (typeof drawUserAttention !== 'function') return;
+  document.querySelectorAll('.tf-attention-toggle').forEach(function (item) {
+    item.hidden = false;
+  });
+}
+
+
 // layouts stay in sync (rotate a device: shown<->expanded, hidden<->collapsed).
 function wireReadingOptionsToggle() {
   var bar = getBar();
@@ -624,6 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
     preload.remove();
   }
   enableBarShow();
+  enableAttentionToggle();
   lockControlWidths();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(lockControlWidths);

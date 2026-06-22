@@ -848,6 +848,7 @@ def accessibility_mode_active(request):
 # persisted reader preference registers a descriptor and inherits the same
 # anonymous<->account semantics. The store is unowned: features read/write keys.
 
+
 class PreferenceDescriptor:
     """A single persisted reader preference.
 
@@ -961,7 +962,7 @@ def clean_text_format_preferences(payload):
     if payload.get("scheme") in text_format.COLOUR_SCHEMES:
         cleaned["scheme"] = payload["scheme"]
 
-    for flag in ("darkmode", "noItalics", "hideReadingBar"):
+    for flag in ("darkmode", "noItalics", "noAttention", "hideReadingBar"):
         if isinstance(payload.get(flag), bool):
             cleaned[flag] = payload[flag]
 

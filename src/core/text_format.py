@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 _HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
-# Global default text-size step bounds. 
+# Global default text-size step bounds.
 DEFAULT_SIZE_BOUNDS = {"min": -3, "max": 6}
 
 FONTS = {
@@ -23,8 +23,16 @@ FONTS = {
 
 COLOUR_SCHEMES = {
     "default": {"label": _("Default Colour"), "light": "#ffffff", "dark": "#1a1a1a"},
-    "high_contrast": {"label": _("High Contrast"), "light": "#FFFB00", "dark": "#001E57"},
-    "yellow_grey": {"label": _("Gentle Contrast"), "light": "#F5F5DC", "dark": "#4c4c4c"},
+    "high_contrast": {
+        "label": _("High Contrast"),
+        "light": "#FFFB00",
+        "dark": "#001E57",
+    },
+    "yellow_grey": {
+        "label": _("Gentle Contrast"),
+        "light": "#F5F5DC",
+        "dark": "#4c4c4c",
+    },
     "red": {"label": _("Red"), "light": "#FFF5F5", "dark": "#A31800"},
     "blue": {"label": _("Blue"), "light": "#CAF0FE", "dark": "#101F9C"},
     "green": {"label": _("Green"), "light": "#E0EDD4", "dark": "#003F09"},
@@ -41,12 +49,14 @@ COLOUR_SCHEMES = {
 # Messages announced to screen-reader user on change of state
 ANNOUNCEMENTS = {
     "font": _("Reading font: %(value)s"),
-    "colour": _("Reading folour: %(value)s"),
+    "colour": _("Reading colour: %(value)s"),
     "textSize": _("Text size %(value)s"),
     "darkModeOn": _("Dark mode on"),
     "darkModeOff": _("Dark mode off"),
     "italicsRemoved": _("Italics removed"),
     "italicsShown": _("Italics shown"),
+    "attentionRemoved": _("Jump highlighting removed"),
+    "attentionShown": _("Jump highlighting shown"),
 }
 
 

@@ -833,6 +833,21 @@ div.caption span.label {
   color: var(--tf-bg) !important;
 }
 
+/* For when reader has turned the draw-attention highlight off */
+.text-format-region.tf-no-attention .draw-attention,
+.text-format-region.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+}
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+}
+.text-format-region.tf-no-attention .draw-attention:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Interactive controls now share the region background, so give them a
    foreground-coloured border to stay visually delineated. */
 .text-format-region.tf-has-colour button,
