@@ -961,6 +961,16 @@ span + .btn-background {
   border-color: var(--tf-fg) !important;
 }
 
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour thead,
+.text-format-region.tf-has-colour tbody,
+.text-format-region.tf-has-colour tfoot,
+.text-format-region.tf-has-colour tr,
+.text-format-region.tf-has-colour th,
+.text-format-region.tf-has-colour td {
+  border-color: color-mix(in srgb, var(--tf-fg) 50%, transparent) !important;
+}
+
 .text-format-region.tf-no-italics *:not([class*="fa"]) {
   font-style: normal !important;
 }
