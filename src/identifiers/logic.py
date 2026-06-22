@@ -427,7 +427,6 @@ def create_crossref_article_context(article, identifier=None):
         "other_pages": article.page_numbers,
         "scheduled": article.scheduled_for_publication,
         "object": article,
-        "erratum_of": article.erratum_of(),
     }
 
     # append citations for i4oc compatibility
