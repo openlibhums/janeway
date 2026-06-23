@@ -2,16 +2,15 @@ from utils import models
 
 
 def notify_hook(**kwargs):
-    """
-    Creates a LogEntry for sent emails.
-    Typically called by notify_email.notify_hook with an "action" kwarg of ["email_log"].
-    """
+    # dummy mock-up of new notification hook defer
 
     # action is a list of notification targets
+    # if the "all" variable is passed, then some types of notification might act, like Slack.
+    # Email, though, should only send if it's specifically an email in action, not on "all".
     action = kwargs.pop("action", [])
 
     if "email_log" not in action:
-        # The log entry is only created if the list of actions includes "email_log".
+        # email is only sent if list of actions includes "email"
         return
 
     # pop the args
@@ -24,7 +23,6 @@ def notify_hook(**kwargs):
         level = log_dict.get("level")
         request = kwargs.pop("request")
         target = log_dict.get("target")
-        actor_email = log_dict.get("actor_email", "")
         html = kwargs.pop("html")
         to = kwargs.pop("to")
         response = kwargs.pop("response")
@@ -50,7 +48,6 @@ def notify_hook(**kwargs):
                 message_id=message_id,
                 subject=action_text,
                 actor=actor,
-                actor_email=actor_email,
                 email_subject=email_subject,
                 cc=cc,
                 bcc=bcc,
@@ -66,7 +63,6 @@ def notify_hook(**kwargs):
                 subject=action_text,
                 to=to,
                 actor=actor,
-                actor_email=actor_email,
                 email_subject=email_subject,
                 cc=cc,
                 bcc=bcc,

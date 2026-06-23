@@ -10,7 +10,6 @@ from django.utils import timezone
 
 from core import models as core_models
 from core.logic import reverse_with_query
-from utils import models as utils_models
 from utils.testing import helpers
 
 
@@ -109,32 +108,31 @@ class JournalContactTests(JournalViewTestsWithData):
         )
         self.assertEqual(
             [
-                (self.contact_person_one.pk, self.editor_one.full_name()),
-                (self.contact_person_two.pk, self.editor_two.full_name()),
+                (self.editor_one.pk, self.editor_one.full_name()),
+                (self.editor_two.pk, self.editor_two.full_name()),
             ],
-            response.context["contact_form"].fields["contact_person"].choices,
+            response.context["contact_form"].fields["account"].choices,
         )
 
     @override_settings(URL_CONFIG="domain")
     def test_journal_contact_with_recipient_GET(self):
         url = reverse(
-            "journal_contact_with_recipient",
-            kwargs={"contact_person_id": self.contact_person_two.pk},
+            "journal_contact_with_recipient", kwargs={"recipient": self.editor_one.uuid}
         )
         response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
         self.assertEqual(
-            self.contact_person_two.pk,
-            response.context["contact_form"].fields["contact_person"].initial,
+            self.editor_one.pk,
+            response.context["contact_form"].fields["account"].initial,
         )
 
     @override_settings(URL_CONFIG="domain")
     @override_settings(CAPTCHA_TYPE="")
     def test_contact_POST(self):
         post_data = {
-            "contact_person": self.contact_person_one.pk,
-            "sender": "santa@example.org",
-            "subject": "Merry Christmas",
-            "body": "Tis the season\nTo be jolly",
+            "account": self.editor_one.pk,
+            "sender": "notloggedin@example.org",
+            "subject": "Question about submission guidelines",
+            "body": "Dear editor, I have a question...",
         }
         self.client.post(
             reverse("contact"),
@@ -142,8 +140,9 @@ class JournalContactTests(JournalViewTestsWithData):
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertTrue(
-            utils_models.LogEntry.objects.filter(
-                actor_email="santa@example.org",
+            core_models.ContactMessage.objects.filter(
+                sender="notloggedin@example.org",
+                subject="Question about submission guidelines",
                 content_type=self.journal_content_type,
                 object_id=self.journal_one.pk,
             ).exists()

@@ -128,9 +128,7 @@ def send_email(
 
 
 def notify_hook(**kwargs):
-    """
-    Sends emails.
-    """
+    # dummy mock-up of new notification hook defer
 
     # action is a list of notification targets
     # if the "all" variable is passed, then some types of notification might act, like Slack.
@@ -138,7 +136,7 @@ def notify_hook(**kwargs):
     action = kwargs.pop("action", [])
 
     if "email" not in action:
-        # The email is only sent if the list of actions includes "email".
+        # email is only sent if list of actions includes "email"
         return
 
     # pop the args

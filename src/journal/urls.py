@@ -287,8 +287,8 @@ urlpatterns = [
     re_path(r"^reviewer/$", views.become_reviewer, name="become_reviewer"),
     # Contact
     re_path(r"^contact/$", views.contact, name="contact"),
-    re_path(
-        "contact/recipient/(?P<contact_person_id>\d+)/$",
+    path(
+        "contact/recipient/<uuid:recipient>/",
         views.contact,
         name="journal_contact_with_recipient",
     ),
