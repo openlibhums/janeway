@@ -46,7 +46,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <button name="disable" value="{{ code }}" class="small alert button" type="submit">Disable</button>
+                                        <button name="disable" value="{{ code }}" class="small alert button" type="submit" onclick="return confirm('Are you sure you want to disable {{ name|escapejs }}? Authors will no longer be able to provide translations in this language.')">Disable</button>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -82,7 +82,7 @@
                                     <td>{% if code in active_languages %}{{ True|bool_fa }}{% else %}{{ False|bool_fa }}{% endif %}</td>
                                     <td>
                                         {% if code in active_languages %}
-                                            <button name="disable" value="{{ code }}" class="small alert button" type="submit">Disable</button>
+                                            <button name="disable" value="{{ code }}" class="small alert button" type="submit" onclick="return confirm('Are you sure you want to disable {{ name|escapejs }}? Authors will no longer be able to provide translations in this language.')">Disable</button>
                                         {% else %}
                                             <button name="enable" value="{{ code }}" class="small success button" type="submit">Enable</button>
                                         {% endif %}

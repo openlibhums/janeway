@@ -194,7 +194,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                     )
                 elif element.input_type == "textarea":
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea,
+                        widget=forms.Textarea(),
                         required=element.required,
                     )
                 elif element.input_type == "date":
@@ -559,7 +559,7 @@ class VersionForm(forms.ModelForm):
                 self.fields[abstract_field] = forms.CharField(
                     required=False,
                     label=_("Abstract ({})").format(lang_name),
-                    widget=forms.Textarea,
+                    widget=forms.Textarea(),
                 )
                 self.initial[title_field] = getattr(self.preprint, title_field, "")
                 self.initial[abstract_field] = getattr(

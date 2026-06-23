@@ -1925,12 +1925,15 @@ class VersionQueue(models.Model):
         self.approved = True
         current_version = None
 
+        active_languages = self.preprint.repository.languages or list(
+            dict(settings.LANGUAGES).keys()
+        )
         translated_fields = [
             (
                 build_localized_fieldname("title", code),
                 build_localized_fieldname("abstract", code),
             )
-            for code in dict(settings.LANGUAGES)
+            for code in active_languages
         ]
 
         # Update the current version to have the Preprint's current title

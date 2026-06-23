@@ -2580,11 +2580,19 @@ def repository_languages(request):
             lang_to_disable = request.POST.get("disable")
             if lang_to_disable in active_languages:
                 active_languages.remove(lang_to_disable)
-            messages.add_message(
-                request,
-                messages.ERROR,
-                "{} disabled.".format(lang_to_disable),
-            )
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "{} disabled.".format(lang_to_disable),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "{} is not an active language for this repository.".format(
+                        lang_to_disable
+                    ),
+                )
 
         if not active_languages:
             active_languages.append(settings.LANGUAGE_CODE)
