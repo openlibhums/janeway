@@ -20,7 +20,9 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from utils.logger import get_logger
+from utils.shared import get_ip_address
 from utils.importers.up import get_input_value_by_name
+from utils.shared import get_ip_address
 
 logger = get_logger(__name__)
 
@@ -213,7 +215,7 @@ class LogEntry(models.Model):
         """
         if self.types == "Contact Message":
             if Addressee.objects.filter(
-                email__iexact=account.__class__.objects.normalize_email(account.email),
+                email__iexact=account.email,
             ).exists():
                 return True
         return False
