@@ -4,40 +4,21 @@ from django.conf import settings
 from django.db import migrations, models
 from django.utils import translation
 import django.db.models.deletion
-from utils.logger import get_logger
-
-logger = get_logger(__name__)
-
-
-def normalize_email(email):
-    """
-    Copied from Django 4.2's AccountManager.
-    """
-    email = email or ""
-    try:
-        email_name, domain_part = email.strip().rsplit("@", 1)
-    except ValueError:
-        pass
-    else:
-        email = email_name + "@" + domain_part.lower()
-    return email
 
 
 def connect_contact_person_to_account(apps, schema_editor):
     ContactPerson = apps.get_model("core", "ContactPerson")
     Account = apps.get_model("core", "Account")
     for contact_person in ContactPerson.objects.all():
-        email = contact_person.email
         matching_accounts = Account.objects.filter(
-            models.Q(username__iexact=email) | models.Q(email__iexact=email),
+            username=contact_person.email.lower(),
         )
         if matching_accounts.exists():
             account = matching_accounts.first()
         else:
-            normalized_email = normalize_email(email)
             account = Account.objects.create(
-                email=normalized_email,
-                username=normalized_email,
+                email=contact_person.email,
+                username=contact_person.email.lower(),
                 first_name=" ".join(contact_person.name.split()[:-1]),
                 last_name=contact_person.name.split()[-1],
             )
@@ -49,17 +30,15 @@ def connect_contact_message_to_account(apps, schema_editor):
     ContactMessage = apps.get_model("core", "ContactMessage")
     Account = apps.get_model("core", "Account")
     for contact_message in ContactMessage.objects.all():
-        email = contact_message.recipient
         matching_accounts = Account.objects.filter(
-            models.Q(username__iexact=email) | models.Q(email__iexact=email),
+            username=contact_message.recipient.lower(),
         )
         if matching_accounts.exists():
             account = matching_accounts.first()
         else:
-            normalized_email = normalize_email(email)
             account = Account.objects.create(
-                email=normalized_email,
-                username=normalized_email,
+                email=contact_message.recipient,
+                username=contact_message.recipient.lower(),
             )
         contact_message.account = account
         contact_message.recipient = ""
