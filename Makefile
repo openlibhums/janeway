@@ -17,6 +17,9 @@ DB_PASSWORD=janeway-web
 DB_VOLUME=db/postgres-data
 CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
 
+
+JANEWAY_SETTINGS_MODULE ?= core.dev_settings
+
 ifeq ($(DB_VENDOR), mariadb)
 	DB_HOST=janeway-mariadb
 	DB_PORT=3306
