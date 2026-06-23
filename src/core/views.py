@@ -35,7 +35,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 from django.utils import translation
-from django.db.models import Q, OuterRef, Subquery, Count, Avg, Exists
+from django.db.models import Q, OuterRef, Subquery, Count, Avg
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
@@ -1491,7 +1491,7 @@ def add_user(request):
     """
     form = forms.EditAccountForm()
     registration_form = forms.AdminUserForm(active="add", request=request)
-    next_url = request.GET.get("return", None) or request.GET.get("next", None)
+    return_url = request.GET.get("return", None)
     role = request.GET.get("role", None)
 
     if request.POST:
@@ -1511,21 +1511,13 @@ def add_user(request):
             form = forms.EditAccountForm(request.POST, request.FILES, instance=new_user)
 
             if form.is_valid():
-                account = form.save()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _("User account created for %(name)s (%(email)s)")
-                    % {
-                        "name": account.full_name(),
-                        "email": account.email,
-                    },
-                )
+                form.save()
+                messages.add_message(request, messages.SUCCESS, "User created.")
 
-                if next_url:
-                    return redirect(next_url)
-                else:
-                    return redirect(reverse("core_manager_users"))
+                if return_url:
+                    return redirect(return_url)
+
+                return redirect(reverse("core_manager_users"))
 
         else:
             # If the registration form is not valid,
@@ -1892,120 +1884,105 @@ def article_image_edit(request, article_pk):
 
 
 @editor_user_required
-def contact_people(request):
+def contacts(request):
     """
-    See the list of ContactPerson objects,
-    and delete individual ContactPerson records.
+    Allows for adding and deleting of JournalContact objects.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    contact_people = request.site_type.contact_people
+    form = forms.JournalContactForm()
+    contacts = models.Contacts.objects.filter(
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
 
     if "delete" in request.POST:
         contact_id = request.POST.get("delete")
-        contact_person = get_object_or_404(
-            models.ContactPerson,
+        contact = get_object_or_404(
+            models.Contacts,
             pk=contact_id,
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
-        contact_person.delete()
-        return redirect(reverse("core_contact_people"))
+        contact.delete()
+        return redirect(reverse("core_journal_contacts"))
+
+    if request.POST:
+        form = forms.JournalContactForm(request.POST)
+
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.content_type = request.model_content_type
+            contact.object_id = request.site_type.pk
+            contact.sequence = request.site_type.next_contact_order()
+            contact.save()
+            return redirect(reverse("core_journal_contacts"))
 
     template = "core/manager/contacts/index.html"
     context = {
-        "contacts": contact_people,
-    }
-    return render(request, template, context)
-
-
-@editor_user_required
-@GET_language_override
-def contact_person_create(request, account_id):
-    """
-    Create a new ContactPerson with the selected account.
-    :param request: HttpRequest object
-    :param contact_id: Contact object PK
-    :return: HttpResponse object
-    """
-    account = get_object_or_404(models.Account, pk=account_id)
-    contact_people = request.site_type.contact_people
-    with translation.override(request.override_language):
-        form = forms.ContactPersonForm(
-            next_sequence=request.site_type.next_contact_order(),
-        )
-
-        if request.POST:
-            form = forms.ContactPersonForm(request.POST)
-            if form.is_valid():
-                contact_person = form.save(commit=False)
-                contact_person.account = account
-                contact_person.content_type = request.model_content_type
-                contact_person.object_id = request.site_type.pk
-                contact_person.save()
-
-                return language_override_redirect(
-                    request,
-                    "core_contact_person_update",
-                    {"contact_person_id": contact_person.pk},
-                )
-
-    template = "core/manager/contacts/contact_person_form.html"
-    context = {
-        "account": account,
-        "contact_people": contact_people,
         "form": form,
+        "contacts": contacts,
+        "action": "new",
     }
+
     return render(request, template, context)
 
 
 @editor_user_required
 @GET_language_override
-def contact_person_update(request, contact_person_id):
+def edit_contacts(request, contact_id=None):
     """
     Allows for editing of existing Contact objects
     :param request: HttpRequest object
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
-    contact_person = get_object_or_404(
-        models.ContactPerson,
-        pk=contact_person_id,
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-    )
-    contact_people = request.site_type.contact_people
     with translation.override(request.override_language):
-        form = forms.ContactPersonForm(instance=contact_person)
-        if request.POST:
-            form = forms.ContactPersonForm(
-                request.POST,
-                instance=contact_person,
+        if contact_id:
+            contact = get_object_or_404(
+                models.Contacts,
+                pk=contact_id,
+                content_type=request.model_content_type,
+                object_id=request.site_type.pk,
             )
+            form = forms.JournalContactForm(instance=contact)
+        else:
+            contact = None
+            form = forms.JournalContactForm(
+                next_sequence=request.site_type.next_contact_order(),
+            )
+
+        if request.POST:
+            form = forms.JournalContactForm(request.POST, instance=contact)
+
             if form.is_valid():
-                contact_person = form.save()
+                if contact:
+                    contact = form.save()
+                else:
+                    contact = form.save(commit=False)
+                    contact.content_type = request.model_content_type
+                    contact.object_id = request.site_type.pk
+                    contact.save()
+
                 return language_override_redirect(
                     request,
-                    "core_contact_person_update",
-                    {"contact_person_id": contact_person.pk},
+                    "core_journal_contact",
+                    {"contact_id": contact.pk},
                 )
 
-    template = "core/manager/contacts/contact_person_form.html"
+    template = "core/manager/contacts/manage.html"
     context = {
         "form": form,
-        "contact_person": contact_person,
-        "contact_people": contact_people,
-        "account": contact_person.account,
+        "contact": contact,
     }
 
     return render(request, template, context)
 
 
 @editor_user_required
-@require_POST
-def contact_people_reorder(request):
+def contacts_order(request):
     """
-    Reorders the ContactPerson list, posted via AJAX.
+    Reorders the Contact list, posted via AJAX.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -2013,9 +1990,11 @@ def contact_people_reorder(request):
         ids = request.POST.getlist("contact[]")
         ids = [int(_id) for _id in ids]
 
-        for contact_person in request.site_type.contact_people:
-            contact_person.sequence = ids.index(contact_person.pk) + 1
-            contact_person.save()
+        for jc in models.Contacts.objects.filter(
+            content_type=request.model_content_type, object_id=request.site_type.pk
+        ):
+            jc.sequence = ids.index(jc.pk)
+            jc.save()
 
     return HttpResponse("Thanks")
 
@@ -3487,37 +3466,3 @@ def affiliation_delete(request, affiliation_id):
         "thing_to_delete": affiliation.organization.name,
     }
     return render(request, template, context)
-
-
-@method_decorator(editor_user_required, name="dispatch")
-class PotentialContactListView(GenericFacetedListView):
-    """
-    Allows an editor or press manager to search for someone in order to
-    make them a contact person for the journal or press.
-    """
-
-    model = core_models.Account
-    template_name = "admin/core/manager/contacts/search_potential.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["contact_people"] = self.request.site_type.contact_people
-        return context
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        return queryset.annotate(
-            is_contact_person=Exists(
-                self.request.site_type.contact_people.filter(
-                    account=OuterRef("pk"),
-                )
-            )
-        )
-
-    def get_facets(self):
-        return {
-            "q": {
-                "type": "search",
-                "field_label": "Search",
-            },
-        }

@@ -16,7 +16,7 @@ class EditorialGroupTranslationOptions(TranslationOptions):
     )
 
 
-@register(models.ContactPerson)
+@register(models.Contacts)
 class ContactTranslationOptions(TranslationOptions):
     fields = (
         "name",

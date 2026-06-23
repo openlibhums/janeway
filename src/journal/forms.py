@@ -12,8 +12,8 @@ from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 
 from core import models as core_models
-from core.forms import FullSettingEmailForm, ContactMessageForm
-from journal import models as journal_models
+from core.forms import FullSettingEmailForm
+from journal import models as journal_models, logic
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
@@ -36,12 +36,29 @@ class JournalForm(forms.ModelForm):
         }
 
 
-class ContactForm(ContactMessageForm):
+class ContactForm(forms.ModelForm, CaptchaForm):
     def __init__(self, *args, **kwargs):
-        return DeprecationWarning("Use ContactMessageForm instead.")
-        if "contact_people" not in kwargs:
-            kwargs["contact_people"] = kwargs.pop("contacts", None)
-        super().__init__(*args, **kwargs)
+        subject = kwargs.pop("subject", None)
+        contacts = kwargs.pop("contacts", None)
+        super(ContactForm, self).__init__(*args, **kwargs)
+
+        if subject:
+            self.fields["subject"].initial = subject
+
+        if contacts:
+            contact_choices = []
+            for contact in contacts:
+                contact_choices.append(
+                    [
+                        contact.email,
+                        "{name}, {role}".format(name=contact.name, role=contact.role),
+                    ]
+                )
+            self.fields["recipient"].widget = forms.Select(choices=contact_choices)
+
+    class Meta:
+        model = core_models.Contact
+        fields = ("recipient", "sender", "subject", "body")
 
 
 class ResendEmailForm(forms.Form):
