@@ -130,7 +130,7 @@ def create_log_entry(apps, contact_message):
 
     account = get_or_create_account(apps, contact_message.recipient, "")
     if contact_message.content_type and contact_message.object_id:
-        # Set LogEntry.target explicitly if data is available.
+        # We set LogEntry.target explicitly, so it works with bulk_create.
         content_type = contact_message.content_type
         object_id = contact_message.object_id
     elif account:
