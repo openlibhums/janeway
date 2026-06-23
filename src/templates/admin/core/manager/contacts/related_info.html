@@ -13,9 +13,11 @@
         <ul>
           {% for person in contact_people %}
             <li>
-              <div>{{ person.account.full_name }}</div>
-              <div>{{ person.role }}</div>
-              <div>{{ person.account.pretty_wrapping_email }}</div>
+              {{ person.account.full_name }}
+              <br>
+              {{ person.role }}
+              <br>
+              {{ person.account.email }}
             </li>
           {% endfor %}
         </ul>
