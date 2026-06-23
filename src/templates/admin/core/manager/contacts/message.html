@@ -25,7 +25,7 @@
 {% endblock breadcrumbs %}
 
 {% block nitty %}
-  {% include "elements/layout/key_value_above.html" with key="From" value=log_entry.actor_email %}
+  {% include "elements/layout/key_value_above.html" with key="From" value=log_entry.from_email %}
   {% include "elements/layout/key_value_above.html" with key="Subject" value=log_entry.email_subject %}
   {% include "elements/layout/key_value_above.html" with key="Date" value=log_entry.date %}
   {% include "elements/layout/key_value_above.html" with key="Website" value=log_entry.target.name %}
