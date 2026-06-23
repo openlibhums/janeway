@@ -115,10 +115,11 @@ class JournalContactTests(JournalViewTestsWithData):
         )
 
     @override_settings(URL_CONFIG="domain")
-    def test_journal_contact_with_recipient_GET(self):
-        url = reverse(
-            "journal_contact_with_recipient", kwargs={"recipient": self.editor_one.uuid}
-        )
+    def test_contact_GET_with_param_for_recipient(self):
+        query_params = {
+            "recipient": "editor_jiqjgaysqge1pahnj4xn@example.org",
+        }
+        url = reverse_with_query("contact", query_params=query_params)
         response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
         self.assertEqual(
             self.editor_one.pk,
