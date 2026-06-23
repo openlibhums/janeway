@@ -15,12 +15,11 @@ from functools import reduce
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import reverse, get_object_or_404
+from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -1373,19 +1372,18 @@ def resolve_alt_text_target(request):
     return content_type, object_id, file_path, obj
 
 
-def get_contact_form(request, contact_person_id):
-    if contact_person_id:
-        contact_person = get_object_or_404(
-            models.ContactPerson,
-            pk=contact_person_id,
-            content_type=request.model_content_type,
-            object_id=request.site_type.pk,
-        )
-    else:
-        contact_person = None
-
+def get_contact_form(request, recipient_uuid):
     subject = request.GET.get("subject", "")
     contact_people = request.site_type.contact_people
+    account = None
+    if recipient_uuid:
+        try:
+            account = models.Account.objects.get(
+                contactperson__in=contact_people,
+                uuid=recipient_uuid,
+            )
+        except models.Account.DoesNotExist:
+            pass
 
     if request.method == "POST":
         contact_form = forms.ContactMessageForm(
@@ -1396,49 +1394,34 @@ def get_contact_form(request, contact_person_id):
         contact_form = forms.ContactMessageForm(
             subject=subject,
             contact_people=contact_people,
-            contact_person=contact_person,
+            account=account,
         )
     return contact_form, contact_people
 
 
 def send_contact_message(contact_form, request):
-    # Todo: do we need this if the field is bleached rich text?
-    body = contact_form.cleaned_data["body"].replace("\n", "<br>")
-    sender_email = contact_form.cleaned_data["sender"]
-    contact_person = get_object_or_404(
-        models.ContactPerson,
-        pk=contact_form.cleaned_data["contact_person"],
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-    )
-    recipient_email = contact_person.account.email
-
-    log_dict = {
-        "level": "Info",
-        "action_text": f"Contact Message sent from {sender_email} to {recipient_email}",
-        "types": "Contact Message",
-        "target": request.site_type,
-        "actor_email": contact_form.cleaned_data["sender"],
-    }
-
+    message = contact_form.save(commit=False)
+    message.content_type = request.model_content_type
+    message.object_id = request.site_type.pk
+    message.save()
+    body = message.body.replace("\n", "<br>")
     notify_helpers.send_email_with_body_from_setting_template(
         request=request,
         template="contact_message",
-        subject=contact_form.cleaned_data["subject"],
-        to=recipient_email,
+        subject=message.subject,
+        to=message.account.email,
         context={
             "site": request.journal or request.press,
-            "from": sender_email,
-            "to": recipient_email,
-            "subject": contact_form.cleaned_data["subject"],
+            "from": message.sender,
+            "to": message.account.email,
+            "subject": message.subject,
             "body": body,
-            "custom_reply_to": contact_form.cleaned_data["sender"],
+            "custom_reply_to": message.sender,
         },
-        log_dict=log_dict,
     )
     messages.add_message(
         request,
         messages.SUCCESS,
         _("Your message has been sent to %(recipient)s.")
-        % {"recipient": contact_person.account.full_name()},
+        % {"recipient": message.account.full_name()},
     )

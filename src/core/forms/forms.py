@@ -103,29 +103,26 @@ class ContactPersonForm(JanewayTranslationModelForm):
         )
 
 
-class ContactMessageForm(CaptchaForm):
-    contact_person = forms.TypedChoiceField(
-        label=_("Who would you like to contact?"),
-    )
-    sender = forms.EmailField(
-        max_length=200,
-        label=_("Your contact email address"),
-    )
-    subject = forms.CharField(max_length=300, label=_("Subject"))
-    body = JanewayBleachFormField(label=_("Your message"))
-
+class ContactMessageForm(forms.ModelForm, CaptchaForm):
     def __init__(self, *args, **kwargs):
-        subject = kwargs.pop("subject", "")
-        contact_person = kwargs.pop("contact_person", None)
-        contact_people = kwargs.pop("contact_people", [])
+        subject = kwargs.pop("subject", None)
+        account = kwargs.pop("account", None)
+        contact_people = kwargs.pop("contact_people", None)
         super().__init__(*args, **kwargs)
-        self.fields["contact_person"].choices = [
-            (person.pk, person.account.full_name()) for person in contact_people
+        self.fields["account"].required = True
+        self.fields["account"].choices = [
+            (person.account.pk, person.account.full_name()) for person in contact_people
         ]
-        self.fields["subject"].initial = subject
 
-        if contact_person:
-            self.fields["contact_person"].initial = contact_person.pk
+        if subject:
+            self.fields["subject"].initial = subject
+
+        if account:
+            self.fields["account"].initial = account.pk
+
+    class Meta:
+        model = models.ContactMessage
+        fields = ("account", "sender", "subject", "body")
 
 
 class JournalContactForm(ContactPersonForm):
