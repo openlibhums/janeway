@@ -1976,7 +1976,7 @@ class EditorialGroupMember(models.Model):
         return f"{self.user} in {self.group}"
 
 
-class ContactPerson(models.Model):
+class Contacts(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -1986,65 +1986,32 @@ class ContactPerson(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    account = models.ForeignKey(
-        Account,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
+    name = models.CharField(max_length=300)
+    email = models.EmailField()
     role = models.CharField(max_length=200)
-    sequence = models.PositiveIntegerField(default=1)
-
-    name = models.CharField(
-        max_length=300,
-        blank=True,
-        help_text="The 'name' field is deprecated. Use 'account.full_name'.",
-    )
-    email = models.EmailField(
-        blank=True,
-        help_text="The 'email' field is deprecated. Use 'account.email'.",
-    )
+    sequence = models.PositiveIntegerField(default=999)
 
     class Meta:
-        ordering = ("sequence",)
-        verbose_name_plural = "contact people"
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the below model `Contact`
+        # in the admin area.
+        verbose_name_plural = "contacts"
+        ordering = ("sequence", "name")
 
     def __str__(self):
-        return f"{self.display_name}, {self.object} - {self.role}"
-
-    def __getattribute__(self, name):
-        if name == "name":
-            warnings.warn(
-                "The 'name' field is deprecated. Use 'account.full_name'.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif name == "email":
-            warnings.warn(
-                "The 'email' field is deprecated. Use 'account.email'.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return super().__getattribute__(name)
-
-    @property
-    def display_name(self):
-        return self.account.full_name() if self.account else ""
+        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
 
 
-class ContactMessage(models.Model):
-    account = models.ForeignKey(
-        Account,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Who would you like to contact?"),
+class Contact(models.Model):
+    recipient = models.EmailField(
+        max_length=200, verbose_name=_("Who would you like to contact?")
     )
     sender = models.EmailField(
         max_length=200, verbose_name=_("Your contact email address")
     )
     subject = models.CharField(max_length=300, verbose_name=_("Subject"))
     body = JanewayBleachField(verbose_name=_("Your message"))
+    client_ip = models.GenericIPAddressField(blank=True, null=True)
     date_sent = models.DateField(auto_now_add=True)
 
     content_type = models.ForeignKey(
@@ -2053,37 +2020,11 @@ class ContactMessage(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    # Deprecated fields
-    recipient = models.EmailField(
-        max_length=200,
-        help_text="The 'recipient' field is deprecated. Use 'account'.",
-        blank=True,
-    )
-    client_ip = models.GenericIPAddressField(
-        blank=True,
-        null=True,
-        help_text="The 'client_ip' field is deprecated.",
-    )
-
-    def __getattribute__(self, name):
-        if name == "recipient":
-            warnings.warn(
-                "The 'recipient' field is deprecated. Use 'account'.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if name == "client_ip":
-            warnings.warn(
-                "The 'client_ip' field is deprecated.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return super().__getattribute__(name)
-
-
-# Aliases for backward compatibility
-Contacts = ContactPerson
-Contact = ContactMessage
+    class Meta:
+        # This verbose name will hopefully more clearly
+        # distinguish this model from the above model `Contacts`
+        # in the admin area.
+        verbose_name_plural = "contact messages"
 
 
 class DomainAlias(AbstractSiteModel):
