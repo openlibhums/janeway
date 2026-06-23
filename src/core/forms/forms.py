@@ -33,7 +33,6 @@ from utils.forms import (
     YesNoRadio,
 )
 from utils.logger import get_logger
-from utils.models import ACTOR_EMAIL_MAX_LENGTH
 from submission import models as submission_models
 
 logger = get_logger(__name__)
@@ -110,7 +109,7 @@ class ContactMessageForm(CaptchaForm):
         label=_("Who would you like to contact?"),
     )
     sender = forms.EmailField(
-        max_length=ACTOR_EMAIL_MAX_LENGTH,
+        max_length=200,
         label=_("Your contact email address"),
     )
     subject = forms.CharField(max_length=300, label=_("Subject"))
