@@ -178,7 +178,7 @@
                         <h2>Section Editor</h2>
                     </div>
                     <div class="content">
-                        <table class="scroll">
+                        <table id="section-editor-articles" class="scroll">
                             <thead>
                             <tr>
                                 <th>ID</th>
@@ -221,4 +221,5 @@
     {% if published_submissions %}{% include "admin/elements/datatables.html" with target="#published" sort=2 order="desc" %}{% endif %}
     {% include "admin/elements/datatables.html" with target="#active" sort=2 order="desc" %}
     {% include "admin/elements/datatables.html" with target="#incomplete" sort=2 order="desc" %}
+    {% include "admin/elements/datatables.html" with target="#section-editor-articles" sort=3 order="desc" save_state=True %}
 {% endblock %}
