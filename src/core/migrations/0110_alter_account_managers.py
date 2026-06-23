@@ -6,7 +6,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("core", "0112_add_account_accessibility_mode"),
+        ("core", "0109_salutation_name_20250707_1420"),
     ]
 
     operations = [

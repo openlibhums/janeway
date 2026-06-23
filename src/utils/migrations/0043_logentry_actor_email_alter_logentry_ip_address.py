@@ -11,7 +11,7 @@ def delete_log_entry_ip_addresses(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("utils", "0043_auto_20250917_1703"),
+        ("utils", "0042_merge_20250627_0840"),
     ]
 
     operations = [
