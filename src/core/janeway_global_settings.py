@@ -121,11 +121,10 @@ MIDDLEWARE = (
     "core.middleware.MaintenanceModeMiddleware",
     "cron.middleware.CronMiddleware",
     "core.middleware.CounterCookieMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "journal.middleware.JournalLocaleMiddleware",
     "core.middleware.PressMiddleware",
     "core.middleware.GlobalRequestMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "journal.middleware.LanguageMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 )
