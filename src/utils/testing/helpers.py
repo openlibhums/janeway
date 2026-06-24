@@ -119,6 +119,29 @@ def create_journals():
     return journal_one, journal_two
 
 
+def set_journal_languages(journal, available=None, default="en"):
+    """
+    Configures the languages a journal publishes in, as used by
+    JournalLocaleMiddleware.
+
+    :param journal: the Journal to configure
+    :param available: a list of language codes for the journal_languages setting
+    :param default: the default_journal_language code
+    """
+    setting_handler.save_setting(
+        "general",
+        "journal_languages",
+        journal,
+        available or [],
+    )
+    setting_handler.save_setting(
+        "general",
+        "default_journal_language",
+        journal,
+        default,
+    )
+
+
 def create_press():
     press, created = press_models.Press.objects.get_or_create(
         name="Press",
