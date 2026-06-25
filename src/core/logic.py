@@ -1415,15 +1415,13 @@ def send_contact_message(contact_form, request):
         "level": "Info",
         "action_text": f"Contact Message sent from {sender_email} to {recipient_email}",
         "types": "Contact Message",
+        # The LogEntry.actor should be none because the contact page is public-facing
+        # and logged-in users will not expect it to record their account email.
+        # They will expect it to record the email they put in the From field.
+        "actor": None,
         "target": request.site_type,
         "actor_email": contact_form.cleaned_data["sender"],
     }
-
-    # Avoid sending request.user through the logging system,
-    # because the contact page is public-facing and logged-in users
-    # will not expect it to record their account email as the LogEntry.actor
-    # rather than the email they put in the From field.
-    request.user = None
 
     notify_helpers.send_email_with_body_from_setting_template(
         request=request,
