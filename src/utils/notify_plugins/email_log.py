@@ -32,7 +32,12 @@ def notify_hook(**kwargs):
         cc = kwargs.pop("cc")
         bcc = kwargs.pop("bcc")
 
-        if hasattr(request, "user"):
+        if "actor" in log_dict:
+            # This makes it possible to pass actor=None.
+            # An actor of None is needed to maintain expectations for
+            # for public-facing views where users may nevertheless be logged in.
+            actor = log_dict.get("actor")
+        elif hasattr(request, "user"):
             actor = request.user
         else:
             actor = None
