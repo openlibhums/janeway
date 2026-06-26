@@ -12,12 +12,44 @@ if [ -z "$STAGED_PYTHON_FILES" ]; then
 fi
 
 echo "Checking formatting for staged Python files..."
-ruff format --check $STAGED_PYTHON_FILES
-FORMAT_EXIT_CODE=$?
 
-if [ $FORMAT_EXIT_CODE -ne 0 ]; then
-  echo ""
-  echo "ERROR: Python formatting issues found. Please run 'ruff format .' and re-stage your changes."
+# Files whose working-tree copy differs from the index.
+# Check the staged blob as the on-disk content is NOT what gets committed.
+UNSTAGED_CHANGED=$(git diff --name-only)
+
+CLEAN_FILES=""
+DIRTY_FILES=""
+for file in $STAGED_PYTHON_FILES; do
+  if printf '%s\n' "$UNSTAGED_CHANGED" | grep -qxF "$file"; then
+    DIRTY_FILES="$DIRTY_FILES $file"
+  else
+    CLEAN_FILES="$CLEAN_FILES $file"
+  fi
+done
+
+CLEAN_FAIL=0
+DIRTY_FAIL=0
+
+# Fast path: files with no unstaged changes (disk == index) checked in one batch.
+if [ -n "$CLEAN_FILES" ]; then
+  if ! ruff format --check $CLEAN_FILES; then
+    CLEAN_FAIL=1
+  fi
+fi
+
+# Slow path: only files that differ on disk, checked against their staged blob.
+for file in $DIRTY_FILES; do
+  if ! git show ":$file" | ruff format --check --stdin-filename "$file" - >/dev/null 2>&1; then
+    echo "  unformatted (staged, has unstaged changes): $file"
+    DIRTY_FAIL=1
+  fi
+done
+
+if [ "$CLEAN_FAIL" -ne 0 ] || [ "$DIRTY_FAIL" -ne 0 ]; then
+    echo "ERROR: Staged Python content is not formatted. Run 'ruff format .' and re-stage (git add) the files."
+  if [ "$DIRTY_FAIL" -ne 0 ]; then
+    echo "ERROR: There are unstaged changes, did you forget to re-stage after formatting?"
+  fi
   echo "Commit aborted."
   exit 1
 fi

@@ -17,6 +17,9 @@ DB_PASSWORD=janeway-web
 DB_VOLUME=db/postgres-data
 CLI_COMMAND=psql --username=$(DB_USER) $(DB_NAME)
 
+
+JANEWAY_SETTINGS_MODULE ?= core.dev_settings
+
 ifeq ($(DB_VENDOR), mariadb)
 	DB_HOST=janeway-mariadb
 	DB_PORT=3306
@@ -117,6 +120,9 @@ format:	## Run the ruff formatter against the codebase
 	$(COMPOSE_CMD) run $(NO_DEPS) --entrypoint ruff --rm janeway-web format .
 check:		## Runs janeway's test suit
 	bash -c "DB_VENDOR=sqlite make command CMD=test"
+	tox
+tox:		## Runs python version tests with tox
+	$(COMPOSE_CMD) run --entrypoint=tox --rm janeway-web
 migrate:		## Runs Django's migrate command
 	bash -c "make command CMD=migrate"
 makemigrations:		## Runs Django's makemigrations command

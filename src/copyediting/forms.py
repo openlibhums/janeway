@@ -7,7 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django import forms
 from django.utils.translation import gettext as _
 
-from core.models import Account
+from core.models import Account, File
 from core import forms as core_forms
 from copyediting import models
 from utils.forms import HTMLDateInput
@@ -92,6 +92,31 @@ class CopyEditForm(forms.ModelForm):
     class Meta:
         model = models.CopyeditAssignment
         fields = ("copyeditor_note",)
+
+
+class EditorVersionForm(forms.Form):
+    label = forms.CharField(
+        label=_("File label"),
+        initial=_("Copyedited Manuscript"),
+        max_length=200,
+    )
+    file = forms.FileField(
+        label=_("Copyedited file"),
+    )
+
+
+class RequestAuthorVersionForm(forms.Form):
+    files = forms.ModelMultipleChoiceField(
+        label=_("Files for the author to replace"),
+        queryset=File.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        files = kwargs.pop("files", None)
+        super().__init__(*args, **kwargs)
+        if files is not None:
+            self.fields["files"].queryset = files
 
 
 class AuthorReviewAssignmentForm(forms.ModelForm, core_forms.ConfirmableForm):

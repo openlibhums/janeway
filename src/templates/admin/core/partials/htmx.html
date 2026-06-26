@@ -3,3 +3,24 @@
     integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
     crossorigin="anonymous"
 ></script>
+<script>
+  // When an HTMX-loaded dialog opens, close any other open dialogs so that
+  // only one modal is shown at a time.
+  document.body.addEventListener("htmx:load", function (event) {
+    var element = event.detail.elt;
+    if (!element) {
+      return;
+    }
+    var opened = element.matches && element.matches("dialog[open]")
+      ? element
+      : element.querySelector && element.querySelector("dialog[open]");
+    if (!opened) {
+      return;
+    }
+    document.querySelectorAll("dialog[open]").forEach(function (dialog) {
+      if (dialog !== opened) {
+        dialog.close();
+      }
+    });
+  });
+</script>

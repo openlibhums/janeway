@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import re_path
 
-from copyediting import views
+from copyediting import partial_views, views
 
 
 urlpatterns = [
@@ -23,6 +23,16 @@ urlpatterns = [
         name="add_copyeditor_assignment",
     ),
     re_path(
+        r"^article/(?P<article_id>\d+)/assignment/upload_editor_version/$",
+        partial_views.upload_editor_version,
+        name="copyedit_upload_editor_version",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/assignment/request_author_version/$",
+        partial_views.request_author_version,
+        name="copyedit_request_author_version",
+    ),
+    re_path(
         r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/$",
         views.notify_copyeditor_assignment,
         name="notify_copyeditor_assignment",
@@ -36,6 +46,16 @@ urlpatterns = [
         r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/review/$",
         views.editor_review,
         name="editor_review",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/accept/$",
+        views.accept_copyedit,
+        name="accept_copyedit",
+    ),
+    re_path(
+        r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/reopen/$",
+        views.reopen_copyedit,
+        name="reopen_copyedit",
     ),
     re_path(
         r"^article/(?P<article_id>\d+)/assignment/(?P<copyedit_id>\d+)/author_review/(?P<author_review_id>\d+)/$",

@@ -745,6 +745,16 @@ div.caption span.label {
   .bottom {
     background: var(--primary-light-color);
   }
+
+
+  #license {
+    max-width: 100%;
+
+    p {
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+  }
 }
 
 footer {
@@ -1359,7 +1369,13 @@ button.list-group-item-danger.active:focus {
   float:right;
 }
 
-.is-drilldown{overflow-y: scroll}
+.is-drilldown {
+  overflow-y: scroll;
+  .is-dropdown-submenu-parent,
+  .is-drilldown-submenu-parent {
+    position: static;
+  }
+}
 
 .homepage-element-about {
   margin-top: 30px;

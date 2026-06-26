@@ -217,76 +217,52 @@
         </div>
         <div class="col m4">
             <div class="card">
-                <section aria-label="{% trans 'Article Information' %}">
-                    <div class="card-content">
-                        {% include "common/elements/altmetric_badges.html" with article=article %}
-                        {% include "elements/journal/share.html" %}
-                        {% if article.frozen_authors.exists %}
-                            <div class="spacer">
-                                <div class="divider"></div>
-                            </div>
-                            <h2>
-                                {% blocktrans count counter=article.frozen_authors.count %}
-                                    Author
-                                {% plural %}
-                                    Authors
-                                {% endblocktrans %}
-                            </h2>
-                            <ul id="author-list">
-                                {% for author in article.frozen_authors.all %}
-                                    <li>
-                                        {% include "common/elements/journal/article_author_display.html" %}
-                                        {% if journal_settings.general.use_credit and author.credits.exists %}
-                                        [<span class="credit">
-                                            {% for credit in author.credits %}
-                                            {{ credit }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
-                                        </span>]
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>    
-                        {% endif %}
-
+              <section aria-label="{% trans 'Article Information' %}">
+                <div class="card-content">
+                    {% include "common/elements/altmetric_badges.html" with article=article %}
+                    {% include "elements/journal/share.html" %}
+                    {% if article.frozen_authors.exists %}
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        {% if article.is_published or proofing %}
-                            <h2>
-                                {% trans "Files" %}
-                            </h2>
-                            {% if galleys %}
-                                <ul>
-                                    {% for galley in galleys %}
+                        <h4>
+                          {% blocktrans count counter=article.frozen_authors.count %}
+                            Author
+                          {% plural %}
+                            Authors
+                          {% endblocktrans %}
+                        </h4>
+                        {% include "common/elements/journal/article_authors_full.html" %}
+                    {% endif %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    {% if article.is_published or proofing %}
+                        <h4>
+                            {% trans "Downloads" %}
+                        </h4>
+                        {% if galleys %}
+                            <ul>
+                                {% for galley in galleys %}
+                                    <li>
+                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                         {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
-                                                    {% trans "View" %} {{ galley.label }}
-                                                    {% include "elements/icons/link_new_tab.html" %} 
-                                                </a>
                                             </li>
+                                            <li>
+                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
                                         {% endif %}
-                                        <li>
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                                {{ galley.label }}
-                                                {% include "elements/icons/link_download.html" %} 
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                                {% if proofing %}
-                                    <p id="note_to_proofreader_2">
-                                        <i aria-hidden="true" class="fa fa-info-circle" ></i>
-                                        Note to proofreader: Download links on this page begin to work when the article is published.
-                                    </p>
-                                {% endif %}
-                                <div class="spacer">
-                                    <div class="divider"></div>
-                                </div>
-                            {% else %}
-                                <p> {% trans 'Downloads are not available for this article.' %}</p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if proofing %}
+                                <p id="note_to_proofreader_2">
+                                    <i aria-hidden="true" class="fa fa-info-circle" ></i>
+                                    Note to proofreader: Download links on this page begin to work when the article is published.
+                                </p>
                             {% endif %}
                         {% endif %}
+                    {% endif %}
 
                         {% include "elements/journal/article_issue_list.html" %}
                         <div class="spacer">

@@ -1,11 +1,11 @@
 from events import logic as events_logic
 
 
-def event_typesetting_assignment(request, assignment, message, skip):
+def event_typesetting_assignment(request, assignment, email_data, skip):
     kwargs = {
         "assignment": assignment,
         "request": request,
-        "message": message,
+        "email_data": email_data,
         "skip": skip,
     }
 
@@ -74,11 +74,11 @@ def event_complete_notification(assignment, request):
     )
 
 
-def galley_proofing_assignment(request, assignment, message, skip):
+def galley_proofing_assignment(request, assignment, email_data, skip):
     kwargs = {
         "assignment": assignment,
         "request": request,
-        "message": message,
+        "email_data": email_data,
         "skip": skip,
     }
 

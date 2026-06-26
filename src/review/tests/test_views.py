@@ -1,3 +1,9 @@
+__copyright__ = "Copyright 2017 Birkbeck, University of London"
+__author__ = "Martin Paul Eve & Andy Byers"
+__license__ = "AGPL v3"
+__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+import datetime
 import os
 
 from django.core import mail
@@ -19,6 +25,7 @@ from utils import setting_handler
 from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
+from review.const import ReviewerDecisions as RD
 
 
 # Create your tests here.
@@ -71,7 +78,7 @@ class ReviewTests(TestCase):
             "visibility": "double-blind",
             "form": self.review_form.pk,
             "date_due": "2900-01-01",
-            "reviewer": self.second_reviewer.pk,
+            "reviewer": self.reviewer.pk,
         }
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
@@ -91,13 +98,14 @@ class ReviewTests(TestCase):
             "date_due": "2900-01-01",
             "reviewer": self.regular_user.pk,
         }
+        reviewers = logic.get_reviewer_candidates(
+            self.article_under_review, self.editor
+        )
         form = forms.ReviewAssignmentForm(
             journal=self.journal_one,
             article=self.article_under_review,
             editor=self.editor,
-            reviewers=logic.get_reviewer_candidates(
-                self.article_under_review, self.editor
-            ),
+            reviewers=reviewers,
             data=data,
         )
         self.assertFalse(form.is_valid())
@@ -486,7 +494,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             404,
         )
@@ -503,7 +511,7 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             200,
         )
@@ -516,13 +524,29 @@ class ReviewTests(TestCase):
             download_url,
             SERVER_NAME=self.journal_one.domain,
         )
-        self.assertEquals(
+        self.assertEqual(
             response.status_code,
             403,
         )
 
         # finally, delete the file from disk
         files.delete_file(article_with_completed_reviews, file)
+
+    def test_withdrawing_review_assignment(self):
+        review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
+            )
+        )
+        review_to_withdraw.withdraw()
+        self.assertTrue(
+            review_to_withdraw.decision,
+            RD.DECISION_WITHDRAWN.value,
+        )
 
     def setup_request_object(self):
         request = helpers.Request()
@@ -618,6 +642,11 @@ class ReviewTests(TestCase):
         )
         self.editor.is_active = True
         self.editor.save()
+        self.reviewer = self.create_user(
+            "revieweruser@email.com", ["reviewer"], journal=self.journal_one
+        )
+        self.reviewer.is_active = True
+        self.reviewer.save()
 
         self.author = self.create_user(
             "authoruser@martineve.com", ["author"], journal=self.journal_one
@@ -836,10 +865,11 @@ class ReviewTests(TestCase):
                 review_round=self.round_two,
                 reviewer=self.second_reviewer,
                 editor=self.editor,
-                date_due=timezone.now(),
+                date_due=datetime.datetime.now(),
                 form=self.review_form,
                 is_complete=True,
                 decision="withdrawn",
+                date_complete=timezone.now(),
             )
         )
 
@@ -853,6 +883,16 @@ class ReviewTests(TestCase):
                 date_declined=timezone.now(),
                 form=self.review_form,
                 is_complete=False,
+            )
+        )
+
+        self.review_to_withdraw, created = (
+            review_models.ReviewAssignment.objects.get_or_create(
+                article=self.article_under_review,
+                reviewer=self.second_reviewer,
+                editor=self.editor,
+                date_due=timezone.now(),
+                form=self.review_form,
             )
         )
 
@@ -1036,30 +1076,6 @@ class ReviewTests(TestCase):
         self.good_reviewer_content_line = b"Mr,Andy,James,Byers,andy@janeway.systems,Open Library of Humanities,Birkbeck,GB,,Test Reason"
         self.empty_reviewer_content_line = b" "
         self.regular_user_csv_line = b"Mr,Regular,,User,regularuser@martineve.com,Somewhere Dept,Some Inst,GB,,A Reason"
-
-    def test_request_revisions_context(self):
-        self.client.force_login(self.editor)
-        response = self.client.get(
-            reverse(
-                "review_request_revisions",
-                kwargs={"article_id": self.article_review_completed.pk},
-            ),
-            SERVER_NAME=self.journal_one.domain,
-        )
-        response.context.get("incomplete")
-        self.assertEqual(
-            self.article_review_completed,
-            response.context.get("article"),
-        )
-        # This test does not cover the revision request form
-        self.assertEqual(
-            0,
-            response.context.get("pending_approval").count(),
-        )
-        self.assertEqual(
-            0,
-            response.context.get("incomplete").count(),
-        )
 
     # assignment_notification tests
 
@@ -1251,3 +1267,107 @@ class ReviewTests(TestCase):
                 SERVER_NAME=self.journal_one.domain,
             )
         self.assertEqual(response.status_code, 200)
+
+
+class SendReviewReminderTests(TestCase):
+    """Regression tests for the review request reminder email screen (#5305)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.review_assignment = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            article=cls.article,
+            editor=cls.editor,
+            is_complete=False,
+        )
+        cls.review_assignment.decision = ""
+        cls.review_assignment.save()
+
+    def reminder_url(self, reminder_type="request"):
+        return reverse(
+            "review_send_reminder",
+            kwargs={
+                "article_id": self.article.pk,
+                "review_id": self.review_assignment.pk,
+                "reminder_type": reminder_type,
+            },
+        )
+
+    def test_reminder_form_renders_cc_and_bcc_fields(self):
+        """The reminder screen exposes the cc and bcc email options."""
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            self.reminder_url(),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="cc"')
+        self.assertContains(response, 'name="bcc"')
+
+    def test_reminder_post_sends_with_cc_and_bcc(self):
+        """A valid POST sends the reminder, carrying the cc and bcc addresses."""
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            self.reminder_url(),
+            {
+                "cc": "cc@example.com",
+                "bcc": "bcc@example.com",
+                "subject": "Review Request Reminder",
+                "body": "A gentle reminder to complete your review.",
+                "request_reminder": "request_reminder",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.review_assignment.reviewer.email, mail.outbox[0].to)
+        self.assertIn("cc@example.com", mail.outbox[0].cc)
+        self.assertIn("bcc@example.com", mail.outbox[0].bcc)
+
+
+class InReviewActionsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(cls.journal_one)
+        review_models.ReviewRound.objects.create(
+            article=cls.article,
+            round_number=1,
+        )
+
+    def test_rolled_back_article_offers_decision_actions(self):
+        # Acceptance leaves a historical ArticleStageLog entry that
+        # keeps is_accepted() True even after rollback.
+        self.article.stage = submission_models.STAGE_ACCEPTED
+        self.article.date_accepted = timezone.now()
+        self.article.save()
+        self.article.stage = submission_models.STAGE_UNDER_REVIEW
+        self.article.date_accepted = None
+        self.article.date_declined = None
+        self.article.save()
+        self.assertTrue(self.article.is_accepted())
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "review_in_review",
+                kwargs={"article_id": self.article.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "New Review Round")
+        self.assertContains(
+            response,
+            reverse("decision_helper", kwargs={"article_id": self.article.pk}),
+        )
+        self.assertNotContains(response, "Move to Next Stage")

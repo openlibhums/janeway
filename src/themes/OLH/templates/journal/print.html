@@ -21,7 +21,7 @@
     {% endblocktrans %}
   </strong>
 </p>
-{% include "common/elements/journal/article_authors_br.html" %}
+{% include "common/elements/journal/article_authors_full.html" %}
 <h2>{% trans "Abstract" %}</h2>
 <p>{{ article.abstract | safe }}</p>
 {% if article.keywords %}

@@ -4,8 +4,11 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import re
 import uuid
 import json
+from dateutil import parser as dateparser
+import warnings
 import csv
 
 from django.db import connection, DEFAULT_DB_ALIAS, models
@@ -603,6 +606,36 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
             )
         return queryset
 
+    def _search(self, search_term, search_filters, sort=None, site=None, queryset=None):
+        """SQLite-compatible search across preprint fields.
+
+        The base implementation targets Article's ``frozenauthor`` relation,
+        which Preprint does not have, so we mirror the Postgres/MySQL author
+        lookups against the ``preprintauthor`` relation here.
+        """
+        preprints = queryset or self.get_queryset()
+        if search_term:
+            escaped = re.escape(search_term)
+            split_term = [re.escape(word) for word in search_term.split(" ")]
+            split_term.append(escaped)
+            search_regex = "^({})$".format("|".join({name for name in split_term}))
+            q_object = Q()
+            if search_filters.get("title"):
+                q_object = q_object | Q(title__icontains=search_term)
+            if search_filters.get("abstract"):
+                q_object = q_object | Q(abstract__icontains=search_term)
+            if search_filters.get("keywords"):
+                q_object = q_object | Q(keywords__word=search_term)
+            if search_filters.get("authors"):
+                q_object = q_object | (
+                    Q(preprintauthor__account__first_name__iregex=search_regex)
+                    | Q(preprintauthor__account__last_name__iregex=search_regex)
+                )
+            preprints = preprints.filter(q_object)
+            if site:
+                preprints = preprints.filter(repository=site)
+        return preprints.distinct()
+
     def mysql_search(
         self, search_term, search_filters, sort=None, site=None, queryset=None
     ):
@@ -964,7 +997,8 @@ class Preprint(models.Model):
                 preprint_author=preprint_author,
                 title=affiliation.title,
                 department=affiliation.department,
-                organization=affiliation.is_primary,
+                organization=affiliation.organization,
+                is_primary=affiliation.is_primary,
                 start=affiliation.start,
                 end=affiliation.end,
             )
@@ -1435,7 +1469,7 @@ class Author(models.Model):
     )
 
     def __init__(self, *args, **kwargs):
-        raise DeprecationWarning("Use PreprintAuthor instead.")
+        warnings.warn("Use PreprintAuthor instead.")
         super().__init__(*args, **kwargs)
 
     @property

@@ -461,9 +461,10 @@ class ElementForm(forms.ModelForm):
         exclude = ("",)
 
 
-class ReviewReminderForm(forms.Form):
-    subject = forms.CharField(max_length=255, required=True)
-    body = forms.CharField(widget=forms.Textarea, required=True)
+class ReviewReminderForm(core_forms.EmailForm):
+    """The reminder email, with cc, bcc and attachment support."""
+
+    pass
 
 
 class ReviewVisibilityForm(forms.ModelForm):
