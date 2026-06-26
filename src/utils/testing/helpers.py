@@ -781,15 +781,20 @@ def create_cms_page(content_type, object_id, **kwargs):
     display_name = kwargs.get("display_name", "Test display name")
     content = kwargs.get("content", "Test content")
     is_markdown = kwargs.get("is_markdown", False)
+    is_draft = kwargs.get("is_draft", None)
 
-    return cms_models.Page.objects.create(
-        content_type=content_type,
-        object_id=object_id,
-        name=name,
-        display_name=display_name,
-        content=content,
-        is_markdown=is_markdown,
-    )
+    page_data = {
+        "content_type": content_type,
+        "object_id": object_id,
+        "name": name,
+        "display_name": display_name,
+        "content": content,
+        "is_markdown": is_markdown,
+    }
+    if is_draft is not None:
+        page_data["is_draft"] = is_draft
+
+    return cms_models.Page.objects.create(**page_data)
 
 
 def create_contact_person(account, site, **kwargs):
