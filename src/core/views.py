@@ -2383,6 +2383,11 @@ def email_templates(request):
     template_list = (
         (setting, "subject_%s" % setting.name)
         for setting in models.Setting.objects.filter(group__name="email")
+        .filter(
+            Q(settingvalue__journal__isnull=True)
+            | Q(settingvalue__journal=request.journal)
+        )
+        .distinct()
     )
 
     template = "core/manager/email/email_templates.html"
