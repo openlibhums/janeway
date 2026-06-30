@@ -837,6 +837,13 @@ def edit_galley(request, galley_id, typeset_id=None, article_id=None):
         pk=galley_id,
         article=article,
     )
+    if request.method == "GET" and galley.needs_encoding_warning():
+        messages.add_message(
+            request,
+            messages.WARNING,
+            "This galley file is not UTF-8 encoded, so some characters may "
+            "not display correctly. Please re-upload it as UTF-8.",
+        )
     galley_form = forms.GalleyForm(
         instance=galley,
         include_file=False,

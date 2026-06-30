@@ -12,6 +12,7 @@ from lxml import etree
 import shutil
 import magic
 import hashlib
+import chardet
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -325,6 +326,10 @@ def get_file(file_to_get, article, as_bytes=False):
     )
 
     if not os.path.isfile(path):
+        logger.warning(
+            f"Galley file missing from disk: article {article.pk}, "
+            f"file {file_to_get.pk}"
+        )
         return ""
 
     if as_bytes:
@@ -336,9 +341,46 @@ def get_file(file_to_get, article, as_bytes=False):
             content = content_file.read()
             return content
     except UnicodeDecodeError:
-        with open(path, "r", encoding="utf-8") as content_file:
-            content = content_file.read()
-            return content
+        # The file is not UTF-8 (or the locale default). Detect its encoding
+        # and decode, falling back to a lossy decode so a non-UTF-8 galley can
+        # never raise a server error. (#1806)
+        with open(path, "rb") as content_file:
+            raw = content_file.read()
+        detected = chardet.detect(raw).get("encoding")
+        return raw.decode(detected or "utf-8", errors="replace")
+
+
+def file_is_utf8(file_to_get, article):
+    """
+    Whether a stored file can be decoded as UTF-8.
+
+    Returns True when the file is missing so callers only warn about files
+    that exist but are encoded with something other than UTF-8 (#1806).
+    :param file_to_get: the file object to check
+    :param article: the associated article
+    :return: bool
+    """
+    path = os.path.join(
+        settings.BASE_DIR,
+        "files",
+        "articles",
+        str(article.id),
+        str(file_to_get.uuid_filename),
+    )
+
+    if not os.path.isfile(path):
+        logger.warning(
+            f"Galley file missing from disk: article {article.pk}, "
+            f"file {file_to_get.pk}"
+        )
+        return True
+
+    try:
+        with open(path, "rb") as content_file:
+            content_file.read().decode("utf-8")
+        return True
+    except UnicodeDecodeError:
+        return False
 
 
 def render_xml(file_to_render, article, xsl_path=None, recover=False):

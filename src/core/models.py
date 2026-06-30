@@ -1677,13 +1677,25 @@ class Galley(AbstractLastModifiedModel):
         )
         return files.render_xml(self.file, self.article, xsl_path=xsl_path)
 
+    def needs_encoding_warning(self):
+        """
+        Whether this galley should warn that it is not UTF-8 encoded.
+
+        Only XML and HTML galleys are read as text; other mimetypes (PDF,
+        EPUB, etc.) and missing files never warn. (#1806)
+        """
+        if not self.file or self.file.mime_type not in files.MIMETYPES_WITH_FIGURES:
+            return False
+        return not files.file_is_utf8(self.file, self.article)
+
     def has_missing_image_files(self, show_all=False):
         if self.file.mime_type not in files.MIMETYPES_WITH_FIGURES:
             return []
 
         xml_file_contents = self.file.get_file(self.article)
 
-        souped_xml = BeautifulSoup(xml_file_contents, "lxml")
+        parser = "lxml-xml" if self.file.mime_type in files.XML_MIMETYPES else "lxml"
+        souped_xml = BeautifulSoup(xml_file_contents, parser)
 
         elements = {
             "img": "src",

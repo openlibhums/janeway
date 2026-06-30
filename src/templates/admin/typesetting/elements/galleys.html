@@ -25,7 +25,13 @@
         {% can_edit_file galley.file galley.article as user_can_edit_file %}
         <tr>
             <th>{{ galley.pk }}</th>
-            <td>{{ galley.label }}</td>
+            <td>{{ galley.label }}
+                {% if galley.needs_encoding_warning %}
+                    <span class="label warning has-tip" data-tooltip aria-haspopup="true"
+                          data-disable-hover="false" tabindex="0"
+                          title="This galley is not UTF-8 encoded, so some characters may not display correctly. Please re-upload it as UTF-8.">Not UTF-8</span>
+                {% endif %}
+            </td>
             <td>{{ galley.file.original_filename|truncatechars:40 }}</td>
             <td>{{ galley.public|bool_fa }}</td>
             <td>{{ galley.file.last_modified|date:"Y-m-d G:i" }}</td>
