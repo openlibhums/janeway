@@ -1238,16 +1238,27 @@ def add_review_assignment(request, article_id):
                 user = None
 
             if user:
-                return redirect(
-                    reverse(
-                        "review_add_review_assignment",
-                        kwargs={"article_id": article.pk},
+                redirect_url = reverse(
+                    "review_add_review_assignment",
+                    kwargs={"article_id": article.pk},
+                )
+                already_assigned = article.reviewassignment_set.filter(
+                    review_round=article.current_review_round_object(),
+                    reviewer=user,
+                ).exists()
+                if already_assigned:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        "{} is already assigned as a reviewer for the current "
+                        "review round.".format(user.full_name()),
                     )
-                    + "?"
-                    + parse.urlencode(
+                else:
+                    redirect_url += "?" + parse.urlencode(
                         {"user": new_reviewer_form.data["email"], "id": str(user.pk)},
                     )
-                )
+
+                return redirect(redirect_url)
 
             valid = new_reviewer_form.is_valid()
 

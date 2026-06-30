@@ -1269,6 +1269,76 @@ class ReviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class AddReviewAssignmentTests(TestCase):
+    """Tests for the add review assignment 'assign' quick-add flow."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.review_round = review_models.ReviewRound.objects.create(
+            article=cls.article,
+            round_number=1,
+        )
+        cls.review_file = core_models.File.objects.create(
+            mime_type="text/plain",
+            original_filename="review.txt",
+            uuid_filename="review.txt",
+            label="Review file",
+            owner=cls.editor,
+            is_galley=False,
+            privacy="owner",
+        )
+        cls.review_round.review_files.add(cls.review_file)
+        cls.assigned_reviewer = helpers.create_user(
+            "assignedreviewer@example.com",
+            roles=["reviewer"],
+            journal=cls.journal_one,
+        )
+        cls.assigned_reviewer.first_name = "Assigned"
+        cls.assigned_reviewer.last_name = "Reviewer"
+        cls.assigned_reviewer.is_active = True
+        cls.assigned_reviewer.save()
+        cls.review_assignment = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            article=cls.article,
+            reviewer=cls.assigned_reviewer,
+            editor=cls.editor,
+            review_round=cls.review_round,
+        )
+
+    def test_assigning_already_assigned_reviewer_warns(self):
+        """Assigning a reviewer already on the current round shows a warning."""
+        self.client.force_login(self.editor)
+        with janeway_setting_override(
+            "general", "enable_one_click_access", self.journal_one, "on"
+        ):
+            response = self.client.post(
+                reverse(
+                    "review_add_review_assignment",
+                    kwargs={"article_id": self.article.pk},
+                ),
+                {
+                    "assign": "assign",
+                    "email": self.assigned_reviewer.email,
+                    "salutation": "Dr",
+                    "first_name": self.assigned_reviewer.first_name,
+                    "last_name": self.assigned_reviewer.last_name,
+                },
+                SERVER_NAME=self.journal_one.domain,
+                follow=True,
+            )
+        self.assertContains(
+            response,
+            "already assigned as a reviewer for the current review round",
+        )
+
+
 class SendReviewReminderTests(TestCase):
     """Regression tests for the review request reminder email screen (#5305)."""
 
