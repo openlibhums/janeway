@@ -494,3 +494,57 @@ class TestHierarchyView(TestCase):
         path = reverse("rou_hierarchy", kwargs={"rou_code": "does-not-exist"})
         response = self.client.get(path, SERVER_NAME=self.server_name)
         self.assertEqual(response.status_code, 404)
+
+
+class RepositorySubmitWithIdTests(TestCase):
+    """Tests for resuming a draft via repository_submit_with_id (#5372)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_5372@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "repo5372.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Article",
+            name_plural="Articles",
+            slug="article-5372",
+        )
+        cls.draft = rm.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.repo_manager,
+            stage=rm.STAGE_PREPRINT_UNSUBMITTED,
+            title="Draft preprint 5372",
+            abstract="Draft abstract",
+            submission_type=cls.submission_type,
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_with_id_resumes_draft_without_querystring(self):
+        # The URL previously routed to repository_submit, which no longer
+        # accepts preprint_id, raising TypeError. It now resolves to
+        # repository_info and resumes the draft using its stored type,
+        # even though no submission_type is present in the query string.
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_submit_with_id",
+                kwargs={"preprint_id": self.draft.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Draft preprint 5372")
