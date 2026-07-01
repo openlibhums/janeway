@@ -332,7 +332,7 @@ def unassign_editor(request, article_id, editor_id):
 
         if form.is_valid() or skip:
             kwargs = {
-                "email_data": form.as_dataclass(),
+                "email_data": form.as_dataclass() if form.is_valid() else None,
                 "assignment": assignment,
                 "request": request,
                 "skip": skip,
