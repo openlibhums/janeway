@@ -893,6 +893,14 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         # distinct fields to match order_by fields
         inner_sql = self.stringify_queryset(queryset)
 
+        # stringify_queryset() returns SQL with every parameter already
+        # interpolated via cursor.mogrify(), so any '%' left in the string is a
+        # literal (e.g. from a search term like "50%" or a LIKE pattern). Article
+        # .objects.raw() defaults params to () rather than None, so it re-runs
+        # %-formatting on this SQL and chokes on those literal '%'. Double them so
+        # they survive that pass unchanged. (#5348)
+        inner_sql = inner_sql.replace("%", "%%")
+
         if "relevance" in sort:
             # Relevance is not a field but an annotation
             return Article.objects.raw(

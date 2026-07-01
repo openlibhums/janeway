@@ -183,3 +183,39 @@ class ArticleSearchTests(TransactionTestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_article_search_term_containing_percent(self):
+        """A search term containing '%' must not raise (#5348).
+
+        stringify_queryset() mogrifies the term into the raw SQL, so a literal
+        '%' from the term reaches Article.objects.raw(), which re-runs
+        %-formatting on the string and previously raised. Evaluating the search
+        should now complete instead of erroring.
+        """
+        from django.db import connection
+
+        if connection.vendor == "sqlite":
+            # The bug is in postgres_search()'s raw() query; sqlite falls back to
+            # mysql_search() and never hits the affected code path.
+            return
+
+        models.Article.objects.create(
+            journal=self.journal_one,
+            title="Save 50% on warp-drive systems",
+            date_published=FROZEN_DATETIME_2020,
+            stage=models.STAGE_PUBLISHED,
+        )
+
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
+        search_filters = {"title": True}
+        try:
+            # Forces the RawQuerySet to execute; before the fix this raised
+            # TypeError ("not enough arguments for format string").
+            result = list(models.Article.objects.search("50%", search_filters))
+        except TypeError as exc:
+            self.fail(f"search with a '%' term raised (regression of #5348): {exc}")
+
+        self.assertIsInstance(result, list)
