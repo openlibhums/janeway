@@ -51,6 +51,14 @@ class JournalLocaleMiddlewareTests(TestCase):
         request = self.activate_language(self.journal_one, "es")
         self.assertEqual(request.LANGUAGE_CODE, "es")
 
+    def test_unconfigured_journal_constrains_to_default(self):
+        # journal_two is left with the shipped defaults (journal_languages=[]
+        # and default_journal_language="en"), the configuration of nearly every
+        # existing journal. The browser's Accept-Language must be ignored.
+        request = self.activate_language(self.journal_two, "fr")
+        self.assertEqual(request.LANGUAGE_CODE, "en")
+        self.assertEqual(request.available_languages, {"en"})
+
     def test_no_journal_falls_through_to_django_default(self):
         request = self.factory.get("/", HTTP_ACCEPT_LANGUAGE="fr")
         request.journal = None
