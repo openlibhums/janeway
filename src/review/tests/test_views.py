@@ -1452,3 +1452,40 @@ class InReviewActionsTests(TestCase):
             reverse("decision_helper", kwargs={"article_id": self.article.pk}),
         )
         self.assertNotContains(response, "Move to Next Stage")
+
+
+class UnassignEditorTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(cls.journal_one)
+        cls.assignment = helpers.create_editor_assignment(
+            cls.article,
+            cls.editor,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_skip_with_invalid_form_deletes_assignment(self):
+        # Regression for #5373: skipping the notification with an invalid
+        # (empty) email form must not raise when building the email data.
+        self.client.force_login(self.editor)
+        response = self.client.post(
+            reverse(
+                "review_unassign_editor",
+                kwargs={
+                    "article_id": self.article.pk,
+                    "editor_id": self.editor.pk,
+                },
+            ),
+            data={"skip": "skip"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            review_models.EditorAssignment.objects.filter(
+                pk=self.assignment.pk,
+            ).exists()
+        )
+        self.assertEqual(len(mail.outbox), 0)
