@@ -7,12 +7,14 @@ from django.test import Client, TestCase, override_settings
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
+from django.contrib.messages.storage.cookie import CookieStorage
+from django.http import QueryDict
 from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
 from utils.install import update_settings
 from core import models as cm
-from repository import models as rm, install
+from repository import models as rm, install, logic as repository_logic
 from freezegun import freeze_time
 
 from dateutil import tz
@@ -408,6 +410,22 @@ class TestViews(TestCase):
             )
             content = response.content.decode()
             self.assertIn("/login/?next=", content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_missing_type(self):
+        request = helpers.Request(repository=self.repository)
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_invalid_type(self):
+        request = helpers.Request(repository=self.repository)
+        request.GET = QueryDict("submission_type=does-not-exist")
+        setattr(request, "_messages", CookieStorage(request))
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
 
 
 class TestHierarchyView(TestCase):

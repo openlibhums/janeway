@@ -537,7 +537,7 @@ def get_submission_type_or_redirect(request):
     """
     submission_type_slug = request.GET.get("submission_type")
     if not submission_type_slug:
-        return redirect(reverse("repository_start"))
+        return redirect(reverse("repository_submit"))
 
     submission_type = models.RepositorySubmissionType.objects.filter(
         repository=request.repository,
@@ -546,7 +546,7 @@ def get_submission_type_or_redirect(request):
 
     if not submission_type:
         messages.warning(request, "No submission type found.")
-        return redirect(reverse("repository_start"))
+        return redirect(reverse("repository_submit"))
 
     # Handle OU if present
     ou_code = request.GET.get("ou")
@@ -560,6 +560,6 @@ def get_submission_type_or_redirect(request):
 
         if not request.organisation_unit:
             messages.warning(request, "Invalid organisational unit.")
-            return redirect(reverse("repository_start"))
+            return redirect(reverse("repository_submit"))
 
     return submission_type
