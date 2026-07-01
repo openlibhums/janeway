@@ -625,13 +625,6 @@ def repository_info(request, preprint_id=None):
     :param preprint_id: int Pk for a preprint object
     :return: HttpResponse or HttpRedirect
     """
-    result = repository_logic.get_submission_type_or_redirect(request)
-    if isinstance(result, HttpResponseRedirect):
-        return result
-
-    submission_type = result
-    organisation_unit = getattr(request, "organisation_unit", None)
-
     if preprint_id:
         preprint = get_object_or_404(
             models.Preprint,
@@ -641,6 +634,19 @@ def repository_info(request, preprint_id=None):
         )
     else:
         preprint = None
+
+    if preprint and preprint.submission_type:
+        # Resuming an existing draft: the submission type and organisation
+        # unit are already stored on the preprint, so use those rather than
+        # requiring them in the query string.
+        submission_type = preprint.submission_type
+        organisation_unit = preprint.organisation_units.first()
+    else:
+        result = repository_logic.get_submission_type_or_redirect(request)
+        if isinstance(result, HttpResponseRedirect):
+            return result
+        submission_type = result
+        organisation_unit = getattr(request, "organisation_unit", None)
 
     form = forms.PreprintInfo(
         instance=preprint,

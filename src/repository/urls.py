@@ -56,7 +56,7 @@ urlpatterns = [
     re_path(r"^submit/info/$", views.repository_info, name="repository_info"),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/$",
-        views.repository_submit,
+        views.repository_info,
         name="repository_submit_with_id",
     ),
     re_path(
