@@ -427,6 +427,23 @@ class TestViews(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(result.url, reverse("repository_submit"))
 
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_invalid_ou(self):
+        submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=self.repository,
+            name="Article",
+            name_plural="Articles",
+            slug="article-invalid-ou",
+        )
+        request = helpers.Request(repository=self.repository)
+        request.GET = QueryDict(
+            "submission_type={}&ou=does-not-exist".format(submission_type.slug),
+        )
+        setattr(request, "_messages", CookieStorage(request))
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
+
 
 class TestHierarchyView(TestCase):
     """Tests for the rou_hierarchy_view introduced in iowa-and-isolinear."""
@@ -528,6 +545,14 @@ class RepositorySubmitWithIdTests(TestCase):
             abstract="Draft abstract",
             submission_type=cls.submission_type,
         )
+        cls.typeless_draft = rm.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.repo_manager,
+            stage=rm.STAGE_PREPRINT_UNSUBMITTED,
+            title="Typeless draft 5372",
+            abstract="Draft abstract",
+            submission_type=None,
+        )
 
     def setUp(self):
         clear_script_prefix()
@@ -548,3 +573,23 @@ class RepositorySubmitWithIdTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Draft preprint 5372")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_with_id_redirects_when_draft_has_no_type(self):
+        # A draft whose submission_type is null cannot be resumed from its
+        # stored type, so it falls back to get_submission_type_or_redirect.
+        # With no submission_type in the query string this redirects to the
+        # start page. This documents the deliberate graceful degradation.
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_submit_with_id",
+                kwargs={"preprint_id": self.typeless_draft.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertRedirects(
+            response,
+            reverse("repository_submit"),
+            fetch_redirect_response=False,
+        )
