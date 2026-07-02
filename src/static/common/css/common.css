@@ -344,25 +344,21 @@ a.twitter-x{
   display: inline;
 }
 
-.list-inline li:not(:first-child) {
-  margin-left: 0.3rem;
-}
-
 .comma-sep li:not(:last-child)::after {
-  content: ",";
+  content: ", ";
 }
 
 .comma-and-sep li:not(:last-child):not(:nth-last-child(2))::after,
 .comma-ampersand-sep li:not(:last-child):not(:nth-last-child(2))::after {
-  content: ",";
+  content: ", ";
 }
 
 .comma-and-sep li:nth-last-child(2)::after {
-    content: " and";
+    content: " and ";
 }
 
 .comma-ampersand-sep li:nth-last-child(2)::after {
-    content: " &";
+    content: " & ";
 }
 
 .bar-sep li:not(:last-child)::after {
