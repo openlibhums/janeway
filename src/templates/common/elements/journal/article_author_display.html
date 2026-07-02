@@ -1,8 +1,12 @@
 {% load static %}
+{% load uuid %}
+
+{% get_uuid4 as pid %}
 
 <ul
   id="author-{{ author.pk }}"
-  class="list-no-bullet"
+  data-pid-{{ pid }}
+  class="list-no-bullet flex direction-column gap-0-5"
   style="text-wrap: balance;"
   itemscope
   itemtype="http://schema.org/Person"
@@ -59,8 +63,20 @@
       <ul class="list-inline comma-and-sep" style="display: inline;">
         {% spaceless %}
           {% for credit in author.credits %}
-            <li>{{ credit.get_role_display }}</li>
+            {% if forloop.counter <= 3 %}
+              <li>{{ credit.get_role_display }}</li>
+            {% endif %}
           {% endfor %}
+          {% if author.credits|length > 3 %}
+            <li data-show-all-li>
+              <a
+                href="#"
+                data-show-all-a
+                aria-label="Expand all {{ author.credits|length }} Credit roles
+                            for {{ author.full_name }}"
+              >{{ author.credits|length|add:"-3" }} more</a>
+            </li>
+          {% endif %}
         {% endspaceless %}
       </ul>
       <a
@@ -77,6 +93,66 @@
           {% trans "(opens in new tab)" %}
         </span>
       </a>
+      <div>
+        <a
+          href="#"
+          class="hidden"
+          data-show-fewer-a
+          aria-label="Show fewer Credit roles for {{ author.full_name }}"
+        >(Show fewer roles)</a>
+      </div>
+      <div class="hidden">
+        <ul data-extra-roles>
+          {% for credit in author.credits %}
+            {% if forloop.counter > 3 %}
+              <li>{{ credit.get_role_display }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+      <script type="module">
+        let author = document.querySelector("[data-pid-{{ pid }}]");
+        let showAllLi = author.querySelector("[data-show-all-li]");
+        let mainUl = showAllLi.closest("ul");
+        let showAllA = author.querySelector("[data-show-all-a]");
+        let showFewerA = author.querySelector("[data-show-fewer-a]");
+        let extraUl = author.querySelector("[data-extra-roles]");
+        let allUlChildren = Array.from(mainUl.children).concat(
+          Array.from(extraUl.children)
+        )
+        showAllA.addEventListener("click", event => {
+          event.preventDefault()
+          showFewerA.classList.toggle("hidden", false);
+          showAllLi.remove()
+          for (let li of allUlChildren) {
+            li.remove()
+            if (li instanceof HTMLElement) {
+              mainUl.appendChild(li);
+            }
+          }
+          extraUl.appendChild(showAllLi);
+        });
+        showFewerA.addEventListener("click", event => {
+          event.preventDefault()
+          showFewerA.classList.toggle("hidden", true);
+          showAllLi.remove()
+          let i = 0
+          for (let li of allUlChildren) {
+            li.remove()
+            if (i < 3) {
+              if (li instanceof HTMLElement) {
+                mainUl.appendChild(li);
+              }
+            } else {
+              if (li instanceof HTMLElement) {
+                extraUl.appendChild(li);
+              }
+            }
+            i += 1;
+          }
+          mainUl.appendChild(showAllLi);
+        });
+      </script>
     </li>
   {% endif %}
   {% if author.affiliations.exists %}
