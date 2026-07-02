@@ -546,33 +546,34 @@ def _canonical_articles_for_issue(issue):
     regular issue by ordering, so each article appears in exactly one issue
     sub-sitemap.  Mirrors `_canonical_preprints_for_subject`.
     """
-    from django.db.models import (
-        Case,
-        IntegerField,
-        OuterRef,
-        Subquery,
-        Value,
-        When,
-    )
+    from django.db.models import OuterRef, Subquery
+    from django.db.models.functions import Coalesce
 
-    canonical_pk = Subquery(
+    # `primary_issue` wins when it is one of the article's regular issues.
+    # Kept as its own single-level correlated subquery (rather than a nested
+    # OuterRef inside the fallback subquery) so the SQL correlates only one
+    # level up and stays portable across SQLite and PostgreSQL.
+    primary_regular_pk = Subquery(
+        journal_models.Issue.objects.filter(
+            pk=OuterRef("primary_issue_id"),
+            articles=OuterRef("pk"),
+            issue_type__code="issue",
+        ).values("pk")[:1]
+    )
+    # Otherwise fall back to the first regular issue by issue ordering.
+    first_regular_pk = Subquery(
         journal_models.Issue.objects.filter(
             articles=OuterRef("pk"),
             issue_type__code="issue",
         )
-        .annotate(
-            _is_primary=Case(
-                When(pk=OuterRef("primary_issue_id"), then=Value(0)),
-                default=Value(1),
-                output_field=IntegerField(),
-            )
-        )
-        .order_by("_is_primary", "order", "-date")
+        .order_by("order", "-date")
         .values("pk")[:1]
     )
     return (
         issue.get_sorted_articles()
-        .annotate(_canonical_issue_pk=canonical_pk)
+        .annotate(
+            _canonical_issue_pk=Coalesce(primary_regular_pk, first_regular_pk),
+        )
         .filter(_canonical_issue_pk=issue.pk)
     )
 
