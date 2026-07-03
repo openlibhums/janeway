@@ -435,7 +435,25 @@ def _canonical_journal_links(journal):
             _journal_setting(journal, "styling", "editorial_group_page_name")
             or "Editorial Team"
         )
-        links.append((_site_url_for(journal, "editorial_team"), editorial_label, None))
+        # Not journal.editorial_groups(): that is @cache(300) and can be stale.
+        from core.models import EditorialGroup
+
+        groups = list(EditorialGroup.objects.filter(journal=journal))
+        if _journal_setting(journal, "styling", "multi_page_editorial") and groups:
+            for group in groups:
+                links.append(
+                    (
+                        _site_url_for(
+                            journal, "editorial_team_group", group_id=group.pk
+                        ),
+                        _plain_label(group.name),
+                        None,
+                    )
+                )
+        else:
+            links.append(
+                (_site_url_for(journal, "editorial_team"), editorial_label, None)
+            )
     if _journal_setting(journal, "general", "keyword_list_page"):
         links.append((_site_url_for(journal, "keywords"), "Keyword List", None))
     links.append((_site_url_for(journal, "core_login"), "Log in", None))
@@ -482,7 +500,13 @@ def _articles_not_in_any_regular_issue(journal):
         journal=journal,
         stage=submission_models.STAGE_PUBLISHED,
         date_published__lte=timezone.now(),
-    ).exclude(issues__issue_type__code="issue")
+    ).exclude(
+        # Only published regular issues count: an article whose only regular
+        # issue is future-dated is unpublished there, so it belongs here rather
+        # than vanishing from every sitemap.
+        issues__issue_type__code="issue",
+        issues__date__lte=timezone.now(),
+    )
 
 
 def _preprints_without_subject(repo):
@@ -522,17 +546,26 @@ def _canonical_preprints_for_subject(subject):
 def _canonical_issue(article):
     """The single regular issue an article is canonicalised to for sitemaps.
 
-    `primary_issue` when it is a regular ('issue'-type) issue, otherwise the
-    first regular issue by issue ordering.  None when the article is in no
-    regular issue.  Matches `_canonical_articles_for_issue` and the footer
-    link, so an article appears in exactly one issue sub-sitemap.
+    `primary_issue` when it is a published, regular ('issue'-type) issue the
+    article belongs to; otherwise the first published regular issue by issue
+    ordering.  None when the article is in no such issue.  Membership, type,
+    the published-date gate and the pk tie-break are all resolved in one
+    portable query, so this matches `_canonical_articles_for_issue` and the
+    footer link and an article appears in exactly one issue sub-sitemap.
     """
-    primary = article.primary_issue
-    if primary is not None and primary.issue_type.code == "issue":
-        return primary
+    from django.db.models import Case, Value, When
+
     return (
-        article.issues.filter(issue_type__code="issue")
-        .order_by("order", "-date")
+        article.issues.filter(issue_type__code="issue", date__lte=timezone.now())
+        .order_by(
+            # primary_issue wins, but only when it is itself a published,
+            # regular issue the article belongs to (i.e. still in this filtered
+            # set).  primary_issue_id of None compiles to a never-true When.
+            Case(When(pk=article.primary_issue_id, then=Value(0)), default=Value(1)),
+            "order",
+            "-date",
+            "pk",
+        )
         .first()
     )
 
@@ -542,31 +575,32 @@ def _canonical_articles_for_issue(issue):
 
     An article can belong to several regular issues; sitemap.org best practice
     is for each URL to appear in only one sitemap.  Canonicalise each article to
-    its `primary_issue` (when that is a regular issue) or otherwise its first
-    regular issue by ordering, so each article appears in exactly one issue
-    sub-sitemap.  Mirrors `_canonical_preprints_for_subject`.
+    its `primary_issue` (when that is a published regular issue) or otherwise
+    its first published regular issue by ordering, so each article appears in
+    exactly one issue sub-sitemap.  Mirrors `_canonical_preprints_for_subject`.
     """
     from django.db.models import OuterRef, Subquery
     from django.db.models.functions import Coalesce
 
-    # `primary_issue` wins when it is one of the article's regular issues.
-    # Kept as its own single-level correlated subquery (rather than a nested
-    # OuterRef inside the fallback subquery) so the SQL correlates only one
-    # level up and stays portable across SQLite and PostgreSQL.
+    # `primary_issue` wins when it is one of the article's published regular
+    # issues.  A separate single-level subquery (not a nested OuterRef) keeps
+    # the SQL portable across SQLite and PostgreSQL.
     primary_regular_pk = Subquery(
         journal_models.Issue.objects.filter(
             pk=OuterRef("primary_issue_id"),
             articles=OuterRef("pk"),
             issue_type__code="issue",
+            date__lte=timezone.now(),
         ).values("pk")[:1]
     )
-    # Otherwise fall back to the first regular issue by issue ordering.
+    # Otherwise fall back to the first published regular issue by ordering.
     first_regular_pk = Subquery(
         journal_models.Issue.objects.filter(
             articles=OuterRef("pk"),
             issue_type__code="issue",
+            date__lte=timezone.now(),
         )
-        .order_by("order", "-date")
+        .order_by("order", "-date", "pk")
         .values("pk")[:1]
     )
     return (

@@ -104,6 +104,11 @@ def news_sitemap(request):
     if request.journal is not None:
         return journal_views.news_sitemap(request)
 
+    if request.repository is not None:
+        # Repositories have no news sitemap, so serving the press file here
+        # would leak press content under the repository host.
+        raise Http404()
+
     return core_views.sitemap(
         request,
         ["news_sitemap.xml"],

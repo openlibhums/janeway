@@ -133,8 +133,11 @@ def view_page(request, page_name):
         access_code = request.GET.get("access_code")
         if not access_code or access_code != str(page.preview_token):
             raise Http404
-    elif request.GET.get("access_code"):
-        raise Http404
+    elif "access_code" in request.GET:
+        # A published page ignores a stray preview access_code; redirect to the
+        # clean canonical URL so search engines don't index the query-string
+        # variant as a separate page.
+        return redirect(request.path, permanent=True)
 
     if page.template:
         templates_path = logic.get_custom_templates_path(request.journal, request.press)
