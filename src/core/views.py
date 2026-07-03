@@ -2959,7 +2959,9 @@ def sitemap(request, path_parts):
     try:
         return files.serve_sitemap_file(path_parts)
     except FileNotFoundError:
-        logger.warning("Sitemap for {} not found.".format(request.journal.name))
+        # request.journal is None in press/repository context, so log the
+        # requested path rather than dereferencing a possibly-absent journal.
+        logger.warning("Sitemap for {} not found.".format("/".join(path_parts)))
 
     raise Http404()
 
