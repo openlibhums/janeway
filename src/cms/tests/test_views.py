@@ -85,10 +85,15 @@ class ViewTests(test_models.TestCaseWithCMSData):
         cms_views.view_page(self.request_journal, "draft-page")
         render.assert_called_once()
 
-    def test_published_page_with_access_code_raises_http404(self):
+    def test_published_page_with_stray_access_code_redirects_to_clean_url(self):
+        # A published page must not 404 on a stray preview access_code, and it
+        # must not serve the query-string variant either: it 301-redirects to
+        # the clean canonical URL so the variant is not indexed separately.
+        type(self.request_journal).path = "/site/test-name/"
         self.request_journal.GET = {"access_code": "some-code"}
-        with self.assertRaises(Http404):
-            cms_views.view_page(self.request_journal, "test-name")
+        response = cms_views.view_page(self.request_journal, "test-name")
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/site/test-name/")
 
     def test_draft_page_token_changes_when_draft_status_toggled(self):
         page = self.journal_draft_page

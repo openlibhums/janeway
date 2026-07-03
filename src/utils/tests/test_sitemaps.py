@@ -28,8 +28,11 @@ from bs4 import BeautifulSoup
 
 from django.conf import settings
 from django.core.management import call_command
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.urls.base import clear_script_prefix
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 
@@ -42,6 +45,9 @@ from utils.logic import (
     build_news_sitemap_context,
     build_issue_sitemap_context,
     build_subject_sitemap_context,
+    _articles_not_in_any_regular_issue,
+    _canonical_articles_for_issue,
+    _canonical_issue,
     _plain_label,
     _suffixed_name,
     _disambiguate_labels_by_date,
@@ -50,6 +56,7 @@ from utils import setting_handler
 from utils.testing import helpers
 
 from cms import models as cms_models
+from core import models as core_models
 from journal import models as journal_models
 from repository import models as repo_models
 from submission import models as submission_models
@@ -1198,6 +1205,100 @@ class PagesSitemapTests(SitemapScenario, SitemapChecks, TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Editorial links in the pages sitemap: per-group under multi_page_editorial,
+# aggregate fallback when no groups exist, and never a stale cached list.
+# ---------------------------------------------------------------------------
+
+
+@override_settings(URL_CONFIG="domain")
+class SitemapEditorialTests(TestCase):
+    """The journal pages sitemap editorial links must be per-group and fresh."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.journal, cls.empty_journal = helpers.create_journals()
+        for journal in (cls.journal, cls.empty_journal):
+            setting_handler.save_setting(
+                "general", "enable_editorial_display", journal, "on"
+            )
+            setting_handler.save_setting(
+                "styling", "multi_page_editorial", journal, "on"
+            )
+        # cls.journal has groups; cls.empty_journal deliberately has none so the
+        # zero-groups fallback can be exercised.
+        cls.group_one = core_models.EditorialGroup.objects.create(
+            name="Editorial Board",
+            press=cls.press,
+            journal=cls.journal,
+            sequence=1,
+        )
+        cls.group_two = core_models.EditorialGroup.objects.create(
+            name="Advisory Board",
+            press=cls.press,
+            journal=cls.journal,
+            sequence=2,
+        )
+
+    def sitemap_urls(self, owner):
+        return [
+            url for url, _label, _lastmod in build_pages_sitemap_context(owner)["links"]
+        ]
+
+    def test_multi_page_editorial_lists_one_url_per_group(self):
+        urls = self.sitemap_urls(self.journal)
+        for group in (self.group_one, self.group_two):
+            with self.subTest(group=group.name):
+                group_path = reverse(
+                    "editorial_team_group", kwargs={"group_id": group.pk}
+                )
+                self.assertTrue(
+                    any(group_path in url for url in urls),
+                    "per-group editorial page dropped from the journal sitemap "
+                    "when multi_page_editorial is enabled",
+                )
+
+    def test_multi_page_editorial_without_groups_falls_back_to_team_link(self):
+        urls = self.sitemap_urls(self.empty_journal)
+        team_path = reverse("editorial_team")
+        self.assertTrue(
+            any(team_path in url for url in urls),
+            "multi_page_editorial with no groups dropped the editorial link "
+            "entirely instead of linking the aggregate team page",
+        )
+
+    def test_added_group_appears_without_stale_cache(self):
+        # The sitemap must query editorial groups directly, not via the
+        # @cache(300) journal.editorial_groups(): a group added after a first
+        # build must appear on the next build.
+        self.assertNotIn(
+            "New Board",
+            [
+                label
+                for _url, label, _lastmod in build_pages_sitemap_context(self.journal)[
+                    "links"
+                ]
+            ],
+        )
+        group_three = core_models.EditorialGroup.objects.create(
+            name="New Board",
+            press=self.press,
+            journal=self.journal,
+            sequence=3,
+        )
+        urls = self.sitemap_urls(self.journal)
+        group_path = reverse(
+            "editorial_team_group", kwargs={"group_id": group_three.pk}
+        )
+        self.assertTrue(
+            any(group_path in url for url in urls),
+            "a newly added editorial group was missing from the sitemap, "
+            "indicating a stale cached group list",
+        )
+
+
+# ---------------------------------------------------------------------------
 # Runner: News sub-sitemaps (press / journal)
 # ---------------------------------------------------------------------------
 
@@ -1380,6 +1481,149 @@ class IssueSitemapTests(SitemapScenario, SitemapChecks, TestCase):
         )
         self.assertNotIn(
             self.article_primary_collection.url, self._urls(self._no_issue_ctx())
+        )
+
+
+# ---------------------------------------------------------------------------
+# Canonical issue selection: the footer and generation must file each article
+# under the same single issue (or both under "not in any issue").
+# ---------------------------------------------------------------------------
+
+
+@override_settings(URL_CONFIG="domain")
+class CanonicalIssueTests(TestCase):
+    """The footer canonical issue must match where generation files the article."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.journal, _ = helpers.create_journals()
+        cls.issue_type, _ = journal_models.IssueType.objects.get_or_create(
+            journal=cls.journal,
+            code="issue",
+            defaults={"pretty_name": "Issue", "custom_plural": "Issues"},
+        )
+        cls.author = helpers.create_author(cls.journal)
+        cls.section, _ = submission_models.Section.objects.get_or_create(
+            journal=cls.journal, name="Test Section"
+        )
+
+        now = timezone.now()
+        past = now - timezone.timedelta(days=30)
+        future = now + timezone.timedelta(days=30)
+
+        cls.issue_a = cls.make_issue("Issue A", volume=1, number=1, date=past, order=1)
+        cls.issue_b = cls.make_issue("Issue B", volume=1, number=2, date=past, order=2)
+        cls.issue_future = cls.make_issue(
+            "Future Issue", volume=2, number=1, date=future, order=1
+        )
+        # Two issues sharing order and date: the pk tie-break must pick the
+        # lower pk.  Created together so tie_low.pk < tie_high.pk.
+        cls.issue_tie_low = cls.make_issue(
+            "Tie Low", volume=3, number=1, date=past, order=5
+        )
+        cls.issue_tie_high = cls.make_issue(
+            "Tie High", volume=3, number=2, date=past, order=5
+        )
+
+        # 1. primary_issue is a published regular issue the article belongs to.
+        cls.article_primary_member = cls.make_article("Primary Member")
+        cls.issue_a.articles.add(cls.article_primary_member)
+        cls.issue_b.articles.add(cls.article_primary_member)
+        cls.set_primary(cls.article_primary_member, cls.issue_a)
+
+        # 2. primary_issue is a regular issue the article does NOT belong to.
+        cls.article_primary_nonmember = cls.make_article("Primary Non-member")
+        cls.issue_a.articles.add(cls.article_primary_nonmember)
+        cls.set_primary(cls.article_primary_nonmember, cls.issue_b)
+
+        # 3. primary_issue is a future-dated (unpublished) regular issue.
+        cls.article_future_primary = cls.make_article("Future Primary")
+        cls.issue_a.articles.add(cls.article_future_primary)
+        cls.issue_future.articles.add(cls.article_future_primary)
+        cls.set_primary(cls.article_future_primary, cls.issue_future)
+
+        # 4. Two candidate issues tie on (order, date); lower pk wins.
+        cls.article_tie = cls.make_article("Tie Break")
+        cls.issue_tie_low.articles.add(cls.article_tie)
+        cls.issue_tie_high.articles.add(cls.article_tie)
+
+        # 5. Only regular issue is future-dated: no canonical issue at all.
+        cls.article_future_only = cls.make_article("Future Only")
+        cls.issue_future.articles.add(cls.article_future_only)
+
+        cls.all_issues = [
+            cls.issue_a,
+            cls.issue_b,
+            cls.issue_future,
+            cls.issue_tie_low,
+            cls.issue_tie_high,
+        ]
+        # (label, article, expected canonical issue or None)
+        cls.matrix = [
+            ("primary member", cls.article_primary_member, cls.issue_a),
+            ("primary non-member", cls.article_primary_nonmember, cls.issue_a),
+            ("future-dated primary", cls.article_future_primary, cls.issue_a),
+            ("order/date tie -> lower pk", cls.article_tie, cls.issue_tie_low),
+            ("future-only issue", cls.article_future_only, None),
+        ]
+
+    @classmethod
+    def make_issue(cls, title, volume, number, date, order):
+        return journal_models.Issue.objects.create(
+            journal=cls.journal,
+            volume=volume,
+            issue=number,
+            issue_title=title,
+            issue_type=cls.issue_type,
+            date=date,
+            order=order,
+        )
+
+    @classmethod
+    def make_article(cls, title):
+        return submission_models.Article.objects.create(
+            journal=cls.journal,
+            owner=cls.author,
+            title=title,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=timezone.now() - timezone.timedelta(hours=1),
+            section=cls.section,
+        )
+
+    @classmethod
+    def set_primary(cls, article, issue):
+        article.primary_issue = issue
+        article.save()
+
+    def test_canonical_issue_agrees_with_generation(self):
+        for label, article, expected in self.matrix:
+            canonical = _canonical_issue(article)
+            with self.subTest(case=label):
+                self.assertEqual(
+                    canonical,
+                    expected,
+                    "footer canonical issue diverged from the expected issue",
+                )
+                # The footer's canonical issue and the issue generation files
+                # the article under must be the same single issue.
+                for issue in self.all_issues:
+                    filed_here = article in list(_canonical_articles_for_issue(issue))
+                    self.assertEqual(
+                        filed_here,
+                        issue == canonical,
+                        "article is filed under an issue that is not its footer "
+                        "canonical issue (or vice versa)",
+                    )
+
+    def test_future_only_article_falls_into_not_in_any_issue(self):
+        self.assertIsNone(_canonical_issue(self.article_future_only))
+        self.assertIn(
+            self.article_future_only,
+            list(_articles_not_in_any_regular_issue(self.journal)),
+            "an article whose only regular issue is future-dated vanished from "
+            "every issue sitemap instead of landing in 'not in any issue'",
         )
 
 
@@ -1860,6 +2104,49 @@ class PageSitemapURLTagTests(SitemapScenario, TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Preprint page footer: a full-page render must link the subject sub-sitemap
+# that lists the preprint.
+# ---------------------------------------------------------------------------
+
+
+@override_settings(URL_CONFIG="domain")
+class SitemapPreprintFooterTests(TestCase):
+    """A preprint page's footer must link to its subject sub-sitemap."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.manager = helpers.create_user("sitemap_pp_mgr@example.com")
+        cls.author = helpers.create_user("sitemap_pp_author@example.com")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.manager], []
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository, cls.author, cls.subject, title="Footer Preprint"
+        )
+        cls.preprint.stage = repo_models.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now() - timezone.timedelta(hours=1)
+        cls.preprint.save()
+        cls.preprint.make_new_version(cls.preprint.submission_file)
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(INSTALLATION_BASE_THEME="material")
+    def test_preprint_footer_links_to_subject_sitemap(self):
+        response = self.client.get(
+            reverse("repository_preprint", kwargs={"preprint_id": self.preprint.pk}),
+            data={"theme": "material"},
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        subject_path = reverse(
+            "repository_sitemap", kwargs={"subject_id": self.subject.pk}
+        )
+        self.assertContains(response, subject_path)
+
+
+# ---------------------------------------------------------------------------
 # generate_sitemaps command: orchestration, filters and write-gating.
 # All write_* functions are patched so nothing touches disk; the test asserts
 # which objects each writer is invoked for.
@@ -1945,6 +2232,64 @@ class GenerateSitemapsCommandTests(SitemapScenario, TestCase):
         call_command("generate_sitemaps")
         self.assertIn(self.subject_alpha, self._written("write_subject_sitemap"))
         self.assertIn(self.repo_live, self._written("write_not_in_any_subject_sitemap"))
+
+
+# ---------------------------------------------------------------------------
+# Serving sitemap files over HTTP: missing files 404 (never 500), and a
+# repository host never serves the press news file.
+# ---------------------------------------------------------------------------
+
+
+@override_settings(URL_CONFIG="domain")
+class SitemapServingTests(TestCase):
+    """A missing press/repository sub-sitemap file must 404, not 500 or leak."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.manager = helpers.create_user("sitemap_regress_mgr@example.com")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.manager], []
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @mock.patch("core.files.serve_sitemap_file", side_effect=FileNotFoundError)
+    def test_press_index_sitemap_missing_file_returns_404(self, _serve):
+        response = self.client.get(
+            reverse("website_sitemap"),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch("core.files.serve_sitemap_file", side_effect=FileNotFoundError)
+    def test_press_pages_sitemap_missing_file_returns_404(self, _serve):
+        response = self.client.get(
+            reverse("press_pages_sitemap"),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch("core.files.serve_sitemap_file", side_effect=FileNotFoundError)
+    def test_repository_pages_sitemap_missing_file_returns_404(self, _serve):
+        response = self.client.get(
+            reverse("repository_pages_sitemap"),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch("core.files.serve_sitemap_file", return_value=HttpResponse())
+    def test_repository_news_request_does_not_serve_press_news_file(self, serve):
+        # A repository has no news sitemap: the request must 404 rather than
+        # fall through and stream the press-level news_sitemap.xml file.
+        response = self.client.get(
+            reverse("press_news_sitemap"),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(response.status_code, 404)
+        serve.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
