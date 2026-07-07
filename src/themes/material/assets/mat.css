@@ -856,7 +856,7 @@ a {
 }
 
 .list-inline-bar li:not(:last-child)::after {
-  content: " | ";   
+  content: " | " / "";   
 }
 
 .byline {
