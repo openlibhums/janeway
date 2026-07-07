@@ -418,7 +418,7 @@ pre {@extend blockquote; @extend p;}
 }
 
 .inline-list-bar li:not(:last-child)::after {
-  content: " | ";  
+  content: " | " / "";  
   margin-left: rem-calc(10px);
 }
 
