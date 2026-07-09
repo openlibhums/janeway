@@ -345,8 +345,17 @@ def issue(request, issue_id, show_sidebar=True):
         date__lte=timezone.now(),
     )
 
+    sorted_articles = issue_object.get_sorted_articles()
+    issue_sections = []
+    seen_section_ids = set()
+
+    for article in sorted_articles:
+        if article.section_id not in seen_section_ids:
+            issue_sections.append(article.section)
+            seen_section_ids.add(article.section_id)
+
     page = request.GET.get("page", 1)
-    paginator = Paginator(issue_object.get_sorted_articles(), 50)
+    paginator = Paginator(sorted_articles, 50)
 
     try:
         articles = paginator.page(page)
@@ -374,6 +383,7 @@ def issue(request, issue_id, show_sidebar=True):
         "issues": issue_objects,
         "structure": issue_object.structure,  # for backwards compatibility
         "articles": articles,
+        "issue_sections": issue_sections,
         "editors": editors,
         "show_sidebar": show_sidebar,
     }
