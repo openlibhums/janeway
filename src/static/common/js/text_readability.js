@@ -196,11 +196,27 @@ function focusBar() {
 function initialise() {
   if (isInitialised) return; // Prevent double initialisation
   isInitialised = true;
+  //keep the relative ratio between headings and text resizing on clean mobile
+  getRegions().forEach(function (region) {
+    region.classList.add('tf-custom-size');
+  });
   applyToRegion(function (element) {
-    var computedStyle = window.getComputedStyle(element);
-    element.dataset.tfBaseSize = parseFloat(computedStyle.fontSize);
+    element.dataset.tfBaseSizeCustom = parseFloat(window.getComputedStyle(element).fontSize);
+  });
+  getRegions().forEach(function (region) {
+    region.classList.remove('tf-custom-size');
+  });
+  applyToRegion(function (element) {
+    element.dataset.tfBaseSize = parseFloat(window.getComputedStyle(element).fontSize);
   });
 }
+
+// Headings start from a much bigger base size than body text, so growing
+// them by the same proportion makes them balloon disproportionately (and,
+// on narrow mobile widths, overflow the column). Scale them more gently.
+var TEXT_SIZE_STEP = 0.2;
+var HEADING_TEXT_SIZE_STEP = 0.1;
+var HEADING_TAG_PATTERN = /^H[1-6]$/;
 
 function resizeText(multiplier) {
   var next = state.textSize + multiplier;
@@ -210,21 +226,26 @@ function resizeText(multiplier) {
   }
 
   if (state._set({ textSize: next })) {
-    // Mirror applyFontSize's 1 + 0.2*step scaling for percentage announcement
-    var percent = Math.round((1 + 0.2 * next) * 100);
+    // Mirror applyFontSize's body-text scaling for the percentage announcement.
+    var percent = Math.round((1 + TEXT_SIZE_STEP * next) * 100);
     announce(format(STRINGS.textSize, percent + '%'));
   }
 }
 
 function applyFontSize() {
   var step = state.textSize || 0;
+  var isCustomSize = step !== 0;
   applyToRegion(function (element) {
-    var base = parseFloat(element.dataset.tfBaseSize);
+    var base = parseFloat(
+      isCustomSize ? element.dataset.tfBaseSizeCustom : element.dataset.tfBaseSize
+    );
     if (!base) return;
     if (step === 0) {
       element.style.removeProperty('font-size');
     } else {
-      var size = Math.ceil(base * (1 + 0.2 * step));
+      var coefficient = HEADING_TAG_PATTERN.test(element.tagName) ?
+        HEADING_TEXT_SIZE_STEP : TEXT_SIZE_STEP;
+      var size = Math.ceil(base * (1 + coefficient * step));
       element.style.setProperty('font-size', size + 'px', 'important');
     }
   });
@@ -316,6 +337,10 @@ function paintRegion(region) {
   } else {
     region.classList.remove('tf-no-attention');
   }
+
+  // Text size: lets theme CSS vary an element's natural size once a reader
+  // has opted into a custom size (see initialise's dual base-size measurement).
+  region.classList.toggle('tf-custom-size', !!state.textSize);
 }
 
 // The toggle buttons swap their label between two strings of different length.
