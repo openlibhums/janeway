@@ -780,3 +780,18 @@ a.twitter-x{
 #content aside ul.list-no-bullet li {
   margin-bottom: 4px;
 }
+
+/* make webkit scrollbars visible.*/
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
