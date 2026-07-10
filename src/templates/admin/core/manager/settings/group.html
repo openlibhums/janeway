@@ -31,6 +31,8 @@
                             {% include "admin/elements/forms/group_journal_images.html" with form=attr_form %}
                         {% elif group == 'submission' %}
                             {% include "admin/elements/forms/group_submission.html" %}
+                        {% elif group == 'metadata' %}
+                            {% include "admin/elements/forms/group_metadata.html" %}
                         {% elif group == 'styling' %}
                             {% include "admin/elements/forms/group_styling.html" %}
                         {% elif group == 'article' %}
