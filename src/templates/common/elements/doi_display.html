@@ -1,9 +1,8 @@
 {% if doi %}
     {% if doi|slice:":8" == "https://" %}
-        <a
+        <a 
             target="_blank"
-            class="doi-link"
-            href="{{ doi }}"
+            href="{{ doi }}" 
             aria-label="{% trans 'D.O.I. for' %} {{ title | striptags }}"
             >
             {{ doi }}
@@ -12,8 +11,7 @@
     {% else %}
         <a
             target="_blank"
-            class="doi-link"
-            href="https://doi.org/{{ doi }}"
+            href="https://doi.org/{{ doi }}" 
             aria-label="{% trans 'D.O.I. for' %} {{ title | striptags }}"
             >
             https://doi.org/{{ doi }}

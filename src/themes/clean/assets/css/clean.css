@@ -555,11 +555,6 @@ a[target="_blank"] {
   gap: 0.25em;
 }
 
-a.doi-link[target="_blank"] {
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
 .section-link {
     white-space: nowrap;
 }
