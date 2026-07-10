@@ -1258,6 +1258,36 @@ p + .btn-background {
   border-color: color-mix(in srgb, var(--tf-fg) 70%, transparent) !important;
 }
 
+#article.text-format-region.tf-has-colour table,
+#article.text-format-region.tf-has-colour .fig-caption,
+#article.text-format-region.tf-has-colour .table-caption,
+#article.text-format-region.tf-has-colour .table-foot,
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour .fig-caption,
+.text-format-region.tf-has-colour .table-caption,
+.text-format-region.tf-has-colour .table-foot {
+  border: 1px solid var(--tf-fg) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour table {
+  border-top: none !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-track {
+  background: var(--tf-bg) !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-thumb {
+  background: var(--tf-fg) !important;
+  border-radius: 6px;
+}
+
 .text-format-region.tf-no-italics *:not([class*="fa"]) {
   font-style: normal !important;
 }
