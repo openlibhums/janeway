@@ -1194,6 +1194,10 @@ p + .btn-background {
   transition: background-color 0.4s ease-out, color 0.4s ease-out;
 }
 
+.text-format-region.tf-has-colour .modal-sticky-close {
+  background-color: var(--tf-bg) !important;
+}
+
 /* Moving to/from the default is a bigger jump, so longer transition */
 .text-format-region.tf-default-transition,
 .text-format-region.tf-default-transition * {
