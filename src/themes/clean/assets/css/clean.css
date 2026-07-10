@@ -555,6 +555,13 @@ a[target="_blank"] {
   gap: 0.25em;
 }
 
+/* Reading content may contain long, space-free external links (e.g. a DOI in
+   "How to Cite") which overflow at larger text sizes. */
+.text-format-region a[target="_blank"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .section-link {
     white-space: nowrap;
 }
