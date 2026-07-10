@@ -816,6 +816,10 @@ div.caption span.label {
   transition: background-color 0.4s ease-out, color 0.4s ease-out;
 }
 
+.text-format-region.tf-has-colour .modal-sticky-close {
+  background-color: var(--tf-bg) !important;
+}
+
 /* Moving to/from the default is a bigger jump, so a longer transition. */
 .text-format-region.tf-default-transition,
 .text-format-region.tf-default-transition * {
@@ -1844,6 +1848,12 @@ input + div .btn-background {
 span + .btn-background {
     height: auto;
     min-height: 1.8rem;
+}
+
+/* The "View Larger Table" trigger has no adjacent input/span sibling to pick
+   up the height rules above, so its border sits flush against the text. */
+.table-expansion .btn-background {
+    padding: 0.4rem 10px;
 }
 
 .btn-background:hover {
