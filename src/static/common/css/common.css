@@ -451,18 +451,6 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     line-height: 1;
 }
 
-/*
- * Reading / accessibility UI stacking order (back -> front). These layers
- * overlap, so keep their z-index values in this order across every theme:
- *   page content ............................... auto
- *   sticky TOC (.sticky-toc / .toc-sticky) ..... 700
- *   reading bar body (.reading-options-bar) .... 800  (sticky; own context)
- *   reading bar flyout menus (.mini-bar ul) .... capped inside the 800 context
- *   nav + accessibility dropdowns .............. 1000 (frontmost interactive)
- *   modal overlay / reveal ..................... 1005-1006
- *   modal sticky close ......................... 1050
- * The accessibility dropdown below sits at the 1000 "dropdown" layer.
- */
 .a11y-toggle-host .a11y-toggle-menu {
     position: absolute;
     top: calc(100% + 6px);
