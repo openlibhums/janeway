@@ -87,6 +87,7 @@ matching edits:
 - an update to the `reading_options_bar.html` template
 - a field on the JS `state` object, 
 - a validation branch in`clean_text_format_preferences()`
+- tests to cover the new setting. If it's a toggle then it only needs to be added to the `TOGGLE_FLAGS` in `src/core/logic.py` and it will be tested with the other toggles.
 
 ## How preferences persist
 

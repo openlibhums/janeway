@@ -943,6 +943,9 @@ def capture_account_preferences(user):
 # unresolvable preference (the same guarantee the JS rollback gives live).
 _HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
+# Simple on/off reading-options toggles. Tests iterate this list rather than naming flags.
+TOGGLE_FLAGS = ("darkmode", "noItalics", "noAttention", "hideReadingBar")
+
 
 def clean_text_format_preferences(payload):
     """Return a sanitised copy of reading-options preferences.
@@ -962,7 +965,7 @@ def clean_text_format_preferences(payload):
     if payload.get("scheme") in text_format.COLOUR_SCHEMES:
         cleaned["scheme"] = payload["scheme"]
 
-    for flag in ("darkmode", "noItalics", "noAttention", "hideReadingBar"):
+    for flag in TOGGLE_FLAGS:
         if isinstance(payload.get(flag), bool):
             cleaned[flag] = payload[flag]
 

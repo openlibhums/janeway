@@ -892,6 +892,9 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         )
 
 
+# accessibility_mode
+
+
 class AccessibilityModeLoaderTests(TestCase):
     """Tests for the Clarity-override branch in the template Loader."""
 
@@ -1081,28 +1084,6 @@ class AccessibilityModeToggleViewTests(TestCase):
         self.assertFalse(user.accessibility_mode)
 
     @override_settings(URL_CONFIG="domain")
-    def test_login_migrates_session_preference_to_account(self):
-        # Enabling accessibility mode while anonymous stores a session flag.
-        # On login that preference must be carried onto the account and the
-        # session flag cleared, so the two sources can never disagree.
-        anon_response = self.client.post(
-            reverse("toggle_accessibility_mode"),
-            {},
-            SERVER_NAME=self.journal_one.domain,
-        )
-        self.assertEqual(anon_response.status_code, 302)
-        self.assertTrue(self.client.session.get("accessibility_mode"))
-
-        logged_in = self.client.login(
-            username=self.user_email,
-            password=self.user_password,
-        )
-        self.assertTrue(logged_in)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.accessibility_mode)
-        self.assertIsNone(self.client.session.get("accessibility_mode"))
-
-    @override_settings(URL_CONFIG="domain")
     def test_mode_can_be_disabled_after_enabling_then_logging_in(self):
         # Regression test for the reported bug: enabling accessibility mode
         # while anonymous and then logging in must leave the mode disableable.
@@ -1263,8 +1244,12 @@ class AccessibilityModePersistenceTests(TestCase):
         self.assertIsNone(self.client.session.get("accessibility_mode"))
 
 
+# the reading-options bar
+
+
 class CleanTextFormatPreferencesTests(TestCase):
-    """Unit tests for the reading-options payload sanitiser."""
+    """Unit tests for the reading-options payload sanitiser and its
+    text_format registry helpers (size bounds)."""
 
     def test_non_dict_payload_returns_empty(self):
         self.assertEqual(core_logic.clean_text_format_preferences(None), {})
@@ -1276,11 +1261,13 @@ class CleanTextFormatPreferencesTests(TestCase):
         payload = {
             "font": a_registered_font(),
             "scheme": scheme,
-            "darkmode": True,
-            "noItalics": False,
             "custom": {"light": "#ffffff", "dark": "#1a1a1a"},
             "textSize": 2,
         }
+        # Alternate True/False so both survive the round trip; iterating
+        # TOGGLE_FLAGS means a newly added toggle is covered automatically.
+        for index, flag in enumerate(core_logic.TOGGLE_FLAGS):
+            payload[flag] = index % 2 == 0
         self.assertEqual(core_logic.clean_text_format_preferences(payload), payload)
 
     def test_unknown_font_and_scheme_are_dropped(self):
@@ -1315,30 +1302,9 @@ class CleanTextFormatPreferencesTests(TestCase):
         self.assertEqual(cleaned, {"font": font})
 
     def test_non_bool_flags_are_dropped(self):
-        cleaned = core_logic.clean_text_format_preferences(
-            {"darkmode": "yes", "noItalics": 1, "hideReadingBar": "true"}
-        )
-        self.assertEqual(cleaned, {})
-
-    def test_hide_reading_bar_bool_is_kept(self):
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"hideReadingBar": True}),
-            {"hideReadingBar": True},
-        )
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"hideReadingBar": False}),
-            {"hideReadingBar": False},
-        )
-
-    def test_no_attention_bool_is_kept(self):
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"noAttention": True}),
-            {"noAttention": True},
-        )
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"noAttention": False}),
-            {"noAttention": False},
-        )
+        # Every registered toggle rejects a non-bool value, whatever is added later.
+        payload = {flag: "not-a-bool" for flag in core_logic.TOGGLE_FLAGS}
+        self.assertEqual(core_logic.clean_text_format_preferences(payload), {})
 
     def test_invalid_custom_hex_is_dropped(self):
         cleaned = core_logic.clean_text_format_preferences(
@@ -1351,12 +1317,6 @@ class CleanTextFormatPreferencesTests(TestCase):
             {"custom": {"light": "red", "dark": "blue"}}
         )
         self.assertEqual(cleaned, {})
-
-    def test_text_size_out_of_range_is_dropped(self):
-        self.assertEqual(core_logic.clean_text_format_preferences({"textSize": 99}), {})
-        self.assertEqual(
-            core_logic.clean_text_format_preferences({"textSize": -99}), {}
-        )
 
     def test_text_size_bounds_are_inclusive(self):
         bounds = core_text_format.size_bounds()
@@ -1387,11 +1347,8 @@ class CleanTextFormatPreferencesTests(TestCase):
             core_logic.clean_text_format_preferences({"textSize": True}), {}
         )
 
-
-class SizeBoundsTests(TestCase):
-    """Unit tests for the text_format size-bounds accessor."""
-
-    def test_global_default_is_returned(self):
+    def test_size_bounds_default_is_global(self):
+        # No font currently narrows the bounds; both calls resolve to the same default.
         self.assertEqual(
             core_text_format.size_bounds(),
             core_text_format.DEFAULT_SIZE_BOUNDS,
@@ -1549,10 +1506,12 @@ class SaveTextFormatPreferencesViewTests(TestCase):
 class TextFormatPreferencesPersistenceTests(TestCase):
     """Login and logout persistence for the reading-options preferences.
 
-    The dict analogue of the accessibility-mode boolean matrix: on
-    login an explicit anonymous change wins and is written back to the account;
-    an untouched anonymous session leaves the account value standing; on logout
-    a stored preference is sticky for the now-anonymous visitor.
+    Both this and accessibility_mode go through the same generic, value-type
+    -agnostic migrate/reseed helpers in core.logic (see PreferenceDescriptor),
+    so the full login/logout truth table is only exercised once, against the
+    bool case, in AccessibilityModePersistenceTests. What's actually specific
+    to a dict-shaped preference - an empty dict standing in for "unset" rather
+    than a bool - is what these tests cover.
     """
 
     @classmethod
@@ -1567,7 +1526,6 @@ class TextFormatPreferencesPersistenceTests(TestCase):
         )
         cls.user.is_active = True
         cls.user.save()
-        cls.anon_prefs = {"font": a_registered_font()}
         cls.account_prefs = {"scheme": a_preset_scheme()[0]}
 
     def setUp(self):
@@ -1606,32 +1564,11 @@ class TextFormatPreferencesPersistenceTests(TestCase):
         # account preference on later requests.
         self.assertIsNone(self.client.session.get("text_format_preferences"))
 
-    def test_login_untouched_empty_account_stays_empty(self):
-        self.assertLoginResult(
-            anonymous=None,
-            account={},
-            expected_account={},
-        )
-
     def test_login_untouched_account_applied(self):
         self.assertLoginResult(
             anonymous=None,
             account=self.account_prefs,
             expected_account=self.account_prefs,
-        )
-
-    def test_login_explicit_empty_account_writes_back(self):
-        self.assertLoginResult(
-            anonymous=self.anon_prefs,
-            account={},
-            expected_account=self.anon_prefs,
-        )
-
-    def test_login_explicit_overwrites_account(self):
-        self.assertLoginResult(
-            anonymous=self.anon_prefs,
-            account=self.account_prefs,
-            expected_account=self.anon_prefs,
         )
 
     def test_login_explicit_clear_disables_account(self):
