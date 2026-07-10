@@ -319,6 +319,10 @@ footer svg {
         margin-bottom: 8px;
     }
 
+    .text-format-region.tf-custom-size p {
+        font-size: 1em !important;
+    }
+
     .card-img-overlay {
         padding: 10px;
     }
