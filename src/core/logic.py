@@ -436,7 +436,7 @@ def get_settings_to_edit(display_group, journal, user):
                 ),
             },
         ]
-        setting_group = "general"
+        setting_group = "metadata"
 
     elif display_group == "review":
         group_of_settings = [
