@@ -134,6 +134,32 @@ def load_hooks(plugin_settings):
     return plugin_settings.hook_registry()
 
 
+def call_hooks(hook_name, *args, **kwargs):
+    """Call Python plugin hooks registered under hook_name.
+
+    Unlike the {% hook %} template tag, which concatenates HTML output,
+    this collects and returns each hook function's return value so core
+    code can consume structured data from plugins.
+
+    :param hook_name: the name hooks were registered under in a plugin's
+        hook_registry.
+    :return: a list of the non-None values returned by the hook functions.
+    """
+    results = []
+    for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
+        try:
+            hook_module = import_module(hook.get("module"))
+            function = getattr(hook_module, hook.get("function"))
+            result = function(*args, **kwargs)
+            if result is not None:
+                results.append(result)
+        except Exception as e:
+            logger.error("Error calling hook {0}: {1}".format(hook_name, e))
+            if settings.DEBUG:
+                raise
+    return results
+
+
 def check_plugin_workflow(plugin_settings):
     try:
         if plugin_settings.IS_WORKFLOW_PLUGIN:
