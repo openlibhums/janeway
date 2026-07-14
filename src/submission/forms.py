@@ -143,6 +143,16 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             self.fields["section"].queryset = section_queryset
             self.fields["license"].queryset = license_queryset
 
+            if self.FILTER_PUBLIC_FIELDS:
+                from core import plugin_loader
+
+                plugin_loader.call_hooks(
+                    "submission_form_init",
+                    form=self,
+                    article=article,
+                    journal=article.journal,
+                )
+
             self.fields["section"].required = True
             self.fields["license"].required = True
             self.fields["primary_issue"].queryset = article.issues.all()
