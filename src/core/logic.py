@@ -19,8 +19,9 @@ from django.template.loader import get_template
 from django.db.models import Q
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import reverse
+from django.shortcuts import redirect, reverse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import get_language, gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -35,6 +36,30 @@ from utils import shared, logic as utils_logic
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def redirect_to_return_url(request, fallback_url_name="core_dashboard", param="return"):
+    """
+    Redirect to the URL given in a GET parameter when it is safe to do so.
+
+    The URL must belong to the current host and match the request's scheme,
+    per Django's url_has_allowed_host_and_scheme. When the parameter is
+    absent or the URL is unsafe, the fallback URL name is reversed and
+    used instead.
+
+    :param request: the current request
+    :param fallback_url_name: URL name to reverse when there is no safe return URL
+    :param param: the name of the GET parameter carrying the return URL
+    :return: an HttpResponseRedirect
+    """
+    return_url = request.GET.get(param)
+    if return_url and url_has_allowed_host_and_scheme(
+        return_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return redirect(return_url)
+    return redirect(reverse(fallback_url_name))
 
 
 def reverse_with_next(url_name, next_url, args=None, kwargs=None):
