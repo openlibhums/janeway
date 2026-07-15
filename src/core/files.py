@@ -515,17 +515,18 @@ def serve_pdf_galley_to_browser(request, file, article):
         raise Http404
 
 
-def delete_file(article_object, file_object):
-    """Deletes a file. Note: the actual file is not deleted, this just removes the association of the file with an
-    article.
+def unassociate_file(article_object, file_object):
+    """Removes the association between a file and an article. The file itself
+    is not deleted from disk and its history is retained; only the manuscript
+    or data/figure relationship is removed.
 
     :param article_object: the article associated with the file
-    :param file_object: the file object to delete
+    :param file_object: the file object to unassociate
     :return: None
     """
     if article_object.manuscript_files.filter(id=file_object.id).exists():
         article_object.manuscript_files.remove(file_object)
-    else:
+    elif article_object.data_figure_files.filter(id=file_object.id).exists():
         article_object.data_figure_files.remove(file_object)
 
 

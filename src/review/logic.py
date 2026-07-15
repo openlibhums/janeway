@@ -457,7 +457,15 @@ def get_draft_email_message(request, article):
     return render_template.get_message_content(request, email_context, "draft_message")
 
 
-def group_files(article, reviews):
+def group_files(article, reviews, manageable=False):
+    """Collects the files an author sees for a revision request.
+
+    :param article: the Article being revised
+    :param reviews: completed, author-consumable ReviewAssignments
+    :param manageable: when True, only files the author is allowed to manage
+        (manuscript and data/figure files) are returned. Review files are
+        excluded because the author may download but not disassociate them.
+    """
     files = list()
 
     for file in article.manuscript_files.all():
@@ -466,9 +474,10 @@ def group_files(article, reviews):
     for file in article.data_figure_files.all():
         files.append(file)
 
-    for review in reviews:
-        if review.for_author_consumption and review.display_review_file:
-            files.append(review.review_file)
+    if not manageable:
+        for review in reviews:
+            if review.for_author_consumption and review.display_review_file:
+                files.append(review.review_file)
 
     return files
 

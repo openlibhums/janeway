@@ -529,8 +529,8 @@ class ReviewTests(TestCase):
             403,
         )
 
-        # finally, delete the file from disk
-        files.delete_file(article_with_completed_reviews, file)
+        # finally, unassociate the file from the article
+        files.unassociate_file(article_with_completed_reviews, file)
 
     def test_withdrawing_review_assignment(self):
         review_to_withdraw, created = (
@@ -1441,3 +1441,119 @@ class InReviewActionsTests(TestCase):
             reverse("decision_helper", kwargs={"article_id": self.article.pk}),
         )
         self.assertNotContains(response, "Move to Next Stage")
+
+
+class DoRevisionsFileValidationTests(TestCase):
+    """Regression tests for #1617.
+
+    An author completing a revision request may disassociate their own
+    manuscript and data/figure files, but must not be able to disassociate
+    any other file (e.g. a review file) by tampering with the posted file id.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.author = helpers.create_author(cls.journal_one)
+        cls.other_author = helpers.create_author(
+            cls.journal_one,
+            email="otherauthor@example.com",
+        )
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+            owner=cls.author,
+            correspondence_author=cls.author,
+        )
+        cls.author.snapshot_as_author(cls.article)
+
+        cls.manuscript_file = core_models.File.objects.create(
+            mime_type="text/plain",
+            original_filename="manuscript.txt",
+            uuid_filename="manuscript.txt",
+            label="Manuscript",
+            owner=cls.author,
+            is_galley=False,
+            privacy="owner",
+        )
+        cls.article.manuscript_files.add(cls.manuscript_file)
+
+        cls.review_round = review_models.ReviewRound.objects.create(
+            article=cls.article,
+            round_number=1,
+        )
+        cls.review_file = core_models.File.objects.create(
+            mime_type="text/plain",
+            original_filename="review.txt",
+            uuid_filename="review.txt",
+            label="Review file",
+            owner=cls.editor,
+            is_galley=False,
+            privacy="owner",
+        )
+        cls.review_round.review_files.add(cls.review_file)
+        cls.review_assignment = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            article=cls.article,
+            editor=cls.editor,
+            review_round=cls.review_round,
+            review_file=cls.review_file,
+            is_complete=True,
+        )
+        cls.review_assignment.for_author_consumption = True
+        cls.review_assignment.display_review_file = True
+        cls.review_assignment.save()
+
+        cls.revision_request = helpers.create_revision_request(
+            cls.article,
+            cls.editor,
+        )
+
+    def do_revisions_url(self):
+        return reverse(
+            "do_revisions",
+            kwargs={
+                "article_id": self.article.pk,
+                "revision_id": self.revision_request.pk,
+            },
+        )
+
+    def test_author_can_delete_own_manuscript_file(self):
+        """The author may still disassociate a manuscript file of the article."""
+        self.client.force_login(self.author)
+        response = self.client.post(
+            self.do_revisions_url(),
+            {"delete": self.manuscript_file.pk},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            self.article.manuscript_files.filter(pk=self.manuscript_file.pk).exists()
+        )
+        self.assertTrue(
+            self.revision_request.actions.filter(text__contains="deleted").exists()
+        )
+
+    def test_author_cannot_delete_review_file(self):
+        """Tampering the file id with a review file must not disassociate it."""
+        self.client.force_login(self.author)
+        response = self.client.post(
+            self.do_revisions_url(),
+            {"delete": self.review_file.pk},
+            SERVER_NAME=self.journal_one.domain,
+            follow=True,
+        )
+        self.assertContains(
+            response,
+            "Given file ID not found in article files.",
+        )
+        # The review file remains associated with the review round.
+        self.assertTrue(
+            self.review_round.review_files.filter(pk=self.review_file.pk).exists()
+        )
+        # No deletion was logged against the revision request.
+        self.assertFalse(
+            self.revision_request.actions.filter(text__contains="deleted").exists()
+        )
