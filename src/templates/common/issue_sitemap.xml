@@ -17,7 +17,7 @@
     <url>
       <loc>{{ article.url }}</loc>
       <lastmod>{{ article.lastmod }}</lastmod>
-      <changefreq>never</changefreq>
+      <changefreq>monthly</changefreq>
       <janeway:loc_label>{{ article.title }}</janeway:loc_label>
     </url>
   {% endfor %}
