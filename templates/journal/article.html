@@ -160,6 +160,10 @@
 
                             {% if article.is_published or proofing %}
                                 {% include "elements/journal/share.html" %}
+                            {% endif %}
+                            <h2>{% trans "Author details" %}</h2>
+                            {% include "common/elements/journal/article_authors_full.html" %}
+                            {% if article.is_published or proofing %}
                                 {% spaceless %}
                                     <h2>{% trans "Files" %}</h2>
                                     {% if galleys %}

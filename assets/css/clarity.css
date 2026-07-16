@@ -1791,6 +1791,12 @@ textarea.tinymce:focus-visible,
   padding-left: 20px;
 }
 
+.article-menu ul.article-authors-full,
+.article-menu ul.list-inline {
+  list-style: none;
+  padding-left: 0;
+}
+
 .article-menu ul li {
   position: relative;
 }
