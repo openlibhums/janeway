@@ -1,6 +1,5 @@
 {% load static %}
 {% load i18n %}
-{% load alt_text %}
 
 <section aria-labelledby="popular-title">
     <div class="row">
@@ -12,48 +11,7 @@
             {% endif %}
         </div>
         {% for article in popular_articles %}
-            <div class="col-md-4 row-eq-height">
-                <div class="card">
-                    {% if not journal_settings.article.disable_article_large_image %}
-                        {% if article.large_image_file %}
-                            {% get_alt_text obj=article.large_image_file default=article.title|striptags as image_alt %}
-                            <img src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                 alt="{{ image_alt }}"
-                                 class="card-img-top">
-                        {% elif article.issue.large_image %}
-                            {% get_alt_text file_path=article.issue.large_image default=article.title|striptags as image_alt %}
-                            <img src="{{ article.issue.large_image.url }}"
-                                 alt="{{ image_alt }}"
-                                 class="card-img-top">
-                        {% elif article.journal.default_large_image %}
-                            {% get_alt_text file_path=article.journal.default_large_image default=article.title|striptags as image_alt %}
-                            <img src="{{ article.journal.default_large_image.url }}"
-                                 alt="{{ image_alt }}"
-                                 class="card-img-top">
-                        {% else %}
-                            <img src="{% static 'common/img/sample/article-small.jpg' %}"
-                                 alt="{{ article.title|striptags }}"
-                                 class="card-img-top">
-                        {% endif %}
-                    {% endif %}
-                    <div class="card-body">
-                        <h3 class="sr-only">{{ article.title }}</h3>
-                        <p class="card-text">{{ article.author_list }}</p>
-                        <p class="card-text"><strong>
-                            {% if article.is_remote %}
-                                <a href="{{ article.remote_url }}" target="_blank">
-                                    {{ article.title|safe|truncatechars:200 }}
-                                    {% include "elements/icons/link_external.html" %}
-                                </a>
-                            {% else %}
-                                <a href="{{ article.url }}">
-                                    {{ article.title|safe|truncatechars:200 }}
-                                </a>
-                            {% endif %}
-                        </strong></p>
-                    </div>
-                </div>
-            </div>
+            {% include "journal/homepage_elements/article_list_item.html" %}
         {% endfor %}
     </div>
 </section>

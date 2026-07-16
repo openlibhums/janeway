@@ -12,18 +12,8 @@
                 {% for carousel_item in carousel_items %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_items|length }}">
                         <img class="d-block img-fluid article-img carousel-min"
-                             {% if carousel_item.large_image_file.id %}
-                                {# Article or News Item #}
-                                 src="{% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
-                             {% elif carousel_item.hero_image_url %}
-                                {# Issue or Collection #}
-                                 src="{{ carousel_item.hero_image_url }}"
-                             {% elif journal.default_large_image %}
-                                 src="{{ journal.default_large_image.url }}"
-                             {% else %}
-                                 src=""
-                             {% endif %}
-                             alt="{{ carousel_item.best_image_alt_text }}">
+                             src="{{ carousel_item.best_large_image_url }}"
+                             alt="{{ carousel_item.best_large_image_alt_text }}">
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                             <h3><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
