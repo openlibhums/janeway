@@ -47,15 +47,26 @@ function drawUserAttention(targetElement){
         element.tabIndex = "-1"
         element.focus();
         
+        const restoreTabIndex = () => {
+            if (oldTabIndex === null) {
+                element.removeAttribute('tabIndex');
+            } else {
+                element.tabIndex = oldTabIndex;
+            }
+        };
+
         const timeout = setTimeout(() => {
             element.classList.remove('draw-attention');
             if (element.classList.length === 0) {
                 element.removeAttribute('class');
             }
-            if (oldTabIndex === null) {
-                element.removeAttribute('tabIndex');
+            if (document.activeElement === element) {
+                // Removing tabindex while the element is focused sends focus
+                // back to <body>, so tabbing would restart from the top of
+                // the page. Wait until focus moves on before restoring.
+                element.addEventListener('blur', restoreTabIndex, { once: true });
             } else {
-                element.tabIndex = oldTabIndex;
+                restoreTabIndex();
             }
             attentionTimeouts.delete(element);
         }, 2000);
