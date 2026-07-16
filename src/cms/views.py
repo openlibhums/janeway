@@ -64,17 +64,27 @@ def index(request):
         page.delete()
         return redirect(reverse("cms_index"))
 
-    if request.POST and "toggle_draft" in request.POST:
-        page_id = request.POST.get("toggle_draft")
+    if request.POST and "cms_draft" in request.POST:
+        page_id = request.POST.get("cms_draft")
         page = get_object_or_404(
             models.Page,
             pk=page_id,
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
-        page.is_draft = not page.is_draft
-        if not page.is_draft:
-            page.preview_token = str(uuid4())
+        page.is_draft = True
+        page.save()
+        return redirect(reverse("cms_index"))
+
+    if request.POST and "cms_publish" in request.POST:
+        page_id = request.POST.get("cms_publish")
+        page = get_object_or_404(
+            models.Page,
+            pk=page_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
+        page.is_draft = False
         page.save()
         return redirect(reverse("cms_index"))
 

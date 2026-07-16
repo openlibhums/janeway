@@ -72,7 +72,7 @@
                                     {% if page.is_draft %}
                                         <button type="button" data-open="publish-confirm-{{ page.pk }}" class="tiny button">Publish</button>
                                     {% else %}
-                                        <button name="toggle_draft" value="{{ page.pk }}" type="submit" class="tiny hollow secondary button">Unpublish</button>
+                                        <button name="cms_draft" value="{{ page.pk }}" type="submit" class="tiny hollow secondary button">Unpublish</button>
                                     {% endif %}
                                 </form>
                             </td>
@@ -92,7 +92,7 @@
                                 <div class="card-section">
                                     <div class="button-group expanded">
                                         <button class="success button" form="publish-form-{{ page.pk }}"
-                                                type="submit" name="toggle_draft" value="{{ page.pk }}">Publish</button>
+                                                type="submit" name="cms_publish" value="{{ page.pk }}">Publish</button>
                                         <button class="alert button" data-close type="button">No, go back</button>
                                     </div>
                                 </div>
