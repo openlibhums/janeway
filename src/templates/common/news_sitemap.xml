@@ -17,7 +17,7 @@
     <url>
       <loc>{{ news_item.url }}</loc>
       <lastmod>{{ news_item.posted.isoformat }}</lastmod>
-      <changefreq>never</changefreq>
+      <changefreq>yearly</changefreq>
       <janeway:loc_label>{{ news_item.title }}</janeway:loc_label>
     </url>
   {% endfor %}
