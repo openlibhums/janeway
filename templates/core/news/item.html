@@ -16,6 +16,12 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-3">
+                {% if news_item.best_image_url %}
+                    <img
+                        class="card-img-top"
+                        src="{{ news_item.best_image_url }}"
+                        alt="{{ news_item.best_large_image_alt_text }}">
+                {% endif %}
                 <div class="card-body">
                     <h1 class="card-title text-format-region">{{ news_item.title|safe }}</h1>
                     <p class="card-subtitle text-muted mb-2 text-format-region">
@@ -43,7 +49,7 @@
                 <div class="card-footer">
                     <a href="{% url 'core_news_list' %}" class="btn btn-outline-secondary">
                         <i aria-hidden="true" class="fa fa-arrow-left"></i>
-                        {% trans "Back to" %} {{ journal_settings.news.news_title }} {% trans "List" %}
+                        {% trans "Back to" %} {{ journal_settings.news.news_title|default:"News" }} {% trans "List" %}
                     </a>
                 </div>
             </div>
