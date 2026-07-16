@@ -61,9 +61,9 @@
                                 <strong>{{ answer.element.name }}</strong>
                                 <div class="mt-1">
                                     {% if answer.edited_answer %}
-                                        {{ answer.edited_answer|safe|linebreaksbr }}
+                                        {{ answer.render_edited_answer|linebreaksbr }}
                                     {% else %}
-                                        {{ answer.answer|safe|linebreaksbr }}
+                                        {{ answer.render_answer|linebreaksbr }}
                                     {% endif %}
                                 </div>
                             </div>
