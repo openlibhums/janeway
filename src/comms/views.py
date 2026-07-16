@@ -209,10 +209,9 @@ def news_list(request, tag=None, presswide=False):
     :return: HttpResponse object
     """
 
-    news_objects = models.NewsItem.active_objects.all()
-    all_tags = models.Tag.objects.all()
+    news_objects = models.NewsItem.active_objects
 
-    if presswide or request.model_content_type.model == "press":
+    if presswide and request.model_content_type.model == "press":
         press_visible_journal_pks = [
             journal.pk
             for journal in journal_models.Journal.objects.filter(
