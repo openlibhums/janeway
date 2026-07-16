@@ -141,7 +141,7 @@ def view_page(request, page_name):
 
     if page.is_draft:
         access_code = request.GET.get("access_code")
-        if not access_code or access_code != str(page.preview_token):
+        if not access_code or access_code != page.preview_token:
             raise Http404
     elif "access_code" in request.GET:
         # A published page ignores a stray preview access_code; redirect to the
