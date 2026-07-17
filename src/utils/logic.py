@@ -850,10 +850,21 @@ def build_journal_index_context(journal):
         # press reference on the page there is no name clash to disambiguate.
         # _plain_label keeps it a plain str so the template escapes any "&".
         journal_label = _plain_label(journal.name)
+        parent_sitemap = None
+        note = (
+            "This journal is hidden from the press, so it is not linked from a "
+            "higher-level sitemap."
+        )
     else:
         clash_names = _local_clash_names(journal.name, press.name)
         journal_label = _suffixed_name(journal.name, clash_names, "[journal]")
         press_label = _suffixed_name(press.name, clash_names, "[press]")
+        parent_sitemap = {
+            "loc": f"{press.site_url()}/sitemap.xml",
+            "label": press_label,
+        }
+        note = ""
+
     child_sitemaps = [
         {
             "loc": f"{journal.site_url()}/pages_sitemap.xml",
@@ -898,18 +909,6 @@ def build_journal_index_context(journal):
             }
         )
 
-    if journal.hide_from_press:
-        parent_sitemap = None
-        note = (
-            "This journal is hidden from the press, so it is not linked from a "
-            "higher-level sitemap."
-        )
-    else:
-        parent_sitemap = {
-            "loc": f"{press.site_url()}/sitemap.xml",
-            "label": press_label,
-        }
-        note = ""
     page_title = f"Sitemap - {journal_label}"
     return {
         "journal": journal,
