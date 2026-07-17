@@ -440,30 +440,18 @@ urlpatterns = [
     ),
     re_path(r"^robots.txt$", press_views.robots, name="website_robots"),
     re_path(r"^sitemap.xml$", press_views.sitemap, name="website_sitemap"),
+    # press_views.news_sitemap/pages_sitemap dispatch internally on
+    # request.journal/request.repository, so one route each covers press,
+    # journal, and repository contexts — no per-site-type name needed.
     re_path(
         r"^news_sitemap.xml$",
         press_views.news_sitemap,
         name="press_news_sitemap",
     ),
     re_path(
-        r"^news_sitemap.xml$",
-        press_views.news_sitemap,
-        name="journal_news_sitemap",
-    ),
-    re_path(
         r"^pages_sitemap.xml$",
         press_views.pages_sitemap,
         name="press_pages_sitemap",
-    ),
-    re_path(
-        r"^pages_sitemap.xml$",
-        press_views.pages_sitemap,
-        name="journal_pages_sitemap",
-    ),
-    re_path(
-        r"^pages_sitemap.xml$",
-        press_views.pages_sitemap,
-        name="repository_pages_sitemap",
     ),
     re_path(
         r"^issue/(?P<issue_id>\d+)_sitemap.xml$",
