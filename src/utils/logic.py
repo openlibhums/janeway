@@ -715,15 +715,15 @@ def build_issue_sitemap_context(issue_or_none, journal):
 
     article_entries = []
     for article in articles_qs:
-        # Use the publication date, not last_modified: an article's
-        # last_modified (and that of its related galleys/files/issues) is
-        # bumped by unrelated events — migrations, cache-on-render saves —
-        # which would churn the sitemap lastmod without the page changing.
+        try:
+            lastmod_dt = article.fast_last_modified_date()
+        except Exception:
+            lastmod_dt = article.date_published
         date_published = article.date_published
         article_entries.append(
             {
                 "url": article.url,
-                "lastmod": date_published.isoformat() if date_published else "",
+                "lastmod": lastmod_dt.isoformat() if lastmod_dt else "",
                 "title": _plain_label(article.title),
                 "date": date_published,
             }
@@ -760,14 +760,17 @@ def build_subject_sitemap_context(subject_or_none, repo):
 
     preprint_entries = []
     for preprint in qs:
-        # Use the publication date, not date_updated: date_updated drifts on
-        # unrelated saves, which would churn the sitemap lastmod without the
-        # preprint actually changing.
+        if preprint.date_updated:
+            lastmod = preprint.date_updated.isoformat()
+        elif preprint.date_published:
+            lastmod = preprint.date_published.isoformat()
+        else:
+            lastmod = ""
         date_published = preprint.date_published
         preprint_entries.append(
             {
                 "url": preprint.url,
-                "lastmod": date_published.isoformat() if date_published else "",
+                "lastmod": lastmod,
                 "title": _plain_label(preprint.title),
                 "date": date_published,
             }
