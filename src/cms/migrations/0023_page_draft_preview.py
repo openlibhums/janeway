@@ -13,10 +13,19 @@ class Migration(migrations.Migration):
             model_name="page",
             name="is_draft",
             field=models.BooleanField(default=False),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name="page",
+            name="preview_token",
+            field=models.CharField(blank=True, default=uuid4, max_length=100),
+        ),
+        migrations.AddField(
+            model_name="historicalpage",
+            name="is_draft",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name="historicalpage",
             name="preview_token",
             field=models.CharField(blank=True, default=uuid4, max_length=100),
         ),

@@ -72,8 +72,7 @@ def index(request):
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
-        page.is_draft = True
-        page.save()
+        page.save_as_draft()
         return redirect(reverse("cms_index"))
 
     if request.POST and "cms_publish" in request.POST:
@@ -84,8 +83,7 @@ def index(request):
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
-        page.is_draft = False
-        page.save()
+        page.save_as_published()
         return redirect(reverse("cms_index"))
 
     if request.POST and "new_xsl" in request.POST:
@@ -213,7 +211,10 @@ def page_manage(request, page_id=None):
                 page = page_form.save(commit=False)
                 page.content_type = request.model_content_type
                 page.object_id = request.site_type.pk
-                page.save()
+                if edit:
+                    page.save()
+                else:
+                    page.save_as_draft()
 
                 messages.add_message(request, messages.INFO, "Page saved.")
                 return language_override_redirect(
