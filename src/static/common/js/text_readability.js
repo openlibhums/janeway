@@ -28,7 +28,7 @@ var state = {
   darkmode: false,
   noItalics: false,
   noAttention: false,
-  hideReadingBar: false,
+  hideReadingBar: true,
   textSize: 0,
   custom: { light: '#ffffff', dark: '#1a1a1a' },
 
