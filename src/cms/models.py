@@ -58,7 +58,7 @@ class Page(models.Model):
     )
     is_markdown = models.BooleanField(default=True)
     edited = models.DateTimeField(auto_now=timezone.now)
-    is_draft = models.BooleanField(default=True)
+    is_draft = models.BooleanField(default=False)
     preview_token = models.CharField(max_length=100, blank=True, default=uuid4)
     display_toc = models.BooleanField(
         default=False,
@@ -81,6 +81,14 @@ class Page(models.Model):
             if self.is_draft and not existing.is_draft:
                 self.preview_token = uuid4()
         super().save(*args, **kwargs)
+
+    def save_as_draft(self, *args, **kwargs):
+        self.is_draft = True
+        self.save(*args, **kwargs)
+
+    def save_as_published(self, *args, **kwargs):
+        self.is_draft = False
+        self.save(*args, **kwargs)
 
 
 class NavigationItem(models.Model):
