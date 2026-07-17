@@ -306,21 +306,27 @@ def _disambiguate_labels_by_date(entries):
         if len(group) == 1:
             continue
 
-        original_titles = {i: e["title"] for i, e in group}
+        original_titles = {}
+        year_candidates, month_candidates, day_candidates = {}, {}, {}
+        has_date = True
+        for i, e in group:
+            original_titles[i] = e["title"]
+            d = e.get("date")
+            if d is None:
+                has_date = False
+                continue
+            year_candidates[i] = str(d.year)
+            month_candidates[i] = d.strftime("%b %Y")
+            day_candidates[i] = d.strftime("%d %b %Y")
 
         # Fallback when one or more entries have no date (e.g. canonical
         # pages clashing with CMS pages): number them in iteration order.
-        if any(e.get("date") is None for _, e in group):
+        if not has_date:
             for n, (i, entry) in enumerate(group, 1):
                 entry["title"] = f"{original_titles[i]} [#{n}]"
             continue
 
-        for fmt in [
-            lambda d: str(d.year),
-            lambda d: d.strftime("%b %Y"),
-            lambda d: d.strftime("%d %b %Y"),
-        ]:
-            candidates = {i: fmt(e["date"]) for i, e in group}
+        for candidates in (year_candidates, month_candidates, day_candidates):
             if len(set(candidates.values())) == len(group):
                 for i, entry in group:
                     entry["title"] = f"{original_titles[i]} [{candidates[i]}]"
