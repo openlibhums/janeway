@@ -1451,12 +1451,20 @@ class IssueSitemapTests(SitemapScenario, SitemapChecks, TestCase):
         # "Nowhere" means truly nowhere — not the issue and not no-issue.
         self.assertNotIn(self.article_unpublished.url, self._urls(self._no_issue_ctx()))
 
-    def test_lastmod_is_date_published(self):
+    def test_lastmod_is_last_modified(self):
         for entry in self._issue_ctx(self.issue_regular)["article_entries"]:
             if entry["url"] == self.article_published.url:
                 self.assertEqual(
-                    entry["lastmod"], self.article_published.date_published.isoformat()
+                    entry["lastmod"],
+                    self.article_published.fast_last_modified_date().isoformat(),
                 )
+                return
+        self.fail("published article entry not found")
+
+    def test_date_is_date_published(self):
+        for entry in self._issue_ctx(self.issue_regular)["article_entries"]:
+            if entry["url"] == self.article_published.url:
+                self.assertEqual(entry["date"], self.article_published.date_published)
                 return
         self.fail("published article entry not found")
 
@@ -1698,12 +1706,35 @@ class SubjectSitemapTests(SitemapScenario, SitemapChecks, TestCase):
             self.preprint_unpublished.url, self._urls(self._no_subject_ctx())
         )
 
-    def test_lastmod_is_date_published(self):
+    def test_lastmod_falls_back_to_date_published_without_date_updated(self):
+        # preprint_with_subject has no date_updated, so lastmod falls back
+        # to date_published.
         for entry in self._subject_ctx(self.subject)["preprint_entries"]:
             if entry["url"] == self.preprint_with_subject.url:
                 self.assertEqual(
                     entry["lastmod"],
                     self.preprint_with_subject.date_published.isoformat(),
+                )
+                return
+        self.fail("preprint entry not found")
+
+    def test_lastmod_prefers_date_updated(self):
+        self.preprint_with_subject.date_updated = timezone.now()
+        self.preprint_with_subject.save()
+        for entry in self._subject_ctx(self.subject)["preprint_entries"]:
+            if entry["url"] == self.preprint_with_subject.url:
+                self.assertEqual(
+                    entry["lastmod"],
+                    self.preprint_with_subject.date_updated.isoformat(),
+                )
+                return
+        self.fail("preprint entry not found")
+
+    def test_date_is_date_published(self):
+        for entry in self._subject_ctx(self.subject)["preprint_entries"]:
+            if entry["url"] == self.preprint_with_subject.url:
+                self.assertEqual(
+                    entry["date"], self.preprint_with_subject.date_published
                 )
                 return
         self.fail("preprint entry not found")
