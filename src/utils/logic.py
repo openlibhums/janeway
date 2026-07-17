@@ -7,6 +7,8 @@ from urllib.parse import SplitResult, urlencode, urlparse, unquote
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Case, OuterRef, Subquery, Value, When
+from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -24,6 +26,7 @@ from press import models as press_models
 from submission import models as submission_models
 from comms import models as comms_models
 from cms import models as cms_models
+from collections import Counter, defaultdict
 
 
 logger = get_logger(__name__)
@@ -251,8 +254,6 @@ def _build_clash_names(press):
     own name and the names of its journals/repositories with [press] / [journal]
     / [repository] suffixes (WCAG 2.4.4 same-link-text).
     """
-    from collections import Counter
-
     names = [press.name]
     for j in press.journals_az.filter(hide_from_press=False, is_remote=False):
         names.append(j.name)
@@ -268,7 +269,6 @@ def _local_clash_names(*names):
     Used at sub-press levels (journal, repo, sub-sitemaps) where only a small
     fixed set of entity names appears on a single page.
     """
-    from collections import Counter
 
     counts = Counter(names)
     return {name for name, count in counts.items() if count > 1}
@@ -296,8 +296,6 @@ def _disambiguate_labels_by_date(entries):
     back to sequential [#1], [#2], ... assigned by ascending date (so oldest = #1
     and existing items keep their numbers as new ones are added).
     """
-    from collections import defaultdict
-
     groups = defaultdict(list)
     for i, entry in enumerate(entries):
         groups[entry["title"].lower()].append((i, entry))
@@ -533,8 +531,6 @@ def _canonical_preprints_for_subject(subject):
     appears in exactly one subject sub-sitemap.  Matches the alphabetical-first
     choice made by `page_sitemap_url` for the footer link.
     """
-    from django.db.models import OuterRef, Subquery
-
     canonical_pk = Subquery(
         repo_models.Subject.objects.filter(
             preprint=OuterRef("pk"),
@@ -559,8 +555,6 @@ def _canonical_issue(article):
     portable query, so this matches `_canonical_articles_for_issue` and the
     footer link and an article appears in exactly one issue sub-sitemap.
     """
-    from django.db.models import Case, Value, When
-
     return (
         article.issues.filter(issue_type__code="issue", date__lte=timezone.now())
         .order_by(
@@ -585,9 +579,6 @@ def _canonical_articles_for_issue(issue):
     its first published regular issue by ordering, so each article appears in
     exactly one issue sub-sitemap.  Mirrors `_canonical_preprints_for_subject`.
     """
-    from django.db.models import OuterRef, Subquery
-    from django.db.models.functions import Coalesce
-
     # `primary_issue` wins when it is one of the article's published regular
     # issues.  A separate single-level subquery (not a nested OuterRef) keeps
     # the SQL portable across SQLite and PostgreSQL.
