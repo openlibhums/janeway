@@ -2306,7 +2306,7 @@ class SitemapServingTests(TestCase):
     @mock.patch("core.files.serve_sitemap_file", side_effect=FileNotFoundError)
     def test_repository_pages_sitemap_missing_file_returns_404(self, _serve):
         response = self.client.get(
-            reverse("repository_pages_sitemap"),
+            reverse("press_pages_sitemap"),
             SERVER_NAME=self.repository.domain,
         )
         self.assertEqual(response.status_code, 404)
