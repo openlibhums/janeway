@@ -87,7 +87,7 @@ def page_sitemap_url(context, view_name, obj=None):
 
     # Fall back to the page's primary object in context so the article/preprint
     # branches work on every theme, even footers that don't pass an object.
-    if obj is None:
+    if not obj:
         if view_name in ARTICLE_VIEW_NAMES:
             obj = context.get("article")
         elif view_name in PREPRINT_VIEW_NAMES:
