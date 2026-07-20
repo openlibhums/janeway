@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Accessibility" %}{% endblock title %}
+
+{% block body %}
+    <h1> {% trans "Accessibility" %} </h1>
+    {% include "common/elements/a11y/press.html" %}
+    {% include "common/elements/a11y/janeway.html" %}
+
+    <h3>VPAT</h3>
+    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="clarity" %}
+
+    <hr aria-hidden="true"/>
+    <h3> {% trans 'Report Platform Accessibility Issues' %} </h3>
+    <p>
+        <a href="https://github.com/openlibhums/janeway/issues/new/choose"
+            target="_blank">
+            {% trans 'Please report janeway accessibility issues directly to the developers.' %}
+            {% include "elements/icons/link_external.html" %}
+        </a>
+    </p>
+{% endblock body %}
