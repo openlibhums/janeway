@@ -2124,6 +2124,8 @@ def accessibility(request):
         template = "admin/core/a11y.html"
     elif request.journal:
         template = "core/a11y.html"
+    elif request.repository:
+        template = "repository/a11y.html"
     else:
         template = "press/a11y.html"
 
@@ -2165,10 +2167,12 @@ def accessibility(request):
     except (FileNotFoundError, json.JSONDecodeError):
         vpat_data = {}
 
-    # For press a11y page, identify themes in use by journals
+    # For press a11y page, identify themes in use by journals and repositories
     journal_themes = {}
-    if not request.journal:  # This is the press-level page
+    repository_themes = {}
+    if not request.journal and not request.repository:  # This is the press-level page
         from core.models import SettingValue, Setting
+        from repository.models import Repository
 
         press = request.press
         all_journals = press.journals()
@@ -2193,9 +2197,19 @@ def accessibility(request):
             theme_lower = theme.lower()
             journal_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
 
+        # Check all themes used by repositories belonging to this press
+        repository_themes_in_use = set(
+            Repository.objects.filter(press=press).values_list("theme", flat=True)
+        )
+        for theme in repository_themes_in_use:
+            theme_lower = theme.lower()
+            repository_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
+
     context = {
         "vpat_data": vpat_data,
         "journal_themes": journal_themes,
+        "repository_themes": repository_themes,
+        "other_themes_in_use": set(journal_themes) | set(repository_themes),
     }
     return render(request, template, context)
 
