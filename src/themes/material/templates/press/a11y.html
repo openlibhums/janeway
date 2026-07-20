@@ -16,26 +16,36 @@
     {% include "common/elements/a11y/press.html" %}
     {% include "common/elements/a11y/janeway.html" %}
 
-    {% if not journal_themes or journal_themes|length == 1 and 'material' in journal_themes %}
+    {% if not other_themes_in_use or other_themes_in_use|length == 1 and 'material' in other_themes_in_use %}
         <h3>VPAT</h3>
             {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="material" %}
     {% else %}
         <p>
             {% blocktrans %}
                 Janeway has several themes, each of which has unique templates and is built on a different framework and so vary in accessibility.
-                This press-site uses a different theme to some of the journals-sites.  VPATs for all themes in use are given below.
+                This press-site uses a different theme to some of the journal- or repository-sites it hosts.  VPATs for all themes in use are given below.
             {% endblocktrans%}
         </p>
 
-        {% if 'material' in journal_themes %}
+        {% if 'material' in journal_themes and 'material' in repository_themes %}
+            <h3>{% trans "Material Theme VPAT (Press, Journals and Repositories)" %}</h3>
+        {% elif 'material' in journal_themes %}
             <h3>{% trans "Material Theme VPAT (Press and Journals)" %}</h3>
+        {% elif 'material' in repository_themes %}
+            <h3>{% trans "Material Theme VPAT (Press and Repositories)" %}</h3>
         {% else %}
             <h3>{% trans "Material Theme VPAT (Press)" %}</h3>
         {% endif %}
         {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="material" %}
 
-        {% if 'olh' in journal_themes %}
-            <h3>{% trans "OLH Theme VPAT (Journals)" %}</h3>
+        {% if 'olh' in journal_themes or 'olh' in repository_themes %}
+            {% if 'olh' in journal_themes and 'olh' in repository_themes %}
+                <h3>{% trans "OLH Theme VPAT (Journals and Repositories)" %}</h3>
+            {% elif 'olh' in journal_themes %}
+                <h3>{% trans "OLH Theme VPAT (Journals)" %}</h3>
+            {% else %}
+                <h3>{% trans "OLH Theme VPAT (Repositories)" %}</h3>
+            {% endif %}
                 {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="olh" %}
         {% endif %}
 
