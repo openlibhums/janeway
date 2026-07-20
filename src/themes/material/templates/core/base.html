@@ -69,6 +69,9 @@
                 {% include "elements/journal_footer.html" %}
             {% elif request.repository %}
                 {{ request.repository.footer|safe }}
+                <ul class="list-inline bar-sep">
+                    <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
+                </ul>
             {% else %}
                 {% include "press/elements/press_footer.html" %}
             {% endif %}
