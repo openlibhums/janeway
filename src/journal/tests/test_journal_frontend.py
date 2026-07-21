@@ -1,3 +1,8 @@
+import os
+import shutil
+
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -8,6 +13,7 @@ from journal.tests.utils import make_test_journal
 from press.models import Press
 from utils.testing import helpers
 from utils import setting_handler
+from core import files as core_files
 from core import models as core_models
 from submission import models as submission_models
 
@@ -269,4 +275,86 @@ class TestJournalSite(TestCase):
         self.assertNotContains(
             response,
             self.article_title,
+        )
+
+
+class TestTableModalKeyboardDismiss(TestCase):
+    """
+    Regression tests for #5387: the enlarged-table modal must be keyboard
+    dismissable. Without tabindex="-1" on the modal, Bootstrap cannot move
+    focus into it, so keyboard users can never reach the close button.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_domain = "tablemodal.janeway.systems"
+        cls.journal = make_test_journal(
+            code="tablemodal",
+            domain=cls.journal_domain,
+        )
+        setting_handler.save_setting(
+            "general",
+            "journal_theme",
+            cls.journal,
+            "clean",
+        )
+        helpers.create_roles(["Author"])
+        cls.owner = helpers.create_user(
+            "table_modal_owner@janeway.systems",
+            ["author"],
+            cls.journal,
+        )
+        cls.article = helpers.create_article(
+            journal=cls.journal,
+            title="An article with a table",
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=timezone.now(),
+            owner=cls.owner,
+        )
+        galley_html = (
+            '<div class="table-expansion" id="T1">'
+            "<table><caption>Table 1</caption>"
+            "<tr><td>Cell</td></tr></table>"
+            "</div>"
+        )
+        uploaded_file = SimpleUploadedFile(
+            "tables.html",
+            galley_html.encode("utf-8"),
+            content_type="text/html",
+        )
+        file_obj = core_files.save_file_to_article(
+            uploaded_file,
+            cls.article,
+            cls.owner,
+            label="HTML",
+            is_galley=True,
+        )
+        cls.galley = helpers.create_galley(
+            cls.article,
+            file_obj=file_obj,
+            label="HTML",
+            type="html",
+        )
+        cls.addClassCleanup(
+            shutil.rmtree,
+            os.path.join(settings.BASE_DIR, "files", "articles", str(cls.article.pk)),
+            ignore_errors=True,
+        )
+
+    def test_table_modal_is_focusable_for_keyboard_dismissal(self):
+        response = self.client.get(
+            reverse(
+                "article_view",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.article.pk,
+                },
+            ),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'id="table-T1" tabindex="-1"',
         )
