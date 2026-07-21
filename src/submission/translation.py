@@ -12,7 +12,7 @@ class SectionTranslationOptions(TranslationOptions):
 
 @register(models.Article)
 class ArticleTranslationOptions(TranslationOptions):
-    fields = ("title", "abstract")
+    fields = ("title", "abstract", "custom_how_to_cite")
 
 
 @register(models.SubmissionConfiguration)
