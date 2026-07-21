@@ -220,8 +220,7 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
         "editor_note",
         "author_note",
     )
-    raw_id_fields = ("article", "editor")
-    filter_horizontal = ("actions",)
+    raw_id_fields = ("article", "editor", "actions")
 
     inlines = [
         admin_utils.RevisionActionInline,
