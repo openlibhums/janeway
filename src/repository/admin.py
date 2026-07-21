@@ -16,6 +16,7 @@ class RepositoryAdmin(SimpleHistoryAdmin):
     list_display_links = ("short_name", "name")
     list_filter = ("live",)
     search_fields = (
+        "pk",
         "short_name",
         "name",
     )
@@ -35,6 +36,7 @@ class RepositoryRoleAdmin(admin.ModelAdmin):
     list_display = ("pk", "repository", "user", "role")
     list_filter = ("repository", "role")
     search_fields = (
+        "pk",
         "repository__name",
         "repository__short_name",
         "user__email",
@@ -62,13 +64,13 @@ class RepositoryFieldAdmin(admin.ModelAdmin):
         "display",
         "dc_metadata_type",
     )
-    search_fields = ("name", "help_text", "dc_metadata_type", "choices")
+    search_fields = ("pk", "name", "help_text", "dc_metadata_type", "choices")
 
 
 class RepositoryFieldAnswerAdmin(admin.ModelAdmin):
     list_display = ("_answer", "field", "preprint", "_repository")
     list_filter = ("field__repository__short_name", "field")
-    search_fields = ("answer", "preprint__title", "preprint__pk")
+    search_fields = ("pk", "answer", "preprint__title", "preprint__pk")
     raw_id_fields = ("field",)
 
     def _answer(self, obj):
@@ -149,6 +151,7 @@ class KeywordPreprintAdmin(admin_utils.PreprintFKModelAdmin):
     list_filter = ("preprint__repository__short_name",)
     raw_id_fields = ("keyword", "preprint")
     search_fields = (
+        "pk",
         "keyword__word",
         "preprint__pk",
         "preprint__title",
@@ -159,14 +162,14 @@ class PreprintFileAdmin(admin_utils.PreprintFKModelAdmin):
     list_display = ("_preprint", "file", "original_filename", "uploaded", "_repository")
     list_filter = ("preprint__repository__short_name", "uploaded", "mime_type")
     raw_id_fields = ("preprint",)
-    search_fields = ("preprint__pk", "preprint__title", "original_filename")
+    search_fields = ("pk", "preprint__pk", "preprint__title", "original_filename")
     date_hierarchy = "uploaded"
 
 
 class PreprintSupplementaryFileAdmin(admin_utils.PreprintFKModelAdmin):
     list_display = ("_preprint", "url", "label", "order", "_repository")
     list_filter = ("preprint__repository__short_name",)
-    search_fields = ("preprint__pk", "preprint__title", "url", "label")
+    search_fields = ("pk", "preprint__pk", "preprint__title", "url", "label")
 
 
 class PreprintAccessAdmin(admin_utils.PreprintFKModelAdmin):
@@ -180,6 +183,7 @@ class PreprintAccessAdmin(admin_utils.PreprintFKModelAdmin):
     )
     list_filter = ("preprint__repository__short_name", "accessed", "country")
     search_fields = (
+        "pk",
         "preprint__pk",
         "preprint__title",
         "identifier",
@@ -194,6 +198,7 @@ class PreprintAuthorAdmin(admin_utils.PreprintFKModelAdmin):
     list_filter = ("preprint__repository__short_name", "account", "preprint")
     raw_id_fields = ("preprint", "account")
     search_fields = (
+        "pk",
         "preprint__pk",
         "preprint__title",
         "account__email",
@@ -213,6 +218,7 @@ class PreprintVersionAdmin(admin_utils.PreprintFKModelAdmin):
     raw_id_fields = ("preprint", "file")
     date_hierarchy = "date_time"
     search_fields = (
+        "pk",
         "preprint__title",
         "title",
         "abstract",
@@ -238,6 +244,7 @@ class CommentAdmin(admin_utils.PreprintFKModelAdmin):
         "is_public",
     )
     search_fields = (
+        "pk",
         "body",
         "preprint__title",
         "author__email",
@@ -262,7 +269,7 @@ class CommentAdmin(admin_utils.PreprintFKModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "repository", "enabled", "parent")
     list_filter = ("repository__short_name", "enabled")
-    search_fields = ("name", "slug")
+    search_fields = ("pk", "name", "slug")
     raw_id_fields = ("editors",)
 
 
@@ -288,6 +295,7 @@ class VersionQueueAdmin(admin.ModelAdmin):
         "file",
     )
     search_fields = (
+        "pk",
         "preprint__title",
         "file__original_filename",
         "title",
@@ -319,6 +327,7 @@ class ReviewAdmin(admin_utils.PreprintFKModelAdmin):
     )
     raw_id_fields = ("preprint", "manager", "reviewer", "comment")
     search_fields = (
+        "pk",
         "preprint__pk",
         "preprint__title",
         "reviewer__email",
@@ -339,13 +348,17 @@ class ReviewRecommendationAdmin(admin.ModelAdmin):
     )
     list_filter = ("repository",)
     raw_id_fields = ("repository",)
-    search_fields = ("name",)
+    search_fields = (
+        "pk",
+        "name",
+    )
 
 
 class RepositoryOrganisationUnitAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "repository", "parent")
     list_filter = ("repository__short_name",)
     search_fields = (
+        "pk",
         "name",
         "code",
         "repository__name",
@@ -363,6 +376,7 @@ class RepositorySubmissionTypeAdmin(admin.ModelAdmin):
     )
     list_filter = ("repository",)
     search_fields = (
+        "pk",
         "name",
         "slug",
         "repository__name",

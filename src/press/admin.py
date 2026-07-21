@@ -13,6 +13,7 @@ from utils import admin_utils
 
 class PressAdmin(SummernoteModelAdmin):
     list_display = ("name", "domain", "theme", "is_secure")
+    search_fields = ("pk",)
     raw_id_fields = (
         "thumbnail_image",
         "carousel",
@@ -25,7 +26,7 @@ class PressAdmin(SummernoteModelAdmin):
 class PressSettingAdmin(admin.ModelAdmin):
     list_display = ("pk", "name", "is_boolean")
     list_filter = ("is_boolean",)
-    search_fields = ("name", "value")
+    search_fields = ("pk", "name", "value")
 
 
 class StaffGroupAdmin(admin.ModelAdmin):
@@ -34,6 +35,7 @@ class StaffGroupAdmin(admin.ModelAdmin):
         "sequence",
     )
     search_fields = (
+        "pk",
         "name",
         "description",
     )
@@ -56,6 +58,7 @@ class StaffGroupMemberAdmin(admin.ModelAdmin):
         "group",
     )
     search_fields = (
+        "pk",
         "user__email",
         "user__first_name",
         "user__last_name",
