@@ -37,7 +37,7 @@ class IssueAdmin(admin.ModelAdmin):
 class IssueTypeAdmin(admin.ModelAdmin):
     list_display = ("code", "pretty_name", "journal")
     list_filter = ("journal",)
-    search_fields = ("code", "pretty_name")
+    search_fields = ("pk", "code", "pretty_name")
 
 
 class IssueGalleyAdmin(admin.ModelAdmin):
@@ -64,6 +64,7 @@ class IssueEditorAdmin(admin.ModelAdmin):
         "role",
     )
     search_fields = (
+        "pk",
         "account__email",
         "account__first_name",
         "account__last_name",
@@ -91,6 +92,7 @@ class JournalAdmin(admin.ModelAdmin):
         "hide_from_press",
     )
     list_filter = ("is_remote", "is_conference", "hide_from_press")
+    search_fields = ("pk",)
     raw_id_fields = (
         "carousel",
         "current_issue",
@@ -103,14 +105,17 @@ class JournalAdmin(admin.ModelAdmin):
 class PinnedArticleAdmin(admin.ModelAdmin):
     list_display = ("article", "journal", "sequence")
     list_filter = ("journal",)
-    search_fields = ("journal__code", "article__title")
+    search_fields = ("pk", "journal__code", "article__title")
     raw_id_fields = ("article",)
 
 
 class BannedIPAdmin(admin.ModelAdmin):
     list_display = ("ip", "date_banned")
     list_filter = ("date_banned",)
-    search_fields = ("ip",)
+    search_fields = (
+        "pk",
+        "ip",
+    )
     date_hierarchy = "date_banned"
 
 
@@ -118,6 +123,7 @@ class NotificationsAdmin(admin.ModelAdmin):
     list_display = ("journal", "user", "domain", "type", "active")
     list_filter = ("journal", "domain", "type", "active")
     search_fields = (
+        "pk",
         "journal__code",
         "user__email",
         "user__first_name",
@@ -132,6 +138,7 @@ class ArticleOrderingAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("order", "_article", "_issue", "_section", "_journal")
     list_filter = ("article__journal",)
     search_fields = (
+        "pk",
         "article__title",
         "section__name",
         "issue__issue_title",
@@ -172,20 +179,21 @@ class FixedPubCheckItemsAdmin(admin_utils.ArticleFKModelAdmin):
         "select_article_image",
         "select_open_reviews",
     )
-    search_fields = ("article__pk", "article__title", "article__journal__code")
+    search_fields = ("pk", "article__pk", "article__title", "article__journal__code")
     raw_id_fields = ("article",)
 
 
 class PresetPublicationCheckItemAdmin(admin.ModelAdmin):
     list_display = ("journal", "title", "enabled")
     list_filter = ("journal", "enabled")
-    search_fields = ("journal__code", "title", "text")
+    search_fields = ("pk", "journal__code", "title", "text")
 
 
 class PrePublicationChecklistItemAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("_article", "_journal", "completed", "completed_by", "completed_on")
     list_filter = ("article__journal", "completed", "completed_on")
     search_fields = (
+        "pk",
         "article__title",
         "article__journal__code",
         "completed_by__email",
@@ -204,6 +212,7 @@ class SectionOrderingAdmin(admin.ModelAdmin):
     list_display_links = ("_section",)
     list_filter = ("issue__journal",)
     search_fields = (
+        "pk",
         "section__name",
         "issue__issue_title",
         "issue__journal__code",

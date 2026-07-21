@@ -19,7 +19,7 @@ class LicenseChoiceField(forms.ModelChoiceField):
 class ArticleFundingAdmin(admin.ModelAdmin):
     list_display = ("name", "article", "fundref_id", "funding_id")
     list_filter = ("article__journal",)
-    search_fields = ("name", "fundref_id", "funding_id")
+    search_fields = ("pk", "name", "fundref_id", "funding_id")
     raw_id_fields = ("article",)
 
 
@@ -35,6 +35,7 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     )
     list_filter = ("article__journal",)
     search_fields = (
+        "pk",
         "frozen_email",
         "frozen_orcid",
         "first_name",
@@ -128,7 +129,7 @@ class ArticleAdmin(admin_utils.JanewayModelAdmin):
 class ArticleLogAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("_article", "_journal", "stage_from", "stage_to", "date_time")
     list_filter = ("article__journal", "stage_from", "stage_to")
-    search_fields = ("article__pk", "article__title", "stage_from", "stage_to")
+    search_fields = ("pk", "article__pk", "article__title", "stage_from", "stage_to")
     date_hierarchy = "date_time"
     readonly_fields = ("date_time",)
 
@@ -140,6 +141,7 @@ class CreditRecordAdmin(admin.ModelAdmin):
     list_display = ("role", "_article", "frozen_author")
     list_filter = ("frozen_author__article__journal", "role")
     search_fields = (
+        "pk",
         "role",
         "frozen_author__article__title",
         "frozen_author__first_name",
@@ -169,7 +171,7 @@ class CreditRecordAdmin(admin.ModelAdmin):
 class LicenseAdmin(admin.ModelAdmin):
     list_display = ("name", "short_name", "journal", "url", "_text")
     list_filter = ("journal", "short_name", "url")
-    search_fields = ("name", "short_name", "url", "text")
+    search_fields = ("pk", "name", "short_name", "url", "text")
 
     def _text(self, obj):
         return truncatewords_html(obj.text, 8) if obj else ""
@@ -184,6 +186,7 @@ class NoteAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = ("article", "creator")
     date_hierarchy = "date_time"
     search_fields = (
+        "pk",
         "text",
         "article__pk",
         "article__title",
@@ -205,6 +208,7 @@ class PublisherNoteAdmin(admin.ModelAdmin):
     list_filter = ("date_time",)
     date_hierarchy = "date_time"
     search_fields = (
+        "pk",
         "text",
         "creator__email",
         "creator__first_name",
@@ -219,7 +223,10 @@ class PublisherNoteAdmin(admin.ModelAdmin):
 class KeywordAdmin(admin.ModelAdmin):
     list_display = ("word",)
     list_filter = ("keywordarticle__article__journal",)
-    search_fields = ("word",)
+    search_fields = (
+        "pk",
+        "word",
+    )
 
     inlines = [
         admin_utils.KeywordArticleInline,
@@ -237,7 +244,10 @@ class SectionAdmin(admin.ModelAdmin):
         "indexing",
     )
     list_filter = ("journal", "is_filterable", "public_submissions", "indexing")
-    search_fields = ("name",)
+    search_fields = (
+        "pk",
+        "name",
+    )
     raw_id_fields = ("editors", "section_editors")
 
     @staticmethod
@@ -248,13 +258,13 @@ class SectionAdmin(admin.ModelAdmin):
 class FieldAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "press", "kind", "width", "required", "display")
     list_filter = ("journal", "press", "kind", "width", "required", "display")
-    search_fields = ("name", "help_text", "choices")
+    search_fields = ("pk", "name", "help_text", "choices")
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("field", "_answer", "_article", "_journal")
     list_filter = ("article__journal",)
-    search_fields = ("field__name", "article__pk", "article__title", "answer")
+    search_fields = ("pk", "field__name", "article__pk", "article__title", "answer")
 
     def _answer(self, obj):
         return truncatewords_html(obj.answer, 10) if obj else ""
@@ -278,6 +288,7 @@ class SubmissionConfigAdmin(admin.ModelAdmin):
         "default_section",
         "submission_file_text",
     )
+    search_fields = ("pk",)
     raw_id_fields = ("default_license", "default_section")
 
 

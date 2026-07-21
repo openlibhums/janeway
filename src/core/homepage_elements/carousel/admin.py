@@ -14,6 +14,7 @@ class CarouselAdmin(admin.ModelAdmin):
         "press",
     )
     list_filter = ("journal", "press", "mode", "exclude")
+    search_fields = ("pk",)
     filter_horizontal = (
         "articles",
         "news_articles",

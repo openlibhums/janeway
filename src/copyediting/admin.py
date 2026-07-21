@@ -29,6 +29,7 @@ class CopyeditAdmin(admin_utils.ArticleFKModelAdmin):
         "decision",
     )
     search_fields = (
+        "pk",
         "article__title",
         "copyeditor__first_name",
         "copyeditor__last_name",
@@ -60,6 +61,7 @@ class AuthorAdmin(admin.ModelAdmin):
         "decision",
     )
     search_fields = (
+        "pk",
         "assignment__article__title",
         "author__first_name",
         "author__last_name",

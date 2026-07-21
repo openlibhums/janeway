@@ -19,6 +19,7 @@ class AccountRoleAdmin(admin.ModelAdmin):
     list_display = ("user", "role", "journal")
     list_filter = ("journal", "role")
     search_fields = (
+        "pk",
         "user__first_name",
         "user__last_name",
         "user__email",
@@ -35,7 +36,7 @@ class SettingAdmin(admin.ModelAdmin):
 
     list_display = ("pk", "name", "pretty_name", "group", "types", "is_translatable")
     list_filter = ("group", "types", "is_translatable")
-    search_fields = ("name", "pretty_name", "description")
+    search_fields = ("pk", "name", "pretty_name", "description")
     list_display_links = (
         "name",
         "pretty_name",
@@ -155,6 +156,7 @@ class RoleAdmin(admin.ModelAdmin):
 
     list_display = ("slug", "name")
     search_fields = (
+        "pk",
         "slug",
         "name",
     )
@@ -165,6 +167,7 @@ class PasswordResetAdmin(admin.ModelAdmin):
 
     list_display = ("account", "expiry", "expired")
     search_fields = (
+        "pk",
         "account__first_name",
         "account__last_name",
         "account__orcid",
@@ -182,6 +185,7 @@ class SettingValueAdmin(admin.ModelAdmin):
         "setting__types",
     )
     search_fields = (
+        "pk",
         "setting__name",
         "setting__pretty_name",
         "setting__group__name",
@@ -203,7 +207,7 @@ class SettingValueAdmin(admin.ModelAdmin):
 
 class CountryAdmin(admin.ModelAdmin):
     list_display = ("code", "name")
-    search_fields = ("code", "name")
+    search_fields = ("pk", "code", "name")
 
 
 class HomepageElementAdmin(admin.ModelAdmin):
@@ -228,7 +232,10 @@ class HomepageElementAdmin(admin.ModelAdmin):
         "configure_url",
         "template_path",
     )
-    search_fields = ("name",)
+    search_fields = (
+        "pk",
+        "name",
+    )
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -252,6 +259,7 @@ class FileAdmin(admin.ModelAdmin):
         "is_galley",
     )
     search_fields = (
+        "pk",
         "original_filename",
         "article_id",
         "label",
@@ -290,6 +298,7 @@ class FileHistoryAdmin(admin.ModelAdmin):
     )
     list_filter = ("mime_type",)
     search_fields = (
+        "pk",
         "original_filename",
         "article_id",
         "label",
@@ -313,7 +322,7 @@ class XSLFileAdmin(admin.ModelAdmin):
         "_comments",
     )
     list_filter = ("journal", "date_uploaded", "label")
-    search_fields = ("label", "original_filename", "comments")
+    search_fields = ("pk", "label", "original_filename", "comments")
     date_hierarchy = "date_uploaded"
 
     def _comments(self, obj):
@@ -336,7 +345,7 @@ class SupplementaryFileAdmin(admin.ModelAdmin):
         "file__last_modified",
         "file__mime_type",
     )
-    search_fields = ("file__label", "doi", "file__original_filename")
+    search_fields = ("pk", "file__label", "doi", "file__original_filename")
 
     def _date_uploaded(self, obj):
         return obj.file.date_uploaded if obj else ""
@@ -414,6 +423,7 @@ class TaskCompleteEventsAdmin(admin.ModelAdmin):
         "pk",
         "event_name",
     )
+    search_fields = ("pk",)
     list_display_links = (
         "pk",
         "event_name",
@@ -422,6 +432,7 @@ class TaskCompleteEventsAdmin(admin.ModelAdmin):
 
 class WorkflowAdmin(admin.ModelAdmin):
     list_display = ("journal",)
+    search_fields = ("pk",)
     raw_id_fields = ("elements",)
 
 
@@ -435,7 +446,7 @@ class WorkflowElementAdmin(admin.ModelAdmin):
         "order",
     )
     list_filter = ("journal", "element_name", "stage")
-    search_fields = ("journal__code", "element_name", "stage")
+    search_fields = ("pk", "journal__code", "element_name", "stage")
 
 
 class WorkflowLogAdmin(admin_utils.ArticleFKModelAdmin):
@@ -453,6 +464,7 @@ class WorkflowLogAdmin(admin_utils.ArticleFKModelAdmin):
         "timestamp",
     )
     search_fields = (
+        "pk",
         "article__title",
         "element__element_name",
         "element__stage",
@@ -471,14 +483,20 @@ class WorkflowLogAdmin(admin_utils.ArticleFKModelAdmin):
 class OrcidTokenAdmin(admin.ModelAdmin):
     list_display = ("token", "orcid", "expiry")
     list_filter = ("expiry",)
-    search_fields = ("orcid",)
+    search_fields = (
+        "pk",
+        "orcid",
+    )
     date_hierarchy = "expiry"
 
 
 class SettingGroupAdmin(admin.ModelAdmin):
     list_display = ("pk", "name", "enabled")
     list_filter = ("enabled",)
-    search_fields = ("name",)
+    search_fields = (
+        "pk",
+        "name",
+    )
     list_display_links = ("name",)
 
 
@@ -501,6 +519,7 @@ class GalleyAdmin(admin.ModelAdmin):
         "public",
     )
     search_fields = (
+        "pk",
         "label",
         "article__title",
         "file__original_filename",
@@ -536,7 +555,10 @@ class GalleyAdmin(admin.ModelAdmin):
 class EditorialGroupAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "press", "sequence", "display_profile_images")
     list_filter = ("journal", "press")
-    search_fields = ("name",)
+    search_fields = (
+        "pk",
+        "name",
+    )
 
     inlines = [admin_utils.EditorialGroupMemberInline]
 
@@ -564,7 +586,7 @@ class ContactsAdmin(admin.ModelAdmin):
         admin_utils.GenericRelationJournalFilter,
         admin_utils.GenericRelationPressFilter,
     )
-    search_fields = ("name", "email", "role")
+    search_fields = ("pk", "name", "email", "role")
 
 
 class ContactAdmin(admin.ModelAdmin):
@@ -583,6 +605,7 @@ class ContactAdmin(admin.ModelAdmin):
         "recipient",
     )
     search_fields = (
+        "pk",
         "subject",
         "sender",
         "recipient",
@@ -593,13 +616,17 @@ class ContactAdmin(admin.ModelAdmin):
 class DomainAliasAdmin(admin.ModelAdmin):
     list_display = ("domain", "redirect", "site_object", "redirect_url")
     list_filter = ("journal", "press")
-    search_fields = ("domain",)
+    search_fields = (
+        "pk",
+        "domain",
+    )
 
 
 class LoginAttemptAdmin(admin.ModelAdmin):
     list_display = ("ip_address", "user_agent", "timestamp")
     list_filter = ("timestamp",)
     search_fields = (
+        "pk",
         "ip_address",
         "user_agent",
     )
@@ -610,6 +637,7 @@ class AccessRequestAdmin(admin.ModelAdmin):
     list_display = ("user", "journal", "repository", "role", "requested", "processed")
     list_filter = ("journal", "repository", "role", "processed")
     search_fields = (
+        "pk",
         "user__first_name",
         "user__last_name",
         "user__email",
@@ -747,6 +775,7 @@ class AltTextAdmin(admin.ModelAdmin):
         "updated",
     )
     search_fields = (
+        "pk",
         "alt_text",
         "file_path",
     )

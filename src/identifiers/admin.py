@@ -20,6 +20,7 @@ class BrokenDOIAdmin(admin.ModelAdmin):
     list_filter = ("identifier__article__journal", "checked")
     raw_id_fields = ("article", "identifier")
     search_fields = (
+        "pk",
         "identifier__identifier",
         "identifier__article__pk",
         "identifier__article__title",

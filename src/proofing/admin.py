@@ -17,12 +17,14 @@ class ProofingAssignmentAdmin(admin.ModelAdmin):
         "completed",
     )
     list_filter = ("proofing_manager", "editor")
+    search_fields = ("pk",)
     raw_id_fields = ("article", "proofing_manager", "editor")
 
 
 class ProofingRound(admin.ModelAdmin):
     list_display = ("pk", "assignment", "number", "date_started")
     list_filter = ("assignment",)
+    search_fields = ("pk",)
     raw_id_fields = ("assignment",)
 
 
@@ -38,6 +40,7 @@ class ProofingTaskAdmin(admin.ModelAdmin):
         "cancelled",
     )
     list_filter = ("round", "proofreader")
+    search_fields = ("pk",)
     raw_id_fields = ("round", "proofreader")
     filter_horizontal = ("galleys_for_proofing", "notes")
 
@@ -53,6 +56,7 @@ class CorrectionTaskAdmin(admin.ModelAdmin):
         "completed",
     )
     list_filter = ("proofing_task", "typesetter")
+    search_fields = ("pk",)
     raw_id_fields = ("proofing_task", "typesetter")
     filter_horizontal = ("galleys",)
 
@@ -60,7 +64,10 @@ class CorrectionTaskAdmin(admin.ModelAdmin):
 class NoteAdmin(admin.ModelAdmin):
     list_display = ("pk", "galley", "creator", "date_time")
     list_filter = ("galley", "creator")
-    search_fields = ("text",)
+    search_fields = (
+        "pk",
+        "text",
+    )
     raw_id_fields = ("galley", "creator")
 
 

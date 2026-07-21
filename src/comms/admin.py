@@ -11,7 +11,10 @@ from simple_history.admin import SimpleHistoryAdmin
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ("text", "_count")
-    search_fields = ("text",)
+    search_fields = (
+        "pk",
+        "text",
+    )
 
     def _count(self, obj):
         return obj.tags.count()
@@ -38,6 +41,7 @@ class NewsItemAdmin(SimpleHistoryAdmin):
         "end_display",
     )
     search_fields = (
+        "pk",
         "title",
         "body",
         "tags__text",

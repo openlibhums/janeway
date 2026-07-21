@@ -16,6 +16,7 @@ class TypesettingClaimAdmin(utils_admin_utils.ArticleFKModelAdmin):
     list_filter = ("article__journal", "claimed")
     date_hierarchy = "claimed"
     search_fields = (
+        "pk",
         "editor__email",
         "editor__first_name",
         "editor__last_name",
@@ -28,7 +29,7 @@ class TypesettingClaimAdmin(utils_admin_utils.ArticleFKModelAdmin):
 class TypesettingRoundAdmin(utils_admin_utils.ArticleFKModelAdmin):
     list_display = ("_article", "_journal", "round_number", "date_created")
     list_filter = ("article__journal", "round_number", "date_created")
-    search_fields = ("article__pk", "article__title")
+    search_fields = ("pk", "article__pk", "article__title")
     raw_id_fields = ("article",)
     date_hierarchy = "date_created"
 
@@ -60,6 +61,7 @@ class TypesettingAssignmentAdmin(admin.ModelAdmin):
         "galleys_created",
     )
     search_fields = (
+        "pk",
         "round__article__pk",
         "round__article__title",
         "typesetter__email",
@@ -106,6 +108,7 @@ class GalleyProofingAdmin(admin.ModelAdmin):
         "annotated_files",
     )
     search_fields = (
+        "pk",
         "round__article__pk",
         "round__article__title",
         "proofreader__email",
@@ -148,6 +151,7 @@ class TypesettingCorrectionAdmin(admin.ModelAdmin):
         "task",
     )
     search_fields = (
+        "pk",
         "task__round__article__pk",
         "task__round__article__title",
         "task__manager__email",
