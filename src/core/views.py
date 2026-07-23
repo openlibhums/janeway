@@ -10,6 +10,7 @@ from urllib.parse import unquote, urlencode
 import pytz
 import time
 import warnings
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -240,6 +241,7 @@ def user_login_orcid(request):
     elif action == "add_profile_orcid":
         return orcid_add_action(request, orcid_id, next_url, access_token, expiration)
 
+
 def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
     # if we have exactly one account with this orcid do the login
@@ -273,9 +275,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
             # if there are no accounts with this orcid
             # look for an account with emails reported by orcid
             for e in emails:
-                email_accounts = models.Account.objects.filter(
-                    email=e, is_active=True
-                )
+                email_accounts = models.Account.objects.filter(email=e, is_active=True)
                 if email_accounts.exists():
                     user = email_accounts.first()
                     break
@@ -306,6 +306,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
         )
     )
 
+
 def orcid_register_action(request, orcid_id, next_url):
     models.OrcidToken.objects.filter(orcid=orcid_id).delete()
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
@@ -331,6 +332,7 @@ def orcid_register_action(request, orcid_id, next_url):
                 kwargs={"orcid_token": str(new_token.token)},
             )
         )
+
 
 def orcid_add_action(request, orcid_id, next_url, access_token, expiration):
     if not request.user.is_authenticated:
@@ -378,12 +380,19 @@ def request_orcid(request, account_id):
         core_models.Account,
         pk=account_id,
     )
-    logic.send_orcid_request(request, user)
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        f"Successfully requested ORCID iD from {user.full_name()}",
-    )
+    delay = getattr(django_settings, "ORCID_REQUEST_DELAY", 7)
+    if (
+        not user.date_orcid_requested is None
+        and timezone.now() - user.date_orcid_requested < timedelta(days=delay)
+    ):
+        messages.warning(request, "An ORCID request has been sent recently.")
+    else:
+        logic.send_orcid_request(request, user)
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f"Successfully requested ORCID iD from {user.full_name()}",
+        )
 
     next_url = request.GET.get("next", "")
     return redirect(next_url)
