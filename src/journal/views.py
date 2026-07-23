@@ -2197,9 +2197,11 @@ def accessibility(request):
             theme_lower = theme.lower()
             journal_themes[theme_lower] = {"has_vpat": theme_lower in vpat_data}
 
-        # Check all themes used by repositories belonging to this press
+        # Check all themes used by live repositories belonging to this press
         repository_themes_in_use = set(
-            Repository.objects.filter(press=press).values_list("theme", flat=True)
+            Repository.objects.filter(press=press, live=True).values_list(
+                "theme", flat=True
+            )
         )
         for theme in repository_themes_in_use:
             theme_lower = theme.lower()
