@@ -18,7 +18,7 @@
                     {% include "common/elements/a11y/janeway.html" %}
 
                     {% if not other_themes_in_use or other_themes_in_use|length == 1 and 'olh' in other_themes_in_use %}
-                        <h3>VPAT</h3>
+                        <h3 lang="en">VPAT</h3>
                             {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="olh" %}
                     {% else %}
                         <p>
