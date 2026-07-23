@@ -12,6 +12,7 @@
             <div class="{% if page.display_toc %}border-right medium-8 small-12{% else %}medium-12{% endif %} columns">
                 <div id="main_article" class="text-format-region">
                     <h1 id="cms-title">{% trans "Accessibility" %}</h1>
+                    {% include "common/elements/a11y/a11y_options.html" %}
                     {% include "common/elements/a11y/press.html" %}
                     {% include "common/elements/a11y/journal.html" %}
                     {% include "common/elements/a11y/janeway.html" %}
