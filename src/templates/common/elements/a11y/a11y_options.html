@@ -1,0 +1,28 @@
+{% load i18n %}
+<h2>{% trans 'Reading Options' %}</h2>
+    <p>
+        {% blocktrans %}
+            The Reading Options bar lets you customise how text is displayed. It is available on text-heavy pages
+            and targets large areas of text, such as journal articles, rather than surrounding page elements,
+            so the reading area stays focused.
+        {% endblocktrans %}
+    </p>
+
+<h2>{% trans 'Accessibility Mode' %}</h2>
+    <p>
+        {% blocktrans %}
+            Accessibility Mode is a user-enabled theme built from the ground up to be accessible. The current
+            themes are built on older technologies, and it is not possible to make them fully accessible without
+            substantial changes. It will take time to move all existing presses onto the new accessible theme,
+            so in the short term we are offering Accessibility Mode for any user who needs those features.
+        {% endblocktrans %}
+    </p>
+
+    <p>
+        {% blocktrans %}
+            If you are logged in, your preferences for both the Reading Options bar and Accessibility Mode are
+            saved to your account and applied on every visit. If you are not logged in, preferences are stored
+            for your current session and may need to be re-entered if your session expires, you clear cookies,
+            or you switch devices.
+        {% endblocktrans %}
+    </p>
