@@ -2307,6 +2307,10 @@ def do_revisions(request, article_id, revision_id):
         if "delete" in request.POST:
             file_id = request.POST.get("delete")
             file = get_object_or_404(core_models.File, pk=file_id)
+            if file not in revision_files:
+                raise PermissionDenied(
+                    "You do not have permission to delete this file."
+                )
             files.delete_file(revision_request.article, file)
             logic.log_revision_event(
                 "File {0} ({1}) deleted.".format(file.id, file.original_filename),
