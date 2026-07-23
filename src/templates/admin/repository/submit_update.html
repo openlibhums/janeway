@@ -1,6 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load i18n %}
 {% load foundation %}
+{% load field %}
 
 {% block title %}{{ preprint.title|striptags }}{% endblock %}
 {% block title-section %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
@@ -25,7 +26,15 @@
                         {% csrf_token %}
                         {% include "admin/elements/forms/errors.html" with form=version_form %}
                         {% include "admin/elements/forms/errors.html" with form=file_form %}
-                        {{ version_form|foundation }}
+                        {% if version_form.language_field_names %}
+                            {% for field_name in version_form.language_field_names %}
+                                {% get_form_field version_form field_name as lang_field %}
+                                {{ lang_field|foundation }}
+                            {% endfor %}
+                            {{ version_form.published_doi|foundation }}
+                        {% else %}
+                            {{ version_form|foundation }}
+                        {% endif %}
                         {% if file_form %}
                         {{ file_form|foundation }}
                         {% endif %}

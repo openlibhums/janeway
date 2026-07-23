@@ -131,6 +131,12 @@
 
                 </ul>
                 </div>
+            {% elif request.repository.languages|length > 1 %}
+                <div class="top-bar-left">
+                <ul class="menu language-menu">
+                    {% include "elements/repository/language_switcher_buttons.html" %}
+                </ul>
+                </div>
             {% endif %}
             <div class="top-bar-right border-left hide-for-small-only">
                 <ul class="dropdown menu" data-dropdown-menu>

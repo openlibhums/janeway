@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% if request.repository.languages|length > 1 %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% get_available_languages as LANGUAGES %}
+    <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.path }}" />
+        <select name="language" onchange="this.form.submit()" aria-label="{% trans 'Select language' %}">
+            {% for lang_code, lang_name in LANGUAGES %}
+                {% if lang_code in request.available_languages %}
+                <option value="{{ lang_code }}"{% if lang_code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ lang_name }} ({{ lang_code }})
+                </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <button type="submit">{% trans 'Change language' %}</button>
+    </form>
+{% endif %}
