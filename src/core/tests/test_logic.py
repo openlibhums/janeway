@@ -6,6 +6,7 @@ __maintainer__ = "Open Library of Humanities"
 import uuid
 from mock import patch
 
+from django.http import QueryDict
 from django.shortcuts import reverse
 from django.test import TestCase, override_settings
 
@@ -70,6 +71,33 @@ class TestLogic(TestCase):
             },
         )
         self.assertIn("important=stuff", reversed_url)
+
+    def test_redirect_to_return_url_with_safe_url(self):
+        query = QueryDict(mutable=True)
+        query["return"] = self.next_url_raw
+        self.request.GET = query
+        response = logic.redirect_to_return_url(self.request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], self.next_url_raw)
+
+    def test_redirect_to_return_url_without_param(self):
+        self.request.GET = QueryDict()
+        response = logic.redirect_to_return_url(self.request)
+        self.assertEqual(response["Location"], reverse("core_dashboard"))
+
+    def test_redirect_to_return_url_with_other_host(self):
+        query = QueryDict(mutable=True)
+        query["return"] = "https://malicious.example.com/target/"
+        self.request.GET = query
+        response = logic.redirect_to_return_url(self.request)
+        self.assertEqual(response["Location"], reverse("core_dashboard"))
+
+    def test_redirect_to_return_url_with_protocol_relative_url(self):
+        query = QueryDict(mutable=True)
+        query["return"] = "//malicious.example.com/target/"
+        self.request.GET = query
+        response = logic.redirect_to_return_url(self.request)
+        self.assertEqual(response["Location"], reverse("core_dashboard"))
 
     def test_get_confirm_account_url(self):
         url = logic.get_confirm_account_url(
