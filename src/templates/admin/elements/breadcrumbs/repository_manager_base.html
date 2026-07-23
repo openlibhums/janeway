@@ -1,0 +1,6 @@
+{% if request.user.is_staff %}<li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>{% endif %}
+{% if terminal %}
+<li>{{ request.repository.object_name|capfirst }} Manager</li>
+{% else %}
+<li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
+{% endif %}
