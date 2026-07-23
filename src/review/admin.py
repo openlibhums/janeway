@@ -21,6 +21,7 @@ class EditorialAdmin(admin_utils.ArticleFKModelAdmin):
     )
     list_filter = ("article__journal", "editor_type", "assigned", "notified")
     search_fields = (
+        "pk",
         "article__pk",
         "article__title",
         "article__journal__code",
@@ -35,7 +36,7 @@ class EditorialAdmin(admin_utils.ArticleFKModelAdmin):
 class ReviewRoundAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("pk", "_article", "round_number", "date_started", "_journal")
     list_filter = ("article__journal", "round_number", "date_started")
-    search_fields = ("article__pk", "article__title", "article__journal__code")
+    search_fields = ("pk", "article__pk", "article__title", "article__journal__code")
     raw_id_fields = (
         "article",
         "review_files",
@@ -68,6 +69,7 @@ class ReviewAdmin(admin_utils.ArticleFKModelAdmin):
         "date_due",
     )
     search_fields = (
+        "pk",
         "article__pk",
         "article__title",
         "article__journal__code",
@@ -101,19 +103,19 @@ class ReviewFormAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "deleted")
     list_filter = ("journal", "deleted")
     filter_horizontal = ("elements",)
-    search_fields = ("name", "journal__code", "intro", "thanks")
+    search_fields = ("pk", "name", "journal__code", "intro", "thanks")
 
 
 class ElementAdmin(admin.ModelAdmin):
     list_display = ("name", "kind", "required", "order")
     list_filter = ("kind", "required")
-    search_fields = ("name", "help_text")
+    search_fields = ("pk", "name", "help_text")
 
 
 class FrozenReviewFormElementAdmin(admin.ModelAdmin):
     list_display = ("name", "kind", "required", "order")
     list_filter = ("kind", "required")
-    search_fields = ("name", "help_text")
+    search_fields = ("pk", "name", "help_text")
     raw_id_fields = (
         "form_element",
         "answer",
@@ -136,6 +138,7 @@ class AnswerAdmin(admin.ModelAdmin):
         "assignment__date_due",
     )
     search_fields = (
+        "pk",
         "assignment__article__pk",
         "assignment__article__title",
         "assignment__reviewer__email",
@@ -157,6 +160,7 @@ class RatingAdmin(admin.ModelAdmin):
     list_display = ("pk", "_reviewer", "rating", "rater", "_journal", "_assignment")
     list_filter = ("assignment__article__journal", "rating")
     search_fields = (
+        "pk",
         "assignment__article__pk",
         "assignment__article__title",
         "assignment__reviewer__email",
@@ -182,7 +186,7 @@ class RatingAdmin(admin.ModelAdmin):
 class RevisionActionAdmin(admin.ModelAdmin):
     list_display = ("pk", "logged", "user", "_action_text")
     raw_id_fields = ("user",)
-    search_fields = ("user__email", "user__first_name", "user__last_name", "text")
+    search_fields = ("pk", "user__email", "user__first_name", "user__last_name", "text")
     date_hierarchy = "logged"
 
     def _action_text(self, obj):
@@ -208,6 +212,7 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
         "date_due",
     )
     search_fields = (
+        "pk",
         "article__pk",
         "article__title",
         "article__journal__code",
@@ -220,8 +225,7 @@ class RevisionAdmin(admin_utils.ArticleFKModelAdmin):
         "editor_note",
         "author_note",
     )
-    raw_id_fields = ("article", "editor")
-    filter_horizontal = ("actions",)
+    raw_id_fields = ("article", "editor", "actions")
 
     inlines = [
         admin_utils.RevisionActionInline,
@@ -238,6 +242,7 @@ class EditorOverrideAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("pk", "_article", "_journal", "editor", "overwritten")
     list_filter = ("article__journal", "overwritten")
     search_fields = (
+        "pk",
         "article__pk",
         "article__title",
         "article__journal__code",
@@ -270,6 +275,7 @@ class DraftAdmin(admin_utils.ArticleFKModelAdmin):
         "revision_request_due_date",
     )
     search_fields = (
+        "pk",
         "article__pk",
         "article__title",
         "article__journal__code",

@@ -18,6 +18,7 @@ class ProductionAssignmentAdmin(admin.ModelAdmin):
         "accepted_by_manager",
     )
     list_filter = ("article", "production_manager", "editor")
+    search_fields = ("pk",)
     raw_id_fields = ("article", "production_manager", "editor", "accepted_by_manager")
 
 
@@ -33,6 +34,7 @@ class TypesetTaskAdmin(admin.ModelAdmin):
         "editor_reviewed",
     )
     list_filter = ("assignment", "typesetter", "notified", "editor_reviewed")
+    search_fields = ("pk",)
     raw_id_fields = ("assignment", "typesetter")
     filter_horizontal = ("files_for_typesetting", "galleys_loaded")
 

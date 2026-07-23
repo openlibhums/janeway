@@ -26,7 +26,7 @@ class NavigationItemAdmin(admin.ModelAdmin):
         "top_level_nav",
         "has_sub_nav",
     )
-    search_fields = ("link_name", "link")
+    search_fields = ("pk", "link_name", "link")
     raw_id_fields = ("page", "top_level_nav")
 
 
@@ -38,21 +38,21 @@ class PageAdmin(SimpleHistoryAdmin):
         "edited",
     )
     date_hierarchy = "edited"
-    search_fields = ("display_name", "name", "content", "template")
+    search_fields = ("pk", "display_name", "name", "content", "template")
 
 
 class SubmissionItemAdmin(admin.ModelAdmin):
     list_display = ("title", "journal", "order")
     list_filter = ("journal",)
     raw_id_fields = ("journal", "existing_setting")
-    search_fields = ("title", "journal__code", "text")
+    search_fields = ("pk", "title", "journal__code", "text")
 
 
 class MediaFileAdmin(admin.ModelAdmin):
     list_display = ("label", "journal", "uploaded", "file")
     list_filter = ("journal", "uploaded")
     date_hierarchy = "uploaded"
-    search_fields = ("label", "file")
+    search_fields = ("pk", "label", "file")
 
 
 admin_list = [

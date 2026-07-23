@@ -20,6 +20,7 @@ class CronTaskAdmin(admin.ModelAdmin):
         "run_at",
     )
     search_fields = (
+        "pk",
         "article__title",
         "email_to",
         "email_cc",
@@ -33,7 +34,7 @@ class CronTaskAdmin(admin.ModelAdmin):
 class SentReminderAdmin(admin.ModelAdmin):
     list_display = ("type", "_object", "sent")
     list_filter = (admin_utils.SentReminderJournalFilter, "type", "sent")
-    search_fields = ("type", "object_id")
+    search_fields = ("pk", "type", "object_id")
     date_hierarchy = "sent"
     readonly_fields = ("_object",)
 
@@ -61,7 +62,7 @@ class ReminderAdmin(admin.ModelAdmin):
         "journal",
     )
     list_filter = ("journal__code", "type", "run_type", "days", "template_name")
-    search_fields = ("journal__code", "type", "run_type", "template_name")
+    search_fields = ("pk", "journal__code", "type", "run_type", "template_name")
 
 
 admin_list = [

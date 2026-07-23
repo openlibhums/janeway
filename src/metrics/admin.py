@@ -45,6 +45,7 @@ class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
         "galley_type",
     )
     search_fields = (
+        "pk",
         "article__title",
         "article__pk",
         "identifier",
@@ -66,13 +67,14 @@ class ArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
 class HistoricArticleAccessAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("_article", "views", "downloads", "_journal")
     list_filter = ("article__journal",)
+    search_fields = ("pk",)
     raw_id_fields = ("article",)
 
 
 class AltMetricAdmin(admin_utils.ArticleFKModelAdmin):
     list_display = ("_article", "source", "pid", "_journal")
     list_filter = ("article__journal", "source", "timestamp")
-    search_fields = ("article__title", "article__pk", "source", "pid")
+    search_fields = ("pk", "article__title", "article__pk", "source", "pid")
     date_hierarchy = "timestamp"
     raw_id_fields = ("article",)
 
@@ -85,6 +87,7 @@ class ArticleLinkAdmin(admin_utils.ArticleFKModelAdmin):
         "year",
     )
     search_fields = (
+        "pk",
         "article__title",
         "article__pk",
         "doi",
@@ -110,6 +113,7 @@ class BookLinkAdmin(admin_utils.ArticleFKModelAdmin):
         "year",
     )
     search_fields = (
+        "pk",
         "article__title",
         "article__pk",
         "doi",

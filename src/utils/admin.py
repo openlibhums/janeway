@@ -12,7 +12,7 @@ from utils import models
 class ImportCacheAdmin(admin.ModelAdmin):
     list_display = ("url", "mime_type", "date_time")
     list_filter = ("mime_type",)
-    search_fields = ("url", "on_disk")
+    search_fields = ("pk", "url", "on_disk")
     date_hierarchy = "date_time"
 
 
@@ -33,7 +33,7 @@ class PluginAdmin(admin.ModelAdmin):
         "enabled",
         "press_wide",
     )
-    search_fields = ("name", "display_name")
+    search_fields = ("pk", "name", "display_name")
     date_hierarchy = "date_installed"
 
 
@@ -58,6 +58,7 @@ class LogAdmin(admin.ModelAdmin):
         "addressee__field",
     )
     search_fields = (
+        "pk",
         "types",
         "email_subject",
         "actor__email",
@@ -82,7 +83,10 @@ class LogAdmin(admin.ModelAdmin):
 class VersionAdmin(admin.ModelAdmin):
     list_display = ("number", "date", "rollback")
     list_filter = ("number", "date", "rollback")
-    search_fields = ("number",)
+    search_fields = (
+        "pk",
+        "number",
+    )
     date_hierarchy = "date"
 
 
@@ -90,6 +94,7 @@ class RORImportAdmin(admin.ModelAdmin):
     list_display = ("pk", "status", "started", "stopped")
     list_filter = ("status", "started", "stopped")
     search_fields = (
+        "pk",
         "rorimporterror__message",
         "records",
     )
@@ -102,7 +107,10 @@ class RORImportAdmin(admin.ModelAdmin):
 
 class RORImportErrorAdmin(admin.ModelAdmin):
     list_display = ("pk", "_first_line")
-    search_fields = ("message",)
+    search_fields = (
+        "pk",
+        "message",
+    )
     date_hierarchy = "ror_import__started"
     raw_id_fields = ("ror_import",)
 
