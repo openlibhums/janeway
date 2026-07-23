@@ -278,7 +278,9 @@ class TestAccount(TestCase):
         account = helpers.create_author(self.journal_one)
         account.orcid = "0000-0000-0000-0000"
         account.orcid_token = "token"
-        account.orcid_token_expiration = timezone.make_aware(timezone.datetime(2050, 1, 1, 0, 0, 0))
+        account.orcid_token_expiration = timezone.make_aware(
+            timezone.datetime(2050, 1, 1, 0, 0, 0)
+        )
         account.save()
 
         mock_method.return_value = Response()
@@ -294,7 +296,9 @@ class TestAccount(TestCase):
         account = helpers.create_author(self.journal_one)
         account.orcid = "0000-0000-0000-0000"
         account.orcid_token = "token"
-        account.orcid_token_expiration = timezone.make_aware(timezone.datetime(2050, 1, 1, 0, 0, 0))
+        account.orcid_token_expiration = timezone.make_aware(
+            timezone.datetime(2050, 1, 1, 0, 0, 0)
+        )
         account.save()
 
         mock_method.return_value = Response()

@@ -272,6 +272,9 @@ class EditAccountForm(forms.ModelForm):
             "password",
             "is_superuser",
             "enable_digest",
+            "orcid_token",
+            "orcid_token_expiration",
+            "date_orcid_requested",
         )
         widgets = {
             "biography": TinyMCE,
@@ -283,7 +286,7 @@ class EditAccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if django_settings.ENABLE_ORCID:
-            self.fields["orcid"].widget = forms.HiddenInput()
+            self.fields.pop("orcid", None)
 
     def save(self, commit=True):
         user = super(EditAccountForm, self).save(commit=False)

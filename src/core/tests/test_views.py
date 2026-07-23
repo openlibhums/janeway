@@ -486,7 +486,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         retrieve_tokens.return_value = "", "", self.user_orcid_uri
         orcid_record.return_value = {
             "uri": self.user_orcid_uri,
-            "orcid": self.user_orcid
+            "orcid": self.user_orcid,
         }
         get_data = {
             "code": "12345",
