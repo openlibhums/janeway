@@ -552,6 +552,7 @@ def edit_profile(request):
     """
     user = request.user
     form = forms.EditAccountForm(instance=user)
+    password_form = forms.PasswordChangeForm(user=user, request=request)
     send_reader_notifications = False
     next_url = request.GET.get("next", "")
 
@@ -590,32 +591,18 @@ def edit_profile(request):
                 )
 
         elif "change_password" in request.POST:
-            old_password = request.POST.get("current_password")
-            new_pass_one = request.POST.get("new_password_one")
-            new_pass_two = request.POST.get("new_password_two")
-
-            if old_password and request.user.check_password(old_password):
-                if new_pass_one == new_pass_two:
-                    problems = request.user.password_policy_check(request, new_pass_one)
-                    if not problems:
-                        request.user.set_password(new_pass_one)
-                        request.user.save()
-                        messages.add_message(
-                            request, messages.SUCCESS, _("Password updated.")
-                        )
-                    else:
-                        [
-                            messages.add_message(request, messages.INFO, problem)
-                            for problem in problems
-                        ]
-                else:
-                    messages.add_message(
-                        request, messages.WARNING, _("Passwords do not match")
-                    )
-
+            password_form = forms.PasswordChangeForm(
+                request.POST, user=request.user, request=request
+            )
+            if password_form.is_valid():
+                password_form.save()
+                messages.add_message(request, messages.SUCCESS, _("Password updated."))
+                return redirect(reverse("core_edit_profile"))
             else:
                 messages.add_message(
-                    request, messages.WARNING, _("Old password is not correct.")
+                    request,
+                    messages.WARNING,
+                    _("Password not updated. Please correct the errors below."),
                 )
 
         elif "subscribe" in request.POST and send_reader_notifications:
@@ -669,6 +656,7 @@ def edit_profile(request):
     template = "admin/core/accounts/edit_profile.html"
     context = {
         "form": form,
+        "password_form": password_form,
         "staff_group_membership_form": staff_group_membership_form,
         "user_to_edit": user,
         "send_reader_notifications": send_reader_notifications,

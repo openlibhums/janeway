@@ -246,6 +246,62 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
         return user
 
 
+class PasswordChangeForm(forms.Form):
+    """
+    A form for changing the password of an already-authenticated user.
+
+    Validates the current password, confirms the two new-password fields
+    match, and runs the press password policy check so that all failures
+    are surfaced as inline form errors rather than disappearing toast
+    messages.
+    """
+
+    old_password = forms.CharField(
+        label=_("Current password"),
+        widget=forms.PasswordInput,
+    )
+    new_password_one = forms.CharField(
+        label=_("New password"),
+        widget=forms.PasswordInput,
+    )
+    new_password_two = forms.CharField(
+        label=_("Confirm new password"),
+        widget=forms.PasswordInput,
+    )
+
+    def __init__(self, *args, user=None, request=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.request = request
+
+    def clean_old_password(self):
+        value = self.cleaned_data.get("old_password")
+        if self.user and not self.user.check_password(value):
+            raise ValidationError(_("Current password is incorrect."))
+        return value
+
+    def clean(self):
+        cleaned = super().clean()
+        new_one = cleaned.get("new_password_one")
+        new_two = cleaned.get("new_password_two")
+
+        if new_one and new_two and new_one != new_two:
+            self.add_error("new_password_two", _("Passwords do not match."))
+
+        if new_one and self.user and self.request:
+            problems = self.user.password_policy_check(self.request, new_one)
+            for problem in problems:
+                self.add_error(
+                    "new_password_one", _("Password not updated: ") + str(problem)
+                )
+
+        return cleaned
+
+    def save(self):
+        self.user.set_password(self.cleaned_data["new_password_one"])
+        self.user.save()
+
+
 class EditAccountForm(forms.ModelForm):
     """
     A form for modifying profile details of an account, such as

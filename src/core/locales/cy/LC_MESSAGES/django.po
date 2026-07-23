@@ -413,11 +413,11 @@ msgid "Password updated."
 msgstr "Canllaw Cyfrinair "
 
 #: src/core/views.py:613
-msgid "Passwords do not match"
+msgid "Passwords do not match."
 msgstr ""
 
 #: src/core/views.py:618
-msgid "Old password is not correct."
+msgid "Current password is incorrect."
 msgstr ""
 
 #: src/core/views.py:629

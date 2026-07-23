@@ -427,11 +427,11 @@ msgid "Password updated."
 msgstr "Passwort aktualisiert."
 
 #: src/core/views.py:613
-msgid "Passwords do not match"
-msgstr "Passwörter stimmen nicht überein"
+msgid "Passwords do not match."
+msgstr "Passwörter stimmen nicht überein."
 
 #: src/core/views.py:618
-msgid "Old password is not correct."
+msgid "Current password is incorrect."
 msgstr "Das alte Passwort ist nicht korrekt."
 
 #: src/core/views.py:629

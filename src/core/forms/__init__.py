@@ -29,6 +29,7 @@ from core.forms.forms import (
     NotificationForm,
     OrcidAffiliationForm,
     OrganizationNameForm,
+    PasswordChangeForm,
     PasswordResetForm,
     PressJournalAttrForm,
     QuickUserForm,
