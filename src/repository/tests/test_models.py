@@ -135,6 +135,23 @@ class TestModels(TestCase):
                 article_two,
             )
 
+    def test_submit_preprint_creates_first_version(self):
+        self.preprint_one.submit_preprint()
+        self.assertEqual(self.preprint_one.preprintversion_set.count(), 1)
+        version = self.preprint_one.current_version
+        self.assertEqual(version.version, 1)
+        self.assertEqual(version.file, self.preprint_one.submission_file)
+
+    def test_submit_preprint_does_not_duplicate_existing_version(self):
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        self.preprint_one.submit_preprint()
+        self.assertEqual(self.preprint_one.preprintversion_set.count(), 1)
+
+    def test_submit_preprint_without_file_creates_no_version(self):
+        self.preprint_one.submission_file = None
+        self.preprint_one.submit_preprint()
+        self.assertEqual(self.preprint_one.preprintversion_set.count(), 0)
+
 
 class TestRepositoryOrganisationUnit(TestCase):
     """Tests for the RepositoryOrganisationUnit model introduced in iowa-and-isolinear."""

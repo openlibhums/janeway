@@ -1043,6 +1043,12 @@ class Preprint(models.Model):
         self.current_step = 5
         self.save()
 
+        # The most recently uploaded submission file automatically becomes
+        # version 1, so managers do not have to select it manually before
+        # starting their review.
+        if self.submission_file and not self.has_version():
+            self.make_new_version(self.submission_file)
+
     def subject_editors(self):
         editors = []
         for subject in self.subject.all():
