@@ -256,7 +256,7 @@ def _build_clash_names(press):
     / [repository] suffixes (WCAG 2.4.4 same-link-text).
     """
     names = [press.name]
-    for j in press.journals_az.filter(hide_from_press=False, is_remote=False):
+    for j in press.journals(hide_from_press=False, is_remote=False):
         names.append(j.name)
     for r in repo_models.Repository.objects.filter(live=True):
         names.append(r.name)
@@ -792,9 +792,9 @@ def build_subject_sitemap_context(subject_or_none, repo):
 
 def build_press_index_context(press):
     """Press siteindex context: pages → news → journals → repositories."""
-    journals = press.journals_az.filter(
-        hide_from_press=False,
-        is_remote=False,
+    journals = sorted(
+        press.journals(hide_from_press=False, is_remote=False),
+        key=lambda j: j.name.lower(),
     )
     repos = repo_models.Repository.objects.filter(live=True)
     clash_names = _build_clash_names(press)
