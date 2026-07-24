@@ -66,3 +66,59 @@ class ViewTests(test_models.TestCaseWithCMSData):
             cms_views.view_page(self.request_press, "test-name")
         self.press_cms_page.template = ""
         self.press_cms_page.save()
+
+    def test_draft_page_without_access_code_raises_http404(self):
+        with self.assertRaises(Http404):
+            cms_views.view_page(self.request_journal, "draft-page")
+
+    def test_draft_page_with_wrong_access_code_raises_http404(self):
+        self.request_journal.GET = {"access_code": "wrong-code"}
+        with self.assertRaises(Http404):
+            cms_views.view_page(self.request_journal, "draft-page")
+
+    @patch("cms.views.render")
+    def test_draft_page_with_correct_access_code_renders(self, render):
+        from cms.models import Page
+
+        page = Page.objects.get(pk=self.journal_draft_page.pk)
+        self.request_journal.GET = {"access_code": str(page.preview_token)}
+        cms_views.view_page(self.request_journal, "draft-page")
+        render.assert_called_once()
+
+    def test_published_page_with_stray_access_code_redirects_to_clean_url(self):
+        # A published page must not 404 on a stray preview access_code, and it
+        # must not serve the query-string variant either: it 301-redirects to
+        # the clean canonical URL so the variant is not indexed separately.
+        type(self.request_journal).path = "/site/test-name/"
+        self.request_journal.GET = {"access_code": "some-code"}
+        response = cms_views.view_page(self.request_journal, "test-name")
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/site/test-name/")
+
+    def test_draft_page_token_changes_when_draft_status_toggled(self):
+        page = self.journal_draft_page
+        initial_token = page.preview_token
+
+        page.is_draft = False
+        page.save()
+
+        page.is_draft = True
+        page.save()
+
+        self.assertNotEqual(
+            initial_token,
+            page.preview_token,
+            "Preview token should change when page transitions back to draft",
+        )
+
+        old_token = initial_token
+        new_token = page.preview_token
+
+        self.request_journal.GET = {"access_code": str(old_token)}
+        with self.assertRaises(Http404):
+            cms_views.view_page(self.request_journal, "draft-page")
+
+        self.request_journal.GET = {"access_code": str(new_token)}
+        with patch("cms.views.render") as render:
+            cms_views.view_page(self.request_journal, "draft-page")
+            render.assert_called_once()

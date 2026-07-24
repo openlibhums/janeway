@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<urlset
+<sitemapindex
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:janeway="https://janeway.systems">
-  <janeway:sitemap_name>{{ page_title }}</janeway:sitemap_name>
+  <janeway:sitemap_name>{{ site_name }}</janeway:sitemap_name>
   <janeway:page_title>{{ page_title }}</janeway:page_title>
   <janeway:h1>{{ h1 }}</janeway:h1>
   <janeway:sitemap_level>{{ sitemap_level }}</janeway:sitemap_level>
+  {% if parent_sitemap %}
   <janeway:higher_sitemap>
     <janeway:loc>{{ parent_sitemap.loc }}</janeway:loc>
     <janeway:loc_label>{{ parent_sitemap.label }}</janeway:loc_label>
   </janeway:higher_sitemap>
-  {% for article in article_entries %}
-    <url>
-      <loc>{{ article.url }}</loc>
-      <lastmod>{{ article.lastmod }}</lastmod>
-      <changefreq>monthly</changefreq>
-      <janeway:loc_label>{{ article.title }}</janeway:loc_label>
-    </url>
+  {% endif %}
+  {% if note %}
+  <janeway:note>{{ note }}</janeway:note>
+  {% endif %}
+  {% for child in child_sitemaps %}
+    <sitemap>
+      <loc>{{ child.loc }}</loc>
+      <janeway:loc_label>{{ child.label }}</janeway:loc_label>
+      <janeway:group>{{ child.group }}</janeway:group>
+    </sitemap>
   {% endfor %}
-</urlset>
+</sitemapindex>

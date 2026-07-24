@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load next_url %}
+{% load sitemap_tags %}
 <div class="row">
     <div class="col-md-6">
         <small><div class="text-left">
@@ -51,6 +52,7 @@
                     <li><a
                             href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
                 {% endif %}
+                <li><a href="{% page_sitemap_url request.resolver_match.url_name article %}">{% trans "Sitemap" %}</a></li>
                 <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
                 <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
                 {% if not request.user.is_authenticated %}

@@ -23,25 +23,85 @@
                         <th>Name</th>
                         <th>View</th>
                         <th>Edit</th>
-                        <td>Delete</td>
+                        <th>Delete</th>
+                        <th>Status</th>
+                        <th>Available</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for page in pages %}
+                        {% url 'cms_page' page.name as page_path %}
                         <tr>
-                            <td>{{ page.display_name }} (/site/{{ page.name }})</td>
-                            <td><a href="{% url 'cms_page' page.name %}" target="_blank" class="tiny button">View</a>
+                            <td>
+                                {{ page.display_name }}
+                                {% if page.is_draft %}
+                                    <br>
+                                    <button type="button"
+                                            onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ page_path }}?access_code={{ page.preview_token }}'); this.textContent='Copied!';"
+                                            class="tiny hollow secondary button"><i class="fa fa-copy"></i> Copy preview link</button>
+                                {% else %}
+                                    (/site/{{ page.name }})
+                                {% endif %}
                             </td>
-                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button">Edit</a></td>
+                            <td>
+                                {% if page.is_draft %}
+                                    <a href="{{ page_path }}?access_code={{ page.preview_token }}" target="_blank" class="tiny hollow secondary button">Preview</a>
+                                {% else %}
+                                    <a href="{{ page_path }}" target="_blank" class="tiny button">View</a>
+                                {% endif %}
+                            </td>
+                            <td><a href="{% url 'cms_page_edit' page.pk %}" class="tiny success button"><i class="fa fa-edit"></i>Edit</a></td>
                             <td>
                                 <form method="POST">
                                     {% csrf_token %}
                                     <button name="delete" value="{{ page.pk }}" type="submit" class="tiny alert button">
-                                        Delete
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </form>
                             </td>
+                            <td>
+                                {% if page.is_draft %}
+                                    <span class="warning label"><i class="fa fa-eye-slash"></i> Draft</span>
+                                {% else %}
+                                    <span class="success label"><i class="fa fa-eye"></i> Public</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST" {% if page.is_draft %}id="publish-form-{{ page.pk }}"{% endif %}>
+                                    {% csrf_token %}
+                                    {% if page.is_draft %}
+                                        <button type="button" data-open="publish-confirm-{{ page.pk }}" class="tiny button">Publish</button>
+                                    {% else %}
+                                        <button name="cms_draft" value="{{ page.pk }}" type="submit" class="tiny hollow secondary button">Unpublish</button>
+                                    {% endif %}
+                                </form>
+                            </td>
                         </tr>
+                        {% if page.is_draft %}
+                        <div class="reveal small-4" id="publish-confirm-{{ page.pk }}" data-reveal
+                             data-animation-in="slide-in-up" data-animation-out="slide-out-down">
+                            <div class="card">
+                                <div class="card-divider">
+                                    <h4>Confirm Publish</h4>
+                                </div>
+                                <div class="card-section">
+                                    <div class="callout bs-callout-warning">
+                                        <p><span class="fa fa-warning">&nbsp;</span>Publishing this page will invalidate the current preview link. Anyone who has the preview link will no longer be able to use it.</p>
+                                    </div>
+                                </div>
+                                <div class="card-section">
+                                    <div class="button-group expanded">
+                                        <button class="success button" form="publish-form-{{ page.pk }}"
+                                                type="submit" name="cms_publish" value="{{ page.pk }}">Publish</button>
+                                        <button class="alert button" data-close type="button">No, go back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>

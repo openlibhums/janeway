@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+from uuid import uuid4
 
 from django.contrib import messages
 from django.db.models import Q
@@ -63,6 +64,28 @@ def index(request):
         page.delete()
         return redirect(reverse("cms_index"))
 
+    if request.POST and "cms_draft" in request.POST:
+        page_id = request.POST.get("cms_draft")
+        page = get_object_or_404(
+            models.Page,
+            pk=page_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
+        page.save_as_draft()
+        return redirect(reverse("cms_index"))
+
+    if request.POST and "cms_publish" in request.POST:
+        page_id = request.POST.get("cms_publish")
+        page = get_object_or_404(
+            models.Page,
+            pk=page_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
+        page.save_as_published()
+        return redirect(reverse("cms_index"))
+
     if request.POST and "new_xsl" in request.POST:
         xsl_form = XSLFileForm(request.POST, request.FILES)
         if xsl_form.is_valid():
@@ -113,6 +136,16 @@ def view_page(request, page_name):
         content_type=request.model_content_type,
         object_id=request.site_type.pk,
     )
+
+    if page.is_draft:
+        access_code = request.GET.get("access_code")
+        if not access_code or access_code != page.preview_token:
+            raise Http404
+    elif "access_code" in request.GET:
+        # A published page ignores a stray preview access_code; redirect to the
+        # clean canonical URL so search engines don't index the query-string
+        # variant as a separate page.
+        return redirect(request.path, permanent=True)
 
     if page.template:
         templates_path = logic.get_custom_templates_path(request.journal, request.press)
@@ -178,7 +211,10 @@ def page_manage(request, page_id=None):
                 page = page_form.save(commit=False)
                 page.content_type = request.model_content_type
                 page.object_id = request.site_type.pk
-                page.save()
+                if edit:
+                    page.save()
+                else:
+                    page.save_as_draft()
 
                 messages.add_message(request, messages.INFO, "Page saved.")
                 return language_override_redirect(

@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load roles %}
 {% load hooks %}
+{% load sitemap_tags %}
 
 <!DOCTYPE html>
 <html lang="{{ request.current_language }}">
@@ -13,7 +14,7 @@
     <meta name="format-detection" content="telephone=no"/>
     <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}{% endif %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{% page_sitemap_url request.resolver_match.url_name %}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
           integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     {% if request.journal and journal_settings.general.feeds %}
@@ -74,7 +75,8 @@
                 {% include "elements/journal_footer.html" %}
             {% elif request.repository %}
                 {{ request.repository.footer|safe }}
-                <ul class="list-inline bar-sep">
+                <ul class="list-inline-bar bar-sep">
+                    <li><a href="{% page_sitemap_url request.resolver_match.url_name %}">{% trans "Sitemap" %}</a></li>
                     <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
                 </ul>
             {% else %}

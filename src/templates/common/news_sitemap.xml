@@ -5,7 +5,7 @@
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:janeway="https://janeway.systems">
-  <janeway:sitemap_name>{{ page_title }}</janeway:sitemap_name>
+  <janeway:sitemap_name>{{ owner.name }}</janeway:sitemap_name>
   <janeway:page_title>{{ page_title }}</janeway:page_title>
   <janeway:h1>{{ h1 }}</janeway:h1>
   <janeway:sitemap_level>{{ sitemap_level }}</janeway:sitemap_level>
@@ -13,12 +13,12 @@
     <janeway:loc>{{ parent_sitemap.loc }}</janeway:loc>
     <janeway:loc_label>{{ parent_sitemap.label }}</janeway:loc_label>
   </janeway:higher_sitemap>
-  {% for article in article_entries %}
+  {% for news_item in news_items %}
     <url>
-      <loc>{{ article.url }}</loc>
-      <lastmod>{{ article.lastmod }}</lastmod>
-      <changefreq>monthly</changefreq>
-      <janeway:loc_label>{{ article.title }}</janeway:loc_label>
+      <loc>{{ news_item.url }}</loc>
+      <lastmod>{{ news_item.posted.isoformat }}</lastmod>
+      <changefreq>yearly</changefreq>
+      <janeway:loc_label>{{ news_item.title }}</janeway:loc_label>
     </url>
   {% endfor %}
 </urlset>

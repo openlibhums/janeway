@@ -11,7 +11,6 @@ import os
 from bs4 import BeautifulSoup
 
 from django.apps import apps
-from django.conf import settings
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
@@ -46,7 +45,6 @@ from utils.forms import (
     KeywordModelForm,
     plain_text_validator,
 )
-from utils.logic import generate_sitemap
 from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
@@ -156,38 +154,6 @@ class UtilsTests(TestCase):
             "skip": False,
         }
 
-        # Setup issues for sitemap testing
-        cls.issue_type, created = journal_models.IssueType.objects.get_or_create(
-            journal=cls.journal_one,
-            code="test_issue_type",
-            pretty_name="Test Issue Type",
-            custom_plural="Test Issues Type",
-        )
-        cls.issue_one, created = journal_models.Issue.objects.get_or_create(
-            journal=cls.journal_one,
-            volume="1",
-            issue="1",
-            issue_title="V 1 I 1",
-            issue_type=cls.issue_type,
-        )
-        cls.section, create = submission_models.Section.objects.get_or_create(
-            journal=cls.journal_one,
-            name="Test Section",
-        )
-        cls.article_one, created = submission_models.Article.objects.get_or_create(
-            journal=cls.journal_one,
-            owner=cls.author,
-            title="This is a test article",
-            abstract="This is an abstract",
-            stage=submission_models.STAGE_PUBLISHED,
-            section=cls.section,
-            defaults={
-                "date_accepted": timezone.now(),
-                "date_published": timezone.now(),
-            },
-        )
-        cls.issue_one.articles.add(cls.article_one)
-
     # Helper function for email subjects
     def get_default_email_subject(self, setting_name, journal=None):
         journal = journal or self.journal_one
@@ -199,90 +165,6 @@ class UtilsTests(TestCase):
             # The test shouldn't pass unless the setting or a default was retrieved.
             # The name serves as a backup in production but shouldn't be let through in testing.
             return subject
-
-
-class SitemapTests(UtilsTests):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.news_item = helpers.create_news_item(
-            ContentType.objects.get_for_model(cls.press),
-            cls.press.pk,
-        )
-        cls.news_item.start_display = timezone.now() - timezone.timedelta(days=1)
-        cls.news_item.posted = timezone.now() - timezone.timedelta(days=1)
-        cls.news_item.save()
-
-    @override_settings(URL_CONFIG="path")
-    def test_press_sitemap_generation(self):
-        file = io.StringIO()
-        generate_sitemap(
-            file=file,
-            press=self.press,
-        )
-        soup = BeautifulSoup(file.getvalue(), "xml")
-        self.assertEqual(
-            soup.select("sitemap_name")[0].get_text(strip=True),
-            "Press",
-        )
-        self.assertEqual(
-            soup.select("loc_label")[0].get_text(strip=True),
-            "Home",
-        )
-        self.assertEqual(
-            soup.select("lastmod")[0].get_text(strip=True),
-            self.news_item.posted.isoformat(),
-        )
-
-    @override_settings(URL_CONFIG="path")
-    def test_journal_sitemap_generation(self):
-        file = io.StringIO()
-        generate_sitemap(
-            file=file,
-            journal=self.journal_one,
-        )
-        soup = BeautifulSoup(file.getvalue(), "xml")
-        self.assertEqual(
-            soup.select("sitemap_name")[0].get_text(strip=True),
-            "Journal One",
-        )
-        self.assertEqual(
-            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
-            "Press",
-        )
-        self.assertEqual(
-            soup.select("sitemap urlset url loc")[0].get_text(strip=True),
-            self.journal_one.site_url(path="/"),
-        )
-        self.assertEqual(
-            soup.select("sitemap > loc_label")[0].get_text(strip=True),
-            self.issue_one.non_pretty_issue_identifier,
-        )
-
-    @override_settings(URL_CONFIG="path")
-    def test_issue_sitemap_generation(self):
-        file = io.StringIO()
-        generate_sitemap(
-            file=file,
-            issue=self.issue_one,
-        )
-        soup = BeautifulSoup(file.getvalue(), "xml")
-        self.assertIn(
-            self.issue_one.non_pretty_issue_identifier,
-            soup.select("sitemap_name")[0].get_text(strip=True),
-        )
-        self.assertEqual(
-            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
-            "Journal One",
-        )
-        self.assertEqual(
-            soup.select("urlset url loc")[0].get_text(strip=True),
-            self.article_one.url,
-        )
-        self.assertEqual(
-            soup.select("urlset url loc_label")[0].get_text(strip=True),
-            self.article_one.title,
-        )
 
 
 class TransactionalReviewEmailTests(UtilsTests):

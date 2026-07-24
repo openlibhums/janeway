@@ -96,6 +96,42 @@ def sitemap(request):
     )
 
 
+def news_sitemap(request):
+    """
+    Serves the news sub-sitemap. Dispatches to the journal news sub-sitemap
+    when in a journal context.
+    """
+    if request.journal is not None:
+        return journal_views.news_sitemap(request)
+
+    if request.repository is not None:
+        # Repositories have no news sitemap, so serving the press file here
+        # would leak press content under the repository host.
+        raise Http404()
+
+    return core_views.sitemap(
+        request,
+        ["news_sitemap.xml"],
+    )
+
+
+def pages_sitemap(request):
+    """
+    Serves the pages sub-sitemap. Dispatches to the journal or repository
+    pages sub-sitemap when in that context.
+    """
+    if request.journal is not None:
+        return journal_views.pages_sitemap(request)
+
+    if request.repository is not None:
+        return repository_views.pages_sitemap(request)
+
+    return core_views.sitemap(
+        request,
+        ["pages_sitemap.xml"],
+    )
+
+
 def robots(request):
     """
     Serves a generated robots.txt.
