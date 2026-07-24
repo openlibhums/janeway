@@ -21,6 +21,7 @@ from utils import models, notify_helpers
 from utils.logger import get_logger
 from utils.function_cache import cache
 from janeway import __version__ as janeway_version
+from journal import models as journal_models
 from repository import models as repo_models
 from press import models as press_models
 from submission import models as submission_models
