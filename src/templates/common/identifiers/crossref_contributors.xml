@@ -1,31 +1,46 @@
 <contributors>
     {% for author_bundle in article.object.frozen_authors_for_jats_contribs %}
         {% with author=author_bundle.author affiliations=author_bundle.affiliations %}
-        <person_name
-            contributor_role="author"
-            sequence="{% if forloop.first %}first{% else %}additional{% endif %}">
-            <given_name>{{ author.given_names }}</given_name>
-            <surname>{{ author.last_name }}</surname>
+            {% if author.is_corporate %}
+                <organization
+                    contributor_role="author"
+                    {% if forloop.first %}
+                        sequence="first"
+                    {% else %}
+                        sequence="additional"
+                    {% endif %}
+                >{{ author.corporate_name }}</organization>
+            {% else %}
+                <person_name
+                    contributor_role="author"
+                    {% if forloop.first %}
+                        sequence="first"
+                    {% else %}
+                        sequence="additional"
+                    {% endif %}>
+                    <given_name>{{ author.given_names }}</given_name>
+                    <surname>{{ author.last_name }}</surname>
 
-            {% if affiliations %}
-                <affiliations>
-                    {% for affil in affiliations %}
-                        {% with org=affil.organization %}
-                            <institution>
-                                <institution_name>{{ org.name.value }}</institution_name>
-                                {% if org.ror_id %}
-                                    <institution_id type="ror">{{ org.uri }}</institution_id>
-                                {% endif %}
-                            </institution>
-                        {% endwith %}
-                    {% endfor %}
-                </affiliations>
-            {% endif %}
+                    {% if affiliations %}
+                        <affiliations>
+                            {% for affil in affiliations %}
+                                {% with org=affil.organization %}
+                                    <institution>
+                                        <institution_name>{{ org.name.value }}</institution_name>
+                                        {% if org.ror_id %}
+                                            <institution_id type="ror">{{ org.uri }}</institution_id>
+                                        {% endif %}
+                                    </institution>
+                                {% endwith %}
+                            {% endfor %}
+                        </affiliations>
+                    {% endif %}
 
-            {% if author.orcid_uri %}
-                <ORCID>{{ author.orcid_uri }}</ORCID>
+                    {% if author.orcid_uri %}
+                        <ORCID>{{ author.orcid_uri }}</ORCID>
+                    {% endif %}
+                </person_name>
             {% endif %}
-        </person_name>
         {% endwith %}
     {% empty %}
         <anonymous contributor_role="author" sequence="first"></anonymous>

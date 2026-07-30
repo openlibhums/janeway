@@ -506,6 +506,10 @@ header svg {
     padding-bottom: 8px;
 }
 
+.disp-formula {
+    overflow: auto
+}
+
 .sticky-toc {
     position: sticky;
     max-height: 100vh;

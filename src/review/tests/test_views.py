@@ -298,7 +298,7 @@ class ReviewTests(TestCase):
             article=article1,
             is_complete=False,
             review_round=round,
-            reviewer=self.regular_user,
+            reviewer=self.third_reviewer,
         )
         assignment.decision = None
         assignment.save()
@@ -360,7 +360,7 @@ class ReviewTests(TestCase):
             article=article_with_completed_reviews,
             is_complete=False,
             review_round=round_two,
-            reviewer=self.regular_user,
+            reviewer=self.third_reviewer,
         )
 
         # turn setting on
@@ -713,6 +713,12 @@ class ReviewTests(TestCase):
         self.second_reviewer.is_active = True
         self.second_reviewer.save()
 
+        self.third_reviewer = self.create_user(
+            "third_reviewer@invalid.com", ["reviewer"], journal=self.journal_one
+        )
+        self.third_reviewer.is_active = True
+        self.third_reviewer.save()
+
         self.public_file = core_models.File(
             mime_type="A/FILE",
             original_filename="blah.txt",
@@ -848,7 +854,7 @@ class ReviewTests(TestCase):
         self.review_assignment_complete = review_models.ReviewAssignment(
             article=self.article_review_completed,
             review_round=self.round_one,
-            reviewer=self.regular_user,
+            reviewer=self.third_reviewer,
             editor=self.editor,
             date_due=timezone.now(),
             form=self.review_form,
@@ -908,7 +914,7 @@ class ReviewTests(TestCase):
 
         self.review_assignment_not_in_scope = review_models.ReviewAssignment(
             article=self.article_in_production,
-            reviewer=self.regular_user,
+            reviewer=self.third_reviewer,
             editor=self.editor,
             date_due=timezone.now(),
             form=self.review_form,

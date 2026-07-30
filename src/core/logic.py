@@ -447,6 +447,11 @@ def get_settings_to_edit(display_group, journal, user):
                     "general", "hide_editors_from_authors", journal
                 ),
             },
+        ]
+        setting_group = "general"
+
+    elif display_group == "metadata":
+        group_of_settings = [
             {
                 "name": "author_job_title",
                 "object": setting_handler.get_setting(
@@ -466,7 +471,7 @@ def get_settings_to_edit(display_group, journal, user):
                 ),
             },
         ]
-        setting_group = "general"
+        setting_group = "metadata"
 
     elif display_group == "review":
         group_of_settings = [
@@ -1105,11 +1110,20 @@ def handle_email_change(request, email_address, next_url=""):
         context,
         "user_email_change",
     )
+    log_dict = {
+        "level": "Info",
+        "action_text": "Email change confirmation sent to {0}".format(
+            request.user.email,
+        ),
+        "types": "Email Change Confirmation",
+        "target": request.user,
+    }
     notify_helpers.send_email_with_body_from_user(
         request,
         "subject_user_email_change",
         request.user.email,
         message,
+        log_dict=log_dict,
     )
 
     logout(request)

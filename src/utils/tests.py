@@ -401,6 +401,22 @@ class TransactionalReviewEmailTests(UtilsTests):
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
 
+        # #4511: both acknowledgement emails must be recorded in the email log,
+        # one to the reviewer and one to the editor.
+        for recipient in [expected_recipient_one, expected_recipient_two]:
+            entry = models.LogEntry.objects.filter(
+                is_email=True,
+                types="Review Complete",
+                addressee__field="to",
+                addressee__email=recipient,
+            ).first()
+            self.assertIsNotNone(
+                entry,
+                msg="No email log entry for {0}".format(recipient),
+            )
+            # the action text records the recipient's name, not a bound method repr
+            self.assertNotIn("bound method", entry.subject)
+
     def test_send_reviewer_accepted_or_decline_acknowledgements(self):
         kwargs = dict(**self.base_kwargs)
         kwargs["review_assignment"] = self.review_assignment
@@ -448,6 +464,18 @@ class TransactionalReviewEmailTests(UtilsTests):
         subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[3].subject)
+
+        # all four emails should be recorded in the email log against this article
+        article_type = ContentType.objects.get_for_model(self.article_under_review)
+        self.assertEqual(
+            4,
+            models.LogEntry.objects.filter(
+                is_email=True,
+                types__in=["Review Acknowledgement", "Reviewer Acknowledgement"],
+                content_type=article_type,
+                object_id=self.article_under_review.pk,
+            ).count(),
+        )
 
     def test_send_submission_acknowledgement(self):
         """
@@ -587,6 +615,32 @@ class CopyeditingEmailSubjectTests(UtilsTests):
     production and typesetting (not being actively developed)
     """
 
+    def test_send_author_copyedit_complete_is_logged(self):
+        copyedit = helpers.create_copyedit_assignment(
+            article=self.article_under_review,
+            copyeditor=self.copyeditor,
+            editor=self.editor,
+        )
+        author_review = copyediting_models.AuthorReview.objects.create(
+            author=self.author,
+            assignment=copyedit,
+        )
+
+        send_author_copyedit_complete(
+            request=self.base_kwargs["request"],
+            copyedit=copyedit,
+            author_review=author_review,
+        )
+
+        self.assertTrue(
+            models.LogEntry.objects.filter(
+                is_email=True,
+                types="Copyedit Complete",
+                addressee__field="to",
+                addressee__email=self.editor.email,
+            ).exists(),
+        )
+
     def test_copyediting_email_subjects(self):
         for email_function, subject_setting_name in (
             (send_copyedit_assignment, "subject_copyeditor_assignment_notification"),
@@ -638,6 +692,48 @@ class CopyeditingEmailSubjectTests(UtilsTests):
 
 
 class PrepubEmailTests(UtilsTests):
+    def test_send_author_publication_notification_logs_all_recipients(self):
+        article = self.article_under_review
+        helpers.create_editor_assignment(
+            article,
+            self.section_editor,
+            assignment_type="section-editor",
+        )
+        reviewer = helpers.create_peer_reviewer(self.journal_one)
+        review_assignment = helpers.create_review_assignment(
+            journal=self.journal_one,
+            article=article,
+            reviewer=reviewer,
+            editor=self.editor,
+        )
+        review_assignment.is_complete = True
+        review_assignment.date_declined = None
+        review_assignment.decision = "yes"
+        review_assignment.save()
+
+        send_author_publication_notification(
+            request=self.base_kwargs["request"],
+            article=article,
+            user_message=self.test_message,
+            section_editors=True,
+            peer_reviewers=True,
+        )
+
+        for recipient in [
+            self.author.email,
+            self.section_editor.email,
+            reviewer.email,
+        ]:
+            self.assertTrue(
+                models.LogEntry.objects.filter(
+                    is_email=True,
+                    types="Article Published",
+                    addressee__field="to",
+                    addressee__email=recipient,
+                ).exists(),
+                msg="No email log entry for {0}".format(recipient),
+            )
+
     def test_send_prepub_notifications(self):
         request = self.base_kwargs["request"]
         article = self.article_under_review

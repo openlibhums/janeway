@@ -207,3 +207,8 @@
 .text-align-center {
   text-align: center;
 }
+
+/* Hide an element */
+.hidden.hidden {
+  display: none;
+}
