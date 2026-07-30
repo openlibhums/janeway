@@ -180,6 +180,7 @@ class TestIssueModel(TestCase):
         self.assertEqual(
             issue.display_title_a11y,
             self.expected_results["issue_1_no_number"]["display_title_a11y"],
+        )
 
 
 class TestNotificationLogic(TestCase):
