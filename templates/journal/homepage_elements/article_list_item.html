@@ -4,10 +4,13 @@
 <div class="col-md-4 row-eq-height">
     <div class="card">
         {% if not journal_settings.article.disable_article_large_image %}
+          <div class="clarity-banner">
             <img
-                src="{{ article.best_large_image_url }}"
-                alt="{{ article.best_large_image_alt_text }}"
-                class="card-img-top">
+              src="{{ article.best_large_image_url }}"
+              alt="{{ article.best_large_image_alt_text }}"
+              class="clarity-banner-image"
+            />
+          </div>
         {% endif %}
         <div class="card-body">
             <h3 id="{{ article.pk }}-title" class="sr-only">{{ article.title }}</h3>

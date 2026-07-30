@@ -218,7 +218,7 @@ main a {
   text-decoration: var(--link-decoration-hover);
 }
 
-.card img {
+.card img:not(.clarity-banner-image) {
   max-height: var(--card-image-height);
   object-fit: cover;
 }
@@ -397,6 +397,13 @@ a.btn {
   text-align: center;
 }
 
+.carousel-item .carousel-caption {
+  /* Bootstrap 4.4 hides the caption on small screens by default,
+   * even for active carousel items.
+   * This unhides them for accessibility. */
+  display: block !important;
+}
+
 .carousel-caption a,
 .carousel-caption h2 a {
   color: var(--text-on-dark);
@@ -429,6 +436,11 @@ a.btn {
 /* ========================================================================
    Article Styles
    ======================================================================== */
+.article-header {
+  padding-block: 1.5rem;
+  padding-inline: 2rem;
+}
+
 .article-title {
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
@@ -443,6 +455,61 @@ a.btn {
 
 .article-img {
   filter: brightness(50%);
+}
+
+/* Banner for hero / large image */
+
+.clarity-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.clarity-banner .clarity-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width >= 992px) {
+  :where(.col-md-12, .col-lg-12) .clarity-banner:not(.explicit-image-height) {
+    max-height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  :where(.col-md-12, .col-lg-12) .clarity-banner:not(.explicit-image-height) {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+:where(.col-md-4, .col-lg-4) .clarity-banner:not(.explicit-image-height) {
+  max-height: 216px;
+}
+:where(.col-md-6, .col-md-8, .col-lg-6, .col-lg-8) .clarity-banner:not(.explicit-image-height) {
+  max-height: 288px;
+}
+/* Explicit image height option for carousels */
+.clarity-banner.explicit-image-height {
+  max-height: unset;
+}
+.clarity-banner.explicit-image-height .clarity-banner-image {
+  height: 360px;
+}
+@media (width >= 992px) {
+  .clarity-banner.explicit-image-height .clarity-banner-image {
+    height: 432px;
+  }
+}
+@media (width >= 1200px) {
+  .clarity-banner.explicit-image-height .clarity-banner-image {
+    height: 540px;
+  }
 }
 
 .article-menu h2 {
@@ -1014,6 +1081,12 @@ a.btn {
    ======================================================================== */
 .homepage-element-wrapper:not(:first-child) {
   margin-block: 2rem;
+}
+
+.issue-header {
+  padding-top: 1.5rem;
+  padding-inline: 2rem;
+  padding-bottom: 1rem;
 }
 
 .issue-section {
@@ -1623,7 +1696,7 @@ textarea.tinymce:focus-visible,
     padding: 10px;
   }
 
-  .card img {
+  .card img:not(.clarity-banner-image) {
     min-height: 220px;
     object-fit: cover;
   }

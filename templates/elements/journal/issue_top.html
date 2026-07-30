@@ -3,15 +3,21 @@
 
 {% if issue.hero_image_url %}
     <div class="card">
-        <img class="card-img img-fluid article-img" src="{{ issue.hero_image_url }}" alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y %}">
-        <div class="card-img-overlay">
-            <div class="card-text">
-                {% if level == "deep" %}
-                    <h2 class="card-title white-text" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h2>
-                {% else %}
-                    <h1 class="card-title white-text" aria-label='{{ issue.display_title_a11y  }}'>{{ issue.display_title }}</h1>
-                {% endif %}
-            </div>
+        <div class="clarity-banner">
+          <img class="clarity-banner-image"
+             src="{{ issue.hero_image_url }}"
+             alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y %}">
+        </div>
+        <div class="issue-header">
+          {% if level == "deep" %}
+            <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+              {{ issue.display_title }}
+            </h2>
+          {% else %}
+            <h1 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+              {{ issue.display_title }}
+            </h1>
+          {% endif %}
         </div>
     </div>
 {% else %}

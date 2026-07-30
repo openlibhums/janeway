@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 {% load truncate %}
 {% load dates %}
+{% load escaping %}
 
 {% block title %}{{ news_item.title }}{% endblock title %}
 
@@ -17,10 +18,12 @@
         <div class="col-md-12">
             <div class="card mb-3">
                 {% if news_item.best_image_url %}
+                  <div class="clarity-banner">
                     <img
-                        class="card-img-top"
-                        src="{{ news_item.best_image_url }}"
-                        alt="{{ news_item.best_large_image_alt_text }}">
+                      class="clarity-banner-image"
+                      src="{{ news_item.best_image_url }}"
+                      alt="{{ news_item.title|striptags|unescape }}">
+                  </div>
                 {% endif %}
                 <div class="card-body">
                     <h1 class="card-title text-format-region">{{ news_item.title|safe }}</h1>

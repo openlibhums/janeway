@@ -21,22 +21,20 @@
 {% block body %}
     <div id="article_opener" class="row">
         {% if not journal_settings.article.disable_article_large_image %}
-            <div class="col-md-12">
-                <div class="card">
-                    <img class="card-img img-fluid article-img"
-                         src="{{ article.best_large_image_url }}"
-                         alt="{{ article.best_large_image_alt_text }}">
-                <div class="card-img-overlay white-text">
-                    <div class="card-text">
-                        <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
-                        {% if article.is_published or proofing %}
-                            {% include "common/elements/journal/article_authors_br.html" %}
-                        {% endif %}
-                    </div>
-                </div>
+          <div class="col-md-12">
+            <div class="card">
+              <div class="clarity-banner">
+                <img class="clarity-banner-image"
+                  src="{{ article.best_large_image_url }}"
+                  alt="{{ article.best_large_image_alt_text }}">
+              </div>
+              <div class="article-header card-text">
+                <div class="text-uppercase">{{ article.section.name }}</div>
+                <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+              </div>
             </div>
-            </div>
+          </div>
         {% endif %}
 
     </div>

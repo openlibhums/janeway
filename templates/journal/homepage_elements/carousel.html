@@ -10,10 +10,12 @@
             </ol>
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %} carousel-min" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_items|length }}">
-                        <img class="d-block img-fluid article-img carousel-min"
-                             src="{{ carousel_item.best_large_image_url }}"
-                             alt="{{ carousel_item.best_large_image_alt_text }}">
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_items|length }}">
+                        <div class="clarity-banner explicit-image-height">
+                          <img class="d-block clarity-banner-image"
+                            src="{{ carousel_item.best_large_image_url }}"
+                            alt="{{ carousel_item.best_large_image_alt_text }}">
+                        </div>
                         <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
                             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                             <h3><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
