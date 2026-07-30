@@ -57,7 +57,22 @@ class Loader(FileSystemLoader):
                 # this is the press site
                 theme_setting = request.press.theme
 
+        # If the user has enabled accessibility mode, force the Clarity
+        # theme regardless of the journal/repository/press setting. The
+        # Clarity theme provides the accessible base templates and palette.
+        # The resolver short-circuits to False when the journal setting
+        # general.accessibility_mode is off, so the loader does not need
+        # to repeat that check. Imported lazily to avoid a circular
+        # import between core.logic and core.models at module load.
+        if request:
+            from core.logic import accessibility_mode_active
+
+            if accessibility_mode_active(request):
+                theme_setting = "clarity"
+
         # allows servers in debug mode to override the theme with ?theme=name in the URL
+        # The debug override takes precedence over the accessibility-mode session
+        # flag, since it is a developer-facing tool.
         if (
             (settings.DEBUG or settings.IN_TEST_RUNNER)
             and request

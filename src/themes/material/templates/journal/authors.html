@@ -7,7 +7,7 @@
 
 {% block body %}
 
-    <h3>{% trans "Authors" %}</h3>
+    <h1>{% trans "Authors" %}</h1>
     <div class="row">
        
         {% for author in author_list %}
@@ -16,10 +16,10 @@
                 <div class="card editorial-card">
                     <div class="card-image">
                          <img src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                         alt="Card image cap">
+                         alt="{% trans 'Author profile image.' %}">
                     </div>
                     <div class="card-content" style="min-height: 190px;">
-                         <span class="card-title small-card-title">{{ author.full_name }}</span>
+                         <h2 id="author-{{ author.uuid }}" class="card-title small-card-title">{{ author.full_name }}</h2>
                         <p>
                             <small>{{ author.affiliation }}</small>
                         </p>
@@ -28,7 +28,11 @@
 
                             <p>
                                 <small>
-                                    <a href="{% url 'core_public_profile' author.uuid %}">{% trans "View Profile" %}</a>
+                                    <a href="{% url 'core_public_profile' author.uuid %}"
+                                        aria-describedby="author-{{ author.uuid }}"
+                                        >
+                                        {% trans "View Profile" %}
+                                    </a>
                                 </small>
                             </p>
 

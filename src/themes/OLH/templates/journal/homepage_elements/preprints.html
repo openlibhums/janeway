@@ -1,9 +1,9 @@
 {% load static %}
 {% load i18n %}
 
-<section class="no-padding">
+<section class="no-padding" aria-labelledby="featured-preprints-title">
     <div class="row column text-center">
-        <h2 class="title">{% trans 'Featured Preprints' %}</h2>
+        <h2 id="featured-preprints-title" class="title">{% trans 'Featured Preprints' %}</h2>
     </div>
     <div class="row" data-equalizer data-equalize-on="medium">
         {% include "elements/journal/preprint_article_listing.html" with preprints=preprints %}

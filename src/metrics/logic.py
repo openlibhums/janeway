@@ -40,7 +40,11 @@ def get_press_totals(start_date, end_date, report_months, compat=False, do_yop=F
     for date in report_months:
         press_months["{0}-{1}".format(date.strftime("%b"), date.year)] = ""
 
-    for journal_object in journal_models.Journal.objects.all():
+    for journal_object in journal_models.Journal.objects.filter(
+        hide_from_press=False,
+    ).exclude(
+        status=journal_models.Journal.PublishingStatus.TEST,
+    ):
         journal = {}
         journal["journal"] = journal_object
 

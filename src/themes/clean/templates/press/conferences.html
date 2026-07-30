@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ request.press.name }} | Conferences{% endblock title %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{% trans 'Conferences' %}</h1>
+    </div>
+    <div class="col-lg-8 col-md-10 journal-container">
+      {% include "press/press_journal_set.html" with journals=conferences level="shallow" %}
+    </div>
+    {% include "press/press_journal_filter.html" %}
+  </div>
+{% endblock body %}
+
+{% block js %}
+  <script src="{% static 'common/js/journal_filter.js' %}"></script>
+{% endblock %}

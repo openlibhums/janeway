@@ -27,13 +27,11 @@
                         class="btn btn-primary">
                         {% trans 'Log in' %}</a>
                     {% else %}
-                      <a href="{% url 'submission_start' %}" class="btn btn-primary">
-                        {% trans 'Start Submission' %}
-                      </a>
+                        <a href="{% url 'submission_start' %}" class="btn btn-primary">{% trans 'Start Submission' %}</a>
                     {% endif %}
                   </div>
                 {% endif %}
-                <hr/>
+                <hr aria-hidden="true" />
                 {% for item in submission_items %}
                     {% if item.title == 'licences' %}
                         <h2>
@@ -48,7 +46,7 @@
                             {{ item.title|capfirst }}
                         </h2>
                         {{ item.get_display_text|safe }}
-                        <hr />
+                        <hr aria-hidden="true" />
                     {% endif %}
                 {% endfor %}
             </div>

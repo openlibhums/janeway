@@ -429,7 +429,7 @@
   <xsl:template name="body-footnotes">
     <!-- Handle footnotes scattered around the body inside p tags, rather than fn-group -->
     <xsl:if test="//article/body/p/fn">
-      <h2>Footnotes</h2>
+      <h2 id="footnotes-header">Footnotes</h2>
         <ol class="footnotes">
           <xsl:for-each select="//article/body/p/fn">
 	    <xsl:call-template name="referenced-footnote" />
@@ -443,7 +443,7 @@
          <!-- Adds a header for footnotes when there the first child is not a title tag
            *( See 'back/fn-group/title[1]' for heading implementation)
          -->
-        <h2>Notes</h2>
+        <h2 id="footnotes-header">Notes</h2>
       </xsl:if>
       <xsl:apply-templates select="title" />
         <ol class="footnotes">
@@ -495,7 +495,7 @@
               <xsl:apply-templates/>
             <xsl:for-each select="//xref[@rid=$fn-id]">
               <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
-              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}"> ⮭</a>
+              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}" aria-label="location of {$fn-id} in text" role="doc-backlink"> ---^ </a>
             </xsl:for-each>
           </li>
     </xsl:template>
@@ -1092,6 +1092,7 @@
                   <xsl:text>nm</xsl:text>
                   <xsl:number level="any" count="xref[@rid=$rid]"/>
               </xsl:attribute>
+              <xsl:attribute name="aria-describedby">footnotes-header</xsl:attribute>
               <sup><xsl:apply-templates/></sup>
             </xsl:when>
             <xsl:otherwise>
@@ -1119,7 +1120,7 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/label" mode="captionLabel">
-        <span class="table-label">
+        <span class="table-label" id="tab{count(preceding::table-wrap)+1}-label">
             <xsl:apply-templates/>
         </span>
         <xsl:text> </xsl:text>
@@ -1542,7 +1543,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                        <a href="{$graphics}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
                             <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="img-fluid"/>
                         </a>
                     </div>
@@ -1585,7 +1586,7 @@
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                        <a href="{@xlink:href}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
                             <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
@@ -1763,7 +1764,7 @@
     <xsl:template match="ref-list">
         <!-- We inject the references heading only when there is no title block -->
         <xsl:if test="name(*[1]) != 'title'">
-          <h2>References</h2>
+          <h2 id="reference-header">References</h2>
         </xsl:if>
         <div id="reflist">
           <ul>
@@ -1774,6 +1775,7 @@
     <xsl:template match="ref-list/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h2">
+                <xsl:attribute name="id">reference-header</xsl:attribute>
                 <xsl:apply-templates/>
             </xsl:element>
         </xsl:if>
@@ -1861,7 +1863,6 @@
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
-      <xsl:apply-templates select="ext-link"/>
   </xsl:template>
 
 
@@ -2623,7 +2624,7 @@
       <xsl:when test="$pub-id-type='doi'">
         <xsl:text>&#160;</xsl:text>
         <a href="https://doi.org/{current()}" target="_blank">
-          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:text>https://doi.org/</xsl:text>
           <xsl:apply-templates/>
         </a>
       </xsl:when>
@@ -5067,7 +5068,7 @@
             <!-- Output -->
             <li id="fn{$fnnumfull}">
                 <xsl:apply-templates/>
-              <a href="#fnLink{$fnnumfull}" > ⮭</a>
+              <a href="#fnLink{$fnnumfull}" aria-label="location of {$fnnumfull} in text" role="doc-backlink"> ---^ </a>
             </li>
           </xsl:for-each>
           <!-- END model for each footnote -->

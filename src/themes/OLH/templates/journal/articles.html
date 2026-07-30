@@ -27,7 +27,7 @@
                     </ul>
                 </div>
                 {% if pinned_articles and articles.number == 1 and not active_filters %}
-                <h1>{% trans 'Pinned Articles' %}</h1>
+                    <h1>{% trans 'Pinned Articles' %}</h1>
                     {% for article in pinned_articles %}
                         {% include "elements/journal/box_article.html" with article=article %}
                     {% endfor %}
@@ -42,7 +42,9 @@
                 <div class="pagination-block">
                     <ul class="pagination">
                         {% if articles.has_previous %}
-                            <li class="arrow"><a href="?page={{ articles.previous_page_number }}">&laquo;</a>
+                            <li class="arrow"><a href="?page={{ articles.previous_page_number }}">
+                                {% include "elements/icons/page_previous.html" %}
+                            </a>
                             </li>{% endif %}
                         {{ articles.page.page_range }}
                         {% for page in articles|slice_pages:3 %}
@@ -50,7 +52,9 @@
                                     href="?page={{ page.number }}">{{ page.number }}</a></li>
                         {% endfor %}
                         {% if articles.has_next %}
-                            <li class="arrow"><a href="?page={{ articles.next_page_number }}">&raquo;</a>
+                            <li class="arrow"><a href="?page={{ articles.next_page_number }}">
+                                {% include "elements/icons/page_next.html" %}
+                            </a>
                             </li>{% endif %}
                     </ul>
                 </div>

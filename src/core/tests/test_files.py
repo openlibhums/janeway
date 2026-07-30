@@ -1,13 +1,13 @@
 import os
-import shutil
 from tempfile import NamedTemporaryFile
 
 from django.urls import reverse
 from django.urls.base import clear_script_prefix
-from django.test import TestCase, Client, override_settings
+from django.test import TestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.utils import timezone
+from lxml import etree
 import pdfkit
 
 from utils.testing import helpers
@@ -172,3 +172,32 @@ class TestFilesHandler(TestCase):
         indexed = file_.index_full_text()
 
         self.assertTrue(indexed)
+
+
+class TestDefaultXSLTransform(TestCase):
+    """Tests for the builtin default.xsl article rendering stylesheet."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.transform = etree.XSLT(etree.parse(settings.BUILTIN_XSL_PATH))
+
+    def render(self, xml):
+        return str(self.transform(etree.fromstring(xml.encode("utf-8"))))
+
+    def test_ext_link_in_mixed_citation_not_duplicated(self):
+        """An ext-link in a mixed-citation renders exactly one anchor (#4335)."""
+        uri = "https://olh.openlibhums.org/article/id/4400/"
+        doi = "https://doi.org/10.16995/olh.46"
+        xml = (
+            '<article xmlns:xlink="http://www.w3.org/1999/xlink"><back>'
+            '<ref-list><ref id="R97"><mixed-citation publication-type="other">'
+            "Wu, S. (2021). Retrieved from "
+            '<ext-link ext-link-type="uri" xlink:href="{uri}">{uri}</ext-link>. '
+            '<ext-link ext-link-type="doi" xlink:href="{doi}">{doi}</ext-link>'
+            "</mixed-citation></ref></ref-list></back></article>"
+        ).format(uri=uri, doi=doi)
+
+        output = self.render(xml)
+
+        self.assertEqual(output.count('<a href="{}"'.format(uri)), 1)
+        self.assertEqual(output.count('<a href="{}"'.format(doi)), 1)

@@ -11,8 +11,8 @@ from django.views.i18n import JavaScriptCatalog
 from django.views.decorators.cache import cache_page
 
 from journal import urls as journal_urls
-from core import views as core_views, plugin_loader
-from utils import notify
+from core import views as core_views, plugin_loader, partial_views
+from utils import notify, views as utils_views
 from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
@@ -119,6 +119,16 @@ urlpatterns = [
         r"^doi_manager/$",
         press_views.IdentifierManager.as_view(),
         name="press_identifier_manager",
+    ),
+    re_path(
+        r"^press/contact/$",
+        press_views.contact,
+        name="press_contact",
+    ),
+    re_path(
+        "press/contact/recipient/(?P<contact_person_id>\d+)/?",
+        press_views.contact,
+        name="press_contact_with_recipient",
     ),
     # Notes
     re_path(
@@ -256,22 +266,52 @@ urlpatterns = [
         core_views.article_image_edit,
         name="core_article_image_edit",
     ),
-    # Journal Contacts
-    re_path(r"^manager/contacts/$", core_views.contacts, name="core_journal_contacts"),
+    # Contact People
     re_path(
-        r"^manager/contacts/add/$",
-        core_views.edit_contacts,
-        name="core_new_journal_contact",
-    ),
-    re_path(
-        r"^manager/contacts/(?P<contact_id>\d+)/$",
-        core_views.edit_contacts,
-        name="core_journal_contact",
+        r"^manager/contacts/$",
+        core_views.contact_people,
+        name="core_contact_people",
     ),
     re_path(
         r"^manager/contacts/order/$",
-        core_views.contacts_order,
-        name="core_journal_contacts_order",
+        core_views.contact_people_reorder,
+        name="core_contact_people_reorder",
+    ),
+    re_path(
+        r"^manager/contacts/search/$",
+        core_views.PotentialContactListView.as_view(),
+        name="core_contact_person_search",
+    ),
+    re_path(
+        r"^manager/contacts/add/(?P<account_id>\d+)/$",
+        core_views.contact_person_create,
+        name="core_contact_person_create",
+    ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/$",
+        core_views.contact_person_update,
+        name="core_contact_person_update",
+    ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/delete/$",
+        core_views.contact_person_delete,
+        name="core_contact_person_delete",
+    ),
+    # Contact messages
+    re_path(
+        r"^manager/contact-messages/$",
+        utils_views.ContactMessageListView.as_view(),
+        name="core_contact_messages",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/$",
+        utils_views.contact_message,
+        name="core_contact_message",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/delete/$",
+        utils_views.contact_message_delete,
+        name="core_contact_message_delete",
     ),
     # Editorial Team
     re_path(
@@ -417,6 +457,16 @@ urlpatterns = [
     ),
     re_path(r"^set-timezone/$", core_views.set_session_timezone, name="set_timezone"),
     re_path(
+        r"^accessibility-mode/toggle/$",
+        core_views.toggle_accessibility_mode,
+        name="toggle_accessibility_mode",
+    ),
+    re_path(
+        r"^reading-options/preferences/$",
+        core_views.save_text_format_preferences,
+        name="save_text_format_preferences",
+    ),
+    re_path(
         r"^jsi18n/$",
         cache_page(60 * 60, key_prefix="jsi18n_catalog")(JavaScriptCatalog.as_view()),
         name="javascript-catalog",
@@ -430,6 +480,19 @@ urlpatterns = [
         r"permission/requests/$",
         core_views.manage_access_requests,
         name="manage_access_requests",
+    ),
+    # Partial views used for HTMX
+    path("alt-text/form/", partial_views.alt_text_form, name="alt_text_form"),
+    path("alt-text/submit/", partial_views.alt_text_submit, name="alt_text_submit"),
+    path(
+        "manager/settings/images/upload/<str:field_name>/",
+        partial_views.journal_image_upload,
+        name="journal_image_upload",
+    ),
+    path(
+        "manager/settings/images/remove/<str:field_name>/",
+        partial_views.journal_image_remove,
+        name="journal_image_remove",
     ),
 ]
 

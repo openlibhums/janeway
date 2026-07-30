@@ -6,7 +6,7 @@
 
 {% block title %}Article Document Management{% endblock title %}
 {% block title-section %}Article Document Management{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub.html" %}{% endblock %}
 
 {% block body %}
     {% csrf_token %}

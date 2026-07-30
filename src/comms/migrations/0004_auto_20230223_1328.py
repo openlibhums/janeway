@@ -29,7 +29,9 @@ class Migration(migrations.Migration):
             name="large_image_file",
             field=models.ForeignKey(
                 blank=True,
-                help_text="An image for the top of the news item page and the news list page. Note that it will be automatically cropped to 750px x 324px, so wide images work best.",
+                help_text="An image for the top of the news item page and the "
+                "news list page. Note that it will be automatically cropped "
+                "to 1500px x 648px, so wide images work best.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="large_news_file",

@@ -14,9 +14,11 @@
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
 
+    {% if not request.journal or journal_settings.general.feeds %}
     <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
           title="Article Feed for Journal">
     <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+    {% endif %}
     {% include "common/elements/favicons.html" %}
 
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
@@ -35,15 +37,16 @@
 <body>
 {% include "common/elements/skip_to_main_content.html" %}
 <div class="container">
-    <header class="site-header" role="banner">
+    <header class="site-header">
         <div id="journal-title">
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
+                    {% get_alt_text file_path=request.journal.header_image default=request.journal.name as header_alt_text %}
                     <div class="col-md-2">
-                        <a href="{{ request.journal.site_url }}">
+                        <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
                             <img src="{{ request.journal.header_image.url }}"
                                  class="img-fluid header-image top-bar-image"
-                                 alt="{{ request.journal.name }} logo">
+                                 alt="{{ header_alt_text }}">
                         </a>
                     </div>
 
@@ -57,8 +60,9 @@
                         {% if 'svg' in request.press_cover %}
                             {% svg request.press_cover %}
                         {% else %}
+                            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
                             <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
-                                             alt="{{ request.press.name }} logo">
+                                             alt="{{ press_logo_alt }}">
                         {% endif %}
                     </div>
             {% endif %}
@@ -72,10 +76,14 @@
         {% endif %}
     </header>
     <main id="main-content">
+        {% block reading_options_bar %}{% endblock reading_options_bar %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissable">
-                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                {{ message|linebreaksbr }}
+                <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">{% trans 'Close message' %}</span>
+                </button>
+                <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>          
             </div>
         {% endfor %}
         {% block body %}{% endblock body %}
@@ -94,6 +102,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
+<script src="{% static "common/js/accessibility-toggle.js" %}"></script>
 {% block js %}{% endblock %}
 </body>
 </html>

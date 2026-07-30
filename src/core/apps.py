@@ -14,6 +14,7 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from core import upgrade  # register upgrade signals
+        from core import signals  # register login signals
         from core.model_utils import SearchLookup
 
         models.CharField.register_lookup(SearchLookup)

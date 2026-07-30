@@ -3851,6 +3851,117 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **bad_kwargs)
 
+    def test_typesetting_user_or_production_user_or_editor_required_section_editor_article_id(
+        self,
+    ):
+        func = Mock()
+        decorated_func = (
+            decorators.typesetting_user_or_production_user_or_editor_required(
+                func,
+            )
+        )
+        kwargs = {
+            "article_id": self.article_in_production.pk,
+        }
+
+        success_request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        decorated_func(success_request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "typesetting_user_or_production_user_or_editor_required wrongly "
+            "blocks a SE assigned to the article.",
+        )
+
+        fail_request = self.prepare_request_with_user(
+            self.second_section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
+    def test_typesetting_user_or_production_user_or_editor_required_section_editor_no_ids(
+        self,
+    ):
+        func = Mock()
+        decorated_func = (
+            decorators.typesetting_user_or_production_user_or_editor_required(
+                func,
+            )
+        )
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request)
+
+    def test_typesetting_user_or_production_user_or_editor_required_section_editor_bad_article_id(
+        self,
+    ):
+        func = Mock()
+        decorated_func = (
+            decorators.typesetting_user_or_production_user_or_editor_required(
+                func,
+            )
+        )
+        kwargs = {
+            "article_id": self.article_unassigned.pk,
+        }
+
+        request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+    def test_typesetting_user_or_production_user_or_editor_required_section_editor_galley_id(
+        self,
+    ):
+        func = Mock()
+        decorated_func = (
+            decorators.typesetting_user_or_production_user_or_editor_required(
+                func,
+            )
+        )
+        kwargs = {
+            "galley_id": self.article_in_production_galley.pk,
+        }
+
+        success_request = self.prepare_request_with_user(
+            self.section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        decorated_func(success_request, **kwargs)
+        self.assertTrue(
+            func.called,
+            "typesetting_user_or_production_user_or_editor_required wrongly "
+            "blocks a SE accessing a galley for their assigned article.",
+        )
+
+        fail_request = self.prepare_request_with_user(
+            self.second_section_editor,
+            self.journal_one,
+            self.press,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(fail_request, **kwargs)
+
     def test_loading_keyword_page_fail(self):
         func = Mock()
         decorated_func = decorators.keyword_page_enabled(func)
@@ -4629,7 +4740,7 @@ class TestSecurity(TestCase):
         self.client.force_login(self.repo_manager)
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
@@ -4652,7 +4763,7 @@ class TestSecurity(TestCase):
 
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
@@ -4676,7 +4787,7 @@ class TestSecurity(TestCase):
 
         response = self.client.get(
             reverse(
-                "repository_comments",
+                "repository_manager_comment_list_filtered",
                 kwargs={
                     "preprint_id": self.preprint.pk,
                 },
@@ -4684,6 +4795,26 @@ class TestSecurity(TestCase):
             SERVER_NAME=self.repository.domain,
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_user_can_view_contact_message_permission_granted(self):
+        func = Mock()
+        decorated_func = decorators.user_can_view_contact_message(func)
+        kwargs = {"log_entry_id": self.contact_message_one.pk}
+
+        request = self.prepare_request_with_user(self.editor)
+
+        decorated_func(request, **kwargs)
+        self.assertTrue(func.called)
+
+    def test_user_can_view_contact_message_permission_denied(self):
+        func = Mock()
+        decorated_func = decorators.user_can_view_contact_message(func)
+        kwargs = {"log_entry_id": self.contact_message_one.pk}
+
+        request = self.prepare_request_with_user(self.regular_user)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
 
     # General helper functions
 
@@ -5197,6 +5328,11 @@ class TestSecurity(TestCase):
         )
         self.production_section_editor_assignment.save()
 
+        self.article_in_production_galley = helpers.create_galley(
+            article=self.article_in_production,
+            label="HTML",
+        )
+
         self.article_editor_copyediting = submission_models.Article(
             owner=self.regular_user,
             title="A Test Article",
@@ -5342,6 +5478,15 @@ class TestSecurity(TestCase):
             repository=self.repository,
             author=self.author,
             subject=self.repository_subject,
+        )
+
+        self.contact_one = helpers.create_contact_person(
+            self.editor,
+            self.journal_one,
+        )
+        self.contact_message_one = helpers.send_contact_message(
+            self.journal_one,
+            self.contact_one,
         )
 
         call_command("load_default_settings")

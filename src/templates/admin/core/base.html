@@ -118,6 +118,10 @@
     {% endfor %}
   </script>
 {% endblock toastr %}
+{% include "admin/core/partials/htmx_messages.html" %}
+{% include "admin/core/partials/htmx_spinner.html" %}
+<script src="{% static "common/js/timezone-setter.js" %}"></script>
+{% if not request.timezone %}<script>setTimezone();</script>{% endif %}
 
 {% block js %}{% endblock %}
 </body>

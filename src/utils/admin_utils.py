@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck, University of London"
 
 from django.db.models import Q
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
@@ -217,6 +218,12 @@ class StaffGroupMemberInline(admin.TabularInline):
     extra = 0
     exclude = ("alternate_title", "publications")
     raw_id_fields = ("user",)
+
+
+class ContactPersonInline(admin.TabularInline):
+    model = core_models.ContactPerson
+    extra = 0
+    fields = ("role", "content_type", "object_id")
 
 
 class WorkflowLogInline(admin.TabularInline):

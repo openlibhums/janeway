@@ -18,13 +18,16 @@
             {% hook 'edit_article' %}
         {% endif %}
         <div class="content">
-            {% include "elements/metadata.html" %}
         </div>
     </div>
 
-    {% if not journal_settings.general.hide_review_data_pre_release or article.peer_reviews_for_author_consumption %}
+    {% if not journal_settings.general.hide_review_data_pre_release or article.peer_reviews_for_author_consumption.exists %}
     <div class="box">
         <div class="title-area">
+            {% comment %}
+              If editing this heading, see
+              src.core.test_app.CoreTests.test_hide_review_details_on
+            {% endcomment %}
             <h2>Reviews</h2>
         </div>
         <div class="box">

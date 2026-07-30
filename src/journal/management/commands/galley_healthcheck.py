@@ -30,6 +30,9 @@ class Command(BaseCommand):
         journals = journal_models.Journal.objects.all()
         if journal_codes:
             journals = journals.filter(code__in=journal_codes)
+        journals = journals.exclude(
+            status=journal_models.Journal.PublishingStatus.TEST,
+        )
 
         for journal in journals:
             articles = models.Article.objects.filter(
@@ -47,7 +50,7 @@ class Command(BaseCommand):
                 elif render_galley:
                     images_url = retrieve_image_urls_from_galley(render_galley)
                     for url in images_url:
-                        response = requests.get(journal.site_url(path=url))
+                        response = requests.get(f"{article.url}{url}")
                         if not response.ok or not len(response.content):
                             print("[{}][MISSING IMAGE][{}]".format(article.pk, url))
 

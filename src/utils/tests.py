@@ -3,10 +3,15 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+import codecs
 import io
+import json
 import os
 
+from bs4 import BeautifulSoup
+
 from django.apps import apps
+from django.conf import settings
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
@@ -43,6 +48,7 @@ from utils.forms import (
 )
 from utils.logic import generate_sitemap
 from utils.testing import helpers
+from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
 from utils.notify_plugins import notify_email
 from utils.management.commands import check_mailgun_stat
@@ -196,80 +202,86 @@ class UtilsTests(TestCase):
 
 
 class SitemapTests(UtilsTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.news_item = helpers.create_news_item(
+            ContentType.objects.get_for_model(cls.press),
+            cls.press.pk,
+        )
+        cls.news_item.start_display = timezone.now() - timezone.timedelta(days=1)
+        cls.news_item.posted = timezone.now() - timezone.timedelta(days=1)
+        cls.news_item.save()
+
     @override_settings(URL_CONFIG="path")
     def test_press_sitemap_generation(self):
-        expected_press_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <sitemap>
-        <loc>http://localhost/TST/sitemap.xml</loc>
-    </sitemap>
-    
-    <sitemap>
-        <loc>http://localhost/TSA/sitemap.xml</loc>
-    </sitemap>
-    
-
-    
-</sitemapindex>"""
-
         file = io.StringIO()
         generate_sitemap(
             file=file,
             press=self.press,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            expected_press_sitemap,
-            file.getvalue(),
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Press",
+        )
+        self.assertEqual(
+            soup.select("loc_label")[0].get_text(strip=True),
+            "Home",
+        )
+        self.assertEqual(
+            soup.select("lastmod")[0].get_text(strip=True),
+            self.news_item.posted.isoformat(),
         )
 
     @override_settings(URL_CONFIG="path")
     def test_journal_sitemap_generation(self):
-        expected_journal_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <sitemap>
-        <loc>http://localhost/TST/issue/{}_sitemap.xml</loc>
-    </sitemap>
-    
-</sitemapindex>""".format(self.issue_one.pk)
         file = io.StringIO()
         generate_sitemap(
             file=file,
             journal=self.journal_one,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
         self.assertEqual(
-            expected_journal_sitemap,
-            file.getvalue(),
+            soup.select("sitemap_name")[0].get_text(strip=True),
+            "Journal One",
+        )
+        self.assertEqual(
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Press",
+        )
+        self.assertEqual(
+            soup.select("sitemap urlset url loc")[0].get_text(strip=True),
+            self.journal_one.site_url(path="/"),
+        )
+        self.assertEqual(
+            soup.select("sitemap > loc_label")[0].get_text(strip=True),
+            self.issue_one.non_pretty_issue_identifier,
         )
 
     @override_settings(URL_CONFIG="path")
     def test_issue_sitemap_generation(self):
-        expected_issue_sitemap = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    
-    <url>
-        <loc>{article_url}</loc>
-        <lastmod>{date_published}</lastmod>
-        <changefreq>monthly</changefreq>
-    </url>
-    
-</urlset>""".format(
-            article_url=self.article_one.url,
-            article_id=self.article_one.pk,
-            date_published=self.article_one.date_published.strftime("%Y-%m-%d"),
-        )
         file = io.StringIO()
         generate_sitemap(
             file=file,
             issue=self.issue_one,
         )
+        soup = BeautifulSoup(file.getvalue(), "xml")
+        self.assertIn(
+            self.issue_one.non_pretty_issue_identifier,
+            soup.select("sitemap_name")[0].get_text(strip=True),
+        )
         self.assertEqual(
-            expected_issue_sitemap,
-            file.getvalue(),
+            soup.select("higher_sitemap loc_label")[0].get_text(strip=True),
+            "Journal One",
+        )
+        self.assertEqual(
+            soup.select("urlset url loc")[0].get_text(strip=True),
+            self.article_one.url,
+        )
+        self.assertEqual(
+            soup.select("urlset url loc_label")[0].get_text(strip=True),
+            self.article_one.title,
         )
 
 
@@ -488,6 +500,28 @@ class TransactionalReviewEmailTests(UtilsTests):
         subject_setting = self.get_default_email_subject(subject_setting_name)
         expected_subject = "[{0}] {1}".format(self.journal_one.code, subject_setting)
         self.assertEqual(expected_subject, mail.outbox[1].subject)
+
+    def test_send_submission_acknowledgement_uses_journal_replyto(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs["article"] = self.submitted_article
+
+        with janeway_setting_override(
+            "general", "replyto_address", self.journal_one, "replyto@example.com"
+        ):
+            send_submission_acknowledgement(**kwargs)
+
+        self.assertEqual(mail.outbox[1].reply_to, ["replyto@example.com"])
+
+    def test_send_submission_acknowledgement_falls_back_to_noreply(self):
+        kwargs = dict(**self.base_kwargs)
+        kwargs["article"] = self.submitted_article
+
+        with janeway_setting_override(
+            "general", "replyto_address", self.journal_one, ""
+        ):
+            send_submission_acknowledgement(**kwargs)
+
+        self.assertIn(settings.DUMMY_EMAIL_DOMAIN, mail.outbox[1].reply_to[0])
 
     def test_send_article_decision(self):
         kwargs = dict(**self.base_kwargs)
@@ -1365,6 +1399,12 @@ class TestORCiDRecord(TestCase):
         self.assertIsNone(details["affiliation"])
         self.assertIsNone(details["country"])
 
+    @mock.patch("utils.orcid.get_orcid_record", return_value=None)
+    def test_record_details_empty_on_lookup_failure(self, mock_record):
+        details = get_orcid_record_details("0000-0000-0000-0000")
+        self.assertFalse(details)
+        self.assertEqual(len(details), 0)
+
     @override_settings(URL_CONFIG="domain")
     @mock.patch("utils.logic.get_current_request")
     def test_redirect_uri(self, get_current_request):
@@ -1662,3 +1702,71 @@ class CheckMailgunStatCommandTests(TestCase):
         call_command("check_mailgun_stat")
         self.log_entry.refresh_from_db()
         self.assertEqual(self.log_entry.message_status, "accepted")
+
+
+class DefaultSettingsIntegrityTests(TestCase):
+    """Guards against malformed entries in journal_defaults.json.
+
+    A botched merge once fused two setting entries together, producing
+    duplicate JSON keys. The file still parsed, but the duplicated keys
+    silently dropped a setting, which only surfaced as DoesNotExist errors
+    deep in unrelated tests. These checks fail fast and point at the file.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.file_path = os.path.join(
+            settings.BASE_DIR,
+            "utils/install/journal_defaults.json",
+        )
+        with codecs.open(cls.file_path, encoding="utf-8") as json_data:
+            cls.raw = json_data.read()
+
+    def reject_duplicate_keys(self, pairs):
+        keys = [key for key, value in pairs]
+        duplicates = [key for key in set(keys) if keys.count(key) > 1]
+        if duplicates:
+            raise AssertionError(
+                "Duplicate keys {} in journal_defaults.json object {}".format(
+                    duplicates, dict(pairs)
+                )
+            )
+        return dict(pairs)
+
+    def test_no_duplicate_keys(self):
+        # object_pairs_hook runs for every object, so a duplicate key
+        # anywhere in the file raises rather than silently winning.
+        json.loads(self.raw, object_pairs_hook=self.reject_duplicate_keys)
+
+    def test_every_setting_is_well_formed(self):
+        default_data = json.loads(self.raw)
+        for item in default_data:
+            self.assertIn("group", item)
+            self.assertIn("setting", item)
+            self.assertIn("value", item)
+            self.assertTrue(item["group"].get("name"))
+            self.assertTrue(item["setting"].get("name"))
+            self.assertTrue(item["setting"].get("type"))
+
+    def test_setting_names_are_unique_within_group(self):
+        default_data = json.loads(self.raw)
+        seen = set()
+        for item in default_data:
+            key = (item["group"]["name"], item["setting"]["name"])
+            self.assertNotIn(
+                key,
+                seen,
+                msg="Duplicate setting {} in journal_defaults.json".format(key),
+            )
+            seen.add(key)
+
+    def test_author_affiliation_dates_setting_present(self):
+        # Regression check for the specific setting dropped by the merge.
+        default_data = json.loads(self.raw)
+        matches = [
+            item
+            for item in default_data
+            if item["group"]["name"] == "metadata"
+            and item["setting"]["name"] == "author_affiliation_dates"
+        ]
+        self.assertEqual(len(matches), 1)

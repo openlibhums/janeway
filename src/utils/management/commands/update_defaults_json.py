@@ -20,6 +20,12 @@ class Command(BaseCommand):
         :param options: None
         :return: None
         """
+        confirmation = input(
+            "journal_defaults.json will be rewritten. OK? (y/n)".lower()
+        )
+        if confirmation != "y":
+            return
+
         with codecs.open(
             os.path.join(settings.BASE_DIR, "utils/install/journal_defaults.json"),
             encoding="utf-8",

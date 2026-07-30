@@ -1,0 +1,16 @@
+{% load i18n %}
+<form method="post" action="{% url 'toggle_accessibility_mode' %}" class="a11y-mobile-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit" class="a11y-mobile-button a11y-switch{% if accessibility_mode_active %} a11y-switch--on{% endif %}{% if button_class %} {{ button_class }}{% endif %}"
+            role="switch"
+            aria-checked="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
+        <span class="a11y-switch-label">{% trans 'Accessibility mode' %}</span>
+        <span class="a11y-switch-track" aria-hidden="true">
+            <span class="a11y-switch-thumb"></span>
+        </span>
+        <span class="a11y-switch-state" aria-hidden="true">
+            {% if accessibility_mode_active %}{% trans 'On' %}{% else %}{% trans 'Off' %}{% endif %}
+        </span>
+    </button>
+</form>

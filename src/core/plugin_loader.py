@@ -11,11 +11,14 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
 from packaging import version
 
+from utils.logger import get_logger
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
 from core.plugin_installed_apps import EXCLUDED_PLUGIN_DIRS
 from janeway import __version__ as janeway_version
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
+
+logger = get_logger(__name__)
 
 
 def get_dirs(directory):
@@ -96,11 +99,13 @@ def validate_plugin_version(plugin_settings):
     valid = current_version >= wants_version
 
     if not valid:
-        raise ImproperlyConfigured(
-            "Plugin {} not  compatibile with current install: {} < {}".format(
-                plugin_settings.PLUGIN_NAME, current_version, wants_version
-            )
+        msg = "Plugin {} not  compatibile with current install: {} < {}".format(
+            plugin_settings.PLUGIN_NAME, current_version, wants_version
         )
+        if settings.DEBUG:
+            logger.warning(msg)
+        else:
+            raise ImproperlyConfigured(msg)
 
 
 def get_plugin(module_name, permissive):

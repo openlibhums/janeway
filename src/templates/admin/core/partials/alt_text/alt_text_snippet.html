@@ -1,0 +1,16 @@
+{% load alt_text %}
+
+{% get_id_token object file_path token as id_token %}
+
+{% if object or file_path or token %}
+  <span
+      id="alt-text-{{ id_token }}"
+      class="alt-text-display"
+  >
+      {{ alt_text|default:"No alt text is set." }}
+  </span>
+{% else %}
+  <span class="alt-text-display warning">
+      No alt text context provided.
+  </span>
+{% endif %}

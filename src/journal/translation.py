@@ -10,4 +10,7 @@ class JournalTranslationOptions(TranslationOptions):
 
 @register(models.Issue)
 class IssueTranslationOptions(TranslationOptions):
-    fields = ("cached_display_title",)
+    fields = (
+        "cached_display_title",
+        "cached_display_title_a11y",
+    )

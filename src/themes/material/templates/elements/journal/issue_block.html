@@ -2,14 +2,28 @@
 
 {% regroup articles by section as grouped_articles %}
 {% for section, section_articles in grouped_articles %}
-    <h2 class="em">
-        {% if section.plural and section_articles|length >= 2 %}
-            {{ section.plural }}
-        {% else %}
-            {{ section.name }}
-        {% endif %}
-    </h2>
+    {% if level == "issuepage" %}
+        <h2 class="em">
+            {% if section.plural and section_articles|length >= 2 %}
+                {{ section.plural }}
+            {% else %}
+                {{ section.name }}
+            {% endif %}
+        </h2>
+    {% else %}
+        <h3 class="em">
+            {% if section.plural and section_articles|length >= 2 %}
+                {{ section.plural }}
+            {% else %}
+                {{ section.name }}
+            {% endif %}
+        </h3>
+    {% endif %}
     {% for article in section_articles %}
-        {% include "elements/article_listing.html" with article=article %}
+        {% if level == "issuepage" %}
+            {% include "elements/article_listing.html" with article=article level=level %}
+        {% else %}
+            {% include "elements/article_listing.html" with article=article level="deep" %}
+        {% endif %}
     {% endfor %}
 {% endfor %}

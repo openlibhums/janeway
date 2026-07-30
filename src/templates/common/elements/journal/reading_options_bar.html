@@ -1,0 +1,189 @@
+{% load i18n %}
+{% load hooks %}
+{% load static %}
+{% comment %}
+    Front of House self contained drop in.
+    Include only once per page as would otherwise load resources twice.
+    add marker class `.text-format-region` to define the target parent(s).
+{% endcomment %}
+<section aria-label="{% trans 'Reading options' %}" class="invisible-landmark reading-options-landmark">
+<div id="tf-bar" data-sticky-container class="row reading-options-bar{% if text_format_preferences.hideReadingBar %} tf-bar-hidden{% endif %}">
+    <div class="mini-bar sticky columns" data-sticky data-margin-top="0" data-sticky data-anchor="content">
+        <div class="row">
+            <div class="title-bar">
+                <button class="title-bar-title" type="button" aria-controls="options-menu" aria-expanded="{% if text_format_preferences.hideReadingBar %}false{% else %}true{% endif %}">
+                    <span class="menu-icon"> </span>
+                    {% trans 'Reading Options' %}
+                    <i aria-hidden="true" class="fa fa-caret-down tf-options-caret"></i>
+                </button>
+            </div>
+            <div id="options-menu">
+                <div class="small-12s medium-9 medium-offset-3 large-10 large-offset-2 columns">
+                    <div class="float-right">
+                        <ul class="menu vertical medium-horizontal">
+                            {% if article %}{% hook 'article_buttons' %}{% endif %}
+                            <li>
+                                <button type="button" class="tf-font-select" aria-expanded="false" aria-haspopup="true" aria-controls="tf-font-menu">
+                                    <span class="sr-only">{% trans 'Font' %}: </span>
+                                    <span class="tf-label">{% trans 'Default Font' %}</span>
+                                    <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="menu vertical" id="tf-font-menu">
+                                    {% for slug, font in text_format_options.fonts.items %}
+                                        <li><button type="button" data-tf-font-option="{{ slug }}" onclick="state.setFont('{{ slug }}'); event.stopPropagation();">{{ font.label }}</button></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}" title="{% trans 'Decrease text size' %}">A-</button></li>
+                            <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}" title="{% trans 'Increase text size' %}">A+</button></li>
+                            <li>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="italics"
+                                    aria-pressed="true"
+                                    aria-label="{% trans 'Italics' %}"
+                                    title="{% trans 'Toggle italics' %}"
+                                    onclick="state.toggleNoItalics()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-italic"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="tf-scheme-select" aria-expanded="false" aria-haspopup="true" aria-controls="tf-scheme-menu">
+                                    <span class="sr-only">{% trans 'Colour' %}: </span>
+                                    <span class="tf-label">{% trans 'Default Colour' %}</span>
+                                    <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="menu vertical" id="tf-scheme-menu">
+                                    {% comment %}
+                                        "customise" is intentionally not offered in the menu for now (the
+                                        full code path remains — registry, validation, JS custom state and
+                                        paint logic). It is planned to return as an accessible modal colour
+                                        picker; drop the slug filter below to re-expose it.
+                                    {% endcomment %}
+                                    {% for slug, scheme in text_format_options.schemes.items %}
+                                        {% if slug != 'customise' %}
+                                            <li><button type="button" data-tf-scheme-option="{{ slug }}" onclick="state.setScheme('{{ slug }}'); event.stopPropagation();">{{ scheme.label }}</button></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% comment %}
+                                The custom-colour picker UI (inline swatches) lived here and has been
+                                removed for now; "customise" is also filtered out of the colour menu
+                                above. The code path is otherwise intact — it will return as an
+                                accessible modal colour picker.
+                            {% endcomment %}
+                            <li>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="mode"
+                                    aria-pressed="false"
+                                    aria-label="{% trans 'Dark mode' %}"
+                                    title="{% trans 'Toggle dark mode' %}"
+                                    onclick="state.toggleDarkMode()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-moon-o"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li class="tf-attention-toggle" hidden>
+                                <button
+                                    type="button"
+                                    class="tf-icon-toggle"
+                                    data-tf-toggle="attention"
+                                    aria-pressed="true"
+                                    aria-label="{% trans 'Highlight jumped-to text' %}"
+                                    title="{% trans 'Toggle highlight when jumping to a link' %}"
+                                    onclick="state.toggleNoAttention()"
+                                >
+                                    <span class="tf-icon" aria-hidden="true">
+                                        <i class="fa fa-bullseye"></i>
+                                        <span class="tf-tick"><i class="fa fa-check-circle"></i></span>
+                                    </span>
+                                </button>
+                            </li>
+
+                            {% if article %}
+                                {% comment %}
+                                    css uses id to exclude the cite menu from Material as doesn't have citation modals.
+                                {% endcomment %}
+                                <li class="tf-cite">
+                                    <button type="button" aria-expanded="false" aria-haspopup="true" aria-controls="tf-cite-menu" title="{% trans 'Citation formats' %}">
+                                        <i aria-hidden="true" class="fa fa-comments"></i>
+                                        <i aria-hidden="true" class="fa fa-caret-down"></i>
+                                        <span class="sr-only">{% trans 'Cite article' %}</span>
+                                    </button>
+                                    <ul class="menu vertical" id="tf-cite-menu">
+                                        <li><a href="#" data-open="HarvardModal" data-toggle="modal" data-target="#HarvardModal">
+                                            {% trans "Harvard Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="#" data-open="VancouverModal" data-toggle="modal" data-target="#VancouverModal">
+                                            {% trans "Vancouver Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="#" data-open="APAModal" data-toggle="modal" data-target="#APAModal">
+                                            {% trans "APA Citation Style" %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a></li>
+                                        <li><a href="{% url 'serve_article_ris' 'id' article.pk %}">
+                                            RIS
+                                            {% include "elements/icons/link_download.html" %}
+                                        </a></li>
+                                        <li><a href="{% url 'serve_article_bib' 'id' article.pk %}">
+                                            BibTeX
+                                            {% include "elements/icons/link_download.html" %}
+                                        </a></li>
+                                    </ul>
+                                </li>
+                                {% if author.display_email and not journal_settings.article.hide_author_email_links %}
+                                    <li>
+                                        <a href="mailto:{{ article.correspondence_author.email }}" title="{% trans 'Email author' %}">
+                                            <span class="sr-only">{% trans 'Email' %} {{ article.correspondence_author.full_name }}.</span>
+                                            {% include "elements/icons/link_email.html" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <a href="{{ article.local_url }}print/" title="{% trans 'Print article' %}">
+                                        <i aria-hidden="true" class="fa fa-print">&nbsp;</i>
+                                        <span class="sr-only">{% trans 'Printer friendly version.' %}</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="tf-close">
+                                <button type="button"
+                                        class="tf-close-button"
+                                        aria-label="{% trans 'Hide reading options bar' %}"
+                                        title="{% trans 'Hide the reading options bar' %}"
+                                        onclick="hideReadingBar()">
+                                    <i aria-hidden="true" class="fa fa-times"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% comment %}
+    Assertive live region: short sr-only message for state changes
+{% endcomment %}
+<div id="tf-announce" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+{{ text_format_preferences|json_script:"tf-preferences" }}
+{{ text_format_options|json_script:"tf-options" }}
+<div id="tf-config" hidden
+     data-save-url="{% url 'save_text_format_preferences' %}"
+     data-csrf="{{ csrf_token }}"></div>
+{% if text_format_initial_style %}<style id="tf-preload">{{ text_format_initial_style }}</style>{% endif %}
+<script src="{% static 'common/js/text_readability.js' %}"></script>
+</section>

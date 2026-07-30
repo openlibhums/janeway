@@ -3,18 +3,49 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import json
 from mock import patch
+from types import SimpleNamespace
 from uuid import uuid4
-from django.urls.base import clear_script_prefix
+from django.core.cache import cache as django_cache
+from django.contrib.contenttypes.models import ContentType
+from django.http import QueryDict
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
+from django.test.client import RequestFactory
 from django.template.loader import get_template
+from django.urls.base import clear_script_prefix
 from django.utils import timezone
 
 from core import models as core_models
+from core import logic as core_logic
+from core import middleware as core_middleware
+from core import text_format as core_text_format
 from core import views as core_views
-from utils import orcid
+from utils import orcid, setting_handler
+from utils.template_override_middleware import Loader
 from utils.testing import helpers
+
+
+def a_registered_font():
+    """A real, non-default font slug from the registry."""
+    for slug, entry in core_text_format.FONTS.items():
+        if slug != "default" and entry.get("value"):
+            return slug
+    raise AssertionError("text_format.FONTS has no usable non-default font")
+
+
+def a_preset_scheme():
+    """A real preset colour scheme (slug, entry) from the registry.
+
+    Skips "default" (no light-mode) and "customise" (user-supplied colours)
+    """
+    for slug, entry in core_text_format.COLOUR_SCHEMES.items():
+        if slug in ("default", "customise"):
+            continue
+        if entry.get("light") and entry.get("dark"):
+            return slug, entry
+    raise AssertionError("text_format.COLOUR_SCHEMES has no usable preset scheme")
 
 
 class CoreViewTestsWithData(TestCase):
@@ -861,6 +892,722 @@ class ControlledAffiliationManagementTests(CoreViewTestsWithData):
         )
 
 
+# accessibility_mode
+
+
+class AccessibilityModeLoaderTests(TestCase):
+    """Tests for the Clarity-override branch in the template Loader."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        # Configure the journal to use a non-Clarity theme so we can confirm
+        # the accessibility-mode flag overrides the journal setting.
+        setting_handler.save_setting(
+            "general", "journal_theme", cls.journal_one, "material"
+        )
+
+    def setUp(self):
+        # The Loader memoises journal_theme/base_theme via function_cache,
+        # which uses the Django cache. Clear it so each test starts fresh.
+        django_cache.clear()
+        self.factory = RequestFactory()
+        # The loader only ever reads `engine.dirs`, so a stub object is
+        # sufficient for unit-testing get_theme_dirs.
+        self.loader = Loader(engine=SimpleNamespace(dirs=[]))
+
+    def build_request(self, session=None, query=None):
+        request = self.factory.get("/", data=query or {})
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.session = session or {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        return request
+
+    def test_accessibility_mode_session_serves_clarity(self):
+        self.build_request(session={"accessibility_mode": True})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+    def test_accessibility_mode_off_serves_journal_theme(self):
+        self.build_request(session={})
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/material/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    @override_settings(DEBUG=True)
+    def test_debug_theme_query_param_wins_over_session(self):
+        self.build_request(
+            session={"accessibility_mode": True},
+            query={"theme": "OLH"},
+        )
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/OLH/templates", joined)
+        self.assertNotIn("/themes/clarity/templates", joined)
+
+    def test_journal_setting_off_disables_loader_override(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            self.build_request(session={"accessibility_mode": True})
+            dirs = self.loader.get_theme_dirs()
+            joined = " ".join(dirs)
+            self.assertIn("/themes/material/templates", joined)
+            self.assertNotIn("/themes/clarity/templates", joined)
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    def test_authenticated_user_attribute_serves_clarity(self):
+        user = helpers.create_regular_user()
+        user.accessibility_mode = True
+        user.save()
+        request = self.factory.get("/")
+        request.journal = self.journal_one
+        request.repository = None
+        request.press = self.press
+        request.user = user
+        request.session = {}
+        core_middleware.GlobalRequestMiddleware.process_request(request)
+        dirs = self.loader.get_theme_dirs()
+        joined = " ".join(dirs)
+        self.assertIn("/themes/clarity/templates", joined)
+        self.assertNotIn("/themes/material/templates", joined)
+
+
+class AccessibilityModeToggleViewTests(TestCase):
+    """Tests for the toggle_accessibility_mode view."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_toggle@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        # accessibility_mode_active reads journal settings through
+        # function_cache, which uses the Django cache. Clear it so stale
+        # values left by earlier test classes cannot shadow the database.
+        django_cache.clear()
+        self.client = Client()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_anonymous_post_flips_session_value_true_then_false(self):
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        self.assertFalse(self.client.session.get("accessibility_mode"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_safe_next_url_is_followed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "/about/"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/about/")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unsafe_next_url_falls_back_to_safe_redirect(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.post(
+            url,
+            {"next": "https://evil.example.com/steal/"},
+            HTTP_REFERER="https://evil.example.com/steal/",
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Both `next` and the referer point to a different host, so the view
+        # falls back to the root path.
+        self.assertEqual(response["Location"], "/")
+        self.assertNotIn("evil.example.com", response["Location"])
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_method_is_not_allowed(self):
+        url = reverse("toggle_accessibility_mode")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(response.status_code, 405)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_setting_off_returns_404(self):
+        setting_handler.save_setting(
+            "general", "accessibility_mode", self.journal_one, False
+        )
+        try:
+            url = reverse("toggle_accessibility_mode")
+            response = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+            self.assertEqual(response.status_code, 404)
+            self.assertFalse(self.client.session.get("accessibility_mode"))
+        finally:
+            setting_handler.save_setting(
+                "general", "accessibility_mode", self.journal_one, True
+            )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_authenticated_post_flips_user_attribute_not_session(self):
+        user = helpers.create_regular_user()
+        self.client.force_login(user)
+        url = reverse("toggle_accessibility_mode")
+
+        first = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(first.status_code, 302)
+        user.refresh_from_db()
+        self.assertTrue(user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+        second = self.client.post(url, {}, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(second.status_code, 302)
+        user.refresh_from_db()
+        self.assertFalse(user.accessibility_mode)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_mode_can_be_disabled_after_enabling_then_logging_in(self):
+        # Regression test for the reported bug: enabling accessibility mode
+        # while anonymous and then logging in must leave the mode disableable.
+        # Previously the stale session flag shadowed the account flag, so the
+        # toggle re-enabled the account flag instead of disabling the mode.
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+        self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+        )
+        # The preference has migrated onto the account and the mode is active.
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.accessibility_mode)
+
+        # A single toggle now disables the mode for good.
+        self.client.post(
+            reverse("toggle_accessibility_mode"),
+            {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.accessibility_mode)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+@override_settings(URL_CONFIG="domain")
+class AccessibilityModePersistenceTests(TestCase):
+    """Login and logout persistence for the accessibility-mode preference.
+
+    These cover the truth tables agreed in review of PR #5314: on login the
+    anonymous session preference wins only when the visitor explicitly toggled
+    (key present), otherwise the account value stands; on logout the mode is
+    sticky and reflects the account's saved value.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "a11y_persist@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    def seed_anonymous_session(self, value):
+        """Seed the anonymous session flag.
+
+        ``None`` leaves the session untouched (no key, i.e. the visitor never
+        toggled); ``True``/``False`` records an explicit anonymous choice.
+        """
+        if value is None:
+            return
+        session = self.client.session
+        session["accessibility_mode"] = value
+        session.save()
+
+    def login_after(self, anonymous, account):
+        """Apply an anonymous session state and account flag, then log in."""
+        self.user.accessibility_mode = account
+        self.user.save()
+        self.seed_anonymous_session(anonymous)
+        self.assertTrue(
+            self.client.login(
+                username=self.user_email,
+                password=self.user_password,
+            )
+        )
+        self.user.refresh_from_db()
+
+    def assertLoginResult(self, anonymous, account, expected_account):
+        self.login_after(anonymous=anonymous, account=account)
+        self.assertEqual(self.user.accessibility_mode, expected_account)
+        # The session flag is always cleared so it can never shadow the
+        # account preference on later requests.
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+    def test_login_row_1_untouched_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_2_untouched_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_3_explicit_on_account_off_writes_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=False,
+            expected_account=True,
+        )
+
+    def test_login_row_4_explicit_on_account_on_stays_on(self):
+        self.assertLoginResult(
+            anonymous=True,
+            account=True,
+            expected_account=True,
+        )
+
+    def test_login_row_5_explicit_off_account_off_stays_off(self):
+        self.assertLoginResult(
+            anonymous=False,
+            account=False,
+            expected_account=False,
+        )
+
+    def test_login_row_6_explicit_off_account_on_writes_off(self):
+        # The key fix: an explicit anonymous off disables a previously enabled
+        # account preference, rather than being indistinguishable from
+        # "untouched" and leaving the account on.
+        self.assertLoginResult(
+            anonymous=False,
+            account=True,
+            expected_account=False,
+        )
+
+    def test_logout_row_1_account_on_stays_on(self):
+        self.user.accessibility_mode = True
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Logout flushes the session; the account value is re-seeded so the
+        # mode is sticky for the now-anonymous visitor.
+        self.assertTrue(self.client.session.get("accessibility_mode"))
+
+    def test_logout_row_2_account_off_stays_off(self):
+        self.user.accessibility_mode = False
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.get("accessibility_mode"))
+
+
+# the reading-options bar
+
+
+class CleanTextFormatPreferencesTests(TestCase):
+    """Unit tests for the reading-options payload sanitiser and its
+    text_format registry helpers (size bounds)."""
+
+    def test_non_dict_payload_returns_empty(self):
+        self.assertEqual(core_logic.clean_text_format_preferences(None), {})
+        self.assertEqual(core_logic.clean_text_format_preferences("nope"), {})
+        self.assertEqual(core_logic.clean_text_format_preferences([1, 2]), {})
+
+    def test_known_values_are_kept(self):
+        scheme, _entry = a_preset_scheme()
+        payload = {
+            "font": a_registered_font(),
+            "scheme": scheme,
+            "custom": {"light": "#ffffff", "dark": "#1a1a1a"},
+            "textSize": 2,
+        }
+        # Alternate True/False so both survive the round trip; iterating
+        # TOGGLE_FLAGS means a newly added toggle is covered automatically.
+        for index, flag in enumerate(core_logic.TOGGLE_FLAGS):
+            payload[flag] = index % 2 == 0
+        self.assertEqual(core_logic.clean_text_format_preferences(payload), payload)
+
+    def test_unknown_font_and_scheme_are_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"font": "comic-sans", "scheme": "rainbow"}
+        )
+        self.assertEqual(cleaned, {})
+
+    def test_allow_lists_track_the_registry(self):
+        # Every registry slug validates; a slug absent from the registry does not.
+        for slug in core_text_format.FONTS:
+            self.assertEqual(
+                core_logic.clean_text_format_preferences({"font": slug}),
+                {"font": slug},
+            )
+        for slug in core_text_format.COLOUR_SCHEMES:
+            self.assertEqual(
+                core_logic.clean_text_format_preferences({"scheme": slug}),
+                {"scheme": slug},
+            )
+        self.assertNotIn("not-a-registered-font", core_text_format.FONTS)
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"font": "not-a-registered-font"}),
+            {},
+        )
+
+    def test_unknown_keys_are_dropped(self):
+        font = a_registered_font()
+        cleaned = core_logic.clean_text_format_preferences(
+            {"font": font, "evil": "<script>"}
+        )
+        self.assertEqual(cleaned, {"font": font})
+
+    def test_non_bool_flags_are_dropped(self):
+        # Every registered toggle rejects a non-bool value, whatever is added later.
+        payload = {flag: "not-a-bool" for flag in core_logic.TOGGLE_FLAGS}
+        self.assertEqual(core_logic.clean_text_format_preferences(payload), {})
+
+    def test_invalid_custom_hex_is_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"custom": {"light": "red", "dark": "#1a1a1a"}}
+        )
+        self.assertEqual(cleaned, {"custom": {"dark": "#1a1a1a"}})
+
+    def test_custom_with_no_valid_colours_is_dropped(self):
+        cleaned = core_logic.clean_text_format_preferences(
+            {"custom": {"light": "red", "dark": "blue"}}
+        )
+        self.assertEqual(cleaned, {})
+
+    def test_text_size_bounds_are_inclusive(self):
+        bounds = core_text_format.size_bounds()
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["min"]}),
+            {"textSize": bounds["min"]},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["max"]}),
+            {"textSize": bounds["max"]},
+        )
+
+    def test_text_size_validates_via_size_bounds(self):
+        # One step outside the resolved bounds is dropped.
+        bounds = core_text_format.size_bounds()
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["min"] - 1}),
+            {},
+        )
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": bounds["max"] + 1}),
+            {},
+        )
+
+    def test_bool_text_size_is_dropped(self):
+        # bool is a subclass of int; True must not be accepted as a size.
+        self.assertEqual(
+            core_logic.clean_text_format_preferences({"textSize": True}), {}
+        )
+
+    def test_size_bounds_default_is_global(self):
+        # No font currently narrows the bounds; both calls resolve to the same default.
+        self.assertEqual(
+            core_text_format.size_bounds(),
+            core_text_format.DEFAULT_SIZE_BOUNDS,
+        )
+        self.assertEqual(
+            core_text_format.size_bounds(a_registered_font()),
+            core_text_format.DEFAULT_SIZE_BOUNDS,
+        )
+
+
+class InitialRegionColourCssTests(TestCase):
+    """Unit tests for the no-flash bootstrap CSS resolver."""
+
+    def css(self, preferences):
+        return core_text_format.initial_region_colour_css(preferences)
+
+    def test_non_dict_and_empty_yield_nothing(self):
+        self.assertEqual(self.css(None), "")
+        self.assertEqual(self.css("nope"), "")
+        self.assertEqual(self.css({}), "")
+
+    def test_default_scheme_light_has_no_override(self):
+        # The default scheme in light mode shows the theme's own colours.
+        self.assertEqual(self.css({"scheme": "default"}), "")
+        self.assertEqual(self.css({"scheme": "default", "darkmode": False}), "")
+
+    def test_default_scheme_dark_applies_dark_pair(self):
+        default = core_text_format.COLOUR_SCHEMES["default"]
+        css = self.css({"scheme": "default", "darkmode": True})
+        # Dark mode swaps: the dark colour becomes the background.
+        self.assertIn("background-color:%s" % default["dark"], css)
+        self.assertIn("color:%s" % default["light"], css)
+
+    def test_preset_scheme_light(self):
+        scheme, entry = a_preset_scheme()
+        css = self.css({"scheme": scheme})
+        self.assertIn(".text-format-region", css)
+        # Light mode: the scheme's light colour is the background, dark the text.
+        self.assertIn("background-color:%s" % entry["light"], css)
+        self.assertIn("color:%s" % entry["dark"], css)
+        self.assertIn("padding:20px", css)
+
+    def test_preset_scheme_dark_swaps_pair(self):
+        scheme, entry = a_preset_scheme()
+        css = self.css({"scheme": scheme, "darkmode": True})
+        # Dark mode swaps the pair: dark becomes background, light becomes text.
+        self.assertIn("background-color:%s" % entry["dark"], css)
+        self.assertIn("color:%s" % entry["light"], css)
+
+    def test_customise_uses_custom_hex(self):
+        css = self.css(
+            {"scheme": "customise", "custom": {"light": "#abcdef", "dark": "#123456"}}
+        )
+        self.assertIn("background-color:#abcdef", css)
+        self.assertIn("color:#123456", css)
+
+    def test_unknown_scheme_yields_nothing(self):
+        self.assertEqual(self.css({"scheme": "not-a-real-scheme"}), "")
+
+    def test_non_hex_values_are_rejected(self):
+        # A tampered custom colour must never reach the emitted CSS.
+        self.assertEqual(
+            self.css(
+                {"scheme": "customise", "custom": {"light": "red", "dark": "#000000"}}
+            ),
+            "",
+        )
+        self.assertEqual(
+            self.css(
+                {
+                    "scheme": "customise",
+                    "custom": {"light": "#fff;}body{display:none", "dark": "#000000"},
+                }
+            ),
+            "",
+        )
+
+
+@override_settings(URL_CONFIG="domain")
+class SaveTextFormatPreferencesViewTests(TestCase):
+    """Tests for the save_text_format_preferences POST endpoint."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "tf_save@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.url = reverse("save_text_format_preferences")
+        self.scheme, _entry = a_preset_scheme()
+        self.valid = {
+            "font": a_registered_font(),
+            "scheme": self.scheme,
+            "textSize": 2,
+        }
+
+    def post_preferences(self, payload):
+        return self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def test_get_method_is_not_allowed(self):
+        response = self.client.get(self.url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(response.status_code, 405)
+
+    def test_invalid_json_returns_400(self):
+        response = self.client.post(
+            self.url,
+            data="not json",
+            content_type="application/json",
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_anonymous_save_stores_cleaned_in_session(self):
+        response = self.post_preferences(self.valid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session.get("text_format_preferences"), self.valid)
+
+    def test_tampered_payload_is_sanitised_before_storage(self):
+        # An unregistered font and an unknown key are dropped; the valid scheme
+        # survives sanitisation.
+        response = self.post_preferences(
+            {"font": "comic-sans", "scheme": self.scheme, "evil": "x"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.client.session.get("text_format_preferences"),
+            {"scheme": self.scheme},
+        )
+
+    def test_authenticated_save_stores_on_account_not_session(self):
+        self.client.force_login(self.user)
+        response = self.post_preferences(self.valid)
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.text_format_preferences, self.valid)
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
+
+
+@override_settings(URL_CONFIG="domain")
+class TextFormatPreferencesPersistenceTests(TestCase):
+    """Login and logout persistence for the reading-options preferences.
+
+    Both this and accessibility_mode go through the same generic, value-type
+    -agnostic migrate/reseed helpers in core.logic (see PreferenceDescriptor),
+    so the full login/logout truth table is only exercised once, against the
+    bool case, in AccessibilityModePersistenceTests. What's actually specific
+    to a dict-shaped preference - an empty dict standing in for "unset" rather
+    than a bool - is what these tests cover.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user_email = "tf_persist@example.org"
+        cls.user_password = "Yk3pNq8wL2vZr7tX"
+        cls.user = core_models.Account.objects.create_user(
+            cls.user_email,
+            password=cls.user_password,
+        )
+        cls.user.is_active = True
+        cls.user.save()
+        cls.account_prefs = {"scheme": a_preset_scheme()[0]}
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+
+    def seed_anonymous_session(self, value):
+        """Seed the anonymous session preferences.
+
+        ``None`` leaves the session untouched (no key, i.e. the visitor never
+        changed a setting); a dict records an explicit anonymous choice.
+        """
+        if value is None:
+            return
+        session = self.client.session
+        session["text_format_preferences"] = value
+        session.save()
+
+    def login_after(self, anonymous, account):
+        """Apply an anonymous session state and account value, then log in."""
+        self.user.text_format_preferences = account
+        self.user.save()
+        self.seed_anonymous_session(anonymous)
+        self.assertTrue(
+            self.client.login(
+                username=self.user_email,
+                password=self.user_password,
+            )
+        )
+        self.user.refresh_from_db()
+
+    def assertLoginResult(self, anonymous, account, expected_account):
+        self.login_after(anonymous=anonymous, account=account)
+        self.assertEqual(self.user.text_format_preferences, expected_account)
+        # The session copy is always cleared so it can never shadow the
+        # account preference on later requests.
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
+
+    def test_login_untouched_account_applied(self):
+        self.assertLoginResult(
+            anonymous=None,
+            account=self.account_prefs,
+            expected_account=self.account_prefs,
+        )
+
+    def test_login_explicit_clear_disables_account(self):
+        # An explicit anonymous reset (empty dict present) clears a previously
+        # stored account preference, rather than being read as "untouched".
+        self.assertLoginResult(
+            anonymous={},
+            account=self.account_prefs,
+            expected_account={},
+        )
+
+    def test_logout_account_value_is_sticky(self):
+        self.user.text_format_preferences = self.account_prefs
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        # Logout flushes the session; the account value is re-seeded so the
+        # preference stays for the now-anonymous visitor.
+        self.assertEqual(
+            self.client.session.get("text_format_preferences"),
+            self.account_prefs,
+        )
+
+    def test_logout_empty_account_leaves_no_session_key(self):
+        self.user.text_format_preferences = {}
+        self.user.save()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("core_logout"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(self.client.session.get("text_format_preferences"))
+
+
 class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
     maxDiff = None
 
@@ -1061,3 +1808,268 @@ class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
           <li>&ndash;Oct 2016</li>
         """
         self.assertHTMLEqual(expected, template.render(context))
+
+
+class ContactSystemTests(CoreViewTestsWithData):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.editor_one = helpers.create_editor(
+            cls.journal_one,
+            email="editor_awydh5q7z0q0hpfallko@example.org",
+            first_name="Editor",
+            last_name="One",
+        )
+        cls.editor_two = helpers.create_editor(
+            cls.journal_one,
+            email="editor_f0nexsowxw3tcz27td5q@example.org",
+            first_name="Editor",
+            last_name="Two",
+        )
+        cls.tech_person = helpers.create_user(
+            "tech_person_npavexim0doaqr9w9cqz@example.org",
+            roles=["author"],
+            journal=cls.journal_one,
+            is_staff=True,
+            is_active=True,
+            first_name="Tech",
+            last_name="Person",
+        )
+        cls.press_manager = helpers.create_user(
+            "press_manager_lpnp50waqhk5wwlcbyie@example.org",
+            roles=["author"],
+            journal=cls.journal_one,
+            is_staff=True,
+            is_active=True,
+            first_name="Press",
+            last_name="Manager",
+        )
+        cls.contact_one = helpers.create_contact_person(cls.editor_one, cls.journal_one)
+        cls.contact_two = helpers.create_contact_person(
+            cls.tech_person,
+            cls.journal_one,
+        )
+        cls.contact_three = helpers.create_contact_person(
+            cls.press_manager,
+            cls.press,
+        )
+        cls.press_content_type = ContentType.objects.get_for_model(cls.press)
+        cls.journal_content_type = ContentType.objects.get_for_model(cls.journal_one)
+
+        # Create some log entries containing contact messages
+        cls.contact_message_one = helpers.send_contact_message(
+            cls.journal_one,
+            cls.contact_one,
+        )
+        cls.contact_message_two = helpers.send_contact_message(
+            cls.press,
+            cls.contact_three,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_people_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(self.contact_one, response.context["contacts"])
+        self.assertNotIn(self.contact_three, response.context["contacts"])
+        self.assertTemplateUsed(
+            "core/manager/contacts/index.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_people_delete_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people")
+        post_data = {
+            "delete": self.contact_two.pk,
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.assertFalse(
+            self.journal_one.contact_people.filter(
+                account=self.tech_person,
+            ).exists(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_create_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_create",
+            kwargs={"account_id": self.editor_two.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            response.context["account"],
+            self.editor_two,
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/contact_person_form.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_create_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_create",
+            kwargs={"account_id": self.editor_two.pk},
+        )
+        post_data = {
+            "role": "Managing editor",
+            "sequence": "2",
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.assertTrue(
+            self.journal_one.contact_people.filter(
+                account=self.editor_two,
+            ).exists(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_update_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_update",
+            kwargs={"contact_person_id": self.contact_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            response.context["contact_person"],
+            self.contact_one,
+        )
+        self.assertListEqual(
+            [cp.pk for cp in response.context["contact_people"]],
+            [cp.pk for cp in self.journal_one.contact_people],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/contact_person_form.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(LANGUAGE_CODE="en")
+    def test_contact_person_update_POST(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_person_update",
+            kwargs={"contact_person_id": self.contact_one.pk},
+        )
+        post_data = {
+            "role": "Keeper of the issue numbers",
+            "sequence": self.contact_one.sequence,
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.contact_one.refresh_from_db()
+        self.assertEqual(
+            self.contact_one.role,
+            "Keeper of the issue numbers",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_person_reorder(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_people_reorder")
+        post_data = {
+            "contact[]": [self.contact_two.pk, self.contact_one.pk],
+        }
+        self.client.post(url, post_data, SERVER_NAME=self.journal_one.domain)
+        self.contact_one.refresh_from_db()
+        self.contact_two.refresh_from_db()
+        self.assertEqual(self.contact_two.sequence, 1)
+        self.assertEqual(self.contact_one.sequence, 2)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertListEqual(
+            [cp.pk for cp in response.context["contact_people"]],
+            [cp.pk for cp in self.journal_one.contact_people],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/search_potential.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET_with_q(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        get_data = {
+            "q": self.editor_two.last_name,
+        }
+        response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(
+            self.editor_two,
+            response.context["account_list"],
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_potential_contact_list_view_GET_marks_existing_contacts(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_person_search")
+        get_data = {
+            "q": self.editor_one.first_name,
+        }
+        response = self.client.get(url, get_data, SERVER_NAME=self.journal_one.domain)
+        self.assertTrue(response.context["account_list"][0].is_contact_person)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_journal_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_core_contact_messages_press_GET(self):
+        self.client.force_login(self.press_manager)
+        url = reverse("core_contact_messages")
+        response = self.client.get(url, SERVER_NAME=self.press.domain)
+        self.assertIn(
+            self.contact_message_two,
+            response.context["logentry_list"],
+        )
+        self.assertNotIn(
+            self.contact_message_one,
+            response.context["logentry_list"],
+        )
+        self.assertTemplateUsed(
+            "core/manager/contacts/message_list.html",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_message_delete_GET(self):
+        self.client.force_login(self.editor_one)
+        url = reverse(
+            "core_contact_message_delete",
+            kwargs={"log_entry_id": self.contact_message_one.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_message_one,
+            response.context["log_entry"],
+        )

@@ -2,8 +2,11 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load alt_text %}
 {% load bootstrap4 %}
 {% load next_url %}
+{% load dates %}
+{% load settings %}
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
@@ -12,14 +15,19 @@
     {% include "common/metadata/preprint_citation.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row preprint-content">
       <div class="col m12">
         <div class="card">
-          <div class="card-image preprint-card">
-            <img class="orbit-image" alt="{{ preprint.title|striptags }}"
-                 src="{% if request.repository.hero_background %}{{ request.repository.hero_background.url }}{% else %}{% static "common/img/repository_background.jpg" %}{% endif %}">
-            <div class="card-title">
+          <div class="material-banner">
+            <img class="material-banner-image"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
+               src="{{ request.repository.best_large_image_url }}">
+            <div class="material-banner-heading">
               <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
             </div>
           </div>
@@ -31,14 +39,15 @@
                 <p class="preprint-text">
                     This is a {{ request.repository.object_name }} and has not been peer reviewed.
                     {% if preprint.doi %}
-                        The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                        The published version of this {{ request.repository.object_name }} is available: 
+                        {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
                     {% elif preprint.article %}
                         A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
                     This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
                 </p>
                 {% if preprint.current_version_file_type == 'html' %}
-                    <div class="card">
+                    <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
                             {{ preprint.current_version.html|safe }}
@@ -55,8 +64,8 @@
                                 visible version.</p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                                class="waves-effect waves-light btn">
-                               <i aria-hidden="true" class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                                {{ request.repository.object_name }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a>
                         {% else %}
                             <p>This {{ request.repository.object_name }} does
@@ -135,8 +144,8 @@
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
-                                <i aria-hidden="true" class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                                {{ request.repository.object_name }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a></p>
                     {% endif %}
                     {% if preprint.supplementaryfiles %}
@@ -165,6 +174,9 @@
                     {% if preprint.preprint_doi %}
                     <h2>DOI</h2>
                     <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% elif preprint.current_version.get_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ preprint.current_version.get_doi }}">https://doi.org/{{ preprint.current_version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}
@@ -188,7 +200,7 @@
                                     <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
                                         <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
                                         <span class="sr-only">{% trans 'Download' %}</span>
-                                        Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
+                                        Version {{ version.version }} - {{ version.date_time|date_human}}
                                     </a>
                                 </li>
                             {% endif %}

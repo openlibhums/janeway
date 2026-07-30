@@ -219,6 +219,10 @@ a:hover .article-title {
     opacity: 0.5;
     padding: 10px
 }
+.carousel-text-wrapper h1,
+.carousel-text-wrapper h2 {
+  margin-block: 0;
+}
 
 .no-bottom-padding {
     padding-bottom: 0px !important;
@@ -293,9 +297,10 @@ a:hover .article-title {
     list-style-type: disc;
 }
 
-.toc-card {
-    position: fixed !important;
-    top: 1%;
+.toc-sticky{
+    position: sticky;
+    top: 0;
+    z-index: 700;
 }
 
 .wide-button {
@@ -377,6 +382,13 @@ a:hover .article-title {
     text-decoration: underline;
 }
 
+a[target="_blank"] {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
 .feature-article-image {
     width: 100%;
     object-fit: cover;
@@ -403,6 +415,10 @@ h2 {
 
 h3 {
     font-size: 2.0rem;
+}
+
+.card-content > h3{
+    font-size: 20px;
 }
 
 h4 {
@@ -458,7 +474,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p {
+.footer-copyright p, li {
     color: #616161;
 }
 
@@ -664,6 +680,23 @@ nav a.sidenav-trigger i {
     max-height: 75%;
 }
 
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
+
 .card-full-height {
     height: 100%;
 }
@@ -759,4 +792,905 @@ main {
     height: 40px;
     padding: 0 10px;
     min-width: 40px;
+}
+
+#toc-card {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+#article iframe {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin: 1rem 0;
+}
+
+a {
+    overflow-wrap: break-word;
+}
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.list-inline-bar {
+    padding-left: 0;
+    list-style: none;
+}
+
+.list-inline-bar li {
+    display: inline-block;
+}
+
+.list-inline-bar li:not(:last-child)::after {
+  content: " | " / "";   
+}
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
+
+.metrics {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 110%;
+}
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+   padding-left: 0.1rem;
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+.icon-recede{
+    opacity: 70%;
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    border: 1px, solid, #00897b;
+    padding: 0 10px;
+    min-width: 7rem;
+    min-height: 2rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.btn-background + .btn-background {
+    margin-left: 0.5rem;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+p + .btn-background {
+    height: auto;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #00897b;
+    border-color: #00897b;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+
+.btn-opt {
+    border: 1px solid #00897b;
+    background-color: inherit;
+    text-transform: none;
+    color: inherit;
+}
+
+/*
+   Reading Options bar — shared reading_options_bar.html
+   styles the bar itself, includes custom fonts, css for applying the custom styles
+   and finally hides incompatible elements (due to theme differences).
+*/
+
+/* styling the options bar */
+
+#article_opener > .m12 > .card {
+  margin-bottom: 0;
+}
+
+.reading-bar-band {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
+}
+
+.reading-bar-band .mini-bar {
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reading-bar-band + .container > .section {
+  padding-top: 0;
+}
+
+.reading-options-bar {
+  margin: 0;
+}
+
+.mini-bar {
+  width: 100%;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 1rem;
+}
+
+.mini-bar .row,
+.mini-bar #options-menu,
+.mini-bar #options-menu > div,
+.mini-bar #options-menu > div > div {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu.medium-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0.75rem;
+}
+
+.mini-bar ul.menu.medium-horizontal > li {
+  position: relative; /* anchor for the dropdown panes */
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button,
+.mini-bar ul.menu.medium-horizontal > li > a {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 0.75rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  line-height: normal;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button:hover,
+.mini-bar ul.menu.medium-horizontal > li > a:hover,
+.mini-bar ul.menu.medium-horizontal > li > button:focus,
+.mini-bar ul.menu.medium-horizontal > li > a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.mini-bar ul.menu i {
+  margin-right: 0.4rem;
+}
+.mini-bar ul.menu .fa-caret-down {
+  margin-left: 0.4rem;
+  margin-right: 0;
+}
+
+/* Dropdown panes (font, colour scheme, citation). Hidden until the parent item
+   is hovered or contains focus. */
+.mini-bar ul.menu.medium-horizontal > li > ul.menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 12rem;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25rem 0;
+  background: #fff;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  z-index: 1001;
+}
+
+/* Open only when the menu button is activated (JS toggles aria-expanded)*/
+.mini-bar ul.menu.medium-horizontal > li > button[aria-expanded="true"] + ul.menu {
+  display: flex;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button,
+.mini-bar ul.menu.medium-horizontal ul.menu li a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li button:focus,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Hidden items (the custom-colour swatches until "Customise" is chosen). */
+.mini-bar ul.menu li[hidden] {
+  display: none;
+}
+
+
+/* Custom colour swatches. */
+.mini-bar input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin-right: 0.25rem;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* Icon toggles (Dark mode, Italics) carry a tick badge when active. */
+.mini-bar .tf-icon-toggle .tf-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.mini-bar .tf-icon-toggle .tf-tick {
+  display: none;
+  position: absolute;
+  right: -9px;
+  bottom: -3px;
+  font-size: 0.6em;
+  line-height: 1;
+  color: #00897b;
+  background: #fff;
+  border-radius: 50%;
+}
+.mini-bar .tf-icon-toggle .tf-tick i {
+  margin: 0;
+}
+.mini-bar .tf-icon-toggle[aria-pressed="true"] .tf-tick {
+  display: inline-flex;
+}
+
+/* Colour scheme scoping to cards only */
+#article.text-format-region.tf-has-colour,
+#article.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+}
+#article.text-format-region.tf-has-colour .card {
+  background-color: var(--tf-bg) !important;
+  transition: background-color 0.4s ease-out;
+}
+/* Longer card transition when crossing to/from the default */
+#article.text-format-region.tf-default-transition .card {
+  transition: background-color 0.6s ease-out;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+#article.text-format-region.tf-has-colour .draw-attention,
+#article.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* Fonts */
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+.text-format-region.tf-has-colour {
+  padding: 1rem;
+}
+
+.text-format-region.tf-has-font *:not([class*="fa"]) {
+  font-family: var(--tf-font) !important;
+}
+
+.text-format-region.tf-has-colour {
+  background-color: var(--tf-bg) !important;
+  color: var(--tf-fg) !important;
+  /* Ease colour-scheme changes so switching so is not jarring. */
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+.text-format-region.tf-has-colour .modal-sticky-close {
+  background-color: var(--tf-bg) !important;
+}
+
+/* Moving to/from the default is a bigger jump, so longer transition */
+.text-format-region.tf-default-transition,
+.text-format-region.tf-default-transition * {
+  transition: background-color 0.6s ease-out, color 0.6s ease-out;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+.text-format-region.tf-has-colour .draw-attention,
+.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* For when Reader has turned the draw-attention highlight off*/
+#article.text-format-region.tf-no-attention .draw-attention,
+#article.text-format-region.tf-no-attention .draw-attention *,
+.text-format-region.tf-no-attention .draw-attention,
+.text-format-region.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+}
+#article.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+#article.text-format-region.tf-has-colour.tf-no-attention .draw-attention *,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+}
+#article.text-format-region.tf-no-attention .draw-attention:focus,
+.text-format-region.tf-no-attention .draw-attention:focus {
+  outline: none !important;
+}
+
+/* Interactive controls now share the region background, so give them a
+   foreground-coloured border to stay visually delineated. */
+.text-format-region.tf-has-colour button,
+.text-format-region.tf-has-colour .button,
+.text-format-region.tf-has-colour input,
+.text-format-region.tf-has-colour select,
+.text-format-region.tf-has-colour textarea {
+  border-color: var(--tf-fg) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+#article.text-format-region.tf-has-colour thead,
+#article.text-format-region.tf-has-colour tbody,
+#article.text-format-region.tf-has-colour tfoot,
+#article.text-format-region.tf-has-colour tr,
+#article.text-format-region.tf-has-colour th,
+#article.text-format-region.tf-has-colour td,
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour thead,
+.text-format-region.tf-has-colour tbody,
+.text-format-region.tf-has-colour tfoot,
+.text-format-region.tf-has-colour tr,
+.text-format-region.tf-has-colour th,
+.text-format-region.tf-has-colour td {
+  border-color: color-mix(in srgb, var(--tf-fg) 50%, transparent) !important;
+}
+
+#article.text-format-region.tf-has-colour blockquote,
+.text-format-region.tf-has-colour blockquote {
+  border-color: color-mix(in srgb, var(--tf-fg) 70%, transparent) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+#article.text-format-region.tf-has-colour .fig-caption,
+#article.text-format-region.tf-has-colour .table-caption,
+#article.text-format-region.tf-has-colour .table-foot,
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour .fig-caption,
+.text-format-region.tf-has-colour .table-caption,
+.text-format-region.tf-has-colour .table-foot {
+  border: 1px solid var(--tf-fg) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour table {
+  border-top: none !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-track {
+  background: var(--tf-bg) !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-thumb {
+  background: var(--tf-fg) !important;
+  border-radius: 6px;
+}
+
+.text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+/* The "Reading Options" toggle is hidden on desktop (the full bar shows); on
+   mobile it becomes the disclosure that expands/collapses the options panel. */
+.mini-bar .title-bar {
+  display: none;
+}
+
+.mini-bar .title-bar-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  padding: 0 0.75rem;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mini-bar .title-bar-title .menu-icon {
+  display: none;
+}
+
+.mini-bar .title-bar-title .tf-options-caret {
+  margin-left: auto;
+}
+
+.mini-bar .title-bar-title[aria-expanded="true"] .tf-options-caret {
+  transform: rotate(180deg);
+}
+
+/* no citation modals on material */
+.mini-bar li.tf-cite {
+  display: none;
+}
+
+@media (min-width: 993px) {
+  .reading-options-bar.tf-bar-hidden {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .reading-bar-band {
+    position: static;
+  }
+
+  .mini-bar .title-bar {
+    display: block;
+  }
+
+  .reading-options-bar.tf-bar-hidden #options-menu {
+    display: none;
+  }
+
+  .mini-bar .tf-close {
+    display: none;
+  }
+
+  .a11y-bar-show-item {
+    display: none;
+  }
+}
+
+/* end of reading options */
+
+/* Banner for hero / large image */
+.material-banner {
+  position: relative;
+  /* overflow: clip; */
+  overflow: hidden;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.material-banner > *,
+.material-banner .material-banner-image {
+  display: block;
+  flex-grow: 1;
+  max-height: 648px;
+}
+.material-banner-heading {
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width > 600px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(432px, 100%);
+  }
+}
+@media (width > 992px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: 540px;
+  }
+}
+@media (width > 1200px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(648px, 100%);
+  }
+}
+/* Carousel items should display text at the top because Materialize JS
+ * sets the carousel height for reasons of its own,
+ * which can have the effect of hiding the heading. */
+.carousel-item.material-banner .material-banner-heading {
+  bottom: unset;
+  top: 0;
+}
+/* Partial-width banners should be shorter */
+.m4 .material-banner,
+.l4 .material-banner {
+  max-height: 216px;
+}
+.m6 .material-banner,
+.m8 .material-banner,
+.l6 .material-banner,
+.l8 .material-banner {
+  max-height: 288px;
+}
+/* End banner image styles */
+
+/* Fix chevron icon clipping in pagination */
+  .pagination li a:has(i) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.5rem;
+      padding: 0.5rem;
+  }
+
+  .pagination li a i {
+      font-size: 1rem;
+      line-height: 1;
+      vertical-align: middle;
+  }
+
+/* Hide mobile navigation from keyboard navigation on wide screens */
+@media only screen and (min-width: 993px) {
+  .sidenav {
+    /* Remove from tab order on wide screens */
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
+  .sidenav * {
+    /* Ensure all child elements are also not focusable */
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Ensure mobile navigation is accessible on smaller screens */
+@media only screen and (max-width: 992px) {
+  .sidenav {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  
+  .sidenav * {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+  :root {
+      --focus-light: #F9F9F9;
+      --focus-dark: #193146;
+      --focus-ring-size: 4px;
+  }
+
+  /* General */
+  .keyboard-focused *:focus {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+  /* Prevent layout shifts */
+  .card-panel a,
+  p a,
+  span a, 
+  li a,
+  .dropdown-item {
+      display: inline-block;
+      margin: calc(-1 * var(--focus-ring-size));
+      padding: var(--focus-ring-size);
+      box-sizing: border-box;
+  }
+  .table-of-contents li{
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        padding-left: calc(var(--focus-ring-size) + 3px) ;
+        box-sizing: border-box;
+  }
+
+  /* individual overrides */
+  .keyboard-focused button:focus{
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0px !important;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
+  /* article page table of contents links */
+  .keyboard-focused .table-of-contents li:has(a:focus){
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: list-item;
+  }
+  .keyboard-focused .table-of-contents a:focus{
+    outline: none;
+    box-shadow: none;
+  }
+
+  /* Fix focus ring alignment for xref-fn links containing sup tags */
+  .keyboard-focused a:has(sup):focus {
+    display: inline-block;
+    vertical-align: baseline;
+    line-height: 1;
+  }
+
+  /* Show focus on pagination li when its child link is focused */
+  .keyboard-focused .pagination li:has(a:focus),
+  .keyboard-focused .dropdown-item li:has(a:focus) {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0px;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+   /* Dropdown focus improvements */
+  .keyboard-focused .dropdown-content {
+      padding: var(--focus-ring-size);
+      margin: calc(-1 * var(--focus-ring-size));
+  }
+
+  .keyboard-focused .dropdown-content li {
+      margin: 0;
+      padding: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item {
+      display: block;
+      margin: 0;
+      border-radius: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item:focus {
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: block;
+  }
+
+  /* focus bounding boxes */
+  .keyboard-focused a:focus {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: inline-block;
+      white-space: normal;
+  }
+
+  .nav-wrapper a:focus {
+    display: block;
+  }
+
+  /* Search input group styling */
+.input-group {
+  display: flex;
+}
+
+/* Accessibility mode toggle */
+nav .a11y-toggle-host {
+  float: left;
+  height: 90px;
+  padding: 0 12px;
+  margin: 0;
+  list-style: none;
+  line-height: 90px;
+}
+
+nav .a11y-toggle-host .a11y-toggle-dropdown {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+nav .a11y-toggle-host .a11y-toggle-summary {
+  color: #1a1a1a;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+
+}
+
+nav .a11y-toggle-host .a11y-toggle-icon {
+  position: relative;
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1.25rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+nav .a11y-toggle-host .a11y-toggle-icon > .fa {
+  display: inline-block;
+  font-size: 1.25rem;
+  line-height: 1.25rem;
+  vertical-align: top;
+}
+
+nav .a11y-toggle-host .a11y-toggle-indicator {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: 50%;
+  line-height: 14px;
+  text-align: center;
+  vertical-align: top;
+}
+
+nav .a11y-toggle-host .a11y-toggle-indicator > .fa {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 14px;
+  vertical-align: top;
+}
+
+.sidenav .a11y-mobile-item {
+  background-color: #fff;
+  min-height: 48px;
+  line-height: 48px;
+}
+
+.sidenav .a11y-mobile-item > a {
+  display: block;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 32px;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidenav .a11y-mobile-form {
+  margin: 0 -4px;
+  padding: 0;
+  display: block;
+}
+
+.sidenav .a11y-mobile-button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 0 32px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: rgba(0, 0, 0, 0.87);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 48px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidenav .a11y-mobile-button:hover,
+.sidenav .a11y-mobile-button:focus {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidenav .a11y-mobile-button:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
 }

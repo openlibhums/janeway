@@ -3,7 +3,12 @@
     <div class="col m2">
         {% svg request.press_cover %}
     </div>
-    <div class="col m10">
+    <div class="col m8">
         <p><small>{{ press.footer_description|default:""|safe }}</small></p>
+    </div>
+    <div class="col m2">
+        <ul class="list-inline-bar">
+            <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
+        </ul>
     </div>
 </div>

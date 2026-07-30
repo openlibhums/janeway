@@ -26,7 +26,7 @@ from security.logic import (
     can_view_file_history,
     is_data_figure_file,
 )
-from utils import setting_handler
+from utils import setting_handler, models as utils_models
 from utils.logger import get_logger
 from repository import models as preprint_models
 
@@ -143,7 +143,13 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal and request.user in request.journal.editor_list():
+        if request.user.is_staff:
+            return func(request, *args, **kwargs)
+
+        if request.journal and (
+            request.user.is_editor(request)
+            or request.user.is_journal_manager(request.journal)
+        ):
             return func(request, *args, **kwargs)
 
         if request.repository and request.user in request.repository.managers.all():
@@ -275,6 +281,8 @@ def editor_or_journal_manager_required(func):
         ):
             return func(request, *args, **kwargs)
         deny_access(request)
+
+    return wrapper
 
 
 def editor_user_required(func):
@@ -500,6 +508,9 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get("article_id", None)
+        galley_id = kwargs.get("galley_id", None)
+
         if (
             request.user.is_typesetter(request)
             or request.user.is_production(request)
@@ -507,8 +518,24 @@ def typesetting_user_or_production_user_or_editor_required(func):
             or request.user.is_staff
         ):
             return func(request, *args, **kwargs)
-        else:
-            deny_access(request)
+
+        elif article_id:
+            article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+            if request.user in article.section_editors():
+                return func(request, *args, **kwargs)
+        elif galley_id:
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+            )
+            if request.user in galley.article.section_editors():
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
@@ -747,6 +774,11 @@ def article_stage_accepted_or_later_required(func):
         article_object = models.Article.get_article(
             request.journal, identifier_type, identifier
         )
+        if article_object and article_object.journal.get_setting(
+            "general",
+            "uses_isolinear_plugin",
+        ):
+            return func(request, *args, **kwargs)
 
         if article_object is None or not article_object.is_accepted():
             deny_access(request)
@@ -1420,7 +1452,7 @@ def article_stage_review_required(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if not article.stage in models.REVIEW_STAGES:
+        if article.stage not in models.REVIEW_STAGES:
             deny_access(request)
         else:
             return func(request, article_id, *args, **kwargs)
@@ -1572,3 +1604,23 @@ def repository_setting_enabled(attr_name, error_message="Setting disabled"):
         return inner
 
     return decorator
+
+
+def user_can_view_contact_message(func):
+    """This checks permissions for a user to view a specific contact message.
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        log_entry_id = kwargs["log_entry_id"]
+
+        log_entry = utils_models.LogEntry.objects.get(pk=log_entry_id)
+
+        if log_entry.viewable_as_contact_message_by(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper

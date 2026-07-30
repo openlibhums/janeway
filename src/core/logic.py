@@ -11,20 +11,23 @@ from datetime import timedelta
 import operator
 import re
 from functools import reduce
-from urllib.parse import unquote, urlparse
 
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.template.loader import get_template
 from django.db.models import Q
-from django.http import JsonResponse, QueryDict
+from django.http import JsonResponse
 from django.forms.models import model_to_dict
-from django.shortcuts import reverse
+from django.shortcuts import reverse, get_object_or_404
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
-from core import forms, models, files, plugin_installed_apps
+from core import forms, models, files, plugin_installed_apps, text_format
+from core.const import Sentinel
 from utils.function_cache import cache
 from review import models as review_models
 from utils import render_template, notify_helpers, setting_handler
@@ -148,9 +151,20 @@ def send_confirmation_link(request, new_user):
     )
 
 
-def resize_and_crop(img_path, size, crop_type="middle"):
+def resize_and_crop(
+    img_path,
+    size=settings.DEFAULT_CROP_SIZE,
+    crop_type="middle",
+    field_name="",
+    original_filename="",
+):
     """
     Resize and crop an image to fit the specified size.
+    :param img_path: filepath to saved image
+    :param size: tuple with (width, height) in pixels
+    :param crop_type: "top", "middle", or "bottom"
+    :param field_name: human-readable field name for help messages
+    :param original_filename: the original filename for help messages
     """
 
     # If height is higher we resize vertically, if not we resize horizontally
@@ -163,9 +177,30 @@ def resize_and_crop(img_path, size, crop_type="middle"):
         # Could be an SVG
         return
 
+    # Warn if the image is not large enough
+    request = utils_logic.get_current_request()
+    filename = original_filename.split("/")[-1] or img_path.split("/")[-1]
+    if img.size[0] < size[0]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[0]} pixels wide, "
+            f"but it should be at least {size[0]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
+    if img.size[1] < size[1]:
+        messages.add_message(
+            request,
+            messages.WARNING,
+            f"{field_name or 'The uploaded image'} is {img.size[1]} pixels tall, "
+            f"but it should be at least {size[1]} pixels for clearest display. "
+            f"File name: {filename}.",
+        )
+
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
+
     # The image is scaled/cropped vertically or horizontally depending on the ratio
     if ratio > img_ratio:
         img = img.resize(
@@ -533,6 +568,12 @@ def get_settings_to_edit(display_group, journal, user):
                 ),
             },
             {
+                "name": "default_review_visible_to_author",
+                "object": setting_handler.get_setting(
+                    "general", "default_review_visible_to_author", journal
+                ),
+            },
+            {
                 "name": "accept_article_warning",
                 "object": setting_handler.get_setting(
                     "general", "accept_article_warning", journal
@@ -643,6 +684,8 @@ def get_settings_to_edit(display_group, journal, user):
             "from_address",
             "replyto_address",
             "use_credit",
+            "a11y_public_info",
+            "feeds",
         ]
 
         group_of_settings = process_setting_list(journal_settings, "general", journal)
@@ -766,6 +809,224 @@ def get_theme_list():
     return [[dir, dir] for dir in dirs if dir not in ["admin", "press", "__pycache__"]]
 
 
+def accessibility_mode_active(request):
+    """Resolve the user's accessibility-mode preference.
+
+    Authenticated users: read from Account.accessibility_mode.
+    Anonymous users: read from session["accessibility_mode"].
+    Returns False if the journal context has the
+    general.accessibility_mode setting turned off.
+    """
+    if request is None:
+        return False
+
+    # Read account-or-session via the generic store, then apply the
+    # a11y-specific journal-setting gate below.
+    if not bool(get_preference(request, ACCESSIBILITY_MODE_DESCRIPTOR)):
+        return False
+
+    # Only consult the journal-level setting when a preference has been
+    # expressed. Use the cached journal-settings dict (same source as
+    # the journal_settings context processor) so we hit the DB at most
+    # once per journal/language per cache window. Wrapped in a broad
+    # except because the resolver is invoked from the template loader,
+    # which must never raise during template resolution — DB
+    # unavailability (initial migrations, SimpleTestCase subclasses)
+    # falls back to "accessibility mode off".
+    journal = getattr(request, "journal", None)
+    if journal is not None:
+        try:
+            cached = settings_for_context(request)
+        except Exception:
+            return False
+        if not cached.get("general", {}).get("accessibility_mode"):
+            return False
+
+    return True
+
+
+# --- Generic reader-preference store ---------------------------------------
+#
+# A small registry of reader-preference descriptors plus three feature-agnostic
+# functions that operate on it: login migration, logout stickiness, and read.
+# A11y-mode and reading options both run this identical code path; any future
+# persisted reader preference registers a descriptor and inherits the same
+# anonymous<->account semantics. The store is unowned: features read/write keys.
+
+
+class PreferenceDescriptor:
+    """A single persisted reader preference.
+
+    ``session_key``/``account_field`` are the matching session key and Account
+    field. ``default`` is the value that means "not set" (no session re-seed on
+    logout). ``clean`` sanitises a stored/incoming value; identity for a bool,
+    ``clean_text_format_preferences`` for the reading-options dict.
+    """
+
+    def __init__(self, session_key, account_field, default, clean=None):
+        self.session_key = session_key
+        self.account_field = account_field
+        self.default = default
+        self.clean = clean or (lambda value: value)
+
+
+def get_preference(request, descriptor):
+    """Read a preference: account if authenticated, else session."""
+    if request is None:
+        return descriptor.default
+
+    user = getattr(request, "user", None)
+    if user is not None and getattr(user, "is_authenticated", False):
+        return getattr(user, descriptor.account_field, descriptor.default)
+
+    session = getattr(request, "session", None)
+    if session is None:
+        return descriptor.default
+    return session.get(descriptor.session_key, descriptor.default)
+
+
+def migrate_session_preferences(request, user):
+    """Carry explicit anonymous preferences onto the account on login.
+
+    The session key is present only when the visitor explicitly changed the
+    setting; its value records that choice. For each descriptor we pop the key
+    and, when present, write the cleaned value back to the account if it differs.
+    An absent key means "untouched" — the account value stands. Generalises the
+    a11y-mode login migration; value-type-agnostic so a bool and a dict both
+    work.
+    """
+    if request is None:
+        return
+
+    session = getattr(request, "session", None)
+    if session is None:
+        return
+
+    for descriptor in PREFERENCE_DESCRIPTORS:
+        value = session.pop(descriptor.session_key, Sentinel.UNSET)
+        if value is Sentinel.UNSET:
+            continue
+        cleaned = descriptor.clean(value)
+        if getattr(user, descriptor.account_field) != cleaned:
+            setattr(user, descriptor.account_field, cleaned)
+            user.save(update_fields=[descriptor.account_field])
+
+
+def reseed_session_preferences(session, account_values):
+    """Re-seed account preferences into a fresh post-logout session.
+
+    ``account_values`` are captured before ``logout()`` flushes the session.
+    Each non-default value is written back under its session key so the
+    preference is sticky across logout; a default value leaves no key and so
+    stays off/unset. Generalises the a11y-mode logout re-seed.
+    """
+    for descriptor in PREFERENCE_DESCRIPTORS:
+        value = account_values.get(descriptor.session_key, descriptor.default)
+        if value != descriptor.default:
+            session[descriptor.session_key] = value
+
+
+def capture_account_preferences(user):
+    """Snapshot an account's stored preferences keyed by session key.
+
+    Called before ``logout()`` flushes the session so the values survive to be
+    re-seeded afterwards by ``reseed_session_preferences``.
+    """
+    if user is None or not getattr(user, "is_authenticated", False):
+        return {}
+    return {
+        d.session_key: getattr(user, d.account_field, d.default)
+        for d in PREFERENCE_DESCRIPTORS
+    }
+
+
+# --- Reading options preferences -------------------------------------------
+
+# Allowed fonts, schemes and size bounds derive from the text_format registry,
+# the single source of truth shared with the bar template and the JS. Server-side
+# validation means a stale or tampered stored value can never lodge an
+# unresolvable preference (the same guarantee the JS rollback gives live).
+_HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+# Simple on/off reading-options toggles. Tests iterate this list rather than naming flags.
+TOGGLE_FLAGS = ("darkmode", "noItalics", "noAttention", "hideReadingBar")
+
+
+def clean_text_format_preferences(payload):
+    """Return a sanitised copy of reading-options preferences.
+
+    Drops anything unrecognised so only known, in-range values are ever stored
+    or seeded into the client. To add a new persisted setting, validate its key
+    here (and add the matching field to the JS `state`).
+    """
+    if not isinstance(payload, dict):
+        return {}
+
+    cleaned = {}
+
+    if payload.get("font") in text_format.FONTS:
+        cleaned["font"] = payload["font"]
+
+    if payload.get("scheme") in text_format.COLOUR_SCHEMES:
+        cleaned["scheme"] = payload["scheme"]
+
+    for flag in TOGGLE_FLAGS:
+        if isinstance(payload.get(flag), bool):
+            cleaned[flag] = payload[flag]
+
+    custom = payload.get("custom")
+    if isinstance(custom, dict):
+        colours = {}
+        for key in ("light", "dark"):
+            value = custom.get(key)
+            if isinstance(value, str) and _HEX_COLOUR_RE.match(value):
+                colours[key] = value
+        if colours:
+            cleaned["custom"] = colours
+
+    size = payload.get("textSize")
+    bounds = text_format.size_bounds(payload.get("font"))
+    # bool is a subclass of int, so exclude it explicitly.
+    if (
+        isinstance(size, int)
+        and not isinstance(size, bool)
+        and bounds["min"] <= size <= bounds["max"]
+    ):
+        cleaned["textSize"] = size
+
+    return cleaned
+
+
+def text_format_preferences(request):
+    """Resolve the reader's stored reading-options preferences.
+
+    Reads via the generic store (account if authenticated, else session) and
+    returns a sanitised dict (empty when nothing is stored).
+    """
+    stored = get_preference(request, TEXT_FORMAT_PREFERENCES_DESCRIPTOR)
+    return clean_text_format_preferences(stored or {})
+
+
+# Registered descriptors. accessibility_mode's request-time resolver applies an
+# additional journal-setting gate (kept in accessibility_mode_active, not here).
+ACCESSIBILITY_MODE_DESCRIPTOR = PreferenceDescriptor(
+    session_key="accessibility_mode",
+    account_field="accessibility_mode",
+    default=False,
+    clean=bool,
+)
+TEXT_FORMAT_PREFERENCES_DESCRIPTOR = PreferenceDescriptor(
+    session_key="text_format_preferences",
+    account_field="text_format_preferences",
+    default={},
+    clean=clean_text_format_preferences,
+)
+PREFERENCE_DESCRIPTORS = [
+    ACCESSIBILITY_MODE_DESCRIPTOR,
+    TEXT_FORMAT_PREFERENCES_DESCRIPTOR,
+]
+
+
 def handle_default_thumbnail(request, journal, attr_form):
     if request.FILES.get("default_thumbnail"):
         new_file = files.save_file_to_journal(
@@ -807,8 +1068,11 @@ def handle_article_large_image_file(uploaded_file, article, request):
         )
         article.large_image_file = new_file
         article.save()
-
-    resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+    resize_and_crop(
+        new_file.self_article_path(),
+        field_name="Large image",
+        original_filename=uploaded_file.name,
+    )
 
 
 def handle_article_thumb_image_file(uploaded_file, article, request):
@@ -958,6 +1222,7 @@ def latest_articles(carousel, object_type):
         carousel_objects = submission_models.Article.objects.filter(
             date_published__lte=timezone.now(),
             stage=submission_models.STAGE_PUBLISHED,
+            journal__hide_from_press=False,
         ).order_by("-date_published")
 
     return carousel_objects
@@ -1258,3 +1523,112 @@ def create_organization_name(request):
             % {"organization": organization_name},
         )
         return organization_name
+
+
+def resolve_alt_text_target(request):
+    """
+    Resolve the content_type, object_id, file_path, and object instance
+    from the request data (POST or GET). Expects 'model', 'pk', and/or 'file_path'.
+
+    Returns:
+        (content_type, object_id, file_path, obj)
+
+    Raises:
+        ValidationError if model or pk is invalid.
+    """
+    data = request.POST or request.GET
+
+    model = data.get("model")
+    pk = data.get("pk")
+    file_path = data.get("file_path")
+
+    content_type = None
+    object_id = None
+    obj = None
+
+    if model and pk:
+        if "." not in model:
+            raise ValidationError("Model should be in the form 'app_label.model_name'.")
+
+        app_label, model_name = model.split(".")
+        content_type = ContentType.objects.get(
+            app_label=app_label,
+            model=model_name,
+        )
+        object_id = int(pk)
+        obj = content_type.get_object_for_this_type(pk=object_id)
+
+    return content_type, object_id, file_path, obj
+
+
+def get_contact_form(request, contact_person_id):
+    if contact_person_id:
+        contact_person = get_object_or_404(
+            models.ContactPerson,
+            pk=contact_person_id,
+            content_type=request.model_content_type,
+            object_id=request.site_type.pk,
+        )
+    else:
+        contact_person = None
+
+    subject = request.GET.get("subject", "")
+    contact_people = request.site_type.contact_people
+
+    if request.method == "POST":
+        contact_form = forms.ContactMessageForm(
+            request.POST,
+            contact_people=contact_people,
+        )
+    else:
+        contact_form = forms.ContactMessageForm(
+            subject=subject,
+            contact_people=contact_people,
+            contact_person=contact_person,
+        )
+    return contact_form, contact_people
+
+
+def send_contact_message(contact_form, request):
+    sender_email = contact_form.cleaned_data["sender"]
+    contact_person = get_object_or_404(
+        models.ContactPerson,
+        pk=contact_form.cleaned_data["contact_person"],
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
+    recipient_email = contact_person.account.email
+
+    log_dict = {
+        "level": "Info",
+        "action_text": f"Contact Message sent from {sender_email} to {recipient_email}",
+        "types": "Contact Message",
+        # The LogEntry.actor should be none because the contact page is public-facing
+        # and logged-in users will not expect it to record their account email.
+        # They will expect it to record the email they put in the From field.
+        "actor": None,
+        "target": request.site_type,
+        "actor_email": contact_form.cleaned_data["sender"],
+    }
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request=request,
+        template="contact_message",
+        subject=contact_form.cleaned_data["subject"],
+        to=recipient_email,
+        context={
+            "site": request.journal or request.press,
+            "from": sender_email,
+            "to": recipient_email,
+            "subject": contact_form.cleaned_data["subject"],
+            "body": contact_form.cleaned_data["body"],
+            "custom_reply_to": contact_form.cleaned_data["sender"],
+        },
+        log_dict=log_dict,
+    )
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _("Your message has been sent to %(recipient)s.")
+        % {"recipient": contact_person.account.full_name()},
+    )

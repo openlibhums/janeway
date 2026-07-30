@@ -1,14 +1,14 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
 {% load static %}
+{% load fqdn %}
+{% load next_url %}
 
-{% block title %}Contact Manager{% endblock title %}
-{% block title-section %}Contact Manager{% endblock %}
+{% block title %}Contact People{% endblock title %}
+{% block title-section %}Contact People{% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li>Contact Manager</li>
+  {% include "elements/breadcrumbs/contacts_base.html" %}
 {% endblock %}
 
 {% block body %}
@@ -16,14 +16,17 @@
         <div class="box">
             <div class="title-area">
                 <h2>Current Contacts</h2>
-                <a class="float-right small button success" href="{% url 'core_new_journal_contact' %}"><i
+                <a class="float-right small button success" href="{% url 'core_contact_person_search' %}"><i
                         class="fa fa-plus">&nbsp;</i>Add New Contact</a>
                 <a class="button" href="{% url 'contact' %}" target="_blank"><i class="fa fa-eye">&nbsp;</i>View Contacts Page</a>
             </div>
             <div class="content">
                 <p>
-                    Journal Contacts are listed below. You can alter their order by dragging and dropping them into the
+                    Contact people are listed below. You can alter their order by dragging and dropping them into the
                     order you require.
+                </p>
+                <p>
+                    The contact link takes users to the contact page with the designated contact person preselected.
                 </p>
                 <form method="POST">
                     {% csrf_token %}
@@ -31,33 +34,50 @@
                         <thead>
                         <tr>
                             <th></th>
-                            <th>Contact Name</th>
-                            <th>Email Address</th>
+                            <th>Name</th>
+                            <th>Email</th>
                             <th>Role</th>
+                            <th>Link</th>
                             <th>Edit</th>
-                            <th>Delete</th>
+                            <th>Remove</th>
                         </tr>
                         </thead>
                         <tbody id="sortable">
                         {% for contact in contacts %}
                             <tr id="contact-{{ contact.pk }}">
                                 <td><i class="fa fa-sort"></i></td>
-                                <td>{{ contact.name }}</td>
-                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.display_name }}</td>
+                                <td>{{ contact.display_email }}</td>
                                 <td>{{ contact.role }}</td>
                                 <td>
-                                    <a href="{% url 'core_journal_contact' contact.pk %}" class="tiny warming button"><i
-                                            class="fa fa-edit">&nbsp;</i>Edit Contact</a>
+                                  {% if contact.account %}
+                                    {% if request.journal %}
+                                      {% site_url "journal_contact_with_recipient" contact.pk as content %}
+                                    {% else %}
+                                      {% site_url "press_contact_with_recipient" contact.pk as content %}
+                                    {% endif %}
+                                    {% trans "Copy link" as label_copy %}
+                                    {% trans "Link copied" as label_copied %}
+                                    {% include "admin/elements/button_copy.html" with content=content label_copy=label_copy label_copied=label_copied size="small" %}
+                                  {% endif %}
                                 </td>
                                 <td>
-                                    <button type="submit" name="delete" value="{{ contact.pk }}"
-                                            class="tiny alert button delete"><i class="fa fa-trash"></i> Delete Contact</button>
+                                  <div class="button-group no-bottom-margin">
+                                    {% url 'core_contact_person_update' contact.pk as href %}
+                                    {% include "admin/elements/a_edit.html" with href=href %}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div class="button-group no-bottom-margin">
+                                    {% url_with_return "core_contact_person_delete" contact.pk as href %}
+                                    {% include "admin/elements/a_remove.html" with href=href size="small" %}
+                                  </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
                                 <td colspan="5">
-                                    This journal has no contacts. <a href="{% url 'core_new_journal_contact' %}">Add a new contact.</a>
+                                    This site has no contacts.
                                 </td>
                             </tr>
                         {% endfor %}
@@ -82,11 +102,11 @@
                 $.ajax({
                     data: data,
                     type: 'POST',
-                    url: '{% url 'core_journal_contacts_order' %}'
+                    url: '{% url 'core_contact_people_reorder' %}'
                 });
             }
         });
         $("#sortable").disableSelection();
     </script>
-    {% include "admin/elements/post_check.html" %}
+    {% include "admin/elements/button_copy_js.html" %}
 {% endblock js %}

@@ -3,7 +3,7 @@
 <div class="row grid">
     <div class="col m12">
         <br/>
-        <h3 class="index-header">{% trans "Featured Journals" %}</h3>
+        <h2 class="index-header">{% trans "Featured Journals" %}</h2>
     </div>
     {% for current_journal in featured_journals %}
         <div class="col l2 m2 s12 cell journal-card">
@@ -13,11 +13,16 @@
                 </div>
                 <div class="card-content journal-card-content">
                     {% if current_journal.is_remote %}
-                        <a href="{{ current_journal.remote_view_url }}">
+                        <a href="{{ current_journal.remote_view_url }}" target="_blank">
+                            {{ current_journal.name }}
+                            {% include "elements/icons/link_external.html" %} 
+                        </a>
                     {% else %}
                         <a href="{{ current_journal.site_url }}">
+                            {{ current_journal.name }}
+                        </a>
                     {% endif %}
-                    <p>{{ current_journal.name }}</p>
+                    <h3>{{ current_journal.name }}</h3>
                     </a>
                 </div>
             </div>

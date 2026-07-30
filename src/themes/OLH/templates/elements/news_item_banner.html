@@ -1,0 +1,14 @@
+{% load escaping %}
+{% load i18n %}
+{% load dates %}
+
+<div class="olh-banner">
+  <img class="olh-banner-image"
+    src="{{ news_item.best_image_url }}"
+    alt="{{ news_item.best_large_image_alt_text }}">
+  <div class="overlay"></div>
+  <figcaption class="olh-banner-heading">
+    <h1>{{ news_item.title|safe }}</h1>
+    <p class="byline">{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
+  </figcaption>
+</div>

@@ -159,11 +159,22 @@ class SubmissionTests(TestCase):
         id_logic.generate_crossref_doi_with_pattern(article)
 
         expected = """
-        <p>
+        <span>
          Sanchez, M. M.,
         (2020) “Test article: a test article”,
         <i>Journal One</i> 1, 2-4.
-        doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a></p>
+         <a
+        target="_blank"
+        href="https://doi.org/{0}" 
+        aria-label="D.O.I. for Test article: a test article"
+        >
+        https://doi.org/{0}
+        <i aria-hidden="true" class="fa fa-external-link superscript-icon  icon-recede" 
+    title="External link, opens in new tab.">
+</i>
+<span class="sr-only">(external link, opens in new tab).</span> 
+    </a>
+</span>
         """.format(article.get_doi())
         self.assertHTMLEqual(expected, article.how_to_cite)
 
@@ -473,6 +484,44 @@ class SubmissionTests(TestCase):
         article.save()
         expected_article_issue_title = "Volume 5 • Issue 4 • 2025 • Fall 2025 • 1 page"
         self.assertEqual(expected_article_issue_title, article.issue_title)
+
+    def test_article_issue_title_a11y(self):
+        from utils.testing import helpers
+
+        issue = helpers.create_issue(
+            self.journal_one,
+            vol=5,
+            number=4,
+        )
+        issue.issue_title = "Fall 2025"
+        from utils.logic import get_aware_datetime
+
+        issue.date = get_aware_datetime("2025-10-01")
+        issue.save()
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Test article: A test of page numbers",
+            first_page=3,
+            last_page=5,
+            primary_issue=issue,
+        )
+
+        expected_article_issue_title = "Volume 5, Issue 4, 2025, Fall 2025, 3–5"
+        self.assertEqual(expected_article_issue_title, article.issue_title_a11y)
+
+        article.page_numbers = "x–ix"
+        article.save()
+        expected_article_issue_title = "Volume 5, Issue 4, 2025, Fall 2025, x–ix"
+        self.assertEqual(expected_article_issue_title, article.issue_title_a11y)
+
+        article.first_page = None
+        article.last_page = None
+        article.page_numbers = None
+        article.total_pages = 1
+        article.save()
+        expected_article_issue_title = "Volume 5, Issue 4, 2025, Fall 2025, 1 page"
+        self.assertEqual(expected_article_issue_title, article.issue_title_a11y)
 
     def test_url_based_orcid_cleaned(self):
         clean_orcid = clean_orcid_id("https://orcid.org/0000-0003-2126-266X")

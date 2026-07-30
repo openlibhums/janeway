@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/static/common/xslt/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    {% for article in issue.get_sorted_articles %}
+<urlset
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:janeway="https://janeway.systems">
+  <janeway:sitemap_name>
+    {{ issue.non_pretty_issue_identifier }} - {{ issue.journal.name }}
+  </janeway:sitemap_name>
+  <janeway:higher_sitemap>
+    <janeway:loc>
+      {% stateless_site_url issue.journal url_name='website_sitemap' %}
+    </janeway:loc>
+    <janeway:loc_label>
+      {{ issue.journal.name }}
+    </janeway:loc_label>
+  </janeway:higher_sitemap>
+  {% for article in issue.get_sorted_articles %}
     <url>
-        <loc>{{ article.url }}</loc>
-        <lastmod>{{ article.fast_last_modified_date|date:"Y-m-d" }}</lastmod>
-        <changefreq>monthly</changefreq>
+      <loc>{{ article.url }}</loc>
+      <lastmod>{{ article.fast_last_modified_date.isoformat }}</lastmod>
+      <changefreq>monthly</changefreq>
+      <janeway:loc_label>{{ article.title|striptags }}</janeway:loc_label>
     </url>
-    {% endfor%}
+  {% endfor%}
 </urlset>

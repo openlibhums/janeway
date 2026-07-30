@@ -19,7 +19,12 @@ class RepositoryAdmin(SimpleHistoryAdmin):
         "short_name",
         "name",
     )
-    raw_id_fields = ("managers", "homepage_preprints", "active_licenses")
+    raw_id_fields = (
+        "managers",
+        "homepage_preprints",
+        "active_licenses",
+        "submission_notification_recipients",
+    )
 
     inlines = [
         admin_utils.RepositoryRoleInline,
@@ -82,6 +87,7 @@ class PreprintAdmin(admin.ModelAdmin):
         "date_submitted",
         "doi",
         "current_version",
+        "article",
     )
     list_display_links = ("pk", "title")
     list_filter = (
@@ -101,6 +107,7 @@ class PreprintAdmin(admin.ModelAdmin):
         "article",
         "submission_file",
         "license",
+        "submission_type",
     )
     search_fields = (
         "pk",
@@ -335,6 +342,36 @@ class ReviewRecommendationAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
+class RepositoryOrganisationUnitAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "repository", "parent")
+    list_filter = ("repository__short_name",)
+    search_fields = (
+        "name",
+        "code",
+        "repository__name",
+        "repository__short_name",
+    )
+    raw_id_fields = ("repository", "parent")
+
+
+class RepositorySubmissionTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "slug",
+        "repository",
+        "pill_colour",
+    )
+    list_filter = ("repository",)
+    search_fields = (
+        "name",
+        "slug",
+        "repository__name",
+    )
+    prepopulated_fields = {
+        "slug": ("name",),
+    }
+
+
 admin_list = [
     (models.Repository, RepositoryAdmin),
     (models.RepositoryRole, RepositoryRoleAdmin),
@@ -352,6 +389,8 @@ admin_list = [
     (models.VersionQueue, VersionQueueAdmin),
     (models.Review, ReviewAdmin),
     (models.ReviewRecommendation, ReviewRecommendationAdmin),
+    (models.RepositoryOrganisationUnit, RepositoryOrganisationUnitAdmin),
+    (models.RepositorySubmissionType, RepositorySubmissionTypeAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

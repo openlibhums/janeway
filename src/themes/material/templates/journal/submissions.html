@@ -46,21 +46,21 @@
                     {% for item in submission_items %}
                         <div class="default-li">
                         {% if item.title == 'licences' %}
-                            <span class="card-title">
+                            <h2 class="card-title">
                                 {{ item.title|capfirst }}
-                            </span>
+                            </h2>
                             <p>{% trans "The following licences are allowed:" %}</p>
                             {% include "elements/license_block.html" %}
                         {% elif item.title == 'sections' %}
-                            <span class="card-title">
+                            <h2 class="card-title">
                                 {{ item.title|capfirst }}
-                            </span>
+                            </h2>
                             {% include "elements/sections_display.html" %}
                         {% else %}
                             {% if item.get_display_text %}
-                                <span class="card-title">
+                                <h2 class="card-title">
                                     {{ item.title|capfirst }}
-                                </span>
+                                </h2>
                                 {{ item.get_display_text|safe }}
                                 <div class="divider spacer"></div>
                             {% endif %}
@@ -74,12 +74,14 @@
         </div>
         <div class="col m4">
             <div class="card submission-toc-card hide-on-small-only" id="toc-card">
-                <div class="card-content">
-                        <h4>{% trans "Table of Contents" %}</h4>
+                <section aria-labelledby="toc-title">
+                    <div class="card-content">
+                            <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
 
-                    <ul id="toc" class="section table-of-contents">
-                    </ul>
-                </div>
+                        <ul id="toc" class="section table-of-contents">
+                        </ul>
+                    </div>
+                </section>
             </div>
         </div>
     </div>

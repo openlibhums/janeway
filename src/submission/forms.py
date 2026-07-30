@@ -316,11 +316,10 @@ class AuthorForm(forms.ModelForm):
         model = core_models.Account
         fields = (
             "email",
-            "name_prefix",
+            "salutation",
             "first_name",
             "middle_name",
             "last_name",
-            "salutation",
             "suffix",
             "biography",
         )
@@ -414,6 +413,11 @@ class ConfiguratorForm(forms.ModelForm):
             journal=self.instance.journal,
         )
         self.fields["default_license"].queryset = models.Licence.objects.filter(
+            journal=self.instance.journal,
+        )
+        self.fields[
+            "open_peer_review_license"
+        ].queryset = models.Licence.objects.filter(
             journal=self.instance.journal,
         )
 

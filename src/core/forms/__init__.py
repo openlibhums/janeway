@@ -20,8 +20,10 @@ from core.forms.forms import (
     GetResetTokenForm,
     JournalArticleForm,
     JournalAttributeForm,
-    JournalContactForm,
+    ContactMessageForm,
+    ContactPersonForm,
     JournalImageForm,
+    JournalSingleImageForm,
     JournalStylingForm,
     JournalSubmissionForm,
     LoginForm,
@@ -37,4 +39,5 @@ from core.forms.forms import (
     SimpleTinyMCEForm,
     UserCreationFormExtended,
     XSLFileForm,
+    AltTextForm,
 )

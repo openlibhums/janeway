@@ -8,6 +8,7 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Max, Q, Value
 from django.conf import settings
+from django.db.models import Max, Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -24,6 +25,7 @@ from review.const import (
     VisibilityOptions as VO,
 )
 from utils import shared
+from identifiers import models as identifier_models, logic as id_logic
 
 
 assignment_choices = (
@@ -425,6 +427,45 @@ class ReviewAssignment(models.Model):
         self.is_complete = True
         self.save()
 
+    def decision_to_crossref(self):
+        """
+        Maps a decision to Crossref deposit recommendations.
+        """
+        if self.decision == RD.DECISION_ACCEPT.value:
+            return "accept"
+        elif self.decision == RD.DECISION_MINOR.value:
+            return "minor-revision"
+        elif self.decision == RD.DECISION_MAJOR.value:
+            return "major-revision"
+        elif self.decision == RD.DECISION_REJECT.value:
+            return "reject"
+
+    def get_doi_pattern(self):
+        article_pattern = self.article.doi_pattern_preview
+        return f"{article_pattern}.r{self.pk}"
+
+    def get_doi(self, _object=False):
+        try:
+            try:
+                doi = identifier_models.Identifier.objects.get(
+                    id_type="doi", review=self
+                )
+            except identifier_models.Identifier.MultipleObjectsReturned:
+                doi = identifier_models.Identifier.objects.filter(
+                    id_type="doi",
+                    review=self,
+                ).first()
+            if not _object:
+                return doi.identifier
+            else:
+                return doi
+        except identifier_models.Identifier.DoesNotExist:
+            return None
+
+    def register_doi(self):
+        if self.article.is_accepted():
+            id_logic.register_review_doi(self.get_doi_pattern())
+
     def __str__(self):
         if self.reviewer:
             reviewer_name = self.reviewer.full_name()
@@ -737,7 +778,8 @@ class RevisionRequest(models.Model):
         "please add this above'",
     )  # Note from Author to Editor
     actions = models.ManyToManyField(
-        RevisionAction
+        RevisionAction,
+        blank=True,
     )  # List of actions Author took during Revision Request
     type = models.CharField(
         max_length=20,

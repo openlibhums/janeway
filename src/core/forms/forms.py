@@ -6,11 +6,11 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import uuid
 import json
 import os
+import warnings
 
 from django import forms
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDict
-from django.forms.fields import Field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
@@ -20,6 +20,7 @@ from tinymce.widgets import TinyMCE
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
+from core.logic import resize_and_crop
 from core.model_utils import JanewayBleachFormField, MiniHTMLFormField
 from utils.logic import get_current_request
 from journal import models as journal_models
@@ -32,6 +33,7 @@ from utils.forms import (
     YesNoRadio,
 )
 from utils.logger import get_logger
+from utils.models import ACTOR_EMAIL_MAX_LENGTH
 from submission import models as submission_models
 
 logger = get_logger(__name__)
@@ -84,18 +86,16 @@ class EditKey(forms.Form):
         return cleaned_data
 
 
-class JournalContactForm(JanewayTranslationModelForm):
+class ContactPersonForm(JanewayTranslationModelForm):
     def __init__(self, *args, **kwargs):
         next_sequence = kwargs.pop("next_sequence", None)
-        super(JournalContactForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if next_sequence:
             self.fields["sequence"].initial = next_sequence
 
     class Meta:
-        model = models.Contacts
+        model = models.ContactPerson
         fields = (
-            "name",
-            "email",
             "role",
             "sequence",
         )
@@ -103,6 +103,37 @@ class JournalContactForm(JanewayTranslationModelForm):
             "content_type",
             "object_id",
         )
+
+
+class ContactMessageForm(CaptchaForm):
+    contact_person = forms.TypedChoiceField(
+        label=_("Who would you like to contact?"),
+    )
+    sender = forms.EmailField(
+        max_length=ACTOR_EMAIL_MAX_LENGTH,
+        label=_("Your contact email address"),
+    )
+    subject = forms.CharField(max_length=300, label=_("Subject"))
+    body = JanewayBleachFormField(label=_("Your message"))
+
+    def __init__(self, *args, **kwargs):
+        subject = kwargs.pop("subject", "")
+        contact_person = kwargs.pop("contact_person", None)
+        contact_people = kwargs.pop("contact_people", [])
+        super().__init__(*args, **kwargs)
+        self.fields["contact_person"].choices = [
+            (person.pk, person.account.full_name()) for person in contact_people
+        ]
+        self.fields["subject"].initial = subject
+
+        if contact_person:
+            self.fields["contact_person"].initial = contact_person.pk
+
+
+class JournalContactForm(ContactPersonForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Use ContactPersonForm instead.")
+        super().__init__(*args, **kwargs)
 
 
 class EditorialGroupForm(JanewayTranslationModelForm):
@@ -199,6 +230,7 @@ class RegistrationForm(forms.ModelForm, CaptchaForm):
             "first_name",
             "middle_name",
             "last_name",
+            "suffix",
             "orcid",
         )
         widgets = {"orcid": forms.HiddenInput()}
@@ -490,10 +522,12 @@ class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):
         model = journal_models.Journal
         fields = (
             "contact_info",
+            "is_conference",
             "is_remote",
             "remote_view_url",
             "remote_submit_url",
             "hide_from_press",
+            "status",
         )
 
 
@@ -510,6 +544,59 @@ class JournalImageForm(forms.ModelForm):
             "press_image_override",
             "default_profile_image",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.ClearableFileInput):
+                field.widget = forms.FileInput()
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        try:
+            if "default_large_image" in self.cleaned_data:
+                resize_and_crop(
+                    instance.default_large_image.path,
+                    field_name="Default large image",
+                )
+        except ValueError:
+            pass
+        return instance
+
+
+class JournalSingleImageForm(forms.ModelForm):
+    """Single-field form for uploading one journal image field at a time."""
+
+    class Meta:
+        model = journal_models.Journal
+        fields = (
+            "header_image",
+            "default_cover_image",
+            "default_large_image",
+            "favicon",
+            "press_image_override",
+            "default_profile_image",
+        )
+
+    def __init__(self, *args, field_name, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in list(self.fields):
+            if name != field_name:
+                del self.fields[name]
+        if field_name in self.fields:
+            self.fields[field_name].widget = forms.FileInput()
+
+    def save(self, commit=True):
+        instance = super().save(commit=True)
+        if "default_large_image" in self.fields and instance.default_large_image:
+            try:
+                resize_and_crop(
+                    instance.default_large_image.path,
+                    field_name="Default large image",
+                )
+            except ValueError:
+                pass
+        return instance
 
 
 class JournalStylingForm(forms.ModelForm):
@@ -761,7 +848,7 @@ class CBVFacetForm(forms.Form):
                             except:
                                 result = None
 
-                    if result != None:
+                    if result is not None:
                         values_list.append(result)
                     elif result == None and "default" in facet:
                         values_list.append(facet["default"])
@@ -1148,3 +1235,87 @@ class ConfirmDeleteForm(forms.Form):
     """
 
     pass
+
+
+class AltTextForm(forms.ModelForm):
+    class Meta:
+        model = models.AltText
+        fields = [
+            "alt_text",
+        ]
+        widgets = {
+            "alt_text": forms.Textarea(
+                attrs={"rows": 5},
+            ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        content_type=None,
+        object_id=None,
+        file_path=None,
+        **kwargs,
+    ):
+        if "initial" not in kwargs:
+            kwargs["initial"] = {}
+
+        # Populate initial to help form rendering
+        if content_type and object_id:
+            kwargs["initial"].update(
+                {
+                    "content_type": content_type,
+                    "object_id": object_id,
+                }
+            )
+        elif file_path:
+            kwargs["initial"].update(
+                {
+                    "file_path": file_path,
+                }
+            )
+
+        super().__init__(*args, **kwargs)
+
+        # Set these on the form so we can assign them to the instance in save()
+        self.content_type = content_type
+        self.object_id = object_id
+        self.file_path = file_path
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self.instance.content_type = self.content_type
+        self.instance.object_id = self.object_id
+        self.instance.file_path = self.file_path
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Attempt to find an existing instance to update
+        existing = None
+
+        if self.content_type and self.object_id:
+            existing = models.AltText.objects.filter(
+                content_type=self.content_type,
+                object_id=self.object_id,
+            ).first()
+
+        elif self.file_path:
+            existing = models.AltText.objects.filter(
+                file_path=self.file_path,
+            ).first()
+
+        # If existing, update its fields
+        if existing:
+            existing.alt_text = self.cleaned_data["alt_text"]
+            instance = existing
+        else:
+            instance = super().save(commit=False)
+            instance.content_type = self.content_type
+            instance.object_id = self.object_id
+            instance.file_path = self.file_path
+
+        if commit:
+            instance.full_clean()
+            instance.save()
+
+        return instance

@@ -3,7 +3,7 @@
 
 {% block title %}Withdraw Review Request{% endblock title %}
 {% block title-section %}Withdraw Review Request{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

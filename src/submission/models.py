@@ -32,11 +32,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -51,6 +53,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
+from core.templatetags import alt_text
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -98,15 +101,6 @@ CREDIT_ROLE_CHOICES = [
     ("writing-review-editing", "Writing - Review & Editing"),
 ]
 
-SALUTATION_CHOICES = [
-    ("", "---"),
-    ("Dr", "Dr"),
-    ("Prof", "Prof"),
-    ("Miss", "Miss"),
-    ("Ms", "Ms"),
-    ("Mrs", "Mrs"),
-    ("Mr", "Mr"),
-]
 
 # This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (
@@ -831,8 +825,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -865,8 +861,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
@@ -975,11 +973,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             for v in vectors[1:]:
                 vector += v
             query = SearchQuery(search_term)
-            relevance = SearchRank(vector, query)
-            annotations["relevance"] = relevance
-            # Since we weight file contents as 'D', the returned relevance
-            # values can range between .01 and .1
-            lookups["relevance__gte"] = 0.01
+            annotations["search_vector"] = vector
+            annotations["relevance"] = SearchRank(vector, query)
+            lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
             lookups["frozenauthor__author__orcid"] = search_term
@@ -1196,7 +1192,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -1386,15 +1382,10 @@ class Article(AbstractLastModifiedModel):
             if self.article_number:
                 issue_str += ": {}".format(self.article_number)
 
-        doi_str = ""
         pages_str = ""
         if self.page_range:
             pages_str = " {0}.".format(self.page_range)
-        doi = self.get_doi()
-        if doi:
-            doi_str = (
-                'doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a>'.format(doi)
-            )
+        doi_id = self.get_doi()
 
         context = {
             "author_str": author_str,
@@ -1402,7 +1393,7 @@ class Article(AbstractLastModifiedModel):
             "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
-            "doi_str": doi_str,
+            "doi_id": doi_id,
             "pages_str": pages_str,
         }
         return render_to_string(template, context)
@@ -1685,6 +1676,10 @@ class Article(AbstractLastModifiedModel):
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
 
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
+
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
@@ -1960,6 +1955,28 @@ class Article(AbstractLastModifiedModel):
                 )
             )
             return mark_safe(template.render(Context()))
+
+    @property
+    def issue_title_a11y(self):
+        """The accessible issue title in the context of the article
+        see issue_title above.
+        """
+        if not self.issue:
+            return ""
+
+        if self.issue.issue_type.code != "issue":
+            return self.issue.issue_title
+        else:
+            template = Template(
+                ", ".join(
+                    [
+                        title_part
+                        for title_part in self.issue.issue_title_parts(article=self)
+                        if title_part
+                    ]
+                )
+            )
+            return template.render(Context())
 
     def author_list(self):
         return ", ".join([author.full_name() for author in self.frozenauthor_set.all()])
@@ -2547,6 +2564,64 @@ class Article(AbstractLastModifiedModel):
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        1. article large image
+        2. issue large image
+        3. journal default large image
+        4. press default carousel image
+        5. static hero image fallback
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
+    @property
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.best_large_image_alt_text
+        elif self.journal.default_large_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.default_large_image.url,
+                default=default_text,
+            )
+        elif self.journal.press.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.press.default_carousel_image.url,
+                default=default_text,
+            )
+        return default_text
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
@@ -3261,6 +3336,14 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
+    )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,

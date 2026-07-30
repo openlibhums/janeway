@@ -15,8 +15,9 @@ class IdentifierForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        self.article = kwargs.pop("article")
-        super(IdentifierForm, self).__init__(*args, **kwargs)
+        self.article = kwargs.pop("article", None)
+        self.preprint = kwargs.pop("preprint", None)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         super().clean()
@@ -46,13 +47,13 @@ class IdentifierForm(forms.ModelForm):
         if self.instance:
             idents = idents.exclude(id=self.instance.id)
 
-        if id_type == "doi" and idents.exists():
-            self.add_error(
-                "identifier",
-                "This DOI already exists for another Article.",
-            )
-        else:
-            if idents.filter(
+        if self.article:
+            if id_type == "doi" and idents.exists():
+                self.add_error(
+                    "identifier",
+                    "This DOI already exists for another Article.",
+                )
+            elif idents.filter(
                 article__journal=self.article.journal,
             ).exists():
                 self.add_error(
@@ -62,16 +63,35 @@ class IdentifierForm(forms.ModelForm):
                     ),
                 )
 
+        elif self.preprint:
+            if id_type == "doi" and idents.exists():
+                self.add_error(
+                    "identifier",
+                    "This DOI already exists for another Preprint.",
+                )
+            elif idents.filter(
+                preprint_version__preprint__repository=self.preprint.repository,
+            ).exists():
+                self.add_error(
+                    "identifier",
+                    "This identifier already exists on: {}.".format(
+                        " ".join(
+                            [ident.preprint_version.preprint.title for ident in idents]
+                        )
+                    ),
+                )
+
         return cleaned_data
 
     def save(self, commit=True):
         identifier = super(IdentifierForm, self).save(commit=False)
-
-        if self.article:
-            identifier.article = self.article
+        if not self.instance.pk:
+            if self.article:
+                identifier.article = self.article
+            elif self.preprint:
+                identifier.preprint_version = self.preprint.current_version
 
         if commit:
-            pass
             identifier.save()
 
         return identifier

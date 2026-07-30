@@ -1,5 +1,6 @@
 from django.shortcuts import reverse
 
+from core import email as core_email
 from utils import notify_helpers
 from utils import models as utils_models
 
@@ -34,7 +35,7 @@ def send_typesetting_complete(**kwargs):
 def send_proofreader_assign_notification(**kwargs):
     assignment = kwargs["assignment"]
     request = kwargs["request"]
-    message = kwargs["message"]
+    email_data = kwargs["email_data"]
     skip = kwargs["skip"]
 
     description = "{0} has been assigned as a proofreader for {1}".format(
@@ -49,11 +50,11 @@ def send_proofreader_assign_notification(**kwargs):
             "types": "Proofing Assignment",
             "target": assignment.round.article,
         }
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            assignment.proofreader,
+            email_data,
             request,
-            "Proofing Request",
-            assignment.proofreader.email,
-            message,
+            article=assignment.round.article,
             log_dict=log_dict,
         )
         notify_helpers.send_slack(
@@ -117,7 +118,7 @@ def send_typesetting_assign_notification(**kwargs):
     assignment = kwargs["assignment"]
     request = kwargs["request"]
     skip = kwargs["skip"]
-    message = kwargs["message"]
+    email_data = kwargs["email_data"]
 
     description = "{0} has been assigned as a typesetter for {1}".format(
         assignment.typesetter.full_name(),
@@ -131,11 +132,11 @@ def send_typesetting_assign_notification(**kwargs):
             "types": "Typesetting Assignment",
             "target": assignment.round.article,
         }
-        notify_helpers.send_email_with_body_from_user(
+        core_email.send_email(
+            assignment.typesetter,
+            email_data,
             request,
-            "subject_typesetter_notification",
-            assignment.typesetter.email,
-            message,
+            article=assignment.round.article,
             log_dict=log_dict,
         )
         notify_helpers.send_slack(

@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                         null=True,
                         help_text="An image for the top of the news item page and the "
                         "news list page. Note that it will be automatically cropped to "
-                        "750px x 324px, so wide images work best.",
+                        "1500px x 648px, so wide images work best.",
                         on_delete=django.db.models.deletion.DO_NOTHING,
                         related_name="+",
                         to="core.file",

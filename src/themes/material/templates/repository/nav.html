@@ -45,6 +45,11 @@
                   </a>
                 </li>
             {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-toggle-host">
+                {% include "common/elements/accessibility_mode_toggle.html" %}
+            </li>
+            {% endif %}
         </ul>
 
         <ul class="sidenav" id="nav-mobile">
@@ -59,7 +64,7 @@
                     <a
                         class="dropdown-trigger"
                         href="#!"
-                        data-target="dropdown1">
+                        data-target="sidenav-account">
                         {% trans "Account" %}
                         <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
@@ -67,6 +72,13 @@
             {% else %}
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
+            {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-mobile-item" aria-hidden="true"><div class="divider"></div></li>
+            <li class="a11y-mobile-item">
+                {% include "common/elements/accessibility_mode_mobile_button.html" %}
+            </li>
+            <li class="a11y-mobile-item"><a href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a></li>
             {% endif %}
         </ul>
         <a
@@ -80,11 +92,11 @@
 </nav>
 
 {% if request.user.is_authenticated %}
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="sidenav-account" class="dropdown-content">
          <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user in request.repository.managers.all %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}
@@ -97,7 +109,7 @@
         <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
         {% if request.user in request.repository.managers.all %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}

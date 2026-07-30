@@ -25,6 +25,8 @@
                     <input type="datetime-local" name="datetime" id="datetime" required value="{% if preprint.date_published %}{{ preprint.date_published|date:'Y-m-d\TH:i' }}{% else %}{% now 'Y-m-d\TH:i' %}{% endif %}">
                     {% get_current_timezone as TIME_ZONE %}
                     <input type="hidden" id="timezone" name="timezone" value="{{ TIME_ZONE }}" />
+                    <p class="help-text">Your Janeway timezone is set to <strong>{{ TIME_ZONE }}</strong>.
+                    {% if not request.user.preferred_timezone %}You can set your preferred timezone in your <a href="{% url 'core_edit_profile' %}">profile</a>.{% endif %}</p>
                 </div>
                         <div class="large-12 columns">
                             <button type="submit" name="accept" class="small success button">Save</button>

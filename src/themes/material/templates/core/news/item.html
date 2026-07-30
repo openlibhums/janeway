@@ -2,6 +2,7 @@
 {% load truncate %}
 {% load escaping %}
 {% load i18n %}
+{% load dates %}
 
 {% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title|striptags }}{% endblock title %}
 
@@ -9,35 +10,43 @@
 {% include "elements/social_meta.html" %}
 {% endblock head %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row">
         <div class="col m12">
             <div class="card">
-                {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
-                <div class="card-image">
-                    <img src="{{ news_item.best_image_url }}"
-                        alt="{{ news_item.title|striptags|unescape }}"/>
-                    <span class="card-title">
+                <div class="material-banner">
+                  <img class="material-banner-image"
+                      src="{{ news_item.best_image_url }}"
+                        alt="{{ news_item.best_image_alt_text }}"/>
+                    <div class="material-banner-heading">
                       <div class="carousel-text-wrapper">
                         {{ news_item.title|safe }}
                       </div>
-                    </span>
+                    </div>
                 </div>
-                {% endif %}
                 <div class="card-content">
                     {% if not news_item.large_image_file or request.journal and not request.journal.default_large_image or not request.press.default_carousel_image %}
-                        <h2 class="no-top-margin">{{ news_item.title|safe }}</h2>
+                        <h1 class="no-top-margin text-format-region">{{ news_item.title|safe }}</h1>
                     {% endif %}
-                    <h6><em>{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date:"Y-m-d" }}</em>
-                    </h6>
-                    <p>{{ news_item.body|safe }}</p>
+                    <p class="byline text-format-region">{{ news_item.byline }} {% trans "on" %} {{ news_item.posted|date_human }}</p>
+                    <div class="text-format-region">{{ news_item.body|safe }}</div>
                     {% if news_item.tags.all %}
                         <br />
-                        <h7>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h7>
-                        <p>{% for tag in news_item.tags.all %}
-                            <a href="{% url 'core_news_list_tag' tag.text %}"
-                               class="button success tiny">{{ tag.text }}</a>
-                            {% if not forloop.last %}&nbsp;{% endif %}{% endfor %}</p>
+                        <h2>{% trans "Tags" %} <i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
+                        <ul class="list-inline">
+                            {% for tag in news_item.tags.all %}
+                                <li class="list-inline-item"> 
+                                    <a href="{% url 'core_news_list_tag' tag.text %}"
+                                        class="button success tiny">
+                                        {{ tag.text }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
                 <div class="card-action">

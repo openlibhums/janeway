@@ -32,10 +32,11 @@ $(document).ready(function () {
         }
 
         linkid = "#" + link.attr("id");
+        aria="aria-describedby='toc-title'";
 
         js = "$('html, body').animate({scrollTop: $( $.attr(this, 'href') ).offset().top - 35}, 500);return false;";
 
-        newLine = "<li><a href='" + linkid + "' onclick=\"" + js + "\">" + title + "</a></li>";
+        newLine = "<li><a href='" + linkid + "' " + aria + " onclick=\"" + js + "\">" + title + "</a></li>";
 
         toc += newLine;
         iter++;

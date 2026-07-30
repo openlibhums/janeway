@@ -1,0 +1,13 @@
+{% with article.how_to_cite|safe as cite %}
+  
+<div id="article_how_to_cite" class="section">
+    <h2>{% trans "How to Cite" %}:</h2>
+    <div >
+        <p>
+            <span id="cite-content"> {{ cite }}</span>
+            {% include "admin/elements/button_copy_element.html" with element_id="cite-content" %}
+        </p> 
+    </div>
+  </div>
+
+{% endwith %}

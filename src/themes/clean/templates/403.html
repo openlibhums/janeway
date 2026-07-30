@@ -8,10 +8,10 @@
         <div class="row column">
             <div class="col-md-12">
                 {% if request.META.maintenance_mode %}
-                    <h2>{% trans 'Maintenance Mode' %}</h2>
+                    <h1>{% trans 'Maintenance Mode' %}</h1>
                     <p>{{ request.META.maintenance_mode.value|safe }}</p>
                 {% else %}
-                    <h2>{% trans 'Permission Denied' %}</h2>
+                    <h1>{% trans 'Permission Denied' %}</h1>
                     {% if exception %}
                         <p>{{ exception }}</p>
                     {% else %}
