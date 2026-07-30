@@ -322,7 +322,9 @@ class PasswordChangeForm(forms.Form):
         if new_one and self.user and self.request:
             problems = self.user.password_policy_check(self.request, new_one)
             for problem in problems:
-                self.add_error("new_password_one", _("Password not updated: ") + str(problem))
+                self.add_error(
+                    "new_password_one", _("Password not updated: ") + str(problem)
+                )
 
         return cleaned
 
