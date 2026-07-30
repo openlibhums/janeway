@@ -615,7 +615,7 @@ class SearchVector(DjangoSearchVector):
 
     # Override template to ignore function
     function = None
-    template = "%(expressions)s"
+    template = "COALESCE(%(expressions)s, '')"
 
 
 def search_model_admin(request, model, q=None, queryset=None):

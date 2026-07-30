@@ -965,11 +965,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             for v in vectors[1:]:
                 vector += v
             query = SearchQuery(search_term)
-            relevance = SearchRank(vector, query)
-            annotations["relevance"] = relevance
-            # Since we weight file contents as 'D', the returned relevance
-            # values can range between .01 and .1
-            lookups["relevance__gte"] = 0.01
+            annotations["search_vector"] = vector
+            annotations["relevance"] = SearchRank(vector, query)
+            lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
             lookups["frozenauthor__author__orcid"] = search_term
