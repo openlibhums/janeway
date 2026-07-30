@@ -773,9 +773,9 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
             for v in vectors[1:]:
                 vector += v
             query = SearchQuery(search_term)
-            relevance = SearchRank(vector, query)
-            annotations["relevance"] = relevance
-            lookups["relevance__gte"] = 0.01
+            annotations["search_vector"] = vector
+            annotations["relevance"] = SearchRank(vector, query)
+            lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
             lookups["preprintauthor__account__orcid"] = search_term
