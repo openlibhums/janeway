@@ -630,10 +630,6 @@ a.btn {
 
 /* styling the options bar */
 
-#article_opener .card {
-  margin-bottom: 0 !important;
-}
-
 .reading-options-landmark {
   display: contents;
 }
