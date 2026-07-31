@@ -95,9 +95,9 @@ class ViewTests(test_models.TestCaseWithCMSData):
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response["Location"], "/site/test-name/")
 
-    def test_draft_page_token_changes_when_draft_status_toggled(self):
+    def test_draft_page_token_persists_when_draft_status_toggled(self):
         page = self.journal_draft_page
-        initial_token = page.preview_token
+        token = page.preview_token
 
         page.is_draft = False
         page.save()
@@ -105,20 +105,12 @@ class ViewTests(test_models.TestCaseWithCMSData):
         page.is_draft = True
         page.save()
 
-        self.assertNotEqual(
-            initial_token,
+        self.assertEqual(
+            token,
             page.preview_token,
-            "Preview token should change when page transitions back to draft",
         )
 
-        old_token = initial_token
-        new_token = page.preview_token
-
-        self.request_journal.GET = {"access_code": str(old_token)}
-        with self.assertRaises(Http404):
-            cms_views.view_page(self.request_journal, "draft-page")
-
-        self.request_journal.GET = {"access_code": str(new_token)}
+        self.request_journal.GET = {"access_code": str(token)}
         with patch("cms.views.render") as render:
             cms_views.view_page(self.request_journal, "draft-page")
             render.assert_called_once()

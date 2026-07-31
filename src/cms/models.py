@@ -74,12 +74,8 @@ class Page(models.Model):
         return "{0} - {1}".format(self.content_type, self.display_name)
 
     def save(self, *args, **kwargs):
-        if self.is_draft and not self.preview_token:
+        if not self.preview_token:
             self.preview_token = uuid4()
-        elif self.pk:
-            existing = Page.objects.get(pk=self.pk)
-            if self.is_draft and not existing.is_draft:
-                self.preview_token = uuid4()
         super().save(*args, **kwargs)
 
     def save_as_draft(self, *args, **kwargs):
