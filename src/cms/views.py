@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
-from uuid import uuid4
 
 from django.contrib import messages
 from django.db.models import Q
