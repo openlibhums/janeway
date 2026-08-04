@@ -75,6 +75,21 @@ class KeywordModelForm(ModelForm):
             field = self.fields["keywords"]
             field.initial = ",".join(current_keywords)
 
+    def clean_keywords(self):
+        posted_keywords = self.cleaned_data.get("keywords", "")
+        max_length = submission_models.Keyword._meta.get_field("word").max_length
+        for keyword in posted_keywords.split(","):
+            if len(keyword) > max_length:
+                raise ValidationError(
+                    _(
+                        "A keyword cannot exceed %(max_length)s characters. "
+                        "Please enter keywords one at a time, pressing Enter "
+                        "after each keyword."
+                    ),
+                    params={"max_length": max_length},
+                )
+        return posted_keywords
+
     def save(self, commit=True, *args, **kwargs):
         posted_keywords = self.cleaned_data.get("keywords", "")
 
