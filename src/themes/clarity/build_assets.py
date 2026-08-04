@@ -28,7 +28,6 @@ def create_paths():
         os.makedirs(os.path.join(base_path, folder), exist_ok=True)
 
 
-
 def copy_theme_files():
     """Copy theme CSS and JS files to static directory."""
     theme_files = [
@@ -47,13 +46,13 @@ def copy_theme_files():
 
 def create_settings():
     setting_handler.create_setting(
-        setting_group_name='general',
-        setting_name='clarity_palette',
-        type='text',
-        pretty_name='Clarity Palette',
-        description='The colour palette for the Clarity theme. Options: evergreen, ocean, cardinal, paper.',
+        setting_group_name="general",
+        setting_name="clarity_palette",
+        type="text",
+        pretty_name="Clarity Palette",
+        description="The colour palette for the Clarity theme. Options: evergreen, ocean, cardinal, paper.",
         is_translatable=False,
-        default_value='evergreen',
+        default_value="evergreen",
     )
 
 
@@ -66,4 +65,3 @@ def build():
 
     print("Creating settings")
     create_settings()
-
