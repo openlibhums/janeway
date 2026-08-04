@@ -2211,3 +2211,56 @@ class ThemeDependentSettingsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-themes="clarity"')
         self.assertContains(response, "data-theme-settings")
+
+
+class SettingsGroupPageTests(TestCase):
+    """
+    Each settings group must be rendered once per page. The template
+    used to include it twice, so every field was posted twice, and
+    because Django keeps the last value for a repeated key, anything
+    edited in the first copy was silently discarded on save.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        helpers.create_roles(["editor", "journal-manager"])
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+
+    def setUp(self):
+        django_cache.clear()
+        self.client.force_login(self.editor)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_each_group_renders_its_fields_once(self):
+        groups = [
+            "journal",
+            "submission",
+            "styling",
+            "article",
+            "review",
+            "metadata",
+        ]
+        for group in groups:
+            with self.subTest(group=group):
+                response = self.client.get(
+                    reverse(
+                        "core_edit_settings_group",
+                        kwargs={"display_group": group},
+                    ),
+                    SERVER_NAME=self.journal_one.domain,
+                )
+                self.assertEqual(response.status_code, 200)
+                content = response.content.decode()
+                expected = 1 if group == "journal" else 0
+                # The select element itself, not the selector used by the
+                # theme settings script.
+                self.assertEqual(
+                    content.count('<select name="journal_theme"'),
+                    expected,
+                )
+                self.assertEqual(
+                    content.count("<h2>Disciplines</h2>"),
+                    expected,
+                )
