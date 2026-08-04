@@ -548,8 +548,13 @@ class GeneratedSettingForm(forms.Form):
                     widget=forms.TextInput(attrs={"type": "number"})
                 )
             elif object.setting.types == "select":
+                attrs = {}
+                if field.get("themes"):
+                    # Lets the settings page show the field only while one
+                    # of these themes is selected.
+                    attrs["data-themes"] = " ".join(field["themes"])
                 self.fields[field["name"]] = forms.CharField(
-                    widget=forms.Select(choices=field["choices"])
+                    widget=forms.Select(choices=field["choices"], attrs=attrs)
                 )
             elif object.setting.types == "date":
                 self.fields[field["name"]] = forms.CharField(

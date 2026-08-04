@@ -17,7 +17,10 @@ from django.template.loader import get_template
 from django.urls.base import clear_script_prefix
 from django.utils import timezone
 
+from django.conf import settings
+
 from core import models as core_models
+from core import forms as core_forms
 from core import logic as core_logic
 from core import middleware as core_middleware
 from core import text_format as core_text_format
@@ -2073,3 +2076,138 @@ class ContactSystemTests(CoreViewTestsWithData):
             self.contact_message_one,
             response.context["log_entry"],
         )
+
+
+class ThemeDependentSettingsTests(TestCase):
+    """
+    Settings that belong to particular themes, such as the Clarity
+    palette, are always part of the journal settings form so their
+    values survive a save. The page shows and hides them based on the
+    themes named in each field's data-themes attribute.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        # Roles must exist before the journals load their default
+        # settings, or the settings are stored with no editable_by
+        # roles and every one of them is filtered out of the form.
+        helpers.create_roles(["editor", "journal-manager"])
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.settings_url = reverse(
+            "core_edit_settings_group",
+            kwargs={"display_group": "journal"},
+        )
+
+    def setUp(self):
+        django_cache.clear()
+        self.client.force_login(self.editor)
+
+    def set_theme(self, theme):
+        setting_handler.save_setting(
+            "general",
+            "journal_theme",
+            self.journal_one,
+            theme,
+        )
+
+    def setting_names(self):
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        return [setting["name"] for setting in settings_to_edit]
+
+    def test_theme_settings_present_whatever_the_theme(self):
+        for theme in ["OLH", "clarity"]:
+            with self.subTest(theme=theme):
+                self.set_theme(theme)
+                names = self.setting_names()
+                self.assertIn("clarity_palette", names)
+                self.assertIn("journal_base_theme", names)
+
+    def test_palette_is_tagged_with_its_theme(self):
+        theme_settings = core_logic.get_theme_dependent_settings(self.journal_one)
+        palette = next(
+            setting
+            for setting in theme_settings
+            if setting["name"] == "clarity_palette"
+        )
+        self.assertEqual(palette["themes"], ["clarity"])
+        self.assertEqual(
+            [choice[0] for choice in palette["choices"]],
+            settings.THEME_SETTINGS["clarity"]["clarity_palette"],
+        )
+
+    def test_base_theme_is_tagged_with_non_core_themes(self):
+        theme_settings = core_logic.get_theme_dependent_settings(self.journal_one)
+        base_theme = next(
+            setting
+            for setting in theme_settings
+            if setting["name"] == "journal_base_theme"
+        )
+        self.assertIn("clarity", base_theme["themes"])
+        for core_theme in settings.CORE_THEMES:
+            self.assertNotIn(core_theme, base_theme["themes"])
+
+    def test_widgets_carry_the_themes_they_apply_to(self):
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        form = core_forms.GeneratedSettingForm(settings=settings_to_edit)
+        self.assertEqual(
+            form.fields["clarity_palette"].widget.attrs.get("data-themes"),
+            "clarity",
+        )
+        self.assertNotIn(
+            "data-themes",
+            form.fields["journal_theme"].widget.attrs,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_palette_saves_when_theme_selected_in_same_post(self):
+        self.set_theme("OLH")
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        post_data = {
+            setting["name"]: setting["object"].value or ""
+            for setting in settings_to_edit
+        }
+        post_data["journal_theme"] = "clarity"
+        post_data["clarity_palette"] = "ocean"
+        # The page posts the journal attribute form alongside the
+        # settings form, and it requires a publishing status.
+        post_data["status"] = self.journal_one.status
+
+        response = self.client.post(
+            self.settings_url,
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            setting_handler.get_setting(
+                "general",
+                "clarity_palette",
+                self.journal_one,
+            ).value,
+            "ocean",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_settings_page_renders_palette_and_toggle(self):
+        self.set_theme("clarity")
+        response = self.client.get(
+            self.settings_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-themes="clarity"')
+        self.assertContains(response, "data-theme-settings")

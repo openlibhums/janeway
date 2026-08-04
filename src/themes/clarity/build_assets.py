@@ -2,7 +2,6 @@ import os
 import shutil
 
 from django.conf import settings
-from utils import setting_handler
 
 
 def copy_file(source, destination):
@@ -44,24 +43,9 @@ def copy_theme_files():
         copy_file(source, destination)
 
 
-def create_settings():
-    setting_handler.create_setting(
-        setting_group_name="general",
-        setting_name="clarity_palette",
-        type="text",
-        pretty_name="Clarity Palette",
-        description="The colour palette for the Clarity theme. Options: evergreen, ocean, cardinal, paper.",
-        is_translatable=False,
-        default_value="evergreen",
-    )
-
-
 def build():
     print("Creating folders")
     create_paths()
 
     print("Copying theme files")
     copy_theme_files()
-
-    print("Creating settings")
-    create_settings()

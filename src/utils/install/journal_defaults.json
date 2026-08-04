@@ -933,6 +933,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "The colour palette used by the Clarity theme.",
+            "is_translatable": false,
+            "name": "clarity_palette",
+            "pretty_name": "Clarity Palette",
+            "type": "select"
+        },
+        "value": {
+            "default": "evergreen"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "When using a custom theme you can set the base theme, when a template from a custom theme is missing templates from the base theme will be used as a backup.",
             "is_translatable": false,
             "name": "journal_base_theme",

@@ -692,16 +692,9 @@ def get_settings_to_edit(display_group, journal, user):
         group_of_settings[3]["choices"] = get_theme_list()
         setting_group = "general"
 
-        if group_of_settings[3].get("object").value not in settings.CORE_THEMES:
-            group_of_settings.append(
-                {
-                    "name": "journal_base_theme",
-                    "object": setting_handler.get_setting(
-                        "general", "journal_base_theme", journal
-                    ),
-                    "choices": [[theme, theme] for theme in settings.CORE_THEMES],
-                },
-            )
+        group_of_settings.extend(
+            get_theme_dependent_settings(journal),
+        )
 
     elif display_group == "proofing":
         proofing_settings = ["max_proofreaders"]
@@ -807,6 +800,47 @@ def get_theme_list():
     root, dirs, files = next(os.walk(path))
 
     return [[dir, dir] for dir in dirs if dir not in ["admin", "press", "__pycache__"]]
+
+
+def get_theme_dependent_settings(journal):
+    """
+    Settings that only make sense for particular themes: a base theme
+    for any theme that does not supply every template, plus the extra
+    settings themes declare in settings.THEME_SETTINGS.
+
+    These are always part of the form, so their values are never
+    dropped when the theme is changed in the same submission. Each is
+    tagged with the themes it applies to, and the journal settings page
+    shows and hides them as the theme changes.
+    """
+    non_core_themes = [
+        theme for theme, _ in get_theme_list() if theme not in settings.CORE_THEMES
+    ]
+    theme_settings = [
+        {
+            "name": "journal_base_theme",
+            "object": setting_handler.get_setting(
+                "general", "journal_base_theme", journal
+            ),
+            "choices": [[each, each] for each in settings.CORE_THEMES],
+            "themes": non_core_themes,
+        },
+    ]
+
+    for theme, theme_setting_choices in settings.THEME_SETTINGS.items():
+        for setting_name, choices in theme_setting_choices.items():
+            theme_settings.append(
+                {
+                    "name": setting_name,
+                    "object": setting_handler.get_setting(
+                        "general", setting_name, journal
+                    ),
+                    "choices": [[each, each] for each in choices],
+                    "themes": [theme],
+                },
+            )
+
+    return theme_settings
 
 
 def accessibility_mode_active(request):
