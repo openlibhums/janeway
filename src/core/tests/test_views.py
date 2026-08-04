@@ -25,7 +25,7 @@ from core import logic as core_logic
 from core import middleware as core_middleware
 from core import text_format as core_text_format
 from core import views as core_views
-from utils import orcid, setting_handler
+from utils import install, orcid, setting_handler
 from utils.template_override_middleware import Loader
 from utils.testing import helpers
 
@@ -2089,11 +2089,12 @@ class ThemeDependentSettingsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        # Roles must exist before the journals load their default
-        # settings, or the settings are stored with no editable_by
-        # roles and every one of them is filtered out of the form.
         helpers.create_roles(["editor", "journal-manager"])
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        # Settings are only given their editable_by roles when their
+        # value is first created, so a settings page shows nothing to a
+        # non-staff user unless permissions are loaded explicitly.
+        install.load_permissions()
         cls.editor = helpers.create_editor(cls.journal_one)
         cls.settings_url = reverse(
             "core_edit_settings_group",
@@ -2226,6 +2227,9 @@ class SettingsGroupPageTests(TestCase):
         cls.press = helpers.create_press()
         helpers.create_roles(["editor", "journal-manager"])
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        # See ThemeDependentSettingsTests: without this the settings
+        # pages render no fields at all for a non-staff user.
+        install.load_permissions()
         cls.editor = helpers.create_editor(cls.journal_one)
 
     def setUp(self):
