@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ user.full_name }} {% trans 'Profile' %}{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="row">
+            <div class="col-md-3">
+                {% include "common/elements/profile_image.html" with classes="thumbnail img-fluid editorial-image" user=user %}
+                <br />
+                <h1>{{ user.full_name }}</h1>
+                <p><strong>{% trans 'Roles' %}: </strong><br>
+                    <ul class="list-inline comma-sep">
+                        {% for role in roles %}
+                            <li>{{ role.role.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+                {% include "common/elements/profile_affiliations.html" %}
+            </div>
+            <div class="col-md-9">
+                {% if user.biography %}
+                    <h2>{% trans "Biography" %}</h2>
+                    <hr aria-hidden="true" />
+                    {{ user.biography|safe }}
+                    <br/><br/>
+                {% endif %}
+                {% if user.published_articles %}
+                    <h2>{% trans "Publications" %}</h2>
+                    <hr aria-hidden="true" />
+                    {% for article in user.published_articles %}
+                        {% include "elements/article_listing.html" with article=article level="shallow" %}
+                        <hr aria-hidden="true" />
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

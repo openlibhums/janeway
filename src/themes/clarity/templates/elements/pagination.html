@@ -1,0 +1,86 @@
+{% load pages %}
+
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-7">
+        {% if is_paginated %}
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <button
+                            name="page"
+                            class="page-link"
+                            value="{{ page_obj.previous_page_number }}"
+                            form={{ form_id }}>
+                            {% include "elements/icons/page_previous.html" %}
+                        </button>
+                    </li>
+                {% endif %}
+
+                {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">...</span>
+                        </li>
+                    {% else %}
+                        {% if page_obj.number == page.number %}
+                            <li class="page-item active">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'current page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item arrow">
+                        <button
+                            name="page"
+                            class="page-link"
+                            value="{{ page_obj.next_page_number }}"
+                            form={{ form_id }}>
+                            {% include "elements/icons/page_next.html" %}
+                        </button>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+    <div class="input-group col-sm-12 col-md-6 col-lg-5">
+        <select
+            id="paginate_by"
+            class="custom-select"
+            onchange="this.form.submit()"
+            name="paginate_by"
+            form={{ form_id }}>
+            <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
+            <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
+            <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
+            <option value="100" {% if paginate_by == "100" %}selected{% endif %}>100</option>
+            {% if page_obj.paginator %}
+                <option value="all" {% if paginate_by == "all" %}selected{% endif %}>{% trans 'all' %}</option>
+            {% endif %}
+        </select>
+        <div class="input-group-append">
+            <label for="paginate_by" class="input-group-text">
+                {% trans 'records per page' %}
+            </label>
+        </div>
+    </div>
+</div>

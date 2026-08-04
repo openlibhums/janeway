@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+
+    <h1>{% trans 'Article Search Results' %}</h1>
+
+    {% if search_term %}
+        <p>Searching for: <i>{{ search_term }}</i></p>
+    {% elif keyword %}
+        <p>Keyword: <i>{{ keyword }}</i></p>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <hr aria-hidden="true" />
+
+            {% for article in articles %}
+                {% include "elements/article_listing.html" with article=article %}
+            {% empty %}
+                <p>{% trans "No articles to display" %}.</p>
+            {% endfor %}
+
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-block">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {{ form.article_search.errors }}
+                                <label for="{{ form.article_search.id_for_label }}">{% trans 'Search titles, keywords, and authors' %}</label>
+                                {{ form.article_search }}
+
+                            {% else %}
+                                {% trans 'You are currently browsing by keyword.' %}
+                                <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label>{% trans "Keywords" %}
+
+                                <ul class="list-inline comma-sep">
+                                    {% for keyword in all_keywords %}
+                                        <li><a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a></li>
+                                    {% endfor %}
+                                </ul>
+
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.sort.id_for_label }}">{% trans 'Sort articles by' %}</label>
+                            {{ form.sort.errors }}
+                            {{ form.sort }}
+                        </div>
+                        <div class="form-group">
+                            <button
+                                type="submit"
+                                class="btn btn-primary">
+                                {% trans "Search" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

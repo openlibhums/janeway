@@ -1,0 +1,44 @@
+@import 'light-mode-settings.css';
+
+/* Default palette: evergreen */
+:root {
+  --brand-primary: #047a59;
+  --brand-secondary: #4f637d;
+  --text-link-alt: #00688b;
+  --focus-shadow: #193146;
+  --highlight-color: #ffeb3b;
+}
+
+[data-clarity-palette="evergreen"]:root {
+  --brand-primary: #047a59;
+  --brand-secondary: #4f637d;
+  --text-link-alt: #00688b;
+  --focus-shadow: #193146;
+  --highlight-color: #ffeb3b;
+}
+
+[data-clarity-palette="ocean"]:root {
+  --brand-primary: #1e3a5f;
+  --brand-secondary: #59799d;
+  --text-link-alt: #2563a8;
+  --focus-shadow: #2a4a6e;
+  --highlight-color: #ffeb3b;
+}
+
+[data-clarity-palette="cardinal"]:root {
+  --brand-primary: #9b2c2c;
+  --brand-secondary: #bf5454;
+  --text-link-alt: #7c2d2d;
+  --focus-shadow: #5a1515;
+  --highlight-color: #ffeb3b;
+}
+
+[data-clarity-palette="paper"]:root {
+  --brand-primary: #495057;
+  --brand-secondary: #666d74;
+  --text-link-alt: #343a40;
+  --focus-shadow: #212529;
+  --highlight-color: #ffeb3b;
+  --header-bg: #fff;
+  --text-header: #212529;
+}

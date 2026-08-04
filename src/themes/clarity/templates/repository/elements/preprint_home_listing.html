@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% for preprint in preprints %}
+  <div class="card h-100">
+    <div class="card-body">
+      <h3 class="article-title">
+        <a href="{% url 'repository_preprint' preprint.pk %}" class="article-link">
+          {{ preprint.title|safe }}
+        </a>
+      </h3>
+      <p class="article-authors">{{ preprint.display_authors_compact }}</p>
+    </div>
+  </div>
+{% endfor %}

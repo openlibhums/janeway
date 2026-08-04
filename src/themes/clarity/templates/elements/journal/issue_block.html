@@ -1,0 +1,28 @@
+{% regroup articles by section as grouped_articles %}
+{% for section, section_articles in grouped_articles %}
+    <div class="issue-section">
+        {% if level == "deep" %}
+            <h3 class="section-title">
+                {% if section.plural and section_articles|length >= 2 %}
+                    {{ section.plural }}
+                {% else %}
+                    {{ section.name }}
+                {% endif %}
+            </h3>
+        {% else %}
+            <h2 class="section-title">
+                {% if section.plural and section_articles|length >= 2 %}
+                    {{ section.plural }}
+                {% else %}
+                    {{ section.name }}
+                {% endif %}
+            </h2>
+        {% endif %}
+
+        <div class="article-list">
+            {% for article in section_articles %}
+                {% include "elements/article_listing.html" with article=article level=level %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}

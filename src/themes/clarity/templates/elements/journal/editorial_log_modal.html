@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="modal fade" id="editorialLogModal" tabindex="-1" role="dialog" aria-labelledby="editorialLogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="editorialLogModalLabel">{% trans "Editorial Log" %}</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Event" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in editorial_log %}
+                            {% if entry.is_comment %}
+                                {% if entry.comment.public %}
+                                    <tr>
+                                        <td>{{ entry.date|date:"d M Y" }}</td>
+                                        <td>
+                                            <strong>{{ entry.type }}</strong><br>
+                                            {{ entry.description|safe }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% else %}
+                                <tr>
+                                    <td>{{ entry.date|date:"d M Y" }}</td>
+                                    <td>{{ entry.description }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

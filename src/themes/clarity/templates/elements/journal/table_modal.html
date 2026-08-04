@@ -1,0 +1,15 @@
+<div class="modal " id="table-{{ tableid }}" tabindex="-1" role="dialog" aria-labelledby="copy-of-{{ tableid }}-label">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content text-format-region">
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <button class="close modal-sticky-close" data-dismiss="modal" aria-describedby="copy-of-{{ tableid }}-label">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">{% trans 'Close' %}</span>
+        </button>
+        {{ content|safe }}
+      </div>
+    </div>
+  </div>
+</div>

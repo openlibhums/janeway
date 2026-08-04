@@ -1,0 +1,61 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+{% load dates %}
+{% load escaping %}
+
+{% block title %}{{ news_item.title }}{% endblock title %}
+
+{% block head %}
+    {% include "elements/social_meta.html" %}
+{% endblock head %}
+
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-3">
+                {% if news_item.best_image_url %}
+                  <div class="clarity-banner">
+                    <img
+                      class="clarity-banner-image"
+                      src="{{ news_item.best_image_url }}"
+                      alt="{{ news_item.title|striptags|unescape }}">
+                  </div>
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title text-format-region">{{ news_item.title|safe }}</h1>
+                    <p class="card-subtitle text-muted mb-2 text-format-region">
+                        {{ news_item.byline }} on {{ news_item.posted|date_human }}
+                    </p>
+                    <div class="card-text text-format-region">{{ news_item.body|safe }}</div>
+
+                    {% if news_item.tags.all %}
+                        <h2 class="h5 mb-3">
+                            {% trans 'Tags ' %}
+                            <i aria-hidden="true" class="fa fa-tags"></i>
+                        </h2>
+                        <ul class="list-inline">
+                            {% for tag in news_item.tags.all %}
+                                <li class="list-inline-item">
+                                    <a href="{% url 'core_news_list_tag' tag.text %}"
+                                       class="badge badge-secondary badge-pill  ">
+                                        {{ tag.text }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'core_news_list' %}" class="btn btn-outline-secondary">
+                        <i aria-hidden="true" class="fa fa-arrow-left"></i>
+                        {% trans "Back to" %} {{ journal_settings.news.news_title|default:"News" }} {% trans "List" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
