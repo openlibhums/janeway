@@ -3,7 +3,7 @@
 {% load sitemap_tags %}
 {% get_current_language as current_language %}
 <!DOCTYPE html>
-<html lang="{{ current_language }}" data-clarity-palette="{% if accessibility_mode_active %}paper{% else %}{{ journal_settings.general.clarity_palette|default:'evergreen' }}{% endif %}">
+<html lang="{{ current_language }}" data-clarity-palette="{% if accessibility_mode_active %}paper{% else %}{{ journal_settings.theme.clarity.clarity_palette|default:'evergreen' }}{% endif %}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">

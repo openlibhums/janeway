@@ -2139,7 +2139,11 @@ class ThemeDependentSettingsTests(TestCase):
         self.assertEqual(palette["themes"], ["clarity"])
         self.assertEqual(
             [choice[0] for choice in palette["choices"]],
-            settings.THEME_SETTINGS["clarity"]["clarity_palette"],
+            setting_handler.get_setting(
+                "theme:clarity",
+                "clarity_palette_choices",
+                self.journal_one,
+            ).processed_value,
         )
 
     def test_base_theme_is_tagged_with_non_core_themes(self):
@@ -2195,11 +2199,35 @@ class ThemeDependentSettingsTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             setting_handler.get_setting(
-                "general",
+                "theme:clarity",
                 "clarity_palette",
                 self.journal_one,
             ).value,
             "ocean",
+        )
+        # The value must land on the journal, not overwrite the
+        # theme's default for every journal.
+        self.assertEqual(
+            setting_handler.get_setting(
+                "theme:clarity",
+                "clarity_palette",
+                self.journal_two,
+            ).value,
+            "evergreen",
+        )
+
+    def test_choices_setting_is_not_a_form_field(self):
+        self.assertNotIn("clarity_palette_choices", self.setting_names())
+
+    def test_palette_available_in_template_context(self):
+        django_cache.clear()
+        context_settings = core_logic.cached_settings_for_context(
+            self.journal_one,
+            "en",
+        )
+        self.assertEqual(
+            context_settings["theme"]["clarity"]["clarity_palette"],
+            "evergreen",
         )
 
     @override_settings(URL_CONFIG="domain")

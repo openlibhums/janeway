@@ -623,20 +623,6 @@ REPOSITORY_THEMES = [
 
 INSTALLATION_BASE_THEME = "OLH"
 
-# Themes that offer extra settings, keyed by theme name. The settings
-# are shown on the journal settings page only while that theme is the
-# one selected. Each entry maps a setting name to its select choices.
-THEME_SETTINGS = {
-    "clarity": {
-        "clarity_palette": [
-            "evergreen",
-            "ocean",
-            "cardinal",
-            "paper",
-        ],
-    },
-}
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Use pagination for all of our APIs based on Django REST Framework

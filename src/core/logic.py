@@ -280,6 +280,22 @@ def cached_settings_for_context(journal, language):
                 setting.name,
                 journal,
             ).processed_value
+
+    # Theme setting groups are named theme:<theme_name>, which cannot
+    # be attribute-accessed in templates, so they are exposed under a
+    # nested dict as journal_settings.theme.<theme_name>.<setting_name>.
+    _dict["theme"] = {}
+    theme_groups = models.SettingGroup.objects.filter(name__startswith="theme:")
+    for group in theme_groups:
+        theme_name = group.name.partition(":")[2]
+        _dict["theme"][theme_name] = {
+            setting.name: setting_handler.get_setting(
+                group.name,
+                setting.name,
+                journal,
+            ).processed_value
+            for setting in group.setting_set.all()
+        }
     return _dict
 
 
@@ -806,7 +822,9 @@ def get_theme_dependent_settings(journal):
     """
     Settings that only make sense for particular themes: a base theme
     for any theme that does not supply every template, plus the extra
-    settings themes declare in settings.THEME_SETTINGS.
+    settings each theme keeps in its theme:<theme_name> setting group.
+    A select setting draws its choices from a json setting named
+    <setting_name>_choices in the same group.
 
     These are always part of the form, so their values are never
     dropped when the theme is changed in the same submission. Each is
@@ -827,13 +845,27 @@ def get_theme_dependent_settings(journal):
         },
     ]
 
-    for theme, theme_setting_choices in settings.THEME_SETTINGS.items():
-        for setting_name, choices in theme_setting_choices.items():
+    theme_groups = models.SettingGroup.objects.filter(
+        name__startswith="theme:",
+    ).order_by("name")
+    for group in theme_groups:
+        theme = group.name.partition(":")[2]
+        group_settings = group.setting_set.exclude(
+            name__endswith="_choices",
+        ).order_by("name")
+        for setting in group_settings:
+            choices = []
+            if setting.types == "select":
+                choices = setting_handler.get_setting(
+                    group.name,
+                    "{}_choices".format(setting.name),
+                    journal,
+                ).processed_value
             theme_settings.append(
                 {
-                    "name": setting_name,
+                    "name": setting.name,
                     "object": setting_handler.get_setting(
-                        "general", setting_name, journal
+                        group.name, setting.name, journal
                     ),
                     "choices": [[each, each] for each in choices],
                     "themes": [theme],

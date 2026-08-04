@@ -517,8 +517,13 @@ class GeneratedSettingForm(forms.Form):
         settings = kwargs.pop("settings", None)
         super(GeneratedSettingForm, self).__init__(*args, **kwargs)
         self.translatable_field_names = []
+        # Settings on one form can come from different groups, e.g. the
+        # theme:<theme_name> groups alongside general, so each field
+        # remembers its own group for saving.
+        self.setting_group_names = {}
         for field in settings:
             object = field["object"]
+            self.setting_group_names[field["name"]] = object.setting.group.name
 
             if object.setting.types == "char":
                 self.fields[field["name"]] = forms.CharField(
@@ -575,7 +580,16 @@ class GeneratedSettingForm(forms.Form):
 
     def save(self, journal, group, commit=True):
         for setting_name, setting_value in self.cleaned_data.items():
-            setting_handler.save_setting(group, setting_name, journal, setting_value)
+            setting_handler.save_setting(
+                self.setting_group_names.get(setting_name, group),
+                setting_name,
+                journal,
+                setting_value,
+            )
+
+    @property
+    def theme_dependent_fields(self):
+        return [field for field in self if "data-themes" in field.field.widget.attrs]
 
 
 class JournalAttributeForm(JanewayTranslationModelForm, KeywordModelForm):

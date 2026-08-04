@@ -23,8 +23,9 @@
     <p>{% trans 'Choose the theme your journal is presented in. Some themes offer further settings, which appear here once that theme is selected.' %}</p>
     <div data-theme-settings>
         {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
-        {% include "admin/elements/forms/field.html" with field=edit_form.journal_base_theme %}
-        {% include "admin/elements/forms/field.html" with field=edit_form.clarity_palette %}
+        {% for field in edit_form.theme_dependent_fields %}
+            {% include "admin/elements/forms/field.html" with field=field %}
+        {% endfor %}
     </div>
     {% include "admin/elements/forms/theme_settings_js.html" %}
 </div>
