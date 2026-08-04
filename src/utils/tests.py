@@ -917,6 +917,44 @@ class TestForms(TestCase):
         journal = form.save()
         self.assertFalse(journal.keywords.exists())
 
+    def test_keyword_form_rejects_over_long_keyword(self):
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                model = journal_models.Journal
+                fields = ("keywords",)
+                exclude = tuple()
+
+        data = {"keywords": "a" * 201}
+        form = KeywordTestForm(data, instance=self.journal)
+        self.assertFalse(form.is_valid())
+        self.assertIn("cannot exceed", form.errors["keywords"][0])
+
+    def test_keyword_form_rejects_over_long_keyword_in_list(self):
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                model = journal_models.Journal
+                fields = ("keywords",)
+                exclude = tuple()
+
+        data = {"keywords": "short one,%s,another" % ("b" * 201)}
+        form = KeywordTestForm(data, instance=self.journal)
+        self.assertFalse(form.is_valid())
+        self.assertIn("cannot exceed", form.errors["keywords"][0])
+
+    def test_keyword_form_accepts_keyword_at_max_length(self):
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                model = journal_models.Journal
+                fields = ("code",)
+                exclude = tuple()
+
+        keyword = "c" * 200
+        data = {"keywords": keyword, "code": self.journal.code}
+        form = KeywordTestForm(data, instance=self.journal)
+        self.assertTrue(form.is_valid())
+        journal = form.save()
+        self.assertTrue(journal.keywords.filter(word=keyword).exists())
+
 
 class TestPlainTextValidator(TestCase):
     def test_plain_text_validator_valid(self):
