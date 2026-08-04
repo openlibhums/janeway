@@ -1549,7 +1549,10 @@ a.fn-backref {
   padding: 0 0.75rem;
 }
 
-.navbar .a11y-toggle-host .a11y-toggle-summary {
+/* Only the press nav is dark. On the light journal and repository navs
+   the control must inherit, or its icon and its currentColor border are
+   white on white. */
+.navbar-dark .a11y-toggle-host .a11y-toggle-summary {
   color: #ffffff;
 }
 
