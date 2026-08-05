@@ -1,0 +1,69 @@
+{% load static %}
+{% load i18n %}
+{% load hooks %}
+{% load next_url %}
+
+<nav class="navbar navbar-light navbar-expand-lg navbar-custom">
+  <div class="container">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+            data-target="#repoNavbar" aria-controls="repoNavbar" aria-expanded="false"
+            aria-label="{% trans 'Toggle navigation' %}">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="repoNavbar">
+      <ul class="navbar-nav d-flex w-100">
+        <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>
+        <li class="nav-item"><a href="{% url 'repository_about' %}" class="nav-link">{% trans 'About' %}</a></li>
+        <li class="nav-item"><a href="{% url 'repository_list' %}" class="nav-link">{{ request.repository.object_name_plural|capfirst }}</a></li>
+        <li class="nav-item"><a href="{% url 'repository_subject_list' %}" class="nav-link">{% trans 'Subjects' %}</a></li>
+        <li class="nav-item"><a href="{% url 'repository_submit' %}" class="nav-link">{% trans 'Submit' %}</a></li>
+        {% hook 'nav_block' %}
+        {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown ml-lg-auto">
+            <button class="nav-link dropdown-toggle dropdown-button" id="repo-account"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {% trans 'Account' %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="repo-account">
+              <li><a class="dropdown-item" href="{% url 'repository_dashboard' %}">{% trans 'Dashboard' %}</a></li>
+              {% if request.user in request.repository.managers.all %}
+                <li><a class="dropdown-item" href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a></li>
+              {% endif %}
+              {% if request.user.is_staff %}
+                <li><a class="dropdown-item" href="/admin/repository/">{% trans 'Admin' %}</a></li>
+              {% endif %}
+              <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+              <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item ml-lg-auto">
+            <a href="{% url 'core_login' %}" class="nav-link">{% trans 'Log in' %}</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'core_register' %}" class="nav-link">{% trans 'Register' %}</a>
+          </li>
+        {% endif %}
+        {% if journal_settings.general.accessibility_mode or not request.journal %}
+          <li class="nav-item a11y-toggle-host">
+            {% include "common/elements/accessibility_mode_toggle.html" %}
+          </li>
+          <li class="nav-item dropdown d-lg-none a11y-mobile-item">
+            <button class="nav-link dropdown-toggle dropdown-button" id="a11y-mobile-trigger"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {% trans 'Accessibility' %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="a11y-mobile-trigger">
+              <li>
+                {% include "common/elements/accessibility_mode_mobile_button.html" with button_class="dropdown-item" %}
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a>
+              </li>
+            </ul>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

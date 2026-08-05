@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load alt_text %}
+
+{% if issue.hero_image_url %}
+    <div class="card">
+        <div class="clarity-banner">
+          <img class="clarity-banner-image"
+             src="{{ issue.hero_image_url }}"
+             alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y %}">
+        </div>
+        <div class="issue-header">
+          {% if level == "deep" %}
+            <h2 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+              {{ issue.display_title }}
+            </h2>
+          {% else %}
+            <h1 class="card-title" aria-label='{{ issue.display_title_a11y  }}'>
+              {{ issue.display_title }}
+            </h1>
+          {% endif %}
+        </div>
+    </div>
+{% else %}
+    {% if level == "deep" %}
+        <h2 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h2>
+    {% else %}
+        <h1 class="em" aria-label='{{ issue.display_title_a11y }}'>{{ issue.display_title }}</h1>
+    {% endif %}
+    {% if issue.issue_description %}<p>{{ issue.issue_description|safe }}</p>{% endif %}
+{% endif %}
+
+{% if issue.journal.display_issue_doi and issue.doi_url %}
+    <p>
+        {% include "elements/doi_display.html" with doi=issue.doi_url title=issue.display_title %}
+    </p>
+{% endif %}
+<br/>

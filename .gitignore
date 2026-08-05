@@ -139,6 +139,7 @@ src/utils/management/commands/test_command.py
 
 # Themes and subthemes
 /src/themes/*
+!/src/themes/clarity/
 !/src/themes/clean/
 !/src/themes/material/
 !/src/themes/OLH/

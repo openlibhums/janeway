@@ -280,6 +280,22 @@ def cached_settings_for_context(journal, language):
                 setting.name,
                 journal,
             ).processed_value
+
+    # Theme setting groups are named theme:<theme_name>, which cannot
+    # be attribute-accessed in templates, so they are exposed under a
+    # nested dict as journal_settings.theme.<theme_name>.<setting_name>.
+    _dict["theme"] = {}
+    theme_groups = models.SettingGroup.objects.filter(name__startswith="theme:")
+    for group in theme_groups:
+        theme_name = group.name.partition(":")[2]
+        _dict["theme"][theme_name] = {
+            setting.name: setting_handler.get_setting(
+                group.name,
+                setting.name,
+                journal,
+            ).processed_value
+            for setting in group.setting_set.all()
+        }
     return _dict
 
 
@@ -692,16 +708,9 @@ def get_settings_to_edit(display_group, journal, user):
         group_of_settings[3]["choices"] = get_theme_list()
         setting_group = "general"
 
-        if group_of_settings[3].get("object").value not in settings.CORE_THEMES:
-            group_of_settings.append(
-                {
-                    "name": "journal_base_theme",
-                    "object": setting_handler.get_setting(
-                        "general", "journal_base_theme", journal
-                    ),
-                    "choices": [[theme, theme] for theme in settings.CORE_THEMES],
-                },
-            )
+        group_of_settings.extend(
+            get_theme_dependent_settings(journal),
+        )
 
     elif display_group == "proofing":
         proofing_settings = ["max_proofreaders"]
@@ -807,6 +816,63 @@ def get_theme_list():
     root, dirs, files = next(os.walk(path))
 
     return [[dir, dir] for dir in dirs if dir not in ["admin", "press", "__pycache__"]]
+
+
+def get_theme_dependent_settings(journal):
+    """
+    Settings that only make sense for particular themes: a base theme
+    for any theme that does not supply every template, plus the extra
+    settings each theme keeps in its theme:<theme_name> setting group.
+    A select setting draws its choices from a json setting named
+    <setting_name>_choices in the same group.
+
+    These are always part of the form, so their values are never
+    dropped when the theme is changed in the same submission. Each is
+    tagged with the themes it applies to, and the journal settings page
+    shows and hides them as the theme changes.
+    """
+    non_core_themes = [
+        theme for theme, _ in get_theme_list() if theme not in settings.CORE_THEMES
+    ]
+    theme_settings = [
+        {
+            "name": "journal_base_theme",
+            "object": setting_handler.get_setting(
+                "general", "journal_base_theme", journal
+            ),
+            "choices": [[each, each] for each in settings.CORE_THEMES],
+            "themes": non_core_themes,
+        },
+    ]
+
+    theme_groups = models.SettingGroup.objects.filter(
+        name__startswith="theme:",
+    ).order_by("name")
+    for group in theme_groups:
+        theme = group.name.partition(":")[2]
+        group_settings = group.setting_set.exclude(
+            name__endswith="_choices",
+        ).order_by("name")
+        for setting in group_settings:
+            choices = []
+            if setting.types == "select":
+                choices = setting_handler.get_setting(
+                    group.name,
+                    "{}_choices".format(setting.name),
+                    journal,
+                ).processed_value
+            theme_settings.append(
+                {
+                    "name": setting.name,
+                    "object": setting_handler.get_setting(
+                        group.name, setting.name, journal
+                    ),
+                    "choices": [[each, each] for each in choices],
+                    "themes": [theme],
+                },
+            )
+
+    return theme_settings
 
 
 def accessibility_mode_active(request):

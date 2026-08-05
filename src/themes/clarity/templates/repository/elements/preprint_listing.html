@@ -1,0 +1,33 @@
+{% load truncate %}
+{% load dates %}
+{% load i18n %}
+
+{% for preprint in preprints %}
+  <article class="article-item" aria-label="{{ preprint.title|striptags }}">
+    <h2 class="article-title">
+      <a href="{% url 'repository_preprint' preprint.pk %}" class="article-link">
+        {{ preprint.title|safe }}
+      </a>
+    </h2>
+    <p class="article-authors">{{ preprint.display_authors_compact }}</p>
+    <ul class="list-inline article-meta">
+      {% if preprint.date_published %}
+        <li class="list-inline-item meta-item">
+          <i aria-hidden="true" class="fa fa-calendar"></i>
+          <time datetime="{{ preprint.date_published|date:'Y-m-d' }}">{{ preprint.date_published|date_human }}</time>
+        </li>
+      {% endif %}
+      {% if preprint.subject.exists %}
+        <li class="list-inline-item meta-item">
+          <i aria-hidden="true" class="fa fa-folder-open"></i>
+          {% include "common/repository/subject_display.html" %}
+        </li>
+      {% endif %}
+    </ul>
+    {% if preprint.abstract %}
+      <p class="text-muted">{{ preprint.abstract|striptags|truncatesmart:300 }}</p>
+    {% endif %}
+  </article>
+{% empty %}
+  <p>{% trans 'No results found.' %}</p>
+{% endfor %}

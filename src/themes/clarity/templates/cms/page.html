@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ page.display_name }}{% endblock title %}
+
+{% block page_title %}{{ page.display_name }}{% endblock %}
+
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
+
+{% block body %}
+    <section id="content" aria-labelledby="cms-title">
+        <div class="row">
+            <div class="{% if page.display_toc %}col-md-8 col-sm-12{% else %}col-md-12{% endif %} text-format-region">
+                <h1 id="cms-title">{{ page.display_name }}</h1>
+                <hr aria-hidden="true" />
+                <div id="main_article">{{ page.content|safe }}</div>
+            </div>
+            {% if page.display_toc %}
+                <div class="col-md-4 d-none d-sm-none d-md-block">
+                    <div class="sticky-toc">
+                        <section aria-labelledby="toc-title">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                                    <ul id="toc" class="table-of-contents"></ul>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock body %}
+
+{% block js %}
+    <script src="{% static 'clarity/js/toc.js' %}"></script>
+{% endblock %}

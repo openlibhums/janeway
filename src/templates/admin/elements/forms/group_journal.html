@@ -9,15 +9,25 @@
     {% include "admin/elements/forms/field.html" with field=edit_form.journal_issn %}
     {% include "admin/elements/forms/field.html" with field=edit_form.print_issn %}
     {% include "admin/elements/forms/field.html" with field=attr_form.is_conference %}
-    {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
-    {% if edit_form.journal_base_theme %}
-        {% include "admin/elements/forms/field.html" with field=edit_form.journal_base_theme %}
-    {% endif %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_name %}
     {% include "admin/elements/forms/field.html" with field=edit_form.publisher_url %}
     {% include "admin/elements/forms/field.html" with field=edit_form.main_contact %}
     {% include "admin/elements/forms/field.html" with field=edit_form.contact_info %}
     {% include "admin/elements/forms/field.html" with field=edit_form.privacy_policy_url %}
+</div>
+
+<div class="title-area">
+    <h2>{% trans 'Theme' %}</h2>
+</div>
+<div class="content">
+    <p>{% trans 'Choose the theme your journal is presented in. Some themes offer further settings, which appear here once that theme is selected.' %}</p>
+    <div data-theme-settings>
+        {% include "admin/elements/forms/field.html" with field=edit_form.journal_theme %}
+        {% for field in edit_form.theme_dependent_fields %}
+            {% include "admin/elements/forms/field.html" with field=field %}
+        {% endfor %}
+    </div>
+    {% include "admin/elements/forms/theme_settings_js.html" %}
 </div>
 
 <div class="title-area">

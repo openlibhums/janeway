@@ -17,12 +17,15 @@ from django.template.loader import get_template
 from django.urls.base import clear_script_prefix
 from django.utils import timezone
 
+from django.conf import settings
+
 from core import models as core_models
+from core import forms as core_forms
 from core import logic as core_logic
 from core import middleware as core_middleware
 from core import text_format as core_text_format
 from core import views as core_views
-from utils import orcid, setting_handler
+from utils import install, orcid, setting_handler
 from utils.template_override_middleware import Loader
 from utils.testing import helpers
 
@@ -2073,3 +2076,223 @@ class ContactSystemTests(CoreViewTestsWithData):
             self.contact_message_one,
             response.context["log_entry"],
         )
+
+
+class ThemeDependentSettingsTests(TestCase):
+    """
+    Settings that belong to particular themes, such as the Clarity
+    palette, are always part of the journal settings form so their
+    values survive a save. The page shows and hides them based on the
+    themes named in each field's data-themes attribute.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        helpers.create_roles(["editor", "journal-manager"])
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        # Settings are only given their editable_by roles when their
+        # value is first created, so a settings page shows nothing to a
+        # non-staff user unless permissions are loaded explicitly.
+        install.load_permissions()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.settings_url = reverse(
+            "core_edit_settings_group",
+            kwargs={"display_group": "journal"},
+        )
+
+    def setUp(self):
+        django_cache.clear()
+        self.client.force_login(self.editor)
+
+    def set_theme(self, theme):
+        setting_handler.save_setting(
+            "general",
+            "journal_theme",
+            self.journal_one,
+            theme,
+        )
+
+    def setting_names(self):
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        return [setting["name"] for setting in settings_to_edit]
+
+    def test_theme_settings_present_whatever_the_theme(self):
+        for theme in ["OLH", "clarity"]:
+            with self.subTest(theme=theme):
+                self.set_theme(theme)
+                names = self.setting_names()
+                self.assertIn("clarity_palette", names)
+                self.assertIn("journal_base_theme", names)
+
+    def test_palette_is_tagged_with_its_theme(self):
+        theme_settings = core_logic.get_theme_dependent_settings(self.journal_one)
+        palette = next(
+            setting
+            for setting in theme_settings
+            if setting["name"] == "clarity_palette"
+        )
+        self.assertEqual(palette["themes"], ["clarity"])
+        self.assertEqual(
+            [choice[0] for choice in palette["choices"]],
+            setting_handler.get_setting(
+                "theme:clarity",
+                "clarity_palette_choices",
+                self.journal_one,
+            ).processed_value,
+        )
+
+    def test_base_theme_is_tagged_with_non_core_themes(self):
+        theme_settings = core_logic.get_theme_dependent_settings(self.journal_one)
+        base_theme = next(
+            setting
+            for setting in theme_settings
+            if setting["name"] == "journal_base_theme"
+        )
+        self.assertIn("clarity", base_theme["themes"])
+        for core_theme in settings.CORE_THEMES:
+            self.assertNotIn(core_theme, base_theme["themes"])
+
+    def test_widgets_carry_the_themes_they_apply_to(self):
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        form = core_forms.GeneratedSettingForm(settings=settings_to_edit)
+        self.assertEqual(
+            form.fields["clarity_palette"].widget.attrs.get("data-themes"),
+            "clarity",
+        )
+        self.assertNotIn(
+            "data-themes",
+            form.fields["journal_theme"].widget.attrs,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_palette_saves_when_theme_selected_in_same_post(self):
+        self.set_theme("OLH")
+        settings_to_edit, group = core_logic.get_settings_to_edit(
+            "journal",
+            self.journal_one,
+            self.editor,
+        )
+        post_data = {
+            setting["name"]: setting["object"].value or ""
+            for setting in settings_to_edit
+        }
+        post_data["journal_theme"] = "clarity"
+        post_data["clarity_palette"] = "ocean"
+        # The page posts the journal attribute form alongside the
+        # settings form, and it requires a publishing status.
+        post_data["status"] = self.journal_one.status
+
+        response = self.client.post(
+            self.settings_url,
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            setting_handler.get_setting(
+                "theme:clarity",
+                "clarity_palette",
+                self.journal_one,
+            ).value,
+            "ocean",
+        )
+        # The value must land on the journal, not overwrite the
+        # theme's default for every journal.
+        self.assertEqual(
+            setting_handler.get_setting(
+                "theme:clarity",
+                "clarity_palette",
+                self.journal_two,
+            ).value,
+            "evergreen",
+        )
+
+    def test_choices_setting_is_not_a_form_field(self):
+        self.assertNotIn("clarity_palette_choices", self.setting_names())
+
+    def test_palette_available_in_template_context(self):
+        django_cache.clear()
+        context_settings = core_logic.cached_settings_for_context(
+            self.journal_one,
+            "en",
+        )
+        self.assertEqual(
+            context_settings["theme"]["clarity"]["clarity_palette"],
+            "evergreen",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_settings_page_renders_palette_and_toggle(self):
+        self.set_theme("clarity")
+        response = self.client.get(
+            self.settings_url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-themes="clarity"')
+        self.assertContains(response, "data-theme-settings")
+
+
+class SettingsGroupPageTests(TestCase):
+    """
+    Each settings group must be rendered once per page. The template
+    used to include it twice, so every field was posted twice, and
+    because Django keeps the last value for a repeated key, anything
+    edited in the first copy was silently discarded on save.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        helpers.create_roles(["editor", "journal-manager"])
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        # See ThemeDependentSettingsTests: without this the settings
+        # pages render no fields at all for a non-staff user.
+        install.load_permissions()
+        cls.editor = helpers.create_editor(cls.journal_one)
+
+    def setUp(self):
+        django_cache.clear()
+        self.client.force_login(self.editor)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_each_group_renders_its_fields_once(self):
+        groups = [
+            "journal",
+            "submission",
+            "styling",
+            "article",
+            "review",
+            "metadata",
+        ]
+        for group in groups:
+            with self.subTest(group=group):
+                response = self.client.get(
+                    reverse(
+                        "core_edit_settings_group",
+                        kwargs={"display_group": group},
+                    ),
+                    SERVER_NAME=self.journal_one.domain,
+                )
+                self.assertEqual(response.status_code, 200)
+                content = response.content.decode()
+                expected = 1 if group == "journal" else 0
+                # The select element itself, not the selector used by the
+                # theme settings script.
+                self.assertEqual(
+                    content.count('<select name="journal_theme"'),
+                    expected,
+                )
+                self.assertEqual(
+                    content.count("<h2>Disciplines</h2>"),
+                    expected,
+                )

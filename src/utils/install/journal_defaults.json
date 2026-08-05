@@ -930,6 +930,44 @@
     },
     {
         "group": {
+            "name": "theme:clarity"
+        },
+        "setting": {
+            "description": "The colour palette used by the Clarity theme.",
+            "is_translatable": false,
+            "name": "clarity_palette",
+            "pretty_name": "Clarity Palette",
+            "type": "select"
+        },
+        "value": {
+            "default": "evergreen"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "theme:clarity"
+        },
+        "setting": {
+            "description": "The palettes the Clarity theme offers, matching the palettes defined in its stylesheet.",
+            "is_translatable": false,
+            "name": "clarity_palette_choices",
+            "pretty_name": "Clarity Palette Choices",
+            "type": "json"
+        },
+        "value": {
+            "default": "[\"evergreen\", \"ocean\", \"cardinal\", \"paper\"]"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {

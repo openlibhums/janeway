@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load hooks %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Issues" %}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans issue_type.plural_name %}</h1>
+            {% if request.journal.current_issue %}
+                <p>{% trans 'The current issue is' %}:
+                    <a href="{% url 'journal_issue' request.journal.current_issue.id %}"
+                       aria-label='{{ request.journal.current_issue.display_title_a11y }} ({{ request.journal.current_issue.articles.all.count }} {% trans "items" %})'
+                    >
+                        {{ request.journal.current_issue.display_title }} - {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if request.journal.display_issues_grouped_by_decade %}
+                {% include "elements/journal/issue_list_by_decade.html" %}
+            {% else %}
+                {% include "elements/journal/issue_list.html" %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
