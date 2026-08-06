@@ -20,4 +20,5 @@ class TagitWidget(TextInput):
             "common/js/jq-ui.min.js",
             "common/js/tagit.js",
             "common/js/tagit-widget.js",
+            "common/js/tagit-max-length.js",
         )
