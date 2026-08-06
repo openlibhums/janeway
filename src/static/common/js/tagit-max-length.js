@@ -10,7 +10,8 @@ $(document).on("tagitbeforetagadded", "#id_keywords", function (event, ui) {
     }
     var tagList = $(event.target).next("ul.tagit");
     var error = tagList.next(".tagit-max-length-error");
-    if (ui.tagLabel.length > maxLength) {
+    // Count code points, not UTF-16 code units, to match Python's len().
+    if (Array.from(ui.tagLabel).length > maxLength) {
         event.preventDefault();
         if (!error.length) {
             error = $('<div class="error tagit-max-length-error" role="alert">')
