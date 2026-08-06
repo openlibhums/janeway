@@ -69,7 +69,12 @@ class KeywordModelForm(ModelForm):
     keywords = CharField(required=False, help_text=_("Hit Enter to add a new keyword."))
 
     def __init__(self, *args, **kwargs):
+        from core.forms.widgets import TagitWidget
+
         super().__init__(*args, **kwargs)
+        self.fields["keywords"].widget = TagitWidget(
+            attrs={"data-allow-spaces": "true"},
+        )
         if self.instance.pk:
             current_keywords = self.instance.keywords.values_list("word", flat=True)
             field = self.fields["keywords"]

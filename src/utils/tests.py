@@ -941,6 +941,21 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("cannot exceed", form.errors["keywords"][0])
 
+    def test_keyword_form_uses_tagit_widget(self):
+        from core.forms.widgets import TagitWidget
+
+        class KeywordTestForm(KeywordModelForm):
+            class Meta:
+                model = journal_models.Journal
+                fields = ("keywords",)
+                exclude = tuple()
+
+        form = KeywordTestForm(instance=self.journal)
+        widget = form.fields["keywords"].widget
+        self.assertIsInstance(widget, TagitWidget)
+        self.assertEqual(widget.attrs.get("data-allow-spaces"), "true")
+        self.assertIn("common/js/tagit-max-length.js", str(form.media))
+
     def test_keyword_form_accepts_keyword_at_max_length(self):
         class KeywordTestForm(KeywordModelForm):
             class Meta:

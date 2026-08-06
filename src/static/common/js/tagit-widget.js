@@ -1,4 +1,6 @@
 $(document).ready(function () {
-    $(".tagit-field").tagit(
-	{allowSpaces: false});
+    $(".tagit-field").each(function () {
+        $(this).tagit(
+	    {allowSpaces: $(this).data("allowSpaces") === true});
+    });
 });
