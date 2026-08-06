@@ -1,0 +1,5 @@
+/* Foundation help text tucks itself under the preceding input with a
+   negative top margin; leave room for it below the max-length error. */
+.tagit-max-length-error {
+    margin-bottom: 16px;
+}
