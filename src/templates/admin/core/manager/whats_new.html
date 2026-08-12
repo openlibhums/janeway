@@ -1,0 +1,284 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}What's New in Janeway 1.9{% endblock title %}
+{% block title-section %}What's New in Janeway 1.9{% endblock %}
+{% block title-sub %}
+  Highlights for journal staff, including features that require action
+  before your readers can benefit from them.
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+  <li>What's New</li>
+{% endblock %}
+
+{% block body %}
+  <div class="row expanded whats-new">
+    <div class="large-8 columns end">
+
+      <div class="box">
+        <div class="title-area">
+          <h2>In this release</h2>
+        </div>
+        <div class="content">
+          <ul class="release-contents">
+            <li>
+              <a href="#accessibility-page">Accessibility pages for journals and
+                presses</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+            <li>
+              <a href="#alt-text">Alt text for images</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+            <li>
+              <a href="#clarity">Introducing the Clarity theme</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+            <li>
+              <a href="#cms-drafts">Draft and published CMS pages</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+            <li>
+              <a href="#contact-manager">A new contact manager</a>
+              <span class="toc-badge optional">Optional</span>
+            </li>
+            <li>
+              <a href="#large-images">Larger images without cropping</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+            <li>
+              <a href="#publishing-status">Publishing status for journals</a>
+              <span class="toc-badge">Action needed</span>
+            </li>
+          </ul>
+          <p class="release-notes-link">
+            This page covers the highlights only. The full patch
+            notes for every release are published on
+            <a href="https://github.com/openlibhums/janeway/releases"
+               target="_blank" rel="noopener">
+              GitHub<span class="show-for-sr"> (opens in a new tab)</span></a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="box" id="accessibility">
+        <div class="title-area">
+          <h2>Accessibility</h2>
+        </div>
+        <div class="content">
+          <div class="feature">
+            <h3 id="accessibility-page">Accessibility pages for journals and
+              presses</h3>
+            <p>
+              Every journal and press site now has a dedicated
+              accessibility page (repositories are not included).
+              It includes a living Voluntary Product Accessibility
+              Template (VPAT), which is maintained as part of
+              Janeway and updated as the platform improves. You
+              do not need to keep it up to date yourself.
+            </p>
+            <p>
+              You can also add your own accessibility statement
+              by writing one in Janeway or linking to an existing
+              statement. You can do this for both journals and
+              press sites.
+            </p>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                Add an accessibility statement, or link to an
+                existing one, for your journal and for the press
+                site if you manage it.
+              </p>
+              <a class="button small"
+                 href="{% url 'core_edit_setting' 'general' 'a11y_public_info' %}">
+                Edit accessibility information
+              </a>
+            </div>
+          </div>
+
+          <div class="feature">
+            <h3 id="alt-text">Alt text for images</h3>
+            <p>
+              You can now add alternative text to the images you
+              upload in Janeway. Alt text is what a screen
+              reader announces in place of an image, and it is
+              essential for readers who cannot see the page.
+            </p>
+            <p>
+              For this feature to help, you need to provide the
+              text. Without alt text, assistive technology cannot
+              describe an image to readers.
+            </p>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                Enter alt text when you upload images, and
+                revisit the important images already on your
+                site to add it.
+              </p>
+              <a class="button small" href="{% url 'core_article_images' %}">
+                Go to Article Images Manager
+              </a>
+              <a class="button small" href="{% url 'core_edit_settings_group' 'images' %}">
+                Go to Image Settings
+              </a>
+            </div>
+          </div>
+
+          <div class="feature">
+            <h3 id="clarity">Introducing the Clarity theme</h3>
+            <p>
+              This release includes a broad set of accessibility
+              fixes across Janeway, and introduces Clarity, a
+              new theme designed for accessibility from the
+              ground up. The OLH, Material and Clean themes are
+              being discontinued in favour of Clarity.
+            </p>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                If your journal still uses the OLH, Material
+                or Clean theme, plan your move to Clarity.
+              </p>
+              <a class="button small"
+                 href="{% url 'core_edit_setting' 'general' 'journal_theme' %}">
+                Change your journal theme
+              </a>
+            </div>
+          </div>
+
+          <div class="feature">
+            <h3 id="cms-drafts">Draft and published CMS pages</h3>
+            <p>
+              Pages you create in the CMS now have a
+              draft/published setting. Only published pages are
+              listed in your site's sitemap, which is one of the
+              ways Janeway meets the WCAG Multiple Ways success
+              criterion by giving readers more than one way to
+              find each page.
+            </p>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                Review your CMS pages and check each one is in
+                the right state. Drafts are hidden from
+                readers and left out of the sitemap.
+              </p>
+              <a class="button small" href="{% url 'cms_index' %}">
+                Go to Content Manager
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box" id="contact">
+        <div class="title-area">
+          <h2>Getting in touch</h2>
+        </div>
+        <div class="content">
+          <div class="feature">
+            <h3 id="contact-manager">A new contact manager</h3>
+            <p>We have overhauled journal contact management. You can now:</p>
+            <ul>
+              <li>link to specific contact people from other pages;</li>
+              <li>read contact messages in Janeway as well as by email;</li>
+              <li>edit the email template used to send contact messages.</li>
+            </ul>
+            <div class="bs-callout bs-callout-info">
+              <h4><i class="fa fa-info-circle">&nbsp;</i>Optional</h4>
+              <p>
+                Review your listed contacts and tailor the
+                contact email template to your journal's
+                voice.
+              </p>
+              <a class="button small" href="{% url 'core_contact_people' %}">
+                Go to Contact People
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box" id="images">
+        <div class="title-area">
+          <h2>Images</h2>
+        </div>
+        <div class="content">
+          <div class="feature">
+            <h3 id="large-images">Larger images without cropping</h3>
+            <p>
+              Images uploaded to key fields can now be up to
+              1500&times;648 pixels and will display without being
+              cropped, pixelated or distorted. Previously, these
+              images were cropped to 750&times;324 pixels. This change
+              applies to:
+            </p>
+            <ul>
+              <li>Article <strong>Large image file</strong></li>
+              <li>Issue <strong>Large image</strong></li>
+              <li>Journal <strong>Default large image</strong></li>
+              <li>Press <strong>Default carousel image</strong></li>
+              <li>News item <strong>Large image file</strong></li>
+              <li>Repository <strong>Hero background</strong></li>
+            </ul>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                Re-upload high-resolution (1500&times;648)
+                versions of these images where you want a
+                crisper display.
+              </p>
+              <a class="button small"
+                 href="{% url 'core_edit_settings_group' 'images' %}">
+                Go to Image Settings
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box" id="journal-management">
+        <div class="title-area">
+          <h2>Journal management</h2>
+        </div>
+        <div class="content">
+          <div class="feature">
+            <h3 id="publishing-status">Publishing status for journals</h3>
+            <p>
+              A new <strong>Publishing status</strong> field
+              lets you mark a journal as active, coming soon,
+              archived or a test journal. This status controls
+              whether the journal appears in journal lists,
+              search indexes and archive feeds. The
+              <strong>Hide from press</strong> field now works
+              more consistently as well.
+            </p>
+            <div class="bs-callout bs-callout-warning">
+              <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+              <p>
+                Check that every journal on your press has the
+                correct publishing status set.
+              </p>
+              {% if request.user.is_staff %}
+                <a class="button small"
+                   href="{% url 'admin:journal_journal_changelist' %}">
+                  Go to Journals in the admin
+                </a>
+              {% else %}
+                <p class="action-note">
+                  Publishing status is set by a press
+                  administrator in the Django admin.
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock body %}

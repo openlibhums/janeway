@@ -138,6 +138,11 @@ urlpatterns = [
     ),
     # Manager URLS
     re_path(r"^manager/$", core_views.manager_index, name="core_manager_index"),
+    re_path(
+        r"^manager/whats_new/$",
+        core_views.whats_new,
+        name="core_manager_whats_new",
+    ),
     # Settings Management
     re_path(
         r"^manager/settings/$", core_views.settings_index, name="core_settings_index"
