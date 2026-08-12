@@ -370,13 +370,17 @@ th {
     padding: 20px;
     border: 1px solid #eee;
     border-left-width: 8px;
-    border-radius: 3px;
+    border-radius: 0 3px 3px 0;
     margin-bottom: 10px;
 }
 
 .bs-callout h4 {
     margin-top: 0;
-    margin-bottom: 5px;
+    margin-bottom: 0.35rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 .bs-callout p:last-child {
@@ -393,50 +397,56 @@ th {
 
 .bs-callout-default {
     border-left-color: #777;
+    background: rgba(119, 119, 119, 0.06);
 }
 
 .bs-callout-default h4 {
-    color: #777;
+    color: #595959;
 }
 
 .bs-callout-primary {
     border-left-color: #428bca;
+    background: rgba(66, 139, 202, 0.08);
 }
 
 .bs-callout-primary h4 {
-    color: #428bca;
+    color: #1f5f8b;
 }
 
 .bs-callout-success {
     border-left-color: #5cb85c;
+    background: rgba(92, 184, 92, 0.1);
 }
 
 .bs-callout-success h4 {
-    color: #5cb85c;
+    color: #1f6024;
 }
 
 .bs-callout-danger {
     border-left-color: #d9534f;
+    background: rgba(217, 83, 79, 0.08);
 }
 
 .bs-callout-danger h4 {
-    color: #d9534f;
+    color: #a12a26;
 }
 
 .bs-callout-warning {
     border-left-color: #f0ad4e;
+    background: rgba(240, 173, 78, 0.1);
 }
 
 .bs-callout-warning h4 {
-    color: #f0ad4e;
+    color: #7a4a0d;
 }
 
 .bs-callout-info {
     border-left-color: #5bc0de;
+    background: rgba(91, 192, 222, 0.1);
 }
 
 .bs-callout-info h4 {
-    color: #5bc0de;
+    color: #1d6379;
 }
 
 .form-group .row {
