@@ -1068,6 +1068,17 @@ def manager_index(request):
     return render(request, template, context)
 
 
+@editor_user_required
+def whats_new(request):
+    """
+    Displays the highlights of the current Janeway release for journal staff.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    template = "core/manager/whats_new.html"
+    return render(request, template, {})
+
+
 @staff_member_required
 def flush_cache(request):
     """

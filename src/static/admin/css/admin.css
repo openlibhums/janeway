@@ -1353,3 +1353,79 @@ dialog::backdrop {
     clear: right;
 }
 
+/* What's New release highlights page. */
+
+.whats-new .release-contents {
+    list-style: none;
+    margin-left: 0;
+}
+
+.whats-new .release-contents li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+}
+
+.whats-new .release-contents li + li {
+    border-top: 1px solid #ececec;
+}
+
+.whats-new .release-contents a {
+    flex: 1;
+}
+
+.whats-new .toc-badge {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #7a4a0d;
+    background: rgba(240, 173, 78, 0.12);
+    border: 1px solid #f0ad4e;
+    border-radius: 2px;
+    padding: 0.15rem 0.5rem;
+}
+
+.whats-new .toc-badge.optional {
+    color: #1d6379;
+    background: rgba(91, 192, 222, 0.12);
+    border-color: #5bc0de;
+}
+
+.whats-new .feature + .feature {
+    margin-top: 1.75rem;
+    border-top: 1px solid #ececec;
+    padding-top: 1.5rem;
+}
+
+.whats-new .feature h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.whats-new .feature ul li {
+    margin-bottom: 0.25rem;
+}
+
+.whats-new .bs-callout {
+    margin-bottom: 0;
+}
+
+.whats-new .bs-callout .button {
+    margin-bottom: 0;
+    margin-top: 0.35rem;
+}
+
+.whats-new .bs-callout .action-note {
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.whats-new .release-notes-link {
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
