@@ -1076,7 +1076,12 @@ def whats_new(request):
     :return: HttpResponse object
     """
     template = "core/manager/whats_new.html"
-    return render(request, template, {})
+    context = {
+        "deprecated_workflow_elements": logic.deprecated_workflow_elements(
+            request.journal
+        ),
+    }
+    return render(request, template, context)
 
 
 @staff_member_required

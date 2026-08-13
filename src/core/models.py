@@ -2181,6 +2181,9 @@ BASE_ELEMENTS = [
 
 BASE_ELEMENT_NAMES = [element.get("name") for element in BASE_ELEMENTS]
 
+# Superseded by the typesetting element; due for removal in a future release.
+DEPRECATED_ELEMENT_NAMES = ["production", "proofing"]
+
 
 class Workflow(models.Model):
     journal = models.ForeignKey(
