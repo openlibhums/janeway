@@ -167,7 +167,9 @@ class MaintenanceModeMiddleware(BaseMiddleware):
                     "general", "maintenance_message", request.journal
                 )
                 request.META["maintenance_mode"] = maintenance_mode_message
-                raise PermissionDenied(request, maintenance_mode_message)
+                # The message is rendered as the 403 page's explanation, so
+                # pass it alone: adding the request made str(exception) a tuple.
+                raise PermissionDenied(maintenance_mode_message.value)
 
 
 class CounterCookieMiddleware(BaseMiddleware):

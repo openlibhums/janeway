@@ -1430,32 +1430,15 @@ class TestSecurity(TestCase):
             "reviewer_user_for_assignment_required decorator incorrectly handles request.user=None",
         )
 
-    def test_reviewer_user_for_assignment_required_allows_staff(self):
+    def test_reviewer_user_for_assignment_required_blocks_staff(self):
         """
-        Tests that reviewer_user_for_assignment_required allows staff to view the article.
-        :return: None or raises an assertion
-        """
-        func = Mock()
-        decorated_func = decorators.reviewer_user_for_assignment_required(func)
+        Tests that reviewer_user_for_assignment_required holds staff to the
+        same check as anyone else.
 
-        request = self.prepare_request_with_user(self.admin_user, self.journal_one)
-        kwargs = {"assignment_id": self.review_assignment.id}
-
-        decorated_func(request, **kwargs)
-
-        # test that the callback was called
-        self.assertTrue(
-            func.called,
-            "reviewer_user_for_assignment_required decorator wrongly prohibits staff from "
-            "accessing an article in production",
-        )
-
-    def test_reviewer_user_for_assignment_required_allows_staff_regardless_of_stage(
-        self,
-    ):
-        """
-        Tests that reviewer_user_for_assignment_required allows staff to article in review, regardless of stage.
-        :return: None or raises an assertion
+        The views behind this decorator fetch the assignment again filtered by
+        reviewer=request.user, so admitting staff here only moved the failure
+        into the view, where it was reported as the review not belonging to
+        them. Staff read reviews through the editor pages instead.
         """
         func = Mock()
         decorated_func = decorators.reviewer_user_for_assignment_required(func)
@@ -1463,14 +1446,27 @@ class TestSecurity(TestCase):
         request = self.prepare_request_with_user(self.admin_user, self.journal_one)
         kwargs = {"assignment_id": self.review_assignment.id}
 
-        decorated_func(request, **kwargs)
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
 
-        # test that the callback was called
-        self.assertTrue(
+        self.assertFalse(
             func.called,
-            "reviewer_user_for_assignment_required decorator wrongly prohibits staff from "
-            "accessing an article that has been published's production stage",
+            "reviewer_user_for_assignment_required decorator wrongly allows staff "
+            "to open a review assigned to somebody else",
         )
+
+    def test_reviewer_user_for_assignment_required_tells_staff_it_is_not_theirs(self):
+        """The message must describe the real reason, not the stage."""
+        func = Mock()
+        decorated_func = decorators.reviewer_user_for_assignment_required(func)
+
+        request = self.prepare_request_with_user(self.admin_user, self.journal_one)
+        kwargs = {"assignment_id": self.review_assignment.id}
+
+        with self.assertRaises(PermissionDenied) as denial:
+            decorated_func(request, **kwargs)
+
+        self.assertIn("not assigned to", str(denial.exception))
 
     def test_reviewer_user_for_assignment_required_blocks_editor(self):
         """
@@ -5493,3 +5489,275 @@ class TestSecurity(TestCase):
         request.repository = repository
 
         return request
+
+
+class AccessDeniedMessageTests(TestCase):
+    """Covers the explanations shown on a 403.
+
+    A reader who follows a task link while signed in with the wrong account
+    used to be told only "Permission denied", with nothing to act on.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(["editor", "author", "reviewer", "proofreader"])
+
+        cls.reviewer = helpers.create_user(
+            "assigned_reviewer@example.org",
+            roles=["reviewer"],
+            journal=cls.journal_one,
+        )
+        cls.reviewer.is_active = True
+        cls.reviewer.save()
+
+        cls.other_reviewer = helpers.create_user(
+            "other_reviewer@example.org",
+            roles=["reviewer"],
+            journal=cls.journal_one,
+        )
+        cls.other_reviewer.is_active = True
+        cls.other_reviewer.save()
+
+        cls.roleless_user = helpers.create_user("no_roles@example.org")
+        cls.roleless_user.is_active = True
+        cls.roleless_user.save()
+
+        cls.review_assignment = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            reviewer=cls.reviewer,
+        )
+        cls.article = cls.review_assignment.article
+
+        cls.task_owner = helpers.create_user(
+            "task_owner@example.org",
+            roles=["author", "reviewer", "proofreader"],
+            journal=cls.journal_one,
+        )
+        cls.task_owner.is_active = True
+        cls.task_owner.save()
+
+        cls.owned_article = helpers.create_submission(
+            owner=cls.task_owner,
+            journal_id=cls.journal_one.pk,
+        )
+        cls.copyedit = helpers.create_copyedit_assignment(
+            article=cls.owned_article,
+            copyeditor=cls.task_owner,
+        )
+        cls.proofing_task = helpers.create_proofing_task(
+            article=cls.owned_article,
+            proofreader=cls.task_owner,
+        )
+        cls.typeset_task = helpers.create_typesetter_proofing_task(
+            proofing_task=cls.proofing_task,
+            typesetter=cls.task_owner,
+        )
+
+        # The same objects again on the other journal, to prove that a valid
+        # id on a journal the reader is not looking at is answered the same
+        # way as one that does not exist.
+        cls.other_journal_article = helpers.create_submission(
+            owner=cls.task_owner,
+            journal_id=cls.journal_two.pk,
+        )
+        cls.other_journal_copyedit = helpers.create_copyedit_assignment(
+            article=cls.other_journal_article,
+            copyeditor=cls.other_reviewer,
+        )
+        cls.other_journal_review = helpers.create_review_assignment(
+            journal=cls.journal_two,
+            article=cls.other_journal_article,
+            reviewer=cls.other_reviewer,
+        )
+
+    MISSING_ID = 99999
+
+    def get_page(self, user, url_name, kwargs):
+        self.client.force_login(user)
+        return self.client.get(
+            reverse(url_name, kwargs=kwargs),
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def assert_indistinguishable(self, user, url_name, key, real_id, other_id):
+        """A wrong owner, another journal and a missing id must look alike.
+
+        Any difference between them, including 404 against 403, lets a reader
+        step through the ids to learn which ones exist.
+        """
+        responses = [
+            self.get_page(user, url_name, {key: real_id}),
+            self.get_page(user, url_name, {key: other_id}),
+            self.get_page(user, url_name, {key: self.MISSING_ID}),
+        ]
+
+        statuses = {response.status_code for response in responses}
+        self.assertEqual(
+            statuses,
+            {403},
+            "{} told the reader which ids exist: {}".format(url_name, statuses),
+        )
+
+        bodies = {self.denial_message(response) for response in responses}
+        self.assertEqual(
+            len(bodies),
+            1,
+            "{} worded its denials differently: {}".format(url_name, bodies),
+        )
+
+    def denial_message(self, response):
+        content = response.content.decode()
+        for line in content.split("<p>"):
+            if "is not" in line:
+                return line.split("</p>")[0].strip()
+        return ""
+
+    def test_copyedit_does_not_reveal_which_ids_exist(self):
+        self.assert_indistinguishable(
+            self.other_reviewer,
+            "do_copyedit",
+            "copyedit_id",
+            self.copyedit.pk,
+            self.other_journal_copyedit.pk,
+        )
+
+    def test_review_does_not_reveal_which_ids_exist(self):
+        self.assert_indistinguishable(
+            self.other_reviewer,
+            "do_review",
+            "assignment_id",
+            self.review_assignment.pk,
+            self.other_journal_review.pk,
+        )
+
+    def test_copyedit_denial_does_not_name_the_copyeditor(self):
+        response = self.get_page(
+            self.other_reviewer,
+            "do_copyedit",
+            {"copyedit_id": self.copyedit.pk},
+        )
+        self.assertNotContains(response, self.task_owner.email, status_code=403)
+
+    def test_proofing_denial_does_not_name_the_proofreader(self):
+        response = self.get_page(
+            self.other_reviewer,
+            "do_proofing",
+            {"proofing_task_id": self.proofing_task.pk},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertNotContains(response, self.task_owner.email, status_code=403)
+
+    def test_proofing_hides_completion_from_everyone_but_the_owner(self):
+        """Whether a task is finished is the owner's business alone."""
+        self.proofing_task.completed = timezone.now()
+        self.proofing_task.save()
+
+        response = self.get_page(
+            self.other_reviewer,
+            "do_proofing",
+            {"proofing_task_id": self.proofing_task.pk},
+        )
+        self.assertNotContains(response, "already completed", status_code=403)
+
+        response = self.get_page(
+            self.task_owner,
+            "do_proofing",
+            {"proofing_task_id": self.proofing_task.pk},
+        )
+        self.assertContains(response, "already completed", status_code=403)
+
+        self.proofing_task.completed = None
+        self.proofing_task.save()
+
+    def test_author_task_does_not_reveal_which_articles_exist(self):
+        self.assert_indistinguishable(
+            self.other_reviewer,
+            "review_author_view",
+            "article_id",
+            self.owned_article.pk,
+            self.other_journal_article.pk,
+        )
+
+    def get_review_page(self, user):
+        self.client.force_login(user)
+        return self.client.get(
+            reverse(
+                "do_review",
+                kwargs={"assignment_id": self.review_assignment.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def test_message_names_the_account_and_its_roles(self):
+        message = decorators.security_logic.access_denied_message(
+            self.reviewer,
+            list(self.reviewer.accountrole_set.filter(journal=self.journal_one)),
+            journal=self.journal_one,
+        )
+        self.assertIn(self.reviewer.email, message)
+        self.assertIn("reviewer", message)
+
+    def test_message_says_when_the_account_has_no_roles(self):
+        message = decorators.security_logic.access_denied_message(
+            self.roleless_user,
+            [],
+            journal=self.journal_one,
+        )
+        self.assertIn("no roles on this journal", message)
+
+    def test_message_omits_journal_roles_when_there_is_no_journal(self):
+        """Press and repository denials must not describe journal roles."""
+        message = decorators.security_logic.access_denied_message(
+            self.roleless_user,
+            [],
+            required_roles=["editor"],
+            journal=None,
+        )
+        self.assertNotIn("journal", message)
+        self.assertIn(self.roleless_user.email, message)
+
+    def test_message_names_the_role_the_page_requires(self):
+        message = decorators.security_logic.access_denied_message(
+            self.roleless_user,
+            [],
+            required_roles=["editor"],
+        )
+        self.assertIn("editor", message)
+
+    def test_message_asks_anonymous_users_to_sign_in(self):
+        message = decorators.security_logic.access_denied_message(
+            AnonymousUser(),
+            [],
+        )
+        self.assertIn("sign in", message)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_review_for_another_account_explains_the_mismatch(self):
+        response = self.get_review_page(self.other_reviewer)
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(
+            response,
+            "not assigned to {}".format(self.other_reviewer.email),
+            status_code=403,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_review_for_another_account_does_not_name_the_assignee(self):
+        """The 403 must not disclose who is working on the article."""
+        response = self.get_review_page(self.other_reviewer)
+        self.assertNotContains(
+            response,
+            self.reviewer.email,
+            status_code=403,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_article_past_review_says_the_review_is_closed(self):
+        self.article.stage = submission_models.STAGE_EDITOR_COPYEDITING
+        self.article.save()
+        response = self.get_review_page(self.reviewer)
+        self.assertContains(response, "moved past the review stage", status_code=403)
+        self.article.stage = submission_models.STAGE_UNDER_REVIEW
+        self.article.save()
