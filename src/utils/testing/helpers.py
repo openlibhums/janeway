@@ -32,6 +32,7 @@ from press import models as press_models
 from submission import models as sm_models
 from review import models as review_models
 from copyediting import models as copyediting_models
+from proofing import models as proofing_models
 from comms import models as comms_models
 from cms import models as cms_models
 from utils import setting_handler, models as utils_models
@@ -898,3 +899,34 @@ def send_contact_message(
         if contact_form.is_valid():
             core_logic.send_contact_message(contact_form, request)
             return utils_models.LogEntry.objects.order_by("-date").first()
+
+
+def create_proofing_task(article, proofreader, manager=None, **kwargs):
+    """Builds the assignment, round and task a proofreader is given."""
+    if not manager:
+        manager = create_editor(article.journal)
+
+    assignment, _created = proofing_models.ProofingAssignment.objects.get_or_create(
+        article=article,
+        defaults={"proofing_manager": manager, "editor": manager},
+    )
+    proofing_round = proofing_models.ProofingRound.objects.create(
+        assignment=assignment,
+        number=assignment.current_proofing_round_number + 1,
+    )
+    return proofing_models.ProofingTask.objects.create(
+        round=proofing_round,
+        proofreader=proofreader,
+        due=timezone.now() + datetime.timedelta(days=3),
+        **kwargs,
+    )
+
+
+def create_typesetter_proofing_task(proofing_task, typesetter, **kwargs):
+    """Builds the corrections task a typesetter is given after proofing."""
+    return proofing_models.TypesetterProofingTask.objects.create(
+        proofing_task=proofing_task,
+        typesetter=typesetter,
+        due=timezone.now() + datetime.timedelta(days=3),
+        **kwargs,
+    )
