@@ -1698,3 +1698,22 @@ def send_contact_message(contact_form, request):
         _("Your message has been sent to %(recipient)s.")
         % {"recipient": contact_person.account.full_name()},
     )
+
+
+def deprecated_workflow_elements(journal):
+    """Deprecated elements still in the journal's workflow, with article
+    counts, since an element cannot be removed while articles remain in it.
+    """
+    if not journal:
+        return []
+
+    return [
+        {
+            "element": element,
+            "article_count": element.articles.count(),
+        }
+        for element in models.WorkflowElement.objects.filter(
+            workflow__journal=journal,
+            element_name__in=models.DEPRECATED_ELEMENT_NAMES,
+        )
+    ]

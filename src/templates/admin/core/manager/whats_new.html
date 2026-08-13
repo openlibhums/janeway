@@ -52,6 +52,15 @@
               <a href="#publishing-status">Publishing status for journals</a>
               <span class="toc-badge">Action needed</span>
             </li>
+            <li>
+              <a href="#typesetting">Typesetting replaces Production and
+                Proofing</a>
+              {% if request.journal and not deprecated_workflow_elements %}
+                <span class="toc-badge optional">No action needed</span>
+              {% else %}
+                <span class="toc-badge">Action needed</span>
+              {% endif %}
+            </li>
           </ul>
           <p class="release-notes-link">
             This page covers the highlights only. The full patch
@@ -275,6 +284,75 @@
                 </p>
               {% endif %}
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box" id="workflow">
+        <div class="title-area">
+          <h2>Workflow</h2>
+        </div>
+        <div class="content">
+          <div class="feature">
+            <h3 id="typesetting">Typesetting replaces Production and
+              Proofing</h3>
+            <p>
+              Typesetting, which was previously available as a
+              plugin, is now part of Janeway. It replaces the
+              older Production and Proofing workflow stages.
+              Those stages are deprecated: their settings no
+              longer appear on the Manager page, and the stages
+              themselves will be removed in a future release.
+            </p>
+            {% if request.journal and not deprecated_workflow_elements %}
+              <div class="bs-callout bs-callout-info">
+                <h4><i class="fa fa-check-circle">&nbsp;</i>No action needed</h4>
+                <p>
+                  Your journal's workflow does not include the
+                  deprecated stages.
+                </p>
+              </div>
+            {% else %}
+              <div class="bs-callout bs-callout-warning">
+                <h4><i class="fa fa-exclamation-circle">&nbsp;</i>Action needed</h4>
+                {% if request.journal %}
+                  <p>Your journal's workflow still includes:</p>
+                  <ul>
+                    {% for item in deprecated_workflow_elements %}
+                      <li>
+                        {{ item.element.element_name|capfirst }}{% if item.article_count %}
+                        &mdash; {{ item.article_count }}
+                        article{{ item.article_count|pluralize }} still in this
+                        stage{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <p>
+                    Move any remaining articles out of the
+                    deprecated stages, then remove those stages
+                    from your workflow. A stage
+                    cannot be removed while articles are still in
+                    it.
+                  </p>
+                  {% if request.user.is_staff %}
+                    <a class="button small" href="{% url 'core_journal_workflow' %}">
+                      Go to Journal Workflow
+                    </a>
+                  {% else %}
+                    <p class="action-note">
+                      The journal workflow is managed by staff
+                      members.
+                    </p>
+                  {% endif %}
+                {% else %}
+                  <p>
+                    Check each journal's workflow. Move any
+                    remaining articles out of the deprecated
+                    stages, then remove those stages.
+                  </p>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>
