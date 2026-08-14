@@ -34,8 +34,8 @@
                     <tr>
                         <td>{{ preprint.pk }}</td>
                         <td><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
-                        <td>{{ preprint.submission_type.name }}</td>
                         <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
+                        <td>{% if preprint.date_submitted %}{{ preprint.date_submitted }}{% else %}N/a{% endif %}</td>
                         <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Rejected{% else %}Under Consideration{% endif %}</td>
                         <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
                         <td>{{ preprint.views.count }}</td>
