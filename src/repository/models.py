@@ -119,7 +119,9 @@ class Repository(model_utils.AbstractSiteModel):
     )
     name = models.CharField(max_length=255)
     short_name = models.CharField(
-        max_length=15, help_text="Shortened version of the name eg. olh. Max 15 chars."
+        max_length=15,
+        unique=True,
+        help_text="Unique, short version of the name eg. olh. Max 15 chars.",
     )
     object_name = models.CharField(
         max_length=255,

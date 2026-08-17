@@ -386,11 +386,13 @@ def create_test_file(test_case, file):
     return file, path_parts
 
 
-def create_repository(press, managers, subject_editors, domain="repo.domain.com"):
+def create_repository(
+    press, managers, subject_editors, domain="repo.domain.com", short_name="testrepo"
+):
     repository, c = repo_models.Repository.objects.get_or_create(
         press=press,
         name="Test Repository",
-        short_name="testrepo",
+        short_name=short_name,
         object_name="Preprint",
         object_name_plural="Preprints",
         publisher="Test Publisher",
