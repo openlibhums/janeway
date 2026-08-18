@@ -1580,9 +1580,11 @@ def identifier_access_required(func):
     Checks access for the shared identifier views, which serve both
     articles and preprints via a content_type argument. Article requests
     require a production, editor or staff user; preprint requests require
+    the repository's identifier_management setting to be enabled and
     a staff user or a manager of the current repository.
     :param func: the function to callback from the decorator
-    :return: either the function call or raises a PermissionDenied
+    :return: either the function call, or raises Http404 when the
+        repository setting is disabled, or raises a PermissionDenied
     """
 
     @base_check_required
@@ -1590,9 +1592,10 @@ def identifier_access_required(func):
         content_type = kwargs.get("content_type", "article")
 
         if content_type == "preprint":
-            if request.repository and (
-                request.user.is_staff
-                or request.user.is_repository_manager(request.repository)
+            if not request.repository or not request.repository.identifier_management:
+                raise Http404("Identifier management is not enabled.")
+            if request.user.is_staff or request.user.is_repository_manager(
+                request.repository
             ):
                 return func(request, *args, **kwargs)
         elif (

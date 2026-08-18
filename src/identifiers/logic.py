@@ -16,7 +16,6 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from utils import models as util_models
@@ -832,8 +831,6 @@ def get_object_by_content_type(content_type, object_id, request):
             journal=request.journal,
         )
     else:
-        if not request.repository or not request.repository.identifier_management:
-            raise Http404
         return get_object_or_404(
             repository_models.Preprint,
             pk=object_id,

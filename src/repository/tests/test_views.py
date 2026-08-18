@@ -618,6 +618,11 @@ class TestIdentifierManagementSetting(TestCase):
         )
         cls.preprint_author.is_active = True
         cls.preprint_author.save()
+        cls.staff_member = helpers.create_user(
+            username="repo_staff_idm@janeway.systems",
+            is_active=True,
+            is_staff=True,
+        )
         cls.preprint = helpers.create_preprint(
             cls.repository,
             cls.preprint_author,
@@ -701,6 +706,21 @@ class TestIdentifierManagementSetting(TestCase):
         response = self.client.get(
             reverse(
                 "add_new_identifier",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_404_for_staff_when_setting_off(self):
+        # The setting gates access regardless of user privilege.
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.staff_member)
+        response = self.client.get(
+            reverse(
+                "identifiers",
                 kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
             ),
             SERVER_NAME=self.server_name,
