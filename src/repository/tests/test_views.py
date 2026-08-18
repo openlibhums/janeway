@@ -10,6 +10,7 @@ from django.core import mail
 from django.contrib.messages.storage.cookie import CookieStorage
 from django.http import QueryDict
 from django.urls.base import clear_script_prefix
+from django.utils.formats import date_format
 
 from utils.testing import helpers
 from utils.install import update_settings
@@ -593,6 +594,65 @@ class RepositorySubmitWithIdTests(TestCase):
             reverse("repository_submit"),
             fetch_redirect_response=False,
         )
+
+
+class RepositoryDashboardDateSubmittedTests(TestCase):
+    """The dashboard's Date Submitted column shows the date, not the type (#5441)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.author = helpers.create_user("repo_author_5441@janeway.systems")
+        cls.author.is_active = True
+        cls.author.save()
+        cls.server_name = "repo5441.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.author],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Type5441Unique",
+            name_plural="Type5441Uniques",
+            slug="type-5441-unique",
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.author,
+            cls.subject,
+            title="Dashboard Preprint 5441",
+        )
+        cls.preprint.submission_type = cls.submission_type
+        cls.preprint.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.client.force_login(self.author)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_date_submitted_column_shows_the_date(self):
+        response = self.client.get(
+            reverse("repository_dashboard"),
+            SERVER_NAME=self.server_name,
+        )
+        expected_date = date_format(
+            timezone.localtime(self.preprint.date_submitted),
+            "DATETIME_FORMAT",
+        )
+        self.assertContains(response, expected_date)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_type_appears_only_in_the_type_column(self):
+        response = self.client.get(
+            reverse("repository_dashboard"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, self.submission_type.name, count=1)
 
 
 class TestIdentifierManagementSetting(TestCase):
