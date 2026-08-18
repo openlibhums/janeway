@@ -553,6 +553,7 @@ class RepositorySite(RepositoryBase):
         model = models.Repository
         fields = (
             "headless_mode",
+            "identifier_management",
             "about",
             "logo",
             "hero_background",
@@ -669,6 +670,11 @@ class RepositoryFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.repository = kwargs.pop("repository")
         super(RepositoryFieldForm, self).__init__(*args, **kwargs)
+        self.fields[
+            "submission_type"
+        ].queryset = models.RepositorySubmissionType.objects.filter(
+            repository=self.repository,
+        )
 
     def save(self, commit=True):
         field = super(RepositoryFieldForm, self).save(commit=False)

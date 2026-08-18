@@ -4796,6 +4796,76 @@ class TestSecurity(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_identifier_access_repository_manager_allowed_for_preprint(self):
+        """
+        Test that a non-staff repository manager can access preprint
+        identifier views.
+        """
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={
+                    "content_type": "preprint",
+                    "object_id": self.preprint.pk,
+                },
+            ),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_identifier_access_non_manager_denied_for_preprint(self):
+        """
+        Test that a user who is not a repository manager is denied access
+        to preprint identifier views, even as the preprint's author.
+        """
+        self.client.force_login(self.author)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={
+                    "content_type": "preprint",
+                    "object_id": self.preprint.pk,
+                },
+            ),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_identifier_access_editor_allowed_for_article(self):
+        """
+        Test that the article path still allows journal editors.
+        """
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={
+                    "content_type": "article",
+                    "object_id": self.article_in_review.pk,
+                },
+            ),
+            SERVER_NAME=self.article_in_review.journal.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_identifier_access_author_denied_for_article(self):
+        """
+        Test that the article path still denies non-editorial users.
+        """
+        self.client.force_login(self.author)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={
+                    "content_type": "article",
+                    "object_id": self.article_in_review.pk,
+                },
+            ),
+            SERVER_NAME=self.article_in_review.journal.domain,
+        )
+        self.assertEqual(response.status_code, 403)
+
     def test_user_can_view_contact_message_permission_granted(self):
         func = Mock()
         decorated_func = decorators.user_can_view_contact_message(func)
