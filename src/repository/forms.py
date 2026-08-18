@@ -553,6 +553,7 @@ class RepositorySite(RepositoryBase):
         model = models.Repository
         fields = (
             "headless_mode",
+            "identifier_management",
             "about",
             "logo",
             "hero_background",

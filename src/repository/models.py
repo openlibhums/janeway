@@ -363,6 +363,11 @@ class Repository(model_utils.AbstractSiteModel):
         default=False,
         help_text="Enable to use Crossref test.",
     )
+    identifier_management = models.BooleanField(
+        default=True,
+        help_text="When turned on, repository managers can manage "
+        "identifiers, such as DOIs, for preprints.",
+    )
 
     class Meta:
         verbose_name_plural = "repositories"

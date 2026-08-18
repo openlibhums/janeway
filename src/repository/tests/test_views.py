@@ -593,3 +593,117 @@ class RepositorySubmitWithIdTests(TestCase):
             reverse("repository_submit"),
             fetch_redirect_response=False,
         )
+
+
+class TestIdentifierManagementSetting(TestCase):
+    """Tests for the Repository.identifier_management setting."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_idm@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.is_staff = True
+        cls.repo_manager.save()
+        cls.server_name = "repoidm.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.preprint_author = helpers.create_user(
+            username="repo_author_idm@janeway.systems",
+        )
+        cls.preprint_author.is_active = True
+        cls.preprint_author.save()
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.preprint_author,
+            cls.subject,
+            title="Identifier Management Test Preprint",
+        )
+        update_settings()
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manage_identifiers_link_shown_when_setting_on(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_manager_article",
+                kwargs={"preprint_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, "Manage Identifiers")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manage_identifiers_link_hidden_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_manager_article",
+                kwargs={"preprint_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertNotContains(response, "Manage Identifiers")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_accessible_when_setting_on(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_404_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_denied_for_non_manager(self):
+        self.client.force_login(self.preprint_author)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_add_identifier_view_404_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "add_new_identifier",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
