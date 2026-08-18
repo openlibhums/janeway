@@ -21,7 +21,7 @@ from identifiers import models, forms, logic, preprints
 from core import views as core_views
 from journal import models as journal_models
 from security.decorators import (
-    production_user_or_editor_required,
+    identifier_access_required,
     editor_user_required,
 )
 from utils import models as util_models
@@ -46,7 +46,7 @@ def pingback(request):
     return HttpResponse("")
 
 
-@production_user_or_editor_required
+@identifier_access_required
 def identifiers(
     request,
     object_id,
@@ -82,7 +82,7 @@ def identifiers(
     )
 
 
-@production_user_or_editor_required
+@identifier_access_required
 def manage_identifier(
     request,
     object_id,
@@ -150,7 +150,7 @@ def manage_identifier(
     )
 
 
-@production_user_or_editor_required
+@identifier_access_required
 def show_doi(
     request,
     object_id,
@@ -205,7 +205,7 @@ def show_doi(
         )
 
 
-@production_user_or_editor_required
+@identifier_access_required
 def poll_doi(
     request,
     object_id,
@@ -281,7 +281,7 @@ def poll_doi(
     )
 
 
-@production_user_or_editor_required
+@identifier_access_required
 def poll_doi_output(
     request,
     object_id,
@@ -324,7 +324,7 @@ def poll_doi_output(
 
 
 @require_POST
-@production_user_or_editor_required
+@identifier_access_required
 def issue_doi(
     request,
     object_id,
@@ -378,7 +378,7 @@ def issue_doi(
 
 
 @require_POST
-@production_user_or_editor_required
+@identifier_access_required
 def delete_identifier(
     request,
     object_id,
