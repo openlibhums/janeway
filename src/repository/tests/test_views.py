@@ -726,3 +726,86 @@ class TestIdentifierManagementSetting(TestCase):
             SERVER_NAME=self.server_name,
         )
         self.assertEqual(response.status_code, 404)
+
+
+class RepositoryFieldTypeScopingTests(TestCase):
+    """The field form only offers this repository's submission types (#5440)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_5440@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "repo5440.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.other_repository, cls.other_subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain="repo5440other.test.com",
+        )
+        install.load_settings(cls.other_repository)
+        cls.local_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Local Type 5440",
+            name_plural="Local Types 5440",
+            slug="local-type-5440",
+        )
+        cls.foreign_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.other_repository,
+            name="Foreign Type 5440",
+            name_plural="Foreign Types 5440",
+            slug="foreign-type-5440",
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.client.force_login(self.repo_manager)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_offers_only_this_repositorys_types(self):
+        response = self.client.get(
+            reverse("repository_fields"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, self.local_type.name)
+        self.assertNotContains(response, self.foreign_type.name)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_rejects_another_repositorys_type(self):
+        self.client.post(
+            reverse("repository_fields"),
+            {
+                "name": "Field 5440",
+                "input_type": "text",
+                "order": 1,
+                "submission_type": self.foreign_type.pk,
+            },
+            SERVER_NAME=self.server_name,
+        )
+        self.assertFalse(rm.RepositoryField.objects.filter(name="Field 5440").exists())
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_accepts_this_repositorys_type(self):
+        self.client.post(
+            reverse("repository_fields"),
+            {
+                "name": "Scoped Field 5440",
+                "input_type": "text",
+                "order": 1,
+                "submission_type": self.local_type.pk,
+            },
+            SERVER_NAME=self.server_name,
+        )
+        field = rm.RepositoryField.objects.get(name="Scoped Field 5440")
+        self.assertEqual(field.submission_type, self.local_type)
+        self.assertEqual(field.repository, self.repository)
