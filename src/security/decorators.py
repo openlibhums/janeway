@@ -1575,6 +1575,38 @@ def setting_is_enabled(setting_name, setting_group_name):
     return decorator
 
 
+def identifier_access_required(func):
+    """
+    Checks access for the shared identifier views, which serve both
+    articles and preprints via a content_type argument. Article requests
+    require a production, editor or staff user; preprint requests require
+    a staff user or a manager of the current repository.
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises a PermissionDenied
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        content_type = kwargs.get("content_type", "article")
+
+        if content_type == "preprint":
+            if request.repository and (
+                request.user.is_staff
+                or request.user.is_repository_manager(request.repository)
+            ):
+                return func(request, *args, **kwargs)
+        elif (
+            request.user.is_production(request)
+            or request.user.is_editor(request)
+            or request.user.is_staff
+        ):
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return wrapper
+
+
 def repository_setting_enabled(attr_name, error_message="Setting disabled"):
     """
     Generally should only be used with boolean fields. Repository must be set

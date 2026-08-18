@@ -604,7 +604,6 @@ class TestIdentifierManagementSetting(TestCase):
         cls.press.save()
         cls.repo_manager = helpers.create_user("repo_manager_idm@janeway.systems")
         cls.repo_manager.is_active = True
-        cls.repo_manager.is_staff = True
         cls.repo_manager.save()
         cls.server_name = "repoidm.test.com"
         cls.repository, cls.subject = helpers.create_repository(
