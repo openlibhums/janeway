@@ -84,16 +84,7 @@
             </div>
             <div class="content">
                 {% for draft in article.decisiondraft_set.all %}
-                    <p>{{ draft.get_decision_display }}</p>
-                    <p>
-                        <small>
-                            Section Editor: {{ draft.section_editor.full_name }}<br/>
-                            Editor: {{ draft.editor.full_name }}<br/>
-                            Drafted: {{ draft.drafted }}<br/>
-                            {% if draft.editor_decision %}Editor Decision:
-                                {{ draft.get_editor_decision_display }}{% endif %}
-                        </small>
-                    </p>
+                    {% include "admin/elements/review/draft_decision_summary.html" %}
                     {% if not draft.editor_decision %}
                         <form method="POST" action="{% url 'review_draft_decision' article.pk %}">
                             {% csrf_token %}
