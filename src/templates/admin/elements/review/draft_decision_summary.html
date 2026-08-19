@@ -1,0 +1,13 @@
+<div class="bs-callout {% if not draft.editor_decision %}bs-callout-info{% elif draft.editor_decision == 'accept' %}bs-callout-success{% else %}bs-callout-warning{% endif %}">
+    <strong>{{ draft.get_decision_display }}</strong> &mdash;
+    {% if draft.editor_decision %}
+        {{ draft.get_editor_decision_display }}
+    {% else %}
+        <a href="{% url 'review_edit_draft_decision' article.pk draft.pk %}">Awaiting decision</a>
+    {% endif %}<br/>
+    <small>
+        Drafted {{ draft.drafted|date:"SHORT_DATETIME_FORMAT" }}
+        {% if draft.section_editor %}by {{ draft.section_editor.full_name }}{% endif %}
+        {% if draft.editor %}&middot; Editor: {{ draft.editor.full_name }}{% endif %}
+    </small>
+</div>

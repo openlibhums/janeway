@@ -1441,3 +1441,90 @@ class InReviewActionsTests(TestCase):
             reverse("decision_helper", kwargs={"article_id": self.article.pk}),
         )
         self.assertNotContains(response, "Move to Next Stage")
+
+
+class DecisionHelperDraftDecisionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.section_editor = helpers.create_section_editor(cls.journal_one)
+        cls.article = helpers.create_article(cls.journal_one)
+        review_models.ReviewRound.objects.create(
+            article=cls.article,
+            round_number=1,
+        )
+        cls.active_draft = review_models.DecisionDraft.objects.create(
+            article=cls.article,
+            editor=cls.editor,
+            section_editor=cls.section_editor,
+            decision="accept",
+        )
+        cls.completed_draft = review_models.DecisionDraft.objects.create(
+            article=cls.article,
+            editor=cls.editor,
+            section_editor=cls.section_editor,
+            decision="minor_revisions",
+            editor_decision="accept",
+        )
+        cls.declined_draft = review_models.DecisionDraft.objects.create(
+            article=cls.article,
+            editor=cls.editor,
+            section_editor=cls.section_editor,
+            decision="decline",
+            editor_decision="decline",
+        )
+        cls.completed_only_article = helpers.create_article(cls.journal_one)
+        review_models.ReviewRound.objects.create(
+            article=cls.completed_only_article,
+            round_number=1,
+        )
+        review_models.DecisionDraft.objects.create(
+            article=cls.completed_only_article,
+            editor=cls.editor,
+            section_editor=cls.section_editor,
+            decision="accept",
+            editor_decision="accept",
+        )
+
+    def test_decision_helper_partitions_and_renders_drafts(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse("decision_helper", kwargs={"article_id": self.article.pk}),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            list(response.context["active_drafts"]),
+            [self.active_draft],
+        )
+        self.assertCountEqual(
+            list(response.context["completed_drafts"]),
+            [self.completed_draft, self.declined_draft],
+        )
+        self.assertContains(response, "Active Draft Decision")
+        self.assertContains(response, "Completed Draft Decision")
+        self.assertContains(response, "Awaiting decision")
+        self.assertContains(
+            response,
+            reverse(
+                "review_edit_draft_decision",
+                kwargs={
+                    "article_id": self.article.pk,
+                    "draft_id": self.active_draft.pk,
+                },
+            ),
+        )
+
+    def test_decision_helper_hides_active_heading_without_active_drafts(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "decision_helper",
+                kwargs={"article_id": self.completed_only_article.pk},
+            ),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(response, "Completed Draft Decision")
+        self.assertNotContains(response, "Active Draft Decision")

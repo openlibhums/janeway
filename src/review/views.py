@@ -3135,6 +3135,15 @@ def decision_helper(request, article_id):
         [review.get_decision_display() for review in reviews if review.decision]
     )
 
+    draft_decisions = models.DecisionDraft.objects.filter(
+        article=article,
+    ).select_related(
+        "section_editor",
+        "editor",
+    )
+    active_drafts = draft_decisions.filter(editor_decision__isnull=True)
+    completed_drafts = draft_decisions.filter(editor_decision__isnull=False)
+
     if request.POST:
         if "review_id" in request.POST:
             review = get_object_or_404(
@@ -3187,6 +3196,8 @@ def decision_helper(request, article_id):
         "complete_reviews": complete_reviews,
         "uncomplete_reviews": uncomplete_reviews,
         "decisions": dict(decisions),
+        "active_drafts": active_drafts,
+        "completed_drafts": completed_drafts,
     }
 
     return render(request, template, context)

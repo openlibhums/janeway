@@ -76,6 +76,26 @@
             </div>
         </div>
     </div>
+    {% if active_drafts or completed_drafts %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-6 columns">
+                {% if active_drafts %}
+                    <h2><span class="fa fa-pencil-square"></span> {{ active_drafts.count }} Active Draft Decision{{ active_drafts.count|pluralize }}</h2>
+                    {% for draft in active_drafts %}
+                        {% include "admin/elements/review/draft_decision_summary.html" %}
+                    {% endfor %}
+                {% endif %}
+                {% if completed_drafts %}
+                    <h2><span class="fa fa-check-square"></span> {{ completed_drafts.count }} Completed Draft Decision{{ completed_drafts.count|pluralize }}</h2>
+                    {% for draft in completed_drafts %}
+                        {% include "admin/elements/review/draft_decision_summary.html" %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="box">
         <div class="row expanded">
             <div class="large-6 columns">
