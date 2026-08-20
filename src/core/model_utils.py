@@ -826,7 +826,7 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
     # Our supported databases have a max length of 64 chars for constraints
     name = truncate_name(long_name, length=64)
     constraint = models.CheckConstraint(
-        check=main_query,
+        condition=main_query,
         name=name,
     )
     return constraint
