@@ -7,3 +7,4 @@ snakeviz==2.2.2
 django-browser-reload==1.21.0
 tox==4.60.0
 ruff==0.16.4
+django-upgrade==1.32.0

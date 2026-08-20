@@ -1,22 +1,23 @@
+from django.urls import path
 from django.urls import re_path
 
 from typesetting import views
 
 urlpatterns = [
-    re_path(r"^manager/$", views.typesetting_manager, name="typesetting_manager"),
-    re_path(r"^$", views.typesetting_articles, name="typesetting_articles"),
-    re_path(
-        r"^article/(?P<article_id>\d+)/makegalley/file/(?P<file_id>\d+)/$",
+    path("manager/", views.typesetting_manager, name="typesetting_manager"),
+    path("", views.typesetting_articles, name="typesetting_articles"),
+    path(
+        "article/<int:article_id>/makegalley/file/<int:file_id>/",
         views.article_file_make_galley,
         name="typesetting_article_file_make_galley",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/$",
+    path(
+        "article/<int:article_id>/",
         views.typesetting_article,
         name="typesetting_article",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/typesetter/(?P<assignment_id>\d+)/review/$",
+    path(
+        "article/<int:article_id>/typesetter/<int:assignment_id>/review/",
         views.typesetting_review_assignment,
         name="typesetting_review_assignment",
     ),
@@ -25,91 +26,89 @@ urlpatterns = [
         views.typesetting_claim_article,
         name="typesetting_claim_article",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/edit/$",
+    path(
+        "article/<int:article_id>/galley/<int:galley_id>/edit/",
         views.typesetting_edit_galley,
         name="typesetting_edit_galley",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/galley/upload/$",
+    path(
+        "article/<int:article_id>/galley/upload/",
         views.typesetting_upload_galley,
         name="typesetting_upload_galley",
     ),
-    re_path(
-        r"^correction/(?P<correction_id>\d+)/delete/$",
+    path(
+        "correction/<int:correction_id>/delete/",
         views.typesetting_delete_correction,
         name="typesetting_delete_correction",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/galley/upload/$",
+    path(
+        "article/<int:article_id>/galley/upload/",
         views.typesetting_upload_galley,
         name="typesetting_upload_galley",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/assign/typesetter/$",
+    path(
+        "article/<int:article_id>/assign/typesetter/",
         views.typesetting_assign_typesetter,
         name="typesetting_assign_typesetter",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/typesetter/(?P<assignment_id>\d+)/notify/$",
+    path(
+        "article/<int:article_id>/typesetter/<int:assignment_id>/notify/",
         views.typesetting_notify_typesetter,
         name="typesetting_notify_typesetter",
     ),
-    re_path(
-        r"^assignments/$", views.typesetting_assignments, name="typesetting_assignments"
-    ),
-    re_path(
-        r"^assignments/typesetting/(?P<assignment_id>\d+)/$",
+    path("assignments/", views.typesetting_assignments, name="typesetting_assignments"),
+    path(
+        "assignments/typesetting/<int:assignment_id>/",
         views.typesetting_assignment,
         name="typesetting_assignment",
     ),
-    re_path(
-        r"^assignments/typesetting/(?P<assignment_id>\d+)/download/(?P<file_id>\d+)/$",
+    path(
+        "assignments/typesetting/<int:assignment_id>/download/<int:file_id>/",
         views.typesetting_typesetter_download_file,
         name="typesetting_typesetter_download_file",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/assignment/(?P<assignment_id>\d+)/galley/upload/$",
+    path(
+        "article/<int:article_id>/assignment/<int:assignment_id>/galley/upload/",
         views.typesetting_upload_galley,
         name="typesetting_assignment_upload_galley",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/assign/proofreader/$",
+    path(
+        "article/<int:article_id>/assign/proofreader/",
         views.typesetting_assign_proofreader,
         name="typesetting_assign_proofreader",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/assign/proofreader/(?P<assignment_id>\d+)/notify/$",
+    path(
+        "article/<int:article_id>/assign/proofreader/<int:assignment_id>/notify/",
         views.typesetting_notify_proofreader,
         name="typesetting_notify_proofreader",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/proofreader/(?P<assignment_id>\d+)/review/$",
+    path(
+        "article/<int:article_id>/proofreader/<int:assignment_id>/review/",
         views.typesetting_manage_proofing_assignment,
         name="typesetting_manage_proofing_assignment",
     ),
-    re_path(
-        r"^assignments/proofreading/$",
+    path(
+        "assignments/proofreading/",
         views.typesetting_proofreading_assignments,
         name="typesetting_proofreading_assignments",
     ),
-    re_path(
-        r"^assignments/proofreading/(?P<assignment_id>\d+)/$",
+    path(
+        "assignments/proofreading/<int:assignment_id>/",
         views.typesetting_proofreading_assignment,
         name="typesetting_proofreading_assignment",
     ),
-    re_path(
-        r"^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/assignment/(?P<assignment_id>\d+)/$",
+    path(
+        "preview_galley/article/<int:article_id>/galley/<int:galley_id>/assignment/<int:assignment_id>/",
         views.typesetting_preview_galley,
         name="typesetting_preview_galley",
     ),
-    re_path(
-        r"^preview_galley/article/(?P<article_id>\d+)/galley/(?P<galley_id>\d+)/$",
+    path(
+        "preview_galley/article/<int:article_id>/galley/<int:galley_id>/",
         views.typesetting_preview_galley,
         name="editor_preview_galley",
     ),
-    re_path(
-        r"^preview/article/(?P<article_id>\d+)/assignment/(?P<assignment_id>\d+)/file/(?P<file_id>\d+)/$",
+    path(
+        "preview/article/<int:article_id>/assignment/<int:assignment_id>/file/<int:file_id>/",
         views.typesetting_proofing_download,
         name="typesetting_proofing_download",
     ),
@@ -133,18 +132,18 @@ urlpatterns = [
         views.preview_figure,
         name="typesetter_preview_figure_b",
     ),
-    re_path(
-        r"^article/(?P<article_id>\d+)/file/(?P<file_id>\d+)/download/$",
+    path(
+        "article/<int:article_id>/file/<int:file_id>/download/",
         views.typesetting_download_file,
         name="typesetting_download_file",
     ),
-    re_path(
-        r"^galley/(?P<galley_id>\d+)/delete/$",
+    path(
+        "galley/<int:galley_id>/delete/",
         views.typesetting_delete_galley,
         name="typesetting_delete_galley",
     ),
-    re_path(
-        r"^supp-file/(?P<supp_file_id>\d+)/doi/$",
+    path(
+        "supp-file/<int:supp_file_id>/doi/",
         views.mint_supp_doi,
         name="typesetting_mint_supp_doi",
     ),

@@ -1039,7 +1039,7 @@ class AccessibilityModeToggleViewTests(TestCase):
         response = self.client.post(
             url,
             {"next": "https://evil.example.com/steal/"},
-            HTTP_REFERER="https://evil.example.com/steal/",
+            headers={"referer": "https://evil.example.com/steal/"},
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(response.status_code, 302)

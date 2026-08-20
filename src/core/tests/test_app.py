@@ -181,9 +181,7 @@ class CoreTests(TestCase):
         account.save()
         data = {"user_name": email, "user_pass": password}
         response = self.client.post(
-            reverse("core_login"),
-            data,
-            HTTP_USER_AGENT="Mozilla/5.0",
+            reverse("core_login"), data, headers={"user-agent": "Mozilla/5.0"}
         )
         self.assertEqual(
             self.client.session["_auth_user_id"],
@@ -285,9 +283,7 @@ class CoreTests(TestCase):
         account.save()
         data = {"user_name": login_email, "user_pass": password}
         response = self.client.post(
-            reverse("core_login"),
-            data,
-            HTTP_USER_AGENT="Mozilla/5.0",
+            reverse("core_login"), data, headers={"user-agent": "Mozilla/5.0"}
         )
         self.assertEqual(
             self.client.session["_auth_user_id"],

@@ -1,6 +1,6 @@
-from django.urls import re_path
+from django.urls import path
 from core.homepage_elements.carousel import views
 
 urlpatterns = [
-    re_path(r"^settings/$", views.settings_carousel, name="carousel_settings"),
+    path("settings/", views.settings_carousel, name="carousel_settings"),
 ]
