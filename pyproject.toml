@@ -26,7 +26,6 @@ exclude = [
     "src/media",
     "src/files",
     "src/plugins",
-    "src/dynamicsites",
     "src/ebooklib",
     "src/foundationform",
     "src/transform/cassius",

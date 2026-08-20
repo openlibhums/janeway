@@ -1,7 +1,6 @@
 beautifulsoup4==4.9.3
 bleach-allowlist==1.0.3
 boto==2.46.1
-bs4==0.0.1
 colorlog==3.1.4
 chardet==3.0.4
 crossrefapi==1.5.0
@@ -23,19 +22,16 @@ django-simple-history==3.10.1
 django-summernote==0.8.20.0
 django-tinymce==3.7.1
 djangorestframework==3.15.2
--e git+https://github.com/openlibhums/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
 -e git+https://github.com/openlibhums/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
 Faker==17.6.0
 freezegun==1.2.0
 geoip2==4.8.0
 html2text==2017.10.4
 idna==2.7
-ipaddress==1.0.16
 iso639-lang==2.6
 django-ipware==7.0.1
 more-itertools==10.1.0
 jsmin==3.0.1
-kitchen==1.2.4
 libsass==0.23.0
 lxml==6.0.0
 markdown
@@ -49,7 +45,6 @@ pdfkit==1.0.0
 pdfminer.six
 psycopg2-binary==2.9.10
 pyasn1==0.1.9
-pycparser==2.14
 PyJWT==2.4.0
 Pillow==10.2.0
 python-crontab==2.2.3
@@ -58,11 +53,9 @@ python-docx==0.8.11
 python-magic==0.4.27
 pytz==2024.1
 requests==2.32.4
-six==1.16.0
 sqlparse==0.4.4
 swapper==1.3.0
 tqdm==4.66.3
-ua-parser==0.16.1
 # See #3736
 urllib3<2
 user-agents==2.2.0
