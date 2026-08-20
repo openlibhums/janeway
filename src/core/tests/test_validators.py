@@ -244,3 +244,20 @@ class ValidateCodeTests(TestCase):
                 "ownedcode", kind="journal", max_length=40, exclude_pk=journal.pk
             )
         )
+
+
+class ValidateCodeNoPressTests(TestCase):
+    # No Press configured at all — deliberately doesn't create one, unlike
+    # ValidateCodeTests above. validate_code() should pass anything through
+    # unchecked in this case.
+
+    def test_reserved_code_is_valid_without_a_press(self):
+        self.assertIsNone(
+            validators.validate_code("cms", kind="journal", max_length=40)
+        )
+
+    def test_duplicate_code_is_valid_without_a_press(self):
+        make_test_journal(code="existing", domain="existing.example.org")
+        self.assertIsNone(
+            validators.validate_code("existing", kind="journal", max_length=40)
+        )

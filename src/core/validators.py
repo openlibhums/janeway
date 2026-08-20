@@ -138,6 +138,14 @@ def is_reserved(value):
 
 
 def validate_code(value, kind, max_length, exclude_pk=None):
+    # No Press configured at all (a standalone journal install) — reserved
+    # words and cross-model collisions both exist to protect a shared
+    # press-level URL namespace, so with no press there's nothing to check.
+    from press.models import Press
+
+    if not Press.objects.exists():
+        return
+
     journal_codes, repository_codes = _existing_codes(kind, exclude_pk)
     taken = journal_codes | repository_codes
 
