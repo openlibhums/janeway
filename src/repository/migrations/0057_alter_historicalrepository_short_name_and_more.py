@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             name="short_name",
             field=models.CharField(
                 db_index=True,
-                help_text="Shortened version of the name eg. olh. Max 15 chars.",
+                help_text="Unique, short version of the name eg. olh. Max 15 chars.",
                 max_length=15,
             ),
         ),

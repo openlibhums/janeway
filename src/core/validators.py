@@ -59,3 +59,29 @@ def validate_email_setting(value):
         template = Template(value)
     except TemplateSyntaxError as error:
         raise ValidationError(str(error))
+
+
+# Journal.code and Repository.short_name both occupy the single path segment
+# which may clash with press-level routes.
+RESERVED_URL_PREFIXES = frozenset(
+    {
+        "404",
+        "500",
+        "admin",
+        "article",
+        "cms",
+        "conferences",
+        "issue",
+        "journals",
+        "login",
+        "logout",
+        "manager",
+        "news",
+        "plugins",
+        "press",
+        "register",
+        "rss",
+        "site",
+        "sitemap.xml",
+    }
+)
