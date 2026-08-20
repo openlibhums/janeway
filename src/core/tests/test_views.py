@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 import json
-from mock import patch
+from unittest.mock import patch
 from types import SimpleNamespace
 from uuid import uuid4
 from django.core.cache import cache as django_cache

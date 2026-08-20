@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.engine import Engine
 from django.template.loader import render_to_string
 
-import mock
+from unittest import mock
 from utils import (
     merge_settings,
     models,

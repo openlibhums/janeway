@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 import uuid
-from mock import patch
+from unittest.mock import patch
 
 from django.shortcuts import reverse
 from django.test import TestCase, override_settings

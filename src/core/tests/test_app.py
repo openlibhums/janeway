@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from mock import patch
+from unittest.mock import patch
 
 from contextlib import redirect_stdout
 from io import StringIO
@@ -22,7 +22,7 @@ from utils.shared import clear_cache
 from core import models
 from review import models as review_models
 from submission import models as submission_models
-import mock
+from unittest import mock
 
 
 class CoreTests(TestCase):

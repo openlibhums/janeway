@@ -3,7 +3,7 @@ __author__ = "Martin Paul Eve, Andy Byers & Mauro Sanchez"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from mock import Mock
+from unittest.mock import Mock
 
 import os
 

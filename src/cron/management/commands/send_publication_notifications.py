@@ -1,4 +1,4 @@
-from mock import Mock
+from unittest.mock import Mock
 
 from django.shortcuts import reverse
 from django.core.management.base import BaseCommand

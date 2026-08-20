@@ -36,7 +36,6 @@ libsass==0.23.0
 lxml==6.0.0
 markdown
 maxminddb==2.5.1
-mock
 mozilla-django-oidc==4.0.1
 openpyxl==3.1.5
 orcid==1.0.3
