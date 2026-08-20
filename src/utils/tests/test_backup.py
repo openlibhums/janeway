@@ -6,11 +6,16 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 """
 Regression coverage for utils.management.commands.backup.
 
-This is written ahead of the boto (v2) -> boto3 migration (Phase 1 of the
-Django 5.2 migration plan) so we have a "before" baseline that exercises the
-S3 upload path without touching the network. Prior to this file, `backup`
-had zero dedicated test coverage - the only "backup" hit in the old
+Originally written ahead of the boto (v2) -> boto3 migration (Phase 1 of the
+Django 5.2 migration plan) so we had a "before" baseline that exercised the
+S3 upload path without touching the network. Prior to that, `backup` had
+zero dedicated test coverage - the only "backup" hit in the old
 utils/tests.py module was an unrelated code comment.
+
+Updated in Phase 2 (the actual boto -> boto3 migration) to mock the boto3
+call sites (boto3.client("s3", ...).upload_fileobj(...)) instead of boto2's
+connect_to_region()/Key. The behavioural assertions (bucket name, key naming
+under "backups/...", email-on-success/failure) are unchanged.
 """
 
 import shutil
@@ -80,37 +85,34 @@ class BackupCommandS3Test(TestCase):
         self.addCleanup(self.override.disable)
 
     @patch("utils.management.commands.backup.call_command", side_effect=_fake_dumpdata)
-    @patch("utils.management.commands.backup.Key")
-    @patch("utils.management.commands.backup.boto.s3.connect_to_region")
+    @patch("utils.management.commands.backup.boto3.client")
     def test_backup_uploads_to_s3_and_emails_superusers(
-        self, mock_connect_to_region, mock_key_cls, mock_call_command
+        self, mock_boto3_client, mock_call_command
     ):
-        mock_s3_connection = MagicMock()
-        mock_bucket = MagicMock()
-        mock_s3_connection.get_bucket.return_value = mock_bucket
-        mock_connect_to_region.return_value = mock_s3_connection
-
-        mock_key_instance = MagicMock()
-        mock_key_cls.return_value = mock_key_instance
+        mock_s3_client = MagicMock()
+        mock_boto3_client.return_value = mock_s3_client
 
         call_command("backup")
 
-        # The command connected to the configured region/host with the
-        # configured credentials rather than making a real AWS call.
-        mock_connect_to_region.assert_called_once_with(
-            "eu-west-2",
+        # The command created an S3 client for the configured region/host
+        # with the configured credentials rather than making a real AWS
+        # call.
+        mock_boto3_client.assert_called_once_with(
+            "s3",
+            region_name="eu-west-2",
+            endpoint_url="https://s3.eu-west-2.amazonaws.com",
             aws_access_key_id="test-access-key",
             aws_secret_access_key="test-secret-key",
-            host="s3.eu-west-2.amazonaws.com",
         )
-        mock_s3_connection.get_bucket.assert_called_once_with("test-bucket")
 
-        # A boto Key was created against the bucket and the backup archive
-        # was uploaded through it.
-        mock_key_cls.assert_called_once_with(mock_bucket)
-        mock_key_instance.set_contents_from_file.assert_called_once()
-        self.assertTrue(mock_key_instance.key.endswith(".zip"))
-        self.assertTrue(mock_key_instance.key.startswith("backups/"))
+        # The backup archive was uploaded to the configured bucket under a
+        # "backups/...zip" key.
+        mock_s3_client.upload_fileobj.assert_called_once()
+        args, kwargs = mock_s3_client.upload_fileobj.call_args
+        _, bucket_name, uploaded_key = args
+        self.assertEqual(bucket_name, "test-bucket")
+        self.assertTrue(uploaded_key.endswith(".zip"))
+        self.assertTrue(uploaded_key.startswith("backups/"))
 
         # BACKUP_EMAIL=True, so a completion email should have been sent to
         # every superuser account.
@@ -121,19 +123,18 @@ class BackupCommandS3Test(TestCase):
         self.assertIn("successfully completed", sent.body)
 
     @patch("utils.management.commands.backup.call_command", side_effect=_fake_dumpdata)
-    @patch("utils.management.commands.backup.Key")
-    @patch("utils.management.commands.backup.boto.s3.connect_to_region")
+    @patch("utils.management.commands.backup.boto3.client")
     def test_backup_emails_superusers_on_s3_failure(
-        self, mock_connect_to_region, mock_key_cls, mock_call_command
+        self, mock_boto3_client, mock_call_command
     ):
         # Simulate a failure talking to S3 (e.g. auth error / network issue)
         # and confirm the command does not raise, but instead reports the
         # error by email, per its except/send_email() logic.
-        mock_connect_to_region.side_effect = Exception("boom: could not connect")
+        mock_boto3_client.side_effect = Exception("boom: could not connect")
 
         call_command("backup")
 
-        mock_connect_to_region.assert_called_once()
+        mock_boto3_client.assert_called_once()
 
         self.assertEqual(len(mail.outbox), 1)
         sent = mail.outbox[0]
