@@ -466,17 +466,18 @@ def article_author_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
         article_id = kwargs["article_id"]
-        article = models.Article.get_article(request.journal, "id", article_id)
+        article = get_object_or_404(
+            models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
 
-        # A missing or cross-journal id is answered like an article the
-        # reader did not write, so ids cannot be enumerated.
-        if not article or not article.user_is_author(request.user):
+        if request.user.is_author(request) and article.user_is_author(request.user):
+            return func(request, *args, **kwargs)
+        elif not article.user_is_author(request.user):
             deny_access(request, article_not_yours(request))
-
-        if not request.user.is_author(request):
+        else:
             deny_access(request, required_roles=["author"])
-
-        return func(request, *args, **kwargs)
 
     return wrapper
 
@@ -525,31 +526,18 @@ def copyeditor_for_copyedit_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
         copyedit_id = kwargs["copyedit_id"]
+        copyedit = get_object_or_404(
+            copyediting_models.CopyeditAssignment, pk=copyedit_id
+        )
 
-        # Staff keep access: the views here do not narrow the assignment
-        # to its copyeditor.
-        if request.user.is_staff:
-            if copyediting_models.CopyeditAssignment.objects.filter(
-                pk=copyedit_id,
-            ).exists():
-                return func(request, *args, **kwargs)
-
-        # Scoped to the user and the journal so that somebody else's
-        # assignment, another journal's, and a missing one cannot be
-        # told apart.
-        copyedit = copyediting_models.CopyeditAssignment.objects.filter(
-            pk=copyedit_id,
-            copyeditor=request.user,
-            article__journal=request.journal,
-        ).first()
-
-        if not copyedit:
+        if request.user == copyedit.copyeditor and (
+            request.user.is_copyeditor(request) or request.user.is_staff
+        ):
+            return func(request, *args, **kwargs)
+        elif request.user != copyedit.copyeditor:
             deny_access(request, copyedit_not_assigned(request))
-
-        if not request.user.is_copyeditor(request):
+        else:
             deny_access(request, required_roles=["copyeditor"])
-
-        return func(request, *args, **kwargs)
 
     return wrapper
 
@@ -685,15 +673,13 @@ def reviewer_user_for_assignment_required(func):
                 reviewer=request.user,
                 article__journal=request.journal,
             )
-        # Somebody else's assignment and a missing one are reported the
-        # same way, so ids cannot be enumerated.
+
+            if assignment.article.stage in models.REVIEW_ACCESSIBLE_STAGES:
+                return func(request, *args, **kwargs)
+            else:
+                deny_access(request, ADM.REVIEW_STAGE_PASSED.value)
         except review_models.ReviewAssignment.DoesNotExist:
             deny_access(request, review_not_assigned(request))
-
-        if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
-            deny_access(request, ADM.REVIEW_STAGE_PASSED.value)
-
-        return func(request, *args, **kwargs)
 
     return wrapper
 
