@@ -95,7 +95,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "foundationform",
     "materializecssform",
-    "captcha",
+    "django_recaptcha",
     "simplemathcaptcha",
     "simple_history",
     "hijack",
