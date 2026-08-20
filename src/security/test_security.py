@@ -3383,10 +3383,33 @@ class TestSecurity(TestCase):
         with self.assertRaises(PermissionDenied):
             decorated_func(request, **kwargs)
 
-    def test_copyeditor_for_copyedit_with_staff(self):
+    def test_copyeditor_for_copyedit_blocks_unassigned_staff(self):
+        """Staff are held to the same assignment check as anyone else."""
         func = Mock()
         decorated_func = decorators.copyeditor_for_copyedit_required(func)
         kwargs = {"copyedit_id": self.copyedit_assignment.pk}
+
+        request = self.prepare_request_with_user(self.admin_user, self.journal_one)
+
+        with self.assertRaises(PermissionDenied):
+            decorated_func(request, **kwargs)
+
+        self.assertFalse(
+            func.called,
+            "copyeditor_for_copyedit_required wrongly allows staff to open a "
+            "copyedit assigned to somebody else",
+        )
+
+    def test_copyeditor_for_copyedit_allows_assigned_staff_without_role(self):
+        """The assigned copyeditor gets in on is_staff alone.
+
+        Regression test for the and/or precedence in the access condition:
+        is_staff must be an alternative to the copyeditor role, not to the
+        assignment check.
+        """
+        func = Mock()
+        decorated_func = decorators.copyeditor_for_copyedit_required(func)
+        kwargs = {"copyedit_id": self.staff_copyedit_assignment.pk}
 
         request = self.prepare_request_with_user(self.admin_user, self.journal_one)
 
@@ -3394,7 +3417,8 @@ class TestSecurity(TestCase):
 
         self.assertTrue(
             func.called,
-            "copyeditor_for_copyedit_required wrongly prohibits admin from accessing content",
+            "copyeditor_for_copyedit_required wrongly prohibits the assigned "
+            "copyeditor when they hold is_staff instead of the copyeditor role",
         )
 
     def test_typesetter_user_required_with_typesetter(self):
@@ -5416,6 +5440,18 @@ class TestSecurity(TestCase):
         )
         self.copyedit_assignment.save()
 
+        self.staff_copyedit_assignment = copyediting_models.CopyeditAssignment(
+            article=self.article_editor_copyediting,
+            editor=self.editor,
+            copyeditor=self.admin_user,
+            due=timezone.now(),
+            assigned=timezone.now(),
+            notified=True,
+            decision="accepted",
+            date_decided=timezone.now(),
+        )
+        self.staff_copyedit_assignment.save()
+
         self.typeset_task = production_models.TypesetTask(
             assignment=self.assigned,
             typesetter=self.typesetter,
@@ -5584,16 +5620,11 @@ class AccessDeniedMessageTests(TestCase):
             typesetter=cls.task_owner,
         )
 
-        # The same objects again on the other journal, to prove that a valid
-        # id on a journal the reader is not looking at is answered the same
-        # way as one that does not exist.
+        # The same objects again on the other journal, to check what a valid
+        # id on a journal the reader is not looking at is answered with.
         cls.other_journal_article = helpers.create_submission(
             owner=cls.task_owner,
             journal_id=cls.journal_two.pk,
-        )
-        cls.other_journal_copyedit = helpers.create_copyedit_assignment(
-            article=cls.other_journal_article,
-            copyeditor=cls.other_reviewer,
         )
         cls.other_journal_review = helpers.create_review_assignment(
             journal=cls.journal_two,
@@ -5643,14 +5674,25 @@ class AccessDeniedMessageTests(TestCase):
                 return line.split("</p>")[0].strip()
         return ""
 
-    def test_copyedit_does_not_reveal_which_ids_exist(self):
-        self.assert_indistinguishable(
+    def test_copyedit_for_another_account_explains_the_mismatch(self):
+        response = self.get_page(
             self.other_reviewer,
             "do_copyedit",
-            "copyedit_id",
-            self.copyedit.pk,
-            self.other_journal_copyedit.pk,
+            {"copyedit_id": self.copyedit.pk},
         )
+        self.assertContains(
+            response,
+            "not assigned to {}".format(self.other_reviewer.email),
+            status_code=403,
+        )
+
+    def test_missing_copyedit_returns_404(self):
+        response = self.get_page(
+            self.other_reviewer,
+            "do_copyedit",
+            {"copyedit_id": self.MISSING_ID},
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_review_does_not_reveal_which_ids_exist(self):
         self.assert_indistinguishable(
@@ -5700,14 +5742,33 @@ class AccessDeniedMessageTests(TestCase):
         self.proofing_task.completed = None
         self.proofing_task.save()
 
-    def test_author_task_does_not_reveal_which_articles_exist(self):
-        self.assert_indistinguishable(
+    def test_article_for_another_account_explains_the_mismatch(self):
+        response = self.get_page(
             self.other_reviewer,
             "review_author_view",
-            "article_id",
-            self.owned_article.pk,
-            self.other_journal_article.pk,
+            {"article_id": self.owned_article.pk},
         )
+        self.assertContains(
+            response,
+            "not associated with the account {}".format(self.other_reviewer.email),
+            status_code=403,
+        )
+
+    def test_missing_article_returns_404(self):
+        response = self.get_page(
+            self.other_reviewer,
+            "review_author_view",
+            {"article_id": self.MISSING_ID},
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_article_on_another_journal_returns_404(self):
+        response = self.get_page(
+            self.task_owner,
+            "review_author_view",
+            {"article_id": self.other_journal_article.pk},
+        )
+        self.assertEqual(response.status_code, 404)
 
     def get_review_page(self, user):
         self.client.force_login(user)

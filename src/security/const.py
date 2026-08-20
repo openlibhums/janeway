@@ -20,10 +20,9 @@ class AccessDeniedMessages(EnumContains):
         "the email address that received the task invitation."
     )
 
-    # These describe the account making the request and never the account the
-    # task belongs to. The same message answers a task that belongs to
-    # somebody else, one on another journal, and one that does not exist, so
-    # that the page cannot be used to discover which ids are real.
+    # These describe the account making the request and never the account
+    # the task belongs to, so that the page cannot be used to discover who
+    # is working on what.
     REVIEW_NOT_ASSIGNED = _("This review is not assigned to %(email)s.")
     COPYEDIT_NOT_ASSIGNED = _("This copyediting task is not assigned to %(email)s.")
     PROOFING_NOT_ASSIGNED = _("This proofing task is not assigned to %(email)s.")
