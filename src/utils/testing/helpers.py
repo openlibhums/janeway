@@ -152,10 +152,10 @@ def create_journal_with_test_status():
     journal = journal_models.Journal(
         code="third",
         domain="teststatus.example.org",
+        status=journal_models.Journal.PublishingStatus.TEST,
     )
-    journal.name = "Test Journal"
-    journal.status = journal_models.Journal.PublishingStatus.TEST
     journal.save()
+    journal.name = "Test Journal"
     update_issue_types(journal)
     return journal
 
