@@ -18,7 +18,7 @@ dev = [
 
 [tool.ruff]
 line-length = 88 # Matches ruff and black formatting
-target-version = "py39"
+target-version = "py310"
 include = ["src/**/*.py"]
 exclude = [
     "src/__pycache__",
