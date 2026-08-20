@@ -13,7 +13,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
+    "ruff==0.16.4",
 ]
 
 [tool.ruff]

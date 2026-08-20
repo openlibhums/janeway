@@ -1,9 +1,9 @@
-coverage
-ipdb
+coverage==7.15.4
+ipdb==0.13.13
 Sphinx==1.8.2
-marshmallow
-freezegun
-snakeviz
-django-browser-reload
-tox
-ruff>=0.15
+marshmallow==4.3.1
+freezegun==1.5.5
+snakeviz==2.2.2
+django-browser-reload==1.21.0
+tox==4.60.0
+ruff==0.16.4
