@@ -18,6 +18,7 @@ from django.utils import timezone, translation
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -1721,3 +1722,24 @@ class DefaultSettingsIntegrityTests(TestCase):
             and item["setting"]["name"] == "author_affiliation_dates"
         ]
         self.assertEqual(len(matches), 1)
+
+
+class InstallJournalCommandTests(TestCase):
+    def test_reserved_code_via_option_raises_command_error(self):
+        with self.assertRaises(CommandError):
+            call_command(
+                "install_journal",
+                journal_name="Test Journal",
+                journal_code="cms",
+                base_url="testcms.example.org",
+            )
+        self.assertFalse(journal_models.Journal.objects.filter(code="cms").exists())
+
+    def test_reserved_code_via_input_reprompts_and_succeeds(self):
+        with mock.patch("builtins.input", side_effect=["cms", "clivalid"]):
+            call_command(
+                "install_journal",
+                journal_name="Test Journal",
+                base_url="testcli.example.org",
+            )
+        self.assertTrue(journal_models.Journal.objects.filter(code="clivalid").exists())

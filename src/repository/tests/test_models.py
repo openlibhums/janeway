@@ -12,6 +12,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from journal.tests.utils import make_test_journal
 from utils.testing import helpers
 from submission import models as sm
 from repository import models as rm
@@ -461,3 +462,54 @@ class TestPreprintSearchManagerSearch(PreprintSearchManagerTestBase):
             1,
             "search returned additional results: {}".format([r for r in results]),
         )
+
+
+class TestRepositoryClean(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+
+    def _make_repository(self, short_name, domain):
+        return rm.Repository(
+            press=self.press,
+            name="Test Repository",
+            short_name=short_name,
+            domain=domain,
+            object_name="Preprint",
+            object_name_plural="Preprints",
+            publisher="Test Publisher",
+        )
+
+    def test_repository_full_clean_rejects_reserved_short_name(self):
+        repository = self._make_repository("cms", "reserved.example.org")
+        with self.assertRaises(ValidationError):
+            repository.full_clean()
+
+    def test_repository_full_clean_allows_normal_short_name(self):
+        repository = self._make_repository("myrepo", "normal.example.org")
+        repository.full_clean()  # should not raise
+
+    def test_repository_full_clean_allows_unchanged_legacy_reserved_short_name(self):
+        repository = self._make_repository("cms", "legacy.example.org")
+        repository.save()
+        repository.full_clean()  # should not raise: short_name is unchanged
+
+    def test_repository_full_clean_rejects_short_name_matching_existing_journal_code(
+        self,
+    ):
+        make_test_journal(code="jcode", domain="jcode.example.org")
+        repository = self._make_repository("jcode", "crossmodel.example.org")
+        with self.assertRaises(ValidationError) as context:
+            repository.full_clean()
+        self.assertIn("already in use by a journal", str(context.exception))
+
+    def test_repository_unique_error_message_includes_suggestion(self):
+        existing, _ = helpers.create_repository(
+            self.press, [], [], domain="existing.example.org"
+        )
+        repository = self._make_repository(existing.short_name, "samemodel.example.org")
+        with self.assertRaises(ValidationError) as context:
+            repository.full_clean()
+        message = str(context.exception)
+        self.assertIn("already in use by another repository", message)
+        self.assertIn("Try '", message)
