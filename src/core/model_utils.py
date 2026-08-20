@@ -737,9 +737,7 @@ class DynamicChoiceField(models.CharField):
 
     def formfield(self, *args, **kwargs):
         form_element = super().formfield(**kwargs)
-        form_element.choices = list(form_element.choices) + list(
-            self.dynamic_choices
-        )
+        form_element.choices = list(form_element.choices) + list(self.dynamic_choices)
         return form_element
 
     def validate(self, value, model_instance):
