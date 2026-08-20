@@ -23,9 +23,9 @@ django-summernote==0.8.20.0
 django-tinymce==5.0.0
 djangorestframework==3.15.2
 -e git+https://github.com/openlibhums/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
-Faker==17.6.0
+Faker==40.36.0
 freezegun==1.5.5
-geoip2==4.8.0
+geoip2==5.3.0
 html2text==2025.4.15
 idna==2.7
 iso639-lang==2.6.3
@@ -35,7 +35,7 @@ jsmin==3.0.1
 libsass==0.23.0
 lxml==6.1.2
 markdown==3.10.3
-maxminddb==2.5.1
+maxminddb==3.1.1
 mozilla-django-oidc==5.0.2
 openpyxl==3.1.5
 orcid==1.0.3
