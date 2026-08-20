@@ -108,6 +108,14 @@ INSTALLED_APPS = [
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
 INSTALLED_APPS += plugin_installed_apps.load_homepage_element_apps(BASE_DIR)
 
+if IN_TEST_RUNNER:
+    # core.urls conditionally includes debug_toolbar.urls whenever
+    # DEBUG or IN_TEST_RUNNER is true. Since django-debug-toolbar 7.x
+    # ships a model (HistoryEntry) that requires the app to be
+    # registered, it must be in INSTALLED_APPS here too, matching the
+    # dev_settings.py behaviour used when DEBUG is true.
+    INSTALLED_APPS += ["debug_toolbar"]
+
 MIDDLEWARE = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -380,7 +388,13 @@ SUMMERNOTE_CONFIG = {
 
 # 1.9 appears confused about where null and blank are required for many to
 # many fields, so we're hiding these warning from the console
-SILENCED_SYSTEM_CHECKS = ("fields.W340",)
+SILENCED_SYSTEM_CHECKS = (
+    "fields.W340",
+    # debug_toolbar is registered in INSTALLED_APPS during test runs solely
+    # so its HistoryEntry model is recognised (see IN_TEST_RUNNER above);
+    # its middleware is intentionally not enabled outside of dev_settings.py.
+    "debug_toolbar.W001",
+)
 
 LOGGING = {
     "version": 1,
@@ -561,6 +575,13 @@ if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
 
         def __len__(self):
             return 1
+
+        def setdefault(self, key, default=None):
+            # Mirrors dict.setdefault() for callers (e.g. django-debug-toolbar's
+            # AppConfig.ready()) that expect MIGRATION_MODULES to be mutable.
+            # Every key is already considered present (see __contains__), so
+            # this never actually needs to insert anything.
+            return self[key]
 
     logging.info("Skipping migrations")
     logging.disable(logging.CRITICAL)
