@@ -17,6 +17,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email, ValidationError
 
 from tinymce.widgets import TinyMCE
+from dateutil import tz
 
 from core import email, models, validators
 from core.forms.fields import MultipleFileField, TagitField
@@ -1075,7 +1076,7 @@ class OrcidAffiliationForm(forms.ModelForm):
     def __init__(
         self,
         orcid_affiliation,
-        tzinfo=timezone.get_current_timezone(),
+        tzinfo=None,
         data=None,
         journal=None,
         *args,
@@ -1083,6 +1084,15 @@ class OrcidAffiliationForm(forms.ModelForm):
     ):
         if not data:
             data = MultiValueDict()
+
+        if tzinfo and not isinstance(tzinfo, timezone.tzinfo):
+            # Handle case of raw string
+            tzinfo = tz.gettz(tzinfo)
+            # tzinfo is now a subclass of timezone.tzinfo or None
+
+        if not tzinfo:
+            # Handle missing tzinfo
+            tzinfo = timezone.get_current_timezone()
 
         # The `get` methods below are used together with `or`
         # defensively because of the data population in the API.
@@ -1118,7 +1128,7 @@ class OrcidAffiliationForm(forms.ModelForm):
             data["start"] = timezone.datetime(
                 int((orcid_start.get("year", {}) or {}).get("value", 1)),
                 int((orcid_start.get("month", {}) or {}).get("value", 1)),
-                int((orcid_start.get("day", {}) or {}).get("value", 1)),
+                int((orcid_start.get("day", {}) or {}).get("value", 2)),
                 tzinfo=tzinfo,
             )
         orcid_end = orcid_affiliation.get("end-date", {}) or {}
@@ -1126,7 +1136,7 @@ class OrcidAffiliationForm(forms.ModelForm):
             data["end"] = timezone.datetime(
                 int((orcid_end.get("year", {}) or {}).get("value", 1)),
                 int((orcid_end.get("month", {}) or {}).get("value", 1)),
-                int((orcid_end.get("day", {}) or {}).get("value", 1)),
+                int((orcid_end.get("day", {}) or {}).get("value", 2)),
                 tzinfo=tzinfo,
             )
 
