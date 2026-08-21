@@ -968,6 +968,37 @@ class TestOrganizationModels(TestCase):
         )
         self.assertEqual(affil, None)
 
+    def test_organization_get_or_create_without_ror_import_sequence(self):
+        # Set up data
+        journal, _ = helpers.create_journals()
+        article = helpers.create_article(journal)
+        author = helpers.create_frozen_author(
+            article,
+            frozen_email="f3dnfzlft9enbnzxfu36@example.org",
+            frozen_orcid="0000-1234-2345-6789",
+        )
+        ecole_org = models.Organization.objects.create(
+            ror_id="05hy3tk52",
+        )
+        ecole_polytechnique = "École Polytechnique"
+        models.OrganizationName.objects.create(
+            value=ecole_polytechnique,
+            ror_display_for=ecole_org,
+            label_for=ecole_org,
+        )
+        researcher = "Researcher"
+
+        # Mimic the setters used by the imports plugin with the CSV importer
+        author.institution = ecole_polytechnique
+        author.department = researcher
+        author.save()
+
+        author.refresh_from_db()
+        self.assertEqual(
+            str(author.primary_affiliation()),
+            f"{researcher}, {ecole_polytechnique}",
+        )
+
     def test_account_queryset_deprecated_fields(self):
         kwargs = {
             "email": "twlwpky6omkqdsc40zlm@example.org",
