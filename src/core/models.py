@@ -2921,6 +2921,7 @@ class Organization(models.Model):
         Intended for use in batch importers where ROR data is not available
         in the data being imported.
         Does not support ROR ids, ROR name types, or geonames locations.
+        Does not support multiple affiliations.
 
         :type institution: str
         :param country: ISO-3166-1 alpha-2 country code or Janeway Country object
@@ -2931,62 +2932,72 @@ class Organization(models.Model):
         """
 
         created = False
-        # Is there a single exact match in the
-        # canonical name data from ROR (e.g. labels)?
-        try:
-            organization = cls.objects.get(labels__value=institution)
-        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-            # Or maybe one in the alternate name data
-            # from ROR (e.g. aliases)?
+
+        institution = institution.strip()
+        if not institution:
+            # If there is no `institution`, this method is being used to update
+            # the department or country in isolation, so we just want to get
+            # whatever org is attached to a single affiliation for the account or author.
             try:
-                organization = cls.objects.get(aliases__value=institution)
+                organization = cls.objects.get(
+                    controlledaffiliation__account=account,
+                    controlledaffiliation__frozen_author=frozen_author,
+                    controlledaffiliation__preprint_author=preprint_author,
+                )
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                # Or maybe a primary affiliation has already been
-                # entered without a ROR for this
-                # account / frozen author / preprint author?
-                try:
-                    # If there is no `institution`, this method is being used to update
-                    # the department or country in isolation, so we want the primary
-                    # affiliation's org regardless of what its custom label is.
-                    query = models.Q(
-                        controlledaffiliation__is_primary=True,
-                        controlledaffiliation__account=account,
-                        controlledaffiliation__frozen_author=frozen_author,
-                        controlledaffiliation__preprint_author=preprint_author,
-                        ror_id__exact="",
-                    )
-                    # If there is an institution name, we should only match organizations
-                    # with that as a custom label.
-                    if institution and institution != " ":
-                        query &= models.Q(custom_label__value=institution)
-                    organization = cls.objects.get(query)
-                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                    # Otherwise, create a new, disconnected record.
-                    organization = cls.objects.create()
-                    created = True
+                organization = cls.objects.create()
+                created = True
 
-        # Set custom label if organization is not controlled by ROR
-        if institution and institution != " " and not organization.ror_id:
-            organization_name, _created = OrganizationName.objects.update_or_create(
-                defaults={"value": institution},
-                custom_label_for=organization,
-            )
-
-        # Prep the country
-        if country and not isinstance(country, Country):
+        else:
+            # Is there a single exact match in the
+            # canonical name data from ROR (e.g. labels)?
             try:
-                country = Country.objects.get(code=country)
-            except Country.DoesNotExist:
-                country = ""
+                organization = cls.objects.get(labels__value=institution)
+            except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                # Or maybe one in the alternate name data
+                # from ROR (e.g. aliases)?
+                try:
+                    organization = cls.objects.get(aliases__value=institution)
+                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                    # Or maybe a primary affiliation has already been
+                    # entered without a ROR for this
+                    # account / frozen author / preprint author?
+                    try:
+                        organization = cls.objects.get(
+                            controlledaffiliation__account=account,
+                            controlledaffiliation__frozen_author=frozen_author,
+                            controlledaffiliation__preprint_author=preprint_author,
+                            custom_label__value=institution,
+                            ror_id__exact="",
+                        )
+                    except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                        # Otherwise, create a new, disconnected record.
+                        organization = cls.objects.create()
+                        created = True
 
-        # Set country data if organization is not controlled by ROR
-        if country and not organization.ror_id:
-            location, _created = Location.objects.get_or_create(
-                name="",
-                country=country,
-            )
-            organization.locations.clear()
-            organization.locations.add(location)
+        if not organization.ror_id:
+            # Set custom label if organization is not controlled by ROR
+            if institution:
+                organization_name, _created = OrganizationName.objects.update_or_create(
+                    defaults={"value": institution},
+                    custom_label_for=organization,
+                )
+
+            # Prep the country
+            if country and not isinstance(country, Country):
+                try:
+                    country = Country.objects.get(code=country)
+                except Country.DoesNotExist:
+                    country = ""
+
+            # Set country data
+            if country:
+                location, _created = Location.objects.get_or_create(
+                    name="",
+                    country=country,
+                )
+                organization.locations.clear()
+                organization.locations.add(location)
 
         return organization, created
 
