@@ -37,7 +37,7 @@ commands = [
     "python src/manage.py test"
 ]
 [tool.tox.testenv.deps]
-list = ["Django==5.2.17", "file:requirements.txt"]
+list = ["Django~=5.2.17", "file:requirements.txt"]
 
 [tool.ruff.format]
 quote-style = "double"
