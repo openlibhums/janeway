@@ -11,28 +11,29 @@
                 {% endblocktrans %}
             </p>
         </div>
-        <div class="columns medium-3 large-2 text-right">
-            <label labelfor="order_by">
-                {% trans 'Sort results by' %}
-            </label>
-        </div>
-        <div class="columns medium-3 large-3">
-            <select
-                class="input-group-field"
-                name="order_by"
-                form={{ form_id }}>
-            {% for value, label in order_by_choices %}
-                <option
-                    value="{{ value }}"
-                    {% if value == order_by %}
-                        selected
-                    {% endif %}>
-                    {{ label }}
-                </option>
-            {% endfor %}
-            </select>
-            <div class="input-group-button">
-                <button type="submit" class="button" form={{ form_id }}>{% trans 'Sort' %}</button>
+        <div class="columns small-12 medium-6 large-5">
+            <div class="input-group">
+                <label class="input-group-label" for="order_by">
+                    {% trans 'Sort results by' %}
+                </label>
+                <select
+                    id="order_by"
+                    class="input-group-field"
+                    name="order_by"
+                    form={{ form_id }}>
+                {% for value, label in order_by_choices %}
+                    <option
+                        value="{{ value }}"
+                        {% if value == order_by %}
+                            selected
+                        {% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+                </select>
+                <div class="input-group-button">
+                    <button type="submit" class="button" form={{ form_id }}>{% trans 'Sort' %}</button>
+                </div>
             </div>
         </div>
     </div>
