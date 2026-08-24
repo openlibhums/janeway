@@ -19,7 +19,6 @@
         <div class="columns medium-3 large-3">
             <select
                 class="input-group-field"
-                onchange="this.form.submit()"
                 name="order_by"
                 form={{ form_id }}>
             {% for value, label in order_by_choices %}
@@ -32,6 +31,9 @@
                 </option>
             {% endfor %}
             </select>
+            <div class="input-group-button">
+                <button type="submit" class="button" form={{ form_id }}>{% trans 'Sort' %}</button>
+            </div>
         </div>
     </div>
 {% endif %}

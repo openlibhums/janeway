@@ -19,7 +19,6 @@
             </div>
             <select
                 class="custom-select"
-                onchange="this.form.submit()"
                 name="order_by"
                 form={{ form_id }}>
                 {% for value, label in order_by_choices %}
@@ -32,6 +31,9 @@
                     </option>
                 {% endfor %}
             </select>
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary" form={{ form_id }}>{% trans 'Sort' %}</button>
+            </div>
         </div>
     </div>
 {% endif %}

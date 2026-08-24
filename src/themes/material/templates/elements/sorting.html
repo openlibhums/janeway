@@ -11,9 +11,8 @@
                 {% endblocktrans %}
             </p>
         </div>
-        <div class="input-field col s12 m6 l5">
+        <div class="input-field col s9 m5 l4">
             <select
-                onchange="this.form.submit()"
                 name="order_by"
                 form={{ form_id }}>
                 {% for value, label in order_by_choices %}
@@ -30,6 +29,9 @@
                 labelfor="order_by">
                 {% trans "Sort results by" %}
             </label>
+        </div>
+        <div class="col s3 m1 l1">
+            <button type="submit" class="btn" form={{ form_id }}>{% trans "Sort" %}</button>
         </div>
     </div>
 {% endif %}
