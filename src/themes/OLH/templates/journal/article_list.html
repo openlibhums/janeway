@@ -29,7 +29,7 @@
                     {% empty %}
                         <strong>{% trans 'No articles to display.' %}</strong>
                     {% endfor %}
-                    {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+                    {% include "common/elements/pagination.html" with form_id=facet_form.id|add:"-desktop" %}
                 </section>
             </div>
             <aside class="large-4 columns show-for-large">
