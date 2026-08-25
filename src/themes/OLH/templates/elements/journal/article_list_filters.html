@@ -10,7 +10,7 @@
             <button type="button" class="button secondary" id="select-all-btn-{{ filter_context }}">{% trans 'Select all' %}</button>
             <button type="button" class="button secondary" id="clear-all-btn-{{ filter_context }}">{% trans 'Clear all' %}</button>
             <br/>
-            <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
+            <button action="" class="button" type="submit" aria-label="{% trans 'Apply filter' %}">{% trans 'Filter' %}</button>
         </form>
 
         <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
