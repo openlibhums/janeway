@@ -481,15 +481,11 @@ header svg {
 .sort-control .custom-select,
 .sort-control .input-group-text,
 .sort-control .btn {
-    height: 2.5rem;
+    height: 2.5rem !important;
     margin: 0 !important;
     border-radius: 0;
     display: flex;
     align-items: center;
-}
-
-.sort-control .btn {
-    height: 100%;
 }
 
 .sort-control .input-group-prepend > .input-group-text,
