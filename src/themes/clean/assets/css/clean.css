@@ -471,6 +471,41 @@ header svg {
     font-size: 1.5rem;
 }
 
+.sort-control {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.sort-control .form-control,
+.sort-control .custom-select,
+.sort-control .input-group-text,
+.sort-control .btn {
+    height: 2.5rem;
+    margin: 0 !important;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sort-control .btn {
+    height: 100%;
+}
+
+.sort-control .input-group-prepend > .input-group-text,
+.sort-control .input-group-prepend > .btn {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.sort-control > .form-control:last-child,
+.sort-control > .custom-select:last-child,
+.sort-control .input-group-append > .input-group-text,
+.sort-control .input-group-append > .btn {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
 #main_article {
     margin-top: 30px;
 }
