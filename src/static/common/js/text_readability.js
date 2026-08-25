@@ -145,6 +145,17 @@ function getRegions() {
   return document.querySelectorAll('.text-format-region');
 }
 
+// Whether any text-format-region has text to format. 
+function regionsHaveText() {
+  var regions = getRegions();
+  for (var i = 0; i < regions.length; i++) {
+    if (regions[i].textContent.trim().length > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function getBar() {
   return document.getElementById('tf-bar');
 }
@@ -670,6 +681,14 @@ function lockControlWidths() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  // Off by default: stays hidden, and unless there is text to format
+  if (!regionsHaveText()) {
+    var bar = getBar();
+    if (bar) {
+      bar.hidden = true;
+    }
+    return;
+  }
   loadPreferences();
   applyPreferences();
   var preload = document.getElementById('tf-preload');
