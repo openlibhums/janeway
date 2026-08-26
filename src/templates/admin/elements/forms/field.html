@@ -2,7 +2,10 @@
 {% get_language_info_list for LANGUAGES as languages %}
 
 <div>
-  <label for="{{ field.id_for_label }}">
+  {# A MultiWidget has no single control, so id_for_label is the empty #}
+  {# string. Fall back to its first subwidget, which Django ids as #}
+  {# <auto_id>_0, or the label is associated with nothing. See #5486. #}
+  <label for="{% if field.id_for_label %}{{ field.id_for_label }}{% else %}{{ field.auto_id }}_0{% endif %}">
     <strong>
       {{ field.label }}
       {% if field.field.required %}
