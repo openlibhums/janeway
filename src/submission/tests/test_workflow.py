@@ -3,16 +3,16 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from mock import Mock
 import os
 
-from django.http import Http404
-from django.test import TestCase
-from django.utils import translation, timezone
-from django.urls.base import clear_script_prefix
 from django.conf import settings
+from django.http import Http404
 from django.shortcuts import reverse
+from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls.base import clear_script_prefix
+from django.utils import timezone, translation
+from mock import Mock
 
 from core.models import Account, File
 from identifiers import logic as id_logic
@@ -25,7 +25,7 @@ from submission import (
     models,
 )
 from utils.forms import clean_orcid_id
-from utils.install import update_xsl_files, update_settings, update_issue_types
+from utils.install import update_issue_types, update_settings, update_xsl_files
 from utils.shared import clear_cache
 from utils.testing import helpers
 from utils.testing.helpers import create_galley
@@ -739,7 +739,7 @@ class SubmissionTests(TestCase):
             article=self.article,
             field=self.boolean_field,
         )
-        self.assertEqual(field_answer.answer, "")
+        self.assertEqual(field_answer.answer_value, "")
 
     def test_boolean_field_unchecked_sets_true(self):
         post_data = {
@@ -770,7 +770,7 @@ class SubmissionTests(TestCase):
             article=self.article,
             field=self.boolean_field,
         )
-        self.assertEqual(field_answer.answer, "on")
+        self.assertEqual(field_answer.answer_value, "on")
 
     def test_text_field_sets(self):
         post_data = {
@@ -802,6 +802,6 @@ class SubmissionTests(TestCase):
             field=self.text_field,
         )
         self.assertEqual(
-            field_answer.answer,
+            field_answer.answer_value,
             "Sometimes first contact is last contact.",
         )

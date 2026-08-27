@@ -3,24 +3,17 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-import uuid
 import os
-from dateutil import parser as dateparser
-from itertools import chain
+import re
+import uuid
 import warnings
-from iso639 import Lang
+from itertools import chain
+from urllib.parse import urlparse
 
+import swapper
+from bs4 import BeautifulSoup
+from dateutil import parser as dateparser
 from django.apps import apps
-from django.urls import reverse
-from django.db import (
-    connection,
-    DEFAULT_DB_ALIAS,
-    models,
-)
-from django.db.models.query import RawQuerySet
-from django.db.models.sql.query import get_order_dir
 from django.conf import settings
 from django.contrib.postgres.search import (
     SearchQuery,
@@ -28,46 +21,55 @@ from django.contrib.postgres.search import (
     SearchVector,
     SearchVectorField,
 )
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.core import exceptions
+from django.core.exceptions import ValidationError
+from django.db import (
+    DEFAULT_DB_ALIAS,
+    connection,
+    models,
+)
+from django.db.models.query import RawQuerySet
+from django.db.models.signals import m2m_changed, pre_delete
+from django.db.models.sql.query import get_order_dir
+from django.dispatch import receiver
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from django.db.models.signals import pre_delete, m2m_changed
-from django.dispatch import receiver
-from django.core import exceptions
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.html import mark_safe
-from django.utils.html import strip_tags
-import swapper
+from django.utils.html import mark_safe, strip_tags
+from django.utils.translation import gettext_lazy as _
+from iso639 import Lang
 
+from core import files, model_utils, workflow
+from core import models as core_models
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractLastModifiedModel,
-    DynamicChoiceField,
     BaseSearchManagerMixin,
-    JanewayBleachField,
-    JanewayBleachCharField,
-    M2MOrderedThroughField,
     DateTimePickerModelField,
+    DynamicChoiceField,
+    JanewayBleachCharField,
+    JanewayBleachField,
+    M2MOrderedThroughField,
 )
-from core import workflow, model_utils, files, models as core_models
-from core.templatetags.truncate import truncatesmart
 from core.templatetags import alt_text
+from core.templatetags.truncate import truncatesmart
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
-from metrics.logic import ArticleMetrics
-from review import models as review_models
-from repository import models as repository_models
-from utils.function_cache import cache
-from utils.logger import get_logger
-from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
-from utils.forms import plain_text_validator
 from journal import models as journal_models
+from metrics.logic import ArticleMetrics
+from repository import models as repository_models
+from review import models as review_models
 from review.const import (
     ReviewerDecisions as RD,
 )
 from transform import utils as transform_utils
+from utils.forms import plain_text_validator
+from utils.function_cache import cache
+from utils.logger import get_logger
+from utils.orcid import COMPILED_ORCID_REGEX, validate_orcid
 
 logger = get_logger(__name__)
 
@@ -2396,10 +2398,10 @@ class Article(AbstractLastModifiedModel):
         return id_logic.preview_registration_information(self)
 
     def close_core_workflow_objects(self):
-        from review import models as review_models
         from copyediting import models as copyedit_models
         from production import models as prod_models
         from proofing import models as proof_models
+        from review import models as review_models
 
         review_models.ReviewAssignment.objects.filter(
             article=self,
@@ -3260,6 +3262,22 @@ class Field(models.Model):
     class Meta:
         ordering = ("order", "name")
 
+    def clean(self):
+        """Ensure slug minimum length."""
+        if self.slug:
+            if len(self.slug) < 4:
+                raise ValidationError(
+                    "Slug must be at least four characters in length."
+                )
+        elif self.name:
+            """If not specified, transform name field into slug"""
+
+            self.slug = re.sub(r"\s", "-", self.name.strip().lower())
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
 
@@ -3270,6 +3288,105 @@ class Field(models.Model):
 
         return self.journal
 
+    def is_global(self):
+        return not self.sections.exists()
+
+    def get_choices(self):
+        """
+        Returns a list of tuples (display_value, real_value) for this field's choices.
+        If FieldChoice objects exist, they are used; otherwise, the legacy choices field is used.
+        """
+        if self.field_choices.exists():
+            # Use FieldChoice objects
+            return [
+                (choice.real_value, choice.display_value)
+                for choice in self.field_choices.all()
+            ]
+        elif self.choices:
+            # Use legacy choices field
+            c_split = self.choices.split("|")
+            return [(choice.capitalize(), choice) for choice in c_split]
+        else:
+            # No choices defined
+            return []
+
+    def get_choice_display_value(self, real_value):
+        """
+        Returns the display value for a given real value.
+        If FieldChoice objects exist, they are used; otherwise, the legacy choices field is used.
+        """
+        if self.field_choices.exists():
+            # Use FieldChoice objects
+            try:
+                choice = self.field_choices.get(real_value=real_value)
+                return choice.display_value
+            except FieldChoice.DoesNotExist:
+                return real_value
+        elif self.choices:
+            # Use legacy choices field
+            c_split = self.choices.split("|")
+            if real_value in c_split:
+                return real_value.capitalize()
+            else:
+                return real_value
+        else:
+            # No choices defined
+            return real_value
+
+
+class FieldSection(models.Model):
+    field = models.ForeignKey(
+        "Field",
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        "submission.Section",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order",)
+        unique_together = ("field", "section")
+
+    def clean(self):
+        """Ensure section and field belong to the same journal."""
+        if (
+            self.field.journal
+            and self.section.journal
+            and self.field.journal != self.section.journal
+        ):
+            raise ValidationError("Section journal does not match field journal.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+
+class FieldChoice(models.Model):
+    field = models.ForeignKey(
+        Field,
+        on_delete=models.CASCADE,
+        related_name="field_choices",
+        related_query_name="field_choices",
+    )
+    real_value = models.CharField(
+        max_length=200,
+        help_text="Value used for exports and internal processing",
+        blank=True,
+    )
+    display_value = models.CharField(
+        max_length=200, help_text="Value displayed to users"
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order",)
+        unique_together = ("field", "real_value")
+
+    def __str__(self):
+        return f"{self.display_value} ({self.real_value})"
+
 
 class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
@@ -3278,6 +3395,21 @@ class FieldAnswer(models.Model):
         on_delete=models.CASCADE,
     )
     answer = JanewayBleachField()
+    choice = models.ForeignKey(
+        FieldChoice, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    @property
+    def answer_value(self):
+        if self.choice:
+            return self.choice.real_value
+        return self.answer
+
+    @property
+    def display_value(self):
+        if self.choice:
+            return self.choice.display_value
+        return self.answer
 
 
 class ArticleAuthorOrder(models.Model):

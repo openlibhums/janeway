@@ -31,7 +31,7 @@
                     {% if field %}
                     <h2>Edit {{ field.name }}</h2>
                     {% else %}
-                    <h2>Add New Field</h2>
+                        <h2>Add New Field</h2>
                     {% endif %}
                 </div>
                 <div class="content">
@@ -39,6 +39,14 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{ form|foundation }}
+                        <div class="form-group">
+                            <label>Field Choices:</label>
+                            <p>Manage field choices with real and display values.</p>
+                            <a href="{% url 'manage_field_choices' field.pk %}" class="button secondary">
+                                <i class="fa fa-list"></i> Manage Field Choices
+                            </a>
+                        </div>
+
                         <button class="success button" name="save">Save Field</button>
                     </form>
                 </div>

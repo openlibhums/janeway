@@ -113,6 +113,16 @@ urlpatterns = [
         additional_fields_view.edit_additional_field_view,
         name="submission_fields_id",
     ),
+    re_path(
+        r"^manager/additional_fields/(?P<field_id>\d+)/choices/$",
+        additional_fields_view.manage_field_choices_view,
+        name="manage_field_choices",
+    ),
+    re_path(
+        r"^manager/additional_fields/(?P<field_id>\d+)/choices/order/$",
+        additional_fields_view.reorder_field_choices_view,
+        name="reorder_field_choices",
+    ),
     re_path(r"^manager/licences/$", views.licenses, name="submission_licenses"),
     re_path(
         r"^manager/licences/(?P<license_pk>\d+)/delete/",

@@ -3,27 +3,25 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-import re
 import warnings
 
 from django import forms
-from django.db.models import Q
-from django.utils.translation import gettext, gettext_lazy as _
+from django.db.models import Q, QuerySet
+from django.utils.translation import gettext_lazy as _
+from tinymce.widgets import TinyMCE
 
-from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
-from review.logic import render_choices
-from utils.forms import (
-    KeywordModelForm,
-    JanewayTranslationModelForm,
-    HTMLDateInput,
-    clean_orcid_id,
-    YesNoRadio,
-)
+from submission import models
+from submission.models import Field, FieldAnswer
 from utils import setting_handler
-
-from tinymce.widgets import TinyMCE
+from utils.forms import (
+    HTMLDateInput,
+    JanewayTranslationModelForm,
+    KeywordModelForm,
+    YesNoRadio,
+    clean_orcid_id,
+)
 
 
 class PublisherNoteForm(forms.ModelForm):
@@ -200,7 +198,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                         )
 
                     elif element.kind == "select":
-                        choices = render_choices(element.choices)
+                        choices = element.get_choices()
                         self.fields[element.name] = forms.ChoiceField(
                             widget=forms.Select(attrs={"div_class": element.width}),
                             choices=choices,
@@ -226,7 +224,9 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             check_for_answer = models.FieldAnswer.objects.get(
                                 field=element, article=article
                             )
-                            self.fields[element.name].initial = check_for_answer.answer
+                            self.fields[element.name].initial = (
+                                check_for_answer.answer_value
+                            )
                         except models.FieldAnswer.DoesNotExist:
                             pass
 
@@ -239,10 +239,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
         article = super(ArticleInfo, self).save(commit=False)
 
         if request:
-            additional_fields = models.Field.objects.filter(journal=request.journal)
+            additional_fields: QuerySet[Field, Field] = models.Field.objects.filter(
+                journal=request.journal
+            )
 
-            for field in additional_fields:
-                posted_value = request.POST.get(field.name)
+            for field in additional_fields:  # type: Field
+                posted_value: str = request.POST.get(field.name)
 
                 # Determine answer depending on field kind
                 if field.kind == "check":
@@ -252,20 +254,35 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                     answer = posted_value
 
                 # Checkbox type inputs should pass here so they are recorded
+                field_answer: FieldAnswer
                 if answer or field.kind == "check":
                     try:
                         field_answer = models.FieldAnswer.objects.get(
                             article=article,
                             field=field,
                         )
-                        field_answer.answer = answer
-                        field_answer.save()
                     except models.FieldAnswer.DoesNotExist:
-                        models.FieldAnswer.objects.create(
+                        field_answer = models.FieldAnswer(
                             article=article,
                             field=field,
-                            answer=answer,
                         )
+
+                    # If this is a select field with FieldChoice objects, try to reference the choice
+                    if field.kind == "select" and field.field_choices.exists():
+                        try:
+                            choice = field.field_choices.get(real_value=answer)
+                            field_answer.choice = choice
+                            field_answer.answer = answer  # Keep the raw value as backup
+                        except models.FieldChoice.DoesNotExist:
+                            # If the choice doesn't exist, just store the raw value
+                            field_answer.choice = None
+                            field_answer.answer = answer
+                    else:
+                        # For non-select fields or fields without FieldChoice objects, store the raw value
+                        field_answer.choice = None
+                        field_answer.answer = answer
+
+                    field_answer.save()
 
             if self.pop_disabled_fields:
                 request.journal.submissionconfiguration.handle_defaults(article)
@@ -415,10 +432,10 @@ class ConfiguratorForm(forms.ModelForm):
         self.fields["default_license"].queryset = models.Licence.objects.filter(
             journal=self.instance.journal,
         )
-        self.fields[
-            "open_peer_review_license"
-        ].queryset = models.Licence.objects.filter(
-            journal=self.instance.journal,
+        self.fields["open_peer_review_license"].queryset = (
+            models.Licence.objects.filter(
+                journal=self.instance.journal,
+            )
         )
 
     def clean(self):
