@@ -29,7 +29,7 @@
             <div class="large-12 columns">
                 <div class="title-area">
                     {% if field %}
-                    <h2>Edit {{ field.name }}</h2>
+                        <h2>Edit {{ field.name }}</h2>
                     {% else %}
                         <h2>Add New Field</h2>
                     {% endif %}
@@ -39,10 +39,23 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{ form|foundation }}
+
+
                         <div class="form-group">
                             <label>Field Choices:</label>
                             <p>Manage field choices with real and display values.</p>
-                            <a href="{% url 'manage_field_choices' field.pk %}" class="button secondary">
+                            {% if field %}
+                                <p>Save before accessing this page, or you will lose your changes!</p>
+                            {% else %}
+                                <p>Must create this field before managing choice options.</p>
+                            {% endif %}
+                            <a
+                                    {% if field %}
+                                        href="{% url 'manage_field_choices' field.pk %}"
+                                    {% else %}
+                                        disabled aria-disabled="true"
+                                    {% endif %}
+                                        class="button secondary">
                                 <i class="fa fa-list"></i> Manage Field Choices
                             </a>
                         </div>

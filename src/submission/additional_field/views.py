@@ -6,9 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from security.decorators import editor_user_required
 from submission import forms, logic
+from submission.additional_field.forms import (
+    FieldChoiceForm,
+    FieldChoicesManagementForm,
+)
 from submission.forms import FieldForm
 from submission.models import Field, FieldChoice
-from submission.additional_field.forms import FieldChoiceForm, FieldChoicesManagementForm
 
 
 @editor_user_required
@@ -53,8 +56,10 @@ def edit_additional_field_view(request, field_id: str | None = None) -> HttpResp
             form = forms.FieldForm(request.POST, instance=field)
 
             if form.is_valid():
-                logic.save_field(request, form)
-                return redirect(reverse("submission_fields"))
+                field = logic.save_field(request, form)
+                return redirect(
+                    reverse("submission_fields_id", kwargs={"field_id": field.pk})
+                )
 
     template: str = (
         "admin/submission/manager/additional_fields/edit_additional_field.html"
@@ -76,55 +81,59 @@ def manage_field_choices_view(request, field_id: str) -> HttpResponse:
     :return: HttpResponse
     """
     field: Field = get_object_or_404(Field, pk=field_id)
-    
+
     # Only allow managing choices for select fields
     if field.kind != "select":
         return redirect(reverse("submission_fields"))
-    
-    choices = field.field_choices.all().order_by('order')
-    
+
+    choices = field.field_choices.all().order_by("order")
+
     if request.POST:
         if "save" in request.POST:
             # Handle saving all choices at once
             for choice in choices:
                 real_value_key = f"real_value_{choice.id}"
                 display_value_key = f"display_value_{choice.id}"
-                
+
                 if real_value_key in request.POST and display_value_key in request.POST:
                     choice.real_value = request.POST[real_value_key]
                     choice.display_value = request.POST[display_value_key]
                     choice.save()
-            
+
             # Handle adding a new choice
             new_real_value = request.POST.get("new_real_value", "").strip()
             new_display_value = request.POST.get("new_display_value", "").strip()
-            
+
             if new_real_value and new_display_value:
                 FieldChoice.objects.create(
                     field=field,
                     real_value=new_real_value,
                     display_value=new_display_value,
-                    order=choices.count()
+                    order=choices.count(),
                 )
-            
-            return redirect(reverse("manage_field_choices", kwargs={"field_id": field_id}))
-        
+
+            return redirect(
+                reverse("manage_field_choices", kwargs={"field_id": field_id})
+            )
+
         elif "delete" in request.POST:
             choice_id = request.POST.get("delete")
             try:
                 choice = FieldChoice.objects.get(pk=choice_id, field=field)
                 choice.delete()
-                
+
                 # Reorder remaining choices
-                remaining_choices = field.field_choices.all().order_by('order')
+                remaining_choices = field.field_choices.all().order_by("order")
                 for i, choice in enumerate(remaining_choices):
                     choice.order = i
                     choice.save()
             except FieldChoice.DoesNotExist:
                 pass
-            
-            return redirect(reverse("manage_field_choices", kwargs={"field_id": field_id}))
-    
+
+            return redirect(
+                reverse("manage_field_choices", kwargs={"field_id": field_id})
+            )
+
     template: str = (
         "admin/submission/manager/additional_fields/manage_field_choices.html"
     )
@@ -146,15 +155,15 @@ def reorder_field_choices_view(request, field_id: str) -> HttpResponse:
     :return: JsonResponse
     """
     field: Field = get_object_or_404(Field, pk=field_id)
-    
+
     # Only allow managing choices for select fields
     if field.kind != "select":
         return JsonResponse({"error": "Invalid field type"}, status=400)
-    
+
     if request.POST:
         choice_ids = request.POST.getlist("choice[]")
         choice_ids = [int(_id) for _id in choice_ids]
-        
+
         # Update the order of choices
         for i, choice_id in enumerate(choice_ids):
             try:
@@ -163,7 +172,7 @@ def reorder_field_choices_view(request, field_id: str) -> HttpResponse:
                 choice.save()
             except FieldChoice.DoesNotExist:
                 pass
-        
+
         return JsonResponse({"status": "success"})
-    
+
     return JsonResponse({"error": "Invalid request"}, status=400)
