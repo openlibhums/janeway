@@ -67,8 +67,8 @@ class TestOAIViews(TestCase):
             stage=sm_models.STAGE_PUBLISHED,
             date_published="1986-07-12T17:00:00.000+0200",
             authors=[cls.author],
+            correspondence_author=cls.author,
         )
-        cls.article.correspondence_author = cls.author
         cls.frozen_author = cls.author.frozen_author(cls.article)
         cls.frozen_author.add_credit("data-curation")
         cls.frozen_author.add_credit("writing-original-draft")
