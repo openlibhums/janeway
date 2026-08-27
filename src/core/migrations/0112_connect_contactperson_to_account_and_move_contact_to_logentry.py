@@ -70,9 +70,14 @@ def connect_contact_person_to_account(apps, schema_editor):
         contact_person.save()
 
         if contact_person.content_type.model == "journal":
-            journal = Journal.objects.get(pk=contact_person.object_id)
-            role = Role.objects.get(slug="author")
-            AccountRole.objects.get_or_create(role=role, user=account, journal=journal)
+            try:
+                journal = Journal.objects.get(pk=contact_person.object_id)
+                role = Role.objects.get(slug="author")
+                AccountRole.objects.get_or_create(
+                    role=role, user=account, journal=journal
+                )
+            except Journal.DoesNotExist:
+                pass
 
 
 def infer_contact_message_target(apps, account):
