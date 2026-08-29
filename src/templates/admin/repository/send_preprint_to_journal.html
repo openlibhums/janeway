@@ -7,8 +7,7 @@
 {% load files %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
     <li>Send Preprint to {% if journal %}{{ journal.name }}{% else %}a Journal{% endif %}</li>
 {% endblock %}
 

@@ -4,8 +4,7 @@
 {% block title-sub %}Management interface for {{ request.repository.name }}{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li>{{ request.repository.object_name|capfirst }} Manager</li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" with terminal=True %}
 {% endblock %}
 
 {% load cache %}
