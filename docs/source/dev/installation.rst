@@ -2,6 +2,13 @@ Installation Guide
 ==================
 There are a number of ways to get Janeway up and running. For development we recommend you use Docker with Postgres as the DB_VENDOR.
 
+If you want to develop Janeway with Lando, use the dedicated guide:
+
+.. toctree::
+   :maxdepth: 1
+
+   lando
+
 Running Janeway with Docker and docker compose
 ----------------------------------------------
 1. Install ``docker`` and ``GNU Make``.
@@ -35,7 +42,6 @@ The Makefile can be configured with a number of variables to change the way in w
 
 If you want to install custom python libraries for development, you can drop them into the dev_requirements.txt file and run ``make rebuild``. Rebuilding the container takes some time, so it is also possible to install python libraries in development mode. When installed in this manner, the library is mounted as a volume into the janeway container when you first run `make rebuild` and  you will be able to make changes to the library without having to run ``make rebuild``. In order to install a library in development mode, copy the code to ``/path/to/janeway/lib/`` and run ``make rebuild`` once.
 
-
 Native Install
 --------------
 
@@ -52,10 +58,13 @@ The following is for Debian/Ubuntu-based systems (16.04).
 2. Install system dependencies.
 
 On Ubuntu systems:
-``sudo apt-get install libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev libmysqlclient-dev``
+``sudo apt-get install libxml2-dev libxslt1-dev python3-dev zlib1g-dev libffi-dev libssl-dev libjpeg-dev libmysqlclient-dev``
 
 On Debian systems:
-``sudo apt-get install libxml2-dev libxslt1-dev python3-dev zlib1g-dev lib32z1-dev libffi-dev libssl-dev libjpeg-dev``
+``sudo apt-get install libxml2-dev libxslt1-dev python3-dev zlib1g-dev libffi-dev libssl-dev libjpeg-dev``
+
+On ``amd64`` systems, you may also need ``lib32z1-dev``. It is not generally
+available on ``arm64`` systems such as Apple Silicon.
 
 3. Clone the janeway repo to your local machine:
    ``git clone https://github.com/BirkbeckCTP/janeway.git``
