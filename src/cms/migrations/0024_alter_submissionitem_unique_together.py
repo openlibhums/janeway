@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cms", "0023_page_draft_preview"),
         ("core", "0115_merge_20260710_1655"),
