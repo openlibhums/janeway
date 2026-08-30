@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "Janeway"
 version = "1.8.0"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "Django>=5.2",
 ]
@@ -18,7 +18,7 @@ dev = [
 
 [tool.ruff]
 line-length = 88 # Matches ruff and black formatting
-target-version = "py310"
+target-version = "py311"
 include = ["src/**/*.py"]
 exclude = [
     "src/__pycache__",
@@ -31,7 +31,7 @@ exclude = [
     "src/transform/cassius",
 ]
 [tool.tox]
-env_list = ["py310", "py311", "py312", "py313"]
+env_list = ["py311", "py312", "py313", "py314"]
 [tool.tox.testenv]
 commands = [
     "python src/manage.py test"
