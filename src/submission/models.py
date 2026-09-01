@@ -2944,6 +2944,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     orcid__contains=orcid,
                 )
                 author = account.snapshot_as_author(article)
+                created = True
             except core_models.Account.DoesNotExist:
                 author = None
 
