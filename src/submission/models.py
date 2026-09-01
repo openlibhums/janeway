@@ -3258,6 +3258,11 @@ class Field(models.Model):
         default=False, help_text="Whether or not display this field in the article page"
     )
     help_text = models.TextField()
+    description = JanewayBleachField(
+        blank=True,
+        null=True,
+        help_text="Description of the field to show to the user.",
+    )
 
     class Meta:
         ordering = ("order", "name")
