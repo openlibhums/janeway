@@ -527,7 +527,9 @@ def copyeditor_for_copyedit_required(func):
     def wrapper(request, *args, **kwargs):
         copyedit_id = kwargs["copyedit_id"]
         copyedit = get_object_or_404(
-            copyediting_models.CopyeditAssignment, pk=copyedit_id
+            copyediting_models.CopyeditAssignment,
+            pk=copyedit_id,
+            article__journal=request.journal,
         )
 
         if request.user == copyedit.copyeditor and (
