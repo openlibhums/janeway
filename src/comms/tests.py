@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -8,6 +9,7 @@ from django.core.files.base import ContentFile
 
 from core import models as core_models
 from comms import models
+from utils import setting_handler
 from utils.testing import helpers
 
 
@@ -135,6 +137,54 @@ class NewsViewsTest(TestCase):
             SERVER_NAME=self.press.domain,
         )
         self.assertNotIn(self.hidden_news_item, response.context["news_items"])
+
+
+class NewsItemAltTextTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.content_type = ContentType.objects.get_for_model(cls.journal_one)
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.news_item = helpers.create_news_item(
+            content_type=cls.content_type,
+            object_id=cls.journal_one.pk,
+            posted_by=cls.editor,
+            title="Alt Text News",
+            body="Some content",
+        )
+        cls.image_file = core_models.File.objects.create(
+            article_id=1,
+            mime_type="image/png",
+            original_filename="banner.png",
+            uuid_filename="banner.png",
+            owner=cls.editor,
+        )
+        cls.news_item.large_image_file = cls.image_file
+        cls.news_item.save()
+        cls.alt_text = core_models.AltText.objects.create(
+            content_type=ContentType.objects.get_for_model(cls.image_file),
+            object_id=cls.image_file.pk,
+            alt_text="A crowd celebrating the journal launch",
+        )
+
+    def setUp(self):
+        cache.clear()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_news_item_page_renders_alt_text_on_clean_theme(self):
+        """Regression test for #5453: the clean and material themes called a
+        nonexistent news_item.best_image_alt_text property, rendering an
+        empty alt."""
+        setting_handler.save_setting(
+            "general",
+            "journal_theme",
+            self.journal_one,
+            "clean",
+        )
+        url = reverse("core_news_item", kwargs={"news_pk": self.news_item.pk})
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertContains(response, "A crowd celebrating the journal launch")
 
 
 class NewsItemOrderingTest(TestCase):
