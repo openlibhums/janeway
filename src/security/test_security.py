@@ -5631,6 +5631,10 @@ class AccessDeniedMessageTests(TestCase):
             article=cls.other_journal_article,
             reviewer=cls.other_reviewer,
         )
+        cls.other_journal_copyedit = helpers.create_copyedit_assignment(
+            article=cls.other_journal_article,
+            copyeditor=cls.task_owner,
+        )
 
     MISSING_ID = 99999
 
@@ -5691,6 +5695,14 @@ class AccessDeniedMessageTests(TestCase):
             self.other_reviewer,
             "do_copyedit",
             {"copyedit_id": self.MISSING_ID},
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_copyedit_on_another_journal_returns_404(self):
+        response = self.get_page(
+            self.task_owner,
+            "do_copyedit",
+            {"copyedit_id": self.other_journal_copyedit.pk},
         )
         self.assertEqual(response.status_code, 404)
 
