@@ -64,7 +64,7 @@
         </div>
         <div class="content">
           {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
-          {% include "admin/elements/accounts/user_form.html" with form=form %}
+          {% include "admin/elements/accounts/user_form.html" with form=form show_alt_text_button=True %}
           <div class="padding-block-0-5">
             <div class="button-group">
               {% include "elements/button_save.html" %}
@@ -79,6 +79,7 @@
 {% endblock %}
 
 {% block js %}
+{% include "admin/core/partials/htmx.html" %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
 <script src="{% static "common/js/tagit.js" %}"></script>

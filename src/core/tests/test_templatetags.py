@@ -6,10 +6,12 @@ from django.test import TestCase, override_settings
 from django.urls import set_script_prefix
 from freezegun import freeze_time
 
+from django.template.loader import render_to_string
+
 from utils.testing import helpers
-from core.templatetags import fqdn, dates
+from core import models as core_models
+from core.templatetags import alt_text, fqdn, dates
 from django.test import TestCase, override_settings, RequestFactory
-from core.templatetags import fqdn, dates
 from django.utils.translation import activate
 from django.conf import settings
 from django.template.exceptions import TemplateSyntaxError
@@ -255,3 +257,42 @@ class TestDateHuman(TestCase):
         for lang in browser_languages:
             set_browser_lang(lang)
             self.test_date_human_all_languages()
+
+
+class TestProfileImageAltText(TestCase):
+    """Covers the stored-alt-text lookup for Account.profile_image
+    added for #5453."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.user = helpers.create_user(
+            "profile_alt_text@example.org",
+            first_name="Kathryn",
+            last_name="Janeway",
+        )
+        cls.user.profile_image.name = "profile/kathryn.png"
+        cls.user.save()
+
+    def render_partial(self):
+        return render_to_string(
+            "common/elements/profile_image.html",
+            {
+                "user": self.user,
+                "classes": "editorial-image",
+            },
+        )
+
+    def test_profile_image_uses_stored_alt_text(self):
+        core_models.AltText.objects.create(
+            file_path=alt_text.encode_file_path(self.user.profile_image),
+            alt_text="Kathryn smiling in the ready room",
+        )
+        rendered = self.render_partial()
+        self.assertIn("Kathryn smiling in the ready room", rendered)
+        self.assertNotIn("Profile picture for", rendered)
+
+    def test_profile_image_falls_back_to_default_alt_text(self):
+        rendered = self.render_partial()
+        self.assertIn("Profile picture for Kathryn Janeway", rendered)
