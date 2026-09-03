@@ -224,9 +224,9 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                             check_for_answer = models.FieldAnswer.objects.get(
                                 field=element, article=article
                             )
-                            self.fields[element.name].initial = (
-                                check_for_answer.answer_value
-                            )
+                            self.fields[
+                                element.name
+                            ].initial = check_for_answer.answer_value
                         except models.FieldAnswer.DoesNotExist:
                             pass
 
@@ -432,10 +432,10 @@ class ConfiguratorForm(forms.ModelForm):
         self.fields["default_license"].queryset = models.Licence.objects.filter(
             journal=self.instance.journal,
         )
-        self.fields["open_peer_review_license"].queryset = (
-            models.Licence.objects.filter(
-                journal=self.instance.journal,
-            )
+        self.fields[
+            "open_peer_review_license"
+        ].queryset = models.Licence.objects.filter(
+            journal=self.instance.journal,
         )
 
     def clean(self):

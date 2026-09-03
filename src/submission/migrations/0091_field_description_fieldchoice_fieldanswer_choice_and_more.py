@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submission", "0090_article_custom_how_to_cite_cy_and_more"),
     ]
