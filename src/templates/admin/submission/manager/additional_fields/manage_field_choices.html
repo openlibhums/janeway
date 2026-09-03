@@ -1,0 +1,178 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Manage Field Choices{% endblock %}
+{% block title-section %}Manage Field Choices{% endblock %}
+{% block title-sub %}
+    Manage choices for field: {{ field.name }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
+    <li><a href="{% url 'submission_fields_id' field.pk %}">Edit {{ field.name }}</a></li>
+    <li>Manage Choices</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <div class="title-area">
+                    <h2>Manage Choices for "{{ field.name }}"</h2>
+                </div>
+                <div class="content">
+                    {% if choices %}
+                        <form method="POST" id="choices-form">
+                            {% csrf_token %}
+                            <table class="table table-bordered" id="choices-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Display Value</th>
+                                        <th>Real Value</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for choice in choices %}
+                                        <tr data-choice-id="{{ choice.id }}">
+                                            <td style="cursor: move;"><i class="fa fa-arrows"></i></td>
+                                            <td>
+                                                <input type="text" 
+                                                       name="display_value_{{ choice.id }}" 
+                                                       value="{{ choice.display_value }}" 
+                                                       class="form-control" 
+                                                       required>
+                                            </td>
+                                            <td>
+                                                <input type="text" 
+                                                       name="real_value_{{ choice.id }}" 
+                                                       value="{{ choice.real_value }}" 
+                                                       class="form-control" 
+                                                       required>
+                                            </td>
+                                            <td>
+                                                <button type="submit" 
+                                                        name="delete" 
+                                                        value="{{ choice.id }}" 
+                                                        class="button alert small"
+                                                        onclick="return confirm('Are you sure you want to delete this choice?')">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="submit" name="save" class="success button">
+                                <i class="fa fa-save"></i> Save All Changes
+                            </button>
+                        </form>
+                        
+                        <hr>
+                        
+                        <h3>Add New Choice</h3>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="large-5 columns">
+                                    <label>Display Value:
+                                        <input type="text" name="new_display_value" class="form-control">
+                                    </label>
+                                </div>
+                                <div class="large-5 columns">
+                                    <label>Real Value:
+                                        <input type="text" name="new_real_value" class="form-control">
+                                    </label>
+                                </div>
+                                <div class="large-2 columns">
+                                    <label>&nbsp;
+                                        <button type="submit" name="save" class="success button expanded">
+                                            <i class="fa fa-plus"></i> Add
+                                        </button>
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p>No choices have been defined for this field yet.</p>
+                        
+                        <h3>Add New Choice</h3>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="large-5 columns">
+                                    <label>Display Value:
+                                        <input type="text" name="new_display_value" class="form-control" required>
+                                    </label>
+                                </div>
+                                <div class="large-5 columns">
+                                    <label>Real Value:
+                                        <input type="text" name="new_real_value" class="form-control" required>
+                                    </label>
+                                </div>
+                                <div class="large-2 columns">
+                                    <label>&nbsp;
+                                        <button type="submit" name="save" class="success button expanded">
+                                            <i class="fa fa-plus"></i> Add
+                                        </button>
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                    
+                    <hr>
+                    <a href="{% url 'submission_fields_id' field.pk %}" class="button">
+                        <i class="fa fa-arrow-left"></i> Back to Field Edit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static "admin/js/csrf.js" %}"></script>
+<script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
+<script>
+$(document).ready(function() {
+    // Make the table rows sortable
+    $("#choices-table tbody").sortable({
+        helper: function(e, tr) {
+            var $originals = tr.children();
+            var $helper = tr.clone();
+            $helper.children().each(function(index) {
+                $(this).width($originals.eq(index).width());
+            });
+            return $helper;
+        },
+        update: function(event, ui) {
+            // Update the order of choices
+            var choiceIds = [];
+            $("#choices-table tbody tr").each(function() {
+                choiceIds.push($(this).data("choice-id"));
+            });
+            
+            // Send the new order to the server
+            $.ajax({
+                url: "{% url 'reorder_field_choices' field.pk %}",
+                type: "POST",
+                data: {
+                    "choice[]": choiceIds
+                },
+                success: function(response) {
+                    console.log("Order updated successfully");
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error updating order: " + error);
+                }
+            });
+        }
+    }).disableSelection();
+});
+</script>
+{% endblock js %}

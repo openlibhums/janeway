@@ -6,21 +6,23 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import warnings
 
 from bs4 import BeautifulSoup
-
+from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.contrib import messages
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language
+from django.utils.translation import gettext_lazy as _
 
-from core.forms import OrcidAffiliationForm
-from core.model_utils import generate_dummy_email
 from core import files
 from core import models as core_models
-from utils import orcid, setting_handler, shared as utils_shared
-from utils.forms import clean_orcid_id
+from core.forms import OrcidAffiliationForm
+from core.model_utils import generate_dummy_email
 from submission import models
 from submission.const import AddAuthorStatus
-from submission.forms import EditFrozenAuthor, CreditRecordForm
+from submission.forms import CreditRecordForm, EditFrozenAuthor
+from submission.models import Field
+from utils import orcid, setting_handler
+from utils import shared as utils_shared
+from utils.forms import clean_orcid_id
 
 
 def add_self_as_author(user, article):
@@ -257,7 +259,7 @@ def get_submission_fields(request):
     return fields
 
 
-def save_field(request, form):
+def save_field(request, form) -> Field:
     """
     Saves a form field and sets the press or journal parameter.
     :param request:
@@ -265,7 +267,7 @@ def save_field(request, form):
     :return:
     """
 
-    new_field = form.save(commit=False)
+    new_field: Field = form.save(commit=False)
 
     if request.journal:
         new_field.journal = request.journal
