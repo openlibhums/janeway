@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve, Andy Byers & Mauro Sanchez"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from django.urls import path
 from django.urls import re_path
 
 from discussion import views
@@ -17,8 +18,8 @@ urlpatterns = [
         views.threads,
         name="discussion_thread",
     ),
-    re_path(
-        r"^thread/(?P<thread_id>\d+)/post/new/$",
+    path(
+        "thread/<int:thread_id>/post/new/",
         views.add_post,
         name="discussion_add_post",
     ),

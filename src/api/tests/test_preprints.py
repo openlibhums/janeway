@@ -7,7 +7,7 @@ in expected XML output, so any test class that creates Preprint objects before t
 will shift those PKs and cause failures.
 """
 
-import mock
+from unittest import mock
 from uuid import uuid4
 
 from django.test import TestCase, override_settings

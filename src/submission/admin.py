@@ -105,10 +105,7 @@ class ArticleAdmin(admin_utils.JanewayModelAdmin):
         "supplementary_files",
         "publisher_notes",
     )
-    filter_horizontal = (
-        "authors",
-        "keywords",
-    )
+    filter_horizontal = ("authors",)
 
     inlines = [
         admin_utils.IdentifierInline,

@@ -1784,7 +1784,7 @@ class Article(AbstractLastModifiedModel):
 
     def get_remote_url(self, request):
         parsed_uri = urlparse(
-            "http" + ("", "s")[request.is_secure()] + "://" + request.META["HTTP_HOST"]
+            "http" + ("", "s")[request.is_secure()] + "://" + request.headers["host"]
         )
         domain = "{uri.scheme}://{uri.netloc}".format(uri=parsed_uri)
         url = domain + self.local_url

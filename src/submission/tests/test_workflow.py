@@ -3,7 +3,7 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from mock import Mock
+from unittest.mock import Mock
 import os
 
 from django.http import Http404

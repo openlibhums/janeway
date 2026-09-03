@@ -1,6 +1,6 @@
 import json
 import os
-from mock import Mock
+from unittest.mock import Mock
 
 from django.core.management.base import BaseCommand
 from django.apps import apps

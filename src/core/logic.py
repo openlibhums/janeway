@@ -1391,7 +1391,7 @@ def password_policy_check(request):
 
 
 def get_ua_and_ip(request):
-    user_agent = request.META.get("HTTP_USER_AGENT", None)
+    user_agent = request.headers.get("user-agent", None)
     ip_address = shared.get_ip_address(request)
 
     return user_agent, ip_address

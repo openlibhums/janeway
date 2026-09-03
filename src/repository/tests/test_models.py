@@ -2,7 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Andy Byers, Mauro Sanchez & Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-import mock
+from unittest import mock
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError

@@ -168,7 +168,7 @@ class NavigationItem(models.Model):
         ordering = ("sequence",)
         constraints = [
             models.CheckConstraint(
-                check=(Q(("link__isnull", True)) & Q(("has_sub_nav", True)))
+                condition=(Q(("link__isnull", True)) & Q(("has_sub_nav", True)))
                 | (Q(("link__isnull", False)) & Q(("has_sub_nav", False)))
                 | (Q(("link__isnull", True)) & Q(("has_sub_nav", False))),
                 name="nav_item_has_either_link_or_sub_nav",

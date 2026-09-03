@@ -945,7 +945,7 @@ def proofing_download(request, proofing_task_id, file_id):
         messages.add_message(
             request, messages.WARNING, "Requested file is not a galley for proofing"
         )
-        return redirect(request.META.get("HTTP_REFERER"))
+        return redirect(request.headers.get("referer"))
 
 
 @proofreader_for_article_required

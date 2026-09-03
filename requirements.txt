@@ -1,69 +1,68 @@
-beautifulsoup4==4.9.3
-bleach-allowlist==1.0.3
-boto==2.46.1
-bs4==0.0.1
-colorlog==3.1.4
-chardet==3.0.4
-crossrefapi==1.5.0
-Django==4.2.29
-django-bleach==3.1.0
-django-bootstrap4==23.2
+beautifulsoup4~=4.15.0
+bleach-allowlist~=1.0.3
+boto3~=1.43.75
+colorlog~=6.12.0
+chardet~=7.6.0
+crossrefapi~=1.7.0
+Django~=5.2.17
+django-bleach~=3.1.0
+django-bootstrap4~=26.1
 -e git+https://github.com/openlibhums/django-foundation-form.git@674616f5388fe44c63088671ddea38ed9161a4fd#egg=foundationform
-django-countries[pyuca]==7.6.1
+django-countries[pyuca]~=9.0.0
 -e git+https://github.com/openlibhums/django-materializecss-form.git@be094ec283299ee8fd0a1dfe33e73a609fb2f680#egg=django-materializecss-form
-django-debug-toolbar==5.1.0
+django-debug-toolbar~=7.1.1
+# django-hCaptcha stays exactly pinned, not "~=" - see the Django 5.2 migration's Phase 2 report.
+# Upstream has had no release since 2022 (a fork was investigated and deliberately not adopted since
+# the pinned version already works unmodified), so a compatible-release floor has no effect either way,
+# but the pin is intentionally exact to match that decision precisely.
 django-hCaptcha==0.2.0
-django-hijack==3.2.1
+django-hijack~=3.7.8
 -e git+https://github.com/openlibhums/django-mailgun.git@4f01799e01219e83d658f02c876764bf2260337e#egg=django_mailgun
-django-modeltranslation==0.18.11
-django-settings-export==1.2.1
-django-recaptcha==3.0.0
-django-simple-math-captcha==2.0.1
-django-simple-history==3.10.1
-django-summernote==0.8.20.0
-django-tinymce==3.7.1
-djangorestframework==3.15.2
--e git+https://github.com/openlibhums/django-dynamicsites@f439c524cf964d957a75fbec4b23ad03a9a5d159#egg=dynamicsites
+django-modeltranslation~=0.20.3
+django-settings-export~=1.2.1
+django-recaptcha~=4.1.0
+django-simple-math-captcha~=2.0.1
+django-simple-history~=3.12.0
+django-summernote~=0.8.20.0
+django-tinymce~=5.0.0
+djangorestframework~=3.18.0
 -e git+https://github.com/openlibhums/ebooklib@b7005c57602eeea06358ac569a4cf52c630a32ef#egg=ebooklib
-Faker==17.6.0
-freezegun==1.2.0
-geoip2==4.8.0
-html2text==2017.10.4
-idna==2.7
-ipaddress==1.0.16
-iso639-lang==2.6
-django-ipware==7.0.1
-more-itertools==10.1.0
-jsmin==3.0.1
-kitchen==1.2.4
-libsass==0.23.0
-lxml==6.0.0
-markdown
-maxminddb==2.5.1
-mock
-mozilla-django-oidc==4.0.1
-openpyxl==3.1.5
-orcid==1.0.3
-packaging==23.2
+Faker~=40.36.0
+freezegun~=1.5.5
+geoip2~=5.3.0
+html2text~=2025.4.15
+idna~=2.7
+iso639-lang~=2.6.3
+django-ipware~=7.0.1
+more-itertools~=11.1.0
+jsmin~=3.0.1
+libsass~=0.23.0
+lxml~=6.1.2
+markdown~=3.10.3
+maxminddb~=3.1.1
+mozilla-django-oidc~=5.0.2
+openpyxl~=3.1.5
+orcid~=1.0.3
+packaging~=26.3
+# pdfkit stays exactly pinned, not "~=" - see the Django 5.2 migration plan's "deliberately out of
+# scope" note. Unpatched CVE-2025-26240; its code paths are being removed after this migration, not
+# upgraded, so it must not silently float even within a patch series.
 pdfkit==1.0.0
-pdfminer.six
-psycopg2-binary==2.9.10
-pyasn1==0.1.9
-pycparser==2.14
-PyJWT==2.4.0
-Pillow==10.2.0
-python-crontab==2.2.3
-python-dateutil==2.8.1
-python-docx==0.8.11
-python-magic==0.4.27
-pytz==2024.1
-requests==2.32.4
-six==1.16.0
-sqlparse==0.4.4
-swapper==1.3.0
-tqdm==4.66.3
-ua-parser==0.16.1
-# See #3736
-urllib3<2
-user-agents==2.2.0
-docutils==0.21.2
+# pdfminer.six's version is a single calendar-date integer (no dotted release segments), so PEP 440's
+# "~=" operator can't apply (it requires at least two release segments) - kept as an exact pin.
+pdfminer.six==20260107
+psycopg2-binary~=2.9.12
+pyasn1~=0.6.4
+PyJWT~=2.13.0
+Pillow~=12.3.0
+python-crontab~=3.3.0
+python-dateutil~=2.9.0.post0
+python-docx~=1.2.0
+python-magic~=0.4.27
+pytz~=2024.1
+requests~=2.34.2
+sqlparse~=0.6.0
+swapper~=1.3.0
+tqdm~=4.70.0
+user-agents~=2.2.0
+docutils~=0.23

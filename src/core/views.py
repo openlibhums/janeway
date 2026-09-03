@@ -2773,7 +2773,7 @@ def toggle_accessibility_mode(request):
     ):
         return redirect(next_url)
 
-    referer = request.META.get("HTTP_REFERER")
+    referer = request.headers.get("referer")
     if referer:
         if url_has_allowed_host_and_scheme(
             url=referer,
