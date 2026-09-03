@@ -4,18 +4,16 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 
-import os
-
-from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 
+from core import logic as core_logic
 from core import models as core_models
 from security.decorators import (
     typesetting_user_or_production_user_or_editor_required,
     has_request,
 )
-from transform.logic import CassiusDriver
 
 from transform import epub
 
@@ -24,14 +22,22 @@ from transform import epub
 @has_request
 @typesetting_user_or_production_user_or_editor_required
 def cassius_generate(request, galley_id):
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    """Deprecated stub for the removed CaSSius PDF generation feature.
 
-    temporary_directory = os.path.join(settings.BASE_DIR, "files", "temp")
+    CaSSius and its pdfkit dependency were removed (#5391), but the URL name
+    is retained so that plugins or themes still reversing 'cassius_generate'
+    do not fail with NoReverseMatch at render time. This stub can be removed
+    in a future release once known references have been updated.
+    """
+    get_object_or_404(core_models.Galley, pk=galley_id)
 
-    driver = CassiusDriver(temporary_directory, galley, request)
-    driver.transform()
+    messages.add_message(
+        request,
+        messages.WARNING,
+        "PDF generation with CaSSius has been removed from Janeway.",
+    )
 
-    return redirect(request.GET["return"])
+    return core_logic.redirect_to_return_url(request)
 
 
 @login_required
