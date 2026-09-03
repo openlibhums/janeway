@@ -61,10 +61,12 @@
                             </td>
                         </tr>
                         <tr>
-                            <th colspan="2">License</th>
+                            <th>License</th>
+                            <th>Language</th>
                         </tr>
                         <tr>
-                            <td colspan="2">{{ preprint.license }}</td>
+                            <td>{{ preprint.license }}</td>
+                            <td>{{ preprint.language_name|default:"—" }}</td>
                         </tr>
                         <tr>
                             <th colspan="2">Comments to the Editor</th>

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.contrib import messages
+from modeltranslation.utils import build_localized_fieldname
 from tinymce.widgets import TinyMCE
 
 
@@ -90,6 +91,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         fields = (
             "title",
             "abstract",
+            "language",
             "license",
             "comments_editor",
             "subject",
@@ -107,6 +109,53 @@ class PreprintInfo(utils_forms.KeywordModelForm):
         self.admin = kwargs.pop("admin", False)
         self.submission_type_slug = kwargs.pop("submission_type_slug", None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
+
+        repository = self.request.repository
+        active_languages = repository.languages or [settings.LANGUAGE_CODE]
+        lang_dict = dict(settings.LANGUAGES)
+        primary_language = repository.default_language or settings.LANGUAGE_CODE
+        is_multilingual = len(active_languages) > 1
+
+        self.language_field_names = []
+        if is_multilingual:
+            self.fields.pop("title", None)
+            self.fields.pop("abstract", None)
+            for code in active_languages:
+                lang_name = lang_dict.get(code, code)
+                title_field = build_localized_fieldname("title", code)
+                abstract_field = build_localized_fieldname("abstract", code)
+                self.fields[title_field] = forms.CharField(
+                    max_length=300,
+                    required=(code == primary_language),
+                    label=_("Title ({})").format(lang_name),
+                    widget=forms.TextInput(attrs={"placeholder": _("Title")}),
+                )
+                self.fields[abstract_field] = forms.CharField(
+                    required=False,
+                    label=_("Abstract ({})").format(lang_name),
+                    widget=forms.Textarea(
+                        attrs={"placeholder": _("Enter your article's abstract here")}
+                    ),
+                )
+                if self.instance and self.instance.pk:
+                    self.initial[title_field] = getattr(self.instance, title_field, "")
+                    self.initial[abstract_field] = getattr(
+                        self.instance, abstract_field, ""
+                    )
+                self.language_field_names.extend([title_field, abstract_field])
+
+        if is_multilingual:
+            self.fields["language"] = forms.ChoiceField(
+                choices=[
+                    (code, lang_dict.get(code, code)) for code in active_languages
+                ],
+                required=True,
+                label=_("Language"),
+                help_text=_("The primary language of this preprint."),
+            )
+        else:
+            self.initial["language"] = active_languages[0]
+            self.fields["language"].widget = forms.HiddenInput()
 
         if (
             not self.submission_type_slug
@@ -145,7 +194,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
                     )
                 elif element.input_type == "textarea":
                     self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea,
+                        widget=forms.Textarea(),
                         required=element.required,
                     )
                 elif element.input_type == "date":
@@ -208,6 +257,10 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             preprint.owner = self.request.user
 
         preprint.repository = self.request.repository
+
+        for field_name in self.language_field_names:
+            if field_name in self.cleaned_data:
+                setattr(preprint, field_name, self.cleaned_data[field_name])
 
         if self.request:
             additional_fields = models.RepositoryField.objects.filter(
@@ -485,13 +538,47 @@ class VersionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
         super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields["title"].initial = self.preprint.title
-        self.fields["abstract"].initial = self.preprint.abstract
+
+        repository = self.preprint.repository
+        active_languages = repository.languages or [settings.LANGUAGE_CODE]
+        lang_dict = dict(settings.LANGUAGES)
+
+        self.language_field_names = []
+        if len(active_languages) > 1:
+            self.fields.pop("title", None)
+            self.fields.pop("abstract", None)
+            for code in active_languages:
+                lang_name = lang_dict.get(code, code)
+                title_field = build_localized_fieldname("title", code)
+                abstract_field = build_localized_fieldname("abstract", code)
+                self.fields[title_field] = forms.CharField(
+                    max_length=300,
+                    required=False,
+                    label=_("Title ({})").format(lang_name),
+                )
+                self.fields[abstract_field] = forms.CharField(
+                    required=False,
+                    label=_("Abstract ({})").format(lang_name),
+                    widget=forms.Textarea(),
+                )
+                self.initial[title_field] = getattr(self.preprint, title_field, "")
+                self.initial[abstract_field] = getattr(
+                    self.preprint, abstract_field, ""
+                )
+                self.language_field_names.extend([title_field, abstract_field])
+        else:
+            self.fields["title"].initial = self.preprint.title
+            self.fields["abstract"].initial = self.preprint.abstract
+
         self.fields["published_doi"].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
         version.preprint = self.preprint
+
+        for field_name in self.language_field_names:
+            if field_name in self.cleaned_data:
+                setattr(version, field_name, self.cleaned_data[field_name])
 
         if commit:
             version.save()

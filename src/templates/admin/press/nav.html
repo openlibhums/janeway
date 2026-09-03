@@ -19,11 +19,12 @@
                     <select name="language" onchange="this.form.submit()">
                         {% get_current_language as LANGUAGE_CODE %}
                         {% get_available_languages as LANGUAGES %}
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                {{ language.name_local }} ({{ language.code }})
+                        {% for lang_code, lang_name in LANGUAGES %}
+                            {% if not request.available_languages or lang_code in request.available_languages %}
+                            <option value="{{ lang_code }}"{% if lang_code == LANGUAGE_CODE %} selected{% endif %}>
+                                {{ lang_name }} ({{ lang_code }})
                             </option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </form>
@@ -41,6 +42,7 @@
             {% if request.user.is_staff %}
                 <li><a href="{% url 'repository_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>
                 <li><a href="{% url 'repository_licenses' %}"><i class="fa fa-creative-commons">&nbsp;</i>Licences</a></li>
+                <li><a href="{% url 'repository_languages' %}"><i class="fa fa-language">&nbsp;</i>Languages</a></li>
                 <li><a href="{% url 'repository_fields' %}"><i class="fa fa-keyboard-o">&nbsp;</i>Additional Fields</a></li>
                 <li><a href="{% url 'repository_list_review_recommendations' %}"><i class="fa fa-edit">&nbsp;</i>Recommendations</a></li>
                 <li><a href="{% url 'repository_wizard' %}"><i class="fa fa-cog">&nbsp;</i>Settings</a></li>

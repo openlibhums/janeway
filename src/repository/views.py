@@ -6,8 +6,9 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from datetime import datetime
 from dateutil import tz
 
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.db.models import Q, Count
 from django.db.models.query import RawQuerySet
 from django.urls import reverse
@@ -1707,6 +1708,12 @@ def repository_wizard(request, short_name=None, step="1"):
                 )
             )
 
+    active_language_names = []
+    if repository and step == "3":
+        lang_dict = dict(settings.LANGUAGES)
+        active_codes = repository.languages or [settings.LANGUAGE_CODE]
+        active_language_names = [lang_dict.get(code, code) for code in active_codes]
+
     template = "admin/repository/wizard.html"
     context = {
         "repository": repository,
@@ -1715,6 +1722,7 @@ def repository_wizard(request, short_name=None, step="1"):
         "help_template": "admin/elements/repository/{step}_help.html".format(
             step=step,
         ),
+        "repository_active_language_names": active_language_names,
     }
 
     return render(request, template, context)
@@ -2527,6 +2535,87 @@ def repository_licenses(request):
         template,
         context,
     )
+
+
+@is_repository_manager
+def repository_languages(request):
+    repository = request.repository
+    active_languages = repository.languages or [settings.LANGUAGE_CODE]
+
+    if request.POST:
+        if "default" in request.POST:
+            new_default = request.POST.get("default")
+            if new_default in active_languages:
+                repository.default_language = new_default
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "Default language now set to {}.".format(new_default),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "{} is not an active language for this repository.".format(
+                        new_default
+                    ),
+                )
+        if "enable" in request.POST:
+            lang_to_enable = request.POST.get("enable")
+            if lang_to_enable not in dict(settings.LANGUAGES):
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "{} is not a valid language.".format(lang_to_enable),
+                )
+            else:
+                if lang_to_enable not in active_languages:
+                    active_languages.append(lang_to_enable)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "{} enabled.".format(lang_to_enable),
+                )
+        if "disable" in request.POST:
+            lang_to_disable = request.POST.get("disable")
+            if lang_to_disable in active_languages:
+                active_languages.remove(lang_to_disable)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "{} disabled.".format(lang_to_disable),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "{} is not an active language for this repository.".format(
+                        lang_to_disable
+                    ),
+                )
+
+        if not active_languages:
+            active_languages.append(settings.LANGUAGE_CODE)
+
+        repository.languages = active_languages
+        if repository.default_language not in active_languages:
+            repository.default_language = active_languages[0]
+        repository.save()
+        return redirect(reverse("repository_languages"))
+
+    all_languages = settings.LANGUAGES
+    lang_dict = dict(all_languages)
+    active_language_details = [
+        (code, lang_dict.get(code, code)) for code in active_languages
+    ]
+
+    template = "admin/repository/languages.html"
+    context = {
+        "active_languages": active_languages,
+        "active_language_details": active_language_details,
+        "language_choices": all_languages,
+    }
+    return render(request, template, context)
 
 
 @is_repository_manager

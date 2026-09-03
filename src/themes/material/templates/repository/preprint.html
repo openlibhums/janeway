@@ -183,6 +183,11 @@
                     <h2>{% trans 'Keywords' %}</h2>
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
+                    {% if preprint.language_name %}
+                    <h2>{% trans 'Language' %}</h2>
+                    <p>{{ preprint.language_name }}</p>
+                    {% endif %}
+
                     <h2>Dates</h2>
                     <p><strong>Published: </strong>{{ preprint.date_published }}</p>
                     {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
