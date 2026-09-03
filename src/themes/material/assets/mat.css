@@ -1513,6 +1513,12 @@ p + .btn-background {
       box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
   }
 
+  .keyboard-focused select:focus{
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0px !important;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
   /* article page table of contents links */
   .keyboard-focused .table-of-contents li:has(a:focus){
     outline: 2px var(--focus-light) solid;
@@ -1693,4 +1699,34 @@ nav .a11y-toggle-host .a11y-toggle-indicator > .fa {
 .sidenav .a11y-mobile-button:focus-visible {
   outline: 2px solid #1976d2;
   outline-offset: -2px;
+}
+
+.sort-control {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.sort-control .input-field {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+/* a secondary quieter button */
+.btn-outline {
+  display: inline-block;
+  height: 36px;
+  line-height: 34px;
+  padding: 0 16px;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+  border-radius: 2px;
+  background-color: transparent;
+  color: #343434;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn-outline:hover,
+.btn-outline:focus {
+  background-color: rgba(0, 0, 0, 0.05);
 }

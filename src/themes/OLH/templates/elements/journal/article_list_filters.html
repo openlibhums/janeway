@@ -1,16 +1,32 @@
 {% load classname %}
 {% load foundation %}
 {% load static %}
+{% load field_aria %}
+{% load form_auto_id %}
 
 {% if facet_form.fields %}
     <section aria-labelledby="filter-title-{{ filter_context }}" class="section">
         <h2 id="filter-title-{{ filter_context }}">{% trans 'Filter' %}</h2>
         <form method="GET" id="{{ facet_form.id }}-{{ filter_context }}">
-            {{ facet_form|foundation }}
+            {% set_auto_id facet_form "id_%s-"|add:filter_context %}
+            {% for field in facet_form.visible_fields %}
+                {% if field.field.widget.input_type == "date" %}
+                    {% with described_by_id=field.auto_id|add:"-label" %}
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <label id="{{ described_by_id }}" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                {% field_aria field describedby=described_by_id %}
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    {{ field|foundation }}
+                {% endif %}
+            {% endfor %}
             <button type="button" class="button secondary" id="select-all-btn-{{ filter_context }}">{% trans 'Select all' %}</button>
             <button type="button" class="button secondary" id="clear-all-btn-{{ filter_context }}">{% trans 'Clear all' %}</button>
             <br/>
-            <button action="" class="button" type="submit">{% trans 'Apply' %}</button>
+            <button action="" class="button" type="submit" aria-label="{% trans 'Apply filter' %}">{% trans 'Filter' %}</button>
         </form>
 
         <script src="{% static 'common/js/form-toggle-all.js' %}"></script>

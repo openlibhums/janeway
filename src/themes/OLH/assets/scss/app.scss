@@ -114,6 +114,35 @@ html, body {
     z-index: 0;
 }
 
+.sort-control {
+  display: flex;
+  align-items: stretch;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-field,
+.sort-control .input-group-button {
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-button {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.sort-control .input-group-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sort-control .input-group-button .button {
+  height: 100%;
+  margin: 0;
+}
+
 header {
   .top-bar ul.dropdown ul {
     background-color: #FFFFFF;

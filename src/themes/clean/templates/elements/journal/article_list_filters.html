@@ -1,6 +1,7 @@
 {% load classname %}
 {% load bootstrap4 %}
 {% load static %}
+{% load field_aria %}
 
 {% if facet_form.fields %}
     <div class="card">
@@ -8,11 +9,22 @@
             <section aria-labelledby="filter-title">
                 <h2 id="filter-title">{% trans 'Filter' %}</h2>
                 <form method="GET" id={{ facet_form.id }}>
-                    {% bootstrap_form facet_form %}
+                    {% for field in facet_form.visible_fields %}
+                        {% if field.field.widget.input_type == "date" %}
+                            {% with described_by_id=field.auto_id|add:"-label" %}
+                                <div class="form-group">
+                                    <label id="{{ described_by_id }}" for="{{ field.auto_id }}">{{ field.label }}</label>
+                                    {% field_aria field describedby=described_by_id css_class="form-control" %}
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% bootstrap_field field %}
+                        {% endif %}
+                    {% endfor %}
                     <button type="button" class="btn btn-secondary" id="select-all-btn">{% trans 'Select all' %}</button>
                     <button type="button" class="btn btn-secondary" id="clear-all-btn">{% trans 'Clear all' %}</button>
                     <hr aria-hidden="true" />
-                    <button action="" class="btn btn-primary" type="submit">{% trans 'Apply' %}</button>
+                    <button action="" class="btn btn-primary" type="submit" aria-label="{% trans 'Apply filter' %}">{% trans 'Filter' %}</button>
                 </form>
                 <script src="{% static 'common/js/form-toggle-all.js' %}"></script>
                 <script>
