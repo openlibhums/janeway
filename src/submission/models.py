@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from django.db.models import QuerySet
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
@@ -2616,6 +2617,84 @@ class Article(AbstractLastModifiedModel):
                 default=default_text,
             )
         return default_text
+
+    def ancestors(self, link_type: str) -> QuerySet["Article"]:
+        """
+        Return articles related to self, where self is the "to-article".
+
+        This can be used, for instance, to refer to corrections in self's landing page.
+        """
+        return self._related(link_type=link_type, direction="ancestors")
+
+    def descendants(self, link_type: str) -> QuerySet["Article"]:
+        """
+        Return articles related to self, where self is the "from-article".
+
+        This can be used, for instance, to refer to corrections in self's landing page.
+        """
+        return self._related(link_type=link_type, direction="descendants")
+
+    def _related(self, link_type: str, direction: str) -> QuerySet["Article"]:
+        """
+        Return articles related to self.
+
+        Direction:
+        - descendants -> where self is the "from-article"
+        - ancenstors -> where self. is the "to-article"
+        """
+        if not link_type:
+            return Article.objects.none()
+
+        # Silently return nothing if Hydra plugin is not available
+        try:
+            from plugins.hydra.models import LinkedArticle  # noqa: F401
+        except ImportError:
+            return Article.objects.none()
+
+        if direction == "descendants":
+            # self is the "from-article"; return the "to-articles"
+            return Article.objects.filter(
+                linked_to__from_article=self, linked_to__relationship=link_type
+            )
+        if direction == "ancestors":
+            # self is the "to-article"; return the "from-articles"
+            return Article.objects.filter(
+                linked_from__to_article=self, linked_from__relationship=link_type
+            )
+
+        raise ValueError(
+            f"Unknown relationship direction '{direction}' requested for {self.id}"
+        )
+
+    def update_of(self):
+        """
+        Return the LinkedArticle relation whose "from-article" is the
+        "parent" this article is an "update" of.
+
+        We consider only a well-known list of relations / link-types.
+        Only the first relation is returned; the idea is that, if, for instance,
+        self is an erratum of X, then it cannot be an addendum of Y at the same time.
+
+        This can be used, for instance, to refer to errata in
+        templates/common/identifiers/crossref_article.xml
+        """
+        # Silently return nothing if Hydra plugin is not available
+        try:
+            from plugins.hydra.models import CROSSREF_UPDATES, LinkedArticle
+        except ImportError:
+            return None
+
+        relations = LinkedArticle.objects.filter(
+            to_article=self,
+            relationship__in=CROSSREF_UPDATES,
+        )
+        if relations.count() > 1:
+            # If this happens, we prefer to continue the process, but someone should check what's happening
+            logger.error(
+                f"Article {self.pk} has multiple personalities: {[(r.from_article.id, r.relationship) for r in relations]}"
+            )
+
+        return relations.first()
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
