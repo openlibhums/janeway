@@ -1285,7 +1285,7 @@ class Issue(AbstractLastModifiedModel):
     def __str__(self):
         return (
             "{self.issue_type.pretty_name}: "
-            "{self.issue}({self.volume}) "
+            "{self.volume}({self.issue}) "
             "{self.issue_title} ({self.date.year})".format(self=self)
         )
 

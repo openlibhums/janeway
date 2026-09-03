@@ -347,6 +347,7 @@ def create_submission(
     journal_id=1,
     stage=sm_models.STAGE_UNASSIGNED,
     authors=None,
+    correspondence_author=None,
     **kwargs,
 ):
     if not authors:
@@ -365,6 +366,9 @@ def create_submission(
         **kwargs,
     )
     for author in authors:
+        if author == correspondence_author:
+            article.correspondence_author = author
+            article.save()
         author.snapshot_as_author(article)
     return article
 
