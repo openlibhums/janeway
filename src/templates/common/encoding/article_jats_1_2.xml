@@ -46,7 +46,7 @@
                                 <surname>{{ author.last_name }}</surname>
                                 <given-names>{{ author.given_names }}</given-names>
                             </name>
-                            {% if author.display_email %}
+                            {% if author.display_email and not journal_settings.article.hide_author_email_links %}
                                 <email>{{ author.author.email }}</email>
                             {% endif %}
                             {% if article.journal|setting:'use_credit' and author.credits.exists %}
