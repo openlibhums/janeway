@@ -1371,13 +1371,9 @@ class Article(AbstractLastModifiedModel):
     def safe_title_jats(self):
         """Title for use in JATS XML, marked safe"""
         if self.title:
-            return mark_safe(
-                latex_mathml.to_mathml(
-                    self.title,
-                    self.journal,
-                    target="xml",
-                    allow_block=False,
-                )
+            return transform_utils.convert_html_title_to_jats(
+                self.title,
+                journal=self.journal,
             )
         else:
             return "[Untitled]"
@@ -2637,14 +2633,6 @@ class Article(AbstractLastModifiedModel):
         """
         warnings.warn("Deprecated. Use safe_abstract_jats.")
         return self.safe_abstract_jats
-
-    @property
-    def safe_title_jats(self):
-        """Title for use in JATS XML, marked safe"""
-        if self.title:
-            return transform_utils.convert_html_title_to_jats(self.title)
-        else:
-            return "[Untitled]"
 
     @property
     def iso639_1_lang_code(self):

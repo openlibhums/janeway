@@ -33,7 +33,7 @@
                 <div class="carousel-text-wrapper">
                   <small>{{ article.section.name }}</small>
                   <br/>
-                  <h1 id="article-banner-title">{{ article.title|safe }}</h1>
+                  <h1 id="article-banner-title">{{ article.safe_title_html }}</h1>
                 </div>
               </div>
             </div>
@@ -47,13 +47,13 @@
                     {% if journal_settings.article.disable_article_large_image %}
                         <span class="card-title">
                                 <small class="article_section">{{ article.section.name }}</small>
-                                <h1>{{ article.title|safe }}</h1>
+                                <h1>{{ article.safe_title_html }}</h1>
 
                             </span>
                     {% endif %}
                     {% if article.abstract and article.abstract != '' %}
                         <h2>{% trans "Abstract" %}</h2>
-                        <p>{{ article.abstract | safe }}</p>
+                        <p>{{ article.safe_abstract_html|safe }}</p>
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>

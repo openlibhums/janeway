@@ -6,6 +6,7 @@ from django.conf import settings
 from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
 
+from core.templatetags.latex_mathml import to_mathml
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,21 +39,21 @@ def apply_html_to_jats_xsl(xsl_name, html_string):
     return xml_str
 
 
-def convert_html_abstract_to_jats(abstract_string):
+def convert_html_abstract_to_jats(abstract_string, journal=None):
     if not abstract_string:
         return ""
 
     try:
-        return mark_safe(
-            apply_html_to_jats_xsl("html_abstract_to_jats.xsl", abstract_string)
-        )
+        xml_str = apply_html_to_jats_xsl("html_abstract_to_jats.xsl", abstract_string)
+        mathml = to_mathml(xml_str, journal, target="xml", allow_block=True)
+        return mark_safe(mathml)
 
     except Exception as e:
         logger.error(e)
         return ""
 
 
-def convert_html_title_to_jats(title_string):
+def convert_html_title_to_jats(title_string, journal=None):
     """
     Converts the inline HTML allowed in titles to JATS elements for use
     inside <article-title>. Falls back to the escaped plain text title if
@@ -62,7 +63,9 @@ def convert_html_title_to_jats(title_string):
         return ""
 
     try:
-        return mark_safe(apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string))
+        xml_str = apply_html_to_jats_xsl("html_abstract_to_jats.xsl", title_string)
+        mathml = to_mathml(xml_str, journal, target="xml", allow_block=False)
+        return mark_safe(mathml)
 
     except Exception as e:
         logger.error(e)

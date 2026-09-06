@@ -27,7 +27,7 @@
                 {% for assignment in active_assignments %}
                 <tbody>
                     <td>{{ assignment.pk }}</td>
-                    <td>{{ assignment.round.article.title|safe }}</td>
+                    <td>{{ assignment.round.article.safe_title_html }}</td>
                     <td>{{ assignment.assigned }}</td>
                     <td>{{ assignment.due|date:"Y-m-d" }}</td>
                     <td>{{ assignment.time_to_due }}</td>

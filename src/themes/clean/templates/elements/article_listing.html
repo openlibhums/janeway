@@ -26,17 +26,17 @@
                         <a href="{{ article.remote_url }}" target="_blank">
                             {% if level == "deep" %}
                                 <h4 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
+                                    {{ article.safe_title_html }}&nbsp;
                                     {% include "elements/icons/link_external.html" %} 
                                 </h4>
                             {% elif level == "shallow" %}
                                 <h3 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
+                                    {{ article.safe_title_html }}&nbsp;
                                     {% include "elements/icons/link_external.html" %} 
                                 </h3>
                             {% else %}
                                 <h2 class="card-title article-title">
-                                    {{ article.title|safe }}&nbsp;
+                                    {{ article.safe_title_html }}&nbsp;
                                     {% include "elements/icons/link_external.html" %} 
                                 </h2>
                             {% endif %}
@@ -44,11 +44,11 @@
                     {% else %}
                         <a href="{{ article.url }}" >
                             {% if level == "deep" %}
-                                <h4 class="card-title article-title">{{ article.title|safe }}</h4>
+                                <h4 class="card-title article-title">{{ article.safe_title_html }}</h4>
                             {% elif level == "shallow" %}
-                                <h3 class="card-title article-title">{{ article.title|safe }}</h3>
+                                <h3 class="card-title article-title">{{ article.safe_title_html }}</h3>
                             {% else %}
-                                <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                                <h2 class="card-title article-title">{{ article.safe_title_html }}</h2>
                             {% endif %}
                         </a>
                     {% endif %}
