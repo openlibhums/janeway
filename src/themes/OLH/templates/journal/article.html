@@ -27,7 +27,7 @@
             <div class="row">
                 <div class="large-8 columns">
                     <small class="uppercase">{{ article.section.name }}</small>
-                    <h1>{{ article.title|safe }}</h1>
+                    <h1>{{ article.safe_title_html }}</h1>
                     {% if article.frozen_authors.exists %}
                       <small class="uppercase">
                         {% blocktrans count counter=article.frozen_authors.count %}
@@ -50,16 +50,16 @@
                 <div class="overlay"></div>
                 <div class="olh-banner-heading">
                   <p class="uppercase">{{ article.section.name }}</p>
-                  <h1>{{ article.title|safe }}</h1>
+                  <h1>{{ article.safe_title_html }}</h1>
                   {% if article.frozen_authors.exists %}
-                  <p class="uppercase">
-                    {% blocktrans count counter=article.frozen_authors.count %}
-                      Author
-                    {% plural %}
-                      Authors
-                    {% endblocktrans %}
-                  </p>
-                  {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                    <p class="uppercase">
+                      {% blocktrans count counter=article.frozen_authors.count %}
+                        Author
+                      {% plural %}
+                        Authors
+                      {% endblocktrans %}
+                    </p>
+                    {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                   {% endif %}
                 </div>
               </div>
@@ -84,18 +84,18 @@
                         <div id="article" class="large-10 columns text-format-region">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    <h1>{{ article.title|safe }}</h1>
+                    <h1>{{ article.safe_title_html }}</h1>
                     {% if article.frozen_authors.exists %}
-                    <div class="section show-for-small-only">
-                      <small>
-                        {% blocktrans count counter=article.frozen_authors.count %}
-                          Author
-                        {% plural %}
-                          Authors
-                        {% endblocktrans %}
-                      </small>
-                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
-                    </div>
+                      <div class="section show-for-small-only">
+                        <small>
+                          {% blocktrans count counter=article.frozen_authors.count %}
+                            Author
+                          {% plural %}
+                            Authors
+                          {% endblocktrans %}
+                        </small>
+                        {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                      </div>
                     {% endif %}
                 <hr aria-hidden="true" />
                 {% endif %}
@@ -104,7 +104,7 @@
                                 {% if journal_settings.general.uses_isolinear_plugin and not article.is_published %}
                                     {% hook 'preprint_abstract_block' article.abstract %}
                                 {% else %}
-                                    {{ article.abstract|safe }}
+                                    {{ article.safe_abstract_html }}
                                 {% endif %}
                             {% endif %}
                             {% if journal_settings.general.keyword_list_page %}

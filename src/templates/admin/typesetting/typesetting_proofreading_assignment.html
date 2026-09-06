@@ -7,14 +7,14 @@
 {% block breadcrumbs %}
     {{ block.super }}
     <li><a href="{% url 'typesetting_proofreading_assignments' %}">Proofreading Assignments</a></li>
-    <li>Proofreading {{ assignment.round.article.title|safe }}</li>
+    <li>Proofreading {{ assignment.round.article.safe_title_html }}</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Proofreading {{ assignment.round.article.title|safe }}</h2>
+                <h2>Proofreading {{ assignment.round.article.safe_title_html }}</h2>
             </div>
             <div class="content">
                 {{ journal_settings.general.typesetting_proofreader_guidelines|safe }}

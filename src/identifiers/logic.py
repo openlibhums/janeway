@@ -14,7 +14,6 @@ import warnings
 
 from django.urls import reverse
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -28,6 +27,7 @@ from identifiers import models
 from journal import models as journal_models
 from submission import models as submission_models
 from repository import models as repository_models
+
 
 logger = get_logger(__name__)
 
@@ -412,17 +412,13 @@ def create_crossref_journal_context(
 def create_crossref_article_context(article, identifier=None):
     template_context = {
         "id": article.pk,
-        "title": "{0}{1}{2}".format(
-            article.title,
-            " " if article.subtitle is not None else "",
-            article.subtitle if article.subtitle is not None else "",
-        ),
+        "stripped_title": article.stripped_title,
         "doi": identifier.identifier
         if identifier
         else render_doi_from_pattern(article),
         "url": article.url,
         "authors": article.frozenauthor_set.all(),
-        "abstract": strip_tags(article.abstract or ""),
+        "safe_abstract_jats": article.safe_abstract_jats,
         "date_accepted": article.date_accepted,
         "date_published": article.date_published,
         "license": article.license.url if article.license else "",

@@ -36,21 +36,21 @@
             {% if article_group_label %}<h3 class="article-subgroup">{{ article_group_label }}</h3>{% endif %}
 
             {% if level == "deep" %}
-                <h4>{{ article.title|safe }}
+                <h4>{{ article.safe_title_html }}
                     {% if article.is_remote %}
                         &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
                         <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
                     {% endif %}
                 </h4>
             {% elif level == "shallow" %}
-                <h3>{{ article.title|safe }}
+                <h3>{{ article.safe_title_html }}
                     {% if article.is_remote %}
                         &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
                         <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
                     {% endif %}
                 </h3>
             {% else %}
-                <h2>{{ article.title|safe }}
+                <h2>{{ article.safe_title_html }}
                     {% if article.is_remote %}
                         &nbsp;<i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
                         <span class="sr-only">, {% trans 'externally hosted article' %}.</span>
