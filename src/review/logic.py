@@ -36,6 +36,7 @@ from core import (
     email,
     models as core_models,
 )
+from core.templatetags.latex_mathml import to_mathml
 from review import models
 from review.const import EditorialDecisions as ED
 from events import logic as event_logic
@@ -234,11 +235,12 @@ def get_article_details_for_review(article):
         <b>Section</b>: {section}<br />
         <b>Keywords</b>: {keywords}<br />
         <b>Abstract</b>:<br />
-            {article.abstract}<br />
+            {abstract}<br />
         """.format(
         article=article,
         section=article.section.name if article.section else None,
         keywords=", ".join(kw.word for kw in article.keywords.all()),
+        abstract=article.safe_abstract_html,
     )
     return mark_safe(detail_string)
 
