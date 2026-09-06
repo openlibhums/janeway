@@ -5,7 +5,7 @@
 {% block title-section %}Sharing Peer Reviews{% endblock %}
 {% block title-sub %}#{{ article.pk }} /
     {{ article.correspondence_author.last_name }} /
-    {{ article.title }}{% endblock %}
+    {{ article.safe_title_html }}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}

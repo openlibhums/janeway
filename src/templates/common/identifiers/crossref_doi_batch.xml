@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <doi_batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.crossref.org/schema/5.4.0 https://www.crossref.org/schemas/crossref5.4.0.xsd"
+ xmlns:mml="http://www.w3.org/1998/Math/MathML"
  xmlns="http://www.crossref.org/schema/5.4.0" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
  xmlns:fr="http://www.crossref.org/fundref.xsd" version="5.4.0">
 

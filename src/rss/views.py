@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from django.contrib.syndication.views import Feed
 from django.urls import reverse
 from django.utils import timezone
-from django.template.defaultfilters import striptags
+from django.template.defaultfilters import striptags, truncatewords
 from django.contrib.contenttypes.models import ContentType
 
 from comms import models as comms_models
@@ -83,10 +83,10 @@ class LatestArticlesFeed(Feed):
             ).order_by("-date_published")[:10]
 
     def item_title(self, item):
-        return striptags(item.title)
+        return item.stripped_title
 
     def item_description(self, item):
-        return truncatesmart(item.abstract, 400)
+        return truncatewords(item.stripped_abstract, 400)
 
     def item_author_name(self, item):
         if hasattr(item, "posted_by"):

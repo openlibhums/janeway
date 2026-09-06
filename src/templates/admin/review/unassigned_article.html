@@ -1,7 +1,7 @@
 {% extends "admin/core/base.html" %}
 {% load static roles i18n securitytags %}
 
-{% block title %}Unassigned {{ article.title }}{% endblock %}
+{% block title %}Unassigned {{ article.stripped_title }}{% endblock %}
 {% block title-section %}Unassigned{% endblock %}
 {% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}{% endblock %}
 
@@ -46,7 +46,7 @@
                         <th colspan="4">Abstract</th>
                     </tr>
                     <tr>
-                        <td colspan="4">{{ article.abstract|safe }}</td>
+                        <td colspan="4">{{ article.safe_abstract_html }}</td>
                     </tr>
                     {% if journal_settings.general.submission_summary %}
                         <tr>
