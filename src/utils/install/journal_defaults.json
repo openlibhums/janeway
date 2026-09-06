@@ -4908,7 +4908,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<p>An email sent to {% for email in event.to %}{{ email }}{% if not forloop.last %}, {% endif %}{% endfor %} has not been delivered.{% if target %} This message was in regards to {{ event.content_type.model }} #{{ target.pk }} \"{{ target.title|safe }}\".{% endif %}</p><p>Kind Regards,</p>"
+            "default": "<p>An email sent to {% for email in event.to %}{{ email }}{% if not forloop.last %}, {% endif %}{% endfor %} has not been delivered.{% if target %} This message was in regards to {{ event.content_type.model }} #{{ target.pk }} \"{{ target.safe_title }}\".{% endif %}</p><p>Kind Regards,</p>"
         },
         "editable_by": [
             "journal-manager",
@@ -5175,7 +5175,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has accepted your assignment your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
+      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has accepted your assignment your assignment for {{ assignment.round.article.safe_title }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
     }
   },
   {
@@ -5205,7 +5205,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has declined your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
+      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has declined your assignment for {{ assignment.round.article.safe_title }}.</p>{% if note %}<p>They provided the following note: <br />{{ note|safe }} </p>{% endif %}<p>Regards,</p>"
     }
   },
   {
@@ -5235,7 +5235,7 @@
       "type": "rich-text"
     },
     "value": {
-      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.title|safe }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
+      "default": "<p>Dear {{ assignment.manager.full_name }},</p><p>This is to notify you that {{ assignment.typesetter.full_name }} has completed your assignment for {{ assignment.round.article.safe_title }}.</p>{% if note %}<p>They provided the following note: <br />{{ assignment.typesetter_note|safe }} </p>{% endif %}<p>Visit the article URL for more details: {{ typesetting_article_url }}</p><p>Regards,</p>"
     }
   },
   {
@@ -5648,6 +5648,25 @@
         },
         "value": {
             "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Parse LaTeX mathematics in titles and abstracts?",
+            "is_translatable": false,
+            "name": "latex_mathematics_title_abstract",
+            "pretty_name": "LaTeX mathematics in title and abstract",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
         },
         "editable_by": [
             "editor",
