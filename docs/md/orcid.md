@@ -8,7 +8,13 @@ It can be set up in a few steps.
 
 1. Create an API client on orcid.org.
 
-2. Enter each production domain for your Janeway instance as a redirect URL on orcid.org. If Janeway is set to domain mode, each journal will need its own redirect URI.
+2. Enter each production domain for your Janeway instance as a redirect URI on orcid.org. If Janeway is set to domain mode, each journal will need its own redirect URI.  
+
+| Type | Redirect URI |
+|------|-------------|
+| Press (and everything within it)| `https://<press-domain>/` |
+| Individual Journal — domain config | `https://<journal-domain>/` |
+| Individual Journal — no press and on path config | `https://<press-domain>/<journal_code>/login/orcid/` |
 
 3. Enable ORCID and copy the keys from your client into the Django settings file (`src/core/settings.py`). Replace _`CLIENT_SECRET`_ and _`CLIENT_ID`_ with the values from orcid.org.
 
@@ -84,3 +90,24 @@ The following steps were written for Ubuntu, and are meant for testing the press
     ```
 
 5. Load the site at the new domain with `http` and the correct port (e.g. `http://www.openlibhums.org:8000/`) and test away.
+
+## Troubleshooting
+
+If the redirect URI for a journal or press is not correctly registered on the ORCID site, users will see an error when trying to sign in with ORCID or perform any other ORCID-related action:
+
+> invalid_request: Missing parameter: redirect_uri — "&lt;journal URL&gt;" does not match registered client "&lt;client id&gt;"
+
+### Determine the correct URI
+
+The URI to register depends on whether you are configuring a press or a journal, and for journals, whether it uses domain or path configuration.
+
+**To identify journal configuration type:** open the journal in a browser and look at the URL.
+- Own domain (e.g. `https://myjournal.org/`) → **domain configuration**
+- Press domain with journal code (e.g. `https://press.org/myjournal/`) → **path configuration**
+
+See [Setting up ORCID login](#setting-up-orcid-login) for the format of the redirect URI.
+
+
+### Verify
+
+Go to the journal or press and click to sign in with ORCID. You do not need to complete the sign in; if the ORCID login page loads without error, the redirect URI is correctly registered.
