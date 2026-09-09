@@ -55,12 +55,19 @@
               <th>Email Address</th>
               <th>First Name</th>
               <th>Last Name</th>
+              <th>ORCID iD</th>
             </tr>
             {% for author in preprint.preprintauthor_set.all %}
               <tr>
                 <td>{{ author.account.email }}</td>
                 <td>{{ author.account.first_name }}</td>
                 <td>{{ author.account.last_name }}</td>
+                <td>
+                  {% include "admin/elements/orcid_display.html" %}
+                  {% if not author.is_orcid_valid %}
+                    {% include "admin/elements/orcid_request.html" with account=author.account %}
+                  {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </table>
