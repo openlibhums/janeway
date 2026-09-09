@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -178,3 +179,42 @@ class TestIssueModel(TestCase):
             issue.display_title_a11y,
             self.expected_results["issue_1_no_number"]["display_title_a11y"],
         )
+
+
+class TestJournalClean(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+
+    def test_journal_full_clean_rejects_reserved_code(self):
+        journal = models.Journal(code="cms", domain="reserved.example.org")
+        with self.assertRaises(ValidationError):
+            journal.full_clean()
+
+    def test_journal_full_clean_allows_normal_code(self):
+        journal = models.Journal(code="myjournal", domain="normal.example.org")
+        journal.full_clean()  # should not raise
+
+    def test_journal_full_clean_allows_unchanged_legacy_reserved_code(self):
+        journal = make_test_journal(code="cms", domain="legacy.example.org")
+        journal.full_clean()  # should not raise: code is unchanged
+
+    def test_journal_full_clean_rejects_code_matching_existing_repository_short_name(
+        self,
+    ):
+        repository, _ = helpers.create_repository(self.press, [], [])
+        journal = models.Journal(
+            code=repository.short_name, domain="crossmodel.example.org"
+        )
+        with self.assertRaises(ValidationError) as context:
+            journal.full_clean()
+        self.assertIn("already in use by a repository", str(context.exception))
+
+    def test_journal_unique_error_message_includes_suggestion(self):
+        make_test_journal(code="dupcode", domain="dup1.example.org")
+        journal = models.Journal(code="dupcode", domain="dup2.example.org")
+        with self.assertRaises(ValidationError) as context:
+            journal.full_clean()
+        message = str(context.exception)
+        self.assertIn("already in use by another journal", message)
+        self.assertIn("Try '", message)

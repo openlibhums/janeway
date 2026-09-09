@@ -283,7 +283,9 @@ def journal(name, code, base_url, delete):
         except models.Journal.DoesNotExist:
             print("Journal not found, nothing to delete")
 
-    journal_object = models.Journal.objects.create(code=code, domain=base_url)
+    journal_object = models.Journal(code=code, domain=base_url)
+    journal_object.full_clean()
+    journal_object.save()
     update_settings(journal_object, management_command=True)
     setting_handler.save_setting("general", "journal_name", journal_object, name)
     journal_object.setup_directory()
