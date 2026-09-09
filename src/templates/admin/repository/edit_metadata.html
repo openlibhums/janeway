@@ -9,8 +9,7 @@
 {% load files %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
     <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
     <li>Edit Metadata</li>
 {% endblock %}

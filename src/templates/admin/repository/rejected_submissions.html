@@ -7,8 +7,7 @@
 {% load files %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">Preprint Manager</a></li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
     <li>Rejected Preprints</li>
 {% endblock %}
 
