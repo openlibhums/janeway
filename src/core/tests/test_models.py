@@ -337,7 +337,7 @@ class TestAccount(TestCase):
         mock_method.return_value.reason = "Unauthorized"
 
         self.assertFalse(account.is_orcid_token_valid)
-        self.assertEquals(account.orcid_token, "")
+        self.assertEqual(account.orcid_token, "")
         self.assertIsNone(account.orcid_token_expiration)
 
     @patch.object(PublicAPI, "_get_public_info")
