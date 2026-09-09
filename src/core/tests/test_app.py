@@ -698,10 +698,10 @@ class CoreTests(TestCase):
 
         user = models.Account.objects.get(pk=self.regular_user.pk)
 
-        self.assertEquals(user.orcid, orcid)
-        self.assertEquals(user.orcid_token, token)
-        self.assertEquals(user.orcid_token_expiration, token_expiration)
-        self.assertEquals(user.biography, biography)
+        self.assertEqual(user.orcid, orcid)
+        self.assertEqual(user.orcid_token, token)
+        self.assertEqual(user.orcid_token_expiration, token_expiration)
+        self.assertEqual(user.biography, biography)
 
     @patch("core.logic.send_orcid_request")
     @override_settings(
