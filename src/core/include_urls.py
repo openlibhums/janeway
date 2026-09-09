@@ -153,6 +153,11 @@ urlpatterns = [
         name="core_edit_settings_group",
     ),
     re_path(
+        r"^manager/settings/journal/keywords/suggest/$",
+        core_views.journal_keyword_suggestions,
+        name="core_journal_keyword_suggestions",
+    ),
+    re_path(
         r"^manager/settings/(?P<plugin>[-\w.:]+)/(?P<setting_group_name>[-\w.]+)/(?P<journal>\d+)/$",
         core_views.edit_plugin_settings_groups,
         name="core_edit_plugin_settings_groups",

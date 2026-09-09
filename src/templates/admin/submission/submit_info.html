@@ -118,16 +118,8 @@
 {% block js %}
     {{ block.super }}
 
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script src="{% static "common/js/tagit.js" %}"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#id_keywords").tagit(
-                {allowSpaces: true});
-        });
-    </script>
+    {% url "submission_keyword_suggestions" article.pk as keyword_suggestions_url %}
+    {% include "admin/elements/submission/keyword_autocomplete.html" with suggestions_url=keyword_suggestions_url %}
 {% endblock %}
 
 {% block toastr %}
