@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0089_frozenauthor_is_frozen_orcid_valid'),
-        ('submission', '0090_article_custom_how_to_cite_cy_and_more'),
+        ("submission", "0089_frozenauthor_is_frozen_orcid_valid"),
+        ("submission", "0090_article_custom_how_to_cite_cy_and_more"),
     ]
 
-    operations = [
-    ]
+    operations = []
