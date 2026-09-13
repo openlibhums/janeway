@@ -32,7 +32,9 @@
                 <div class="card-img-overlay white-text">
                     <div class="card-text">
                         <p class="text-uppercase">{{ article.section.name }}</p>
-                        <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                        <h1 class="card-title align-text-bottom article-title">
+                          {{ article.safe_title_html }}
+                        </h1>
                         {% include "elements/journal/article_authors_compact.html" with limit=10 %}
                     </div>
                 </div>
@@ -46,11 +48,11 @@
             <div id="article">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    <h3>{{ article.title|safe }}</h3>
+                    <h3>{{ article.safe_title_html }}</h3>
                 {% endif %}
                 {% if article.abstract and article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
-                    <p>{{ article.abstract | safe }}</p>
+                    <p>{{ article.safe_abstract_html }}</p>
                 {% endif %}
                 {% if article.keywords and article.keywords.count > 0 %}
                     <h3>{% trans "Keywords" %}:</h3>

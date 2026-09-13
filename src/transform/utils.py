@@ -5,12 +5,13 @@ from lxml import etree, html as lxml_html
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
+from core.templatetags.latex_mathml import to_mathml
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def convert_html_abstract_to_jats(abstract_string):
+def convert_html_abstract_to_jats(abstract_string, journal=None):
     if not abstract_string:
         return ""
 
@@ -39,7 +40,8 @@ def convert_html_abstract_to_jats(abstract_string):
         xml_str = xml_str.replace(' xmlns:xlink="http://www.w3.org/1999/xlink"', "")
         xml_str = xml_str.replace("<root>", "").replace("</root>", "").strip()
 
-        return mark_safe(xml_str)
+        mathml = to_mathml(xml_str, journal, target="xml", allow_block=True)
+        return mark_safe(mathml)
 
     except Exception as e:
         logger.error(e)
