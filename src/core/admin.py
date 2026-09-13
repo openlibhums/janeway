@@ -253,6 +253,7 @@ class FileAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "original_filename",
+        "uuid_filename",
         "article_id",
         "label",
         "description",
@@ -291,6 +292,7 @@ class FileHistoryAdmin(admin.ModelAdmin):
     list_filter = ("mime_type",)
     search_fields = (
         "original_filename",
+        "uuid_filename",
         "article_id",
         "label",
         "description",
