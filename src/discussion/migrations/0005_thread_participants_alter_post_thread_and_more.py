@@ -7,26 +7,37 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('discussion', '0004_auto_20200925_1933'),
+        ("discussion", "0004_auto_20200925_1933"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='thread',
-            name='participants',
-            field=models.ManyToManyField(blank=True, help_text='Users who are allowed to access this thread.', related_name='accessible_threads', to=settings.AUTH_USER_MODEL),
+            model_name="thread",
+            name="participants",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Users who are allowed to access this thread.",
+                related_name="accessible_threads",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='thread',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='posts_related', to='discussion.thread'),
+            model_name="post",
+            name="thread",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="posts_related",
+                to="discussion.thread",
+            ),
         ),
         migrations.AlterField(
-            model_name='thread',
-            name='last_updated',
-            field=models.DateTimeField(db_index=True, default=django.utils.timezone.now),
+            model_name="thread",
+            name="last_updated",
+            field=models.DateTimeField(
+                db_index=True, default=django.utils.timezone.now
+            ),
         ),
     ]

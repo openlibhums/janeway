@@ -78,4 +78,3 @@ urlpatterns = [
         name="discussion_remove_participant",
     ),
 ]
-

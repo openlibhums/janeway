@@ -9,10 +9,28 @@ from django.utils import timezone
 from django.utils.timesince import timesince
 
 MARKDOWN_ALLOWED_TAGS = [
-    "p", "br", "strong", "em", "a", "code", "pre",
-    "ul", "ol", "li", "blockquote",
-    "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img",
-    "del", "sub", "sup",
+    "p",
+    "br",
+    "strong",
+    "em",
+    "a",
+    "code",
+    "pre",
+    "ul",
+    "ol",
+    "li",
+    "blockquote",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "img",
+    "del",
+    "sub",
+    "sup",
 ]
 
 MARKDOWN_ALLOWED_ATTRIBUTES = {
@@ -67,7 +85,9 @@ class Thread(models.Model):
     def clean(self):
         if self.article and self.preprint:
             raise ValidationError(
-                _("A thread can only be attached to either an article or a preprint, not both."),
+                _(
+                    "A thread can only be attached to either an article or a preprint, not both."
+                ),
             )
         if not self.article and not self.preprint:
             raise ValidationError(
@@ -181,7 +201,9 @@ class Post(models.Model):
     body = models.TextField()
     is_system_message = models.BooleanField(
         default=False,
-        help_text=_("System-generated message, e.g. title change or participant added."),
+        help_text=_(
+            "System-generated message, e.g. title change or participant added."
+        ),
     )
     file = models.ForeignKey(
         "core.File",

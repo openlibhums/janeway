@@ -6,9 +6,7 @@ from discussion import models
 class ThreadForm(forms.ModelForm):
     class Meta:
         model = models.Thread
-        fields = (
-            "subject",
-        )
+        fields = ("subject",)
 
     def __init__(
         self,

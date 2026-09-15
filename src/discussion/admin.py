@@ -29,7 +29,15 @@ class ThreadAdmin(admin_utils.ArticleFKModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("_post", "thread", "owner", "posted", "edited", "is_system_message", "_journal")
+    list_display = (
+        "_post",
+        "thread",
+        "owner",
+        "posted",
+        "edited",
+        "is_system_message",
+        "_journal",
+    )
     list_filter = ("thread__article__journal", "posted", "is_system_message")
     search_fields = (
         "pk",
