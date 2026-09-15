@@ -10,7 +10,7 @@
 {% endblock css %}
 {% block title %}Pre Publication - {{ article.pk }}{% endblock title %}
 {% block title-section %}Pre Publication Checklist{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub.html" %}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}
@@ -228,6 +228,9 @@
             </div>
         </div>
     </div>
+
+    {% include "admin/elements/contacts_box.html" %}
+
 </div>
 
 {% include "admin/elements/summary_modal.html" %}

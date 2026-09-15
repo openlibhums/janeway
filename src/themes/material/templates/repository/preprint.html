@@ -2,9 +2,11 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load alt_text %}
 {% load bootstrap4 %}
 {% load next_url %}
 {% load dates %}
+{% load settings %}
 
 {% block title %}{{ preprint.title }}{% endblock %}
 
@@ -13,14 +15,19 @@
     {% include "common/metadata/preprint_citation.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row preprint-content">
       <div class="col m12">
         <div class="card">
-          <div class="card-image preprint-card">
-            <img class="orbit-image" alt="{{ preprint.title|striptags }}"
-                 src="{% if request.repository.hero_background %}{{ request.repository.hero_background.url }}{% else %}{% static "common/img/repository_background.jpg" %}{% endif %}">
-            <div class="card-title">
+          <div class="material-banner">
+            <img class="material-banner-image"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
+               src="{{ request.repository.best_large_image_url }}">
+            <div class="material-banner-heading">
               <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
             </div>
           </div>
@@ -40,7 +47,7 @@
                     This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
                 </p>
                 {% if preprint.current_version_file_type == 'html' %}
-                    <div class="card">
+                    <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
                             {{ preprint.current_version.html|safe }}
@@ -165,8 +172,11 @@
                     </div>
 
                     {% if preprint.preprint_doi %}
-                        <h2>DOI</h2>
-                        <p>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</p>
+                    <h2>DOI</h2>
+                    <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% elif preprint.current_version.get_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ preprint.current_version.get_doi }}">https://doi.org/{{ preprint.current_version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}

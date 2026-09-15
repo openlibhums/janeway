@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+{% load dates %}
+{% load pages %}
+
+{% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ journal_settings.news.news_title }}</h1>
+            {% if tag %} <h2>Filtering tag: {{ tag }}</h2>{% endif %}
+        </div>
+        {% for item in news_items %}
+            <div class="col-md-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h2 id="news-item-{{ item.pk }}" class="card-title">
+                            {{ item.title|safe }}
+                        </h2>
+                        <p class="byline card-subtitle mb-2 text-muted">
+                            {{ item.byline }} on {{ item.posted|date_human }}
+                        </p>
+                        <span class="card-text">
+                            {{ item.body|truncatewords_html:50|safe }}
+                        </span>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'core_news_item' item.pk %}"
+                           aria-describedby="news-item-{{ item.pk }}"
+                           class="btn btn-outline-secondary">
+                            {% trans 'Read More' %}
+                            <i aria-hidden="true" class="fa fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-md-12">
+                <h2>
+                    {% blocktrans with news_title=journal_settings.news.news_title %}This journal currently has no {{ news_title }} items to display.{% endblocktrans %}
+                </h2>
+            </div>
+        {% endfor %}
+    </div>
+    <section aria-label="pagination">
+        <div class="pagination-block site-pagination">
+            <ul class="d-flex justify-content-center list-inline">
+                {% if news_items.has_previous %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.previous_page_number }}"
+                           class="btn btn-outline-primary"
+                        >
+                            {% include "elements/icons/page_previous.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for page in news_items|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
+                        <li class="list-inline-item">
+                            <span class="btn btn-outline-secondary disabled" aria-hidden="true">...</span>
+                        </li>
+                    {% elif news_items.number == page.number %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                               class="btn btn-primary"
+                            >
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                               class="btn btn-outline-primary"
+                            >
+                                <span class="sr-only">{% trans 'page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if news_items.has_next %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                            {% include "elements/icons/page_next.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
+{% endblock body %}

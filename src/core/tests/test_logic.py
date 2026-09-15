@@ -8,8 +8,10 @@ from mock import patch
 
 from django.shortcuts import reverse
 from django.test import TestCase, override_settings
+from django.contrib.sessions.backends.db import SessionStore
 
 from core import logic
+from utils import models as utils_models
 from utils.testing import helpers
 
 
@@ -80,4 +82,25 @@ class TestLogic(TestCase):
         self.assertIn(
             f"/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={self.next_url_encoded}",
             url,
+        )
+
+    def test_handle_email_change_is_logged(self):
+        user = helpers.create_user("emailchange@example.org")
+        new_email = "changed@example.org"
+        request = helpers.get_request(
+            press=self.press,
+            journal=self.journal_one,
+            user=user,
+        )
+        request.session = SessionStore()
+
+        logic.handle_email_change(request, new_email)
+
+        self.assertTrue(
+            utils_models.LogEntry.objects.filter(
+                is_email=True,
+                types="Email Change Confirmation",
+                addressee__field="to",
+                addressee__email=new_email,
+            ).exists(),
         )

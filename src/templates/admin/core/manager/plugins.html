@@ -1,6 +1,5 @@
 {% extends "admin/core/base.html" %}
 
-
 {% block title %}Plugins{% endblock title %}
 {% block title-section %}Plugins{% endblock %}
 
@@ -12,37 +11,75 @@
 
 
 {% block body %}
-    <section>
-    <div class="row expanded" data-equalizer>
-        <div class="large-4 columns end">
-            <div class="box" data-equalizer-watch>
+<section>
+    <div class="row expanded">
+        <div class="large-6 medium-12 small-12 columns">
+
+            <div class="box">
                 <div class="title-area">
-                    <h2>Installed Plugins</h2>
+                    <h2>Installed Plugins <small class="plugin-list-count">{{ plugins|length }} installed</small></h2>
                 </div>
                 <div class="content">
-                    <div class="button-group stacked">
-                        {% for plugin in plugins %}
-                            {% if plugin.manager_url %}
-                                <a class="button" href="{% url plugin.manager_url %}">{{ plugin.name|capfirst }}</a>
-                            {% else %}
-                                <a class="button disabled" href="">{{ plugin.model.name|capfirst }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% if failed_to_load %}
-                    <div class="bs-callout bs-callout-danger">
-                        <p>Some installed plugins failed to load:</p>
-                        <ul>
-                        {% for failed in failed_to_load %}
-                          <li>{{ failed.name }}</li>
-                        {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
 
+                    <ul class="plugin-list">
+                        {% for plugin in plugins %}
+                        <li class="plugin-list-item">
+                            <div class="plugin-list-item-icon">
+                                <i class="fa fa-puzzle-piece"></i>
+                            </div>
+                            <div class="plugin-list-item-body">
+                                <div class="plugin-list-item-title">
+                                    <span class="plugin-list-item-name">
+                                        {{ plugin.settings.DISPLAY_NAME|default:plugin.settings.PLUGIN_NAME|capfirst }}
+                                    </span>
+                                    <span class="plugin-list-item-badge plugin-list-item-badge-version">
+                                        v{{ plugin.settings.VERSION }}
+                                    </span>
+                                </div>
+                                {% if plugin.settings.DESCRIPTION %}
+                                <div class="plugin-list-item-desc" title="{{ plugin.settings.DESCRIPTION }}">
+                                    {{ plugin.settings.DESCRIPTION }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="plugin-list-item-meta"></div>
+                            <div class="plugin-list-item-action">
+                                {% if plugin.manager_url %}
+                                    <a class="button small" href="{% url plugin.manager_url %}">Manage</a>
+                                {% else %}
+                                    <a class="button small disabled" href="">No settings</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                        {% for failed in failed_to_load %}
+                        <li class="plugin-list-item">
+                            <div class="plugin-list-item-icon">
+                                <i class="fa fa-puzzle-piece"></i>
+                            </div>
+                            <div class="plugin-list-item-body">
+                                <div class="plugin-list-item-title">
+                                    <span class="plugin-list-item-name">{{ failed.plugin.name|capfirst }}</span>
+                                    <span class="plugin-list-item-badge plugin-list-item-badge-failed">Failed</span>
+                                </div>
+                                <div class="plugin-list-item-desc" title="{{ failed.error }}">
+                                    {{ failed.error }}
+                                </div>
+                            </div>
+                            <div class="plugin-list-item-meta"></div>
+                            <div class="plugin-list-item-action"></div>
+                        </li>
+                        {% endfor %}
+                        {% if not plugins and not failed_to_load %}
+                        <li class="plugin-list-empty">No plugins are currently installed.</li>
+                        {% endif %}
+                    </ul>
+
+                </div>
             </div>
+
         </div>
     </div>
-    </section>
+</section>
 {% endblock body %}
+

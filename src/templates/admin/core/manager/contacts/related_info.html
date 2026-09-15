@@ -1,0 +1,25 @@
+<dl>
+  {% if request.journal %}
+    {% include "admin/elements/layout/key_value_above.html" with key="Journal" value=request.journal.name %}
+  {% else %}
+    {% include "admin/elements/layout/key_value_above.html" with key="Press" value=request.press.name %}
+  {% endif %}
+  {% if contact_people %}
+    <div class="key-value-pair key-above">
+      <dt class="key">
+        Current contacts
+      </dt>
+      <dd class="value">
+        <ul>
+          {% for person in contact_people %}
+            <li>
+              <div>{{ person.account.full_name }}</div>
+              <div>{{ person.role }}</div>
+              <div>{{ person.account.pretty_wrapping_email }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      </dd>
+    </div>
+  {% endif %}
+</dl>

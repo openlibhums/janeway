@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Accessibility" %}{% endblock %}
+
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
+{% block body %}
+<div class="text-format-region">
+<h1> {% trans "Accessibility" %} </h1>
+    {% include "common/elements/a11y/a11y_options.html" %}
+    {% include "common/elements/a11y/press.html" %}
+    {% include "common/elements/a11y/journal.html" %}
+    {% include "common/elements/a11y/janeway.html" %}
+    <h3 lang="en">VPAT</h3>
+    {% include "common/elements/a11y/vpat.html" with vpat_data=vpat_data theme="clean" %}
+</div>
+{% endblock body %}

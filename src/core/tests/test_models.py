@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+from uuid import uuid4
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.db.transaction import TransactionManagementError
@@ -30,8 +32,47 @@ class TestAccount(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one, cls.hidden_journal = helpers.create_journals()
+        cls.hidden_journal.hide_from_press = True
+        cls.hidden_journal.save()
+        cls.test_journal = helpers.create_journal_with_test_status()
+        cls.author_user = helpers.create_user(
+            "{}{}".format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            roles=["author"],
+            journal=cls.journal_one,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.hidden_journal,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.test_journal,
+        )
         cls.article_one = helpers.create_article(cls.journal_one)
+        cls.published_article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Published article",
+        )
+        cls.author_user.snapshot_as_author(cls.published_article)
+        cls.hidden_article = helpers.create_article(
+            cls.hidden_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in hidden journal",
+        )
+        cls.author_user.snapshot_as_author(cls.hidden_article)
+        cls.test_article = helpers.create_article(
+            cls.test_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in test journal",
+        )
+        cls.author_user.snapshot_as_author(cls.test_article)
 
     def test_creation(self):
         data = {
@@ -60,7 +101,7 @@ class TestAccount(TestCase):
             "last_name": "Eve",
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.username, email.lower())
+        self.assertEqual(obj.username, email.lower())
 
     def test_username_normalised_quick_form(self):
         email = "QUICK@test.com"
@@ -74,7 +115,7 @@ class TestAccount(TestCase):
         }
         form = forms.QuickUserForm(data=data)
         acc = form.save()
-        self.assertEquals(acc.username, email.lower())
+        self.assertEqual(acc.username, email.lower())
 
     def test_email_normalised(self):
         email = "TEST@TEST.com"
@@ -83,7 +124,7 @@ class TestAccount(TestCase):
             "email": email,
         }
         obj = models.Account.objects.create(**data)
-        self.assertEquals(obj.email, expected)
+        self.assertEqual(obj.email, expected)
 
     def test_no_duplicates(self):
         email_a = "TEST@TEST.com"
@@ -205,7 +246,11 @@ class TestAccount(TestCase):
         )
         self.assertEqual("Sky", author.full_name())
 
-    def test_snapshot_as_author_first_time(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_first_time(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -220,7 +265,11 @@ class TestAccount(TestCase):
             "Bob",
         )
 
-    def test_snapshot_as_author_second_time_with_force_update(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_second_time_with_force_update(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -241,7 +290,11 @@ class TestAccount(TestCase):
             "Robert",
         )
 
-    def test_snapshot_as_author_second_time_without_force_update(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_as_author_second_time_without_force_update(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         author = helpers.create_author(
             self.journal_one,
             first_name="Bob",
@@ -262,7 +315,44 @@ class TestAccount(TestCase):
             "Bob",
         )
 
-    def test_credits(self):
+    @patch("utils.logic.get_current_request")
+    def test_snapshot_affiliations(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
+        account = helpers.create_user(
+            "zg76jqnz0fdlgbrgtrxk@example.org",
+        )
+        organization = models.Organization.objects.create(ror_id="02mb95055")
+        models.ControlledAffiliation.objects.create(
+            account=account,
+            title="Professor",
+            organization=organization,
+            start=date.fromisoformat("2018-01-01"),
+        )
+        frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
+            author=account,
+            article=self.article_one,
+        )
+        account.snapshot_affiliations(frozen_author)
+        self.assertEqual(
+            account.primary_affiliation().organization,
+            frozen_author.primary_affiliation().organization,
+        )
+        self.assertEqual(
+            account.primary_affiliation().title,
+            frozen_author.primary_affiliation().title,
+        )
+        self.assertEqual(
+            account.primary_affiliation().start,
+            frozen_author.primary_affiliation().start,
+        )
+
+    @patch("utils.logic.get_current_request")
+    def test_credits(self, get_request):
+        request = helpers.Request()
+        request.site_type = self.journal_one
+        get_request.return_value = request
         account = helpers.create_author(self.journal_one)
         author = account.snapshot_as_author(self.article_one)
         author.add_credit("conceptualization")
@@ -270,6 +360,13 @@ class TestAccount(TestCase):
             author.credits.first().get_role_display(),
             "Conceptualization",
         )
+
+    @patch("utils.logic.get_current_request")
+    def test_published_articles(self, get_request):
+        get_request.return_value = helpers.Request(press=self.press)
+        expected = set([self.published_article])
+        published_articles = set(self.author_user.published_articles())
+        self.assertSetEqual(expected, published_articles)
 
 
 class TestSVGImageFormField(TestCase):

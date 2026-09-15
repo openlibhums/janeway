@@ -1,0 +1,421 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load hooks %}
+{% load i18n %}
+{% load dates %}
+{% load alt_text %}
+
+{% block title %}
+    {% include "common/elements/journal/article_title.html" %}
+{% endblock %}
+
+{% block head %}
+    <link href="{% static "common/lightbox/css/lightbox.css" %}" rel="stylesheet" />
+    {% include "elements/article_meta_tags.html" %}
+{% endblock %}
+
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
+{% block body %}
+    <div id="article_opener" class="row">
+        {% if not journal_settings.article.disable_article_large_image %}
+          <div class="col-md-12">
+            <div class="card">
+              <div class="clarity-banner">
+                <img class="clarity-banner-image"
+                  src="{{ article.best_large_image_url }}"
+                  alt="{{ article.best_large_image_alt_text }}">
+              </div>
+              <div class="article-header card-text">
+                <div class="text-uppercase">{{ article.section.name }}</div>
+                <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+    </div>
+
+    <div id="article_metadata" class="row">
+
+        <div class="col-md-7">
+            <div id="article" class="text-format-region">
+                {% if journal_settings.article.disable_article_large_image %}
+                    <small>{{ article.section.name }}</small>
+                    <h1>{{ article.title|safe }}</h1>
+                {% endif %}
+                {% if article.abstract and article.abstract != '' %}
+                    <h2>{% trans "Abstract" %}</h2>
+                    <p>{{ article.abstract | safe }}</p>
+                {% endif %}
+                {% if journal_settings.general.keyword_list_page %}
+                    {% include "elements/journal/article_keywords.html" with keywords=article.keywords linked="True" %}
+                {% else %}
+                    {% include "elements/journal/article_keywords.html" with keywords=article.keywords  %}
+                {% endif %}
+                {% if article.is_published or proofing %}
+                    {% include "elements/journal/cite.html" %}
+                {% endif %}
+                {% if article.rights %}
+                    <h2>{% trans "Rights" %}:</h2>
+                    <p>{{ article.rights | safe }} </p>
+                {% endif %}
+                {% if article.is_published or proofing %}
+                    <div class="d-lg-none d-xl-none d-md-none">
+                        <h2>{% trans 'Files' %}</h2>
+                        {% if galleys %}
+                            <ul class="no-bullet-list">
+                                {% for galley in galleys %}
+                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                        <li><a href="{% url 'article_view_galley' article.id galley.id %}">
+                                            {% trans 'View'%} PDF
+                                            {% include "elements/icons/link_new_tab.html" %}
+                                        </a></li>
+                                    {% endif %}
+                                    <li>
+                                        <a href="{% url 'article_download_galley' article.id galley.id %}">
+                                            {{ galley.label }}
+                                            {% include "elements/icons/link_download.html" %}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                                {% if proofing %}
+                                    <li id="note_to_proofreader_1">
+                                        <i aria-hidden="true" class="fa fa-info"></i>
+                                        Note to proofreader: Download links on this page begin to work when the article is published.
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <p> {% trans 'Downloads are not available for this article.' %}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% include "elements/funder_info_for_readers.html" %}
+
+                {% if article.publisher_notes.all %}
+                    <div class="callout primary">
+                        <h2>{% trans "Publisher Notes" %}</h2>
+                        <ul>
+                            {% for note in article.publisher_notes.all %}
+                                <li>{{ note.text }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if article_content %}
+                    <article>
+                        <div itemprop="articleBody" id="main_article">
+                            {{ article_content|safe }}
+                            <div id="article_footer_block">
+                                {% hook 'article_footer_block' %}
+                            </div>
+                        </div>
+                    </article>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4 offset-md-1 left-bar">
+            <div class="card">
+                <div class="card-body">
+                    <section aria-label="{% trans 'Article Information' %}">
+                        <div class="article-menu">
+                            {% include "common/elements/altmetric_badges.html" with article=article %}
+                            {% if journal_settings.article.disable_article_large_image %}
+                                <h2>
+                                    {% blocktrans count counter=article.frozen_authors.count %}
+                                        Author
+                                    {% plural %}
+                                        Authors
+                                    {% endblocktrans %}
+                                </h2>
+                                {% include "common/elements/journal/article_authors_ul.html" %}
+                            {% endif %}
+
+                            {% if article.is_published or proofing %}
+                                {% include "elements/journal/share.html" %}
+                            {% endif %}
+                            <h2>{% trans "Author details" %}</h2>
+                            {% include "common/elements/journal/article_authors_full.html" %}
+                            {% if article.is_published or proofing %}
+                                {% spaceless %}
+                                    <h2>{% trans "Files" %}</h2>
+                                    {% if galleys %}
+                                        <ul>
+                                            {% for galley in galleys %}
+                                                {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
+                                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
+                                                        <li>
+                                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
+                                                                {% trans "View" %} {{ galley.label }}
+                                                                {% include "elements/icons/link_new_tab.html" %}
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                    <li>
+                                                        <a href="{% url 'article_download_galley' article.id galley.id %}">
+                                                            {{ galley.label }}
+                                                            {% include "elements/icons/link_download.html" %}
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                        {% if proofing %}
+                                            <p id="note_to_proofreader_2">
+                                                <i aria-hidden="true" class="fa fa-info"></i>
+                                                Note to proofreader: Download links on this page begin to work when the article is published.
+                                            </p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p> {% trans 'Downloads are not available for this article.' %}</p>
+                                    {% endif %}
+                                {% endspaceless %}
+                            {% endif %}
+                            {% if article.supplementary_files.all %}
+                                <h3>{% trans "Supplementary Files" %}</h3>
+                                <ul>
+                                    {% for file in article.supplementary_files.all %}
+                                        <li>
+                                            <a href="{% url 'article_download_supp_file' article.pk file.pk %}">
+                                                {{ file.label }}
+                                                {% include "elements/icons/link_download.html" %}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% include "elements/journal/article_issue_list.html" %}
+
+                            <h2>{% trans "Information" %}</h2>
+                            <ul>
+                                {% if journal_settings.article.display_date_submitted and article.date_submitted %}
+                                    <li>
+                                        {% trans "Submitted on" %} {{ article.date_submitted|date_human }}
+                                    </li>
+                                {% endif %}
+                                {% if journal_settings.article.display_date_accepted and  article.date_accepted %}
+                                    <li>
+                                        {% trans "Accepted on" %} {{ article.date_accepted|date_human }}
+                                    </li>
+                                {% endif %}
+                                {% if article.is_published or proofing %}
+                                    <li id="article_date_published">
+                                        {% trans "Published on" %} {{ article.date_published|date_human }}
+                                    </li>
+                                {% endif %}
+                                {% if article.page_range %}
+                                    <li>{% trans "Pages" %}: {{ article.page_range }}</li>
+                                {% endif %}
+                                {% if article.article_number %}
+                                    <li>{% trans "Article Number" %}: {{ article.article_number }}</li>
+                                {% endif %}
+                                {% if article.publisher_name %}
+                                    <li>{% trans "Publisher" %}: {{ article.publisher_name }}</li>
+                                {% endif %}
+                                {% if article.publication_title %}
+                                    <li>{% trans "Original Publication" %}: {{ article.publication_title }}</li>
+                                {% endif %}
+                                {% if article.publication_title %}
+                                    <li>{% trans "Original ISSN" %}: {{ article.ISSN_override }}</li>
+                                {% endif %}
+                                {% if article.peer_reviewed %}
+                                    <li>{% trans "Peer Reviewed" %}
+                                        <i aria-hidden="true" class="fa fa-check-circle"></i>
+                                    </li>
+                                {% endif %}
+                                {% if article.license %}
+                                    <li>{% trans "Licence" %}
+                                        <a href="{{ article.license.url }}" data-toggle="tooltip" data-html="true"
+                                           title="{{ article.license.text|safe }}" target="_blank">
+                                            {{ article.license.name }}
+                                            {% include "elements/icons/link_external.html" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if journal_settings.general.submission_summary and article.non_specialist_summary %}
+                                    <li>
+                                        <a href="#" data-toggle="modal"
+                                           data-target="#summary">
+                                            {% trans 'Non Specialist Summary' %}
+                                            {% include "elements/icons/link_modal.html" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                            {% if article.competing_interests %}
+                                <h2>{% trans "Competing Interests" %}</h2>
+                                <ul>
+                                    <li>{{ article.competing_interests|safe }}</li>
+                                </ul>
+                            {% endif %}
+                            {% for field in article.custom_fields %}
+                                <h2>{% trans field.field.name %}</h2>
+                                <p>{{ field.answer|safe }}</p>
+                            {% endfor %}
+                            {% if article.is_published or proofing %}
+
+                                {% if journal_settings.general.open_peer_review %}
+                                    {% if article.public_reviews.count > 0 %}
+                                        <h2>{% trans "Open Peer Reviews" %}</h2>
+                                        <ul>
+                                            {% for review in article.public_reviews %}
+                                                <li>
+                                                    <a href="#" data-toggle="modal" data-target="#reviewmodal-{{ review.pk }}">
+                                                        {% trans 'Review by' %} {{ review.reviewer.full_name }}
+                                                        {% include "elements/icons/link_modal.html" %}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}<br/>
+                                        </ul>
+                                    {% endif %}
+                                {% endif %}
+                                {% if editorial_log %}
+                                    <h2>{% trans "Editorial Log" %}</h2>
+                                    <ul>
+                                        <li><a href="#" data-toggle="modal" data-target="#editorialLogModal">{% trans "View Editorial Timeline" %}</a></li>
+                                    </ul>
+                                {% endif %}
+
+                                {% if not request.journal.disable_metrics_display %}
+                                    <h2>{% trans "Metrics" %}</h2>
+                                    <ul>
+                                        <li>{% trans "Views" %}: {{ article.metrics.views }}</li>
+                                        {% if galleys %}
+                                            <li>{% trans "Downloads" %}: {{ article.metrics.downloads }}</li>
+                                        {% endif %}
+                                        {% if article.metrics.alm.twitter %}
+                                            <li>{% trans "Twitter" %}: {{ article.metrics.alm.twitter }}</li>{% endif %}
+                                        {% if article.metrics.alm.wikipedia %}
+                                            <li>{% trans "Wikipedia" %}: {{ article.metrics.alm.wikipedia }}</li>{% endif %}
+                                        {% if article.metrics.alm.reddit %}
+                                            <li>{% trans "Reddit" %}: {{ article.metrics.alm.reddit }}</li>{% endif %}
+                                        {% if article.citation_count and not journal_settings.article.suppress_citations_metric %}
+                                            <li>{% trans "Citations" %}: {{ article.citation_count }}</li>{% endif %}
+                                    </ul>
+                                {% endif %}
+                                <h2>{% trans "Citation" %}</h2>
+                                <div class="btn-group-vertical">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HarvardModal">
+                                        {% trans 'Harvard-style Citation' %}
+                                        {% include "elements/icons/link_modal.html" %}
+                                    </button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#VancouverModal">
+                                        {% trans 'Vancouver-style Citation' %}
+                                        {% include "elements/icons/link_modal.html" %}
+                                    </button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#APAModal">
+                                        {% trans 'APA-style Citation' %}
+                                        {% include "elements/icons/link_modal.html" %}
+                                    </button>
+                                    <a href="{% url 'serve_article_ris' 'id' article.pk %}" type="button" class="btn btn-primary">
+                                        RIS
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a>
+                                    <a href="{% url 'serve_article_bib' 'id' article.pk %}" type="button" class="btn btn-primary">
+                                        BibTeX
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a>
+                                    <br/>
+                                </div>
+                                {% if article.preprint and article.preprint.is_published %}
+                                    <h2>{{ article.preprint.repository.object_name }}</h2>
+                                    <p>This article is linked to
+                                        a {{ article.preprint.repository.object_name }}
+                                        in {{ article.preprint.repository.name }}.</p>
+                                    <p>
+                                        <a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a>
+                                    </p>
+                                {% endif %}
+                                <h2>{% trans 'File Checksums' %}</h2> (MD5)
+                                {% if galleys %}
+                                    <ul>
+                                        {% for galley in galleys %}
+                                            <li>
+                                                <small>{{ galley.label }}: {{ galley.file.checksum }}</small>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p> {% trans 'File Checksums are not available for this article.' %}</p>
+                                {% endif %}
+
+                                {% if journal_settings.general.use_credit and author.credits.exists %}
+                                    <h2>{% trans 'CRediT Roles' %}</h2>
+                                    <ul>
+                                        {% for author, credit_records in article.authors_and_credits.items %}
+                                            <li>
+                                                {{ author.full_name }}:
+                                                {% for record in credit_records %}
+                                                    <ul class="list-inline comma-sep">
+                                                        <li>{{ record }}</li>
+                                                    </ul>
+                                                {% endfor %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    <p>
+                                        <a href="https://www.niso.org/publications/z39104-2022-credit" target="_blank">
+                                            More information about CRediT.
+                                            {% include "elements/icons/link_external.html" %}
+                                        </a>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        {% hook 'article_sidebar' %}
+                    </section>
+                </div>
+            </div>
+            {% if article_content %}
+                <div class="sticky-toc article-menu" id="toc-section">
+                    <section aria-labelledby="toc-title">
+                        <div class="card">
+                            <div class="card-body">
+                                <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
+                                <ul id="toc" class="no-bullet-list table-of-contents"></ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% include "elements/journal/citation_modals.html" %}
+    {% if journal_settings.general.submission_summary %}
+        {% include "elements/journal/summary_modal.html" %}
+    {% endif %}
+    {% include "elements/public_reviews.html" %}
+    {% for table in tables_in_galley %}
+        {% include "elements/journal/table_modal.html" with content=table.content tableid=table.id %}
+    {% endfor %}
+    {% if editorial_log %}
+        {% include "elements/journal/editorial_log_modal.html" %}
+    {% endif %}
+
+{% endblock body %}
+
+{% block js %}
+    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+    <script src="{% static 'material/toc.js' %}"></script>
+    {% hook 'article_js_block' %}
+    <script src="{% static 'common/js/table-expansion.js' %}"></script>
+    <script>
+        initTableExpansion({
+            modalSelector: '.modal',
+            linkTemplate: '<br /><button type="button" class="btn-background" data-toggle="modal" data-target="#table-{id}"  aria-describedby="{id}-label">{% trans "View Larger Table" %}</button>',
+        });
+    </script>
+    <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
+    <script src="{% static "common/js/clipboard.js" %}"></script>
+    <script src="{% static "clarity/js/tooltip-init.js" %}"></script>
+    <script src="{% static "common/js/reversable-links.js" %}"></script>
+{% endblock js %}

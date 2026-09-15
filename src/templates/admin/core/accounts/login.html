@@ -14,6 +14,16 @@
   </div>
 {% endblock %}
 
+{% block aside %}
+  {% if journal_settings.general.display_login_page_notice %}
+    <div class="login-notice padding-block-1">
+      <div class="card padding-block-2 padding-inline-2">
+        {{ journal_settings.general.login_page_notice|safe }}
+      </div>
+    </div>
+  {% endif %}
+{% endblock aside %}
+
 {% block form_content %}
   {% include "admin/elements/forms/messages_in_callout.html" with form=form %}
   {% if settings.ENABLE_ORCID %}
@@ -34,9 +44,6 @@
         {% trans "Log in with" %} {{ settings.OIDC_SERVICE_NAME }}
       </a>
     </div>
-  {% endif %}
-  {% if journal_settings.general.display_login_page_notice %}
-    {{ journal_settings.general.login_page_notice|safe }}
   {% endif %}
   {% include "admin/elements/forms/field.html" with field=form.user_name %}
   {% include "admin/elements/forms/field.html" with field=form.user_pass %}

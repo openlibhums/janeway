@@ -25,6 +25,11 @@
                         <a class="button" href="{% url 'home_settings_index' %}">Home Page</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "images" %}">Images</a>
                         <a class="button" href="{% url 'core_edit_settings_group' "styling" %}">Styling</a>
+                        <a
+                          class="button"
+                          href="{% url 'core_edit_settings_group' "metadata" %}">
+                          Metadata
+                        </a>
                         <a class="button" href="{% url 'core_settings_index' %}">All Settings</a>
                     </div>
                 </div>
@@ -48,6 +53,11 @@
                         <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
                         <a class="button" href="{% url 'submission_configurator' %}">Submission Fields Configurator</a>
                         <a class="button" href="{% url 'submission_fields' %}">Additional Submission Fields</a>
+                        {% if journal_settings.general.limit_access_to_submission and request.user.is_staff %}
+                          <a class="button" href="{% url 'manage_access_requests' %}">
+                            Manage Access Requests
+                          </a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -57,14 +67,6 @@
         <div class="large-3 columns end">
             <div class="box" data-equalizer-watch>
                 <div class="title-area">
-                    <h2>Workflow Setup</h2>
-                </div>
-                <div class="content">
-                    <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "proofing" %}">Proofing Settings</a>
-                    </div>
-                </div>
-                <div class="title-area">
                     <h2>Content</h2>
                 </div>
                 <div class="content">
@@ -72,7 +74,8 @@
                         <a class="button" href="{% url 'cms_index' %}">Content Manager</a>
                         <a class="button" href="{% url 'cms_file_list' %}">Media Files</a>
                         <a class="button" href="{% url 'cms_submission_items' %}">Submission Page Items</a>
-                        <a class="button" href="{% url 'core_journal_contacts' %}">Journal Contacts</a>
+                        <a class="button" href="{% url 'core_contact_people' %}">Contact People</a>
+                        <a class="button" href="{% url 'core_contact_messages' %}">Contact Messages</a>
                         <a class="button" href="{% url 'core_editorial_team' %}">Editorial Team</a>
                     </div>
                 </div>
@@ -141,6 +144,14 @@
                         <a class="button" href="{% url 'cron_reminders' %}">Scheduled Reminders</a>
                         <a class="button" href="{% url 'core_email_templates' %}">Email Templates</a>
                         <a class="button" href="{% url 'cron_readers' %}">Publication Notifications (Readers)</a>
+                    </div>
+                </div>
+                <div class="title-area">
+                    <h2>What's New</h2>
+                </div>
+                <div class="content">
+                    <div class="button-group stacked">
+                        <a class="button" href="{% url 'core_manager_whats_new' %}">What's New in Janeway 1.9</a>
                     </div>
                 </div>
             </div>

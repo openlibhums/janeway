@@ -196,3 +196,34 @@ You can find hooks in the source by searching for  ``{% hook``. Here is a non-ex
 
 - themes/theme_name/templates/journal/article.html
 	- article_footer_block
+
+Python hooks
+------------
+In addition to template hooks, core code can call hooks directly via
+``core.plugin_loader.call_hooks``. These are registered in ``hook_registry``
+in exactly the same way as template hooks, but instead of returning HTML the
+hook functions receive Python objects they can inspect or alter, and
+``call_hooks`` collects any return values for the caller.
+
+- submission/forms.py
+	- submission_form_init
+
+``submission_form_init`` is called after the author-facing submission form
+(``ArticleInfoSubmit``) has been built, with ``form``, ``article`` and
+``journal`` keyword arguments. Plugins may alter the form directly — for
+example changing a field's queryset, help text, or disabling it. It is not
+called for the editor-facing form. The commission plugin uses this to show a
+commissioned author the section their editor selected — even when it is
+closed for public submission — as a disabled field they cannot change:
+
+::
+
+    def submission_form_init(form=None, article=None, journal=None, **kwargs):
+        if not CommissionedArticle.objects.filter(article=article).exists():
+            return
+        section_field = form.fields.get('section')
+        if section_field:
+            section_field.queryset = submission_models.Section.objects.filter(
+                pk=article.section_id,
+            )
+            section_field.disabled = True

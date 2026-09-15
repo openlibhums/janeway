@@ -1,15 +1,18 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 from django.utils.translation import gettext as _
-from simple_history.models import HistoricalRecords
+from django.templatetags.static import static
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 
 from core import files
 from core.model_utils import JanewayBleachField, JanewayBleachCharField
+from core.templatetags import alt_text
 
 __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
@@ -64,7 +67,7 @@ class NewsItem(models.Model):
         on_delete=models.SET_NULL,
         help_text="An image for the top of the news item page and the "
         "news list page. Note that it will be automatically "
-        "cropped to 750px x 324px, so wide images work best.",
+        "cropped to 1500px x 648px, so wide images work best.",
     )
     tags = models.ManyToManyField("Tag", related_name="tags")
     custom_byline = models.CharField(
@@ -84,7 +87,7 @@ class NewsItem(models.Model):
     active_objects = ActiveNewsItemManager()
 
     class Meta:
-        ordering = ("pinned", "-posted", "title")
+        ordering = ("-pinned", "sequence", "-start_display", "title")
 
     @property
     def url(self):
@@ -171,7 +174,40 @@ class NewsItem(models.Model):
         if path:
             return self.object.site_url(path=path)
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for best_image_url that is used by the carousel templates.
+        """
+        return self.best_image_url
+
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.content_type.name == "press" and self.object.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.object.default_carousel_image.url,
+                default=default_text,
+            )
+        elif self.content_type.name == "journal":
+            if self.object.default_large_image:
+                return alt_text.get_alt_text(
+                    file_path=self.object.default_large_image.url,
+                    default=default_text,
+                )
+            elif self.object.press.default_carousel_image:
+                return alt_text.get_alt_text(
+                    file_path=self.object.press.default_carousel_image.url,
+                    default=default_text,
+                )
+
+        return default_text
 
     def __str__(self):
         if self.posted_by:

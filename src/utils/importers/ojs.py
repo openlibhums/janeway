@@ -1,3 +1,9 @@
+###################
+
+# These importers are deprecated. Use the Imports plugin instead.
+
+###################
+
 from bs4 import BeautifulSoup
 
 from utils.importers import shared

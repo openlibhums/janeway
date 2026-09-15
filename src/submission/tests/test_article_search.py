@@ -126,6 +126,86 @@ class ArticleSearchTests(TransactionTestCase):
         self.assertEqual(result, [article])
 
     @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_full_text_search_preserves_matches_without_file_text(self):
+        """Articles with no indexed file text must still match other filters"""
+
+        from django.db import connection
+
+        if connection.vendor == "sqlite":
+            # No native support for full text search in sqlite
+            return
+        needle = "diagnostic"
+
+        article_matching_title = models.Article.objects.create(
+            journal=self.journal_one,
+            title="A diagnostic run on warp-drive systems",
+            date_published=FROZEN_DATETIME_2020,
+            stage=models.STAGE_PUBLISHED,
+        )
+        article_matching_text = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Testing the search of articles",
+            date_published=FROZEN_DATETIME_2020,
+            stage=models.STAGE_PUBLISHED,
+        )
+        file_obj = File.objects.create(article_id=article_matching_text.pk)
+        create_galley(article_matching_text, file_obj)
+        FileText = swapper.load_model("core", "FileText")
+        text = FileText.objects.create(
+            contents=FileText.preprocess_contents(
+                "Computer, run a level-two diagnostic.",
+            ),
+        )
+        file_obj.text = text
+        file_obj.save()
+
+        call_command("generate_search_indexes")
+
+        search_filters = {"title": True, "full_text": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertCountEqual(
+            result,
+            [article_matching_title, article_matching_text],
+        )
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_full_text_search_multiword_distant_terms(self):
+        """Test that terms separate from each other still match"""
+        from django.db import connection
+
+        if connection.vendor == "sqlite":
+            # No native support for full text search in sqlite
+            return
+        filler = " ".join("filler%d" % i for i in range(200))
+        text_to_search = "jeffreis %s tube" % filler
+        needle = "jeffreis tube"
+
+        article = models.Article.objects.create(
+            journal=self.journal_one,
+            title="Testing the search of articles",
+            date_published=FROZEN_DATETIME_2020,
+            stage=models.STAGE_PUBLISHED,
+        )
+        file_obj = File.objects.create(article_id=article.pk)
+        create_galley(article, file_obj)
+        FileText = swapper.load_model("core", "FileText")
+        text = FileText.objects.create(
+            contents=FileText.preprocess_contents(text_to_search),
+        )
+        file_obj.text = text
+        file_obj.save()
+
+        call_command("generate_search_indexes")
+
+        search_filters = {"full_text": True}
+        queryset = models.Article.objects.search(needle, search_filters)
+        result = [a for a in queryset]
+
+        self.assertEqual(result, [article])
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
     def test_article_search_abstract(self):
         text_to_search = """
             Exceeding reaction chamber thermal limit.
@@ -183,3 +263,39 @@ class ArticleSearchTests(TransactionTestCase):
         result = [a for a in queryset]
 
         self.assertEqual(result, [article])
+
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=True)
+    def test_article_search_term_containing_percent(self):
+        """A search term containing '%' must not raise (#5348).
+
+        stringify_queryset() mogrifies the term into the raw SQL, so a literal
+        '%' from the term reaches Article.objects.raw(), which re-runs
+        %-formatting on the string and previously raised. Evaluating the search
+        should now complete instead of erroring.
+        """
+        from django.db import connection
+
+        if connection.vendor == "sqlite":
+            # The bug is in postgres_search()'s raw() query; sqlite falls back to
+            # mysql_search() and never hits the affected code path.
+            return
+
+        models.Article.objects.create(
+            journal=self.journal_one,
+            title="Save 50% on warp-drive systems",
+            date_published=FROZEN_DATETIME_2020,
+            stage=models.STAGE_PUBLISHED,
+        )
+
+        # Mysql can't search at all without FULLTEXT indexes installed
+        call_command("generate_search_indexes")
+
+        search_filters = {"title": True}
+        try:
+            # Forces the RawQuerySet to execute; before the fix this raised
+            # TypeError ("not enough arguments for format string").
+            result = list(models.Article.objects.search("50%", search_filters))
+        except TypeError as exc:
+            self.fail(f"search with a '%' term raised (regression of #5348): {exc}")
+
+        self.assertIsInstance(result, list)

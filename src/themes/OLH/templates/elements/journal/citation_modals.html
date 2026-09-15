@@ -94,18 +94,17 @@
                 {% if article.identifier.id_type == 'doi' %}
                     {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
                 {% endif %}
-                
             </span>
             {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
         </p>
-        <p>{% trans 'Show:' %} 
+        <p>{% trans 'Show:' %}
             <a data-open="HarvardModal">
                 {% trans 'Harvard Citation Style' %}
-                {% include "elements/icons/link_modal.html" %} 
+                {% include "elements/icons/link_modal.html" %}
             </a>
-            | 
+            |
             <a data-open="VancouverModal">
-                {% trans 'Vancouver Citation Style' %}     {% include "elements/icons/link_modal.html" %} 
+                {% trans 'Vancouver Citation Style' %}     {% include "elements/icons/link_modal.html" %}
             </a>
         </p>
         <button class="close-button" data-close aria-label="Close modal" type="button">

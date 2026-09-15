@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import json
+import warnings
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -315,10 +316,7 @@ def submit_authors(request, article_id):
             article.save()
             return redirect(reverse("submit_files", kwargs={"article_id": article_id}))
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/submission/submit_authors.html"
     context = {
@@ -373,10 +371,7 @@ def edit_current_authors(request, article_id):
     elif "remove_credit" in request.POST:
         last_changed_author = logic.remove_credit_role(request, article)
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/elements/current_authors_inner.html"
     context = {
@@ -496,7 +491,7 @@ def delete_funder(request, article_id, funder_id):
 @user_can_edit_article
 def delete_author(request, article_id, author_id):
     """Allows submitting author to remove an author from their article."""
-    raise DeprecationWarning("Use delete_frozen_author instead.")
+    warnings.warn("Use delete_frozen_author instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
     author = get_object_or_404(core_models.Account, pk=author_id)
     if author == article.correspondence_author:
@@ -926,10 +921,7 @@ def edit_author_metadata(request, article_id):
             author = logic.add_author_from_search(search_term, request, article)
             last_changed_author = author
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/submission/edit/author_metadata.html"
     context = {
@@ -1018,7 +1010,7 @@ def edit_author(request, article_id, author_id):
 
 @production_user_or_editor_required
 def order_authors(request, article_id):
-    raise DeprecationWarning("Use edit_author_metadata instead.")
+    warnings.warn("Use edit_author_metadata instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
 
     if request.POST:
@@ -1030,6 +1022,45 @@ def order_authors(request, article_id):
             author.save()
 
     return HttpResponse("Thanks")
+
+
+@require_POST
+@user_can_edit_article
+def link_author_to_account(request, article_id, author_id):
+    next_url = request.GET.get("next", "")
+
+    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
+    author = get_object_or_404(models.FrozenAuthor, pk=author_id, article=article)
+    account = get_object_or_404(
+        core_models.Account,
+        email__iexact=author.email,
+        accountrole__role__slug="author",
+    )
+
+    author_account_form = forms.FrozenAuthorAccountForm(
+        {"author": account.pk},
+        instance=author,
+    )
+    if author_account_form.is_valid():
+        author_account_form.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "%(author_name)s (%(email)s) is now linked to a user account."
+            % {"author_name": author.full_name(), "email": author.email},
+        )
+
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(
+            reverse(
+                "submission_edit_author_metadata",
+                kwargs={
+                    "article_id": article_id,
+                },
+            )
+        )
 
 
 @editor_user_required
@@ -1373,6 +1404,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
         frozen_author=author,
     ).exists()
     form = forms.AuthorAffiliationForm(
+        journal=request.journal,
         frozen_author=author,
         organization=organization,
         initial={
@@ -1383,6 +1415,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
     if request.method == "POST":
         form = forms.AuthorAffiliationForm(
             request.POST,
+            journal=request.journal,
             frozen_author=author,
             organization=organization,
         )
@@ -1437,6 +1470,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
     )
     form = forms.AuthorAffiliationForm(
         instance=affiliation,
+        journal=request.journal,
         frozen_author=author,
         organization=affiliation.organization,
     )
@@ -1445,6 +1479,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
         form = forms.AuthorAffiliationForm(
             request.POST,
             instance=affiliation,
+            journal=request.journal,
             frozen_author=author,
             organization=affiliation.organization,
         )
@@ -1606,6 +1641,7 @@ def affiliation_update_from_orcid(
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"frozen_author": author},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))

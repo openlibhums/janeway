@@ -1,0 +1,79 @@
+{% extends "core/base.html" %}
+{% load hooks %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% hook 'filter_search' %}
+
+{% block page_title %}{% trans "Search" %}{% endblock %}
+
+{% block title %}{% trans "Search" %}{% endblock %}
+
+{% block body %}
+
+    <h1>{% trans 'Article Search Results' %}</h1>
+
+    {% if search_term %}
+        <p>Searching for: <i>{{ search_term }}</i></p>
+    {% elif keyword %}
+        <p>Keyword: <i>{{ keyword }}</i></p>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <section aria-label="Results">
+                {% for article in articles %}
+                    {% include "elements/article_listing.html" with article=article %}
+                {% empty %}
+                    <p>{% trans "No articles to display" %}.</p>
+                {% endfor %}
+                {% if articles %}
+                    {% include "elements/pagination.html" with form_id=form.id %}
+                {% endif %}
+            </section>
+        </div>
+        <div class="col-md-4">
+            <section aria-label="{% trans 'Search' %}">
+            <div class="card">
+                <div class="card-block">
+                    <div>
+                        <p>
+                            {% blocktrans count result_count=page_obj.paginator.count %}
+                                1 result
+                            {% plural %}
+                                {{ result_count }} results
+                            {% endblocktrans %}
+                        </p>
+                    </div>
+                    <form method="GET" id="search_form">
+                        <div class="form-group">
+                            {% if not keyword %}
+                                {% include 'elements/forms/errors.html'  with form=form%}
+                                {% bootstrap_form form %}
+                            {% else %}
+                                {% trans "You are currently browsing by keyword" %}. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
+                            {% endif %}
+                        </div>
+                        {% if all_keywords %}
+                            <div class="form-group">
+                                <label>{% trans "Keywords" %}
+
+                                    <ul class="list-inline comma-sep">
+                                        {% for keyword in all_keywords %}
+                                            <li><a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+
+                                </label>
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

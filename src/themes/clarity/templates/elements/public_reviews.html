@@ -1,0 +1,83 @@
+{% for review in article.public_reviews %}
+    <div class="modal fade" id="reviewmodal-{{ review.pk }}" tabindex="-1" role="dialog"
+         aria-labelledby="reviewmodal-{{ review.pk }}-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="reviewmodal-{{ review.pk }}-label">
+                        <i aria-hidden="true" class="fa fa-pencil"></i> {% trans "Open Peer Review" %}
+                    </h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm mb-4">
+                        <tbody>
+                            <tr>
+                                <th scope="row">{% trans "Reviewer" %}</th>
+                                <td>{{ review.reviewer.full_name }}</td>
+                            </tr>
+                            {% if review.reviewer.orcid %}
+                                <tr>
+                                    <th scope="row">{% trans "ORCID" %}</th>
+                                    <td>
+                                        <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCID logo">
+                                        https://orcid.org/{{ review.reviewer.orcid }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if review.reviewer.affiliation %}
+                                <tr>
+                                    <th scope="row">{% trans "Affiliation" %}</th>
+                                    <td>{{ review.reviewer.affiliation }}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <th scope="row">{% trans "Date Completed" %}</th>
+                                <td>{{ review.date_complete|date:"j F Y" }}</td>
+                            </tr>
+                            {% if review.get_doi %}
+                                <tr>
+                                    <th scope="row">{% trans "DOI" %}</th>
+                                    <td>{{ review.get_doi }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if request.journal.submissionconfiguration.open_peer_review_license %}
+                                <tr>
+                                    <th scope="row">{% trans "Licence" %}</th>
+                                    <td>{{ request.journal.submissionconfiguration.open_peer_review_license.name }}</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    {% if request.journal.submissionconfiguration.open_peer_review_license %}
+                        <p class="text-muted small">{{ request.journal.submissionconfiguration.open_peer_review_license.text }}</p>
+                    {% endif %}
+                    <hr>
+                    {% for answer in review.review_form_answers %}
+                        {% if answer.author_can_see %}
+                            <div class="mb-3 {{ answer.element.width }}">
+                                <strong>{{ answer.element.name }}</strong>
+                                <div class="mt-1">
+                                    {% if answer.edited_answer %}
+                                        {{ answer.render_edited_answer|linebreaksbr }}
+                                    {% else %}
+                                        {{ answer.render_answer|linebreaksbr }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <p class="text-muted small mt-3">
+                        <strong>{% trans "Note:" %}</strong>
+                        {% blocktrans with round=review.review_round.round_number %}This review refers to round {{ round }} of peer review and may pertain to an earlier version of the document.{% endblocktrans %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Close" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

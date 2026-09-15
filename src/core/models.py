@@ -10,15 +10,14 @@ import statistics
 import json
 from datetime import timedelta
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 import pytz
 from hijack.signals import hijack_started, hijack_ended
-from iso639 import Lang
-from iso639.exceptions import InvalidLanguageValue
 import warnings
-import tqdm
 import zipfile
 
 from bs4 import BeautifulSoup
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -33,17 +32,16 @@ from django.db import (
     transaction,
 )
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.contrib.postgres.search import SearchVectorField
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
-from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.template.defaultfilters import date
 import swapper
 
 from core import files, validators
@@ -54,9 +52,7 @@ from core.model_utils import (
     AffiliationCompatibleQueryset,
     DynamicChoiceField,
     JanewayBleachField,
-    JanewayBleachCharField,
     PGCaseInsensitiveEmailField,
-    SearchLookup,
     default_press_id,
     check_exclusive_fields_constraint,
 )
@@ -65,8 +61,6 @@ from copyediting import models as copyediting_models
 from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
-from utils.forms import clean_orcid_id
-from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
@@ -392,6 +386,8 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
 
 
 class AccountManager(BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, username=None, password=None, email=None, **kwargs):
         """Creates a user from the given username or email
         In Janeway, users rely on email addresses to log in. For compatibility
@@ -544,6 +540,23 @@ class Account(AbstractBaseUser, PermissionsMixin):
         help_text=_("If enabled, your basic profile will be available to the public."),
         verbose_name=_("Enable public profile"),
     )
+    accessibility_mode = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If enabled, the site is presented using the Clarity "
+            "accessibility-focused theme."
+        ),
+        verbose_name=_("Accessibility mode"),
+    )
+    text_format_preferences = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Reading options (e.g. font, colour scheme,) chosen via the "
+            "reading options bar, stored so they persist between visits."
+        ),
+        verbose_name=_("Reading options preferences"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -611,6 +624,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
             return self.email
         else:
             return ""
+
+    @property
+    def pretty_wrapping_email(self):
+        return mark_safe(self.email.replace("@", "<wbr>@").replace(".", "<wbr>."))
 
     def get_full_name(self):
         """Deprecated in 1.5.2"""
@@ -850,20 +867,35 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def snapshot_affiliations(self, frozen_author):
         """
         Delete any outdated affiliations on the frozen author and then
-        assign copies of account affiliations to the frozen author.
+        create copies of account affiliations for the frozen author.
         """
+        # Avoid circular imports
+        from submission.forms import AuthorAffiliationForm
+
+        request = utils_logic.get_current_request()
         frozen_author.affiliations.delete()
         for affiliation in self.affiliations:
-            affiliation.pk = None
-            affiliation.account = None
-            affiliation.frozen_author = frozen_author
-            affiliation.save()
+            form = AuthorAffiliationForm(
+                {
+                    "frozen_author": frozen_author,
+                    "title": affiliation.title,
+                    "department": affiliation.department,
+                    "organization": affiliation.organization,
+                    "start": affiliation.start,
+                    "end": affiliation.end,
+                },
+                journal=request.journal if request else None,
+                frozen_author=frozen_author,
+                organization=affiliation.organization,
+            )
+            if form.is_valid():
+                form.save()
 
     def snapshot_self(self, article, force_update=True):
         """
         Old function name for snapshot_as_author.
         """
-        raise DeprecationWarning("Use snapshot_as_author instead.")
+        warnings.warn("Use snapshot_as_author instead.")
         return self.snapshot_as_author(article, force_update)
 
     def snapshot_as_author(self, article, force_update=True):
@@ -928,8 +960,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         )
         request = utils_logic.get_current_request()
         if request and request.journal:
-            articles.filter(journal=request.journal)
-
+            articles = articles.filter(journal=request.journal)
+        else:
+            articles = articles.filter(journal__hide_from_press=False)
+        Journal = apps.get_model("journal.Journal")
+        articles = articles.exclude(
+            journal__status=Journal.PublishingStatus.TEST,
+        )
         return articles
 
     def preprint_subjects(self):
@@ -1179,7 +1216,7 @@ class SettingValue(models.Model):
         elif self.setting.types == "json" and self.value:
             try:
                 return json.loads(self.value)
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 logger.error(
                     "Error loading JSON setting {setting_name} on {site_name} site.".format(
                         setting_name=self.setting.name,
@@ -1670,7 +1707,7 @@ class Galley(AbstractLastModifiedModel):
         return files.render_xml(self.file, self.article, xsl_path=xsl_path)
 
     def has_missing_image_files(self, show_all=False):
-        if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
+        if self.file.mime_type not in files.MIMETYPES_WITH_FIGURES:
             return []
 
         xml_file_contents = self.file.get_file(self.article)
@@ -1692,7 +1729,7 @@ class Galley(AbstractLastModifiedModel):
             # iterate over all found elements of each type in the elements dictionary
             for idx, val in enumerate(images):
                 # attempt to pull a URL from the specified attribute
-                url = os.path.basename(val.get(attribute, None))
+                url = os.path.basename(val.get(attribute, ""))
 
                 if show_all:
                     missing_elements.append(url)
@@ -1960,7 +1997,7 @@ class EditorialGroupMember(models.Model):
         return f"{self.user} in {self.group}"
 
 
-class Contacts(models.Model):
+class ContactPerson(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -1970,23 +2007,61 @@ class Contacts(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    name = models.CharField(max_length=300)
-    email = models.EmailField()
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     role = models.CharField(max_length=200)
-    sequence = models.PositiveIntegerField(default=999)
+    sequence = models.PositiveIntegerField(default=1)
+
+    name = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="The 'name' field is deprecated. Use 'account.full_name'.",
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text="The 'email' field is deprecated. Use 'account.email'.",
+    )
 
     class Meta:
-        # This verbose name will hopefully more clearly
-        # distinguish this model from the below model `Contact`
-        # in the admin area.
-        verbose_name_plural = "contacts"
-        ordering = ("sequence", "name")
+        ordering = ("sequence",)
+        verbose_name_plural = "contact people"
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
+        return f"{self.display_name}, {self.object} - {self.role}"
+
+    def __getattribute__(self, name):
+        if name == "name":
+            warnings.warn(
+                "The 'name' field is deprecated. Use 'account.full_name'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        elif name == "email":
+            warnings.warn(
+                "The 'email' field is deprecated. Use 'account.email'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
+
+    @property
+    def display_name(self):
+        return self.account.full_name() if self.account else ""
+
+    @property
+    def display_email(self):
+        return self.account.pretty_wrapping_email if self.account else ""
 
 
 class Contact(models.Model):
+    """
+    Deprecated. Use LogEntry instead.
+    """
+
     recipient = models.EmailField(
         max_length=200, verbose_name=_("Who would you like to contact?")
     )
@@ -2009,6 +2084,14 @@ class Contact(models.Model):
         # distinguish this model from the above model `Contacts`
         # in the admin area.
         verbose_name_plural = "contact messages"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Contact is deprecated. Use LogEntry instead.")
+        super().__init__(*args, **kwargs)
+
+
+# Aliases for backward compatibility
+Contacts = ContactPerson
 
 
 class DomainAlias(AbstractSiteModel):
@@ -2097,6 +2180,9 @@ BASE_ELEMENTS = [
 ]
 
 BASE_ELEMENT_NAMES = [element.get("name") for element in BASE_ELEMENTS]
+
+# Superseded by the typesetting element; due for removal in a future release.
+DEPRECATED_ELEMENT_NAMES = ["production", "proofing"]
 
 
 class Workflow(models.Model):
@@ -2345,7 +2431,7 @@ class OrganizationNameManager(models.Manager):
             for org in Organization.objects.filter(~models.Q(ror_id__exact=""))
         }
         organization_names = []
-        logger.debug(f"Importing organization names")
+        logger.debug("Importing organization names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2365,7 +2451,10 @@ class OrganizationNameManager(models.Manager):
                 if "acronym" in name.get("types"):
                     kwargs["acronym_for"] = organization
                 organization_names.append(OrganizationName(**kwargs))
-        return OrganizationName.objects.bulk_create(organization_names)
+        return OrganizationName.objects.bulk_create(
+            organization_names,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2384,7 +2473,7 @@ class OrganizationNameManager(models.Manager):
 
         ror_records_with_updated_names = []
         org_name_pks_to_delete = set()
-        logger.debug(f"Updating names")
+        logger.debug("Updating names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2609,7 +2698,7 @@ class OrganizationManager(models.Manager):
             )
         }
         organization_location_links = []
-        logger.debug(f"Linking locations")
+        logger.debug("Linking locations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2636,11 +2725,14 @@ class OrganizationManager(models.Manager):
                     )
                 )
 
-        Organization.locations.through.objects.bulk_create(organization_location_links)
+        Organization.locations.through.objects.bulk_create(
+            organization_location_links,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
-        logger.debug(f"Importing organizations")
+        logger.debug("Importing organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
@@ -2658,7 +2750,10 @@ class OrganizationManager(models.Manager):
                     website=website,
                 )
             )
-        return self.bulk_create(new_organizations)
+        return self.bulk_create(
+            new_organizations,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -2670,7 +2765,7 @@ class OrganizationManager(models.Manager):
         }
         organizations_to_update = []
         fields_to_update = set()
-        logger.debug(f"Updating organizations")
+        logger.debug("Updating organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2716,13 +2811,15 @@ class OrganizationManager(models.Manager):
         num_errors_before = RORImportError.objects.count()
         with zipfile.ZipFile(ror_import.zip_path, mode="r") as zip_ref:
             for file_info in zip_ref.infolist():
-                if file_info.filename.endswith("v2.json"):
+                if file_info.filename.endswith(".json"):
                     string = zip_ref.read(file_info).decode()
                     if limit:
                         records = json.loads(string)[:limit]
                     else:
                         records = json.loads(string)
                     break
+            else:
+                raise ValueError(f"No ROR data file found in {ror_import.zip_path}")
 
         new_records = ror_import.filter_new_records(
             records,
@@ -2730,10 +2827,11 @@ class OrganizationManager(models.Manager):
         )
         if new_records:
             try:
-                Location.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_create_from_ror(new_records)
-                Organization.objects.bulk_link_locations_from_ror(new_records)
-                OrganizationName.objects.bulk_create_from_ror(new_records)
+                with transaction.atomic():
+                    Location.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_create_from_ror(new_records)
+                    Organization.objects.bulk_link_locations_from_ror(new_records)
+                    OrganizationName.objects.bulk_create_from_ror(new_records)
             except Exception as error:
                 message = f"{type(error)}: {error}"
                 RORImportError.objects.create(
@@ -2943,7 +3041,7 @@ class Organization(models.Model):
                     )
                     # If there is an institution name, we should only match organizations
                     # with that as a custom label.
-                    if institution:
+                    if institution and institution != " ":
                         query &= models.Q(custom_label__value=institution)
                     organization = cls.objects.get(query)
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
@@ -2952,7 +3050,7 @@ class Organization(models.Model):
                     created = True
 
         # Set custom label if organization is not controlled by ROR
-        if institution and not organization.ror_id:
+        if institution and institution != " " and not organization.ror_id:
             organization_name, _created = OrganizationName.objects.update_or_create(
                 defaults={"value": institution},
                 custom_label_for=organization,
@@ -3045,10 +3143,46 @@ class ControlledAffiliation(models.Model):
         ]
         ordering = ["-is_primary", "-pk"]
 
+    @property
+    def journal(self):
+        if self.frozen_author and self.frozen_author.article:
+            return self.frozen_author.article.journal
+
+    @property
+    def title_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_job_title"
+        ):
+            return ""
+        else:
+            return self.title
+
+    @property
+    def department_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_department"
+        ):
+            return ""
+        else:
+            return self.department
+
+    @property
+    def date_display(self):
+        if self.journal and not self.journal.get_setting(
+            "metadata", "author_affiliation_dates"
+        ):
+            return ""
+        elif not self.start and not self.end:
+            return ""
+        else:
+            start = self.start.strftime("%b %Y") if self.start else ""
+            end = self.end.strftime("%b %Y") if self.end else ""
+            return mark_safe(f"{start}&ndash;{end}")
+
     def title_department(self):
         elements = [
-            self.title,
-            self.department,
+            self.title_display,
+            self.department_display,
         ]
         return ", ".join([element for element in elements if element])
 
@@ -3207,7 +3341,7 @@ class LocationManager(models.Manager):
         )
         countries_by_code = {country.code: country for country in Country.objects.all()}
         new_locations = []
-        logger.debug(f"Importing locations")
+        logger.debug("Importing locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3223,7 +3357,10 @@ class LocationManager(models.Manager):
                         )
                     )
                     current_geonames_ids.add(geonames_id)
-        return Location.objects.bulk_create(new_locations)
+        return Location.objects.bulk_create(
+            new_locations,
+            batch_size=settings.ROR_BULK_BATCH_SIZE,
+        )
 
     @transaction.atomic
     def bulk_update_from_ror(self, ror_records):
@@ -3241,7 +3378,7 @@ class LocationManager(models.Manager):
         locations_to_update = []
         ror_records_with_new_loc = []
         fields_to_update = set()
-        logger.debug(f"Updating locations")
+        logger.debug("Updating locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3295,3 +3432,101 @@ class Location(models.Model):
             str(self.country) if self.country else "",
         ]
         return ", ".join([element for element in elements if element])
+
+
+class AltText(models.Model):
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    object_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
+    content_object = GenericForeignKey(
+        "content_type",
+        "object_id",
+    )
+    file_path = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Path to a file for alt text fallback (e.g., /media/image.jpg).",
+        unique=True,
+    )
+    alt_text = models.TextField(
+        help_text="Descriptive alternative text for screen readers.",
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        unique_together = [
+            ("content_type", "object_id"),
+        ]
+        verbose_name = "Alt text"
+        verbose_name_plural = "Alt texts"
+
+    def __str__(self):
+        return self.alt_text
+
+    def clean(self):
+        """
+        Ensure either a GFK (content_type + object_id) OR file_path is set — not both
+        or neither.
+        """
+        has_gfk = self.content_type is not None and self.object_id is not None
+        has_path = bool(self.file_path)
+
+        if has_gfk and has_path:
+            raise ValidationError(
+                "Provide either a related object or a file path — not both."
+            )
+
+        if not has_gfk and not has_path:
+            raise ValidationError(
+                "You must provide either a related object or a file path."
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_text(
+        cls,
+        obj=None,
+        path=None,
+    ):
+        """
+        Retrieve alt text for a model instance or file path.
+        """
+        if obj is not None:
+            try:
+                content_type = ContentType.objects.get_for_model(obj)
+                object_id = obj.pk
+                qs = cls.objects.filter(
+                    content_type=content_type,
+                    object_id=object_id,
+                )
+
+                match = qs.first()
+                if match:
+                    return match.alt_text
+            except Exception:
+                pass
+
+        if path:
+            qs = cls.objects.filter(file_path=path)
+
+            match = qs.first()
+            if match:
+                return match.alt_text
+
+        return ""

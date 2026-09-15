@@ -3,11 +3,13 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from django.contrib.messages import constants as message_constants
 from django.shortcuts import reverse
 from django.test import TestCase, client
 from mock import patch
 
 from utils.testing import helpers
+from submission import models as submission_models
 
 
 class TestSubmitAuthorsLogic(TestCase):
@@ -215,4 +217,95 @@ class TestSubmitAuthorsLogic(TestCase):
         self.assertEqual(
             last_author.primary_affiliation().__str__(),
             "Birkbeck",
+        )
+
+    def test_get_current_authors_detects_unlinked_authors(self):
+        self.client.force_login(self.kathleen)
+
+        # Create unlinked author record with same email as existing user
+        frozen_author, _created = submission_models.FrozenAuthor.objects.get_or_create(
+            article=self.article,
+            first_name="T.",
+            middle_name="S.",
+            last_name="Eliot",
+            frozen_email=self.eliot.email,
+        )
+        response = self.client.get(
+            reverse("submit_authors", kwargs={"article_id": self.article.pk}),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        _kathleen_author_tup, eliot_author_tup = response.context["authors"]
+        _eliot_author, _credits, _credit_form, unlinked_account = eliot_author_tup
+        self.assertEqual(
+            unlinked_account,
+            self.eliot,
+        )
+
+    @patch("utils.orcid.get_orcid_record_details")
+    def test_add_author_from_search_orcid_lookup_fails(
+        self,
+        get_orcid_details,
+    ):
+        """
+        When the ORCID lookup fails (e.g. misconfigured settings or invalid
+        ORCID), get_orcid_record_details returns an empty dict; no
+        FrozenAuthor should be created and an error message should be
+        shown to the user.
+        """
+        from collections import defaultdict
+
+        get_orcid_details.return_value = defaultdict(lambda: None)
+        starting_author_count = self.article.frozenauthor_set.count()
+        self.client.force_login(self.kathleen)
+        post_data = {
+            "search_authors": "",
+            "author_search_text": "0000-5678-5678-5678",
+        }
+        response = self.client.post(
+            reverse("submit_authors", kwargs={"article_id": self.article.pk}),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+            follow=True,
+        )
+        self.assertEqual(
+            self.article.frozenauthor_set.count(),
+            starting_author_count,
+        )
+        all_messages = list(response.context["messages"])
+        error_messages = [
+            str(m) for m in all_messages if m.level == message_constants.ERROR
+        ]
+        warning_messages = [
+            str(m) for m in all_messages if m.level == message_constants.WARNING
+        ]
+        self.assertTrue(
+            any("ORCID" in m for m in error_messages),
+            f"Expected ORCID error message, got: {error_messages}",
+        )
+        # The generic "No author found" warning should be suppressed
+        # since we already showed a specific error for the ORCID failure.
+        self.assertFalse(
+            any("No author found" in m for m in warning_messages),
+            f"Did not expect 'No author found' warning, got: {warning_messages}",
+        )
+
+    def test_add_author_from_search_malformed_orcid(self):
+        """
+        A search term that doesn't match the ORCID format should not
+        create a FrozenAuthor (clean_orcid_id raises ValueError).
+        """
+        starting_author_count = self.article.frozenauthor_set.count()
+        self.client.force_login(self.kathleen)
+        post_data = {
+            "search_authors": "",
+            "author_search_text": "not-an-orcid",
+        }
+        self.client.post(
+            reverse("submit_authors", kwargs={"article_id": self.article.pk}),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            self.article.frozenauthor_set.count(),
+            starting_author_count,
         )

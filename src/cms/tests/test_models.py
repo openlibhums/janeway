@@ -27,15 +27,27 @@ class TestCaseWithCMSData(TestCase):
         cls.press.save()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         press_type = ContentType.objects.get_for_model(cls.press)
-        cls.press_cms_page = helpers.create_cms_page(press_type, cls.press.pk)
+        cls.press_cms_page = helpers.create_cms_page(
+            press_type, cls.press.pk, is_draft=False
+        )
         journal_type = ContentType.objects.get_for_model(cls.journal_one)
-        cls.journal_cms_page = helpers.create_cms_page(journal_type, cls.journal_one.pk)
+        cls.journal_cms_page = helpers.create_cms_page(
+            journal_type, cls.journal_one.pk, is_draft=False
+        )
+        cls.press_draft_page = helpers.create_cms_page(
+            press_type, cls.press.pk, name="draft-page", is_draft=True
+        )
+        cls.journal_draft_page = helpers.create_cms_page(
+            journal_type, cls.journal_one.pk, name="draft-page", is_draft=True
+        )
         setting_handler.save_setting("general", "custom_cms_templates", None, "custom")
 
     @classmethod
     def tearDownClass(cls):
         cls.journal_cms_page.delete()
         cls.press_cms_page.delete()
+        cls.journal_draft_page.delete()
+        cls.press_draft_page.delete()
         cls.journal_one.delete()
         cls.journal_two.delete()
         cls.press.delete()

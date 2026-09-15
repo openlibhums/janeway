@@ -118,6 +118,7 @@ src/auth\.json
 
 src/test\.txt
 venv/**
+.venv/**
 src/.DS_Store
 .DS_Store
 
@@ -139,6 +140,7 @@ src/utils/management/commands/test_command.py
 
 # Themes and subthemes
 /src/themes/*
+!/src/themes/clarity/
 !/src/themes/clean/
 !/src/themes/material/
 !/src/themes/OLH/
@@ -150,3 +152,5 @@ src/utils/management/commands/test_command.py
 /src/static/admin/hypothesis/**
 jenkins/test-results
 jenkins/test_results
+
+src/file_editor

@@ -34,10 +34,13 @@ class Command(BaseCommand):
         """
         if options.get("journal_code"):
             journals = journal_models.Journal.objects.filter(
-                code=options.get("journal_code")
+                code=options.get("journal_code"),
             )
         else:
             journals = journal_models.Journal.objects.all()
+        journals = journals.exclude(
+            status=journal_models.Journal.PublishingStatus.TEST,
+        )
         request = cron_models.Request()
 
         for journal in journals:

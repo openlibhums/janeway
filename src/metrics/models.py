@@ -80,6 +80,14 @@ def object_types():
     return (
         ("book", "Book"),
         ("article", "Article"),
+        ("other", "Other"),
+    )
+
+
+def source_choices():
+    return (
+        ("crossref", "Crossref"),
+        ("openalex", "OpenAlex"),
     )
 
 
@@ -91,8 +99,13 @@ class AbstractForwardLink(models.Model):
         on_delete=models.CASCADE,
     )
     doi = models.CharField(max_length=255)
-    object_type = models.CharField(max_length=10, choices=object_types())
+    object_type = models.CharField(max_length=20, choices=object_types())
     year = models.PositiveIntegerField()
+    source = models.CharField(
+        max_length=20,
+        choices=source_choices(),
+        default="crossref",
+    )
 
     class Meta:
         abstract = True

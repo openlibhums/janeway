@@ -237,7 +237,11 @@ class TestJournalSite(TestCase):
             self.article_title,
         )
 
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=False)
     def test_search_includes_article(self):
+        """
+        This test expects the logic in journal.views.old_search.
+        """
         url = "{}?article_search=Test&sort=relevance".format(
             reverse(
                 "search",
@@ -250,7 +254,11 @@ class TestJournalSite(TestCase):
             self.article_title,
         )
 
+    @override_settings(ENABLE_FULL_TEXT_SEARCH=False)
     def test_search_excludes_artucle(self):
+        """
+        This test expects the logic in journal.views.old_search.
+        """
         url = "{}?article_search=Janeway&sort=relevance".format(
             reverse(
                 "search",

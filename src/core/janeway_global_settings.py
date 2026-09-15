@@ -52,6 +52,7 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 INSTALLED_APPS = [
     "modeltranslation",
+    "django.contrib.admindocs",
     "apps.JanewayAdminConfig",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -120,11 +121,10 @@ MIDDLEWARE = (
     "core.middleware.MaintenanceModeMiddleware",
     "cron.middleware.CronMiddleware",
     "core.middleware.CounterCookieMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "journal.middleware.JournalLocaleMiddleware",
     "core.middleware.PressMiddleware",
     "core.middleware.GlobalRequestMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "journal.middleware.LanguageMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 )
@@ -155,6 +155,9 @@ TEMPLATES = [
                 "core.context_processors.active",
                 "core.context_processors.navigation",
                 "core.context_processors.version",
+                "core.context_processors.accessibility_mode",
+                "core.context_processors.text_format_preferences",
+                "core.context_processors.text_format_options",
                 "django_settings_export.settings_export",
                 "django.template.context_processors.i18n",
             ],
@@ -165,6 +168,7 @@ TEMPLATES = [
             ],
             "builtins": [
                 "core.templatetags.fqdn",
+                "core.templatetags.alt_text",
                 "security.templatetags.securitytags",
                 "django.templatetags.i18n",
             ],
@@ -188,6 +192,7 @@ SETTINGS_EXPORT = [
     "HIJACK_USERS_ENABLED",
     "ENABLE_OIDC",
     "OIDC_SERVICE_NAME",
+    "HERO_IMAGE_FALLBACK",
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -228,7 +233,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "/db/janeway.sqlite3",
+            "NAME": os.environ.get("DB_NAME", os.path.join(PROJECT_DIR, "db.sqlite3")),
         }
     }
 
@@ -585,8 +590,8 @@ OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 if ENABLE_OIDC:
     AUTHENTICATION_BACKENDS = (
-        "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
         "django.contrib.auth.backends.ModelBackend",
+        "utils.oidc.JanewayOIDCAB",
     )
 
 CORE_FILETEXT_MODEL = "core.FileText"
@@ -713,3 +718,19 @@ JATS_ARTICLE_TYPES = (
 )
 
 ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=newest"
+
+# Chunks ROR bulk_create() inserts so they fit within MySQL's
+# default max_allowed_packet (16MB on older servers) and avoid
+# 'Server has gone away' errors on large dumps. Operators on a MySQL server
+# with a smaller max_allowed_packet may need to lower this value in their local settings.
+ROR_BULK_BATCH_SIZE = 1000
+# Last-resort hero image (a.k.a. large image), loadable as a static file
+HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
+# The default crop size, used mainly for hero / large images.
+# Note that the provided theme CSS expects a default crop size of (1500, 648)
+# and may not work properly with a different size.
+DEFAULT_CROP_SIZE = (1500, 648)
+
+# This setting should only be enabled where CORS is properly
+# configured to stop misuse of this endpoint.
+API_ENABLE_ACCOUNT_ENDPOINTS = False

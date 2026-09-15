@@ -11,8 +11,8 @@ from django.views.i18n import JavaScriptCatalog
 from django.views.decorators.cache import cache_page
 
 from journal import urls as journal_urls
-from core import views as core_views, plugin_loader
-from utils import notify
+from core import views as core_views, plugin_loader, partial_views
+from utils import notify, views as utils_views
 from press import views as press_views
 from cms import views as cms_views
 from submission import views as submission_views
@@ -60,8 +60,8 @@ urlpatterns = [
     re_path(r"^login/$", core_views.user_login, name="core_login"),
     re_path(r"^login/orcid/$", core_views.user_login_orcid, name="core_login_orcid"),
     re_path(r"^register/step/1/$", core_views.register, name="core_register"),
-    re_path(
-        r"^register/step/1/(?P<orcid_token>[\w-]+)/$",
+    path(
+        "register/step/1/<uuid:orcid_token>/",
         core_views.register,
         name="core_register_with_orcid_token",
     ),
@@ -120,6 +120,16 @@ urlpatterns = [
         press_views.IdentifierManager.as_view(),
         name="press_identifier_manager",
     ),
+    re_path(
+        r"^press/contact/$",
+        press_views.contact,
+        name="press_contact",
+    ),
+    re_path(
+        "press/contact/recipient/(?P<contact_person_id>\d+)/?",
+        press_views.contact,
+        name="press_contact_with_recipient",
+    ),
     # Notes
     re_path(
         r"^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$",
@@ -128,6 +138,11 @@ urlpatterns = [
     ),
     # Manager URLS
     re_path(r"^manager/$", core_views.manager_index, name="core_manager_index"),
+    re_path(
+        r"^manager/whats_new/$",
+        core_views.whats_new,
+        name="core_manager_whats_new",
+    ),
     # Settings Management
     re_path(
         r"^manager/settings/$", core_views.settings_index, name="core_settings_index"
@@ -256,22 +271,52 @@ urlpatterns = [
         core_views.article_image_edit,
         name="core_article_image_edit",
     ),
-    # Journal Contacts
-    re_path(r"^manager/contacts/$", core_views.contacts, name="core_journal_contacts"),
+    # Contact People
     re_path(
-        r"^manager/contacts/add/$",
-        core_views.edit_contacts,
-        name="core_new_journal_contact",
-    ),
-    re_path(
-        r"^manager/contacts/(?P<contact_id>\d+)/$",
-        core_views.edit_contacts,
-        name="core_journal_contact",
+        r"^manager/contacts/$",
+        core_views.contact_people,
+        name="core_contact_people",
     ),
     re_path(
         r"^manager/contacts/order/$",
-        core_views.contacts_order,
-        name="core_journal_contacts_order",
+        core_views.contact_people_reorder,
+        name="core_contact_people_reorder",
+    ),
+    re_path(
+        r"^manager/contacts/search/$",
+        core_views.PotentialContactListView.as_view(),
+        name="core_contact_person_search",
+    ),
+    re_path(
+        r"^manager/contacts/add/(?P<account_id>\d+)/$",
+        core_views.contact_person_create,
+        name="core_contact_person_create",
+    ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/$",
+        core_views.contact_person_update,
+        name="core_contact_person_update",
+    ),
+    re_path(
+        r"^manager/contacts/(?P<contact_person_id>\d+)/delete/$",
+        core_views.contact_person_delete,
+        name="core_contact_person_delete",
+    ),
+    # Contact messages
+    re_path(
+        r"^manager/contact-messages/$",
+        utils_views.ContactMessageListView.as_view(),
+        name="core_contact_messages",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/$",
+        utils_views.contact_message,
+        name="core_contact_message",
+    ),
+    re_path(
+        r"^manager/contact-messages/(?P<log_entry_id>\d+)/delete/$",
+        utils_views.contact_message_delete,
+        name="core_contact_message_delete",
     ),
     # Editorial Team
     re_path(
@@ -400,10 +445,29 @@ urlpatterns = [
     ),
     re_path(r"^robots.txt$", press_views.robots, name="website_robots"),
     re_path(r"^sitemap.xml$", press_views.sitemap, name="website_sitemap"),
+    # press_views.news_sitemap/pages_sitemap dispatch internally on
+    # request.journal/request.repository, so one route each covers press,
+    # journal, and repository contexts — no per-site-type name needed.
+    re_path(
+        r"^news_sitemap.xml$",
+        press_views.news_sitemap,
+        name="press_news_sitemap",
+    ),
+    re_path(
+        r"^pages_sitemap.xml$",
+        press_views.pages_sitemap,
+        name="press_pages_sitemap",
+    ),
     re_path(
         r"^issue/(?P<issue_id>\d+)_sitemap.xml$",
         journal_views.sitemap,
         name="journal_sitemap",
+    ),
+    re_path(
+        r"^issue/no_issue_sitemap.xml$",
+        journal_views.sitemap,
+        {"issue_id": "none"},
+        name="journal_no_issue_sitemap",
     ),
     re_path(
         r"^subject/(?P<subject_id>\d+)_sitemap.xml$",
@@ -411,11 +475,27 @@ urlpatterns = [
         name="repository_sitemap",
     ),
     re_path(
+        r"^subject/no_subject_sitemap.xml$",
+        repository_views.sitemap,
+        {"subject_id": "none"},
+        name="repository_no_subject_sitemap",
+    ),
+    re_path(
         r"^download/file/(?P<file_id>\d+)/$",
         journal_views.download_journal_file,
         name="journal_file",
     ),
     re_path(r"^set-timezone/$", core_views.set_session_timezone, name="set_timezone"),
+    re_path(
+        r"^accessibility-mode/toggle/$",
+        core_views.toggle_accessibility_mode,
+        name="toggle_accessibility_mode",
+    ),
+    re_path(
+        r"^reading-options/preferences/$",
+        core_views.save_text_format_preferences,
+        name="save_text_format_preferences",
+    ),
     re_path(
         r"^jsi18n/$",
         cache_page(60 * 60, key_prefix="jsi18n_catalog")(JavaScriptCatalog.as_view()),
@@ -430,6 +510,19 @@ urlpatterns = [
         r"permission/requests/$",
         core_views.manage_access_requests,
         name="manage_access_requests",
+    ),
+    # Partial views used for HTMX
+    path("alt-text/form/", partial_views.alt_text_form, name="alt_text_form"),
+    path("alt-text/submit/", partial_views.alt_text_submit, name="alt_text_submit"),
+    path(
+        "manager/settings/images/upload/<str:field_name>/",
+        partial_views.journal_image_upload,
+        name="journal_image_upload",
+    ),
+    path(
+        "manager/settings/images/remove/<str:field_name>/",
+        partial_views.journal_image_remove,
+        name="journal_image_remove",
     ),
 ]
 

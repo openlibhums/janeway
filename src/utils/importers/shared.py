@@ -1,3 +1,10 @@
+###################
+
+# These importers are deprecated. Use the Imports plugin instead.
+
+###################
+
+
 import os
 from datetime import datetime
 import hashlib
@@ -8,6 +15,7 @@ from bs4 import BeautifulSoup
 import urllib
 import re
 from pathlib import Path
+import warnings
 
 from django.conf import settings
 from django.urls import reverse
@@ -530,7 +538,7 @@ def set_article_attributions(
     :param citation: The citation string, helps distinguish conjuntions from middle names
     :return: None
     """
-    raise DeprecationWarning("Use the imports plugin instead.")
+    warnings.warn("Use the imports plugin instead.")
     fetch_emails = not mismatch
 
     for idx, val in enumerate(authors):

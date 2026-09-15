@@ -32,11 +32,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
+from django.utils.html import strip_tags
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -51,6 +53,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
+from core.templatetags import alt_text
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -822,8 +825,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -856,8 +861,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
@@ -883,6 +890,14 @@ class ArticleSearchManager(BaseSearchManagerMixin):
         # a column from a subquery filter and postgres sorting requires
         # distinct fields to match order_by fields
         inner_sql = self.stringify_queryset(queryset)
+
+        # stringify_queryset() returns SQL with every parameter already
+        # interpolated via cursor.mogrify(), so any '%' left in the string is a
+        # literal (e.g. from a search term like "50%" or a LIKE pattern). Article
+        # .objects.raw() defaults params to () rather than None, so it re-runs
+        # %-formatting on this SQL and chokes on those literal '%'. Double them so
+        # they survive that pass unchanged. (#5348)
+        inner_sql = inner_sql.replace("%", "%%")
 
         if "relevance" in sort:
             # Relevance is not a field but an annotation
@@ -958,11 +973,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             for v in vectors[1:]:
                 vector += v
             query = SearchQuery(search_term)
-            relevance = SearchRank(vector, query)
-            annotations["relevance"] = relevance
-            # Since we weight file contents as 'D', the returned relevance
-            # values can range between .01 and .1
-            lookups["relevance__gte"] = 0.01
+            annotations["search_vector"] = vector
+            annotations["relevance"] = SearchRank(vector, query)
+            lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
             lookups["frozenauthor__author__orcid"] = search_term
@@ -1046,7 +1059,12 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def jats_article_type(self):
-        return self.jats_article_type_override or self.section.jats_article_type
+        if self.jats_article_type_override:
+            return self.jats_article_type_override
+        elif self.section:
+            return self.section.jats_article_type
+        else:
+            return None
 
     license = models.ForeignKey(
         "Licence", blank=True, null=True, on_delete=models.SET_NULL
@@ -1174,7 +1192,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -1451,25 +1469,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def carousel_subtitle(self):
-        carousel_text = ""
-
-        idx = 0
-
-        for author in self.frozenauthor_set.all():
-            if idx > 0:
-                idx = 1
-                carousel_text += ", "
-
-            if author.institution:
-                carousel_text += author.full_name() + " ({0})".format(
-                    author.institution
-                )
-            else:
-                carousel_text += author.full_name()
-
-            idx = 1
-
-        return carousel_text
+        return self.author_list
 
     @property
     def carousel_title(self):
@@ -1675,6 +1675,10 @@ class Article(AbstractLastModifiedModel):
     @cached_property
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
+
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
 
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
@@ -2168,7 +2172,7 @@ class Article(AbstractLastModifiedModel):
         :param article: (deprecated) should not pass this argument
         :param force_update: (bool) Whether or not to update existing records
         """
-        raise DeprecationWarning("Use FrozenAuthor directly instead.")
+        warnings.warn("Use FrozenAuthor directly instead.")
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=self, author__id=models.OuterRef("id")
@@ -2288,7 +2292,7 @@ class Article(AbstractLastModifiedModel):
             os.unlink(path)
 
     def next_author_sort(self):
-        raise DeprecationWarning("Use FrozenAuthor instead.")
+        warnings.warn("Use FrozenAuthor instead.")
         current_orders = [
             order.order for order in ArticleAuthorOrder.objects.filter(article=self)
         ]
@@ -2563,7 +2567,9 @@ class Article(AbstractLastModifiedModel):
 
     def discussion_stats(self):
         """Returns thread and post counts for this article's discussions."""
-        threads = self.thread_set.annotate(post_count=models.Count("posts_related")).aggregate(
+        threads = self.thread_set.annotate(
+            post_count=models.Count("posts_related")
+        ).aggregate(
             thread_count=models.Count("id"),
             total_posts=models.Sum("post_count"),
         )
@@ -2571,6 +2577,64 @@ class Article(AbstractLastModifiedModel):
             "threads": threads["thread_count"] or 0,
             "posts": threads["total_posts"] or 0,
         }
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        1. article large image
+        2. issue large image
+        3. journal default large image
+        4. press default carousel image
+        5. static hero image fallback
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
+    @property
+    def best_large_image_alt_text(self):
+        default_text = strip_tags(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.best_large_image_alt_text
+        elif self.journal.default_large_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.default_large_image.url,
+                default=default_text,
+            )
+        elif self.journal.press.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.press.default_carousel_image.url,
+                default=default_text,
+            )
+        return default_text
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
@@ -3286,6 +3350,14 @@ class SubmissionConfiguration(models.Model):
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
     )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
+    )
     default_language = models.CharField(
         max_length=200,
         null=True,
@@ -3340,19 +3412,13 @@ class SubmissionConfiguration(models.Model):
 @receiver(pre_delete, sender=FrozenAuthor)
 def remove_author_from_article(sender, instance, **kwargs):
     """
+    This signal is triggered before a FrozenAuthor is deleted.
     This signal will remove an author from a paper if the user deletes the
     frozen author record to ensure they are in sync.
     :param sender: FrozenAuthor class
     :param instance: FrozenAuthor instance
     :return: None
     """
-    if (not instance.article.authors.exists()) and (
-        not ArticleAuthorOrder.objects.filter(article=instance.article).exists()
-    ):
-        # Return early so long as deprecated models and fields are not being used.
-        # This avoids triggering the deprecation warning in development.
-        return
-    raise DeprecationWarning("Authorship is now exclusively handled via FrozenAuthor.")
     try:
         ArticleAuthorOrder.objects.get(
             author=instance.author,
@@ -3368,7 +3434,8 @@ def remove_author_from_article(sender, instance, **kwargs):
     except ArticleAuthorOrder.DoesNotExist:
         pass
 
-    instance.article.authors.remove(instance.author)
+    if instance.article and instance.author in instance.article.authors.all():
+        instance.article.authors.remove(instance.author)
 
 
 def order_keywords(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -3396,22 +3463,28 @@ def backwards_compat_authors(
     sender, instance, action, reverse, model, pk_set, **kwargs
 ):
     """A signal to make the Article.authors backwards compatible
+    This signal is triggered when the Article-Account many-to-many table changes.
     As part of #4755, the dependency of Article on Account for author linking
     was removed. This signal is a backwards compatibility measure to ensure
     FrozenAuthor records are being updated correctly.
     """
-    accounts = core_models.Account.objects.filter(pk__in=pk_set)
     if action == "post_add":
         subq = models.Subquery(
             ArticleAuthorOrder.objects.filter(
                 article=instance, author__id=models.OuterRef("id")
             ).values_list("order")
         )
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
         accounts = accounts.annotate(order=subq).order_by("order")
         for account in accounts:
             account.snapshot_as_author(instance)
-    if action in ["post_remove", "post_clear"]:
-        instance.frozen_authors.filter(author__in=pk_set).delete()
+
+    if action == "post_remove":
+        accounts = core_models.Account.objects.filter(pk__in=pk_set)
+        instance.frozen_authors().filter(author__in=pk_set).delete()
+
+    if action == "post_clear":
+        instance.frozen_authors().delete()
 
 
 m2m_changed.connect(backwards_compat_authors, sender=Article.authors.through)

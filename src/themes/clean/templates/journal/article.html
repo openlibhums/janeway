@@ -13,47 +13,35 @@
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
-            {% if article.large_image_file.id or article.issue.large_image or journal.default_large_image %}
-                <div class="card">
-                    <img class="card-img img-fluid article-img"
-                        {% if article.large_image_file.id %}
-                            src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                        {% elif article.issue.large_image %}
-                            src="{{ article.issue.large_image.url }}"
-                        {% elif journal.default_large_image %}
-                            src="{{ journal.default_large_image.url }}"
-                        {% endif %}
-                        onerror="this.onerror=null; this.parentElement.classList.add('no-image');"
-                        alt="{{ article.title | striptags }}">
-            {% else %}
-                <div class="card no-image">
-                    <img class="card-img img-fluid article-img" aria-hidden="true" src="">
-            {% endif %}
-                <div class="card-img-overlay white-text">
-                    <div class="card-text">
+          <div class="card">
+            <div class="clean-banner">
+              <img class="clean-banner-image"
+                src="{{ article.best_large_image_url }}"
+                alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image default=article.title|striptags %}">
+            </div>
+            <div class="card-text padding-block-1 padding-inline-1">
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
-                        {% if article.is_published or proofing %}
-                          {% include "common/elements/journal/article_authors_br.html" %}
-                        {% endif %}
-                    </div>
-                </div>
+                        {% include "elements/journal/article_authors_compact.html" with limit=10 %}
             </div>
+          </div>
         </div>
     {% endif %}
 
     </div>
 
-        {% include "elements/journal/reading.html" %}
-
     <div id="article_metadata" class="row">
 
         <div class="col-md-7">
-            <div id="article">
+            <div id="article" class="text-format-region">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>
@@ -135,40 +123,25 @@
             <section aria-label="{% trans 'Article Information' %}">
             <div class="article-menu">
                 {% include "common/elements/altmetric_badges.html" with article=article %}
-                {% if journal_settings.article.disable_article_large_image %}
-                  <h2>
-                    {% blocktrans count counter=article.frozen_authors.count %}
-                      Author
-                    {% plural %}
-                      Authors
-                    {% endblocktrans %}
-                  </h2>
-                  {% include "common/elements/journal/article_authors_ul.html" %}
-                {% endif %}
-
                 {% if article.is_published or proofing %}
-                    {% include "elements/journal/share.html" %}
-                    <h2>{% trans "Files" %}</h2>
+                  {% include "elements/journal/share.html" %}
+                {% endif %}
+                <h2>Author details</h2>
+                {% include "elements/journal/article_authors_full.html" %}
+                {% if article.is_published or proofing %}
+                    <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}
                         <ul>
                             {% for galley in galleys %}
                                 {% if not galley.label == 'HTML' or not galley.file.mime_type == 'text/html' %}
-                                    
-                                        {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            &nbsp;
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
-                                                    {% trans "View" %} {{ galley.label }}
-                                                    {% include "elements/icons/link_new_tab.html" %}
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                        <li>
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                                {{ galley.label }}
-                                                {% include "elements/icons/link_download.html" %}
-                                            </a>
+                                <li>
+                                    <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
+                                    {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
                                         </li>
+                                        <li>
+                                            <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
+                                    {% endif %}
+                                </li>
                                 {% endif %}
                             {% endfor %}
                         </ul>
@@ -181,6 +154,7 @@
                     {% else %}
                         <p> {% trans 'Downloads are not available for this article.' %}</p>
                     {% endif %}
+                    {% include "elements/journal/share.html" %}
                 {% endif %}
                 {% if article.supplementary_files.all %}
                     <h3>{% trans "Supplementary Files" %}</h3>
@@ -403,7 +377,6 @@
     </script>
     <script src="{% static "common/lightbox/js/lightbox.js" %}"></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
-    <script src="{% static "common/js/text_readability.js" %}"></script>
     <script src="{% static "clean/js/tooltip-init.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
 {% endblock js %}

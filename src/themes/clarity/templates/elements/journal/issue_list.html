@@ -1,0 +1,45 @@
+{% load svg_or_image from press_url %}
+{% load static %}
+{% load i18n %}
+
+<div class="issues-grid">
+    {% for issue in issues %}
+        <section class="issue-card">
+            <div class="issue-card-inner">
+                {% if issue.cover_image %}
+                    <div class="issue-cover">
+                        <img src="{{ issue.cover_image.url }}" alt="{{ issue.display_title }}">
+                    </div>
+                {% endif %}
+                <div class="issue-content">
+                    {% if level == "deep" %}
+                        <h3 class="issue-title" id="issue-title-{{ forloop.counter }}">
+                            <span aria-hidden="true">{{ issue.display_title }}</span>
+                            <span class="sr-only"> {{ issue.display_title_a11y }}</span>
+                        </h3>
+                    {% else %}
+                        <h2 class="issue-title" id="issue-title-{{ forloop.counter }}">
+                            <span aria-hidden="true">{{ issue.display_title }}</span>
+                            <span class="sr-only"> {{ issue.display_title_a11y }}</span>
+                        </h2>
+                    {% endif %}
+                    {% if issue.date %}
+                        <p class="issue-date">{{ issue.date|date:"F Y" }}</p>
+                    {% endif %}
+                    <p class="issue-count">{{ issue.articles.all.count }} {% trans "items" %}</p>
+
+                    <a href="{% url 'journal_issue' issue.id %}"
+                       aria-describedby="issue-title-{{ forloop.counter }}">
+                        {% trans "View issue" %}
+                    </a>
+                </div>
+            </div>
+        </section>
+    {% empty %}
+        <div class="no-issues">
+            <div class="alert alert-info" role="status">
+                <p class="mb-0">{% trans 'This journal has no issues' %}.</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>

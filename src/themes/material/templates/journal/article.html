@@ -16,57 +16,32 @@
     {% include "elements/article_meta_tags.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div id="article_opener" class="row">
-        <div class="col m12">
-            <div class="card">
-                {% if not journal_settings.article.disable_article_large_image %}
-                    <div class="card-image article-card">
-                        <img class="orbit-image"
-                                {% if article.large_image_file.id %}
-                                src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                                {% elif article.issue.large_image %}
-                                src="{{ article.issue.large_image.url }}"
-                                {% elif journal.default_large_image %}
-                                src="{{ journal.default_large_image.url }}"
-                                {% else %}
-                                src=""
-                                {% endif %}
-                                alt="{{ article.title|striptags }}">
-
-
-                        <span class="card-title">
-                            <div class="carousel-text-wrapper hide-on-small-only">
-                                <small>
-                                    {{ article.section.name }}
-                                </small>
-                                <br/>
-                                <h1>{{ article.title|safe }}</h1>
-                            </div>
-                        </span>
-                        <span class="card-title" style="font-size: 17px;">
-                            <div class="carousel-text-wrapper show-on-small hide-on-med-and-up">
-                                <small>
-                                    {{ article.section.name }}
-                                    <br/>
-                                    <h1>{{ article.title|safe }}</h1>
-                                </small>
-                            </div>
-                        </span>
-                    </div>
-                {% endif %}
-                
-                <div>
-
+      <div class="padding-inline-0-75 m12">
+        <div class="card">
+          {% if not journal_settings.article.disable_article_large_image %}
+            <div class="material-banner">
+              <img class="material-banner-image"
+                src="{{ article.best_large_image_url }}"
+                alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image default=article.title|striptags %}">
+              <div class="material-banner-heading">
+                <div class="carousel-text-wrapper">
+                  <small>{{ article.section.name }}</small>
+                  <br/>
+                  <h1>{{ article.title|safe }}</h1>
                 </div>
-            </div>   
+              </div>
+            </div>
+          {% endif %}
         </div>
+      </div>
 
-        <div id="reading-sticky" class=" col s12 show-on-small hide-on-med-and-up">
-            {% include "elements/journal/reading.html" %}
-        </div>
-
-        <div id="article" class="col m8 s12">
+        <div id="article" class="col m8 s12 text-format-region">
             <div class="card">
                 <div class="card-content">
                     {% if journal_settings.article.disable_article_large_image %}
@@ -237,81 +212,54 @@
                 </article>
             {% endif %}
         </div>
-        <div id="reading-sticky" class="col m4 hide-on-small-only">
-            {% include "elements/journal/reading.html" %}
-        </div>
         <div class="col m4">
             <div class="card">
-                <section aria-label="{% trans 'Article Information' %}">
-                    <div class="card-content">
-                        {% include "common/elements/altmetric_badges.html" with article=article %}
-                        {% include "elements/journal/share.html" %}
-                        {% if article.frozen_authors.exists %}
-                            <div class="spacer">
-                                <div class="divider"></div>
-                            </div>
-                            <h2>
-                                {% blocktrans count counter=article.frozen_authors.count %}
-                                    Author
-                                {% plural %}
-                                    Authors
-                                {% endblocktrans %}
-                            </h2>
-                            <ul id="author-list">
-                                {% for author in article.frozen_authors.all %}
-                                    <li>
-                                        {% include "common/elements/journal/article_author_display.html" %}
-                                        {% if journal_settings.general.use_credit and author.credits.exists %}
-                                        [<span class="credit">
-                                            {% for credit in author.credits %}
-                                            {{ credit }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
-                                        </span>]
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>    
-                        {% endif %}
-
+              <section aria-label="{% trans 'Article Information' %}">
+                <div class="card-content">
+                    {% include "common/elements/altmetric_badges.html" with article=article %}
+                    {% include "elements/journal/share.html" %}
+                    {% if article.frozen_authors.exists %}
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        {% if article.is_published or proofing %}
-                            <h2>
-                                {% trans "Files" %}
-                            </h2>
-                            {% if galleys %}
-                                <ul>
-                                    {% for galley in galleys %}
+                        <h4>
+                          {% blocktrans count counter=article.frozen_authors.count %}
+                            Author
+                          {% plural %}
+                            Authors
+                          {% endblocktrans %}
+                        </h4>
+                        {% include "common/elements/journal/article_authors_full.html" %}
+                    {% endif %}
+
+                    <div class="spacer">
+                        <div class="divider"></div>
+                    </div>
+                    {% if article.is_published or proofing %}
+                        <h4>
+                            {% trans "Downloads" %}
+                        </h4>
+                        {% if galleys %}
+                            <ul>
+                                {% for galley in galleys %}
+                                    <li>
+                                        <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>
                                         {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            <li>
-                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">
-                                                    {% trans "View" %} {{ galley.label }}
-                                                    {% include "elements/icons/link_new_tab.html" %} 
-                                                </a>
                                             </li>
+                                            <li>
+                                                <a target="_blank" href="{% url 'article_view_galley' article.id galley.id %}">{% trans "View" %} {{ galley.label }}</a>
                                         {% endif %}
-                                        <li>
-                                            <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                                {{ galley.label }}
-                                                {% include "elements/icons/link_download.html" %} 
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                                {% if proofing %}
-                                    <p id="note_to_proofreader_2">
-                                        <i aria-hidden="true" class="fa fa-info-circle" ></i>
-                                        Note to proofreader: Download links on this page begin to work when the article is published.
-                                    </p>
-                                {% endif %}
-                                <div class="spacer">
-                                    <div class="divider"></div>
-                                </div>
-                            {% else %}
-                                <p> {% trans 'Downloads are not available for this article.' %}</p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if proofing %}
+                                <p id="note_to_proofreader_2">
+                                    <i aria-hidden="true" class="fa fa-info-circle" ></i>
+                                    Note to proofreader: Download links on this page begin to work when the article is published.
+                                </p>
                             {% endif %}
                         {% endif %}
+                    {% endif %}
 
                         {% include "elements/journal/article_issue_list.html" %}
                         <div class="spacer">
@@ -558,5 +506,4 @@
     <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
     <script src="{% static "common/js/clipboard.js" %}"></script>
     <script src="{% static "common/js/reversable-links.js" %}"></script>
-    <script src="{% static "common/js/text_readability.js" %}"></script>
 {% endblock %}

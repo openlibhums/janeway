@@ -667,7 +667,7 @@
             "name": "Identifiers"
         },
         "setting": {
-            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if `use_crossref` if off.",
+            "description": "Whether or not to automatically register DOIs with Crossref at acceptance. If set to false, DOIs are generated at acceptance but should manually registered. Has no effect if \"use_crossref\" is off.",
             "is_translatable": false,
             "name": "register_doi_at_acceptance",
             "pretty_name": "Register DOI at acceptance",
@@ -930,6 +930,44 @@
     },
     {
         "group": {
+            "name": "theme:clarity"
+        },
+        "setting": {
+            "description": "The colour palette used by the Clarity theme.",
+            "is_translatable": false,
+            "name": "clarity_palette",
+            "pretty_name": "Clarity Palette",
+            "type": "select"
+        },
+        "value": {
+            "default": "evergreen"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "theme:clarity"
+        },
+        "setting": {
+            "description": "The palettes the Clarity theme offers, matching the palettes defined in its stylesheet.",
+            "is_translatable": false,
+            "name": "clarity_palette_choices",
+            "pretty_name": "Clarity Palette Choices",
+            "type": "json"
+        },
+        "value": {
+            "default": "[\"evergreen\", \"ocean\", \"cardinal\", \"paper\"]"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
@@ -941,6 +979,25 @@
         },
         "value": {
             "default": "OLH"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When on, users can switch the journal to a high-contrast Clarity-themed view via a toggle in the header.",
+            "is_translatable": false,
+            "name": "accessibility_mode",
+            "pretty_name": "Accessibility Mode",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
         },
         "editable_by": [
             "editor",
@@ -4008,6 +4065,25 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "When enabled, completed reviews will default to being visible to authors. Editors can still override visibility on individual reviews.",
+            "is_translatable": false,
+            "name": "default_review_visible_to_author",
+            "pretty_name": "Default Review Visible to Author",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "news"
         },
         "setting": {
@@ -5070,6 +5146,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "Enable this to show that this journal uses the isolinear plugin.",
+            "is_translatable": true,
+            "name": "uses_isolinear_plugin",
+            "pretty_name": "Journal Uses Isolinear Plugin",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "journal-manager",
+            "editor"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "name": "notify_section_editors_of_publication",
             "pretty_name": "Notify Section Editors of Publication",
             "type": "boolean",
@@ -5297,19 +5392,6 @@
     },
     "value": {
       "default": "<p>The files below have been assigned to you for proofreading. You must check all files before you can mark this task as complete, including both the PDF and XML proofs (XML is the web display version of the article).</p><p>After downloading the files, you can then upload these with any annotations or corrections marked directly on the proofs. If needed, you can also add additional notes to the typesetter in the text box below.</p><p>Please note that proofreading comments will go back to a typesetter, and so should give concise and clear instructions on any minor corrections needed (do not include questions or optional requests – if you are unsure on something, discuss it with the assigning editor first).</p>"
-    }
-  },
-  {
-    "value": {"default": "Production Complete"},
-    "setting": {
-        "type": "char",
-        "pretty_name": "Production Complete",
-        "is_translatable": true,
-        "description": "Subject for Email sent to Editors when Production is Complete.",
-        "name": "subject_production_complete"
-    },
-    "group": {
-        "name": "email_subject"
     }
   },
   {
@@ -5618,6 +5700,101 @@
     },
     {
         "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include job titles?",
+            "is_translatable": false,
+            "name": "author_job_title",
+            "pretty_name": "Author Job Title",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include department names?",
+            "is_translatable": false,
+            "name": "author_department",
+            "pretty_name": "Author Department",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "metadata"
+        },
+        "setting": {
+            "description": "Should author affiliations include start and end dates?",
+            "is_translatable": false,
+            "name": "author_affiliation_dates",
+            "pretty_name": "Author Affiliation Dates",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "This is information about the accessibility of user-content. It will appear on the accessibility page under the journal name.",
+            "is_translatable": true,
+            "name": "a11y_public_info",
+            "pretty_name": "Accessibility Information for the Public",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "Identifiers"
+        },
+        "setting": {
+            "description": "If enabled crossref DOIs will be minted for open reviews.",
+            "is_translatable": true,
+            "name": "mint_open_review_dois",
+            "pretty_name": "Mint Open Review DOIs",
+            "type": "boolean"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "email"
         },
         "setting": {
@@ -5629,6 +5806,25 @@
         },
         "value": {
             "default": "Dear {{ participant.salutation_name }},<br><br>You have been removed from the discussion \"{{ thread.subject }}\" on {{ object_type }} \"{{ object_title }}\".<br><br>You will no longer receive notifications for this discussion.<br><br>Regards,<br>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Contact message template for recieving external messages on press and journal sites.",
+            "is_translatable": true,
+            "name": "contact_message",
+            "pretty_name": "Contact Message",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "<p>{{ body|safe|linebreaksbr }}</p><hr><p>The above was sent from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a> by {{ from }}.</p>"
         },
         "editable_by": [
             "editor",
@@ -5656,6 +5852,25 @@
     },
     {
         "group": {
+            "name": "general"
+        },
+        "setting": {
+            "description": "RSS and Atom feed links in the journal's page headers.",
+            "is_translatable": false,
+            "name": "feeds",
+            "pretty_name": "RSS/Atom Feeds",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "email_subject"
         },
         "setting": {
@@ -5667,6 +5882,25 @@
         },
         "value": {
             "default": "You have been added to a discussion"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Fallback contact message subject that will typically be overwritten by the user's subject",
+            "is_translatable": true,
+            "name": "subject_contact_message",
+            "pretty_name": "Subject Contact Message",
+            "type": "char"
+        },
+        "value": {
+            "default": "Contact message received"
         },
         "editable_by": [
             "editor",

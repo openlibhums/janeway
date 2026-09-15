@@ -36,6 +36,7 @@
             <li><a href="{% url 'repository_dashboard' %}"><i class="fa fa-dashboard">&nbsp;</i>Author Dashboard</a></li>
             {% if request.user.is_staff or repository_manager %}
                 <li><a href="{% url 'preprints_manager' %}"><i class="fa fa-file-pdf-o">&nbsp;</i>Repository Manager</a></li>
+                <li><a href="{% url 'submission_type_list' %}"><i class="fa fa-tag">&nbsp;</i>Submission Types</a></li>
             {% endif %}
             {% if request.user.is_staff %}
                 <li><a href="{% url 'repository_subjects' %}"><i class="fa fa-object-group">&nbsp;</i>Subjects</a></li>

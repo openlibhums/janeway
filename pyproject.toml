@@ -31,6 +31,14 @@ exclude = [
     "src/foundationform",
     "src/transform/cassius",
 ]
+[tool.tox]
+env_list = ["py39", "py310", "py311", "py312"]
+[tool.tox.testenv]
+commands = [
+    "python src/manage.py test"
+]
+[tool.tox.testenv.deps]
+list = ["Django==4.2", "file:requirements.txt"]
 
 [tool.ruff.format]
 quote-style = "double"

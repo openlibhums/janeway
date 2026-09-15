@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import json
 from dateutil import parser as dateparser
 from urllib.parse import urlparse
+import warnings
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -734,7 +735,7 @@ def ojs_plugin_import_editing_articles(url, journal, auth_file, base_url):
 
 
 def create_article_with_review_content(article_dict, journal, auth_file, base_url):
-    raise DeprecationWarning("Use the imports plugin instead.")
+    warnings.warn("Use the imports plugin instead.")
     date_started = timezone.make_aware(
         dateparser.parse(article_dict.get("date_submitted"))
     )

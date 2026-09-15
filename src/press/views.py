@@ -21,6 +21,7 @@ from core import (
     logic as core_logic,
     views as core_views,
 )
+from core.forms import ContactMessageForm
 from core.views import BaseUserList
 from journal import (
     models as journal_models,
@@ -95,6 +96,42 @@ def sitemap(request):
     )
 
 
+def news_sitemap(request):
+    """
+    Serves the news sub-sitemap. Dispatches to the journal news sub-sitemap
+    when in a journal context.
+    """
+    if request.journal is not None:
+        return journal_views.news_sitemap(request)
+
+    if request.repository is not None:
+        # Repositories have no news sitemap, so serving the press file here
+        # would leak press content under the repository host.
+        raise Http404()
+
+    return core_views.sitemap(
+        request,
+        ["news_sitemap.xml"],
+    )
+
+
+def pages_sitemap(request):
+    """
+    Serves the pages sub-sitemap. Dispatches to the journal or repository
+    pages sub-sitemap when in that context.
+    """
+    if request.journal is not None:
+        return journal_views.pages_sitemap(request)
+
+    if request.repository is not None:
+        return repository_views.pages_sitemap(request)
+
+    return core_views.sitemap(
+        request,
+        ["pages_sitemap.xml"],
+    )
+
+
 def robots(request):
     """
     Serves a generated robots.txt.
@@ -125,7 +162,10 @@ def journals(request):
     template = "press/press_journals.html"
 
     context = {
-        "journals": request.press.public_journals,
+        "active_journals": journal_models.Journal.objects.public_active_journals,
+        "archived_journals": journal_models.Journal.objects.public_archived_journals,
+        "coming_soon_journals": journal_models.Journal.objects.public_coming_soon_journals,
+        "journals": journal_models.Journal.objects.public_journals,  # Backwards compatibility
     }
 
     return render(request, template, context)
@@ -137,14 +177,16 @@ def conferences(request):
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    template = "press/press_journals.html"
+    template = "press/conferences.html"
 
-    journal_objects = journal_models.Journal.objects.filter(
-        hide_from_press=False,
-        is_conference=True,
-    ).order_by("sequence")
+    journal_objects = journal_models.Journal.objects._apply_ordering(
+        journal_models.Journal.objects.filter(
+            hide_from_press=False,
+            is_conference=True,
+        )
+    )
 
-    context = {"journals": journal_objects}
+    context = {"conferences": journal_objects}
 
     return render(request, template, context)
 
@@ -231,7 +273,8 @@ def edit_press(request):
                 from core import logic as core_logic
 
                 core_logic.resize_and_crop(
-                    press.default_carousel_image.path, [750, 324], "middle"
+                    press.default_carousel_image.path,
+                    field_name="Default carousel image",
                 )
 
             messages.add_message(request, messages.INFO, "Press updated.")
@@ -438,3 +481,27 @@ def edit_press_journal_description(request, journal_id):
 @method_decorator(staff_member_required, name="dispatch")
 class AllUsers(BaseUserList):
     pass
+
+
+def contact(request, contact_person_id=None):
+    """
+    Displays a form that allows a user to contact press representatives.
+    :param request: HttpRequest object
+    :param contact_person_id: pk for the ContactPerson that should be pre-selected
+    :return: HttpResponse or HttpRedirect if POST
+    """
+    contact_form, contact_people = core_logic.get_contact_form(
+        request,
+        contact_person_id,
+    )
+    if request.POST and contact_form.is_valid():
+        core_logic.send_contact_message(contact_form, request)
+        return redirect(reverse("press_contact"))
+
+    template = "press/journal/contact.html"
+    context = {
+        "contact_form": contact_form,
+        "contacts": contact_people,
+    }
+
+    return render(request, template, context)

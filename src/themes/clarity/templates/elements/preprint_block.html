@@ -1,0 +1,31 @@
+{% load dates %}
+
+{% for preprint in preprints %}
+
+    <div class="col-md-4 row-eq-height">
+        <div class="card" style="width: 100%;">
+            <div class="card-block">
+                <p>
+                    <small><a href="{% url 'preprints_article' preprint.pk %}">{{ preprint.title|safe }}</a></small>
+                </p>
+                <p>
+                    <small><i>
+                        <ul class="list-inline comma-sep">
+                            {% for author in preprint.authors.all %}
+                                <li>{{ author.full_name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </i></small>
+                </p>
+                <p>
+                    <small><i aria-hidden="true" class="fa fa-calendar">&nbsp;</i>
+                        <time datetime="{{ preprint.date_published|date:"Y-m-d" }}">
+                            <span role="time"> {{ preprint.date_published|date_human }}</span>
+                        </time>
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}

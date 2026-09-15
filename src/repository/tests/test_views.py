@@ -7,12 +7,15 @@ from django.test import Client, TestCase, override_settings
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
+from django.contrib.messages.storage.cookie import CookieStorage
+from django.http import QueryDict
 from django.urls.base import clear_script_prefix
+from django.utils.formats import date_format
 
 from utils.testing import helpers
 from utils.install import update_settings
 from core import models as cm
-from repository import models as rm, install
+from repository import models as rm, install, logic as repository_logic
 from freezegun import freeze_time
 
 from dateutil import tz
@@ -306,6 +309,36 @@ class TestViews(TestCase):
         )
 
     @override_settings(URL_CONFIG="domain")
+    @freeze_time(FROZEN_DATETIME)
+    def test_accept_preprint_with_user_timezone(self):
+        # Regression for #3392: when a user's preferred_timezone is set,
+        # date_published should be correctly converted to UTC and not end up
+        # in the future relative to the server.
+        self.preprint_one.make_new_version(self.preprint_one.submission_file)
+        path = reverse(
+            "repository_manager_article",
+            kwargs={"preprint_id": self.preprint_one.pk},
+        )
+        self.client.force_login(self.repo_manager)
+        # User is in Asia/Karachi (UTC+5). FROZEN_DATETIME is 15:00 UTC,
+        # so their local time is 20:00. They submit their local time with
+        # their correct timezone — date_published should equal FROZEN_DATETIME.
+        self.client.post(
+            path,
+            data={
+                "accept": "",
+                "datetime": "2024-03-25T20:00",
+                "timezone": "Asia/Karachi",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        preprint = rm.Preprint.objects.get(pk=self.preprint_one.pk)
+        self.assertEqual(
+            preprint.date_published.timestamp(),
+            FROZEN_DATETIME.timestamp(),
+        )
+
+    @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME, tz_offset=5)
     def test_accept_preprint_bad_date(self):
         self.preprint_one.make_new_version(self.preprint_one.submission_file)
@@ -378,3 +411,461 @@ class TestViews(TestCase):
             )
             content = response.content.decode()
             self.assertIn("/login/?next=", content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_missing_type(self):
+        request = helpers.Request(repository=self.repository)
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_invalid_type(self):
+        request = helpers.Request(repository=self.repository)
+        request.GET = QueryDict("submission_type=does-not-exist")
+        setattr(request, "_messages", CookieStorage(request))
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_get_submission_type_or_redirect_invalid_ou(self):
+        submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=self.repository,
+            name="Article",
+            name_plural="Articles",
+            slug="article-invalid-ou",
+        )
+        request = helpers.Request(repository=self.repository)
+        request.GET = QueryDict(
+            "submission_type={}&ou=does-not-exist".format(submission_type.slug),
+        )
+        setattr(request, "_messages", CookieStorage(request))
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("repository_submit"))
+
+
+class TestHierarchyView(TestCase):
+    """Tests for the rou_hierarchy_view introduced in iowa-and-isolinear."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.server_name = "hierarchy-test.domain.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=cls.server_name
+        )
+        cls.root = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Research",
+            code="research",
+        )
+        cls.child = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Applied",
+            code="applied",
+            parent=cls.root,
+        )
+        cls.author = helpers.create_user("hierarchy.author@janeway.systems")
+        cls.preprint = helpers.create_preprint(cls.repository, cls.author, cls.subject)
+        cls.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now()
+        cls.preprint.save()
+        cls.preprint.organisation_units.add(cls.root)
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_root_view_returns_200(self):
+        """The hierarchy root page (no ROU selected) returns HTTP 200."""
+        path = reverse("rou_hierarchy")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_root_view_lists_top_level_rous(self):
+        """The root hierarchy page contains the top-level ROU name."""
+        path = reverse("rou_hierarchy")
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertContains(response, "Research")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_rou_view_returns_200(self):
+        """Navigating to a specific ROU returns HTTP 200."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_rou_view_shows_preprints(self):
+        """The selected-ROU page lists preprints belonging to that unit."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertContains(response, self.preprint.title)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_unknown_rou_code_returns_404(self):
+        """A request for a non-existent ROU code returns HTTP 404."""
+        path = reverse("rou_hierarchy", kwargs={"rou_code": "does-not-exist"})
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 404)
+
+
+class RepositorySubmitWithIdTests(TestCase):
+    """Tests for resuming a draft via repository_submit_with_id (#5372)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_5372@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "repo5372.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Article",
+            name_plural="Articles",
+            slug="article-5372",
+        )
+        cls.draft = rm.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.repo_manager,
+            stage=rm.STAGE_PREPRINT_UNSUBMITTED,
+            title="Draft preprint 5372",
+            abstract="Draft abstract",
+            submission_type=cls.submission_type,
+        )
+        cls.typeless_draft = rm.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.repo_manager,
+            stage=rm.STAGE_PREPRINT_UNSUBMITTED,
+            title="Typeless draft 5372",
+            abstract="Draft abstract",
+            submission_type=None,
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_with_id_resumes_draft_without_querystring(self):
+        # The URL previously routed to repository_submit, which no longer
+        # accepts preprint_id, raising TypeError. It now resolves to
+        # repository_info and resumes the draft using its stored type,
+        # even though no submission_type is present in the query string.
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_submit_with_id",
+                kwargs={"preprint_id": self.draft.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Draft preprint 5372")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_with_id_redirects_when_draft_has_no_type(self):
+        # A draft whose submission_type is null cannot be resumed from its
+        # stored type, so it falls back to get_submission_type_or_redirect.
+        # With no submission_type in the query string this redirects to the
+        # start page. This documents the deliberate graceful degradation.
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_submit_with_id",
+                kwargs={"preprint_id": self.typeless_draft.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertRedirects(
+            response,
+            reverse("repository_submit"),
+            fetch_redirect_response=False,
+        )
+
+
+class RepositoryDashboardDateSubmittedTests(TestCase):
+    """The dashboard's Date Submitted column shows the date, not the type (#5441)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.author = helpers.create_user("repo_author_5441@janeway.systems")
+        cls.author.is_active = True
+        cls.author.save()
+        cls.server_name = "repo5441.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.author],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Type5441Unique",
+            name_plural="Type5441Uniques",
+            slug="type-5441-unique",
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.author,
+            cls.subject,
+            title="Dashboard Preprint 5441",
+        )
+        cls.preprint.submission_type = cls.submission_type
+        cls.preprint.save()
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.client.force_login(self.author)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_date_submitted_column_shows_the_date(self):
+        response = self.client.get(
+            reverse("repository_dashboard"),
+            SERVER_NAME=self.server_name,
+        )
+        expected_date = date_format(
+            timezone.localtime(self.preprint.date_submitted),
+            "DATETIME_FORMAT",
+        )
+        self.assertContains(response, expected_date)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_type_appears_only_in_the_type_column(self):
+        response = self.client.get(
+            reverse("repository_dashboard"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, self.submission_type.name, count=1)
+
+
+class TestIdentifierManagementSetting(TestCase):
+    """Tests for the Repository.identifier_management setting."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_idm@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "repoidm.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.preprint_author = helpers.create_user(
+            username="repo_author_idm@janeway.systems",
+        )
+        cls.preprint_author.is_active = True
+        cls.preprint_author.save()
+        cls.staff_member = helpers.create_user(
+            username="repo_staff_idm@janeway.systems",
+            is_active=True,
+            is_staff=True,
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.preprint_author,
+            cls.subject,
+            title="Identifier Management Test Preprint",
+        )
+        update_settings()
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manage_identifiers_link_shown_when_setting_on(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_manager_article",
+                kwargs={"preprint_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, "Manage Identifiers")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manage_identifiers_link_hidden_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_manager_article",
+                kwargs={"preprint_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertNotContains(response, "Manage Identifiers")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_accessible_when_setting_on(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_404_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_denied_for_non_manager(self):
+        self.client.force_login(self.preprint_author)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_add_identifier_view_404_when_setting_off(self):
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "add_new_identifier",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_identifiers_view_404_for_staff_when_setting_off(self):
+        # The setting gates access regardless of user privilege.
+        self.repository.identifier_management = False
+        self.repository.save()
+        self.client.force_login(self.staff_member)
+        response = self.client.get(
+            reverse(
+                "identifiers",
+                kwargs={"content_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class RepositoryFieldTypeScopingTests(TestCase):
+    """The field form only offers this repository's submission types (#5440)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("repo_manager_5440@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "repo5440.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.other_repository, cls.other_subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain="repo5440other.test.com",
+        )
+        install.load_settings(cls.other_repository)
+        cls.local_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Local Type 5440",
+            name_plural="Local Types 5440",
+            slug="local-type-5440",
+        )
+        cls.foreign_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.other_repository,
+            name="Foreign Type 5440",
+            name_plural="Foreign Types 5440",
+            slug="foreign-type-5440",
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client = Client()
+        self.client.force_login(self.repo_manager)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_offers_only_this_repositorys_types(self):
+        response = self.client.get(
+            reverse("repository_fields"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, self.local_type.name)
+        self.assertNotContains(response, self.foreign_type.name)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_rejects_another_repositorys_type(self):
+        self.client.post(
+            reverse("repository_fields"),
+            {
+                "name": "Field 5440",
+                "input_type": "text",
+                "order": 1,
+                "submission_type": self.foreign_type.pk,
+            },
+            SERVER_NAME=self.server_name,
+        )
+        self.assertFalse(rm.RepositoryField.objects.filter(name="Field 5440").exists())
+
+    @override_settings(URL_CONFIG="domain")
+    def test_field_form_accepts_this_repositorys_type(self):
+        self.client.post(
+            reverse("repository_fields"),
+            {
+                "name": "Scoped Field 5440",
+                "input_type": "text",
+                "order": 1,
+                "submission_type": self.local_type.pk,
+            },
+            SERVER_NAME=self.server_name,
+        )
+        field = rm.RepositoryField.objects.get(name="Scoped Field 5440")
+        self.assertEqual(field.submission_type, self.local_type)
+        self.assertEqual(field.repository, self.repository)

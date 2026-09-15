@@ -1,0 +1,87 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load alt_text %}
+
+{% block title %}{{ request.repository.name }}{% endblock %}
+
+{% block body %}
+
+  {% if request.repository.hero_image or request.repository.default_large_image %}
+    <div class="repo-hero-image mb-4">
+      <div class="card border-0">
+        <img class="card-img img-fluid article-img"
+             src="{{ request.repository.best_large_image_url }}"
+             alt="{% get_alt_text file_path=request.repository.best_large_image_url default=request.repository.name %}">
+        <div class="card-img-overlay d-flex align-items-center justify-content-center text-center">
+          <div class="card-text p-3">
+            <h1 class="card-title white-text" style="font-size: 2.5rem;">{{ request.repository.name }}</h1>
+            {% if request.repository.description %}
+              <p class="white-text lead d-none d-md-block">{{ request.repository.description|striptags|truncatechars:200 }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="repo-hero">
+      <h1>{{ request.repository.name }}</h1>
+      {% if request.repository.description %}
+        <p class="lead">{{ request.repository.description|safe }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-6">
+      <form method="POST" action="{% url 'repository_search' %}">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" class="form-control form-control-lg" name="search_term"
+                 placeholder="{% trans 'Search' %} {{ request.repository.object_name_plural }}"
+                 aria-label="{% trans 'Search' %} {{ request.repository.object_name_plural }}">
+          <div class="input-group-append">
+            <button class="btn btn-primary btn-lg" type="submit">
+              <i aria-hidden="true" class="fa fa-search"></i>
+              <span class="sr-only">{% trans 'Search' %}</span>
+            </button>
+          </div>
+        </div>
+      </form>
+      <p class="text-center mt-3">
+        <a href="{% url 'repository_submit' %}" class="btn btn-primary">
+          {% trans 'Submit' %} {{ request.repository.object_name|capfirst }}
+        </a>
+        &nbsp;
+        <a href="{% url 'repository_about' %}" class="btn btn-outline-secondary">
+          {% trans 'About' %} {{ request.repository.name }}
+        </a>
+      </p>
+    </div>
+  </div>
+
+  {% if preprints %}
+    <div class="row">
+      <div class="col-md-12">
+        <h2>{% trans 'Latest' %} {{ request.repository.object_name_plural|capfirst }}</h2>
+      </div>
+    </div>
+    <div class="preprint-card-grid">
+      {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
+    </div>
+    <div class="row justify-content-center mb-3">
+      <div class="col-md-6 text-center">
+        <a href="{% url 'repository_list' %}" class="btn btn-outline-primary">
+          {% trans 'View all' %} {{ request.repository.object_name_plural }}
+        </a>
+      </div>
+    </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <p class="text-muted">{% trans 'No' %} {{ request.repository.object_name_plural }} {% trans 'have been published yet.' %}</p>
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock %}

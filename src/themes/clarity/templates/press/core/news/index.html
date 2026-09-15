@@ -1,0 +1,69 @@
+{% extends "core/base.html" %}
+{% load truncate %}
+{% load dates %}
+{% load pages %}
+
+{% block title %}News{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans 'News' %}</h1>
+            {% if tag %}<h2>Filtering tag: {{ tag }}</h2>{% endif %}
+        </div>
+        {% for item in news_items %}
+            <div class="col-md-12">
+                <h2 id="news-{{ item.pk }}">{{ item.title }}</h2>
+                <p class="byline">{% trans 'Posted by' %} {{ item.posted_by.full_name }} on {{ item.posted|date_human }}</p>
+                <p>{{ item.body|striptags|truncatesmart:400 }}</p>
+                <a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-{{ item.pk }}">
+                    {% trans 'Read More.' %}
+                </a>
+                <hr aria-hidden="true" />
+            </div>
+        {% empty %}
+            <h2>{% trans 'This journal currently has no news items to display' %}.</h2>
+        {% endfor %}
+    </div>
+    <section aria-label="pagination">
+        <div class="pagination-block site-pagination">
+            <ul class="d-flex justify-content-center list-inline">
+                {% if news_items.has_previous %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.previous_page_number }}" class="btn btn-outline-primary">
+                            {% include "elements/icons/page_previous.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% for page in news_items|slice_pages_with_first_last_ellipsis:2 %}
+                    {% if page == '...' %}
+                        <li class="list-inline-item">
+                            <span class="btn btn-outline-secondary disabled" aria-hidden="true">...</span>
+                        </li>
+                    {% elif news_items.number == page.number %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                               class="btn btn-primary">
+                                <span class="sr-only">{% trans 'current page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="list-inline-item">
+                            <a href="?page={{ page.number }}"
+                               class="btn btn-outline-primary">
+                                <span class="sr-only">{% trans 'page' %}</span>{{ page.number }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if news_items.has_next %}
+                    <li class="list-inline-item">
+                        <a href="?page={{ news_items.next_page_number }}" class="btn btn-outline-primary">
+                            {% include "elements/icons/page_next.html" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
+{% endblock body %}

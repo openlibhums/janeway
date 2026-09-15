@@ -20,7 +20,7 @@ from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sessions.models import Session
 from django.core.validators import validate_email
@@ -29,12 +29,13 @@ from django.db import IntegrityError
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 from django.utils import translation
-from django.db.models import Q, OuterRef, Subquery, Count, Avg
+from django.db.models import Q, OuterRef, Subquery, Count, Avg, Exists
 from django.views import generic
 
 from core import models, forms, logic, workflow, files, models as core_models
@@ -292,7 +293,12 @@ def user_logout(request):
     :return: HttpResponse object
     """
     messages.info(request, _("You have been logged out."))
+    # Capture the account's reader preferences before logout() flushes the
+    # session, then re-seed them into the fresh session so they are sticky
+    # across logout: a non-default value stays, a default leaves no key.
+    account_values = logic.capture_account_preferences(request.user)
     logout(request)
+    logic.reseed_session_preferences(request.session, account_values)
     return redirect(reverse("website_index"))
 
 
@@ -436,11 +442,13 @@ def register(request, orcid_token=None):
                 new_user = form.save()
                 if new_user.orcid:
                     orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
-                    for orcid_affil in orcid_details.get("affiliations", []):
+                    orcid_affils = orcid_details.get("affiliations", [])
+                    if orcid_affils:
                         orcid_affil_form = forms.OrcidAffiliationForm(
-                            orcid_affiliation=orcid_affil,
+                            orcid_affiliation=orcid_affils[0],
                             tzinfo=new_user.preferred_timezone,
                             data={"account": new_user},
+                            journal=request.journal,
                         )
                         if orcid_affil_form.is_valid():
                             orcid_affil_form.save()
@@ -462,7 +470,11 @@ def register(request, orcid_token=None):
                 new_user = form.save()
 
             if request.journal:
-                new_user.add_account_role("author", request.journal)
+                submission_limited = request.journal.get_setting(
+                    "general", "limit_access_to_submission"
+                )
+                if not submission_limited:
+                    new_user.add_account_role("author", request.journal)
             logic.send_confirmation_link(request, new_user)
 
             messages.add_message(
@@ -546,6 +558,7 @@ def edit_profile(request):
     """
     user = request.user
     form = forms.EditAccountForm(instance=user)
+    password_form = forms.PasswordChangeForm(user=user, request=request)
     send_reader_notifications = False
     next_url = request.GET.get("next", "")
 
@@ -584,32 +597,18 @@ def edit_profile(request):
                 )
 
         elif "change_password" in request.POST:
-            old_password = request.POST.get("current_password")
-            new_pass_one = request.POST.get("new_password_one")
-            new_pass_two = request.POST.get("new_password_two")
-
-            if old_password and request.user.check_password(old_password):
-                if new_pass_one == new_pass_two:
-                    problems = request.user.password_policy_check(request, new_pass_one)
-                    if not problems:
-                        request.user.set_password(new_pass_one)
-                        request.user.save()
-                        messages.add_message(
-                            request, messages.SUCCESS, _("Password updated.")
-                        )
-                    else:
-                        [
-                            messages.add_message(request, messages.INFO, problem)
-                            for problem in problems
-                        ]
-                else:
-                    messages.add_message(
-                        request, messages.WARNING, _("Passwords do not match")
-                    )
-
+            password_form = forms.PasswordChangeForm(
+                request.POST, user=request.user, request=request
+            )
+            if password_form.is_valid():
+                password_form.save()
+                messages.add_message(request, messages.SUCCESS, _("Password updated."))
+                return redirect(reverse("core_edit_profile"))
             else:
                 messages.add_message(
-                    request, messages.WARNING, _("Old password is not correct.")
+                    request,
+                    messages.WARNING,
+                    _("Password not updated. Please correct the errors below."),
                 )
 
         elif "subscribe" in request.POST and send_reader_notifications:
@@ -663,6 +662,7 @@ def edit_profile(request):
     template = "admin/core/accounts/edit_profile.html"
     context = {
         "form": form,
+        "password_form": password_form,
         "staff_group_membership_form": staff_group_membership_form,
         "user_to_edit": user,
         "send_reader_notifications": send_reader_notifications,
@@ -766,6 +766,7 @@ def affiliation_update_from_orcid(request, how_many="primary"):
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"account": request.user},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))
@@ -857,7 +858,8 @@ def dashboard(request):
         "is_reviewer": request.user.is_reviewer(request),
         "section_editor_articles": section_editor_articles,
         "active_submission_count": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(stage=submission_models.STAGE_UNSUBMITTED)
         .count(),
@@ -936,7 +938,8 @@ def dashboard(request):
             typesetter=request.user,
         ).count(),
         "active_submissions": submission_models.Article.objects.filter(
-            owner=request.user, journal=request.journal
+            frozenauthor__author=request.user,
+            journal=request.journal,
         )
         .exclude(
             stage__in=[
@@ -1061,6 +1064,22 @@ def manager_index(request):
             journal=request.journal,
         ).select_related("section")[:25],
         "support_message": support_message,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+def whats_new(request):
+    """
+    Displays the highlights of the current Janeway release for journal staff.
+    :param request: HttpRequest object
+    :return: HttpResponse object
+    """
+    template = "core/manager/whats_new.html"
+    context = {
+        "deprecated_workflow_elements": logic.deprecated_workflow_elements(
+            request.journal
+        ),
     }
     return render(request, template, context)
 
@@ -1253,7 +1272,7 @@ def edit_settings_group(request, display_group):
             else:
                 fire_redirect = False
 
-            if attr_form_object:
+            if attr_form_object and display_group != "images":
                 attr_form = attr_form_object(
                     request.POST,
                     request.FILES,
@@ -1261,11 +1280,6 @@ def edit_settings_group(request, display_group):
                 )
                 if attr_form.is_valid():
                     attr_form.save()
-
-                    if display_group == "images":
-                        logic.handle_default_thumbnail(
-                            request, request.journal, attr_form
-                        )
                 else:
                     fire_redirect = False
 
@@ -1477,7 +1491,7 @@ def add_user(request):
     """
     form = forms.EditAccountForm()
     registration_form = forms.AdminUserForm(active="add", request=request)
-    return_url = request.GET.get("return", None)
+    next_url = request.GET.get("return", None) or request.GET.get("next", None)
     role = request.GET.get("role", None)
 
     if request.POST:
@@ -1497,13 +1511,21 @@ def add_user(request):
             form = forms.EditAccountForm(request.POST, request.FILES, instance=new_user)
 
             if form.is_valid():
-                form.save()
-                messages.add_message(request, messages.SUCCESS, "User created.")
+                account = form.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _("User account created for %(name)s (%(email)s)")
+                    % {
+                        "name": account.full_name(),
+                        "email": account.email,
+                    },
+                )
 
-                if return_url:
-                    return redirect(return_url)
-
-                return redirect(reverse("core_manager_users"))
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_manager_users"))
 
         else:
             # If the registration form is not valid,
@@ -1870,105 +1892,174 @@ def article_image_edit(request, article_pk):
 
 
 @editor_user_required
-def contacts(request):
+def contact_people(request):
     """
-    Allows for adding and deleting of JournalContact objects.
+    See the list of ContactPerson objects,
+    and delete individual ContactPerson records.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
-    form = forms.JournalContactForm()
-    contacts = models.Contacts.objects.filter(
-        content_type=request.model_content_type,
-        object_id=request.site_type.pk,
-    )
+    contact_people = request.site_type.contact_people
 
     if "delete" in request.POST:
         contact_id = request.POST.get("delete")
-        contact = get_object_or_404(
-            models.Contacts,
+        contact_person = get_object_or_404(
+            models.ContactPerson,
             pk=contact_id,
             content_type=request.model_content_type,
             object_id=request.site_type.pk,
         )
-        contact.delete()
-        return redirect(reverse("core_journal_contacts"))
-
-    if request.POST:
-        form = forms.JournalContactForm(request.POST)
-
-        if form.is_valid():
-            contact = form.save(commit=False)
-            contact.content_type = request.model_content_type
-            contact.object_id = request.site_type.pk
-            contact.sequence = request.site_type.next_contact_order()
-            contact.save()
-            return redirect(reverse("core_journal_contacts"))
+        contact_person.delete()
+        return redirect(reverse("core_contact_people"))
 
     template = "core/manager/contacts/index.html"
     context = {
-        "form": form,
-        "contacts": contacts,
-        "action": "new",
+        "contacts": contact_people,
     }
-
     return render(request, template, context)
 
 
 @editor_user_required
 @GET_language_override
-def edit_contacts(request, contact_id=None):
+def contact_person_create(request, account_id):
+    """
+    Create a new ContactPerson with the selected account.
+    :param request: HttpRequest object
+    :param contact_id: Contact object PK
+    :return: HttpResponse object
+    """
+    next_url = request.GET.get("next", "")
+    account = get_object_or_404(models.Account, pk=account_id)
+    contact_people = request.site_type.contact_people
+    with translation.override(request.override_language):
+        form = forms.ContactPersonForm(
+            next_sequence=request.site_type.next_contact_order(),
+        )
+
+        if request.POST:
+            form = forms.ContactPersonForm(request.POST)
+            if form.is_valid():
+                contact_person = form.save(commit=False)
+                contact_person.account = account
+                contact_person.content_type = request.model_content_type
+                contact_person.object_id = request.site_type.pk
+                contact_person.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _("Contact person added: %(contact_person)s")
+                    % {"contact_person": contact_person},
+                )
+
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_contact_people"))
+
+    template = "core/manager/contacts/contact_person_form.html"
+    context = {
+        "account": account,
+        "contact_people": contact_people,
+        "form": form,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@GET_language_override
+def contact_person_update(request, contact_person_id):
     """
     Allows for editing of existing Contact objects
     :param request: HttpRequest object
     :param contact_id: Contact object PK
     :return: HttpResponse object
     """
+    next_url = request.GET.get("next", "")
+    contact_person = get_object_or_404(
+        models.ContactPerson,
+        pk=contact_person_id,
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
+    contact_people = request.site_type.contact_people
     with translation.override(request.override_language):
-        if contact_id:
-            contact = get_object_or_404(
-                models.Contacts,
-                pk=contact_id,
-                content_type=request.model_content_type,
-                object_id=request.site_type.pk,
-            )
-            form = forms.JournalContactForm(instance=contact)
-        else:
-            contact = None
-            form = forms.JournalContactForm(
-                next_sequence=request.site_type.next_contact_order(),
-            )
-
+        form = forms.ContactPersonForm(instance=contact_person)
         if request.POST:
-            form = forms.JournalContactForm(request.POST, instance=contact)
-
+            form = forms.ContactPersonForm(
+                request.POST,
+                instance=contact_person,
+            )
             if form.is_valid():
-                if contact:
-                    contact = form.save()
-                else:
-                    contact = form.save(commit=False)
-                    contact.content_type = request.model_content_type
-                    contact.object_id = request.site_type.pk
-                    contact.save()
-
-                return language_override_redirect(
+                contact_person = form.save()
+                messages.add_message(
                     request,
-                    "core_journal_contact",
-                    {"contact_id": contact.pk},
+                    messages.SUCCESS,
+                    _("Contact person updated: %(contact_person)s")
+                    % {"contact_person": contact_person},
                 )
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse("core_contact_people"))
 
-    template = "core/manager/contacts/manage.html"
+    template = "core/manager/contacts/contact_person_form.html"
     context = {
         "form": form,
-        "contact": contact,
+        "contact_person": contact_person,
+        "contact_people": contact_people,
+        "account": contact_person.account,
     }
 
     return render(request, template, context)
 
 
-@editor_user_required
-def contacts_order(request):
+@login_required
+def contact_person_delete(request, contact_person_id):
     """
-    Reorders the Contact list, posted via AJAX.
+    Allows a staff member or editor to remove a contact person.
+    """
+
+    next_url = request.GET.get("next", "")
+    contact_person = get_object_or_404(
+        models.ContactPerson,
+        pk=contact_person_id,
+        content_type=request.model_content_type,
+        object_id=request.site_type.pk,
+    )
+    contact_people = request.site_type.contact_people
+    form = forms.ConfirmDeleteForm()
+
+    if request.method == "POST":
+        form = forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            contact_person.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Contact person removed: %(contact_person)s")
+                % {"contact_person": contact_person},
+            )
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(reverse("core_contact_people"))
+
+    template = "admin/core/manager/contacts/confirm_remove.html"
+    context = {
+        "account": contact_person.account,
+        "form": form,
+        "thing_to_delete": contact_person,
+        "contact_person": contact_person,
+        "contact_people": contact_people,
+    }
+    return render(request, template, context)
+
+
+@editor_user_required
+@require_POST
+def contact_people_reorder(request):
+    """
+    Reorders the ContactPerson list, posted via AJAX.
     :param request: HttpRequest object
     :return: HttpResponse object
     """
@@ -1976,11 +2067,9 @@ def contacts_order(request):
         ids = request.POST.getlist("contact[]")
         ids = [int(_id) for _id in ids]
 
-        for jc in models.Contacts.objects.filter(
-            content_type=request.model_content_type, object_id=request.site_type.pk
-        ):
-            jc.sequence = ids.index(jc.pk)
-            jc.save()
+        for contact_person in request.site_type.contact_people:
+            contact_person.sequence = ids.index(contact_person.pk) + 1
+            contact_person.save()
 
     return HttpResponse("Thanks")
 
@@ -2175,13 +2264,20 @@ def plugin_list(request):
                 {
                     "model": plugin,
                     "manager_url": manager_url,
-                    "name": getattr(plugin_settings, "PLUGIN_NAME"),
+                    "settings": plugin_settings,
                 },
             )
         except (ImportError, NoReverseMatch) as e:
-            failed_to_load.append(plugin)
+            failed_to_load.append({"plugin": plugin, "error": str(e)})
             logger.error("Importing plugin %s failed: %s" % (plugin, e))
             logger.exception(e)
+
+    plugin_list.sort(
+        key=lambda p: (
+            getattr(p["settings"], "DISPLAY_NAME", None)
+            or getattr(p["settings"], "PLUGIN_NAME", "")
+        ).lower()
+    )
 
     template = "core/manager/plugins.html"
     context = {
@@ -2620,6 +2716,106 @@ def set_session_timezone(request):
     )
 
 
+@require_POST
+def toggle_accessibility_mode(request):
+    """
+    Toggle the accessibility mode flag.
+
+    When enabled, the template override loader serves the Clarity theme
+    regardless of the journal/repository/press theme setting, providing an
+    accessible base palette and templates. Available to anonymous users.
+
+    For authenticated users the preference is persisted on
+    Account.accessibility_mode. Anonymous users have it stored in the
+    session. If the journal-level setting general.accessibility_mode is
+    turned off, the toggle is unavailable and the view returns 404.
+    """
+    if request.journal:
+        try:
+            setting_value = setting_handler.get_setting(
+                "general",
+                "accessibility_mode",
+                request.journal,
+            )
+        except models.Setting.DoesNotExist:
+            setting_value = None
+        if setting_value is None or not setting_value.processed_value:
+            raise Http404()
+
+    if request.user.is_authenticated:
+        # Base the new value on the effective state rather than the account
+        # flag alone: an anonymous preference carried in the session can make
+        # the mode read as active while the account flag is still False.
+        # Toggling the account flag in isolation would then enable it instead
+        # of disabling it, leaving the mode impossible to turn off. Read both
+        # sources directly rather than via logic.accessibility_mode_active,
+        # whose journal-setting consult is served from a cache that may lag
+        # the database; the journal setting has already been checked,
+        # uncached, above.
+        current = bool(request.user.accessibility_mode) or bool(
+            request.session.get("accessibility_mode")
+        )
+        request.user.accessibility_mode = not current
+        request.user.save(update_fields=["accessibility_mode"])
+        # Drop any stale anonymous session flag so it cannot shadow the
+        # account preference on subsequent requests.
+        request.session.pop("accessibility_mode", None)
+    else:
+        current = bool(request.session.get("accessibility_mode"))
+        request.session["accessibility_mode"] = not current
+
+    host = request.get_host()
+    next_url = request.POST.get("next")
+    if next_url and url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={host},
+        require_https=request.is_secure(),
+    ):
+        return redirect(next_url)
+
+    referer = request.META.get("HTTP_REFERER")
+    if referer:
+        if url_has_allowed_host_and_scheme(
+            url=referer,
+            allowed_hosts={host},
+            require_https=request.is_secure(),
+        ):
+            return redirect(referer)
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Failed to redirect to disallowed url: %s") % referer,
+        )
+
+    return redirect("/")
+
+
+@require_POST
+def save_text_format_preferences(request):
+    """Persist the reader's reading-options preferences.
+
+    Authenticated users have the preferences stored on
+    Account.text_format_preferences; anonymous users in the session.
+    """
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (ValueError, TypeError, UnicodeDecodeError):
+        return JsonResponse({"error": "invalid payload"}, status=400)
+
+    cleaned = logic.clean_text_format_preferences(payload)
+
+    if request.user.is_authenticated:
+        request.user.text_format_preferences = cleaned
+        request.user.save(update_fields=["text_format_preferences"])
+        # Drop any stale anonymous session copy so it cannot shadow the account
+        # preference on later requests.
+        request.session.pop("text_format_preferences", None)
+    else:
+        request.session["text_format_preferences"] = cleaned
+
+    return JsonResponse({"preferences": cleaned})
+
+
 @login_required
 def request_submission_access(request):
     if request.repository:
@@ -2767,7 +2963,9 @@ def sitemap(request, path_parts):
     try:
         return files.serve_sitemap_file(path_parts)
     except FileNotFoundError:
-        logger.warning("Sitemap for {} not found.".format(request.journal.name))
+        # request.journal is None in press/repository context, so log the
+        # requested path rather than dereferencing a possibly-absent journal.
+        logger.warning("Sitemap for {} not found.".format("/".join(path_parts)))
 
     raise Http404()
 
@@ -3019,9 +3217,7 @@ class FilteredArticlesListView(GenericFacetedListView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        raise DeprecationWarning(
-            "This view is deprecated. Use GenericFacetedListView instead."
-        )
+        warnings.warn("This view is deprecated. Use GenericFacetedListView instead.")
 
 
 @method_decorator(editor_user_required, name="dispatch")
@@ -3373,3 +3569,51 @@ def affiliation_delete(request, affiliation_id):
         "thing_to_delete": affiliation.organization.name,
     }
     return render(request, template, context)
+
+
+@method_decorator(editor_user_required, name="dispatch")
+class PotentialContactListView(GenericFacetedListView):
+    """
+    Allows an editor or press manager to search for someone in order to
+    make them a contact person for the journal or press.
+    """
+
+    model = core_models.Account
+    template_name = "admin/core/manager/contacts/search_potential.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contact_people"] = self.request.site_type.contact_people
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        return queryset.annotate(
+            is_contact_person=Exists(
+                self.request.site_type.contact_people.filter(
+                    account=OuterRef("pk"),
+                )
+            )
+        )
+
+    def get_journal_filter_query(self):
+        if self.request.journal:
+            journal_roles = ["editor", "section-editor", "press-manager"]
+            return (
+                Q(
+                    accountrole__journal=self.request.journal,
+                    accountrole__role__slug__in=journal_roles,
+                )
+                | Q(is_staff=True)
+                | Q(is_superuser=True)
+            )
+        else:
+            return Q(is_staff=True) | Q(is_superuser=True)
+
+    def get_facets(self):
+        return {
+            "q": {
+                "type": "search",
+                "field_label": "Search",
+            },
+        }

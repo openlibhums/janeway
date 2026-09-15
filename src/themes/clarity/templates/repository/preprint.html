@@ -1,0 +1,259 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load hooks %}
+{% load i18n %}
+{% load alt_text %}
+{% load bootstrap4 %}
+{% load next_url %}
+{% load dates %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+
+{% block head %}
+  {% include "common/metadata/preprint_dc.html" %}
+  {% include "common/metadata/preprint_citation.html" %}
+{% endblock %}
+
+{% block body %}
+
+  {% if request.repository.hero_image or request.repository.default_large_image %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <img class="card-img img-fluid article-img"
+               src="{{ request.repository.best_large_image_url }}"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}">
+          <div class="card-img-overlay white-text">
+            <div class="card-text">
+              <h1 class="card-title article-title">{{ preprint.title|safe }}</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row" id="preprint_metadata">
+
+    <div class="col-md-7">
+      <div id="preprint">
+
+        {% if not request.repository.hero_image and not request.repository.default_large_image %}
+          <h1>{{ preprint.title|safe }}</h1>
+        {% endif %}
+
+        <p class="text-muted">
+          {% trans 'This is a' %} {{ request.repository.object_name }} {% trans 'and has not been peer reviewed.' %}
+          {% if preprint.doi %}
+            {% trans 'The published version of this' %} {{ request.repository.object_name }} {% trans 'is available:' %}
+            {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
+          {% elif preprint.article %}
+            {% blocktrans with url=preprint.article.url journal=preprint.article.journal.name %}A published version of this preprint is available on <a href="{{ url }}">{{ journal }}</a>.{% endblocktrans %}
+          {% endif %}
+          {% blocktrans with version=preprint.current_version.version object_name=request.repository.object_name %}This is version {{ version }} of this {{ object_name }}.{% endblocktrans %}
+        </p>
+
+        {% if preprint.current_version_file_type == 'html' %}
+          <div itemprop="articleBody" id="main_article">
+            {{ preprint.current_version.html|safe }}
+          </div>
+        {% elif preprint.current_version_file_type == 'pdf' %}
+          <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                  width="100%" style="min-height: 900px; border: none;" allowfullscreen
+                  title="{{ preprint.title|striptags }} PDF"></iframe>
+        {% else %}
+          {% if preprint.current_version.file %}
+            <p>{% trans 'This' %} {{ request.repository.object_name }} {% trans 'has no visible version.' %}</p>
+            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+               class="btn btn-primary">
+              {{ request.repository.object_name }}
+              {% include "elements/icons/link_download.html" %}
+            </a>
+          {% else %}
+            <p>{% trans 'This' %} {{ request.repository.object_name }} {% trans 'does not have any files associated with it.' %}</p>
+          {% endif %}
+        {% endif %}
+
+        {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
+          <div class="card mt-4">
+            <div class="card-body">
+              {% if request.repository.enable_comments %}
+                <h2>{% trans 'Add a Comment' %}</h2>
+                {% if request.user.is_authenticated %}
+                  <form method="POST">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <button type="submit" class="btn btn-primary">{% trans 'Add Comment' %}</button>
+                  </form>
+                  <hr>
+                {% else %}
+                  <p>
+                    {% url_with_return 'core_login' as login_url %}
+                    {% blocktrans %}You must <a href="{{ login_url }}">log in</a> to post a comment.{% endblocktrans %}
+                  </p>
+                {% endif %}
+              {% endif %}
+
+              <h2>{% trans 'Comments' %}</h2>
+              {% for comment in comments %}
+                <div class="row mt-3" id="comment-{{ comment.pk }}">
+                  <div class="col-md-1">
+                    {% if comment.author.profile_image and not comment.review.anonymous %}
+                      <img src="{{ comment.author.profile_image.url }}"
+                           alt="{% blocktrans with name=comment.author.full_name %}Profile image of {{ name }}{% endblocktrans %}"
+                           class="img-fluid rounded-circle">
+                    {% else %}
+                      <img src="{% static 'common/img/icons/users.png' %}"
+                           alt="{% trans 'Generic profile image' %}"
+                           class="img-fluid rounded-circle">
+                    {% endif %}
+                  </div>
+                  <div class="col-md-11">
+                    {% if comment.review %}
+                      <p><small><strong>{% trans 'Invited Review Comment' %} #{{ comment.pk }}
+                        {% if comment.review.anonymous %}{% trans 'Anonymous' %}{% else %}{{ comment.author.full_name }}{% endif %}
+                        &mdash; {{ comment.date_time }}</strong></small></p>
+                      {{ comment.body|safe }}
+                    {% else %}
+                      <p><small>{% trans 'Comment' %} #{{ comment.pk }} {{ comment.author.full_name }} &mdash; {{ comment.date_time }}</small></p>
+                      <p>{{ comment.body|linebreaksbr }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              {% empty %}
+                <p class="text-muted">{% trans 'There are no comments for this' %} {{ request.repository.object_name }}.</p>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="col-md-4 offset-md-1">
+      <div class="card">
+        <div class="card-body">
+          <section aria-label="{% trans 'Preprint Information' %}">
+
+            {% if preprint.current_version.file %}
+              <h2>{% trans 'Downloads' %}</h2>
+              <ul class="no-bullet-list">
+                <li>
+                  <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                    {{ request.repository.object_name|capfirst }}
+                    {% include "elements/icons/link_download.html" %}
+                  </a>
+                </li>
+              </ul>
+            {% endif %}
+
+            {% if preprint.supplementaryfiles %}
+              <h2>{% trans 'Supplementary Files' %}</h2>
+              <ul class="no-bullet-list">
+                {% for link in preprint.supplementaryfiles %}
+                  <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                {% empty %}
+                  <li>{% trans 'No supplementary files.' %}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            <h2>{% trans 'Authors' %}</h2>
+            <p>
+              {% for author in preprint.authors %}
+                {{ author.full_name }}
+                {% if author.orcid %}
+                  &nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank">
+                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID" class="orcid-img">
+                  </a>
+                {% endif %}
+                {% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+
+            {% if preprint.abstract %}
+              <h2>{% trans 'Abstract' %}</h2>
+              <p>{{ preprint.abstract|safe }}</p>
+            {% endif %}
+
+            {% if preprint.preprint_doi %}
+              <h2>{% trans 'DOI' %}</h2>
+              <p>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</p>
+            {% endif %}
+
+            {% if preprint.subject.all %}
+              <h2>{% trans 'Subjects' %}</h2>
+              <p>{% include "common/repository/subject_display.html" %}</p>
+            {% endif %}
+
+            {% if preprint.keywords.all %}
+              <h2>{% trans 'Keywords' %}</h2>
+              <ul class="keywords-list">
+                {% for keyword in preprint.keywords.all %}
+                  <li>{{ keyword.word }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            <h2>{% trans 'Dates' %}</h2>
+            <ul class="no-bullet-list">
+              <li><strong>{% trans 'Published:' %}</strong> {{ preprint.date_published|date_human }}</li>
+              {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}
+                <li><strong>{% trans 'Last Updated:' %}</strong> {{ preprint.current_version.date_time|date_human }}</li>
+              {% endif %}
+            </ul>
+
+            {% if preprint.preprintversion_set.count > 1 %}
+              <h2>{% trans 'Older Versions' %}</h2>
+              <ul class="no-bullet-list">
+                {% for version in preprint.preprintversion_set.all %}
+                  {% if not version == preprint.current_version %}
+                    <li>
+                      <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                        {% include "elements/icons/link_download.html" %}
+                        {% trans 'Version' %} {{ version.version }} &mdash; {{ version.date_time|date_human }}
+                      </a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            {% if preprint.license %}
+              <h2>{% trans 'License' %}</h2>
+              <p>
+                {% if preprint.license.url %}
+                  <a href="{{ preprint.license.url }}" target="_blank">
+                    {{ preprint.license.name }}
+                    {% include "elements/icons/link_external.html" %}
+                  </a>
+                {% else %}
+                  {{ preprint.license.name }}
+                {% endif %}
+              </p>
+            {% endif %}
+
+            {% if preprint.display_additional_fields %}
+              <h2>{% trans 'Additional Metadata' %}</h2>
+              {% for answer in preprint.display_additional_fields %}
+                <p><strong>{{ answer.field.name }}:</strong><br>{{ answer.answer|safe }}</p>
+              {% endfor %}
+            {% endif %}
+
+            {% if request.repository.display_public_metrics %}
+              <h2>{% trans 'Metrics' %}</h2>
+              <ul class="no-bullet-list">
+                <li><strong>{% trans 'Views:' %}</strong> {{ preprint.views.count }}</li>
+                <li><strong>{% trans 'Downloads:' %}</strong> {{ preprint.downloads.count }}</li>
+              </ul>
+            {% endif %}
+
+            {% hook 'article_sidebar' %}
+
+          </section>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

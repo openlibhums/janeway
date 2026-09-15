@@ -1,0 +1,110 @@
+{% load static %}
+{% load i18n hooks press_url %}
+{% load sitemap_tags %}
+{% get_current_language as current_language %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}" data-clarity-palette="{% if accessibility_mode_active %}paper{% else %}{{ journal_settings.theme.clarity.clarity_palette|default:'evergreen' }}{% endif %}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="format-detection" content="telephone=no"/>
+        {% if request.journal %}
+            <meta name="description" content="{{ request.journal.description }}">{% endif %}
+        <title>{% block title %}{% if request.journal %}{{ request.journal.name }}{% else %}{{ request.press.name }}
+        {% endif %}{% endblock title %}</title>
+        {% block head %}{% endblock head %}
+        <link rel="sitemap" type="application/xml" title="Sitemap" href="{% page_sitemap_url request.resolver_match.url_name %}">
+
+        {% if not request.journal or journal_settings.general.feeds %}
+            <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate"
+                  title="Article Feed for Journal">
+            <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+        {% endif %}
+        {% include "common/elements/favicons.html" %}
+
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+              integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link href="{% static "clarity/css/palettes.css" %}" rel="stylesheet">
+        <link href="{% static "clarity/css/clarity.css" %}" rel="stylesheet">
+        <link href="{% static "common/css/index.css" %}" rel="stylesheet">
+        {% block css %}{% endblock %}
+        {% hook 'base_head_css' %}
+    </head>
+    <body>
+        {% include "common/elements/skip_to_main_content.html" %}
+
+        <header class="site-header">
+            <div id="journal-title" class="container">
+                <div class="row">
+                    {% if request.journal and request.journal.header_image %}
+                        {% get_alt_text file_path=request.journal.header_image default=request.journal.name as header_alt_text %}
+                        <div class="col-md-3">
+                            <a href="{{ request.journal.site_url }}" aria-label="{% trans 'Home' %}">
+                                <img src="{{ request.journal.header_image.url }}"
+                                     class="img-fluid header-image top-bar-image"
+                                     alt="{{ header_alt_text }}">
+                            </a>
+                        </div>
+
+                        {% if journal_settings.styling.display_journal_title %}
+                            <div class="col-md-9">
+                                <p class="journal-name">{{ request.journal.name }}</p>
+                            </div>
+                        {% endif %}
+                    {% elif request.press and not request.journal %}
+                        <div class="col-md-2">
+                            {% if 'svg' in request.press_cover %}
+                                {% svg request.press_cover %}
+                                <span class="sr-only">{{ request.press.name }}</span>
+                            {% else %}
+                                {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+                                <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
+                                     alt="{{ press_logo_alt }}">
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </header>
+        {% if request.journal %}
+            {% include "core/nav.html" %}
+        {% elif request.repository %}
+            {% include "repository/nav.html" %}
+        {% elif request.press %}
+            {% include "press/nav.html" %}
+        {% endif %}
+        <main id="main-content" class="container">
+            {% block reading_options_bar %}{% endblock reading_options_bar %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissable">
+                    <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">{% trans 'Close message' %}</span>
+                    </button>
+                    <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>
+                </div>
+            {% endfor %}
+            {% block body %}{% endblock body %}
+        </main>
+        <footer class="site-footer" id="footer">
+            <div class="container">
+                {% include "core/footer.html" %}
+            </div>
+        </footer>
+        {% include "common/elements/analytics.html" %}
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+                integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+                integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+                crossorigin="anonymous"></script>
+        <script src="{% static "common/js/accessibility-toggle.js" %}"></script>
+        {% block js %}{% endblock %}
+    </body>
+</html>

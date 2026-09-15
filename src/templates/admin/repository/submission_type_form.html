@@ -1,0 +1,61 @@
+{% extends "admin/core/base.html" %}
+{% load static foundation %}
+
+{% block title %}
+  {% if editing %}Edit{% else %}New{% endif %} Submission Type
+{% endblock %}
+
+{% block title-section %}
+  {% if editing %}Edit{% else %}New{% endif %} Submission Type
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+  <li>
+    <a href="{% url 'preprints_manager' %}">
+      {{ request.repository.object_name|capfirst }} Manager
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'submission_type_list' %}">
+      Submission Types
+    </a>
+  </li>
+  <li>{% if editing %}Edit{% else %}New{% endif %}</li>
+{% endblock %}
+
+{% block body %}
+  <div class="box">
+    <div class="content">
+      <div class="row expanded">
+        <div class="medium-5 columns">
+          {% include "admin/elements/forms/errors.html" with form=form %}
+          <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form|foundation }}
+            <div class="row expanded">
+              <div class="large-12 columns">
+                <button type="submit" class="button success">
+                  {% if editing %}Update{% else %}Create{% endif %}
+                </button>
+                <a href="{% url 'submission_type_list' %}"
+                   class="button secondary">Cancel</a>
+              </div>
+            </div>
+          </form>
+      </div>
+      <div class="medium-3 columns end">
+        <p>The slug field should consist of only letters, numbers, underscores or hyphens.</p>
+        <p>
+        When selecting a pill colour, you should ensure that it has at least
+        <strong>4.5:1 contrast ratio</strong> with your site's background to meet
+        <a href="https://www.w3.org/TR/WCAG22/#contrast-minimum" target="_blank"
+           rel="noopener">
+          WCAG 2.2 AA 1.4.3 Contrast requirements
+        </a>.
+      </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

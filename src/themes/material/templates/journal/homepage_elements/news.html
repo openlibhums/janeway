@@ -17,7 +17,7 @@
                         {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                             <div class="card-image">
                                 <img src="{{ item.best_image_url }}"
-                                     alt="{{ item.title|striptags|unescape }}"/>
+                                     alt="{{ item.best_large_image_alt_text }}"/>
                                 <span class="card-title">
                           <div class="carousel-text-wrapper">
                             {{ item.title }}

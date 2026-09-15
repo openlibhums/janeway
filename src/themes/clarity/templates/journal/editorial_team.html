@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ journal_settings.styling.editorial_group_page_name }}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ journal_settings.styling.editorial_group_page_name }}</h1>
+        </div>
+    </div>
+
+    {% for group in editorial_groups %}
+        {% if not journal_settings.styling.hide_editorial_group_names %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>{{ group.name }}</h2>
+                    {% if group.description %}
+                        <p>{{ group.description|safe }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            {% for member in group.members %}
+                <div class="col-md-4 row-eq-height">
+                    <div class="card full-width-card">
+                        {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" %}
+                        <div class="card-body">
+                            <h3 id="card-{{ member.id }}" class="card-title editor-name">{{ member.user.full_name }}</h3>
+                            <p class="card-text">
+                                <small>
+                                    {{ member.user.affiliation }}{% include "common/elements/journal/editorial_team_country.html" %}
+                                </small>
+                            </p>
+                            {% if member.user.enable_public_profile %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <a href="{% url 'core_public_profile' member.user.uuid %}"
+                                           aria-describedby="card-{{ member.id }}"
+                                        >
+                                            {% trans 'View Profile' %}
+                                        </a>
+                                    </small>
+                                </p>
+                            {% endif %}
+                            {% include "elements/journal/editorial_social_content.html" with user=member.user %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -20,6 +20,7 @@ include("events.registration")
 
 urlpatterns = [
     path("", press_views.index, name="website_index"),
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
     path("summernote/", include("django_summernote.urls")),
     path("", include("core.include_urls")),

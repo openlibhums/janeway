@@ -389,10 +389,18 @@ def set_article_image(request, article):
             article.fixedpubcheckitems.select_article_image = True
             article.fixedpubcheckitems.save()
 
-        core_logic.resize_and_crop(new_file.self_article_path(), [750, 324], "middle")
+        core_logic.resize_and_crop(
+            new_file.self_article_path(),
+            field_name="Large image",
+            original_filename=uploaded_file.name,
+        )
 
 
 def send_contact_message(new_contact, request):
+    warnings.warn(
+        "`journal.logic.send_contact_message` is deprecated. "
+        "Use `core.logic.send_contact_message` instead."
+    )
     body = new_contact.body.replace("\n", "<br>")
     message = """
     <p>This message is from {0}'s contact form.</p>
@@ -557,12 +565,22 @@ def handle_notification(notifications, type, **kwargs):
 
     for notification in notifications:
         if notification.domain == domain:
+            log_dict = {
+                "level": "Info",
+                "action_text": "{0} notification sent to {1}".format(
+                    type,
+                    notification.user.full_name(),
+                ),
+                "types": "Article Notification",
+                "target": article,
+            }
             notify_helpers.send_email_with_body_from_setting_template(
                 request,
                 "notification_{0}".format(type),
                 "Article Notification",
                 notification.user.email,
                 {"article": article, "notification": notification},
+                log_dict=log_dict,
             )
 
 

@@ -35,6 +35,7 @@ class Migration(migrations.Migration):
                     ("major_revisions", "Major Revisions Required"),
                     ("reject", "Reject"),
                     ("none", "No Recommendation"),
+                    ("withdrawn", "Withdrawn"),
                 ],
                 max_length=20,
                 null=True,

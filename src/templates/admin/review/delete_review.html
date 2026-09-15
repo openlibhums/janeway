@@ -2,7 +2,7 @@
 
 {% block title %}Delete Review{% endblock title %}
 {% block title-section %}Delete Review{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub_pii.html" %}{% endblock %}
 
 {% block breadcrumbs %}
 {{ block.super }}

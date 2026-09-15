@@ -11,11 +11,14 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.utils import OperationalError, ProgrammingError
 from packaging import version
 
+from utils.logger import get_logger
 from core.workflow import ELEMENT_STAGES, STAGES_ELEMENTS
 from core.plugin_installed_apps import EXCLUDED_PLUGIN_DIRS
 from janeway import __version__ as janeway_version
 from submission.models import PLUGIN_WORKFLOW_STAGES
 from utils import models
+
+logger = get_logger(__name__)
 
 
 def get_dirs(directory):
@@ -96,11 +99,13 @@ def validate_plugin_version(plugin_settings):
     valid = current_version >= wants_version
 
     if not valid:
-        raise ImproperlyConfigured(
-            "Plugin {} not  compatibile with current install: {} < {}".format(
-                plugin_settings.PLUGIN_NAME, current_version, wants_version
-            )
+        msg = "Plugin {} not  compatibile with current install: {} < {}".format(
+            plugin_settings.PLUGIN_NAME, current_version, wants_version
         )
+        if settings.DEBUG:
+            logger.warning(msg)
+        else:
+            raise ImproperlyConfigured(msg)
 
 
 def get_plugin(module_name, permissive):
@@ -127,6 +132,32 @@ def get_plugin(module_name, permissive):
 
 def load_hooks(plugin_settings):
     return plugin_settings.hook_registry()
+
+
+def call_hooks(hook_name, *args, **kwargs):
+    """Call Python plugin hooks registered under hook_name.
+
+    Unlike the {% hook %} template tag, which concatenates HTML output,
+    this collects and returns each hook function's return value so core
+    code can consume structured data from plugins.
+
+    :param hook_name: the name hooks were registered under in a plugin's
+        hook_registry.
+    :return: a list of the non-None values returned by the hook functions.
+    """
+    results = []
+    for hook in settings.PLUGIN_HOOKS.get(hook_name, []):
+        try:
+            hook_module = import_module(hook.get("module"))
+            function = getattr(hook_module, hook.get("function"))
+            result = function(*args, **kwargs)
+            if result is not None:
+                results.append(result)
+        except Exception as e:
+            logger.error("Error calling hook {0}: {1}".format(hook_name, e))
+            if settings.DEBUG:
+                raise
+    return results
 
 
 def check_plugin_workflow(plugin_settings):

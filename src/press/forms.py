@@ -39,14 +39,18 @@ class PressForm(forms.ModelForm):
             "password_upper",
             "password_length",
             "tracking_code",
+            "order_journals_az",
             "disable_journals",
             "privacy_policy_url",
+            "a11y_info",
+            "allow_journal_a11y_info",
         )
         widgets = {
             "theme": forms.Select(choices=logic.get_theme_list()),
             "footer_description": TinyMCE(),
             "journal_footer_text": TinyMCE(),
             "description": TinyMCE(),
+            "a11y_info": TinyMCE(),
         }
 
     def save(self, commit=True):

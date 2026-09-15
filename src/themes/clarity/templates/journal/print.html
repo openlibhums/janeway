@@ -1,0 +1,39 @@
+{% load static %}
+{% load hooks %}
+{% load i18n %}
+<html lang="{{ request.current_language }}">
+  <head>
+    <title>
+      {% include "common/elements/journal/article_title.html" %}
+    </title>
+    {% include "elements/article_meta_tags.html" %}
+  </head>
+  <body>
+    <p class="uppercase">{{ article.section.name }}</p>
+    <h1>{{ article.title|safe }}</h1>
+    <p>
+      <strong>
+        {% blocktrans count counter=article.frozen_authors.count %}
+          Author
+        {% plural %}
+          Authors
+        {% endblocktrans %}
+      </strong>
+    </p>
+    {% include "common/elements/journal/article_authors_full.html" %}
+
+    <h2>{% trans "Abstract" %}</h2>
+    <p>{{ article.abstract | safe }}</p>
+    {% if article.keywords %}
+      <p><strong>{% trans "Keywords" %}:</strong>
+        <ul class="list-inline comma-sep">
+          {% for keyword in article.keywords.all %}
+            <li>{{ keyword.word }}</li>
+          {% endfor %}
+        </ul>
+      </p>{% endif %}
+    <p><strong>{% trans "How to Cite" %}:</strong>
+      {% include "elements/journal/how_to_cite.html" with article=article %}
+      {{ article_content|safe }}
+    </body>
+  </html>

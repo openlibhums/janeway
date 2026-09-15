@@ -1,0 +1,13 @@
+{% spaceless %}
+  <ul class="list-inline comma-and-sep">
+    {% for author in article.frozenauthor_set.all %}
+      {% if not limit or forloop.counter <= limit %}
+        <li>
+          <a href="#author-{{ author.pk }}">{{ author.full_name }}</a>
+        </li>
+      {% elif limit and forloop.counter == limit|add:1 %}
+        <li>{% trans "others" %}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endspaceless %}

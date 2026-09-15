@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load pages %}
+
+{% block title %}{{ request.repository.name }} {% trans 'Subjects' %}{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{% trans 'Subjects' %}</h1>
+      <p>{% blocktrans with object_name_plural=request.repository.object_name_plural %}Select a subject to view {{ object_name_plural }} in that subject.{% endblocktrans %}</p>
+      <ul id="subjects" class="tree">
+        {% include "common/repository/subject_tree.html" with subjects=top_level_subjects %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

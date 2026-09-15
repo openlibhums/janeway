@@ -1,5 +1,26 @@
+{% load i18n %}
 <div class="skip-container">
   <a class="skip-to-content" href="#main-content">
     {% trans 'Skip to main content' %}
   </a>
+  {% if journal_settings.general.accessibility_mode or not request.journal %}
+  <form method="post"
+        action="{% url 'toggle_accessibility_mode' %}"
+        class="skip-to-content-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit"
+            class="skip-to-content a11y-switch{% if accessibility_mode_active %} a11y-switch--on{% endif %}"
+            role="switch"
+            aria-checked="{% if accessibility_mode_active %}true{% else %}false{% endif %}">
+      <span class="a11y-switch-label">{% trans 'Accessibility mode' %}</span>
+      <span class="a11y-switch-track" aria-hidden="true">
+        <span class="a11y-switch-thumb"></span>
+      </span>
+      <span class="a11y-switch-state" aria-hidden="true">
+        {% if accessibility_mode_active %}{% trans 'On' %}{% else %}{% trans 'Off' %}{% endif %}
+      </span>
+    </button>
+  </form>
+  {% endif %}
 </div>

@@ -140,6 +140,7 @@
             </li>
             {% hook 'journal_admin_nav_block' %}
         {% endif %}
+        {% hook 'additional_nav' %}
         <li class="subtitle">
             <a href="#">Version: {{ version }}</a>
         </li>

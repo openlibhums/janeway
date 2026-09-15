@@ -83,30 +83,17 @@
         You can update your password by entering your existing
         password plus your new password.
       {% endblocktrans %}</p>
+      <strong>{% trans "Password Requirements" %}</strong>
+      <ul class="no-top-margin">
+        {% include "common/elements/password_rules.html" %}
+      </ul>
+      {% include "admin/elements/forms/errors.html" with form=password_form %}
       <form method="POST">
         {% csrf_token %}
         <div class="flex wrap column-gap-2">
-          <div>
-            <label for="current_password">
-              <strong>{% trans "Current Password" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="current_password" required="true">
-          </div>
-          <div>
-            <label for="new_password_one">
-              <strong>{% trans "New Password" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="new_password_one" required="true">
-          </div>
-          <div>
-            <label for="new_password_two">
-              <strong>{% trans "Enter Password Again" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="new_password_two" required="true">
-          </div>
+          {% include "admin/elements/forms/field.html" with field=password_form.old_password %}
+          {% include "admin/elements/forms/field.html" with field=password_form.new_password_one %}
+          {% include "admin/elements/forms/field.html" with field=password_form.new_password_two %}
         </div>
         <button
           type="submit"
