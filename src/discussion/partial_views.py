@@ -2,21 +2,23 @@ import os
 from uuid import uuid4
 
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from core import files as core_files
 from core import models as core_models
-from core.views import BaseUserList
+from core.views import GenericFacetedListView
 from discussion import forms, models
 from events import logic as event_logic
 from repository import models as repository_models
-from security.decorators import can_access_thread, editor_user_required
+from security.decorators import can_access_thread, editor_or_manager
 from submission import models as submission_models
 from review.models import ReviewAssignment
 from copyediting.models import CopyeditAssignment
@@ -101,7 +103,7 @@ def thread_detail_partial(
     )
 
 
-@editor_user_required
+@editor_or_manager
 def new_thread_form_partial(
     request,
     object_type,
@@ -140,13 +142,18 @@ def new_thread_form_partial(
     )
 
 
-@method_decorator(editor_user_required, name="dispatch")
-class ThreadInviteUserListView(BaseUserList):
+@method_decorator(editor_or_manager, name="dispatch")
+class ThreadInviteUserListView(GenericFacetedListView):
     """
-    Reuses the BaseUserList to display potential invitees for a discussion thread.
+    Displays potential invitees for a discussion thread.
     Only lists active users and excludes participants already in the thread.
+
+    Subclasses GenericFacetedListView rather than BaseUserList because the
+    latter is decorated with editor_user_required, which denies repository
+    managers (#5479).
     """
 
+    model = core_models.Account
     template_name = "admin/discussion/partials/invite_search.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -156,12 +163,41 @@ class ThreadInviteUserListView(BaseUserList):
         )
         return super().dispatch(request, *args, **kwargs)
 
+    def get_facets(self):
+        return {
+            "q": {
+                "type": "search",
+                "field_label": _("Search"),
+            },
+        }
+
+    def get_order_by_choices(self):
+        return [
+            ("last_name", _("Last name A-Z")),
+            ("-last_name", _("Last name Z-A")),
+        ]
+
+    def get_journal_filter_query(self):
+        if self.request.journal:
+            return Q(accountrole__journal=self.request.journal)
+        return Q()
+
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.filter(is_active=True)
 
-        if self.request.journal:
-            qs = qs.filter(accountrole__journal=self.request.journal)
+        if self.request.repository:
+            # Restrict to accounts connected to the repository: managers
+            # and the thread preprint's owner and authors.
+            relevant_ids = set(
+                self.request.repository.managers.values_list("pk", flat=True)
+            )
+            preprint = self.thread.preprint
+            if preprint:
+                if preprint.owner_id:
+                    relevant_ids.add(preprint.owner_id)
+                relevant_ids.update(author.pk for author in preprint.authors)
+            qs = qs.filter(pk__in=relevant_ids)
 
         participant_ids = self.thread.participants.values_list("id", flat=True)
         qs = qs.exclude(pk__in=participant_ids)
@@ -223,7 +259,7 @@ class ThreadInviteUserListView(BaseUserList):
 
 
 @require_POST
-@editor_user_required
+@editor_or_manager
 def add_participant(request, thread_id):
     thread = get_object_or_404(models.Thread, pk=thread_id)
     user_id = request.POST.get("user_id")
@@ -245,7 +281,7 @@ def add_participant(request, thread_id):
     return HttpResponse(status=204)
 
 
-@editor_user_required
+@editor_or_manager
 def create_thread(request, object_type, object_id):
     if object_type == "article":
         obj = get_object_or_404(
@@ -358,7 +394,7 @@ def add_post(request, thread_id):
 
 
 @require_POST
-@editor_user_required
+@editor_or_manager
 def remove_participant(request, thread_id):
     thread = get_object_or_404(models.Thread, pk=thread_id)
     user_id = request.POST.get("user_id")

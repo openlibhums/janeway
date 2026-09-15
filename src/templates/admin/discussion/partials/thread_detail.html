@@ -1,7 +1,7 @@
 {% load foundation %}
-{% load roles %}
+{% load discussion_tags %}
 
-{% user_has_role request 'editor' as user_is_editor %}
+{% can_manage_discussion request as user_can_manage %}
 
 <div class="thread-detail-header">
   <div id="subject-display" class="thread-subject-display">
@@ -38,7 +38,7 @@
              title="{{ participant.full_name }}"
              style="display: inline-flex; align-items: center;">
           {% include "admin/discussion/avatar.html" with user=participant avatar_class="participant-avatar" %}
-          {% if participant != thread.owner and user_is_editor %}
+          {% if participant != thread.owner and user_can_manage %}
             <button class="participant-remove-btn"
                     hx-post="{% url 'discussion_remove_participant' thread.pk %}"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Invite button trigger (editors only) -->
-    {% if user_is_editor %}
+    {% if user_can_manage %}
     <div class="participants-actions">
       <button class="button tiny hollow"
               hx-get="{% url 'discussion_invite_search' thread.pk %}"

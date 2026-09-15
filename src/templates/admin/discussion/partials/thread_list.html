@@ -1,5 +1,10 @@
+{% load discussion_tags %}
+
+{% can_manage_discussion request as user_can_manage %}
+
 <div class="thread-list-header">
     <h3>Discussions</h3>
+    {% if user_can_manage %}
     <a class="button"
        hx-get="{% url 'discussion_new_thread_modal' object_type object.pk %}"
        hx-target="#new_thread_modal"
@@ -7,6 +12,7 @@
        data-open="new_thread_modal">
        <i class="fa fa-plus"></i> New Thread
     </a>
+    {% endif %}
 </div>
 
 {% if threads %}
