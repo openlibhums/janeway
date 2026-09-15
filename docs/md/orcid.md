@@ -12,9 +12,9 @@ It can be set up in a few steps.
 
 | Type | Redirect URI |
 |------|-------------|
-| Press (and everything within it)| `https://<press-domain>/` |
-| Individual Journal — domain config | `https://<journal-domain>/` |
-| Individual Journal — no press and on path config | `https://<press-domain>/<journal_code>/login/orcid/` |
+| Press (covers everything within it that is on path config)| `https://<press-domain>/` |
+| Individual Journal — domain config (required regardless of press config) | `https://<journal-domain>/` |
+| Individual Journal — no press and on path config | `https://<press-domain>/<journal_code>/` |
 
 3. Enable ORCID and copy the keys from your client into the Django settings file (`src/core/settings.py`). Replace _`CLIENT_SECRET`_ and _`CLIENT_ID`_ with the values from orcid.org.
 
