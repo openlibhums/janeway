@@ -5681,6 +5681,25 @@
     },
     {
         "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to a user when they are added as a participant to a discussion thread.",
+            "is_translatable": true,
+            "name": "discussion_participant_added",
+            "pretty_name": "Discussion Participant Added",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ participant.salutation_name }},<br><br>You have been added to the discussion \"{{ thread.subject }}\" on {{ object_type }} \"{{ object_title }}\" by {{ added_by.full_name }}.<br><br>You can view this discussion at: {{ thread_url }}<br><br>Regards,<br>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "metadata"
         },
         "setting": {
@@ -5779,6 +5798,25 @@
             "name": "email"
         },
         "setting": {
+            "description": "Email sent to a user when they are removed from a discussion thread.",
+            "is_translatable": true,
+            "name": "discussion_participant_removed",
+            "pretty_name": "Discussion Participant Removed",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ participant.salutation_name }},<br><br>You have been removed from the discussion \"{{ thread.subject }}\" on {{ object_type }} \"{{ object_title }}\".<br><br>You will no longer receive notifications for this discussion.<br><br>Regards,<br>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
             "description": "Contact message template for recieving external messages on press and journal sites.",
             "is_translatable": true,
             "name": "contact_message",
@@ -5787,6 +5825,25 @@
         },
         "value": {
             "default": "<p>{{ body|safe|linebreaksbr }}</p><hr><p>The above was sent from the <a href=\"{% stateless_site_url site 'contact' %}\">contact page for {{ site.name }}</a> by {{ from }}.</p>"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email"
+        },
+        "setting": {
+            "description": "Email sent to discussion participants when a new post is created.",
+            "is_translatable": true,
+            "name": "discussion_new_post",
+            "pretty_name": "Discussion New Post",
+            "type": "rich-text"
+        },
+        "value": {
+            "default": "Dear {{ recipient.salutation_name }},<br><br>{{ post.owner.full_name }} has posted a new message in the discussion \"{{ thread.subject }}\" on {{ object_type }} \"{{ object_title }}\":<br><br><blockquote>{{ post.body_html }}</blockquote><br>You can view this discussion at: {{ thread_url }}<br><br>Regards,<br>"
         },
         "editable_by": [
             "editor",
@@ -5817,6 +5874,25 @@
             "name": "email_subject"
         },
         "setting": {
+            "description": "Subject for Discussion Participant Added Email",
+            "is_translatable": true,
+            "name": "subject_discussion_participant_added",
+            "pretty_name": "Subject Discussion Participant Added",
+            "type": "char"
+        },
+        "value": {
+            "default": "You have been added to a discussion"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
             "description": "Fallback contact message subject that will typically be overwritten by the user's subject",
             "is_translatable": true,
             "name": "subject_contact_message",
@@ -5830,5 +5906,81 @@
             "editor",
             "journal-manager"
         ]
-    }
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Discussion Participant Removed Email",
+            "is_translatable": true,
+            "name": "subject_discussion_participant_removed",
+            "pretty_name": "Subject Discussion Participant Removed",
+            "type": "char"
+        },
+        "value": {
+            "default": "You have been removed from a discussion"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "email_subject"
+        },
+        "setting": {
+            "description": "Subject for Discussion New Post Email",
+            "is_translatable": true,
+            "name": "subject_discussion_new_post",
+            "pretty_name": "Subject Discussion New Post",
+            "type": "char"
+        },
+        "value": {
+            "default": "New post in a discussion"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+{
+    "group": {
+        "name": "general"
+    },
+    "setting": {
+        "description": "Hides the reviewer guidelines from reviewers.",
+        "is_translatable": true,
+        "name": "reviewer_guidelines_hidden",
+        "pretty_name": "Reviewer guidelines hidden",
+        "type": "boolean"
+    },
+    "value": {
+        "default": ""
+    },
+    "editable_by": [
+        "editor",
+        "journal-manager"
+    ]
+},
+{
+    "group": {
+        "name": "general"
+    },
+    "setting": {
+        "description": "Hides the reviewer form until reviewers have agreed to undertake review.",
+        "is_translatable": true,
+        "name": "review_form_hidden_pre_accept",
+        "pretty_name": "Review form hidden until reviewers have agreed",
+        "type": "boolean"
+    },
+    "value": {
+        "default": ""
+    },
+    "editable_by": [
+        "editor",
+        "journal-manager"
+    ]
+}
 ]

@@ -280,13 +280,25 @@
                             <a href="{% url 'document_management' article.pk %}?return={{ request.path }}"><i
                                     class="fa fa-file-archive-o">&nbsp;</i>Document
                                 Management</a></li>
-                        {% if article.stage == 'Accepted' %}
+                        {% with stats=article.discussion_stats %}
                             <li>
-                                <a href="{% url 'move_to_next_workflow_element' article.pk %}">
-                                    <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
-                                    {% trans 'Move to Next Stage' %}
+                                <a href="{% url 'discussion_threads' 'article' article.pk %}">
+                                    <i class="fa fa-pencil action-icon">&nbsp;</i>{{ stats.threads }} Discussion{{ stats.threads|pluralize }}
+                                    {% if stats.threads %}
+                                        ({{ stats.posts }} post{{ stats.posts|pluralize }})
+                                    {% endif %}
                                 </a>
                             </li>
+                        {% endwith %}
+                        {% if article.is_accepted %}
+                            {% if article.in_review_stages %}
+                                <li>
+                                    <a href="{% url 'move_to_next_workflow_element' article.pk %}">
+                                        <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
+                                        {% trans 'Move to Next Stage' %}
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% else %}
                             <li>
                                 <a href="{% url 'decision_helper' article.pk %}">

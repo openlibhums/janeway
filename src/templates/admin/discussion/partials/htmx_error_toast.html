@@ -1,0 +1,8 @@
+<script>
+    document.body.addEventListener('htmx:responseError', function (evt) {
+        var xhr = evt.detail.xhr;
+        if (xhr && xhr.status >= 400 && xhr.status < 500) {
+            toastr.error(xhr.responseText || 'An error occurred.');
+        }
+    });
+</script>
