@@ -51,6 +51,7 @@ def hook_registry():
                 "module": "core.homepage_elements.featured.hooks",
                 "function": "yield_homepage_element_context",
                 "name": PLUGIN_NAME,
+                "configure_url": "featured_articles_setup",
             }
         }
     except OperationalError:
