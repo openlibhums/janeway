@@ -11,18 +11,23 @@
             <span class="card-title">{% trans 'Become a Reviewer' %}</span>
             <p>{{ message }}</p>
 
-            {% if not code == 'already-reviewer' %}
-                {% if code == 'not-logged-in' %}
-                    <a class="btn" href="{% url_with_return 'core_login' %}">
-                      {% trans "Log in" %}
-                    </a>
-                {% else %}
-                    <form method="POST">
-                        {% csrf_token %}
-                        <button type="submit" name="action" value="go"
-                                class="btn">{% trans "Become a Reviewer" %}</button>
-                    </form>
-                {% endif %}
+            {% if code == 'not-logged-in' %}
+                <a class="btn" href="{% url_with_return 'core_login' %}">
+                  {% trans "Log in" %}
+                </a>
+                <a class="btn" href="{% url_with_return 'core_register' %}">
+                  {% trans "Register" %}
+                </a>
+            {% elif code == 'already-reviewer' %}
+                <a class="btn" href="{% url 'core_edit_profile' %}">
+                  {% trans "Go to Profile" %}
+                </a>
+            {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="go"
+                            class="btn">{% trans "Become a Reviewer" %}</button>
+                </form>
             {% endif %}
         </div>
     </div>
