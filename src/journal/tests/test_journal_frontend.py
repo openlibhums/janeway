@@ -262,3 +262,51 @@ class TestJournalSite(TestCase):
             response,
             self.article_title,
         )
+
+
+class TestBecomeReviewerFrontEndDisabled(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = Press(domain="disabledfepress.org")
+        cls.press.save()
+        cls.journal_domain = "disabledfe.janeway.systems"
+        cls.journal = make_test_journal(
+            code="dfetests",
+            domain=cls.journal_domain,
+        )
+        cls.journal.disable_front_end = True
+        cls.journal.save()
+        helpers.create_roles(["Author", "Reviewer"])
+        cls.new_user = helpers.create_user(
+            "dfe_user@janeway.systems",
+            ["author"],
+            cls.journal,
+            **{"is_active": True},
+        )
+        clear_script_prefix()
+
+    def test_become_reviewer_renders_back_office_template(self):
+        self.client.force_login(self.new_user)
+        response = self.client.get(
+            reverse("become_reviewer"),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "admin/journal/become_reviewer.html",
+        )
+
+    def test_become_reviewer_post_grants_role(self):
+        self.client.force_login(self.new_user)
+        response = self.client.post(
+            reverse("become_reviewer"),
+            data={"action": "go"},
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertRedirects(
+            response,
+            reverse("core_dashboard"),
+            fetch_redirect_response=False,
+        )
+        self.assertTrue(self.new_user.check_role(self.journal, "reviewer"))

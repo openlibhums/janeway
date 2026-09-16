@@ -2024,7 +2024,6 @@ def publication_schedule(request):
 
 
 @login_required
-@decorators.frontend_enabled
 def become_reviewer(request):
     """
     If a user is signed in and not a reviewer, lets them become one, otherwsie asks them to login/tells them they
@@ -2068,7 +2067,10 @@ def become_reviewer(request):
         )
         return redirect(reverse("core_dashboard"))
 
-    template = "journal/become_reviewer.html"
+    if request.journal.disable_front_end:
+        template = "admin/journal/become_reviewer.html"
+    else:
+        template = "journal/become_reviewer.html"
     context = {
         "code": code,
         "message": message,
