@@ -1,0 +1,28 @@
+{% extends 'admin/core/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Become a Reviewer" %}{% endblock %}
+{% block title-section %}{% trans "Become a Reviewer" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>{% trans "Become a Reviewer" %}</li>
+{% endblock %}
+
+{% block body %}
+    <section id="content">
+        <div class="box">
+            <div class="row expanded">
+                <div class="large-12 columns">
+                    <p>{{ message }}</p>
+                    {% if not code == 'already-reviewer' %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="go" class="success button">{% trans "Become a Reviewer" %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
