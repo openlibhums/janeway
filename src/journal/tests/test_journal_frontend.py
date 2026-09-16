@@ -149,6 +149,21 @@ class TestJournalSite(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.new_user.check_role(self.journal, "reviewer"))
+        self.assertContains(response, reverse("core_edit_profile"))
+
+    def test_become_reviewer_page_anonymous(self):
+        response = self.client.get(
+            reverse(
+                "become_reviewer",
+            ),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "journal/become_reviewer.html",
+        )
+        self.assertContains(response, "Register")
 
     def test_collection_page(self):
         response = self.client.get(
@@ -261,4 +276,81 @@ class TestJournalSite(TestCase):
         self.assertNotContains(
             response,
             self.article_title,
+        )
+
+
+class TestBecomeReviewerFrontEndDisabled(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = Press(domain="disabledfepress.org")
+        cls.press.save()
+        cls.journal_domain = "disabledfe.janeway.systems"
+        cls.journal = make_test_journal(
+            code="dfetests",
+            domain=cls.journal_domain,
+        )
+        cls.journal.disable_front_end = True
+        cls.journal.save()
+        helpers.create_roles(["Author", "Reviewer"])
+        cls.new_user = helpers.create_user(
+            "dfe_user@janeway.systems",
+            ["author"],
+            cls.journal,
+            **{"is_active": True},
+        )
+        clear_script_prefix()
+
+    def test_become_reviewer_renders_back_office_template(self):
+        self.client.force_login(self.new_user)
+        response = self.client.get(
+            reverse("become_reviewer"),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "admin/journal/become_reviewer.html",
+        )
+
+    def test_become_reviewer_post_grants_role(self):
+        self.client.force_login(self.new_user)
+        response = self.client.post(
+            reverse("become_reviewer"),
+            data={"action": "go"},
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertRedirects(
+            response,
+            reverse("core_dashboard"),
+            fetch_redirect_response=False,
+        )
+        self.assertTrue(self.new_user.check_role(self.journal, "reviewer"))
+        response = self.client.get(
+            reverse("become_reviewer"),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertContains(response, reverse("core_edit_profile"))
+
+    def test_become_reviewer_anonymous_get(self):
+        response = self.client.get(
+            reverse("become_reviewer"),
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            "admin/journal/become_reviewer.html",
+        )
+        self.assertContains(response, "Register")
+
+    def test_become_reviewer_anonymous_post_redirects_to_login(self):
+        response = self.client.post(
+            reverse("become_reviewer"),
+            data={"action": "go"},
+            SERVER_NAME=self.journal_domain,
+        )
+        self.assertRedirects(
+            response,
+            reverse("core_login"),
+            fetch_redirect_response=False,
         )
