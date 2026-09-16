@@ -1,5 +1,6 @@
 {% extends 'admin/core/base.html' %}
 {% load i18n %}
+{% load next_url %}
 
 {% block title %}{% trans "Become a Reviewer" %}{% endblock %}
 {% block title-section %}{% trans "Become a Reviewer" %}{% endblock %}
@@ -15,7 +16,18 @@
             <div class="row expanded">
                 <div class="large-12 columns">
                     <p>{{ message }}</p>
-                    {% if not code == 'already-reviewer' %}
+                    {% if code == 'not-logged-in' %}
+                        <a class="success button" href="{% url_with_return 'core_login' %}">
+                            {% trans "Log in" %}
+                        </a>
+                        <a class="button" href="{% url_with_return 'core_register' %}">
+                            {% trans "Register" %}
+                        </a>
+                    {% elif code == 'already-reviewer' %}
+                        <a class="success button" href="{% url 'core_edit_profile' %}">
+                            {% trans "Go to Profile" %}
+                        </a>
+                    {% else %}
                         <form method="POST">
                             {% csrf_token %}
                             <button type="submit" name="action" value="go" class="success button">{% trans "Become a Reviewer" %}</button>
