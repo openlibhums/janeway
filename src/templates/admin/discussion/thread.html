@@ -1,18 +1,22 @@
 <div class="thread-callout{% if thread == active_thread %} thread-active{% endif %}">
     <div class="row expanded">
         <div class="large-2 columns avatar-column">
-            {% include "admin/discussion/avatar.html" with user=thread.owner %}
+            {% include "admin/discussion/avatar.html" with user=thread.owner tooltip="off" decorative="on" %}
         </div>
         <div class="large-8 columns">
-            <h2>
+            <span class="thread-subject">
                {{ thread.subject }}
-            </h2>
+            </span>
             <p class="subheader">Posted by {{ thread.owner.full_name }}<br/> Started on {{ thread.started|date:"Y-m-d H:i" }}<br /> Updated on {{ thread.last_updated|date:"Y-m-d H:i" }}</p>
         </div>
         <div class="large-1 columns">
-            <h3 class="float-right subheader"><span class="fa fa-comment-o" aria-hidden="true"></span> {{ thread.user_posts.count }}</h3>
+            <span class="thread-post-count float-right">
+                <span class="fa fa-comment-o" aria-hidden="true"></span>
+                {{ thread.user_posts.count }}
+                <span class="show-for-sr">posts</span>
+            </span>
             {% if thread.unread_count %}
-                <span class="unread-badge float-right">{{ thread.unread_count }}</span>
+                <span class="unread-badge float-right">{{ thread.unread_count }}<span class="show-for-sr"> unread</span></span>
             {% endif %}
         </div>
     </div>

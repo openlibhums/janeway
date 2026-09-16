@@ -17,13 +17,14 @@
                 <span class="label secondary">{{ user.article_roles|join:", " }}</span>
               {% endif %}
             </span>
-            <button class="button tiny success invite-btn"
+            <button type="button"
+                    class="button tiny success invite-btn"
                     hx-post="{% url 'discussion_add_participant' thread.pk %}"
                     hx-vals='{"user_id":"{{ user.pk }}"}'
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-swap="none"
                     hx-on::after-request="window.location.reload();">
-              Invite
+              Invite<span class="show-for-sr"> {{ user.full_name|default:"this user" }}</span>
             </button>
           </li>
         {% endfor %}
@@ -35,10 +36,10 @@
           hx-target="#invite-modal-content"
           hx-swap="innerHTML"
           hx-indicator="#invite-modal-loading"
-          class="invite-search-form"
-          onsubmit="showInviteSpinner();">
+          class="invite-search-form">
       <div class="input-group">
-        <input type="text" name="q" class="input-group-field" placeholder="Search users...">
+        <label class="show-for-sr" for="invite-search-input">Search users</label>
+        <input type="text" id="invite-search-input" name="q" class="input-group-field" placeholder="Search users...">
         <div class="input-group-button">
           <button type="submit" class="button">Search</button>
         </div>
@@ -51,13 +52,14 @@
           {% for user in object_list %}
             <li class="invite-list-item">
               <span class="invite-name">{{ user.full_name|default:"[No Name]" }} - {{ user.email }}</span>
-              <button class="button tiny success invite-btn"
+              <button type="button"
+                      class="button tiny success invite-btn"
                       hx-post="{% url 'discussion_add_participant' thread.pk %}"
                       hx-vals='{"user_id":"{{ user.pk }}"}'
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                       hx-swap="none"
                       hx-on::after-request="window.location.reload();">
-                Invite
+                Invite<span class="show-for-sr"> {{ user.full_name|default:"this user" }}</span>
               </button>
             </li>
           {% endfor %}

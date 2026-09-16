@@ -10,7 +10,7 @@
 {% else %}
 <div class="row expanded">
     <div class="small-1 columns">
-        {% include "admin/discussion/avatar.html" with user=post.owner %}
+        {% include "admin/discussion/avatar.html" with user=post.owner tooltip="off" decorative="on" %}
     </div>
     <div class="small-11 columns">
         {% if post.owner == request.user %}
@@ -22,11 +22,14 @@
                             <span class="post-edited-tag" title="Edited {{ post.edited|date:'Y-m-d H:i' }}">(edited)</span>
                         {% endif %}
                     </small>
-                    <button class="post-edit-btn" onclick="togglePostEdit({{ post.pk }})" title="Edit">
+                    <button type="button"
+                            class="discussion-icon-btn post-edit-btn"
+                            data-discussion-edit="post-{{ post.pk }}">
                         <span class="fa fa-pencil" aria-hidden="true"></span>
+                        <span class="show-for-sr">Edit your post of {{ post.posted|date:"H:i" }} {{ post.display_date }}</span>
                     </button>
                 </p>
-                <div id="post-display-{{ post.pk }}">
+                <div id="discussion-display-post-{{ post.pk }}">
                     {% if post.body %}<div class="post-body">{{ post.body_html }}</div>{% endif %}
                     {% if post.file %}
                     <div class="post-attachment">
@@ -37,16 +40,20 @@
                     </div>
                     {% endif %}
                 </div>
-                <form id="post-edit-{{ post.pk }}" style="display:none;"
+                <form id="discussion-edit-post-{{ post.pk }}"
+                      class="post-edit-form is-hidden"
                       hx-post="{% url 'discussion_edit_post' post.thread.pk post.pk %}"
                       hx-target="#thread-detail-container"
                       hx-swap="innerHTML"
                       hx-encoding="multipart/form-data"
                       enctype="multipart/form-data">
                     {% csrf_token %}
-                    <textarea name="body">{{ post.body }}</textarea>
+                    <label class="show-for-sr" for="discussion-post-body-{{ post.pk }}">Edit post</label>
+                    <textarea id="discussion-post-body-{{ post.pk }}" name="body">{{ post.body }}</textarea>
                     <button type="submit" class="button tiny">Save</button>
-                    <button type="button" class="button tiny secondary" onclick="togglePostEdit({{ post.pk }})">Cancel</button>
+                    <button type="button"
+                            class="button tiny secondary"
+                            data-discussion-cancel="post-{{ post.pk }}">Cancel</button>
                 </form>
             </div>
         {% else %}

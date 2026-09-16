@@ -58,5 +58,5 @@
 {% block js %}
     {{ block.super }}
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    {% include "admin/discussion/partials/htmx_error_toast.html" %}
+    <script src="{% static "admin/js/discussions.js" %}"></script>
 {% endblock %}

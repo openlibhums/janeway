@@ -13,6 +13,15 @@
     --text-dark: #1a1f2e;
     --text-muted: #6b7280;
     --white: #ffffff;
+    /* Action blue is dark enough to hold 3:1 against white and the light
+       blue message bubble, unlike --blue-light which is decorative only. */
+    --blue-action: #1779ba;
+    --focus-ring: #1779ba;
+    --focus-ring-on-dark: #ffffff;
+}
+
+.is-hidden {
+    display: none !important;
 }
 
 /* Base Layout */
@@ -66,25 +75,54 @@
     border: none;
 }
 
-.thread-list-header .button:hover {
+.thread-list-header .button:hover,
+.thread-list-header .button:focus-visible {
     background: var(--blue-lighter);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(124, 185, 232, 0.3);
 }
 
-/* Thread List Items */
-.thread-list-item {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.thread-list-header .button:focus-visible {
+    outline: 2px solid var(--focus-ring-on-dark);
+    outline-offset: 2px;
 }
 
-.thread-list-item:hover {
-    background: var(--slate-hover);
+/* Thread List Items */
+.thread-list {
+    margin: 0;
+    padding: 0;
+}
+
+.thread-list-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .thread-list-item:last-child {
     border-bottom: none;
+}
+
+/*
+ * The whole row is a link so that it is reachable with the keyboard and
+ * activates with Enter. HTMX intercepts the click to swap the detail pane,
+ * and the href keeps the row usable if the swap cannot happen.
+ */
+.thread-list-link {
+    display: block;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.thread-list-link:hover,
+.thread-list-link:focus {
+    background: var(--slate-hover);
+    color: inherit;
+}
+
+.thread-list-link:focus-visible {
+    outline: 2px solid var(--focus-ring-on-dark);
+    outline-offset: -2px;
 }
 
 .thread-callout {
@@ -103,7 +141,8 @@
     margin: 0;
 }
 
-.thread-callout h2 {
+.thread-callout .thread-subject {
+    display: block;
     font-size: 1rem;
     font-weight: 600;
     color: var(--white);
@@ -123,10 +162,14 @@
     margin-right: 0.25rem;
 }
 
-.thread-callout h3.subheader {
+.thread-post-count {
     font-size: 0.875rem;
     color: var(--blue-light);
     font-weight: 600;
+}
+
+.thread-post-count .fa-comment-o {
+    margin-right: 0.25rem;
 }
 
 /* Avatar Styles */
@@ -203,10 +246,15 @@
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .participant-item {
     position: relative;
+    display: inline-flex;
+    align-items: center;
 }
 
 .participant-avatar {
@@ -244,25 +292,53 @@
     font-style: italic;
 }
 
-.participant-remove-btn {
+/*
+ * Icon-only controls for editing a subject or post and removing a
+ * participant. They fade in on hover, but they must also appear whenever
+ * they or their container take keyboard focus, otherwise they are invisible
+ * to anyone tabbing through the page (WCAG 2.4.7, 2.4.11).
+ */
+.discussion-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
     background: none;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
     margin: 0;
-    padding: 2px 4px;
-    font-size: 0.7rem;
+    padding: 0 0.25rem;
+    font-size: 0.8125rem;
     line-height: 1;
     opacity: 0;
     transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.participant-item:hover .participant-remove-btn {
+.discussion-icon-btn:hover,
+.discussion-icon-btn:focus-visible {
+    color: var(--blue-action);
+}
+
+.discussion-icon-btn:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.participant-item:hover .participant-remove-btn,
+.participant-item:focus-within .participant-remove-btn,
+.thread-subject-display:hover .subject-edit-btn,
+.thread-subject-display:focus-within .subject-edit-btn,
+.post-callout:hover .post-edit-btn,
+.post-callout:focus-within .post-edit-btn {
     opacity: 1;
 }
 
-.participant-remove-btn:hover {
-    color: #cc4b37;
+.participant-remove-btn:hover,
+.participant-remove-btn:focus-visible {
+    color: #b23225;
 }
 
 /* New Post Form */
@@ -577,10 +653,15 @@
 }
 
 .loading-indicator {
+    display: none;
     padding: 1rem;
     text-align: center;
     color: #555;
     font-size: 0.95rem;
+}
+
+.loading-indicator.htmx-request {
+    display: block;
 }
 
 .loading-indicator .fa-spinner {
@@ -606,23 +687,19 @@
     gap: 0.5rem;
 }
 
-.subject-edit-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0.25rem;
-    font-size: 0.875rem;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+.thread-subject-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.thread-subject-display:hover .subject-edit-btn {
-    opacity: 1;
+.thread-subject-form input[type="text"] {
+    margin: 0;
+    flex: 1;
 }
 
-.subject-edit-btn:hover {
-    color: var(--blue-light);
+.thread-subject-form .button {
+    margin: 0;
 }
 
 .markdown-hint {
@@ -674,21 +751,41 @@
 }
 
 .file-attach-btn {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    min-height: 24px;
     cursor: pointer;
     color: var(--text-muted);
     font-size: 0.75rem;
     margin: 0;
 }
 
-.file-attach-btn:hover {
-    color: var(--blue-light);
+.file-attach-btn:hover,
+.file-attach-btn:focus-within {
+    color: var(--blue-action);
 }
 
+.file-attach-btn:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/*
+ * Visually hidden rather than display:none so the input keeps its place in
+ * the tab order and the label above can show the focus ring for it.
+ */
 .file-attach-input {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .file-attach-name {
@@ -745,25 +842,6 @@
     padding: 0.125rem 0.5rem;
     border-radius: 10px;
     display: inline-block;
-}
-
-.post-edit-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0 0.25rem;
-    font-size: 0.75rem;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.post-callout:hover .post-edit-btn {
-    opacity: 1;
-}
-
-.post-edit-btn:hover {
-    color: var(--blue-light);
 }
 
 .post-callout form textarea {

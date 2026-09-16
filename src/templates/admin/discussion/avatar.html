@@ -1,10 +1,11 @@
-<span class="avatar thread-avatar{% if tooltip != 'off' %} has-tip{% endif %}"
+<span class="avatar thread-avatar{% if avatar_class %} {{ avatar_class }}{% endif %}{% if tooltip != 'off' %} has-tip{% endif %}"
+      {% if decorative == "on" %}aria-hidden="true"{% endif %}
       {% if tooltip != "off" %}data-tooltip aria-haspopup="true"
-      tabindex="1"
+      tabindex="0"
       title="{{ user.full_name }}"{% endif %}>
                 {% if user.profile_image %}
                     <img src="{{ user.profile_image.url }}"
-                         alt="{{ user.full_name }}">
+                         alt="{% if decorative == "on" %}{% else %}{{ user.full_name }}{% endif %}">
                 {% else %}
                     {{ user.initials }}
                 {% endif %}
