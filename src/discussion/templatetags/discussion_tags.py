@@ -1,6 +1,8 @@
 from django import template
 from django.urls import reverse
 
+from discussion import logic
+
 register = template.Library()
 
 
@@ -19,13 +21,8 @@ def can_manage_discussion(request):
     participant management consistently in both journal and repository
     contexts.
     """
-    user = request.user
-    if not user.is_authenticated:
-        return False
-    if user.is_staff:
-        return True
-    if request.journal and user in request.journal.editors():
-        return True
-    if request.repository and user in request.repository.managers.all():
-        return True
-    return False
+    return logic.user_can_manage_discussions(
+        request.user,
+        journal=request.journal,
+        repository=request.repository,
+    )

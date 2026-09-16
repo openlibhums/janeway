@@ -158,9 +158,11 @@ class Thread(models.Model):
         Conditions:
           - User is the owner
           - User is in participants
-          - User is editor of the journal
-          - User is manager of the repository
+          - User can manage discussions for the thread's journal or repository
         """
+        # Imported here because logic imports this module at load time.
+        from discussion import logic
+
         if not user.is_authenticated:
             return False
 
@@ -170,16 +172,11 @@ class Thread(models.Model):
         if self.participants.filter(pk=user.pk).exists():
             return True
 
-        # Editor or manager
-        if self.article and self.article.journal:
-            if user in self.article.journal.editors():
-                return True
-
-        if self.preprint and self.preprint.repository:
-            if user in self.preprint.repository.managers.all():
-                return True
-
-        return False
+        return logic.user_can_manage_discussions(
+            user,
+            journal=self.article.journal if self.article else None,
+            repository=self.preprint.repository if self.preprint else None,
+        )
 
 
 class Post(models.Model):

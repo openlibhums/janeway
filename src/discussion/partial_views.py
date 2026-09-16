@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 from core import files as core_files
 from core import models as core_models
 from core.views import GenericFacetedListView
-from discussion import forms, models
+from discussion import forms, logic, models
 from events import logic as event_logic
 from repository import models as repository_models
 from security.decorators import can_access_thread, editor_or_manager
@@ -80,10 +80,10 @@ def thread_detail_partial(
     """
     Returns a single thread detail.
     """
-    thread = get_object_or_404(
-        models.Thread,
-        pk=thread_id,
-    )
+    if object_type == "article":
+        thread = logic.get_thread_or_404(request, thread_id, article_id=object_id)
+    else:
+        thread = logic.get_thread_or_404(request, thread_id, preprint_id=object_id)
 
     posts = thread.posts()
 
@@ -157,9 +157,9 @@ class ThreadInviteUserListView(GenericFacetedListView):
     template_name = "admin/discussion/partials/invite_search.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.thread = get_object_or_404(
-            models.Thread,
-            pk=self.kwargs.get("thread_id"),
+        self.thread = logic.get_thread_or_404(
+            request,
+            self.kwargs.get("thread_id"),
         )
         return super().dispatch(request, *args, **kwargs)
 
@@ -261,7 +261,7 @@ class ThreadInviteUserListView(GenericFacetedListView):
 @require_POST
 @editor_or_manager
 def add_participant(request, thread_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
     user_id = request.POST.get("user_id")
     if not user_id:
         return HttpResponseBadRequest("Missing user_id")
@@ -355,7 +355,7 @@ def create_thread(request, object_type, object_id):
 @require_POST
 @can_access_thread
 def add_post(request, thread_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
 
     body = request.POST.get("new_post", "").strip()
     uploaded_file = request.FILES.get("file")
@@ -396,7 +396,7 @@ def add_post(request, thread_id):
 @require_POST
 @editor_or_manager
 def remove_participant(request, thread_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
     user_id = request.POST.get("user_id")
     if not user_id:
         return HttpResponseBadRequest("Missing user_id")
@@ -433,7 +433,7 @@ def remove_participant(request, thread_id):
 @require_POST
 @can_access_thread
 def edit_subject(request, thread_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
     new_subject = request.POST.get("subject", "").strip()
 
     if not new_subject or len(new_subject) > 300:
@@ -487,7 +487,7 @@ def save_file_to_discussion(uploaded_file, thread, owner):
 @require_POST
 @can_access_thread
 def edit_post(request, thread_id, post_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
     post = get_object_or_404(models.Post, pk=post_id, thread=thread)
 
     # Only the post owner can edit
@@ -520,7 +520,7 @@ def edit_post(request, thread_id, post_id):
 
 @can_access_thread
 def serve_discussion_file(request, thread_id, file_id):
-    thread = get_object_or_404(models.Thread, pk=thread_id)
+    thread = logic.get_thread_or_404(request, thread_id)
     file_obj = get_object_or_404(core_models.File, pk=file_id)
 
     # Verify this file actually belongs to a post in this thread

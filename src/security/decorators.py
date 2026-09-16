@@ -29,7 +29,7 @@ from security.logic import (
 from utils import setting_handler, models as utils_models
 from utils.logger import get_logger
 from repository import models as preprint_models
-from discussion import models as discussion_models
+from discussion import logic as discussion_logic
 
 logger = get_logger(__name__)
 
@@ -144,16 +144,11 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.user.is_staff:
-            return func(request, *args, **kwargs)
-
-        if request.journal and (
-            request.user.is_editor(request)
-            or request.user.is_journal_manager(request.journal)
+        if discussion_logic.user_can_manage_discussions(
+            request.user,
+            journal=request.journal,
+            repository=request.repository,
         ):
-            return func(request, *args, **kwargs)
-
-        if request.repository and request.user in request.repository.managers.all():
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -173,10 +168,7 @@ def can_access_thread(func):
 
         thread_id = kwargs.get("thread_id")
         if thread_id:
-            try:
-                thread = discussion_models.Thread.objects.get(pk=thread_id)
-            except discussion_models.Thread.DoesNotExist:
-                return deny_access(request)
+            thread = discussion_logic.get_thread_or_404(request, thread_id)
 
             if thread.user_can_access(user):
                 return func(request, *args, **kwargs)
@@ -185,10 +177,11 @@ def can_access_thread(func):
 
         # If no thread_id provided (e.g. thread list),
         # allow access if the user is editor/manager for the object
-        if request.journal and user in request.journal.editor_list():
-            return func(request, *args, **kwargs)
-
-        if request.repository and user in request.repository.managers.all():
+        if discussion_logic.user_can_manage_discussions(
+            user,
+            journal=request.journal,
+            repository=request.repository,
+        ):
             return func(request, *args, **kwargs)
 
         return deny_access(request)
