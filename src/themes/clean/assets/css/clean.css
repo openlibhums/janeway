@@ -1124,6 +1124,7 @@ span + .btn-background {
     .article-block a,
     .site-header a ,
     .site-footer a,
+    .carousel-caption a,
     p a ,
     li a {
         display: inline-block;
@@ -1210,6 +1211,35 @@ textarea.tinymce:focus,
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* Bootstrap's own .carousel-control-(prev|next):focus outranks the
+   universal ring and removes its light outline half, leaving a
+   dark-only indicator over dark slide imagery. Restore the full pair
+   and keep the control opaque while focused. */
+.carousel-control-prev:focus,
+.carousel-control-next:focus,
+.carousel-control-prev:focus-visible,
+.carousel-control-next:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    opacity: 1;
+}
+
+/* The header logo link wraps an image, so the standard ring can lose
+   both bands at once: the light outline against a pale logo and the
+   dark shadow against a dark or tinted header. A second light band
+   outside the dark one keeps the indicator visible on any header
+   colour. */
+.site-header a:focus,
+.site-header a:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow:
+        0 0 0 var(--focus-ring-size) var(--focus-dark),
+        0 0 0 calc(var(--focus-ring-size) + 2px) var(--focus-light);
+    display: inline-block;
 }
 
 /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
