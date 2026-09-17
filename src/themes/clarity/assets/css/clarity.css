@@ -1669,6 +1669,34 @@ textarea.tinymce:focus-visible,
   background-image: none;
 }
 
+/* Text-entry and select fields get the ring on any focus, not just
+   :focus-visible: browser focus-visible heuristics are unreliable for
+   date inputs (the ring drops out between date segments), and focus on
+   these fields always implies keyboard interaction anyway. The is-valid
+   and is-invalid variants are needed to outrank Bootstrap's
+   .form-control.is-valid:focus glow. */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="time"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus,
+input[type="file"]:focus,
+select:focus,
+textarea:focus,
+.form-control:focus,
+.form-control.is-valid:focus,
+.form-control.is-invalid:focus,
+.custom-select:focus {
+  outline: 2px var(--focus-outline) solid;
+  outline-offset: 0;
+  box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-shadow);
+}
+
 .carousel-control-next:focus-visible,
 .carousel-control-prev:focus-visible{
   outline: 2px var(--focus-outline) solid;
