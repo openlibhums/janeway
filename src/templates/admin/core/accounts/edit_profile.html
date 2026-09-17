@@ -128,6 +128,21 @@
         {% include "admin/elements/forms/denotes_required.html" %}
       </form>
     </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Public Profile" %}</h2>
+      </div>
+      <div class="content">
+        {% if user_to_edit.enable_public_profile %}
+          <p>{% trans "Your profile page is visible to the public." %}</p>
+        {% else %}
+          <p>{% trans "Your profile page is currently visible only to you. To make it public, enable the public profile option under Profile Details and save." %}</p>
+        {% endif %}
+        <a class="button secondary" href="{% url 'core_public_profile' uuid=request.user.uuid %}">
+          {% trans "View your public profile" %}
+        </a>
+      </div>
+    </section>
   </div>
 {% endblock body %}
 
