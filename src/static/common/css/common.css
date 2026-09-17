@@ -42,7 +42,7 @@
   color: #202326;
 }
 
-.alert-success {
+.static-alert-success {
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
@@ -124,6 +124,35 @@
 
 .static-alert-dark .static-alert-link {
   color: #040505;
+}
+
+.static-messages .static-alert {
+  padding-right: 3rem;
+}
+
+.static-alert-close {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+  padding: 0.25rem;
+  background: none;
+  border: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Glossing */
