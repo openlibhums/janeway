@@ -684,11 +684,15 @@ def public_profile(request, uuid):
         models.Account,
         uuid=uuid,
         is_active=True,
-        enable_public_profile=True,
     )
+    viewing_own_profile = request.user.is_authenticated and request.user == user
+
+    if not user.enable_public_profile and not viewing_own_profile:
+        raise Http404()
     template = "core/accounts/public_profile.html"
     context = {
         "user": user,
+        "viewing_own_profile": viewing_own_profile,
     }
 
     if request.journal:
@@ -699,7 +703,7 @@ def public_profile(request, uuid):
             user=user,
             journal=request.journal,
         )
-        if not context["roles"]:
+        if not context["roles"] and not viewing_own_profile:
             raise Http404()
 
     elif request.press:
