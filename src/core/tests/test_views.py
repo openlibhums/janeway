@@ -2296,3 +2296,86 @@ class SettingsGroupPageTests(TestCase):
                     content.count("<h2>Disciplines</h2>"),
                     expected,
                 )
+
+
+class PublicProfileViewTests(TestCase):
+    """Covers the visibility rules for core_public_profile (#5465):
+    owners always see their own profile; others only see it when it is
+    public and, at journal level, the owner holds a role there."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(["author"])
+        cls.owner = helpers.create_user(
+            "profile_owner_5465@example.org",
+            is_active=True,
+        )
+        cls.other_user = helpers.create_user(
+            "profile_viewer_5465@example.org",
+            is_active=True,
+        )
+        cls.url = reverse(
+            "core_public_profile",
+            kwargs={"uuid": cls.owner.uuid},
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_owner_sees_own_hidden_profile_with_notice(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(response, "Only you can see this profile")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hidden_profile_is_not_visible_to_others(self):
+        anonymous = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(anonymous.status_code, 404)
+
+        self.client.force_login(self.other_user)
+        other = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(other.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_owner_sees_own_public_profile_without_journal_role(self):
+        self.owner.enable_public_profile = True
+        self.owner.save()
+
+        self.client.force_login(self.owner)
+        response = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Only you can see this profile")
+
+        self.client.force_login(self.other_user)
+        other = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(other.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_public_profile_with_journal_role_is_visible_to_others(self):
+        self.owner.enable_public_profile = True
+        self.owner.save()
+        core_models.AccountRole.objects.create(
+            user=self.owner,
+            journal=self.journal_one,
+            role=core_models.Role.objects.get(slug="author"),
+        )
+        response = self.client.get(
+            self.url,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
