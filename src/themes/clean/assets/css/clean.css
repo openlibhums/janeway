@@ -1243,6 +1243,21 @@ textarea.tinymce:focus,
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
+/* The header logo link wraps an image, so the standard ring can lose
+   both bands at once: the light outline against a pale logo and the
+   dark shadow against a dark or tinted header. A second light band
+   outside the dark one keeps the indicator visible on any header
+   colour. */
+.site-header a:focus,
+.site-header a:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow:
+        0 0 0 var(--focus-ring-size) var(--focus-dark),
+        0 0 0 calc(var(--focus-ring-size) + 2px) var(--focus-light);
+    display: inline-block;
+}
+
 /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
 
 /* Banner for hero / large image */

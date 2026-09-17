@@ -1705,6 +1705,21 @@ textarea:focus,
   opacity: 1;
 }
 
+/* The header logo link wraps an image, so the standard ring can lose
+   both bands at once: the light outline against a pale logo and the
+   dark shadow against a dark or tinted header. A second light band
+   outside the dark one keeps the indicator visible on any header
+   colour. */
+.site-header a:focus,
+.site-header a:focus-visible {
+  outline: 2px var(--focus-outline) solid;
+  outline-offset: 0;
+  box-shadow:
+    0 0 0 var(--focus-ring-size) var(--focus-shadow),
+    0 0 0 calc(var(--focus-ring-size) + 2px) var(--focus-outline);
+  display: inline-block;
+}
+
 /* ========================================================================
    Media Queries
    ======================================================================== */
