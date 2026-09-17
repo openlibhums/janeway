@@ -1155,6 +1155,7 @@ span + .btn-background {
     .article-block a,
     .site-header a ,
     .site-footer a,
+    .carousel-caption a,
     p a ,
     li a {
         display: inline-block;
@@ -1241,6 +1242,20 @@ textarea.tinymce:focus,
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* Bootstrap's own .carousel-control-(prev|next):focus outranks the
+   universal ring and removes its light outline half, leaving a
+   dark-only indicator over dark slide imagery. Restore the full pair
+   and keep the control opaque while focused. */
+.carousel-control-prev:focus,
+.carousel-control-next:focus,
+.carousel-control-prev:focus-visible,
+.carousel-control-next:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    opacity: 1;
 }
 
 /* The header logo link wraps an image, so the standard ring can lose
