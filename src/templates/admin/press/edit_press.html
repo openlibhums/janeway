@@ -38,8 +38,14 @@
                             {% include "core/partials/alt_text/edit_alt_text_button.html" with object=press.thumbnail_image %}
                         {% endif %}
                         {{ form.secondary_image|foundation }}
+                        {% if press.secondary_image %}
+                            {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=press.secondary_image %}
+                        {% endif %}
                         {{ form.secondary_image_url|foundation }}
                         {{ form.default_carousel_image|foundation }}
+                        {% if press.default_carousel_image %}
+                            {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=press.default_carousel_image %}
+                        {% endif %}
                         {{ form.favicon|foundation }}
 
                         <div class="title-area">
