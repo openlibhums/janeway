@@ -1766,9 +1766,10 @@
         <xsl:if test="name(*[1]) != 'title'">
           <h2 id="reference-header">References</h2>
         </xsl:if>
+        <xsl:apply-templates select="title"/>
         <div id="reflist">
           <ul>
-            <xsl:apply-templates/>
+            <xsl:apply-templates select="*[not(self::title)]"/>
           </ul>
         </div>
     </xsl:template>
