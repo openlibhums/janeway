@@ -178,7 +178,7 @@
                         {% if not journal_settings.general.disable_journal_submission %}
                         <li><a href="{% url 'submission_start' %}">Submit</a></li>
                         {% endif %}
-                        <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
+                        <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
                         {% if request.user.is_staff or editor %}
                         <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
                         {% endif %}

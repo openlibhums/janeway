@@ -32,7 +32,7 @@
               {% if request.user.is_staff %}
                 <li><a class="dropdown-item" href="/admin/repository/">{% trans 'Admin' %}</a></li>
               {% endif %}
-              <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Profile' %}</a></li>
+              <li><a class="dropdown-item" href="{% url 'core_edit_profile' %}">{% trans 'Edit Profile' %}</a></li>
               <li><a class="dropdown-item" href="{% url 'core_logout' %}">{% trans 'Logout' %}</a></li>
             </ul>
           </li>
