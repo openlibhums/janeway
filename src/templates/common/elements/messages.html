@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% if messages %}
+    <div class="static-messages">
+        {% for message in messages %}
+            <div class="static-alert static-alert-{{ message.tags|default:'info' }}" role="alert">
+                {{ message|linebreaksbr }}
+                <button type="button" class="static-alert-close" data-dismiss-message>
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">{% trans "Close message" %}</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

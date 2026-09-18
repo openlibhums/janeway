@@ -19,7 +19,6 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/index.css" %}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
 
     {% if request.journal %}
         <link href="{% static "OLH/css/default_override.css" %}" rel="stylesheet">
@@ -195,6 +194,13 @@
 
     <main id="main-content">
         {% block reading_options_bar %}{% endblock reading_options_bar %}
+        {% if messages %}
+            <div class="row">
+                <div class="columns">
+                    {% include "common/elements/messages.html" %}
+                </div>
+            </div>
+        {% endif %}
         {% block body %}{% endblock body %}
     </main>
 </div>
@@ -230,40 +236,7 @@
 <script src="{% static "common/js/timezone-setter.js" %}"></script>
 <script src="{% static "common/js/accessibility-toggle.js" %}"></script>
 {% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
-<script>
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": true,
-        "positionClass": "toast-bottom-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "20000",
-        "hideDuration": "3000",
-        "timeOut": "8000",
-        "extendedTimeOut": "60000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    }
-    {% for message in messages %}
-        {% if message.tags == "warning" %}
-            toastr.warning("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "info" %}
-            toastr.info("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "danger" %}
-            toastr.error("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "success" %}
-            toastr.success("{{ message|linebreaksbr }}")
-        {% endif %}
-    {% endfor %}
-
-</script>
+<script src="{% static "common/js/messages.js" %}"></script>
 {% include "common/elements/analytics.html" %}
 {% block js %}{% endblock %}
 </body>

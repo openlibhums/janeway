@@ -64,6 +64,7 @@
     </div>
     <div class="container">
         <div class="section">
+            {% include "common/elements/messages.html" %}
             {% block body %}{% endblock %}
         </div>
     </div>
@@ -104,18 +105,7 @@
 <script src="{% static "common/js/timezone-setter.js" %}"></script>
 <script src="{% static "common/js/accessibility-toggle.js" %}"></script>
 {% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
-<script>
-    {% if messages %}
-        {% for message in messages %}
-            window.M.toast(
-              {
-                html: '{{ message|linebreaksbr }}',
-                displayLength: 4000,
-              }
-            )
-        {% endfor %}
-    {% endif %}
-</script>
+<script src="{% static "common/js/messages.js" %}"></script>
 
 {% include "common/elements/analytics.html" %}
 {% block js %}{% endblock %}

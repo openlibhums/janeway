@@ -54,7 +54,6 @@
 @include motion-ui-animations;
 
 @import 'timeline';
-@import 'toastr';
 @import 'issue';
 @import 'tabs';
 @import 'tagit';
@@ -1217,6 +1216,10 @@ table tr.active td {
 
 .ui-sortable-handle {
   cursor: move;
+}
+
+.static-messages {
+  margin: 1.5rem 0;
 }
 
 .bs-callout {
