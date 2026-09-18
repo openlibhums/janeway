@@ -1711,22 +1711,3 @@ nav .a11y-toggle-host .a11y-toggle-indicator > .fa {
   flex: 1 1 auto;
   margin: 0;
 }
-
-/* a secondary quieter button */
-.btn-outline {
-  display: inline-block;
-  height: 36px;
-  line-height: 34px;
-  padding: 0 16px;
-  border: 1px solid rgba(0, 0, 0, 0.26);
-  border-radius: 2px;
-  background-color: transparent;
-  color: #343434;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.btn-outline:hover,
-.btn-outline:focus {
-  background-color: rgba(0, 0, 0, 0.05);
-}
