@@ -3,6 +3,9 @@ Template tag for rendering a single bound form field with extra ARIA
 attributes that its widget wasn't given at the Python level - e.g. an
 aria-describedby that only makes sense once a theme template knows the id
 of a label it's about to render alongside the field.
+
+Non-standard workaround for a known issue with date input fields; see
+https://github.com/openlibhums/janeway/pull/5473
 """
 
 from django import template

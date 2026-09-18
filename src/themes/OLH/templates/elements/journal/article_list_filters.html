@@ -10,6 +10,7 @@
         <form method="GET" id="{{ facet_form.id }}-{{ filter_context }}">
             {% set_auto_id facet_form "id_%s-"|add:filter_context %}
             {% for field in facet_form.visible_fields %}
+                {# Non-standard ARIA workaround for a known issue with date input fields; see https://github.com/openlibhums/janeway/pull/5473 #}
                 {% if field.field.widget.input_type == "date" %}
                     {% with described_by_id=field.auto_id|add:"-label" %}
                         <div class="row expanded">
