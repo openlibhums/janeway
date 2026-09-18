@@ -13,10 +13,20 @@ function table_downloads() {
 }
 
 
+function relocate_language_modal() {
+    // Materialize modals should be direct children of body; inside the
+    // footer they inherit its text colour and positioning context.
+    var languageModal = document.getElementById('language-modal');
+    if (languageModal) {
+        document.body.appendChild(languageModal);
+    }
+}
+
 $( document ).ready(function(){
     figure_downloads();
     table_downloads();
     initSidenavAccessibility();
+    relocate_language_modal();
 })
 
 var $root = $('html, body');

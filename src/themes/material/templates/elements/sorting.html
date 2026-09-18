@@ -13,7 +13,6 @@
         </div>
         <div class="input-field col s12 m6 l5">
             <select
-                onchange="this.form.submit()"
                 name="order_by"
                 form={{ form_id }}>
                 {% for value, label in order_by_choices %}
@@ -30,6 +29,7 @@
                 labelfor="order_by">
                 {% trans "Sort results by" %}
             </label>
+            <button type="submit" class="btn btn-small" form={{ form_id }}>{% trans "Apply" %}</button>
         </div>
     </div>
 {% endif %}

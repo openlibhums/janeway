@@ -66,7 +66,6 @@
         <select
             id="paginate_by"
             class="custom-select"
-            onchange="this.form.submit()"
             name="paginate_by"
             form={{ form_id }}>
             <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
@@ -81,6 +80,7 @@
             <label for="paginate_by" class="input-group-text">
                 {% trans 'records per page' %}
             </label>
+            <button type="submit" class="btn btn-secondary" form={{ form_id }}>{% trans "Apply" %}</button>
         </div>
     </div>
 </div>

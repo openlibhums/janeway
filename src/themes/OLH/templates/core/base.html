@@ -117,11 +117,12 @@
                             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                                 <input name="next" type="hidden" value="{{ request.PATH }}"/>
                                 {% if journal_settings.general.enable_language_text %}
-                                    <button name="language" value="{{ language.code }}" class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
+                                    <button name="language" value="{{ language.code }}" lang="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} aria-current="true"{% endif %} class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
                                 {% else %}
                                 <button class="flag-button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}" name="language" value="{{ language.code }}"
+                                        {% if language.code == LANGUAGE_CODE %}aria-current="true"{% endif %}
                                         style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat; background-size: contain;">
-                                    &nbsp;
+                                    <span class="sr-only" lang="{{ language.code }}">{{ language.name_local }}</span>
                                 </button>
                                 {% endif %}
                             </form>
