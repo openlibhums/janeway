@@ -10,11 +10,10 @@ It can be set up in a few steps.
 
 2. Enter each production domain for your Janeway instance as a redirect URI on orcid.org. If Janeway is set to domain mode, each journal will need its own redirect URI.  
 
-| Type | Redirect URI |
-|------|-------------|
-| Press (covers everything within it that is on path config)| `https://<press-domain>/` |
-| Individual Journal — domain config (required regardless of press config) | `https://<journal-domain>/` |
-| Individual Journal — no press and on path config | `https://<press-domain>/<journal_code>/` |
+| Type | Scope | Redirect URI |
+|------|-------|-------------|
+| Press | Press and all journals on the press domain with a `path` | `https://<press-domain>/` |
+| Journal with a custom domain |Individual Journal only | `https://<journal-domain>/` |
 
 3. Enable ORCID and copy the keys from your client into the Django settings file (`src/core/settings.py`). Replace _`CLIENT_SECRET`_ and _`CLIENT_ID`_ with the values from orcid.org.
 
@@ -101,9 +100,7 @@ If the redirect URI for a journal or press is not correctly registered on the OR
 
 The URI to register depends on whether you are configuring a press or a journal, and for journals, whether it uses domain or path configuration.
 
-**To identify journal configuration type:** open the journal in a browser and look at the URL.
-- Own domain (e.g. `https://myjournal.org/`) → **domain configuration**
-- Press domain with journal code (e.g. `https://press.org/myjournal/`) → **path configuration**
+**To identify journal configuration type:** open the journal in a browser and look at the URL. Does it have it's own domain? If it's on the press domain then you configure the press, else, configure the individual journal. 
 
 See [Setting up ORCID login](#setting-up-orcid-login) for the format of the redirect URI.
 
