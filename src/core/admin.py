@@ -706,6 +706,7 @@ class OrganizationAdmin(admin.ModelAdmin):
                 relevance=Case(
                     When(ror_id__iexact=search_term, then=Value(100)),
                     When(acronyms__value__iexact=search_term, then=Value(100)),
+                    When(aliases__value__iexact=search_term, then=Value(90)),
                     When(custom_label__value__iexact=search_term, then=Value(90)),
                     When(ror_display__value__iexact=search_term, then=Value(90)),
 
