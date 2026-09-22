@@ -6,9 +6,7 @@
   <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
 {% endblock %}
 
-{% trans "Account" as account_label %}
-{% trans "Edit Profile" as edit_profile_label %}
-{% block title %}{% page_title account_label edit_profile_label %}{% endblock title %}
+{% block title %}{% trans "Account" as account_label %}{% trans "Edit Profile" as edit_profile_label %}{% page_title account_label edit_profile_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Edit Profile" %}

@@ -3,8 +3,7 @@
 {% load page_title %}
 
 {% block page_title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
-{% trans "Keyword" as keyword_label %}
-{% block title %}{% page_title keyword_label keyword.word %}{% endblock %}
+{% block title %}{% trans "Keyword" as keyword_label %}{% page_title keyword_label keyword.word %}{% endblock %}
 
 {% block body %}
     <div class="row">

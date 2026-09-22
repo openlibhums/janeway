@@ -5,8 +5,7 @@
 {% load bootstrap4 %}
 {% load page_title %}
 
-{% trans "Articles" as articles_label %}
-{% block title %}{% page_title articles_label %}{% endblock %}
+{% block title %}{% trans "Articles" as articles_label %}{% page_title articles_label %}{% endblock %}
 
 {% block body %}
     <div class="row">

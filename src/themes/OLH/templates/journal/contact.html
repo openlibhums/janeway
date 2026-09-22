@@ -3,8 +3,7 @@
 {% load i18n %}
 {% load page_title %}
 
-{% trans "Contact" as contact_label %}
-{% block title %}{% page_title contact_label %}{% endblock title %}
+{% block title %}{% trans "Contact" as contact_label %}{% page_title contact_label %}{% endblock title %}
 
 {% block body %}
     <section id="content" class="no-padding">

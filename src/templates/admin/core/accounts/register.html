@@ -2,10 +2,7 @@
 {% load i18n foundation %}
 {% load page_title %}
 
-{% trans "Account" as account_label %}
-{% trans "Register" as register_label %}
-
-{% block title %}{% page_title account_label register_label %}{% endblock title %}
+{% block title %}{% trans "Account" as account_label %}{% trans "Register" as register_label %}{% page_title account_label register_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Register for an account" %}

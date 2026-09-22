@@ -3,8 +3,7 @@
 {% load pages %}
 {% load page_title %}
 
-{% trans 'Subjects' as subjects_label %}
-{% block title %}{% page_title subjects_label %}{% endblock %}
+{% block title %}{% trans 'Subjects' as subjects_label %}{% page_title subjects_label %}{% endblock %}
 
 {% block body %}
   <div class="row">

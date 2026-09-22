@@ -4,8 +4,7 @@
 {% load pages %}
 {% load page_title %}
 
-{% trans "News" as news_label %}
-{% block title %}{% page_title news_label %}{% endblock title %}
+{% block title %}{% trans "News" as news_label %}{% page_title news_label %}{% endblock title %}
 
 {% block body %}
     <div class="row">

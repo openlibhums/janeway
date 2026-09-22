@@ -5,8 +5,7 @@
 
 {% block page_title %}{% trans "Issues" %}{% endblock %}
 
-{% trans "Issues" as issues_label %}
-{% block title %}{% page_title issues_label %}{% endblock %}
+{% block title %}{% trans "Issues" as issues_label %}{% page_title issues_label %}{% endblock %}
 
 {% block body %}
 

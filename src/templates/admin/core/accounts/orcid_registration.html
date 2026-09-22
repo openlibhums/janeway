@@ -2,9 +2,7 @@
 {% load i18n foundation next_url %}
 {% load page_title %}
 
-{% trans "Account" as account_label %}
-{% trans "Unregistered ORCiD" as orcid_label %}
-{% block title %}{% page_title account_label orcid_label %}{% endblock title %}
+{% block title %}{% trans "Account" as account_label %}{% trans "Unregistered ORCiD" as orcid_label %}{% page_title account_label orcid_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Unregistered ORCiD" %}

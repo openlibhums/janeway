@@ -5,8 +5,7 @@
 {% load materializecss %}
 {% load page_title %}
 
-{% trans "Accessibility" as a11y_label %}
-{% block title %}{% page_title a11y_label %}{% endblock %}
+{% block title %}{% trans "Accessibility" as a11y_label %}{% page_title a11y_label %}{% endblock %}
 
 {% block body %}
 <h1> {% trans "Accessibility" %} </h1>

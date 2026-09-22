@@ -4,8 +4,7 @@
 {% load next_url %}
 {% load page_title %}
 
-{% trans 'Submissions' as submissions_label %}
-{% block title %}{% page_title submissions_label %}{% endblock title %}
+{% block title %}{% trans 'Submissions' as submissions_label %}{% page_title submissions_label %}{% endblock title %}
 
 {% block body %}
         <div class="row">
