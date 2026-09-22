@@ -290,15 +290,13 @@
                                 </a>
                             </li>
                         {% endwith %}
-                        {% if article.is_accepted %}
-                            {% if article.in_review_stages %}
-                                <li>
-                                    <a href="{% url 'move_to_next_workflow_element' article.pk %}">
-                                        <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
-                                        {% trans 'Move to Next Stage' %}
-                                    </a>
-                                </li>
-                            {% endif %}
+                        {% if article.stage == 'Accepted' %}
+                            <li>
+                                <a href="{% url 'move_to_next_workflow_element' article.pk %}">
+                                    <i class="fa fa-arrow-circle-right action-icon">&nbsp;</i>
+                                    {% trans 'Move to Next Stage' %}
+                                </a>
+                            </li>
                         {% else %}
                             <li>
                                 <a href="{% url 'decision_helper' article.pk %}">
