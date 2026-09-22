@@ -6,8 +6,9 @@
 {% load bootstrap4 %}
 {% load next_url %}
 {% load dates %}
+{% load page_title %}
 
-{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title %}{% page_title preprint.title|striptags %}{% endblock %}
 
 {% block head %}
   {% include "common/metadata/preprint_dc.html" %}

@@ -1,8 +1,10 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load settings i18n %}
+{% load page_title %}
 
-{% block title %}{{ request.press.name }} | Journals{% endblock title %}
+{% trans 'Journals' as journals_label %}
+{% block title %}{% page_title journals_label %}{% endblock title %}
 
 {% block body %}
   <div class="row">

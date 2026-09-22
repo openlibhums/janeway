@@ -4,8 +4,9 @@
 {% load i18n %}
 {% load foundation %}
 {% load dates %}
+{% load page_title %}
 
-{% block title %}{{ preprint.title }}{% endblock %}
+{% block title %}{% page_title preprint.title|striptags %}{% endblock %}
 
 {% block css %}
   {% include "common/repository/style/submission_type_pills.html" with preprint=preprint %}

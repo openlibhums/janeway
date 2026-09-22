@@ -2,8 +2,9 @@
 {% load truncate %}
 {% load dates %}
 {% load pages %}
+{% load page_title %}
 
-{% block title %}{{ journal_settings.news.news_title }}{% endblock title %}
+{% block title %}{% page_title journal_settings.news.news_title %}{% endblock title %}
 
 {% block body %}
     <div class="row">

@@ -1,8 +1,10 @@
 {% extends "core/base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
+{% load page_title %}
 
-{% block title %}{% trans "Contact" %}{% endblock title %}
+{% trans "Contact" as contact_label %}
+{% block title %}{% page_title contact_label %}{% endblock title %}
 
 {% block body %}
     <div class="row">

@@ -1,8 +1,15 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load pages %}
+{% load page_title %}
 
-{% block title %}{{ request.repository.name }} {{ request.repository.object_name_plural|capfirst }}{% endblock %}
+{% block title %}
+    {% if subject %}
+        {% page_title request.repository.object_name_plural|capfirst subject.name %}
+    {% else %}
+        {% page_title request.repository.object_name_plural|capfirst %}
+    {% endif %}
+{% endblock %}
 
 {% block body %}
   <div class="row">

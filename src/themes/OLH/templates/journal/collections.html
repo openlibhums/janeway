@@ -3,9 +3,10 @@
 {% load hooks %}
 {% load i18n %}
 {% load dates %}
+{% load page_title %}
 
 {% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
-{% block title %}{% trans issue_type.plural_name  %}{% endblock %}
+{% block title %}{% page_title issue_type.plural_name|striptags %}{% endblock %}
 
 {% block body %}
 

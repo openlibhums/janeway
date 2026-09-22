@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load page_title %}
 
-{% block title %}{{ request.repository.name }}{% endblock %}
+{% trans "About" as about_label %}
+{% block title %}{% page_title about_label %}{% endblock %}
 
 {% block navbar %}
     {% include "repository/nav.html" %}

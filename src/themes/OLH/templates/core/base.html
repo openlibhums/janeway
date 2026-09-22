@@ -6,6 +6,7 @@
 {% load roles %}
 {% load hooks %}
 {% load next_url %}
+{% load page_title %}
 
 <!doctype html>
 <html class="no-js" lang="{{ request.current_language }}">
@@ -14,7 +15,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no"/>
-    <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
+    <title>{% block title %}{% page_title %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">

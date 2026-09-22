@@ -4,9 +4,10 @@
 {% load i18n %}
 {% load dates %}
 {% load alt_text %}
+{% load page_title %}
 
 {% block page_title %}{% trans issue_type.plural_name  %}{% endblock %}
-{% block title %}{% trans issue_type.plural_name  %}{% endblock %}
+{% block title %}{% page_title issue_type.plural_name|striptags %}{% endblock %}
 
 {% block body %}
     <h1> {% trans issue_type.plural_name %} </h1>

@@ -1,8 +1,10 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load page_title %}
 
-{% block title %}{{ user.full_name }} {% trans "Profile" %}{% endblock %}
+{% trans "Profile" as profile_label %}
+{% block title %}{% page_title profile_label user.full_name %}{% endblock %}
 
 {% block body %}
 	<section id="content">

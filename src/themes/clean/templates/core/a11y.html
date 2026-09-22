@@ -2,8 +2,10 @@
 
 {% load static %}
 {% load i18n %}
+{% load page_title %}
 
-{% block title %}{% trans "Accessibility" %}{% endblock %}
+{% trans "Accessibility" as a11y_label %}
+{% block title %}{% page_title a11y_label %}{% endblock %}
 
 {% block reading_options_bar %}
     {% include "common/elements/journal/reading_options_bar.html" %}

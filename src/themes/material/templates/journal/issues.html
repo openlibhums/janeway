@@ -1,8 +1,9 @@
 {% extends "core/base.html" %}
 {% load i18n roles %}
+{% load page_title %}
 
-
-{% block title %}{% trans "Issues" %}{% endblock %}
+{% trans "Issues" as issues_label %}
+{% block title %}{% page_title issues_label %}{% endblock %}
 
 {% block body %}
     {% if request.user %}

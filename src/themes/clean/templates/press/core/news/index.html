@@ -2,8 +2,10 @@
 {% load truncate %}
 {% load dates %}
 {% load pages %}
+{% load page_title %}
 
-{% block title %}News{% endblock title %}
+{% trans "News" as news_label %}
+{% block title %}{% page_title news_label %}{% endblock title %}
 
 {% block body %}
     <div class="row">

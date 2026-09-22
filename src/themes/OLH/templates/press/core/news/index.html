@@ -3,8 +3,10 @@
 {% load escaping %}
 {% load i18n %}
 {% load dates %}
+{% load page_title %}
 
-{% block title %}{% trans "News" %}{% endblock title %}
+{% trans "News" as news_label %}
+{% block title %}{% page_title news_label %}{% endblock title %}
 
 {% block body %}
     <section id="content" class="">

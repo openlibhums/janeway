@@ -1,8 +1,10 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load page_title %}
 
 {% block page_title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
-{% block title %}{% trans "Keyword" %}: {{ keyword.word }}{% endblock %}
+{% trans "Keyword" as keyword_label %}
+{% block title %}{% page_title keyword_label keyword.word %}{% endblock %}
 
 {% block body %}
     <div class="row">

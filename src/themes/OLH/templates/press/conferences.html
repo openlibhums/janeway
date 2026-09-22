@@ -1,10 +1,12 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load static %}
+{% load page_title %}
 
 {% block page_title %}{% trans "Conferences" %}{% endblock page_title %}
 
-{% block title %}{{ press.name }}{% endblock title %}
+{% trans "Conferences" as conferences_label %}
+{% block title %}{% page_title conferences_label %}{% endblock title %}
 
 {% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
 

@@ -1,2 +1,1 @@
-{{ article.title|striptags }} |
-{{ journal_settings.general.journal_name|striptags }}
+{% load page_title %}{% page_title article.title|striptags %}
