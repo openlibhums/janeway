@@ -1254,6 +1254,7 @@ class OrganizationListView(GenericFacetedListView):
             raise Http404
         context["article"] = article
         context["author"] = author
+        context["search_term"] = self.request.GET.get("q", None)
         return context
 
     def get_queryset(self, *args, **kwargs):
