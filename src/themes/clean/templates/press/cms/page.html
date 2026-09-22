@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
+{% load page_title %}
 
-{% block title %}{{ page.display_name }}{% endblock title %}
+{% block title %}{% page_title page.display_name %}{% endblock title %}
 
 
 {% block navbar %}

@@ -1,6 +1,8 @@
 {% extends "core/base.html" %}
+{% load page_title %}
 
-{% block title %}{% trans "Accessibility" %}{% endblock %}
+{% trans "Accessibility" as a11y_label %}
+{% block title %}{% page_title a11y_label %}{% endblock %}
 
 {% block body %}
     <section id="content" aria-labelledby="cms-title">

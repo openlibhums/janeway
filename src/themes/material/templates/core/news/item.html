@@ -3,8 +3,10 @@
 {% load escaping %}
 {% load i18n %}
 {% load dates %}
+{% load page_title %}
 
-{% block title %}{{ journal_settings.news.news_title}} - {{ news_item.title|striptags }}{% endblock title %}
+{% trans "News" as news_label %}
+{% block title %}{% page_title journal_settings.news.news_title|default:news_label news_item.title|striptags %}{% endblock title %}
 
 {% block head %}
 {% include "elements/social_meta.html" %}

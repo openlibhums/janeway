@@ -3,8 +3,10 @@
 {% load static %}
 {% load hooks %}
 {% load next_url %}
+{% load page_title %}
 
-{% block title %}{% trans 'Submissions' %}{% endblock title %}
+{% trans 'Submissions' as submissions_label %}
+{% block title %}{% page_title submissions_label %}{% endblock title %}
 
 {% block css %}
     <style>

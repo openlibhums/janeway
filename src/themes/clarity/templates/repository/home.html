@@ -3,8 +3,6 @@
 {% load static %}
 {% load alt_text %}
 
-{% block title %}{{ request.repository.name }}{% endblock %}
-
 {% block body %}
 
   {% if request.repository.hero_image or request.repository.default_large_image %}

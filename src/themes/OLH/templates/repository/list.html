@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load truncate %}
+{% load page_title %}
 
 {% block css %}
   {% include "common/repository/style/submission_type_pills.html" %}
@@ -9,11 +10,11 @@
 
 {% block title %}
     {% if rou %}
-        {{ rou.name }} - {{ request.repository.name }}
+        {% page_title request.repository.object_name_plural|capfirst rou.name %}
     {% elif subject %}
-        {{ subject.name }} {{ request.repository.object_name_plural }}
+        {% page_title request.repository.object_name_plural|capfirst subject.name %}
     {% else %}
-        {% trans "All" %} {{ request.repository.object_name_plural }}
+        {% page_title request.repository.object_name_plural|capfirst %}
     {% endif %}
 {% endblock %}
 

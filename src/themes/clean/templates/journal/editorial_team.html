@@ -1,7 +1,14 @@
 {% extends "core/base.html" %}
 {% load static %}
+{% load page_title %}
 
-{% block title %}{{ journal_settings.styling.editorial_group_page_name }}{% endblock title %}
+{% block title %}
+    {% if group_id %}
+        {% page_title editorial_groups.0.name %}
+    {% else %}
+        {% page_title journal_settings.styling.editorial_group_page_name %}
+    {% endif %}
+{% endblock title %}
 
 {% block body %}
     <div class="row">

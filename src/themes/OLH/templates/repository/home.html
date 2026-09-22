@@ -1,11 +1,12 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load page_title %}
 
 {% block title %}
     {% if selected_rou %}
-        {{ selected_rou.name }} - {{ request.repository.name }}
+        {% page_title selected_rou.name %}
     {% else %}
-        {{ request.repository.name }}
+        {% page_title %}
     {% endif %}
 {% endblock %}
 

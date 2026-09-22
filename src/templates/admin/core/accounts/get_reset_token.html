@@ -1,5 +1,10 @@
 {% extends "admin/core/small_form.html" %}
 {% load orcid fqdn i18n foundation %}
+{% load page_title %}
+
+{% trans "Account" as account_label %}
+{% trans "Reset password" as reset_label %}
+{% block title %}{% page_title account_label reset_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Reset password" %}

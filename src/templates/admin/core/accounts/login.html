@@ -1,5 +1,11 @@
 {% extends "admin/core/small_form.html" %}
 {% load static i18n orcid next_url %}
+{% load page_title %}
+
+{% trans "Account" as account_label %}
+{% trans "Log in" as login_label %}
+
+{% block title %}{% page_title account_label login_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Log in" %}

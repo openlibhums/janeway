@@ -1,12 +1,13 @@
 {% extends "core/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load page_title %}
 
 {% block title %}
   {% if rou %}
-    {{ rou.name }} Hierarchy - {{ request.repository.name }}
+    {% page_title request.repository.rou_default_name|add:"s" rou.name %}
   {% else %}
-    {{ request.repository.rou_default_name|safe }}s - {{ request.repository.name }}
+    {% page_title request.repository.rou_default_name|add:"s" %}
   {% endif %}
 {% endblock %}
 

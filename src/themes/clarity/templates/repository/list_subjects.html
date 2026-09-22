@@ -1,8 +1,10 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load pages %}
+{% load page_title %}
 
-{% block title %}{{ request.repository.name }} {% trans 'Subjects' %}{% endblock %}
+{% trans 'Subjects' as subjects_label %}
+{% block title %}{% page_title subjects_label %}{% endblock %}
 
 {% block body %}
   <div class="row">

@@ -2,12 +2,13 @@
 {% load foundation %}
 {% load i18n %}
 {% load static %}
+{% load page_title %}
 
 {% block title %}
     {% if group_id %}
-        {{ editorial_groups.0.name }}
+        {% page_title editorial_groups.0.name %}
     {% else %}
-        {{ journal_settings.styling.editorial_group_page_name }}
+        {% page_title journal_settings.styling.editorial_group_page_name %}
     {% endif %}
 {% endblock title %}
 

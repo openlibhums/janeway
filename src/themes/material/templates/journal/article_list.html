@@ -3,8 +3,10 @@
 {% load static %}
 {% load i18n %}
 {% load materializecss %}
+{% load page_title %}
 
-{% block title %}{% trans "Articles" %}{% endblock %}
+{% trans "Articles" as articles_label %}
+{% block title %}{% page_title articles_label %}{% endblock %}
 
 {% block body %}
     <section id="content">

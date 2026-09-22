@@ -1,13 +1,7 @@
 {% extends "core/base.html" %}
 {% load i18n %}
-{% block title %}
-    {{ block.super }} |
-    {% if issue.issue_type.code == 'collection' %}
-    {% trans "Collection" %}: {{ issue.title }}
-    {% else %}
-    {% trans "Issue" %}: {{ issue }}
-    {% endif %}
-{% endblock %}
+{% load page_title %}
+{% block title %}{% page_title issue.issue_type.pretty_name|striptags issue.display_title_a11y %}{% endblock %}
 
 {% block body %}
 {% include "journal/issue_display.html" with level="issuepage" %}
