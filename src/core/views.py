@@ -3165,6 +3165,7 @@ class OrganizationListView(GenericFacetedListView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["account"] = self.request.user
+        context["search_term"] = self.request.GET.get("q", None)
         return context
 
     def get_queryset(self, *args, **kwargs):
