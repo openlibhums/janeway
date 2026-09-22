@@ -1224,6 +1224,10 @@ header svg {
   border-radius: 0 .25rem .25rem 0;
 }
 
+.results-controls .input-group-append .btn {
+  height: 2.5rem;
+}
+
 .badge-secondary {
   background-color: var(--brand-secondary);
   color: #fff;
