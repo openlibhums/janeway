@@ -655,7 +655,7 @@ def build_pages_sitemap_context(owner):
         "loc": f"{owner.site_url()}/sitemap.xml",
         "label": _plain_label(owner.name),
     }
-    page_title = f"Pages sitemap - {owner.name}"
+    page_title = f"{owner.name} | Pages sitemap"
     return {
         "owner": owner,
         "links": links,
@@ -685,7 +685,7 @@ def build_news_sitemap_context(owner):
         "loc": f"{owner.site_url()}/sitemap.xml",
         "label": _plain_label(owner.name),
     }
-    page_title = f"News sitemap - {owner.name}"
+    page_title = f"{owner.name} | News sitemap"
     return {
         "owner": owner,
         "news_items": news_items,
@@ -703,12 +703,12 @@ def build_issue_sitemap_context(issue_or_none, journal):
     if issue_or_none is not None:
         articles_qs = _canonical_articles_for_issue(issue_or_none)
         page_title = (
-            f"Sitemap - {issue_or_none.non_pretty_issue_identifier}, {journal.name}"
+            f"{journal.name} | Sitemap | {issue_or_none.non_pretty_issue_identifier}"
         )
         sitemap_level = "issue"
     else:
         articles_qs = _articles_not_in_any_regular_issue(journal).order_by("title")
-        page_title = f"Sitemap - Not in any issue, {journal.name}"
+        page_title = f"{journal.name} | Sitemap | Not in any issue"
         sitemap_level = "not-in-any-issue"
 
     article_entries = []
@@ -749,11 +749,11 @@ def build_subject_sitemap_context(subject_or_none, repo):
     """
     if subject_or_none is not None:
         qs = _canonical_preprints_for_subject(subject_or_none)
-        page_title = f"Sitemap - {subject_or_none.name}, {repo.name}"
+        page_title = f"{repo.name} | Sitemap | {subject_or_none.name}"
         sitemap_level = "subject"
     else:
         qs = _preprints_without_subject(repo)
-        page_title = f"Sitemap - Not in any subject, {repo.name}"
+        page_title = f"{repo.name} | Sitemap | Not in any subject"
         sitemap_level = "not-in-any-subject"
 
     preprint_entries = []
@@ -832,7 +832,7 @@ def build_press_index_context(press):
             }
         )
 
-    page_title = f"Sitemap - {press_label}"
+    page_title = f"{press_label} | Sitemap"
     return {
         "press": press,
         "child_sitemaps": child_sitemaps,
@@ -910,7 +910,7 @@ def build_journal_index_context(journal):
             }
         )
 
-    page_title = f"Sitemap - {journal_label}"
+    page_title = f"{journal_label} | Sitemap"
     return {
         "journal": journal,
         "site_name": journal_label,
@@ -961,7 +961,7 @@ def build_repo_index_context(repo):
         "loc": f"{press.site_url()}/sitemap.xml",
         "label": press_label,
     }
-    page_title = f"Sitemap - {repo_label}"
+    page_title = f"{repo_label} | Sitemap"
     return {
         "repo": repo,
         "site_name": repo_label,
