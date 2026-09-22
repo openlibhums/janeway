@@ -3,8 +3,7 @@
 {% load materializecss %}
 {% load page_title %}
 
-{% trans "Contact" as contact_label %}
-{% block title %}{% page_title contact_label %}{% endblock %}
+{% block title %}{% trans "Contact" as contact_label %}{% page_title contact_label %}{% endblock %}
 
 {% block body %}
     <div class="row">

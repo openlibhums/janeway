@@ -3,8 +3,7 @@
 {% load i18n %}
 {% load page_title %}
 
-{% trans "Authors" as authors_label %}
-{% block title %}{% page_title authors_label %}{% endblock title %}
+{% block title %}{% trans "Authors" as authors_label %}{% page_title authors_label %}{% endblock title %}
 {% block page_title %}{% trans "Authors" %}{% endblock page_title %}
 
 {% block body %}

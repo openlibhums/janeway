@@ -8,8 +8,7 @@
 {% load i18n %}
 {% load page_title %}
 
-{% trans "Editors" as editors_label %}
-{% block title %}{% page_title editors_label %}{% endblock title %}
+{% block title %}{% trans "Editors" as editors_label %}{% page_title editors_label %}{% endblock title %}
 {% block page_title %}{% trans "Editorial Team" %}{% endblock page_title %}
 
 {% block body %}

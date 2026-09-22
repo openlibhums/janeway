@@ -5,8 +5,7 @@
 {% load dates %}
 {% load page_title %}
 
-{% trans "News" as news_label %}
-{% block title %}{% page_title news_label news_item.title|striptags %}{% endblock title %}
+{% block title %}{% trans "News" as news_label %}{% page_title news_label news_item.title|striptags %}{% endblock title %}
 
 {% block reading_options_bar %}
     {% include "common/elements/journal/reading_options_bar.html" %}

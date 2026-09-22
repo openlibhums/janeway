@@ -3,8 +3,7 @@
 {% load i18n %}
 {% load page_title %}
 
-{% trans "Keywords" as keywords_label %}
-{% block title %}{% page_title keywords_label %}{% endblock %}
+{% block title %}{% trans "Keywords" as keywords_label %}{% page_title keywords_label %}{% endblock %}
 
 {% block body %}
 <section id="content">

@@ -2,8 +2,7 @@
 {% load static %}
 {% load page_title %}
 
-{% trans 'Profile' as profile_label %}
-{% block title %}{% page_title profile_label user.full_name %}{% endblock %}
+{% block title %}{% trans 'Profile' as profile_label %}{% page_title profile_label user.full_name %}{% endblock %}
 
 {% block body %}
 	<section id="content">

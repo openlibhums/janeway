@@ -7,8 +7,7 @@
     {% include "press/nav.html" %}
 {% endblock navbar %}
 
-{% trans 'Journals' as journals_label %}
-{% block title %}{% page_title journals_label %}{% endblock %}
+{% block title %}{% trans 'Journals' as journals_label %}{% page_title journals_label %}{% endblock %}
 
 {% block body %}
     <div class="row">

@@ -8,8 +8,7 @@
 
 {% block page_title %}{% trans "Search" %}{% endblock %}
 
-{% trans "Search" as search_label %}
-{% block title %}{% page_title search_label search_term %}{% endblock %}
+{% block title %}{% trans "Search" as search_label %}{% page_title search_label search_term %}{% endblock %}
 
 {% block body %}
 

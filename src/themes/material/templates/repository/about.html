@@ -2,8 +2,7 @@
 {% load i18n %}
 {% load page_title %}
 
-{% trans "About" as about_label %}
-{% block title %}{% page_title about_label %}{% endblock %}
+{% block title %}{% trans "About" as about_label %}{% page_title about_label %}{% endblock %}
 
 {% block body %}
     <div class="row">

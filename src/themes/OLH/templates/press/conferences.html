@@ -5,8 +5,7 @@
 
 {% block page_title %}{% trans "Conferences" %}{% endblock page_title %}
 
-{% trans "Conferences" as conferences_label %}
-{% block title %}{% page_title conferences_label %}{% endblock title %}
+{% block title %}{% trans "Conferences" as conferences_label %}{% page_title conferences_label %}{% endblock title %}
 
 {% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
 

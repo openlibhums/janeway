@@ -2,9 +2,7 @@
 {% load i18n foundation next_url %}
 {% load page_title %}
 
-{% trans "Account" as account_label %}
-{% trans "Activate Account" as activate_label %}
-{% block title %}{% page_title account_label activate_label %}{% endblock title %}
+{% block title %}{% trans "Account" as account_label %}{% trans "Activate Account" as activate_label %}{% page_title account_label activate_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Activate Account" %}
