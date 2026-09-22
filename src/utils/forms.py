@@ -112,7 +112,14 @@ class CaptchaForm(Form):
 
         if settings.CAPTCHA_TYPE == "simple_math":
             self.question_template = _("What is %(num1)i %(operator)s %(num2)i? ")
-            captcha = MathCaptchaField(label=_("Answer this question: "))
+            captcha = MathCaptchaField(
+                label=_("Answer this question: "),
+                error_messages={
+                    "required": _(
+                        "Answer the maths question to show you are not a robot."
+                    ),
+                },
+            )
         elif settings.CAPTCHA_TYPE == "recaptcha":
             captcha = ReCaptchaField(widget=ReCaptchaWidget())
         elif settings.CAPTCHA_TYPE == "hcaptcha":

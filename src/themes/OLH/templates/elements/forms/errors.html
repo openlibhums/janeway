@@ -1,17 +1,33 @@
+{% load i18n %}
+
 {% if form.errors %}
-            <p>{% trans 'Form errors' %}:</p>
-            <ul>
-                {% if form.non_field_errors %}
-                    <li>{% trans 'Non Field Errors' %}</li>
-                    <ul>
-                        {{ form.non_field_errors }}
-                    </ul>
-                {% endif %}
-                {% for field in form %}
-                    {% if field.errors %}
-                        <li>{{ field.label }}</li>
-                        {{ field.errors }}
-                    {% endif %}
+    <section
+        class="form-errors"
+        aria-labelledby="{% if form.prefix %}{{ form.prefix }}-{% endif %}form-errors-heading">
+        <h2 id="{% if form.prefix %}{{ form.prefix }}-{% endif %}form-errors-heading">
+            {% trans "There is a problem with the form" %}
+        </h2>
+        <dl>
+            {% if form.non_field_errors %}
+                <dt>{% trans "General" %}</dt>
+                {% for error in form.non_field_errors %}
+                    <dd>{{ error }}</dd>
                 {% endfor %}
-            </ul>
+            {% endif %}
+            {% for field in form %}
+                {% if field.errors %}
+                    <dt>
+                        {% if field.id_for_label %}
+                            <a href="#{{ field.id_for_label }}">{{ field.label }}</a>
+                        {% else %}
+                            {{ field.label }}
+                        {% endif %}
+                    </dt>
+                    {% for error in field.errors %}
+                        <dd>{{ error }}</dd>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </dl>
+    </section>
 {% endif %}

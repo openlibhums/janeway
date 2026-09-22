@@ -38,6 +38,7 @@
                     <h2 class="card-title">
                         {% trans "Contact" %}
                     </h2>
+                    {% include "admin/elements/forms/required_field_info.html" %}
                     <form method="POST" novalidate>
                         {% include "elements/forms/errors.html" with form=contact_form %}
                         {% csrf_token %}

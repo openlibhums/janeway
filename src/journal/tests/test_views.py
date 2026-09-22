@@ -148,3 +148,75 @@ class JournalContactTests(JournalViewTestsWithData):
                 object_id=self.journal_one.pk,
             ).exists()
         )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_GET_announces_required_message_body(self):
+        response = self.client.get(
+            reverse("contact"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn('aria-required="true"', content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_GET_body_is_plain_textarea(self):
+        from django import forms as django_forms
+        from tinymce.widgets import TinyMCE
+
+        response = self.client.get(
+            reverse("contact"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        widget = response.context["contact_form"].fields["body"].widget
+        self.assertNotIsInstance(widget, TinyMCE)
+        self.assertIsInstance(widget, django_forms.Textarea)
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(CAPTCHA_TYPE="")
+    def test_contact_POST_email_names_journal_and_press(self):
+        from django.core import mail
+
+        post_data = {
+            "contact_person": self.contact_person_one.pk,
+            "sender": "santa@example.org",
+            "subject": "Where am I from?",
+            "body": "A message of unclear provenance.",
+        }
+        self.client.post(
+            reverse("contact"),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        message = mail.outbox[-1]
+        self.assertIn(self.journal_one.name, message.body)
+        self.assertIn(self.press.name, message.body)
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(CAPTCHA_TYPE="")
+    def test_contact_invalid_POST_error_summary(self):
+        post_data = {
+            "contact_person": self.contact_person_one.pk,
+            "sender": "not-an-email-address",
+            "subject": "Merry Christmas",
+            "body": "",
+        }
+        response = self.client.post(
+            reverse("contact"),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn('id="form-errors-heading"', content)
+        self.assertIn('aria-labelledby="form-errors-heading"', content)
+        self.assertIn("There is a problem with the form", content)
+        self.assertIn("<dl>", content)
+        self.assertIn('<a href="#id_sender">', content)
+        self.assertIn('<a href="#id_body">', content)
+        self.assertIn(
+            "Provide a valid email address in the format name@domain.com.",
+            content,
+        )
+        self.assertIn(
+            "Enter the message you would like to send.",
+            content,
+        )
