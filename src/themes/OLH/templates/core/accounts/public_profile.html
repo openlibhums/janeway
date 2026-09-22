@@ -6,6 +6,13 @@
 
 {% block body %}
 	<section id="content">
+		{% if viewing_own_profile and not user.enable_public_profile %}
+			<div class="row column">
+				<div class="callout primary">
+					{% trans "Only you can see this profile. To make it public, enable the public profile setting on the edit profile page." %}
+				</div>
+			</div>
+		{% endif %}
 		<div class="row column">
             <div class="large-3 columns">
                 {% include "common/elements/profile_image.html" with classes="thumbnail editorial-image" user=user %}

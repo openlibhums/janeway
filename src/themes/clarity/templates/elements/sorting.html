@@ -12,7 +12,7 @@
       </p>
     </div>
     <div class="col-sm-12 col-md-6">
-      <div class="input-group results-controls">
+      <div class="input-group">
         <div class="input-group-prepend">
           <label class="input-group-text" for="order_by">
             {% trans "Sort results by" %}
@@ -30,7 +30,7 @@
           {% endfor %}
         </select>
         <div class="input-group-append">
-          <button type="submit" class="btn btn-secondary" form="{{ form_id }}">{% trans "Apply" %}</button>
+          <button type="submit" class="btn btn-primary" form="{{ form_id }}" aria-label="{% trans 'Apply sort' %}">{% trans "Sort" %}</button>
         </div>
       </div>
     </div>

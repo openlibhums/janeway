@@ -3,6 +3,7 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import hashlib
 import shutil
 import tempfile
 
@@ -10,6 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
 
+from core import models
 from utils.testing import helpers
 
 
@@ -21,6 +23,93 @@ MINIMAL_GIF = (
     b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
     b"\x02\x4c\x01\x00\x3b"
 )
+
+
+class AltTextPartialViewTests(TestCase):
+    """Covers the alt text form and submit views added for image alt text
+    editing, including the targets reported missing in #5453."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(["editor"])
+        cls.editor = helpers.create_user(
+            "alt_text_editor@example.org",
+            roles=["editor"],
+            journal=cls.journal_one,
+        )
+        cls.editor.is_active = True
+        cls.editor.save()
+        cls.regular_user = helpers.create_user("alt_text_regular@example.org")
+        cls.regular_user.is_active = True
+        cls.regular_user.save()
+        cls.image_file = models.File.objects.create(
+            article_id=1,
+            mime_type="image/png",
+            original_filename="profile.png",
+            uuid_filename="profile.png",
+            owner=cls.editor,
+        )
+        # Mirrors how edit_alt_text_button.html hashes an ImageField URL
+        # (e.g. Account.profile_image or Press.secondary_image) before
+        # passing it to the views.
+        cls.file_path_token = hashlib.md5(
+            b"/media/press-secondary-image.png"
+        ).hexdigest()
+        cls.submit_url = reverse("alt_text_submit")
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.editor)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_alt_text_submit_creates_alt_text_for_object(self):
+        response = self.client.post(
+            self.submit_url,
+            {
+                "model": "core.file",
+                "pk": self.image_file.pk,
+                "alt_text": "A newsroom filled with reporters",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            models.AltText.get_text(obj=self.image_file),
+            "A newsroom filled with reporters",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_alt_text_submit_creates_alt_text_for_file_path(self):
+        response = self.client.post(
+            self.submit_url,
+            {
+                "file_path": self.file_path_token,
+                "alt_text": "The press office building at dusk",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            models.AltText.get_text(path=self.file_path_token),
+            "The press office building at dusk",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_alt_text_submit_denied_to_regular_user(self):
+        self.client.force_login(self.regular_user)
+        response = self.client.post(
+            self.submit_url,
+            {
+                "model": "core.file",
+                "pk": self.image_file.pk,
+                "alt_text": "Should not be saved",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(models.AltText.get_text(obj=self.image_file), "")
 
 
 class JournalImageSettingsTests(TestCase):

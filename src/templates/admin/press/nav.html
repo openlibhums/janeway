@@ -87,7 +87,7 @@
                 {% endif %}
                 <div class="dropdown-pane bottom" id="profile-dropdown" data-dropdown data-close-on-click="true">
                     <ul class="menu vertical">
-                        <li><a href="{% url 'core_edit_profile' %}">Profile</a></li>
+                        <li><a href="{% url 'core_edit_profile' %}">Edit Profile</a></li>
                         {% if request.repository %}
                             <li><a href="{% url 'repository_dashboard' %}">Author Dashboard</a></li>
                             <li><a href="{% url 'repository_submit' %}">Submit</a></li>

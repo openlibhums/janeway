@@ -54,7 +54,6 @@
 @include motion-ui-animations;
 
 @import 'timeline';
-@import 'toastr';
 @import 'issue';
 @import 'tabs';
 @import 'tagit';
@@ -112,6 +111,35 @@ html, body {
 	height: $footer-height;
     position: relative;
     z-index: 0;
+}
+
+.sort-control {
+  display: flex;
+  align-items: stretch;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-field,
+.sort-control .input-group-button {
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-button {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.sort-control .input-group-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sort-control .input-group-button .button {
+  height: 100%;
+  margin: 0;
 }
 
 header {
@@ -1190,6 +1218,10 @@ table tr.active td {
   cursor: move;
 }
 
+.static-messages {
+  margin: 1.5rem 0;
+}
+
 .bs-callout {
     padding: 20px;
     margin: 20px 0;
@@ -2003,6 +2035,27 @@ input[type="submit"]:focus-visible {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* The carousel slide link is a full-bleed overlay, so a ring drawn
+   outside its box is clipped by the viewport on flush edges. Draw the
+   pair inset instead: a dark inner-shadow band with the light outline
+   overlapping its inner half, so both bands sit on the slide image.
+   The generic "li a" negative-margin workaround above displaces this
+   absolutely positioned link 4px off its slide, splitting the ring in
+   two, so reset it here. */
+.orbit .box-link {
+    margin: 0;
+    padding: 0;
+}
+
+.orbit .box-link:focus,
+.orbit .box-link:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: calc(-2px - var(--focus-ring-size));
+    box-shadow:
+        inset 0 0 0 var(--focus-ring-size) var(--focus-dark),
+        inset 0 0 0 calc(var(--focus-ring-size) + 4px) var(--focus-light);
 }
 
 /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
