@@ -106,15 +106,43 @@ class ContactPersonForm(JanewayTranslationModelForm):
 
 
 class ContactMessageForm(CaptchaForm):
+    # Bootstrap and Materialize form renderers put this class on required
+    # fields' labels and wrappers; themes mark them with an asterisk
+    required_css_class = "required-field"
+
     contact_person = forms.TypedChoiceField(
         label=_("Who would you like to contact?"),
+        error_messages={
+            "required": _("Select who you would like to contact from the list."),
+            "invalid_choice": _("Select who you would like to contact from the list."),
+        },
     )
     sender = forms.EmailField(
         max_length=ACTOR_EMAIL_MAX_LENGTH,
         label=_("Your contact email address"),
+        error_messages={
+            "required": _(
+                "Enter the email address you would like to receive a reply on."
+            ),
+            "invalid": _(
+                "Provide a valid email address in the format name@domain.com."
+            ),
+        },
     )
-    subject = forms.CharField(max_length=300, label=_("Subject"))
-    body = JanewayBleachFormField(label=_("Your message"))
+    subject = forms.CharField(
+        max_length=300,
+        label=_("Subject"),
+        error_messages={
+            "required": _("Enter a short subject line for your message."),
+        },
+    )
+    body = JanewayBleachFormField(
+        label=_("Your message"),
+        widget=forms.Textarea,
+        error_messages={
+            "required": _("Enter the message you would like to send."),
+        },
+    )
 
     def __init__(self, *args, **kwargs):
         subject = kwargs.pop("subject", "")
@@ -125,6 +153,9 @@ class ContactMessageForm(CaptchaForm):
             (person.pk, person.account.full_name()) for person in contact_people
         ]
         self.fields["subject"].initial = subject
+        # Announce the requirement explicitly in case a theme form
+        # renderer drops the native required attribute
+        self.fields["body"].widget.attrs["aria-required"] = "true"
 
         if contact_person:
             self.fields["contact_person"].initial = contact_person.pk

@@ -1340,3 +1340,48 @@ textarea.tinymce:focus,
 .navbar .a11y-toggle-host .a11y-toggle-summary {
   color: #ffffff;
 }
+
+/* Mark required fields with an asterisk, as OLH does */
+.required-field label::after,
+label.required-field::after {
+    content: " *";
+    color: #b00020;
+}
+
+abbr.req {
+    border: none;
+    text-decoration: none;
+    color: #b00020;
+}
+
+/* Error summary callout */
+.form-errors {
+    margin-bottom: 1rem;
+    padding: 15px;
+    border: 1px solid #b00020;
+    border-left-width: 4px;
+    border-radius: .25rem;
+}
+
+.form-errors h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #b00020;
+}
+
+.form-errors dl {
+    margin-bottom: 0;
+}
+
+.form-errors dt {
+    font-weight: 700;
+}
+
+.form-errors dd {
+    margin-left: 0;
+    margin-bottom: .5rem;
+}
+
+.form-errors dd:last-child {
+    margin-bottom: 0;
+}

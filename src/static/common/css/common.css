@@ -808,3 +808,8 @@ a.twitter-x{
   background: rgba(0, 0, 0, 0.3);
   border-radius: 6px;
 }
+
+/* Space the maths captcha question away from the label's required asterisk */
+.captcha-question {
+  padding-left: 0.35rem;
+}

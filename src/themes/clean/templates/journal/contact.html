@@ -21,6 +21,7 @@
         </div>
         <div class="col-md-8">
             <h2>{% trans "Contact" %}</h2>
+            {% include "admin/elements/forms/required_field_info.html" %}
             <form method="POST" novalidate>
                 {% include "elements/forms/errors.html" with form=contact_form %}
                 {% csrf_token %}
