@@ -68,18 +68,13 @@
                         {% if galleys %}
                             <ul class="list-no-bullet">
                                 {% for galley in galleys %}
-                                    <li><a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a></li>
+                                    <li><a class="target-min" href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a></li>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                        <li><a href="{% url 'article_view_galley' article.id galley.id %}">
+                                        <li><a class="target-min" href="{% url 'article_view_galley' article.id galley.id %}">
                                             {% trans 'View'%} PDF
                                             {% include "elements/icons/link_new_tab.html" %}
                                         </a></li>
                                     {% endif %}
-                                    <a href="{% url 'article_download_galley' article.id galley.id %}">
-                                        {{ galley.label }}
-                                        {% include "elements/icons/link_download.html" %}
-                                    </a>
-                                    <br/>
                                 {% endfor %}
                                 {% if proofing %}
                                     <li id="note_to_proofreader_1">
