@@ -7,6 +7,7 @@
 $(document).ready(function() {
   '{{ target }}'.split(' ').forEach(target => {
     $(target).DataTable({
+      {% if save_state %}"stateSave": true,{% endif %}
       "lengthMenu": [[25, 50, 10, 5, -1], [25, 50, 10, 5, "All"]],
       {% if hide_length %}"bLengthChange": false,{% endif %}
       {% if hide_page %}"bPaginate": false,{% endif %}
