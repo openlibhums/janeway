@@ -56,7 +56,7 @@ from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
 from repository import models as repository_models
-from utils.function_cache import cache
+from utils.function_cache import cache, site_cache
 from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
 from utils.forms import plain_text_validator
@@ -1750,7 +1750,7 @@ class Article(AbstractLastModifiedModel):
             return None
 
     @property
-    @cache(600)
+    @site_cache(600)
     def url(self):
         return self.journal.site_url(path=self.local_url)
 
