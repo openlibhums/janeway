@@ -1340,3 +1340,12 @@ textarea.tinymce:focus,
 .navbar .a11y-toggle-host .a11y-toggle-summary {
   color: #ffffff;
 }
+
+/* WCAG 1.4.12: navigation items wrap rather than overflow when text
+   spacing is increased. */
+@media (min-width: 992px) {
+  .navbar-custom .navbar-collapse,
+  .navbar-custom .navbar-nav {
+    flex-wrap: wrap;
+  }
+}
