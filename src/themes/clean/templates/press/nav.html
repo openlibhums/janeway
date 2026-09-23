@@ -58,7 +58,7 @@
             </li>
             {% hook 'nav_block' %}
         </ul>
-        <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap font-weight-bold">
+        <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-wrap font-weight-bold">
             {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <button class="nav-link dropdown-toggle dropdown-button" id="user"

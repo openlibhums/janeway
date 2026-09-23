@@ -501,6 +501,67 @@ nav a.sidenav-trigger i {
     line-height: 90px;
 }
 
+/* WCAG 1.4.12: on wide screens the header grows and its links wrap
+   instead of relying on a fixed height and line-height, which text
+   spacing overrides push behind the absolutely positioned logo. */
+@media (min-width: 993px) {
+    nav.header-overrides {
+        height: auto;
+        min-height: 90px;
+    }
+    nav.header-overrides .nav-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 90px;
+    }
+    nav.header-overrides .brand-logo {
+        position: static;
+        transform: none;
+        flex-shrink: 0;
+        /* the first link's padding may sit over the logo, as it did when
+           the logo was absolutely positioned */
+        margin-right: -15px;
+        display: flex;
+        align-items: center;
+    }
+    nav.header-overrides ul.right > li > a > i {
+        height: auto;
+    }
+    nav.header-overrides ul.right {
+        float: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+    nav.header-overrides ul.right > li {
+        display: flex;
+        align-items: center;
+        min-height: 90px;
+    }
+}
+
+/* Cards in a row share the tallest card's height and grow with their
+   content. */
+.row.equal-height-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+.row.equal-height-row > .col {
+    float: none;
+    margin-left: 0;
+}
+.row.equal-height-row > .col > .card {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 1.5rem);
+}
+.row.equal-height-row > .col > .card > .card-content {
+    flex-grow: 1;
+}
+
 .header-override-image {
     padding: 5px;
     max-height: 90px;
@@ -1388,6 +1449,8 @@ p + .btn-background {
   padding: 1.5rem;
   font-size: 1.5rem;
   font-weight: 300;
+  max-height: 100%;
+  overflow-y: auto;
 }
 /* Full-width banners should be taller on larger screens */
 @media (width > 600px) {
@@ -1414,6 +1477,18 @@ p + .btn-background {
 .carousel-item.material-banner .material-banner-heading {
   bottom: unset;
   top: 0;
+}
+/* Materialize sizes the slider from the image, which on narrow screens is
+   shorter than its slides and cuts the caption off. min-height outranks
+   the inline height it sets. */
+@media (max-width: 600px) {
+  .carousel.carousel-slider {
+    min-height: 400px;
+  }
+  .carousel.carousel-slider .carousel-item .material-banner-image {
+    height: 100%;
+    object-fit: cover;
+  }
 }
 /* Partial-width banners should be shorter */
 .m4 .material-banner,

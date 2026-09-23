@@ -1420,3 +1420,12 @@ abbr.req {
   min-width: 24px;
   min-height: 24px;
 }
+
+/* WCAG 1.4.12: navigation items wrap rather than overflow when text
+   spacing is increased. */
+@media (min-width: 992px) {
+  .navbar-custom .navbar-collapse,
+  .navbar-custom .navbar-nav {
+    flex-wrap: wrap;
+  }
+}

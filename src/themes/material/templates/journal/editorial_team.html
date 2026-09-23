@@ -20,7 +20,7 @@
     </div>
 
     {% for group in editorial_groups %}
-        <div class="row eq-height-row">
+        <div class="row equal-height-row">
             {% if not journal_settings.styling.hide_editorial_group_names %}
             <div class="col m12 default-li">
                 <h2>{{ group.name }}</h2>
@@ -29,7 +29,7 @@
             {% endif %}
             {% for member in group.members %}
                 <div class="col s12 m3">
-                    <div class="card editorial-card eq-height-col">
+                    <div class="card editorial-card">
                         {% include "common/elements/journal/editorial_team_image.html" with group=group classes="card-img-top card-img" card_wrapper="True" %}
                         <div class="card-content" style="min-height: 190px;">
                             <h3 id="member-{{ member.user.uuid }}" class="card-title small-card-title">{{ member.user.full_name }}</h3>
@@ -52,13 +52,9 @@
                     </div>
                 </div>
                 {% if forloop.counter|divisibleby:4 %}</div>
-                <div class="row eq-height-row">{% endif %}
+                <div class="row equal-height-row">{% endif %}
             {% endfor %}
         </div>
     {% endfor %}
 
 {% endblock body %}
-
-{% block js %}
-    <script src="{% static "common/js/material-eq-height.js" %}"></script>
-{% endblock %}
