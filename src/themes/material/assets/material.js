@@ -24,6 +24,10 @@ var $root = $('html, body');
 $('a[href^="#"]:not(a[href$="!"])').click(function() {
   // The jquery selector needs to exclude href="#!"
   // or the event listener will interfere with the sidenav trigger
+    if (typeof drawUserAttention === 'function' && !$(this).hasClass('modal-trigger')) {
+        // reversable-links.js moves focus to the target as well as scrolling
+        return true;
+    }
     var href = $.attr(this, 'href');
     if (href) {
 
