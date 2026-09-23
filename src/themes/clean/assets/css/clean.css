@@ -254,6 +254,7 @@ main a:hover {
 .carousel-caption {
     left: 0px;
     bottom: 0px;
+    min-width: 100%;
     background-color: rgba(55, 55, 55, .8);
 }
 
@@ -296,6 +297,31 @@ main a:hover {
    * even for active carousel items.
    * This unhides them for accessibility. */
   display: block !important;
+}
+
+/* A long caption overlaid on the slide grows over the prev/next and
+   play/pause controls. Below lg the slide is too short to hold it, so it
+   sits beneath the image; above that the controls stay on top and the
+   caption text keeps clear of the prev/next strips. */
+@media (width < 992px) {
+  .carousel-item .carousel-caption {
+    position: static;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    bottom: calc(100% - var(--carousel-image-height, 360px));
+  }
+}
+@media (width >= 992px) {
+  .carousel-control-prev,
+  .carousel-control-next,
+  #carousel-buttons {
+    z-index: 11;
+  }
+  .carousel-item .carousel-caption {
+    padding-left: 15%;
+    padding-right: 15%;
+  }
 }
 
 footer svg {
@@ -1311,18 +1337,21 @@ textarea.tinymce:focus,
 .clean-banner.explicit-image-height {
   max-height: unset;
 }
-.clean-banner.explicit-image-height .clean-banner-image {
-  height: 360px;
+.carousel {
+  --carousel-image-height: 360px;
 }
 @media (width >= 992px) {
-  .clean-banner.explicit-image-height .clean-banner-image {
-    height: 432px;
+  .carousel {
+    --carousel-image-height: 432px;
   }
 }
 @media (width >= 1200px) {
-  .clean-banner.explicit-image-height .clean-banner-image {
-    height: 540px;
+  .carousel {
+    --carousel-image-height: 540px;
   }
+}
+.clean-banner.explicit-image-height .clean-banner-image {
+  height: var(--carousel-image-height, 360px);
 }
 
 /* Accessibility mode toggle */
