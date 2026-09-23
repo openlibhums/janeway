@@ -43,6 +43,16 @@
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form|foundation }}
+                            {% if step == '3' and repository %}
+                            <div class="callout">
+                                <h3>Languages</h3>
+                                <p>
+                                    Active languages:
+                                    {% for lang in repository_active_language_names %}{{ lang }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if not repository_active_language_names %}English{% endif %}.
+                                </p>
+                                <a href="{% url 'repository_languages' %}" class="button small">Manage Languages</a>
+                            </div>
+                            {% endif %}
                             <div class="row expanded">
                                 <div class="large-12 columns">
                                     <button class="warning button" type="submit" name="stay">Save</button>
