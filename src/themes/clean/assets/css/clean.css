@@ -1409,3 +1409,14 @@ abbr.req {
 .form-errors dd:last-child {
     margin-bottom: 0;
 }
+
+/* WCAG 2.5.8 minimum target size for standalone links and buttons */
+.target-min {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.close {
+  min-width: 24px;
+  min-height: 24px;
+}
