@@ -179,6 +179,15 @@ header {
         background: $very-light-gray;
         border-right: none !important;
       }
+      .input-group-button button {
+        background: $very-light-gray;
+        border: 1px solid $medium-gray;
+        border-right: none !important;
+        color: $black;
+        cursor: pointer;
+        height: $input-font-size + $form-spacing * 1.5;
+        padding: 0 1rem;
+      }
       .input-group-field {
         border-left: none !important;
         box-shadow: none;

@@ -96,11 +96,13 @@
                             <span aria-hidden="true" class="menu-icon"></span>
                         </button>
                     </div>
-                    <div data-responsive-toggle="search-menu" data-hide-for="medium">
-                        <button type="button" class="btn btn-link search-toggle" data-toggle aria-label="{% trans 'Toggle search' %}" aria-haspopup="true" aria-expanded="false">
-                            <i aria-hidden="true" class="fa fa-search"></i>
-                        </button>
-                    </div>
+                    {% if request.journal or request.repository %}
+                        <div data-responsive-toggle="search-menu" data-hide-for="medium">
+                            <button type="button" class="btn btn-link search-toggle" data-toggle aria-label="{% trans 'Toggle search' %}" aria-controls="search-menu" aria-expanded="false">
+                                <i aria-hidden="true" class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             {% hook 'language_header' %}
@@ -165,12 +167,36 @@
                     <li>
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
+                            <label for="journal-search-input" class="sr-only">{% trans "Search this journal" %}</label>
                             <div class="input-group">
-                                <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
+                                <div class="input-group-button">
+                                    <button type="submit">
+                                        <i aria-hidden="true" class="fa fa-search"></i>
+                                        <span class="sr-only">{% trans "Search" %}</span>
+                                    </button>
+                                </div>
+                                <input id="journal-search-input" class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
                                 <input type="hidden" name="sort" value="title">
-
-                            </div><input type="submit" style="visibility: hidden;" />
+                            </div>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% elif request.repository %}
+            <div class="top-bar-right" id="search-menu">
+                <ul class="menu global-search">
+                    <li>
+                        <form method="GET" action="{% url 'repository_list' %}">
+                            <label for="repository-search-input" class="sr-only">{% trans "Search this repository" %}</label>
+                            <div class="input-group">
+                                <div class="input-group-button">
+                                    <button type="submit">
+                                        <i aria-hidden="true" class="fa fa-search"></i>
+                                        <span class="sr-only">{% trans "Search" %}</span>
+                                    </button>
+                                </div>
+                                <input id="repository-search-input" class="input-group-field" type="search" name="search_term" placeholder="{% trans 'Search' %}">
+                            </div>
                         </form>
                     </li>
                 </ul>
