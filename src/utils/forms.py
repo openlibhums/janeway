@@ -18,6 +18,7 @@ from modeltranslation import forms as mt_forms, translator
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox as ReCaptchaWidget
 from simplemathcaptcha.fields import MathCaptchaField
+from simplemathcaptcha.widgets import MathCaptchaWidget
 from hcaptcha.fields import hCaptchaField
 
 from submission import models as submission_models
@@ -103,6 +104,37 @@ class HTMLSwitchInput(CheckboxInput):
     template_name = "admin/elements/forms/foundation_switch_input.html"
 
 
+class LabelledMathCaptchaWidget(MathCaptchaWidget):
+    """
+    MathCaptchaWidget whose label targets the answer input and whose answer
+    input is described by the question it asks.
+
+    Django's MultiWidget.id_for_label returns an empty string, and form
+    renderers that label fields by auto_id point at the widget's id, which
+    no element carries. The answer input therefore takes the widget's own
+    id, so both kinds of label reach it.
+    """
+
+    template_name = "admin/elements/forms/math_captcha.html"
+
+    def id_for_label(self, id_):
+        return id_
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        widget_id = context["widget"]["attrs"].get("id")
+        if widget_id:
+            question_id = f"{widget_id}_question"
+            context["question_id"] = question_id
+            answer_attrs = context["widget"]["subwidgets"][0]["attrs"]
+            answer_attrs["id"] = widget_id
+            described_by = answer_attrs.get("aria-describedby")
+            answer_attrs["aria-describedby"] = (
+                f"{question_id} {described_by}" if described_by else question_id
+            )
+        return context
+
+
 class CaptchaForm(Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,7 +144,10 @@ class CaptchaForm(Form):
 
         if settings.CAPTCHA_TYPE == "simple_math":
             self.question_template = _("What is %(num1)i %(operator)s %(num2)i? ")
-            captcha = MathCaptchaField(label=_("Answer this question: "))
+            captcha = MathCaptchaField(
+                widget=LabelledMathCaptchaWidget(),
+                label=_("Answer this question: "),
+            )
         elif settings.CAPTCHA_TYPE == "recaptcha":
             captcha = ReCaptchaField(widget=ReCaptchaWidget())
         elif settings.CAPTCHA_TYPE == "hcaptcha":

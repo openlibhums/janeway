@@ -13,10 +13,32 @@ function table_downloads() {
 }
 
 
+/**
+ * Materialize replaces each select with a combobox input and keeps the
+ * native select, visually hidden, for form submission. Label the combobox
+ * and hide the native select from assistive technology so each field is
+ * announced once, with its label.
+ */
+function labelMaterializeSelects() {
+    document.querySelectorAll(".select-wrapper").forEach(function(wrapper) {
+        var combobox = wrapper.querySelector("input.select-dropdown");
+        var nativeSelect = wrapper.querySelector("select");
+        if (!combobox || !nativeSelect) {
+            return;
+        }
+        var label = wrapper.parentElement.querySelector(":scope > label");
+        if (label && label.htmlFor !== combobox.id) {
+            label.htmlFor = combobox.id;
+        }
+        nativeSelect.setAttribute("aria-hidden", "true");
+    });
+}
+
 $( document ).ready(function(){
     figure_downloads();
     table_downloads();
     initSidenavAccessibility();
+    labelMaterializeSelects();
 })
 
 var $root = $('html, body');
