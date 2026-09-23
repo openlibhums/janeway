@@ -813,3 +813,34 @@ a.twitter-x{
 .captcha-question {
   padding-left: 0.35rem;
 }
+
+/* Admin Foundation styles input-group as display: table, which sizes
+   to content and overflows narrow columns. Lay the group out with
+   flex instead, wrapping rather than overflowing, and give selects a
+   minimum width because appearance: none leaves their intrinsic width
+   too small to show the value beside the caret padding. */
+.input-group.sort-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-button {
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: auto;
+}
+
+.sort-control select.input-group-field {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 7rem;
+  height: auto;
+}
+
+.sort-control .input-group-button .button {
+  height: 100%;
+  margin: 0;
+}

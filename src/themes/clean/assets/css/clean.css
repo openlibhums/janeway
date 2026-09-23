@@ -1168,8 +1168,17 @@ span + .btn-background {
     /* Remove margin from elements that shouldn't have it */
     .dropdown-menu a,
     .dropdown-menu button,
-    .dropdown-menu .dropdown-item {
+    .dropdown-menu .dropdown-item,
+    .input-group > .custom-select,
+    .input-group .input-group-text,
+    .input-group .btn {
         margin: 0;
+    }
+
+    /* Keep grouped controls their natural height when the column is
+       stretched taller by a flex sibling */
+    .input-group.results-controls {
+        align-items: center;
     }
 
     /*individual workarounds */

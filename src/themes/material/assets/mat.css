@@ -1838,3 +1838,17 @@ abbr.req {
 .form-errors dd:last-child {
   margin-bottom: 0;
 }
+
+.inline-select-group {
+  display: flex;
+  align-items: center;
+  column-gap: 0.75rem;
+}
+
+.inline-select-group .select-wrapper {
+  flex: 1 1 auto;
+}
+
+.inline-select-group .btn {
+  flex: 0 0 auto;
+}

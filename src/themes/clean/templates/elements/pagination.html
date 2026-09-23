@@ -62,10 +62,9 @@
             </ul>
         {% endif %}
     </div>
-    <div class="input-group col-sm-12 col-md-6 col-lg-5">
+    <div class="input-group results-controls col-sm-12 col-md-6 col-lg-5">
         <select
             class="custom-select"
-            onchange="this.form.submit()"
             name="paginate_by"
             form={{ form_id }}
             id="{{ form_id }}-paginate_by">
@@ -81,6 +80,7 @@
             <label class="input-group-text" for="{{ form_id }}-paginate_by">
                 {% trans "records per page" %}
             </label>
+            <button type="submit" class="btn btn-secondary" form={{ form_id }}>{% trans "Apply" %}</button>
         </div>
     </div>
 </div>
