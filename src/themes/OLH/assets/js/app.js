@@ -57,9 +57,10 @@ $(document).ready(function() {
     });
 });
 
-$(".search-toggle").click(function() {
-    var $searchMenu = $("#search-menu");
-    if ($searchMenu.is(':visible')) {
+$(document).on('toggled.zf.responsiveToggle', '[data-responsive-toggle="search-menu"]', function() {
+    var isOpen = $("#search-menu").is(':visible');
+    $(".search-toggle").attr('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen) {
         $(".global-search input").focus();
     }
 });

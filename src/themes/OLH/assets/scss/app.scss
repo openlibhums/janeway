@@ -179,6 +179,15 @@ header {
         background: $very-light-gray;
         border-right: none !important;
       }
+      .input-group-button button {
+        background: $very-light-gray;
+        border: 1px solid $medium-gray;
+        border-right: none !important;
+        color: $black;
+        cursor: pointer;
+        height: $input-font-size + $form-spacing * 1.5;
+        padding: 0 1rem;
+      }
       .input-group-field {
         border-left: none !important;
         box-shadow: none;
@@ -1813,10 +1822,44 @@ button.list-group-item-danger.active:focus {
 
 .back-links-list li:not(:last-child)::after {
   content: " ";
-}.red.req {
+}
+
+.red.req {
   border: none;
   color: red;
-  font-size: 150%;
+  font-size: 100%;
+}
+
+/* Error summary callout */
+.form-errors {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #b00020;
+  border-left-width: 4px;
+  border-radius: 0.25rem;
+}
+
+.form-errors h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #b00020;
+}
+
+.form-errors dl {
+  margin-bottom: 0;
+}
+
+.form-errors dt {
+  font-weight: 700;
+}
+
+.form-errors dd {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-errors dd:last-child {
+  margin-bottom: 0;
 }
 
 .no-pad{

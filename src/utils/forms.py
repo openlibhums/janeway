@@ -147,6 +147,11 @@ class CaptchaForm(Form):
             captcha = MathCaptchaField(
                 widget=LabelledMathCaptchaWidget(),
                 label=_("Answer this question: "),
+                error_messages={
+                    "required": _(
+                        "Answer the maths question to show you are not a robot."
+                    ),
+                },
             )
         elif settings.CAPTCHA_TYPE == "recaptcha":
             captcha = ReCaptchaField(widget=ReCaptchaWidget())

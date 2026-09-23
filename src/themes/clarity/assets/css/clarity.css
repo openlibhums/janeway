@@ -1964,3 +1964,49 @@ textarea:focus,
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Mark required fields with an asterisk, as OLH does */
+.required-field label::after,
+label.required-field::after {
+  content: " *";
+  color: var(--color-danger);
+}
+
+abbr.req {
+  border: none;
+  text-decoration: none;
+  color: var(--color-danger);
+}
+
+/* Error summary callout */
+.form-errors {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-danger);
+  border-left-width: 4px;
+  border-radius: 0.25rem;
+  background-color: var(--bg-content);
+}
+
+.form-errors h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: var(--color-danger);
+}
+
+.form-errors dl {
+  margin-bottom: 0;
+}
+
+.form-errors dt {
+  font-weight: 700;
+}
+
+.form-errors dd {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-errors dd:last-child {
+  margin-bottom: 0;
+}

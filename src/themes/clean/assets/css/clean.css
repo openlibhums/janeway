@@ -254,6 +254,7 @@ main a:hover {
 .carousel-caption {
     left: 0px;
     bottom: 0px;
+    min-width: 100%;
     background-color: rgba(55, 55, 55, .8);
 }
 
@@ -298,6 +299,31 @@ main a:hover {
   display: block !important;
 }
 
+/* A long caption overlaid on the slide grows over the prev/next and
+   play/pause controls. Below lg the slide is too short to hold it, so it
+   sits beneath the image; above that the controls stay on top and the
+   caption text keeps clear of the prev/next strips. */
+@media (width < 992px) {
+  .carousel-item .carousel-caption {
+    position: static;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    bottom: calc(100% - var(--carousel-image-height, 360px));
+  }
+}
+@media (width >= 992px) {
+  .carousel-control-prev,
+  .carousel-control-next,
+  #carousel-buttons {
+    z-index: 11;
+  }
+  .carousel-item .carousel-caption {
+    padding-left: 15%;
+    padding-right: 15%;
+  }
+}
+
 footer svg {
     height: 100px;
     width: 100%;
@@ -315,12 +341,7 @@ footer svg {
     }
 
     p {
-        font-size: 0.7em !important;
         margin-bottom: 8px;
-    }
-
-    .text-format-region.tf-custom-size p {
-        font-size: 1em !important;
     }
 
     .card-img-overlay {
@@ -1316,18 +1337,21 @@ textarea.tinymce:focus,
 .clean-banner.explicit-image-height {
   max-height: unset;
 }
-.clean-banner.explicit-image-height .clean-banner-image {
-  height: 360px;
+.carousel {
+  --carousel-image-height: 360px;
 }
 @media (width >= 992px) {
-  .clean-banner.explicit-image-height .clean-banner-image {
-    height: 432px;
+  .carousel {
+    --carousel-image-height: 432px;
   }
 }
 @media (width >= 1200px) {
-  .clean-banner.explicit-image-height .clean-banner-image {
-    height: 540px;
+  .carousel {
+    --carousel-image-height: 540px;
   }
+}
+.clean-banner.explicit-image-height .clean-banner-image {
+  height: var(--carousel-image-height, 360px);
 }
 
 /* Accessibility mode toggle */
@@ -1339,4 +1363,49 @@ textarea.tinymce:focus,
 
 .navbar .a11y-toggle-host .a11y-toggle-summary {
   color: #ffffff;
+}
+
+/* Mark required fields with an asterisk, as OLH does */
+.required-field label::after,
+label.required-field::after {
+    content: " *";
+    color: #b00020;
+}
+
+abbr.req {
+    border: none;
+    text-decoration: none;
+    color: #b00020;
+}
+
+/* Error summary callout */
+.form-errors {
+    margin-bottom: 1rem;
+    padding: 15px;
+    border: 1px solid #b00020;
+    border-left-width: 4px;
+    border-radius: .25rem;
+}
+
+.form-errors h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #b00020;
+}
+
+.form-errors dl {
+    margin-bottom: 0;
+}
+
+.form-errors dt {
+    font-weight: 700;
+}
+
+.form-errors dd {
+    margin-left: 0;
+    margin-bottom: .5rem;
+}
+
+.form-errors dd:last-child {
+    margin-bottom: 0;
 }

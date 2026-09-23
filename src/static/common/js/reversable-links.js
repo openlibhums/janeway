@@ -38,28 +38,38 @@ function drawUserAttention(targetElement){
         if (attentionTimeouts.has(element)) {
             clearTimeout(attentionTimeouts.get(element));
         }
-        
-        scrollToElementWithOffset(element, 100);
+
+        // Inside an open dialog the page behind must not scroll
+        if (element.closest('.reveal, .modal, [role="dialog"]')) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            scrollToElementWithOffset(element, 100);
+        }
         element.classList.add('draw-attention');
-        
+
         //A11y for keyboard & screenreader
-        const oldTabIndex = element.hasAttribute('tabIndex') ? element.tabIndex : null;
+        const oldTabIndex = element.hasAttribute('tabIndex') ? element.getAttribute('tabIndex') : null;
         element.tabIndex = "-1"
         element.focus();
-        
+
+        // Removing tabindex from the focused element drops focus to the body,
+        // so keep it until focus moves on.
+        element.addEventListener('blur', () => {
+            if (oldTabIndex === null) {
+                element.removeAttribute('tabIndex');
+            } else {
+                element.setAttribute('tabIndex', oldTabIndex);
+            }
+        }, { once: true });
+
         const timeout = setTimeout(() => {
             element.classList.remove('draw-attention');
             if (element.classList.length === 0) {
                 element.removeAttribute('class');
             }
-            if (oldTabIndex === null) {
-                element.removeAttribute('tabIndex');
-            } else {
-                element.tabIndex = oldTabIndex;
-            }
             attentionTimeouts.delete(element);
         }, 2000);
-        
+
         attentionTimeouts.set(element, timeout);
     }
 

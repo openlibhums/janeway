@@ -13,7 +13,7 @@
                           src="{{ carousel_item.best_large_image_url }}"
                           alt="{{ carousel_item.best_large_image_alt_text }}">
                       </div>
-                        <div class="carousel-caption d-none d-md-block" style="min-width: 100%;">
+                        <div class="carousel-caption d-none d-md-block">
                           <p>{{ carousel_item.carousel_subtitle|safe }}</p>
                           <h3><a href="{{ carousel_item.url }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
                         </div>

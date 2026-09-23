@@ -1711,3 +1711,55 @@ nav .a11y-toggle-host .a11y-toggle-indicator > .fa {
   flex: 1 1 auto;
   margin: 0;
 }
+
+/* Mark required fields with an asterisk, as OLH does. Materialize
+   reserves label::after for its data-error/data-success messages, so
+   only labels without those attributes are marked and the reserved
+   styles overridden. */
+label.required-field:not([data-error]):not([data-success])::after {
+  content: " *" !important;
+  color: #b00020;
+  opacity: 1 !important;
+  position: static !important;
+  display: inline !important;
+}
+
+abbr.req {
+  border: none;
+  text-decoration: none;
+  color: #b00020;
+  /* Materialize's .red helper class paints a red background with !important */
+  background-color: transparent !important;
+}
+
+/* Error summary callout */
+.form-errors {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #b00020;
+  border-left-width: 4px;
+  border-radius: 0.25rem;
+}
+
+.form-errors h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #b00020;
+}
+
+.form-errors dl {
+  margin-bottom: 0;
+}
+
+.form-errors dt {
+  font-weight: 700;
+}
+
+.form-errors dd {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-errors dd:last-child {
+  margin-bottom: 0;
+}
