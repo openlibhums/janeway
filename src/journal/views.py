@@ -2023,8 +2023,6 @@ def publication_schedule(request):
     return render(request, template, context)
 
 
-@login_required
-@decorators.frontend_enabled
 def become_reviewer(request):
     """
     If a user is signed in and not a reviewer, lets them become one, otherwsie asks them to login/tells them they
@@ -2036,7 +2034,9 @@ def become_reviewer(request):
     # The user needs to login before we can do anything else
     code = "not-logged-in"
     message = _(
-        "You must login before you can become a reviewer. Click the button below to login."
+        "You must be logged in to become a reviewer. If you do not have an "
+        "account you can register, then add your reviewing interests and "
+        "other details from your Profile page."
     )
 
     if (
@@ -2057,9 +2057,14 @@ def become_reviewer(request):
     ):
         # The user is logged in, and is already a reviewer
         code = "already-reviewer"
-        message = _("You are already a reviewer.")
+        message = _(
+            "You are already a reviewer. You can add your reviewing "
+            "interests and other details from your Profile page."
+        )
 
     if request.POST.get("action", None) == "go":
+        if not request.user.is_authenticated:
+            return redirect(reverse("core_login"))
         request.user.add_account_role("reviewer", request.journal)
         messages.add_message(
             request,
@@ -2068,7 +2073,10 @@ def become_reviewer(request):
         )
         return redirect(reverse("core_dashboard"))
 
-    template = "journal/become_reviewer.html"
+    if request.journal.disable_front_end:
+        template = "admin/journal/become_reviewer.html"
+    else:
+        template = "journal/become_reviewer.html"
     context = {
         "code": code,
         "message": message,
