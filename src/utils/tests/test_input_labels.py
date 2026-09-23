@@ -64,6 +64,6 @@ class InputLabelRequestTests(TestCase):
             reverse("journal_articles"),
             SERVER_NAME=self.journal_two.domain,
         )
-        self.assertContains(response, 'id="paginate_by"')
-        self.assertContains(response, 'for="paginate_by"')
+        self.assertContains(response, 'id="facet_form-paginate_by"', count=1)
+        self.assertContains(response, 'for="facet_form-paginate_by"')
         self.assertNotContains(response, "labelfor=")

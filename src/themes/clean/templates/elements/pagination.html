@@ -68,7 +68,7 @@
             onchange="this.form.submit()"
             name="paginate_by"
             form={{ form_id }}
-            id="paginate_by">
+            id="{{ form_id }}-paginate_by">
             <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
             <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
             <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
@@ -78,7 +78,7 @@
             {% endif %}
         </select>
         <div class="input-group-append">
-            <label class="input-group-text" for="paginate_by">
+            <label class="input-group-text" for="{{ form_id }}-paginate_by">
                 {% trans "records per page" %}
             </label>
         </div>
