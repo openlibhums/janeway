@@ -135,6 +135,7 @@ class IssueDisplayForm(forms.ModelForm):
             "display_article_page_numbers",
             "display_issue_doi",
             "display_issues_grouped_by_decade",
+            "issue_article_grouping",
         )
 
 

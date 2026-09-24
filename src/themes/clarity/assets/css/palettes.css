@@ -7,6 +7,7 @@
   --text-link-alt: #00688b;
   --focus-shadow: #193146;
   --highlight-color: #ffeb3b;
+  --article-subgroup-color: #047a59;
 }
 
 [data-clarity-palette="evergreen"]:root {
@@ -15,6 +16,7 @@
   --text-link-alt: #00688b;
   --focus-shadow: #193146;
   --highlight-color: #ffeb3b;
+  --article-subgroup-color: #047a59;
 }
 
 [data-clarity-palette="ocean"]:root {
@@ -23,6 +25,7 @@
   --text-link-alt: #2563a8;
   --focus-shadow: #2a4a6e;
   --highlight-color: #ffeb3b;
+  --article-subgroup-color: #1e3a5f;
 }
 
 [data-clarity-palette="cardinal"]:root {
@@ -31,6 +34,7 @@
   --text-link-alt: #7c2d2d;
   --focus-shadow: #5a1515;
   --highlight-color: #ffeb3b;
+  --article-subgroup-color: #9b2c2c;
 }
 
 [data-clarity-palette="paper"]:root {
@@ -41,4 +45,5 @@
   --highlight-color: #ffeb3b;
   --header-bg: #fff;
   --text-header: #212529;
+  --article-subgroup-color: #495057;
 }

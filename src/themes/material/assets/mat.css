@@ -1852,3 +1852,14 @@ abbr.req {
 .inline-select-group .btn {
   flex: 0 0 auto;
 }
+
+/* Section and/or topic of an issue article */
+h3.article-subgroup {
+    margin: 0 0 0.35rem;
+    color: #00796b; /* Materialize teal darken-2 */
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}

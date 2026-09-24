@@ -5,6 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from bs4 import BeautifulSoup
 import csv
+from dataclasses import dataclass, field
+import itertools
 import os
 from os import listdir, makedirs
 from os.path import isfile, join
@@ -782,3 +784,114 @@ def merge_sections(destination, to_merge):
             article.section = destination
             article.save()
         section.delete()
+
+
+GROUPING_LEVELS = {
+    journal_models.ARTICLE_GROUPING_SECTION: ("section",),
+    journal_models.ARTICLE_GROUPING_TOPIC: ("topic",),
+    journal_models.ARTICLE_GROUPING_SECTION_TOPIC: ("section", "topic"),
+    journal_models.ARTICLE_GROUPING_TOPIC_SECTION: ("topic", "section"),
+    journal_models.ARTICLE_GROUPING_UNGROUPED: (),
+}
+
+
+@dataclass
+class ArticleGroup:
+    """A group of articles in a table of contents, headed by a section/topic
+
+    Top level groups always contain subgroups and subgroups always contain
+    articles, so templates can always iterate over two levels. Groups without
+    an object (ungrouped articles or articles without a topic) have no heading.
+    """
+
+    kind: str = None  # "section", "topic" or None
+    obj: object = None  # Section or Topic
+    articles: list = field(default_factory=list)
+    subgroups: list = field(default_factory=list)
+    # Objects of the adjacent headed groups, for reordering
+    previous: object = None
+    next: object = None
+
+    @property
+    def article_count(self):
+        return len(self.articles) + sum(
+            subgroup.article_count for subgroup in self.subgroups
+        )
+
+    @property
+    def label(self):
+        """The name of the heading object, regardless of article count"""
+        if self.obj is None:
+            return ""
+        return self.obj.name if self.kind == "section" else self.obj.title
+
+    @property
+    def heading(self):
+        if self.obj is None:
+            return ""
+        if self.kind == "section":
+            if self.obj.plural and self.article_count >= 2:
+                return self.obj.plural
+            return self.obj.name
+        return self.obj.title
+
+
+def group_articles(articles, levels, top_level=True):
+    """Groups sorted articles by the given attributes, one level per attribute
+    :param articles: An iterable of articles sorted by the given attributes
+    :param levels: A sequence of attribute names, such as ("section", "topic")
+    :param top_level: Top level groups always contain subgroups
+    :return: A list of ArticleGroup
+    """
+    if not levels:
+        return [ArticleGroup(articles=list(articles))]
+
+    kind, sublevels = levels[0], levels[1:]
+    groups = []
+    for obj, items in itertools.groupby(articles, key=lambda a: getattr(a, kind)):
+        group = ArticleGroup(kind=kind, obj=obj)
+        if sublevels or top_level:
+            group.subgroups = group_articles(items, sublevels, top_level=False)
+        else:
+            group.articles = list(items)
+        groups.append(group)
+
+    headed_groups = [group for group in groups if group.obj is not None]
+    for previous, following in zip(headed_groups, headed_groups[1:]):
+        previous.next = following.obj
+        following.previous = previous.obj
+    return groups
+
+
+def group_issue_articles(articles, grouping):
+    """Groups articles already sorted with Issue.get_sorted_articles
+    :param articles: An iterable of articles sorted for the given grouping
+    :param grouping: One of journal.models.ARTICLE_GROUPING_CHOICES
+    :return: A list of ArticleGroup, each containing a list of ArticleGroup
+    """
+    levels = GROUPING_LEVELS.get(grouping, ("section",))
+    if not levels:
+        return [ArticleGroup(subgroups=group_articles(articles, levels))]
+    return group_articles(articles, levels)
+
+
+def issue_article_label(article, grouping):
+    """Returns the label displayed above an article title in an issue
+
+    The label names what the top level headings of the grouping do not: the
+    topic under section headings, the section under topic headings and both
+    when articles are not grouped.
+    :param article: an Article object
+    :param grouping: one of journal.models.ARTICLE_GROUPING_CHOICES
+    :return: a string, empty when there is nothing to display
+    """
+    section = article.section.name if article.section else ""
+    topic = article.topic.title if article.topic else ""
+    levels = GROUPING_LEVELS.get(grouping, ("section",))
+    if not levels:
+        parts = [section, topic]
+    elif levels[0] == "section":
+        parts = [topic]
+    else:
+        parts = [section]
+    return " \u2022 ".join(part for part in parts if part)
