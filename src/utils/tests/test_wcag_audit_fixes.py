@@ -231,6 +231,15 @@ class PageLanguageTests(TestCase):
         )
         self.assertContains(response, '<html class="no-js" lang="en">')
 
+    def test_olh_press_page_declares_the_active_language(self):
+        response = self.client.get(
+            reverse("website_index"),
+            {"theme": "OLH"},
+            SERVER_NAME=self.press.domain,
+            HTTP_ACCEPT_LANGUAGE="fr",
+        )
+        self.assertContains(response, '<html class="no-js" lang="fr">')
+
     def test_journal_pages_declare_their_language(self):
         for theme, tag in [
             ("OLH", '<html class="no-js" lang="en">'),
