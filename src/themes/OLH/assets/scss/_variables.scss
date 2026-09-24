@@ -13,6 +13,9 @@ $toc-link-color: #1373b3 !default;
 $figure-caption-background-color: #1373b3 !default;
 $figure-caption-color: #FFFFFF !default;
 
+// WCAG 1.4.11: form control borders need 3:1 against the page.
+$input-border-color: #8f8f8f !default;
+
 $primary-dark-color: #062657 !default;
 $primary-light-color: #1373b3 !default;
 $very-dark-primary-color: #06152D !default;

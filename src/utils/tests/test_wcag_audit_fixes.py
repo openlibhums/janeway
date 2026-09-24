@@ -49,6 +49,18 @@ class ContrastCssTests(SimpleTestCase):
                 self.assertIn(rule, css)
 
 
+class NonTextContrastCssTests(SimpleTestCase):
+    def test_olh_form_controls_use_the_contrasting_border(self):
+        variables = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
+        self.assertIn("$input-border-color: #8f8f8f !default;", variables)
+        settings = helpers.read_theme_asset("OLH", "assets/scss/_settings.scss")
+        self.assertIn("$input-border: 1px solid $input-border-color;", settings)
+        self.assertIn(
+            "$input-prefix-border: 1px solid $input-border-color;",
+            settings,
+        )
+
+
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
