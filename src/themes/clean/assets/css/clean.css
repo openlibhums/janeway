@@ -54,8 +54,10 @@ main a {
     text-decoration: underline;
 }
 
-/* Do not automatically underline links that contain font-awesome icons */
-main a:has(.fa) {
+/* Do not automatically underline links that contain font-awesome icons,
+   except text links marked as external, which keep their underline so they
+   stand out from surrounding text (WCAG 1.4.1). */
+main a:has(.fa):not(:has(.fa-external-link)) {
   text-decoration: none;
 }
 
