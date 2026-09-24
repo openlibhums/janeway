@@ -1433,3 +1433,8 @@ dialog::backdrop {
   opacity: 0;
   transition: opacity 0.5s ease-out;
 }
+
+/* Only one new topic can be added at a time */
+.topic-table:has(#new-topic-row) #new-topic-wrapper {
+  display: none;
+}

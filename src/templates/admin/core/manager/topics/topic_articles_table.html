@@ -1,0 +1,42 @@
+<div id="topic-articles-table">
+    <table class="table scroll">
+        <thead>
+        <tr>
+            <th width="3%">
+                <input type="checkbox" id="select-all-articles" aria-label="{% trans 'Select all articles' %}">
+            </th>
+            <th width="5%">{% trans "ID" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Section" %}</th>
+            <th>{% trans "Stage" %}</th>
+            <th>{% trans "Issue" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for article in topic.article_set.all %}
+            <tr>
+                <td>
+                    <input
+                        type="checkbox"
+                        name="articles"
+                        value="{{ article.pk }}"
+                        id="article-{{ article.pk }}"
+                        aria-label="{% blocktrans with title=article.safe_title %}Select {{ title }}{% endblocktrans %}"
+                    >
+                </td>
+                <td>{{ article.pk }}</td>
+                <td>
+                    <a href="{% url 'core_dashboard_article' article.pk %}">{{ article.safe_title }}</a>
+                </td>
+                <td>{{ article.section.name|default:"--" }}</td>
+                <td>{{ article.get_stage_display }}</td>
+                <td>{{ article.primary_issue.display_title|default:"--" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">{% trans "There are no articles in this topic." %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

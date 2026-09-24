@@ -1,0 +1,89 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}{% trans "Topic Articles" %}{% endblock title %}
+{% block title-section %}{{ topic.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
+    <li><a href="{% url 'core_manager_topics' %}">{% trans "Topics" %}</a></li>
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>{% blocktrans with title=topic.title %}Articles in {{ title }}{% endblocktrans %}</h2>
+                <a href="{% url 'core_manager_topics' %}" class="button">
+                    <i class="fa fa-arrow-left"></i> {% trans "Back to Topics" %}
+                </a>
+            </div>
+            <div class="content">
+                <form id="topic-articles-form">
+                    {% csrf_token %}
+                    <button class="button" type="button" data-toggle="topic-actions" id="topic-actions-button" disabled>
+                        {% trans "Actions for selected articles" %} (<span id="selected-count">0</span>)
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-pane bottom" id="topic-actions" data-dropdown data-close-on-click="true">
+                        {% if other_topics %}
+                            <label for="move-topic">{% trans "Move to topic" %}</label>
+                            <select name="topic" id="move-topic">
+                                {% for other_topic in other_topics %}
+                                    <option value="{{ other_topic.pk }}">{{ other_topic.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <button
+                                type="button"
+                                class="success button expanded"
+                                hx-post="{% url 'core_manager_topic_articles' topic.pk %}"
+                                hx-vals='{"action": "move"}'
+                                hx-target="#topic-articles-table"
+                                hx-swap="outerHTML"
+                            >
+                                <i class="fa fa-exchange"></i> {% trans "Move to selected topic" %}
+                            </button>
+                            <hr>
+                        {% endif %}
+                        <button
+                            type="button"
+                            class="alert button expanded"
+                            hx-post="{% url 'core_manager_topic_articles' topic.pk %}"
+                            hx-vals='{"action": "clear"}'
+                            hx-target="#topic-articles-table"
+                            hx-swap="outerHTML"
+                            hx-confirm="{% trans 'Remove the selected articles from this topic?' %}"
+                        >
+                            <i class="fa fa-times"></i> {% trans "Remove from any topic" %}
+                        </button>
+                    </div>
+                    {% include "admin/core/manager/topics/topic_articles_table.html" %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    {% include "admin/core/partials/htmx.html" %}
+    <script>
+        function updateSelectedCount() {
+            var count = document.querySelectorAll('#topic-articles-table input[name="articles"]:checked').length;
+            document.getElementById("selected-count").textContent = count;
+            document.getElementById("topic-actions-button").disabled = count === 0;
+        }
+        document.getElementById("topic-articles-form").addEventListener("change", function (event) {
+            if (event.target.id === "select-all-articles") {
+                document.querySelectorAll('#topic-articles-table input[name="articles"]').forEach(function (checkbox) {
+                    checkbox.checked = event.target.checked;
+                });
+            }
+            updateSelectedCount();
+        });
+        document.body.addEventListener("htmx:afterSwap", function () {
+            $("#topic-actions").foundation("close");
+            updateSelectedCount();
+        });
+    </script>
+{% endblock js %}

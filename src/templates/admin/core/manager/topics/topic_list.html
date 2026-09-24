@@ -1,63 +1,74 @@
 {% extends "admin/core/base.html" %}
 {% load static %}
-{% load foundation %}
 
-{% get_current_language as LANGUAGE_CODE %}
-{% get_language_info for LANGUAGE_CODE as language_info %}
-
-{% block title %}Topics{% endblock title %}
-{% block title-section %}Topics{% endblock %}
+{% block title %}{% trans "Topics" %}{% endblock title %}
+{% block title-section %}{% trans "Topics" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
-    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
-    <li>Topics</li>
+    <li><a href="{% url 'core_manager_index' %}">{% trans "Manager" %}</a></li>
+    <li>{% trans "Topics" %}</li>
 {% endblock %}
 
 {% block body %}
     <div class="large-12 columns">
         <div class="box">
             <div class="title-area">
-                <h2>Topics</h2>
+                <h2>{% trans "Topics" %}</h2>
             </div>
             <div class="content">
-                <p>{% blocktrans %}
-                  Here you can create topics, a grouping element that is only used for display purposes.
-                  Once an article topic is created, any articles that are part of the same topic within the same issue and section will be displayed together under a common heading with the topic title.
+                <p>
+                  {% blocktrans trimmed %}
+                  Topics let you group articles thematically, independently
+                  from their section (article type). Topics are only used for
+                  display purposes: you can choose to group the articles of
+                  your issues by section, by topic, or by topic within each
+                  section from the Issue Display Settings.
                   {% endblocktrans %}
                 </p>
                 <p>
-                    <strong>NB.</strong> {% blocktrans %}You cannot delete a Topic that contains articles. Remove the articles from the section if you want to delete it.{% endblocktrans %}
+                  {% blocktrans trimmed %}
+                  Topics open for submission can be selected by authors when
+                  the topic field is enabled in the Submission Configurator.
+                  Editors can set the topic of any article from its metadata.
+                  {% endblocktrans %}
                 </p>
-                    {% csrf_token %}
-                    <table class="table scroll">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Open for Submission</th>
-                            <th># Articles</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for topic in topics %}
-                            {% include "admin/core/manager/topics/topic_row.html"%}
-                        {% endfor %}
-                        <tr id="new-topic-wrapper">
-                          <td colspan="100%">
-                        <span class="success button"
-                           hx-get="{% url "core_manager_topic_add" %}"
-                           hx-target="#new-topic-wrapper"
-                           hx-swap="beforebegin"
-                        >
-                          <span class="fa fa-plus-circle">Add new topic
-                        </span>
-                          </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <p>
+                    <strong>{% trans "NB." %}</strong> {% blocktrans trimmed %}You cannot delete a topic that contains articles. Remove the articles from the topic if you want to delete it.{% endblocktrans %}
+                </p>
+                <table class="table scroll">
+                    <thead>
+                    <tr>
+                        <th>{% trans "ID" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Open for submissions" %}</th>
+                        <th>{% trans "# Articles" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </tr>
+                    </thead>
+                    <tbody class="topic-table">
+                    {% for topic in topics %}
+                        {% include "admin/core/manager/topics/topic_row.html" %}
+                    {% endfor %}
+                    <tr id="new-topic-wrapper">
+                        <td colspan="5">
+                            <button
+                                class="success button"
+                                hx-get="{% url 'core_manager_topic_add' %}"
+                                hx-target="#new-topic-wrapper"
+                                hx-swap="beforebegin"
+                            >
+                                <span class="fa fa-plus-circle"></span> {% trans "Add new topic" %}
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 {% endblock body %}
+
+{% block js %}
+    {% include "admin/core/partials/htmx.html" %}
+{% endblock js %}

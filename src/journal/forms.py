@@ -139,13 +139,28 @@ class IssueDisplayForm(forms.ModelForm):
 
 
 class TopicForm(forms.ModelForm):
+    """Form for editing a Topic inline, as a row of a table.
+
+    Since a <form> element can't wrap a table row, inputs are linked to the
+    form via their `form` attribute, using the id returned by html_form_id.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["title"].required = True
+        self.auto_id = "id_{}_%s".format(self.html_form_id)
+        for field in self.fields.values():
+            field.widget.attrs["form"] = self.html_form_id
+
+    @property
+    def html_form_id(self):
+        if self.instance.pk:
+            return "edit-topic-{}".format(self.instance.pk)
+        return "new-topic"
 
     class Meta:
         model = journal_models.Topic
-        fields = ('title', 'public_submissions')
+        fields = ("title", "public_submissions")
 
 
 class BasePrepubNotificationFormSet(forms.BaseFormSet):

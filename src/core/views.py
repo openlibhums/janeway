@@ -27,7 +27,11 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.conf import settings as django_settings
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import (
+    require_GET,
+    require_http_methods,
+    require_POST,
+)
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, UpdateView, DeleteView
@@ -61,6 +65,7 @@ from utils import models as util_models, setting_handler, orcid
 from utils.logger import get_logger
 from utils.decorators import GET_language_override
 from utils.shared import language_override_redirect, clear_cache
+from utils.htmx import hx_show_message
 from repository import models as rm
 from events import logic as events_logic
 
@@ -2587,78 +2592,170 @@ def section_articles(request, section_id):
     return render(request, template, context)
 
 
-@role_can_access('topics')
+@role_can_access("topics")
 def topic_list(request):
     """
-    Displays a list of the journals topics.
-    :praram request: HttpRequest object
+    Displays a list of the journal's topics.
+    :param request: HttpRequest object
     :return: HttpResponse
     """
     topics = journal_models.Topic.objects.filter(
         journal=request.journal,
     )
 
-    template = 'core/manager/topics/topic_list.html'
+    template = "core/manager/topics/topic_list.html"
     context = {
-        'topics': topics,
+        "topics": topics,
     }
     return render(request, template, context)
 
 
-@role_can_access('topics')
-def topic_item(request, topic_id=None):
+@require_GET
+@role_can_access("topics")
+def topic_item(request, topic_id):
+    """
+    Renders a single topic as a table row. Used via HTMX.
+    :param request: HttpRequest object
+    :param topic_id: Topic object PK
+    :return: HttpResponse
+    """
     topic = get_object_or_404(
         journal_models.Topic,
         id=topic_id,
-        journal=request.journal
+        journal=request.journal,
     )
 
-    template = 'core/manager/topics/topic_row.html'
+    template = "core/manager/topics/topic_row.html"
     context = {
-        'topic': topic,
+        "topic": topic,
     }
     return render(request, template, context)
 
 
-@role_can_access('topics')
+@require_http_methods(["GET", "POST"])
+@role_can_access("topics")
+def topic_articles(request, topic_id):
+    """
+    Lists the articles of a topic and lets the user move a selection of them
+    to another topic or remove them from the topic. POSTed via HTMX.
+    :param request: HttpRequest object
+    :param topic_id: Topic object PK
+    :return: HttpResponse
+    """
+    topic = get_object_or_404(
+        journal_models.Topic,
+        id=topic_id,
+        journal=request.journal,
+    )
+    other_topics = journal_models.Topic.objects.filter(
+        journal=request.journal,
+    ).exclude(pk=topic.pk)
+
+    if request.method == "POST":
+        articles = topic.article_set.filter(
+            journal=request.journal,
+            pk__in=[pk for pk in request.POST.getlist("articles") if pk.isdigit()],
+        )
+        action = request.POST.get("action")
+        new_topic = None
+        if action == "move":
+            new_topic = other_topics.filter(pk=request.POST.get("topic") or 0).first()
+
+        if not articles:
+            message, level = _("No articles were selected."), "warning"
+        elif action == "move" and not new_topic:
+            message, level = _("Select the topic to move the articles to."), "warning"
+        elif action not in ("move", "clear"):
+            message, level = _("Unknown action."), "error"
+        else:
+            count = len(articles)
+            for article in articles:
+                article.topic = new_topic
+                article.save()
+            if new_topic:
+                message = _("%(count)s article(s) moved to %(topic)s.") % {
+                    "count": count,
+                    "topic": new_topic.title,
+                }
+            else:
+                message = _("%(count)s article(s) removed from %(topic)s.") % {
+                    "count": count,
+                    "topic": topic.title,
+                }
+            level = "success"
+
+        response = render(
+            request,
+            "core/manager/topics/topic_articles_table.html",
+            {"topic": topic},
+        )
+        return hx_show_message(response, message, level=level)
+
+    template = "core/manager/topics/topic_articles.html"
+    context = {
+        "topic": topic,
+        "other_topics": other_topics,
+    }
+    return render(request, template, context)
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+@role_can_access("topics")
 def topic_form(request, topic_id=None):
+    """
+    Renders, saves or deletes a topic as a table row. Used via HTMX.
+    :param request: HttpRequest object
+    :param topic_id: Topic object PK, when editing an existing topic
+    :return: HttpResponse
+    """
     from journal import forms as journal_forms  # Avoids circular import
+
     topic = None
     if topic_id:
         topic = get_object_or_404(
             journal_models.Topic,
             id=topic_id,
-            journal=request.journal
+            journal=request.journal,
         )
-    form = journal_forms.TopicForm(instance=topic)
+
     if request.method == "DELETE":
+        if topic is None:
+            raise Http404
         if topic.article_set.exists():
-            messages.add_message(
+            response = render(
                 request,
-                messages.WARNING,
-                _(
-                    'You cannot remove a topic that contains articles.'
-                    ' Remove articles from the topic if you want to delete it.'
-                ),
+                "core/manager/topics/topic_row.html",
+                {"topic": topic},
             )
-        else:
-            topic.delete()
-            return HttpResponse("")
-    elif request.method == "POST":
+            return hx_show_message(
+                response,
+                _(
+                    "You cannot remove a topic that contains articles."
+                    " Remove articles from the topic if you want to delete it."
+                ),
+                level="warning",
+            )
+        topic.delete()
+        return hx_show_message(HttpResponse(""), _("Topic deleted."))
+
+    form = journal_forms.TopicForm(instance=topic)
+    if request.method == "POST":
         form = journal_forms.TopicForm(request.POST, instance=topic)
         if form.is_valid():
             topic = form.save(commit=False)
             topic.journal = request.journal
             topic.save()
-            messages.add_message(request, messages.INFO, 'Changes saved.')
-            return redirect(reverse(
-                "core_manager_topic", kwargs={"topic_id": topic.id}
-            ))
+            response = render(
+                request,
+                "core/manager/topics/topic_row.html",
+                {"topic": topic},
+            )
+            return hx_show_message(response, _("Topic saved."))
 
-    template = 'core/manager/topics/topic_form.html'
+    template = "core/manager/topics/topic_form.html"
     context = {
-        'topic': topic,
-        'topic_form': form,
+        "topic": topic,
+        "topic_form": form,
     }
     return render(request, template, context)
 

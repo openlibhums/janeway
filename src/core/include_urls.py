@@ -398,6 +398,11 @@ urlpatterns = [
         name="core_manager_topic_edit",
     ),
     re_path(
+        r"^manager/topics/topic/(?P<topic_id>\d+)/articles/$",
+        core_views.topic_articles,
+        name="core_manager_topic_articles",
+    ),
+    re_path(
         r"^manager/topics/topic/new/$",
         core_views.topic_form,
         name="core_manager_topic_add",

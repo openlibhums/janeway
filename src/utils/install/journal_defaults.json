@@ -4785,6 +4785,24 @@
     },
     {
         "group": {
+            "name": "permission"
+        },
+        "setting": {
+            "description": "Determines which roles can access the topics pages.",
+            "is_translatable": false,
+            "name": "topics",
+            "pretty_name": "Role can manage topics",
+            "type": "json"
+        },
+        "value": {
+            "default": ["editor", "journal-manager"]
+        },
+        "editable_by": [
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
