@@ -2375,3 +2375,7 @@ input[type="submit"]:focus-visible {
     overflow-x: clip;
 }
 
+/* WCAG 1.4.3: Foundation's subheader grey (#8a8a8a) is 3.4:1 on the page. */
+.subheader {
+  color: #707070;
+}
