@@ -168,6 +168,27 @@ class PageLanguageTests(TestCase):
                 self.assertContains(response, tag)
 
 
+@override_settings(URL_CONFIG="domain", CAPTCHA_TYPE="simple_math")
+class CleanPressContactTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+
+    def setUp(self):
+        clear_cache()
+
+    def test_clean_press_contact_uses_the_clean_grid(self):
+        response = self.client.get(
+            reverse("press_contact"),
+            {"theme": "clean"},
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertContains(response, '<div class="col-md-8">')
+        self.assertContains(response, "Press Representatives")
+        self.assertNotContains(response, "large-8 columns")
+
+
 @override_settings(URL_CONFIG="domain")
 class ArticleFilterAccordionTests(TestCase):
     @classmethod

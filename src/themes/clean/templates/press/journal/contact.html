@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load page_title %}
+
+{% block title %}{% trans "Contact" as contact_label %}{% page_title contact_label %}{% endblock title %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col-md-4 contact">
+            <h1 class="sr-only">{% trans 'Contact us' %}</h1>
+            <h2 class="side-bar-title">{% trans "Press Representatives" %}</h2>
+            {% for contact in contacts %}
+                <h3 class="card-title editor-name">{{ contact.display_name }}</h3>
+                <p>{{ contact.role }}</p>
+            {% endfor %}
+        </div>
+        <div class="col-md-8">
+            <h2>{% trans "Contact" %}</h2>
+            {% include "admin/elements/forms/required_field_info.html" %}
+            <form method="POST" novalidate>
+                {% include "elements/forms/errors.html" with form=contact_form %}
+                {% csrf_token %}
+                {% bootstrap_field contact_form.contact_person %}
+                {% bootstrap_field contact_form.sender %}
+                {% bootstrap_field contact_form.subject %}
+                {% bootstrap_field contact_form.body %}
+                {% bootstrap_field contact_form.captcha %}
+                <button type="submit" class="btn btn-primary">{% trans "Send Message" %}</button>
+            </form>
+        </div>
+
+    </div>
+{% endblock body %}
