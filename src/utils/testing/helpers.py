@@ -777,6 +777,21 @@ def create_news_item(content_type, object_id, **kwargs):
     return item
 
 
+def create_homepage_element(site_object, name, template_path, **kwargs):
+    element, _created = core_models.HomepageElement.objects.update_or_create(
+        name=name,
+        content_type=ContentType.objects.get_for_model(site_object),
+        object_id=site_object.pk,
+        defaults={
+            "template_path": template_path,
+            "has_config": False,
+            "active": kwargs.get("active", True),
+            "sequence": kwargs.get("sequence", 0),
+        },
+    )
+    return element
+
+
 def create_cms_page(content_type, object_id, **kwargs):
     name = kwargs.get("name", "test-name")
     display_name = kwargs.get("display_name", "Test display name")

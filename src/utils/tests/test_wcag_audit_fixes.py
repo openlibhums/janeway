@@ -92,3 +92,29 @@ class JournalLogoFallbackTests(TestCase):
                     response,
                     f'sample/janeway.png" alt="{self.journal_one.name}"',
                 )
+
+
+@override_settings(URL_CONFIG="domain")
+class HomepageSearchBarLabelTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_homepage_element(
+            cls.journal_one,
+            "Search Bar",
+            "core/homepage_elements/search_bar.html",
+        )
+
+    def setUp(self):
+        clear_cache()
+
+    def test_olh_search_bar_input_has_label(self):
+        response = self.client.get(
+            reverse("website_index"),
+            {"theme": "OLH"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(response, 'id="homepage-search-label"')
+        self.assertContains(response, 'aria-labelledby="homepage-search-label"')
+        self.assertContains(response, 'id="homepage-search-input"')

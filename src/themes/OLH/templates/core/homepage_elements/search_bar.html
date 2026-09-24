@@ -14,9 +14,9 @@
             <input id="abstract" name="abstract" type="hidden" value="on">
               <span class="input-group-label">
                 <i aria-hidden="true" class="fa fa-search"></i>
-                <span class="sr-only">{% trans 'Search' %}</span>
+                <span class="sr-only" id="homepage-search-label">{% trans 'Search' %}</span>
               </span>
-              <input name="article_search" class="input-group-field" type="text">
+              <input id="homepage-search-input" name="article_search" class="input-group-field" type="text" aria-labelledby="homepage-search-label">
               <div class="input-group-button">
                 <input type="submit" class="button" value="Search">
               </div>
