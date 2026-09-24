@@ -118,3 +118,25 @@ class HomepageSearchBarLabelTests(TestCase):
         self.assertContains(response, 'id="homepage-search-label"')
         self.assertContains(response, 'aria-labelledby="homepage-search-label"')
         self.assertContains(response, 'id="homepage-search-input"')
+
+
+@override_settings(URL_CONFIG="domain")
+class ArticleFilterAccordionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+
+    def setUp(self):
+        clear_cache()
+
+    def test_olh_filter_accordion_item_is_presentational(self):
+        response = self.client.get(
+            reverse("journal_articles"),
+            {"theme": "OLH"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(
+            response,
+            '<li class="accordion-item" data-accordion-item role="presentation">',
+        )
