@@ -68,7 +68,7 @@
                 </span>
                 <i aria-hidden="true" class="fa fa-book"></i>
                 {% if article.issue.issue_type.code == 'issue' %}
-                    <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
+                    <span aria-hidden="true">{{ article.issue_title }}</span><span class="sr-only">{{ article.issue_title_a11y }}</span>
                 {% else %}
                     {{ article.issue.issue_title }}
                 {% endif %}

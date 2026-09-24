@@ -8,7 +8,7 @@
                     <li data-target="#carousel" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
                 {% endfor %}
             </ol>
-            <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
+            <div class="carousel-inner" role="region" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_items|length }}">
                         <div class="clarity-banner explicit-image-height">
