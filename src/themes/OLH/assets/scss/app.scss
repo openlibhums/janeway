@@ -1180,6 +1180,18 @@ footer {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
     height: $footer-height;
+
+    // The focus style makes links inline-block, which shrink-wraps them;
+    // an SVG with no width of its own then collapses to 0px. Keep the
+    // link inline-block throughout and give the SVG a fixed width.
+    a {
+      display: inline-block;
+    }
+
+    a svg {
+      display: block;
+      width: 180px;
+    }
   }
   p, li {
     font-family: $header-font-family;
