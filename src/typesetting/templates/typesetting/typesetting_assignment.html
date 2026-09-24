@@ -11,7 +11,7 @@
 
 {% block breadcrumbs %}
     <li><a href="{% url 'typesetting_assignments' %}">Typesetting Assignments</a></li>
-    <li>Typesetting {{ assignment.round.article.title|safe }}</li>
+    <li>Typesetting {{ assignment.round.article.safe_title_html }}</li>
 {% endblock breadcrumbs %}
 
 {% block body %}
@@ -24,7 +24,7 @@
                     <h2>Assignment Information</h2>
                 </div>
                 <p>
-                  {{ article.safe_title }} [<a href="#view-metadata">Skip to full metadata</a>]
+                  {{ article.safe_title_html }} [<a href="#view-metadata">Skip to full metadata</a>]
                 </p>
                 <div class="content">
                   <p><strong>Typesetting Guide</strong></p>

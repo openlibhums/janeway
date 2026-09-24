@@ -33,7 +33,7 @@
                 </subj-group>
             </article-categories>
             <title-group>
-                <article-title>{{ article.title }}</article-title>
+                <article-title>{{ article.safe_title_jats }}</article-title>
             </title-group>
             <contrib-group>
                 {% for item in article.frozen_authors_for_jats_contribs %}
@@ -150,7 +150,7 @@
             {% if article.pdfs.exists %}
             <self-uri content-type="application/pdf" xlink:href="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
             {% endif %}
-            <abstract>{{ article.get_clean_abstract }}</abstract>
+            <abstract>{{ article.safe_abstract_jats }}</abstract>
             {% if article.keywords.exists %}
             <kwd-group xml:lang="en">
                 <title>Keywords</title>

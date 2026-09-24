@@ -2,7 +2,7 @@
 
             <titles>
                 {% if article.scheduled %}
-                <title>{{ article.title }}</title>
+                <title>{{ article.stripped_title }}</title>
                 {% else %}
                 <title>Title Pending {{ article.pk }}</title>
                 {% endif %}
@@ -10,9 +10,9 @@
 
             {% include "common/identifiers/crossref_contributors.xml" %}
 
-            {% if article.abstract  and article.scheduled %}
+            {% if article.abstract and article.scheduled %}
                 <jats:abstract>
-                    <jats:p>{{ article.get_clean_abstract }}</jats:p>
+                    <jats:p>{{ article.safe_abstract_jats }}</jats:p>
                 </jats:abstract>
             {% endif %}
 

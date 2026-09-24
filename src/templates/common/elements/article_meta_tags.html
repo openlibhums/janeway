@@ -12,7 +12,7 @@
     {% if article.date_published %}<meta name="DC.Date.modified" scheme="ISO8601" content="{{ article.date_published|date:"Y-m-d"  }}"/>{% endif %}
 
 
-    <meta name="DC.Description" xml:lang="en" content="{{ article.abstract | striptags }}"/>
+    <meta name="DC.Description" xml:lang="en" content="{{ article.stripped_abstract }}"/>
 
     <meta name="DC.Format" scheme="IMT" content="xml"/>
     <meta name="DC.Format" scheme="IMT" content="pdf"/>

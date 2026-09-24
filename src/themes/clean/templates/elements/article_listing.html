@@ -23,11 +23,11 @@
                     {% if article.is_remote %}
                     <h2 class="card-title article-title">
                         <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                        {{ article.title|safe }}&nbsp;
+                        {{ article.safe_title_html }}&nbsp;
                         <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
                     </h2>
                     {% else %}
-                    <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                    <h2 class="card-title article-title">{{ article.safe_title_html }}</h2>
                     {% endif %}
                 </a>
                 <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}

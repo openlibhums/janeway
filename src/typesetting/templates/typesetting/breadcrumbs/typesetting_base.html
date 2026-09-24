@@ -4,6 +4,8 @@
 
 {% if article %}
     <li>
-        <a href="{% url 'typesetting_article' article.pk %}">{{ article.title|safe }}</a>
+        <a href="{% url 'typesetting_article' article.pk %}">
+          {{ article.safe_title_html }}
+        </a>
     </li>
 {% endif %}
