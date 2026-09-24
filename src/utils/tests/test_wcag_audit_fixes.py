@@ -137,6 +137,38 @@ class HomepageSearchBarLabelTests(TestCase):
 
 
 @override_settings(URL_CONFIG="domain")
+class PageLanguageTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+
+    def setUp(self):
+        clear_cache()
+
+    def test_olh_press_page_declares_its_language(self):
+        response = self.client.get(
+            reverse("website_index"),
+            {"theme": "OLH"},
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertContains(response, '<html class="no-js" lang="en">')
+
+    def test_journal_pages_declare_their_language(self):
+        for theme, tag in [
+            ("OLH", '<html class="no-js" lang="en">'),
+            ("material", '<html lang="en">'),
+        ]:
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    reverse("website_index"),
+                    {"theme": theme},
+                    SERVER_NAME=self.journal_one.domain,
+                )
+                self.assertContains(response, tag)
+
+
+@override_settings(URL_CONFIG="domain")
 class ArticleFilterAccordionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
