@@ -222,7 +222,7 @@
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        <h2>
+                        <h2 class="sidebar-heading">
                           {% blocktrans count counter=article.frozen_authors.count %}
                             Author
                           {% plural %}
@@ -236,7 +236,7 @@
                         <div class="divider"></div>
                     </div>
                     {% if article.is_published or proofing %}
-                        <h2>
+                        <h2 class="sidebar-heading">
                             {% trans "Downloads" %}
                         </h2>
                         {% if galleys %}

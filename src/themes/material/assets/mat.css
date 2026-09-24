@@ -1922,3 +1922,12 @@ textarea.materialize-textarea,
   min-height: 24px;
   line-height: 24px;
 }
+
+/* The article sidebar headings are h2 for document structure (#5557) but
+   keep the size and spacing they had as h4. */
+h2.sidebar-heading {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 110%;
+  margin: 1.52rem 0 0.912rem 0;
+}

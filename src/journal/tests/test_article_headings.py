@@ -39,6 +39,6 @@ class MaterialArticleSidebarHeadingTests(TestCase):
             SERVER_NAME=self.journal_one.domain,
         )
         content = response.content.decode()
-        self.assertRegex(content, r"<h2>\s*Author\s*</h2>")
-        self.assertRegex(content, r"<h2>\s*Downloads\s*</h2>")
+        self.assertRegex(content, r"<h2 class=\"sidebar-heading\">\s*Author\s*</h2>")
+        self.assertRegex(content, r"<h2 class=\"sidebar-heading\">\s*Downloads\s*</h2>")
         self.assertIsNone(re.search(r"<h4>", content))
