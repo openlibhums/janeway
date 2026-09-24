@@ -3,6 +3,9 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import os
+
+from django.conf import settings
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
@@ -268,6 +271,41 @@ class FooterPressLogoAltTests(TestCase):
                     response,
                     '<img src="/press/cover/" class="top-bar-image img-fluid">',
                 )
+
+
+@override_settings(URL_CONFIG="domain")
+class MaterialPressLogoLinkNameTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        thumbnail = helpers.create_press_thumbnail(
+            cls.press,
+            filename="wcag-test-press-logo.svg",
+            mime_type="image/svg+xml",
+        )
+        svg_path = os.path.join(
+            settings.BASE_DIR, "files", "press", thumbnail.uuid_filename
+        )
+        os.makedirs(os.path.dirname(svg_path), exist_ok=True)
+        with open(svg_path, "w", encoding="utf-8") as svg_file:
+            svg_file.write('<svg xmlns="http://www.w3.org/2000/svg"></svg>')
+        cls.addClassCleanup(os.remove, svg_path)
+
+    def setUp(self):
+        clear_cache()
+
+    def test_material_press_logo_link_is_named_after_the_press(self):
+        response = self.client.get(
+            reverse("website_index"),
+            {"theme": "material"},
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertContains(
+            response,
+            '<svg xmlns="http://www.w3.org/2000/svg"></svg>\n'
+            f'                <span class="sr-only">{self.press.name}</span>',
+        )
 
 
 @override_settings(URL_CONFIG="domain")
