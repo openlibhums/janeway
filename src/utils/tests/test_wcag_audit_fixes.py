@@ -18,6 +18,13 @@ class TargetSizeCssTests(SimpleTestCase):
             css,
         )
 
+    def test_clarity_footer_link_rows_do_not_overlap(self):
+        css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn(
+            ".site-footer .list-inline-item a {\n  margin-block: 0;\n}",
+            css,
+        )
+
 
 @override_settings(URL_CONFIG="domain")
 class IssueLinkLabelTests(TestCase):
