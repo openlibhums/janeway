@@ -149,6 +149,45 @@ def send_confirmation_link(request, new_user):
     )
 
 
+def send_orcid_request(request, user):
+    if request.journal:
+        publication_name = request.journal.name
+    elif request.repository:
+        publication_name = request.repository.name
+    else:
+        publication_name = request.press.name
+    context = {
+        "user": user,
+        # Force user to login to janeway first then forward to
+        # the orcid verification step
+        "orcid_verification_link": request.site_type.site_url(
+            reverse_with_next(
+                "core_login",
+                reverse_with_query(
+                    "core_login_orcid", query_params={"action": "add_profile_orcid"}
+                ),
+            )
+        ),
+        "publication_name": publication_name,
+    }
+    log_dict = {"level": "Info", "types": "ORCID Request", "target": None}
+
+    user.date_orcid_requested = timezone.now()
+    user.save()
+
+    template = "orcid_request"
+    subject = "subject_orcid_request"
+
+    notify_helpers.send_email_with_body_from_setting_template(
+        request,
+        template,
+        subject,
+        user.email,
+        context,
+        log_dict=log_dict,
+    )
+
+
 def resize_and_crop(
     img_path,
     size=settings.DEFAULT_CROP_SIZE,
