@@ -720,7 +720,7 @@ class Journal(AbstractSiteModel):
         if self.carousel.current_issue and self.current_issue:
             items = chain([self.current_issue], items)
 
-        return self.carousel, items
+        return self.carousel, list(items)
 
     def next_pa_seq(self):
         "Works out what the next pinned article sequence should be."

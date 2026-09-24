@@ -1,0 +1,28 @@
+{% load foundation %}
+
+<div class="card">
+  <div class="card-divider">
+    <h4><i class="fa fa-plus"></i> Add New Thread</h4>
+  </div>
+  <div class="card-section">
+    {% include "admin/elements/forms/errors.html" %}
+    <form method="POST"
+          hx-post="{% url 'discussion_create_thread' object_type object.pk %}"
+          hx-target="#thread-list-container"
+          hx-swap="innerHTML"
+          hx-on::after-request="$('#new_thread_modal').foundation('close'); $('#new_thread_modal').html('');">
+      {% csrf_token %}
+      {{ form|foundation }}
+      <div class="row">
+        <div class="large-12 columns">
+          <p>You will have the opportunity to invite participants into the thread after it is completed.</p>
+          <button type="submit" class="button">Create Thread</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

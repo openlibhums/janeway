@@ -31,6 +31,7 @@ from security.logic import (
 from utils import setting_handler, models as utils_models
 from utils.logger import get_logger
 from repository import models as preprint_models
+from discussion import logic as discussion_logic
 
 logger = get_logger(__name__)
 
@@ -175,19 +176,47 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.user.is_staff:
-            return func(request, *args, **kwargs)
-
-        if request.journal and (
-            request.user.is_editor(request)
-            or request.user.is_journal_manager(request.journal)
+        if discussion_logic.user_can_manage_discussions(
+            request.user,
+            journal=request.journal,
+            repository=request.repository,
         ):
             return func(request, *args, **kwargs)
 
-        if request.repository and request.user in request.repository.managers.all():
+        deny_access(request)
+
+    return wrapper
+
+
+def can_access_thread(func):
+    """
+    Checks if the user can access the thread or has global editor/manager access.
+    """
+
+    @base_check_required
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        thread_id = kwargs.get("thread_id")
+        if thread_id:
+            thread = discussion_logic.get_thread_or_404(request, thread_id)
+
+            if thread.user_can_access(user):
+                return func(request, *args, **kwargs)
+
+            return deny_access(request)
+
+        # If no thread_id provided (e.g. thread list),
+        # allow access if the user is editor/manager for the object
+        if discussion_logic.user_can_manage_discussions(
+            user,
+            journal=request.journal,
+            repository=request.repository,
+        ):
             return func(request, *args, **kwargs)
 
-        deny_access(request)
+        return deny_access(request)
 
     return wrapper
 

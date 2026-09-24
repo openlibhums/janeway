@@ -2565,6 +2565,19 @@ class Article(AbstractLastModifiedModel):
         lang = Lang(self.language)
         return lang.pt1 or "en"
 
+    def discussion_stats(self):
+        """Returns thread and post counts for this article's discussions."""
+        threads = self.thread_set.annotate(
+            post_count=models.Count("posts_related")
+        ).aggregate(
+            thread_count=models.Count("id"),
+            total_posts=models.Sum("post_count"),
+        )
+        return {
+            "threads": threads["thread_count"] or 0,
+            "posts": threads["total_posts"] or 0,
+        }
+
     @property
     def best_large_image_url(self):
         """
