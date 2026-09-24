@@ -340,6 +340,21 @@ a.btn {
   opacity: var(--recede-opacity);
 }
 
+/* WCAG 1.4.3: Bootstrap's default outline primary (#007bff) is 3.98:1 on
+   white; use the theme's primary button colour instead. */
+.btn-outline-primary {
+  color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  color: var(--btn-primary-text);
+  background-color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+}
+
 .btn-outline-secondary {
   color: var(--btn-outline-secondary);
   border-color: var(--btn-outline-secondary);
