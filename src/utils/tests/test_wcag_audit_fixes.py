@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from django.utils import translation
 from django.utils.html import escape
 
 from utils.shared import clear_cache
@@ -102,6 +103,41 @@ class ContrastCssTests(SimpleTestCase):
         ]:
             with self.subTest(rule=rule):
                 self.assertIn(rule, css)
+
+
+class FollowupFixTests(SimpleTestCase):
+    def test_clean_external_text_links_keep_their_underline(self):
+        css = helpers.read_theme_asset("clean", "assets/css/clean.css")
+        self.assertIn("main a:has(.fa):not(:has(.fa-external-link)) {", css)
+        self.assertNotIn("main a:has(.fa) {", css)
+
+    def test_material_journal_card_images_are_decorative(self):
+        template = helpers.read_theme_asset(
+            "material",
+            "templates/journal/homepage_elements/journals.html",
+        )
+        self.assertIn('{% endif %}" alt="">', template)
+
+    def test_outline_primary_buttons_use_the_theme_primary(self):
+        clean = helpers.read_theme_asset("clean", "assets/css/clean.css")
+        self.assertIn(".btn-outline-primary {\n    color: #1C304A;", clean)
+        self.assertGreaterEqual(helpers.contrast_ratio("#1C304A", "#ffffff"), 4.5)
+        clarity = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn(
+            ".btn-outline-primary {\n  color: var(--btn-primary-bg);", clarity
+        )
+
+    def test_material_download_links_are_24px_apart(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(
+            ".article-downloads a {\n  display: inline-block;\n"
+            "  min-height: 24px;\n  line-height: 24px;\n}",
+            css,
+        )
+        template = helpers.read_theme_asset(
+            "material", "templates/journal/article.html"
+        )
+        self.assertEqual(template.count('<ul class="article-downloads">'), 2)
 
 
 class NonTextContrastCssTests(SimpleTestCase):
@@ -395,6 +431,7 @@ class PageLanguageTests(TestCase):
         self.assertContains(response, '<html class="no-js" lang="en">')
 
     def test_olh_press_page_declares_the_active_language(self):
+        self.addCleanup(translation.activate, settings.LANGUAGE_CODE)
         response = self.client.get(
             reverse("website_index"),
             {"theme": "OLH"},
