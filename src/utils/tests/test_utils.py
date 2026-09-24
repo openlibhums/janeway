@@ -24,6 +24,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.template.engine import Engine
 from django.template.loader import render_to_string
+from django.urls.base import clear_script_prefix, get_script_prefix
 
 import mock
 from utils import (
@@ -954,7 +955,196 @@ class NotifyEmail(TestCase):
             self.assertIn(kwargs["replyto"], msg.call_args.kwargs["reply_to"])
 
 
+OIDC_TEST_SETTINGS = dict(
+    OIDC_OP_AUTHORIZATION_ENDPOINT="https://login.example.com/authorize",
+    OIDC_OP_TOKEN_ENDPOINT="test.janeway.systems/token",
+    OIDC_OP_USER_ENDPOINT="test.janeway.systems/user",
+    OIDC_OP_JWKS_ENDPOINT="test.janeway.systems/jwks",
+    OIDC_RP_CLIENT_ID="test",
+    OIDC_RP_CLIENT_SECRET="test",
+    OIDC_RP_SIGN_ALGO="RS256",
+)
+
+OIDC_SESSION_REFRESH_SETTINGS = dict(
+    OIDC_TEST_SETTINGS,
+    MIDDLEWARE=settings.MIDDLEWARE + ("utils.oidc.JanewaySessionRefresh",),
+    AUTHENTICATION_BACKENDS=(
+        "django.contrib.auth.backends.ModelBackend",
+        "utils.oidc.JanewayOIDCAB",
+    ),
+)
+
+
 class TestOIDC(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.oidc_user = helpers.create_user("oidc_user@example.org")
+
+    def tearDown(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_redirect_uri_omits_journal_path_prefix(self):
+        response = self.client.get(
+            "/{}/oidc/authenticate/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        redirect_uri = helpers.query_parameter_from_url(
+            response["Location"],
+            "redirect_uri",
+        )
+        self.assertEqual(
+            redirect_uri,
+            "http://{}/oidc/callback/".format(self.press.domain),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_redirect_uri_at_press_level(self):
+        response = self.client.get(
+            "/oidc/authenticate/",
+            SERVER_NAME=self.press.domain,
+        )
+        redirect_uri = helpers.query_parameter_from_url(
+            response["Location"],
+            "redirect_uri",
+        )
+        self.assertEqual(
+            redirect_uri,
+            "http://{}/oidc/callback/".format(self.press.domain),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_restores_script_prefix(self):
+        self.client.get(
+            "/{}/oidc/authenticate/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(
+            get_script_prefix(),
+            "/{}/".format(self.journal_one.code),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_defaults_next_url_to_journal_index(self):
+        self.client.get(
+            "/{}/oidc/authenticate/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(
+            self.client.session.get("oidc_login_next"),
+            "/{}/".format(self.journal_one.code),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_preserves_supplied_next_url(self):
+        next_url = "/{}/articles/".format(self.journal_one.code)
+        self.client.get(
+            "/{}/oidc/authenticate/".format(self.journal_one.code),
+            {"next": next_url},
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(
+            self.client.session.get("oidc_login_next"),
+            next_url,
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_TEST_SETTINGS)
+    def test_authenticate_defaults_next_url_to_press_index(self):
+        self.client.get(
+            "/oidc/authenticate/",
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(
+            self.client.session.get("oidc_login_next"),
+            "/",
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_redirect_uri_omits_journal_path_prefix(self):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        response = self.client.get(
+            "/{}/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            response["Location"].startswith(
+                OIDC_TEST_SETTINGS["OIDC_OP_AUTHORIZATION_ENDPOINT"] + "?"
+            )
+        )
+        self.assertEqual(
+            helpers.query_parameter_from_url(response["Location"], "redirect_uri"),
+            "http://{}/oidc/callback/".format(self.press.domain),
+        )
+        self.assertEqual(
+            helpers.query_parameter_from_url(response["Location"], "prompt"),
+            "none",
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_returns_user_to_journal_page(self):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        page = "/{}/articles/?page=2".format(self.journal_one.code)
+        self.client.get(page, SERVER_NAME=self.press.domain)
+        self.assertEqual(self.client.session.get("oidc_login_next"), page)
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_restores_script_prefix(self):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        self.client.get(
+            "/{}/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertEqual(
+            get_script_prefix(),
+            "/{}/".format(self.journal_one.code),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_exempts_journal_prefixed_callback(self):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        response = self.client.get(
+            "/{}/oidc/callback/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertFalse(
+            response["Location"].startswith(
+                OIDC_TEST_SETTINGS["OIDC_OP_AUTHORIZATION_ENDPOINT"]
+            )
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_exempts_journal_prefixed_authenticate(self):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        response = self.client.get(
+            "/{}/oidc/authenticate/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertIsNone(
+            helpers.query_parameter_from_url(response["Location"], "prompt"),
+        )
+
+    @override_settings(URL_CONFIG="path", **OIDC_SESSION_REFRESH_SETTINGS)
+    def test_session_refresh_exempts_press_level_callback_after_journal_request(
+        self,
+    ):
+        helpers.login_with_expired_oidc_session(self.client, self.oidc_user)
+        self.client.get(
+            "/{}/".format(self.journal_one.code),
+            SERVER_NAME=self.press.domain,
+        )
+        response = self.client.get(
+            "/oidc/callback/",
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertFalse(
+            response["Location"].startswith(
+                OIDC_TEST_SETTINGS["OIDC_OP_AUTHORIZATION_ENDPOINT"]
+            )
+        )
+
     @override_settings(
         OIDC_OP_TOKEN_ENDPOINT="test.janeway.systems/token",
         OIDC_OP_USER_ENDPOINT="test.janeway.systems/user",
