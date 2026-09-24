@@ -224,14 +224,10 @@ class SectionOrderingAdmin(admin.ModelAdmin):
 
 
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ('title', 'journal', 'article_count',
-                    )
-    list_filter = ('journal',)
-    search_fields = ('title',)
-
-    @staticmethod
-    def apply_select_related(self, qs):
-        return qs.prefetch_related('journal')
+    list_display = ("title", "journal", "public_submissions", "article_count")
+    list_filter = ("journal", "public_submissions")
+    search_fields = ("title",)
+    list_select_related = ("journal",)
 
 
 admin_list = [

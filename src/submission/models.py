@@ -1048,7 +1048,11 @@ class Article(AbstractLastModifiedModel):
         "Section", blank=True, null=True, on_delete=models.SET_NULL
     )
     topic = models.ForeignKey(
-        "journal.Topic", blank=True, null=True, on_delete=models.SET_NULL
+        "journal.Topic",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_("The thematic group this article belongs to"),
     )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
@@ -3326,6 +3330,13 @@ class SubmissionConfiguration(models.Model):
     license = models.BooleanField(default=True)
     keywords = models.BooleanField(default=True)
     section = models.BooleanField(default=True)
+    topic = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Lets authors select a topic for their article. Only topics that "
+            "are open for submissions are presented to authors."
+        ),
+    )
     funding = models.BooleanField(default=False)
 
     figures_data = models.BooleanField(
