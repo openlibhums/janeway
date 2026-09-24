@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+from django.utils.html import escape
 
 from utils.shared import clear_cache
 from utils.testing import helpers
@@ -184,9 +185,26 @@ class IssueLinkLabelTests(TestCase):
         )
         cls.journal_one.current_issue = cls.issue_two
         cls.journal_one.save()
+        cls.issue_one.cover_image = "cover_images/wcag-test-cover.png"
+        cls.issue_one.save()
 
     def setUp(self):
         clear_cache()
+
+    def test_material_issue_cover_link_falls_back_to_the_issue_title(self):
+        response = self.client.get(
+            reverse("journal_issues"),
+            {"theme": "material"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertContains(
+            response,
+            'src="/media/cover_images/wcag-test-cover.png"\n'
+            f'                            alt="{escape(self.issue_one.display_title_a11y)}">',
+        )
+        self.assertNotContains(
+            response, 'wcag-test-cover.png"\n                            alt="">'
+        )
 
     def test_clean_current_issue_link_is_labelled_with_current_issue(self):
         response = self.client.get(
