@@ -3269,6 +3269,14 @@ class Field(models.Model):
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Keep the name snapshot on existing answers in step with renames so
+        # that it is accurate if this field is later deleted.
+        self.fieldanswer_set.exclude(field_name=self.name).update(
+            field_name=self.name,
+        )
+
     @property
     def object(self):
         if not self.journal:
@@ -3279,11 +3287,30 @@ class Field(models.Model):
 
 class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
+    field_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="A snapshot of the field's name, retained if the field is deleted.",
+    )
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
     )
     answer = JanewayBleachField()
+
+    def save(self, *args, **kwargs):
+        if self.field:
+            self.field_name = self.field.name
+        super().save(*args, **kwargs)
+
+    @property
+    def name(self):
+        """
+        Returns the name of the field this answers, falling back to the
+        stored snapshot when the field has been deleted.
+        """
+        return self.field.name if self.field else self.field_name
 
 
 class ArticleAuthorOrder(models.Model):

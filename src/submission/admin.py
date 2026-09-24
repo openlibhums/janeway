@@ -252,9 +252,15 @@ class FieldAdmin(admin.ModelAdmin):
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
-    list_display = ("field", "_answer", "_article", "_journal")
+    list_display = ("field", "field_name", "_answer", "_article", "_journal")
     list_filter = ("article__journal",)
-    search_fields = ("field__name", "article__pk", "article__title", "answer")
+    search_fields = (
+        "field__name",
+        "field_name",
+        "article__pk",
+        "article__title",
+        "answer",
+    )
 
     def _answer(self, obj):
         return truncatewords_html(obj.answer, 10) if obj else ""

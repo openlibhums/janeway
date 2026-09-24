@@ -123,7 +123,7 @@
     </tr>
     {% for field_answer in article.fieldanswer_set.all %}
         <tr>
-            <th colspan="4">{{ field_answer.field.name }}</th>
+            <th colspan="4">{{ field_answer.name }}</th>
         </tr>
         <tr>
             <td colspan="4">{{ field_answer.answer|safe }}</td>

@@ -377,3 +377,35 @@ class TestEditAuthor(TestSubmitViewsBase):
             frozen_author.author,
             account,
         )
+
+
+class TestSubmitReviewFieldAnswers(TestSubmitViewsBase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.review_article = helpers.create_article(
+            cls.journal_one,
+            owner=cls.kathleen,
+            current_step=4,
+        )
+        cls.deleted_field = helpers.create_submission_field(
+            cls.journal_one,
+            name="Ethics Statement",
+        )
+        models.FieldAnswer.objects.create(
+            field=cls.deleted_field,
+            article=cls.review_article,
+            answer="Approved by the ethics board.",
+        )
+        cls.deleted_field.delete()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_submit_review_shows_name_of_deleted_field(self):
+        self.client.force_login(self.kathleen)
+        response = self.client.get(
+            reverse("submit_review", kwargs={"article_id": self.review_article.pk}),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ethics Statement")
+        self.assertContains(response, "Approved by the ethics board.")
