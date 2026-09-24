@@ -783,6 +783,27 @@ def read_theme_asset(theme, relative_path):
         return asset_file.read()
 
 
+def relative_luminance(hex_colour):
+    channels = []
+    for start in (1, 3, 5):
+        value = int(hex_colour[start : start + 2], 16) / 255
+        if value <= 0.03928:
+            channels.append(value / 12.92)
+        else:
+            channels.append(((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(foreground, background):
+    """WCAG 2 contrast ratio between two #rrggbb colours."""
+    lighter, darker = sorted(
+        [relative_luminance(foreground), relative_luminance(background)],
+        reverse=True,
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
 def create_homepage_element(site_object, name, template_path, **kwargs):
     element, _created = core_models.HomepageElement.objects.update_or_create(
         name=name,

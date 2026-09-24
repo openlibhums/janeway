@@ -73,6 +73,7 @@ $foundation-palette: (
   --primary-dark-color: #{$primary-dark-color};
   --very-dark-primary-color: #{$very-dark-primary-color};
   --primary-light-color: #{$primary-light-color};
+  --primary-on-dark-color: #{$primary-on-dark-color};
 
   --topbar-background-color: #{$topbar-background-color};
   --menu-background-color: #{$menu-background-color};
@@ -513,6 +514,10 @@ main section {
   background: var(--primary-dark-color);
 
   @extend .white-text;
+
+  a {
+    color: var(--primary-on-dark-color);
+  }
 }
 
 .gradient-primary-bg {
@@ -1245,7 +1250,7 @@ table tr th {
 
 table tr.active td {
   background-color: var(--primary-dark-color);
-  color: var(--primary-light-color);
+  color: var(--primary-on-dark-color);
 }
 
 .orbit {
@@ -2058,7 +2063,7 @@ section.invisible-landmark{
 }
 
 .orbit-caption{
-  color: var(--primary-light-color);
+  color: var(--primary-on-dark-color);
   background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
 }
 

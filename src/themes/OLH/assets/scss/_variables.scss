@@ -18,5 +18,8 @@ $input-border-color: #8f8f8f !default;
 
 $primary-dark-color: #062657 !default;
 $primary-light-color: #1373b3 !default;
+// WCAG 1.4.3: text and links on $primary-dark-color need a lighter blue
+// than $primary-light-color, which sits behind white text elsewhere.
+$primary-on-dark-color: #2199e8 !default;
 $very-dark-primary-color: #06152D !default;
 $footer-height: 96px;
