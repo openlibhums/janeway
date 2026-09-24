@@ -17,8 +17,12 @@
                 {% else %}
                     <img src="{% static "common/img/sample/janeway.png" %}" alt="{{ request.journal.name }}">
                 {% endif %}
+            {% elif 'svg' in request.press_cover %}
+                {% svg request.press_cover %}
+                <span class="sr-only">{{ request.press.name }}</span>
             {% else %}
-            <a href="{% url 'website_index' %}">{% svg request.press_cover %}</a>
+                {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+                <img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ press_logo_alt }}">
             {% endif %}
         </a>
         <a
