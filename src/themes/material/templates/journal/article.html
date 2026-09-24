@@ -222,13 +222,13 @@
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        <h4>
+                        <h2>
                           {% blocktrans count counter=article.frozen_authors.count %}
                             Author
                           {% plural %}
                             Authors
                           {% endblocktrans %}
-                        </h4>
+                        </h2>
                         {% include "common/elements/journal/article_authors_full.html" %}
                     {% endif %}
 
@@ -236,9 +236,9 @@
                         <div class="divider"></div>
                     </div>
                     {% if article.is_published or proofing %}
-                        <h4>
+                        <h2>
                             {% trans "Downloads" %}
-                        </h4>
+                        </h2>
                         {% if galleys %}
                             <ul>
                                 {% for galley in galleys %}
