@@ -187,6 +187,20 @@ main a:hover {
     color: white;
 }
 
+/* WCAG 1.4.3: Bootstrap's default outline primary (#007bff) is 3.98:1 on
+   white; match the theme's primary button instead. */
+.btn-outline-primary {
+    color: #1C304A;
+    border-color: #1C304A;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+}
+
 .btn-primary:hover,
 .bn-primary:focus {
     color: white;
