@@ -116,19 +116,26 @@
     <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script>
-        $( ".sortable" ).sortable({
-            update: function (event, ui) {
-                var data = $(this).sortable('serialize');
-                console.log(data);
-                // POST to server using $.post or $.ajax
-                $.ajax({
-                    data: data,
-                    type: 'POST',
-                    url: '{% if issue %}{% url 'issue_article_order' issue.id %}{% else %}{% url 'issue_order' %}{% endif %}'
-                });
-            }
+        function initSortable(elements) {
+            elements.sortable({
+                update: function (event, ui) {
+                    var data = $(this).sortable('serialize');
+                    // POST to server using $.post or $.ajax
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        url: '{% if issue %}{% url 'issue_article_order' issue.id %}{% else %}{% url 'issue_order' %}{% endif %}'
+                    });
+                }
+            });
+            elements.disableSelection();
+        }
+        initSortable($(".sortable"));
+        // The table of contents is re-rendered by HTMX when headings are moved
+        document.body.addEventListener("htmx:afterSwap", function (event) {
+            initSortable($("#issue-toc .sortable"));
         });
-        $( ".sortable" ).disableSelection();
     </script>
     {% include "admin/core/partials/htmx.html" %}
+    <script src="{% static "admin/js/filter-select.js" %}"></script>
 {% endblock js %}

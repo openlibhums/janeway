@@ -25,7 +25,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import (
+    require_GET,
+    require_http_methods,
+    require_POST,
+)
 from django.core.management import call_command
 from django.template.loader import render_to_string
 
@@ -61,6 +65,7 @@ from security.decorators import (
 )
 from submission import models as submission_models
 from utils import models as utils_models, shared, setting_handler, xml_validation
+from utils.htmx import hx_show_message
 from utils.logger import get_logger
 from events import logic as event_logic
 from typesetting import models as typesetting_models
@@ -1499,7 +1504,12 @@ def manage_issues(request, issue_id=None, event=None):
         "form": form,
         "modal": modal,
         "galley_form": galley_form,
-        "articles": issue.get_sorted_articles(published_only=False) if issue else None,
+        "article_groups": logic.group_issue_articles(
+            issue.get_sorted_articles(published_only=False),
+            request.journal.issue_article_grouping,
+        )
+        if issue
+        else None,
         "sort_form": sort_form,
     }
 
@@ -1573,88 +1583,97 @@ def issue_galley(request, issue_id, delete=False):
     return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
 
 
+@require_GET
+@editor_user_required
+def issue_toc_article_row(request, issue_id, article_id):
+    """
+    Renders an article of the issue table of contents as a table row.
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :param article_id: Article object PK
+    :return: HttpResponse
+    """
+    issue, article = logic.get_issue_article(request, issue_id, article_id)
+    template = "admin/elements/issue/toc_article_row.html"
+    context = {"issue": issue, "article": article}
+    return render(request, template, context)
+
+
+@require_http_methods(["GET", "POST"])
+@editor_user_required
+def issue_toc_article_edit(request, issue_id, article_id):
+    """
+    Edits the section and topic of an article of the issue table of contents.
+    GET renders the row as a form, POST saves it and renders the whole table
+    of contents, since the article may have moved to another group.
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :param article_id: Article object PK
+    :return: HttpResponse
+    """
+    issue, article = logic.get_issue_article(request, issue_id, article_id)
+    form = forms.IssueArticleGroupingForm(instance=article)
+
+    if request.method == "POST":
+        form = forms.IssueArticleGroupingForm(request.POST, instance=article)
+        if form.is_valid():
+            article = form.save()
+            if "section" in form.changed_data:
+                # Orderings are stored per section
+                models.ArticleOrdering.objects.filter(article=article).update(
+                    section=article.section,
+                )
+            response = logic.issue_toc_response(request, issue)
+            return hx_show_message(
+                response,
+                _("Updated the section and topic of %(title)s.")
+                % {"title": article.safe_title},
+            )
+
+    template = "admin/elements/issue/toc_article_edit_row.html"
+    context = {"issue": issue, "article": article, "form": form}
+    response = render(request, template, context)
+    if request.method == "POST":
+        # The confirm button targets the table of contents
+        response["HX-Retarget"] = "#articles-{}".format(article.pk)
+        response["HX-Reswap"] = "outerHTML"
+    return response
+
+
+@require_POST
 @editor_user_required
 def sort_issue_sections(request, issue_id):
+    """
+    Moves a section before or after another in the table of contents.
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :return: HttpResponse or HttpRedirect
+    """
     issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    sections = issue.all_sections
+    sections = list(issue.get_sorted_sections())
+    target = logic.get_move_target(request, submission_models.Section, sections)
+    if target:
+        issue.set_section_order(logic.move_in_order(sections, *target))
 
-    if request.POST:
-        if "up" in request.POST:
-            section_id = request.POST.get("up")
-            section_to_move_up = get_object_or_404(
-                submission_models.Section, pk=section_id, journal=request.journal
-            )
+    return logic.issue_toc_response(request, issue)
 
-            if section_to_move_up != issue.first_section:
-                section_to_move_up_index = sections.index(section_to_move_up)
-                section_to_move_down = sections[section_to_move_up_index - 1]
 
-                section_to_move_up_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_up
-                    )
-                )
-                section_to_move_down_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_down
-                    )
-                )
+@require_POST
+@editor_user_required
+def sort_issue_topics(request, issue_id):
+    """
+    Moves a topic before or after another in the table of contents.
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :return: HttpResponse or HttpRedirect
+    """
+    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
+    topics = list(issue.all_topics)
+    target = logic.get_move_target(request, models.Topic, topics)
+    if target:
+        issue.set_topic_order(logic.move_in_order(topics, *target))
 
-                section_to_move_up_ordering.order = section_to_move_up_index - 1
-                section_to_move_down_ordering.order = section_to_move_up_index
-
-                section_to_move_up_ordering.save()
-                section_to_move_down_ordering.save()
-            else:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    _("You cannot move the first section up the order list"),
-                )
-
-        elif "down" in request.POST:
-            section_id = request.POST.get("down")
-            section_to_move_down = get_object_or_404(
-                submission_models.Section,
-                pk=section_id,
-                journal=request.journal,
-            )
-
-            if section_to_move_down != issue.last_section:
-                section_to_move_down_index = sections.index(section_to_move_down)
-                section_to_move_up = sections[section_to_move_down_index + 1]
-
-                section_to_move_up_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_up
-                    )
-                )
-                section_to_move_down_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_down
-                    )
-                )
-
-                section_to_move_up_ordering.order = section_to_move_down_index
-                section_to_move_down_ordering.order = section_to_move_down_index + 1
-
-                section_to_move_up_ordering.save()
-                section_to_move_down_ordering.save()
-
-            else:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    _("You cannot move the last section down the order list"),
-                )
-
-    else:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _("This page accepts post requests only."),
-        )
-    return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
+    return logic.issue_toc_response(request, issue)
 
 
 @editor_user_required

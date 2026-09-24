@@ -250,6 +250,21 @@ urlpatterns = [
         views.sort_issue_sections,
         name="manage_sort_issue_sections",
     ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/$",
+        views.issue_toc_article_row,
+        name="issue_toc_article_row",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/edit/$",
+        views.issue_toc_article_edit,
+        name="issue_toc_article_edit",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/sort/topics/$",
+        views.sort_issue_topics,
+        name="manage_sort_issue_topics",
+    ),
     # Article Archive
     re_path(
         r"^manage/archive/$",

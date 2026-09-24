@@ -1438,3 +1438,92 @@ dialog::backdrop {
 .topic-table:has(#new-topic-row) #new-topic-wrapper {
   display: none;
 }
+
+/* Issue manager table of contents */
+.toc-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.toc-heading-h3 {
+  background: #f5f6f9;
+}
+.toc-heading-h4 {
+  padding-left: 3rem;
+}
+.toc-heading h3,
+.toc-heading h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.toc-heading-h4 h4 {
+  font-size: 0.9rem;
+}
+.toc-heading .label {
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+.toc-heading-controls {
+  margin: 0;
+}
+.toc-group-separator {
+  max-width: none;
+  margin: 1.5rem 0;
+  border-bottom: 2px solid #cacaca;
+}
+
+/* admin/elements/forms/filter_select.html */
+.filter-select {
+  min-width: 12rem;
+}
+.filter-select .filter-select-input {
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  height: auto;
+  padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+  background: #fefefe url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%235b5e61'/></svg>") no-repeat right 0.5rem center;
+}
+.filter-select-listbox {
+  position: fixed;
+  z-index: 1000;
+  max-height: 15rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fefefe;
+  border: 1px solid #cacaca;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+}
+.filter-select-listbox li {
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filter-select-listbox li.is-active {
+  background: #1779ba;
+  color: #fefefe;
+}
+.filter-select-listbox li[aria-selected="true"] {
+  font-weight: 600;
+}
+.filter-select-listbox .filter-select-empty {
+  color: #8a8a8a;
+  cursor: default;
+  font-style: italic;
+}
+
+/* Issue manager table of contents rows */
+.toc-article-actions .button {
+  margin: 0 0.25rem 0.25rem 0;
+}
+.toc-article-editing {
+  background: #fdf8e4;
+}

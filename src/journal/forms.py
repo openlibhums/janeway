@@ -14,6 +14,7 @@ from tinymce.widgets import TinyMCE
 from core import models as core_models
 from core.forms import FullSettingEmailForm, ContactMessageForm
 from journal import models as journal_models
+from submission import models as submission_models
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
@@ -137,6 +138,28 @@ class IssueDisplayForm(forms.ModelForm):
             "display_issues_grouped_by_decade",
             "issue_article_grouping",
         )
+
+
+class IssueArticleGroupingForm(forms.ModelForm):
+    """Edits the section and topic of an article from an issue's contents"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        journal = self.instance.journal
+        self.fields["section"].queryset = submission_models.Section.objects.filter(
+            journal=journal,
+        )
+        self.fields["section"].required = True
+        self.fields["section"].empty_label = None
+        self.fields["topic"].queryset = journal_models.Topic.objects.filter(
+            journal=journal,
+        )
+        self.fields["topic"].empty_label = _("No topic")
+        self.auto_id = "id_toc_{}_%s".format(self.instance.pk)
+
+    class Meta:
+        model = submission_models.Article
+        fields = ("section", "topic")
 
 
 class TopicForm(forms.ModelForm):

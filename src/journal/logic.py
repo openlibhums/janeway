@@ -18,7 +18,7 @@ import warnings
 
 from django.contrib import messages
 from django.conf import settings
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
@@ -895,3 +895,93 @@ def issue_article_label(article, grouping):
     else:
         parts = [section]
     return " \u2022 ".join(part for part in parts if part)
+
+
+def get_move_target(request, model, ordered):
+    """Returns the object to move and the neighbour to move it next to
+
+    Accepts either `move` and `before`/`after` PKs, or the legacy `up`/`down`
+    PKs, which move the object past the adjacent one in `ordered`.
+    :param request: HttpRequest object
+    :param model: the model of the objects being ordered, Section or Topic
+    :param ordered: a list of the objects in their current order
+    :return: A 3-tuple of (item, neighbour, after) or None if not valid
+    """
+    try:
+        if "up" in request.POST or "down" in request.POST:
+            after = "down" in request.POST
+            item_pk = int(request.POST.get("down" if after else "up"))
+            item = model.objects.get(pk=item_pk, journal=request.journal)
+            index = ordered.index(item) + (1 if after else -1)
+            if not 0 <= index < len(ordered):
+                return None
+            neighbour = ordered[index]
+        else:
+            after = "after" in request.POST
+            item = model.objects.get(
+                pk=int(request.POST.get("move")),
+                journal=request.journal,
+            )
+            neighbour = model.objects.get(
+                pk=int(request.POST.get("after" if after else "before")),
+                journal=request.journal,
+            )
+    except (TypeError, ValueError, model.DoesNotExist):
+        return None
+
+    if item == neighbour or item not in ordered or neighbour not in ordered:
+        return None
+    return item, neighbour, after
+
+
+def issue_toc_response(request, issue):
+    """Renders the issue table of contents for HTMX requests, else redirects
+    :param request: HttpRequest object
+    :param issue: Issue object
+    :return: HttpResponse or HttpResponseRedirect
+    """
+    if "HX-Request" not in request.headers:
+        return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
+
+    template = "admin/elements/issue/table_of_contents.html"
+    context = {
+        "issue": issue,
+        "article_groups": group_issue_articles(
+            issue.get_sorted_articles(published_only=False),
+            request.journal.issue_article_grouping,
+        ),
+    }
+    return render(request, template, context)
+
+
+def get_issue_article(request, issue_id, article_id):
+    """Returns an issue of the current journal and one of its articles
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :param article_id: Article object PK
+    :return: A 2-tuple of (issue, article)
+    :raises Http404: when either does not exist or the article is not in it
+    """
+    issue = get_object_or_404(
+        journal_models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+    article = get_object_or_404(
+        issue.articles.all(),
+        pk=article_id,
+        journal=request.journal,
+    )
+    return issue, article
+
+
+def move_in_order(ordered, item, neighbour, after=False):
+    """Returns a copy of ordered with item moved next to neighbour
+    :param ordered: A sequence of objects
+    :param item: The object to be moved
+    :param neighbour: The object item should be placed before or after
+    :param after: If True, item is placed after neighbour instead of before
+    """
+    items = [obj for obj in ordered if obj != item]
+    items.insert(items.index(neighbour) + (1 if after else 0), item)
+    return items

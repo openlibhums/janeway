@@ -1,24 +1,38 @@
-<div class="large-12 columns">
+<div
+    class="large-12 columns"
+    id="issue-toc"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+>
     <div class="box">
         <div class="title-area">
-            <h2>Table of Contents</h2>
-            <a href="{% url 'issue_add_article' issue.pk %}" class="button">Add Article</a>
+            <h2>{% trans "Table of Contents" %}</h2>
+            <a href="{% url 'issue_add_article' issue.pk %}" class="button">{% trans "Add Article" %}</a>
+        </div>
+        <div class="content">
+            <p class="help-text">
+                {% blocktrans trimmed with grouping=request.journal.get_issue_article_grouping_display %}
+                Articles are grouped by: <strong>{{ grouping }}</strong>.
+                Use the move buttons to reorder headings and drag articles to reorder them within their group.
+                The order of sections and topics applies to the whole issue: moving a section or topic under
+                one heading also moves it under every other heading.
+                {% endblocktrans %}
+                <a href="{% url 'manage_issue_display' %}">{% trans "Change grouping" %}</a>
+            </p>
         </div>
 
-        {% regroup articles by section as grouped_articles %}
-        {% for section, articles in grouped_articles %}
-                <div class="title-area">
-                    {{ section.name }} (ID: {{ section.pk }})
-                    <form method="POST" action="{% url 'manage_sort_issue_sections' issue.pk %}">
-                        {% csrf_token %}
-                        {% if not section == issue.first_section %}
-                            <button name="up" value="{{ section.pk }}" class="button" href=""><i
-                                    class="fa fa-arrow-up"></i></button>&nbsp;{% endif %}
-                        {% if not section == issue.last_section %}
-                            <button name="down" value="{{ section.pk }}" class="button"><i class="fa fa-arrow-down"></i>
-                            </button>{% endif %}
-                    </form>
-                </div>
+        {% for group in article_groups %}
+            {% if not forloop.first %}
+                <hr class="toc-group-separator" aria-hidden="true">
+            {% endif %}
+            {% if group.kind %}
+                {% include "admin/elements/issue/toc_heading.html" with group=group heading_tag="h3" %}
+            {% endif %}
+            {% for subgroup in group.subgroups %}
+                {% if subgroup.kind %}
+                    {% include "admin/elements/issue/toc_heading.html" with group=subgroup heading_tag="h4" %}
+                {% endif %}
                 <div class="content">
                     <table class="small scroll">
                         <tr>
@@ -27,37 +41,26 @@
                             <th>Date Published</th>
                             <th width="15%">Authors</th>
                             <th width="10%">Section</th>
+                            <th width="10%">Topic</th>
                             <th width="10%">DOI</th>
                             <th width="10%">Pub ID</th>
                             <th>First Page</th>
                             <th width="10%">Page Numbers</th>
-                             <th width="10%">Article Number</th>
+                            <th width="10%">Article Number</th>
                             <th width="10%"></th>
                         </tr>
                         <tbody class="sortable">
-                        {% for article in articles %}
-                            <tr id="articles-{{ article.pk }}">
-                                <td><i class="fa fa-sort"></i> {{ article.id }}</td>
-                                <td>
-                                    <a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a>
-                                </td>
-                                <td>{{ article.date_published }}</td>
-                                <td>{{ article.author_list }}</td>
-                                <td>{{ article.section.name }}</td>
-                                <td>{{ article.get_doi }}</td>
-                                <td>{{ article.get_pubid }}</td>
-                                <td>{{ article.first_page|default_if_none:"--" }}</td>
-                                <td>{{ article.page_numbers|default_if_none:"--"  }}</td>
-                                <td>{{ article.article_number }}</td>
-                                <td>
-                                    <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
-                                            class="fa fa-chain-broken">&nbsp;</i>Remove</a></td>
-                            </tr>
+                        {% for article in subgroup.articles %}
+                            {% include "admin/elements/issue/toc_article_row.html" %}
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
+            {% endfor %}
+        {% empty %}
+            <div class="content">
+                <p>{% trans "There are no articles in this issue." %}</p>
+            </div>
         {% endfor %}
     </div>
 </div>
-
