@@ -238,6 +238,39 @@ class JournalLogoFallbackTests(TestCase):
 
 
 @override_settings(URL_CONFIG="domain")
+class FooterPressLogoAltTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_press_thumbnail(cls.press)
+
+    def setUp(self):
+        clear_cache()
+
+    def test_raster_press_logo_in_the_footer_has_alt_text(self):
+        logo = f'src="{reverse("press_cover_download")}" alt="{self.press.name}"'
+        for theme, domain in [
+            ("clean", self.press.domain),
+            ("clarity", self.press.domain),
+            ("material", self.press.domain),
+            ("clean", self.journal_one.domain),
+            ("clarity", self.journal_one.domain),
+        ]:
+            with self.subTest(theme=theme, domain=domain):
+                response = self.client.get(
+                    reverse("website_index"),
+                    {"theme": theme},
+                    SERVER_NAME=domain,
+                )
+                self.assertContains(response, logo)
+                self.assertNotContains(
+                    response,
+                    '<img src="/press/cover/" class="top-bar-image img-fluid">',
+                )
+
+
+@override_settings(URL_CONFIG="domain")
 class HomepageSearchBarLabelTests(TestCase):
     @classmethod
     def setUpTestData(cls):
