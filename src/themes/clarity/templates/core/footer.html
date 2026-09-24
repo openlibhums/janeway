@@ -6,8 +6,11 @@
         {% if request.journal.press_image_override %}
             {% get_alt_text file_path=request.journal.press_image_override default=request.press.name as press_alt %}
             {% svg_or_image request.journal.press_image_override "img-fluid" alt_text=press_alt %}
-        {% else %}
+        {% elif 'svg' in request.press_cover %}
             {% svg request.press_cover %}
+        {% elif request.press_cover %}
+            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+            <img class="img-fluid top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ press_logo_alt }}">
         {% endif %}
     </div>
     <div class="col-md-9">

@@ -783,6 +783,19 @@ def read_theme_asset(theme, relative_path):
         return asset_file.read()
 
 
+def create_press_thumbnail(press, filename="press-logo.png", mime_type="image/png"):
+    """Give the press a logo record; the file itself is not written."""
+    thumbnail = File.objects.create(
+        mime_type=mime_type,
+        original_filename=filename,
+        uuid_filename=filename,
+        label="Press logo",
+    )
+    press.thumbnail_image = thumbnail
+    press.save()
+    return thumbnail
+
+
 def relative_luminance(hex_colour):
     channels = []
     for start in (1, 3, 5):
