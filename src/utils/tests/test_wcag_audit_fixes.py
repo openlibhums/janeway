@@ -25,6 +25,14 @@ class TargetSizeCssTests(SimpleTestCase):
             css,
         )
 
+    def test_clarity_press_footer_links_get_half_the_row(self):
+        template = helpers.read_theme_asset(
+            "clarity",
+            "templates/elements/press_footer.html",
+        )
+        self.assertIn('<div class="col-md-6 text-right">', template)
+        self.assertNotIn("col-md-5", template)
+
 
 class ContrastCssTests(SimpleTestCase):
     def test_olh_foundation_palette_is_set_before_foundation(self):
