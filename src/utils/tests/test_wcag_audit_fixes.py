@@ -26,6 +26,17 @@ class TargetSizeCssTests(SimpleTestCase):
         )
 
 
+class ReflowCssTests(SimpleTestCase):
+    def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
+        css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn(
+            "  .reading-options-bar {\n"
+            "    margin-inline: calc(-1 * var(--spacing-md));\n"
+            "  }",
+            css,
+        )
+
+
 @override_settings(URL_CONFIG="domain")
 class IssueLinkLabelTests(TestCase):
     @classmethod

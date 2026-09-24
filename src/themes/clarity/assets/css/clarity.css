@@ -642,6 +642,14 @@ a.btn {
   margin: -20px -20px 0;
 }
 
+/* WCAG 1.4.10: on narrow screens main.container pads by --spacing-md, so a
+   20px bleed pushes the bar past the viewport and scrolls the page sideways. */
+@media screen and (max-width: 764px) {
+  .reading-options-bar {
+    margin-inline: calc(-1 * var(--spacing-md));
+  }
+}
+
 .mini-bar {
   width: 100%;
   background: #e6e6e6;
