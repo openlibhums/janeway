@@ -101,10 +101,10 @@
                         <div class="show-on-small hide-on-med-and-up">
                             <h2>{% trans "Files" %}</h2>
                             {% if galleys %}
-                                <ul>
+                                <ul class="article-downloads">
                                     {% for galley in galleys %}
                                         {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                            </li>
+                                            <li>
                                                 <a target="_blank"
                                                     href="{% url 'article_view_galley' article.id galley.id %}">
                                                     {% trans 'View PDF' %}
@@ -240,7 +240,7 @@
                             {% trans "Downloads" %}
                         </h2>
                         {% if galleys %}
-                            <ul>
+                            <ul class="article-downloads">
                                 {% for galley in galleys %}
                                     <li>
                                         <a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a>

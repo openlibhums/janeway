@@ -1915,3 +1915,10 @@ textarea.materialize-textarea,
 .select-wrapper input.select-dropdown {
   border-bottom-color: #949494;
 }
+
+/* WCAG 2.5.8: stacked download links need 24px between target centres. */
+.article-downloads a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
