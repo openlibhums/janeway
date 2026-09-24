@@ -151,6 +151,40 @@ class FollowupFixTests(SimpleTestCase):
         self.assertEqual(template.count('<ul class="article-downloads">'), 2)
 
 
+class RepositoryFixTests(SimpleTestCase):
+    def test_material_repository_logo_has_alt_text(self):
+        template = helpers.read_theme_asset("material", "templates/repository/nav.html")
+        self.assertIn(
+            'class="responsive-img" alt="{{ request.repository.name }}"', template
+        )
+
+    def test_preprint_pdf_frames_have_titles(self):
+        for theme, path, variable in [
+            ("OLH", "templates/repository/preprint.html", "preprint"),
+            ("material", "templates/repository/preprint.html", "preprint"),
+            ("material", "templates/preprints/article.html", "article"),
+        ]:
+            template = helpers.read_theme_asset(theme, path)
+            with self.subTest(theme=theme, path=path):
+                self.assertIn(
+                    f'title="{{{{ {variable}.title|striptags }}}} PDF"', template
+                )
+
+    def test_olh_subheader_meets_contrast(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(".subheader {\n  color: #707070;\n}", scss)
+        self.assertGreaterEqual(helpers.contrast_ratio("#707070", "#fefefe"), 4.5)
+
+    def test_repository_links_have_24px_targets(self):
+        template = helpers.read_theme_asset("OLH", "templates/repository/preprint.html")
+        self.assertIn('<ul class="preprint-versions">', template)
+        olh = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(".preprint-versions a {\n  display: inline-block;", olh)
+        clean = helpers.read_theme_asset("clean", "assets/css/clean.css")
+        self.assertIn(".preprint-versions a,\n.pagination-block .pagination a {", clean)
+        self.assertIn("  min-width: 24px;\n  margin-inline: 0;", clean)
+
+
 class NonTextContrastCssTests(SimpleTestCase):
     def test_olh_form_controls_use_the_contrasting_border(self):
         variables = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
