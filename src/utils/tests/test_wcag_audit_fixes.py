@@ -36,6 +36,15 @@ class ReflowCssTests(SimpleTestCase):
             css,
         )
 
+    def test_olh_collections_page_clips_nested_row_gutters(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(".collections-page {\n    overflow-x: clip;\n}", scss)
+        template = helpers.read_theme_asset(
+            "OLH",
+            "templates/journal/collections.html",
+        )
+        self.assertIn('<section id="content" class="collections-page">', template)
+
 
 @override_settings(URL_CONFIG="domain")
 class IssueLinkLabelTests(TestCase):
