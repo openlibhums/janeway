@@ -777,6 +777,12 @@ def create_news_item(content_type, object_id, **kwargs):
     return item
 
 
+def read_theme_asset(theme, relative_path):
+    path = os.path.join(settings.BASE_DIR, "themes", theme, relative_path)
+    with open(path, encoding="utf-8") as asset_file:
+        return asset_file.read()
+
+
 def create_homepage_element(site_object, name, template_path, **kwargs):
     element, _created = core_models.HomepageElement.objects.update_or_create(
         name=name,
