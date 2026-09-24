@@ -3,6 +3,7 @@ __author__ = "Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -24,6 +25,31 @@ def user_can_manage_discussions(user, journal=None, repository=None):
     if repository:
         return user.is_staff or repository.managers.filter(pk=user.pk).exists()
     return user.is_staff
+
+
+def user_can_access_object_threads(
+    user,
+    obj,
+    object_type,
+    journal=None,
+    repository=None,
+):
+    """
+    Check whether a user may open the discussions page for an article or
+    preprint.
+
+    Discussion managers can always open it. Anyone else must own or
+    participate in at least one thread on the object.
+    """
+    if not user or not user.is_authenticated:
+        return False
+    if user_can_manage_discussions(user, journal=journal, repository=repository):
+        return True
+    if object_type == "article":
+        threads = models.Thread.objects.filter(article=obj)
+    else:
+        threads = models.Thread.objects.filter(preprint=obj)
+    return threads.filter(Q(owner=user) | Q(participants=user)).exists()
 
 
 def get_thread_or_404(request, thread_id, article_id=None, preprint_id=None):

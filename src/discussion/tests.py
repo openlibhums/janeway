@@ -3,6 +3,7 @@ __author__ = "Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.shortcuts import reverse
 from django.urls.base import clear_script_prefix
@@ -314,6 +315,73 @@ class DiscussionJournalAccessTests(TestCase):
         self.assertEqual(response.status_code, 204)
         self.assertIn(self.regular_user, self.thread.participants.all())
 
+    def test_adding_existing_participant_does_not_repeat_notification(self):
+        self.client.force_login(self.editor)
+        add_url = reverse(
+            "discussion_add_participant",
+            kwargs={"thread_id": self.thread.pk},
+        )
+        self.client.post(add_url, data={"user_id": self.regular_user.pk})
+        emails_sent = len(mail.outbox)
+        self.assertEqual(emails_sent, 1)
+        added_posts = self.thread.posts_related.filter(
+            is_system_message=True,
+            body__contains="added",
+        ).count()
+
+        response = self.client.post(add_url, data={"user_id": self.regular_user.pk})
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(len(mail.outbox), emails_sent)
+        self.assertEqual(
+            self.thread.posts_related.filter(
+                is_system_message=True,
+                body__contains="added",
+            ).count(),
+            added_posts,
+        )
+
+    def test_stranger_cannot_open_article_threads_page(self):
+        self.client.force_login(self.stranger)
+        response = self.client.get(
+            reverse(
+                "discussion_threads",
+                kwargs={"object_type": "article", "object_id": self.article.pk},
+            ),
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_stranger_cannot_load_article_threads_list(self):
+        self.client.force_login(self.stranger)
+        response = self.client.get(
+            reverse(
+                "discussion_threads_list_partial",
+                kwargs={"object_type": "article", "object_id": self.article.pk},
+            ),
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_participant_can_open_article_threads_page(self):
+        self.thread.participants.add(self.regular_user)
+        self.client.force_login(self.regular_user)
+        response = self.client.get(
+            reverse(
+                "discussion_threads",
+                kwargs={"object_type": "article", "object_id": self.article.pk},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_editor_can_open_article_threads_page(self):
+        self.client.force_login(self.second_editor)
+        response = self.client.get(
+            reverse(
+                "discussion_threads",
+                kwargs={"object_type": "article", "object_id": self.article.pk},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+
 
 class DiscussionRepositoryAccessTests(TestCase):
     """
@@ -488,3 +556,28 @@ class DiscussionRepositoryAccessTests(TestCase):
             SERVER_NAME=self.server_name,
         )
         self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_stranger_cannot_open_preprint_threads_page(self):
+        self.client.force_login(self.stranger)
+        response = self.client.get(
+            reverse(
+                "discussion_threads",
+                kwargs={"object_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_participant_can_open_preprint_threads_page(self):
+        self.thread.participants.add(self.preprint_author)
+        self.client.force_login(self.preprint_author)
+        response = self.client.get(
+            reverse(
+                "discussion_threads",
+                kwargs={"object_type": "preprint", "object_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)

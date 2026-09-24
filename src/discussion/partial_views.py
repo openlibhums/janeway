@@ -2,6 +2,7 @@ import os
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,7 @@ from core.views import GenericFacetedListView
 from discussion import forms, logic, models
 from events import logic as event_logic
 from repository import models as repository_models
-from security.decorators import can_access_thread, editor_or_manager
+from security.decorators import can_access_thread, deny_access, editor_or_manager
 from submission import models as submission_models
 from review.models import ReviewAssignment
 from copyediting.models import CopyeditAssignment
@@ -48,6 +49,15 @@ def threads_list_partial(
             repository=request.repository,
         )
         qs = models.Thread.objects.filter(preprint=object_to_get)
+
+    if not logic.user_can_access_object_threads(
+        request.user,
+        object_to_get,
+        object_type,
+        journal=request.journal,
+        repository=request.repository,
+    ):
+        deny_access(request)
 
     # Filter threads by access
     accessible_threads = [
@@ -266,6 +276,15 @@ def add_participant(request, thread_id):
     if not user_id:
         return HttpResponseBadRequest("Missing user_id")
     user = get_object_or_404(core_models.Account, pk=user_id)
+    if thread.participants.filter(pk=user.pk).exists():
+        messages.add_message(
+            request,
+            messages.INFO,
+            _("%(name)s is already a participant in this discussion.")
+            % {"name": user.full_name()},
+        )
+        return HttpResponse(status=204)
+
     thread.participants.add(user)
     event_logic.Events.raise_event(
         event_logic.Events.ON_DISCUSSION_PARTICIPANT_ADDED,
@@ -277,6 +296,11 @@ def add_participant(request, thread_id):
     thread.create_system_post(
         actor=request.user,
         body=f"{request.user.full_name()} added {user.full_name()} to the discussion",
+    )
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _("%(name)s added to the discussion.") % {"name": user.full_name()},
     )
     return HttpResponse(status=204)
 
