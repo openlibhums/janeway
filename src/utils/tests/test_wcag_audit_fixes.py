@@ -72,6 +72,16 @@ class NonTextContrastCssTests(SimpleTestCase):
                     css,
                 )
 
+    def test_material_field_underlines_use_the_contrasting_border(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(
+            "textarea.materialize-textarea,\n"
+            ".select-wrapper input.select-dropdown {\n"
+            "  border-bottom-color: #949494;\n"
+            "}",
+            css,
+        )
+
 
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):

@@ -1895,3 +1895,23 @@ label,
 .card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating):hover {
   color: #8a4d00;
 }
+
+/* WCAG 1.4.11: Materialize's field underline (#9e9e9e) is 2.7:1 against
+   white. Same selectors as Materialize, so its focus states still win. */
+input:not([type]):not(.browser-default),
+input[type=text]:not(.browser-default),
+input[type=password]:not(.browser-default),
+input[type=email]:not(.browser-default),
+input[type=url]:not(.browser-default),
+input[type=time]:not(.browser-default),
+input[type=date]:not(.browser-default),
+input[type=datetime]:not(.browser-default),
+input[type=datetime-local]:not(.browser-default),
+input[type=month]:not(.browser-default),
+input[type=tel]:not(.browser-default),
+input[type=number]:not(.browser-default),
+input[type=search]:not(.browser-default),
+textarea.materialize-textarea,
+.select-wrapper input.select-dropdown {
+  border-bottom-color: #949494;
+}
