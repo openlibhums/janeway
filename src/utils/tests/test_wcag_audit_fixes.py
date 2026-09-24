@@ -26,6 +26,18 @@ class TargetSizeCssTests(SimpleTestCase):
         )
 
 
+class ContrastCssTests(SimpleTestCase):
+    def test_olh_foundation_palette_is_set_before_foundation(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        palette = scss.index("  primary: #1373b3,\n  secondary: #767676,")
+        self.assertLess(palette, scss.index("@import 'foundation';"))
+
+    def test_olh_default_link_colours_meet_contrast(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
+        self.assertNotIn("#2199e8", scss)
+        self.assertIn("$link-color: #1373b3 !default;", scss)
+
+
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")

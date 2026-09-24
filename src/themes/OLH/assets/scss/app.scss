@@ -5,6 +5,17 @@
 
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css);
 
+// WCAG 1.4.3: Foundation's default primary (#2199e8) and secondary (#777)
+// fall just short of 4.5:1 against white, so darken them slightly. This must
+// come before Foundation, whose palette is set with !default.
+$foundation-palette: (
+  primary: #1373b3,
+  secondary: #767676,
+  success: #3adb76,
+  warning: #ffae00,
+  alert: #ec5840,
+);
+
 @import 'foundation';
 
 @import "variables";
