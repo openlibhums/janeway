@@ -465,6 +465,14 @@ pre {@extend blockquote; @extend p;}
   }
 }
 
+// Firefox sizes an inline-block item from its link's negative focus-ring
+// margin but not its padding, so multi-word footer links wrap mid-name.
+footer .inline-list li {
+  @include breakpoint(medium) {
+    display: inline;
+  }
+}
+
 .inline-list-bar li:not(:last-child)::after {
   content: " | " / "";  
   margin-left: rem-calc(10px);
