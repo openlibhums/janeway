@@ -576,6 +576,7 @@ HIJACK_LOGIN_REDIRECT_URL = "/manager/"
 ENABLE_OIDC = bool(os.environ.get("ENABLE_OIDC", False))
 OIDC_SERVICE_NAME = "OIDC Service Name"
 OIDC_CALLBACK_CLASS = "utils.oidc.JanewayOIDCAuthenticationCallbackView"
+OIDC_AUTHENTICATE_CLASS = "utils.oidc.JanewayOIDCAuthenticationRequestView"
 OIDC_OP_LOGOUT_URL_METHOD = "utils.oidc.logout_url"
 OIDC_USERNAME_ALGO = "utils.oidc.generate_oidc_username"
 OIDC_LOGOUT_URL = os.environ.get("OIDC_LOGOUT_URL")

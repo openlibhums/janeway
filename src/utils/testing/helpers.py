@@ -7,6 +7,7 @@ import os
 from contextlib import ContextDecorator
 from unittest.mock import Mock
 import datetime
+from urllib.parse import parse_qs, urlparse
 
 from django.http import HttpRequest
 from django.test import override_settings
@@ -100,6 +101,33 @@ def create_roles(roles=None):
             name=role.replace("-", " ").capitalize(),
             slug=role.lower().replace(" ", "-"),
         )
+
+
+def query_parameter_from_url(url, parameter):
+    """
+    Returns the first value of a query string parameter found in a URL.
+    :param url: a URL string, for example a response's Location header
+    :param parameter: the name of the query string parameter to read
+    :return: the parameter's first value, or None if it is not present
+    """
+    query_string = urlparse(url).query
+    values = parse_qs(query_string).get(parameter, [])
+    return values[0] if values else None
+
+
+def login_with_expired_oidc_session(client, user):
+    """
+    Logs a user in through the OIDC backend with an id token that has
+    already expired, so that session refresh middleware treats the next
+    request as needing silent re-authentication.
+    AUTHENTICATION_BACKENDS must include utils.oidc.JanewayOIDCAB.
+    :param client: a django.test.Client
+    :param user: the core.Account to log in
+    """
+    client.force_login(user, backend="utils.oidc.JanewayOIDCAB")
+    session = client.session
+    session["oidc_id_token_expiration"] = 0
+    session.save()
 
 
 def create_journals():
