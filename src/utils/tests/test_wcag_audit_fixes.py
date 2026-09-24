@@ -38,6 +38,30 @@ class TargetSizeCssTests(SimpleTestCase):
         self.assertNotIn("col-md-5", template)
 
 
+class ProhibitedAriaTests(SimpleTestCase):
+    def test_no_theme_puts_aria_label_on_a_span(self):
+        for theme in ["OLH", "clean", "clarity", "material"]:
+            templates = os.path.join(settings.BASE_DIR, "themes", theme, "templates")
+            for root, _dirs, files in os.walk(templates):
+                for name in files:
+                    path = os.path.join(root, name)
+                    with open(path, encoding="utf-8") as template:
+                        source = template.read()
+                    with self.subTest(template=path):
+                        self.assertNotRegex(source, r"<span[^>]*aria-label")
+
+    def test_clarity_carousel_has_a_role_for_its_label(self):
+        template = helpers.read_theme_asset(
+            "clarity",
+            "templates/journal/homepage_elements/carousel.html",
+        )
+        self.assertIn(
+            '<div class="carousel-inner" role="region" aria-roledescription="carousel"'
+            ' aria-label="News and article carousel">',
+            template,
+        )
+
+
 class ContrastCssTests(SimpleTestCase):
     def test_olh_foundation_palette_is_set_before_foundation(self):
         scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
