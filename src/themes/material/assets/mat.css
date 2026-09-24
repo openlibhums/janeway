@@ -1859,3 +1859,39 @@ abbr.req {
 .inline-select-group .btn {
   flex: 0 0 auto;
 }
+
+/* WCAG 1.4.3: Materialize's default link, button, label and card action
+   colours fall below 4.5:1, so darken each within its own hue. Journal
+   override stylesheets load after this file and still take precedence. */
+a {
+  color: #0270a6;
+}
+
+.btn, .btn-small, .btn-large {
+  background-color: #1d7e75;
+}
+
+.btn:hover, .btn-small:hover, .btn-large:hover {
+  background-color: #186b63;
+}
+
+.collection a.collection-item {
+  color: #1d7e75;
+}
+
+.collection .collection-item.active {
+  background-color: #1d7e75;
+}
+
+label,
+.input-field > label {
+  color: #767676;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating) {
+  color: #b16300;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating):hover {
+  color: #8a4d00;
+}

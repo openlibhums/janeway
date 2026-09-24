@@ -37,6 +37,17 @@ class ContrastCssTests(SimpleTestCase):
         self.assertNotIn("#2199e8", scss)
         self.assertIn("$link-color: #1373b3 !default;", scss)
 
+    def test_material_overrides_materialize_default_colours(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        for rule in [
+            "a {\n  color: #0270a6;\n}",
+            ".btn, .btn-small, .btn-large {\n  background-color: #1d7e75;\n}",
+            ".collection .collection-item.active {\n  background-color: #1d7e75;\n}",
+            "label,\n.input-field > label {\n  color: #767676;\n}",
+        ]:
+            with self.subTest(rule=rule):
+                self.assertIn(rule, css)
+
 
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
