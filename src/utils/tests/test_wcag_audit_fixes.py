@@ -16,8 +16,26 @@ class IssueLinkLabelTests(TestCase):
     def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
-        cls.issue_one = helpers.create_issue(cls.journal_one, vol=1, number=1)
-        cls.issue_two = helpers.create_issue(cls.journal_one, vol=1, number=2)
+        cls.article_one = helpers.create_article(
+            cls.journal_one,
+            stage="Published",
+        )
+        cls.article_two = helpers.create_article(
+            cls.journal_one,
+            stage="Published",
+        )
+        cls.issue_one = helpers.create_issue(
+            cls.journal_one,
+            vol=1,
+            number=1,
+            articles=[cls.article_one],
+        )
+        cls.issue_two = helpers.create_issue(
+            cls.journal_one,
+            vol=1,
+            number=2,
+            articles=[cls.article_two],
+        )
         cls.journal_one.current_issue = cls.issue_two
         cls.journal_one.save()
 
@@ -32,9 +50,24 @@ class IssueLinkLabelTests(TestCase):
         )
         self.assertContains(
             response,
-            f"aria-label='{self.issue_two.display_title_a11y} (0 items)'",
+            f"aria-label='{self.issue_two.display_title_a11y} (1 items)'",
         )
         self.assertNotContains(response, "aria-label=' (")
+
+    def test_material_issue_archive_links_are_labelled_with_their_own_issue(self):
+        response = self.client.get(
+            reverse("journal_issue", kwargs={"issue_id": self.issue_one.pk}),
+            {"theme": "material"},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        for issue in [self.issue_one, self.issue_two]:
+            self.assertContains(
+                response,
+                f"aria-label='{issue.display_title_a11y}'",
+                count=1,
+            )
+        self.assertContains(response, '<div class="collection">')
+        self.assertNotContains(response, '<ul class="collection">')
 
 
 @override_settings(URL_CONFIG="domain")
