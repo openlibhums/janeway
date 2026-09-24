@@ -31,16 +31,19 @@
         <div class="col-md-12">
             <p class="byline text-format-region">{{ news_item.byline }} on {{ news_item.posted|date_human}}</p>
             <div class="text-format-region">{{ news_item.body|safe }}</div>
-            <br />
             {% if news_item.tags.all %}
-                <h2>{% trans 'Tags ' %}<i aria-hidden="true" class="fa fa-tags">&nbsp;</i></h2>
-                <ul class="list-inline comma-sep">
-                    {% for tag in news_item.tags.all %}
-                        <li><a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a></li>
-                    {% endfor %}
-                </ul>
+                <div class="d-flex flex-wrap align-items-baseline mt-3">
+                    <h2 class="h6 mb-0 mr-2"><i aria-hidden="true" class="fa fa-tags"></i> {% trans 'Tags' %}</h2>
+                    <ul class="list-inline comma-sep mb-0">
+                        {% for tag in news_item.tags.all %}
+                            <li><a href="{% url 'core_news_list_tag' tag.text %}">{{ tag.text }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endif %}
-            <a href="{% url 'core_news_list' %}">
+        </div>
+        <div class="col-md-12 my-3">
+            <a class="target-min" href="{% url 'core_news_list' %}">
               {% trans "Back to" %} {{ journal_settings.news.news_title|default:"News" }} {% trans "List" %}
             </a>
         </div>

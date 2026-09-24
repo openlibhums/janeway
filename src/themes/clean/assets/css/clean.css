@@ -1168,8 +1168,17 @@ span + .btn-background {
     /* Remove margin from elements that shouldn't have it */
     .dropdown-menu a,
     .dropdown-menu button,
-    .dropdown-menu .dropdown-item {
+    .dropdown-menu .dropdown-item,
+    .input-group > .custom-select,
+    .input-group .input-group-text,
+    .input-group .btn {
         margin: 0;
+    }
+
+    /* Keep grouped controls their natural height when the column is
+       stretched taller by a flex sibling */
+    .input-group.results-controls {
+        align-items: center;
     }
 
     /*individual workarounds */
@@ -1408,4 +1417,24 @@ abbr.req {
 
 .form-errors dd:last-child {
     margin-bottom: 0;
+}
+
+/* WCAG 2.5.8 minimum target size for standalone links and buttons */
+.target-min {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.close {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* WCAG 1.4.12: navigation items wrap rather than overflow when text
+   spacing is increased. */
+@media (min-width: 992px) {
+  .navbar-custom .navbar-collapse,
+  .navbar-custom .navbar-nav {
+    flex-wrap: wrap;
+  }
 }
