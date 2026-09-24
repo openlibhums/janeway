@@ -91,6 +91,19 @@ class NonTextContrastCssTests(SimpleTestCase):
         )
 
 
+class OLHLayoutCssTests(SimpleTestCase):
+    def test_olh_footer_list_items_are_inline(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(
+            "footer .inline-list li {\n"
+            "  @include breakpoint(medium) {\n"
+            "    display: inline;\n"
+            "  }\n"
+            "}",
+            scss,
+        )
+
+
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
