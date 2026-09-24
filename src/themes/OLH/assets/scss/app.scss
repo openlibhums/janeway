@@ -174,7 +174,7 @@ header {
 
     input {
       background: $very-light-gray;
-      border: 1px solid $medium-gray;
+      border: 1px solid $input-border-color;
       box-shadow: none;
     }
     .global-search {
@@ -192,7 +192,7 @@ header {
       }
       .input-group-button button {
         background: $very-light-gray;
-        border: 1px solid $medium-gray;
+        border: 1px solid $input-border-color;
         border-right: none !important;
         color: $black;
         cursor: pointer;
@@ -207,7 +207,7 @@ header {
         &:focus {
           background: $very-light-gray;
           box-shadow: none;
-          border: 1px solid $medium-gray;
+          border: 1px solid $input-border-color;
         }
       }
 
