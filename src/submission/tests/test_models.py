@@ -3,6 +3,9 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from importlib import import_module
+
+from django.apps import apps
 from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
@@ -103,3 +106,62 @@ class WorkflowRollbackTests(TestCase):
         self.assertEqual(article.stage, models.STAGE_UNDER_REVIEW)
         self.assertIsNone(article.date_accepted)
         self.assertIsNone(article.date_declined)
+
+
+class FieldAnswerFieldNameTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article = helpers.create_article(cls.journal_one)
+        cls.field = helpers.create_submission_field(
+            cls.journal_one,
+            name="Data Availability",
+        )
+        cls.field_answer = models.FieldAnswer.objects.create(
+            field=cls.field,
+            article=cls.article,
+            answer="Available on request.",
+        )
+
+    def test_saving_answer_snapshots_field_name(self):
+        self.field_answer.refresh_from_db()
+        self.assertEqual(self.field_answer.field_name, "Data Availability")
+
+    def test_renaming_field_updates_answer_field_name(self):
+        self.field.name = "Data Access Statement"
+        self.field.save()
+        self.field_answer.refresh_from_db()
+        self.assertEqual(self.field_answer.field_name, "Data Access Statement")
+
+    def test_deleting_field_keeps_answer_name(self):
+        self.field.delete()
+        self.field_answer.refresh_from_db()
+        self.assertIsNone(self.field_answer.field)
+        self.assertEqual(self.field_answer.name, "Data Availability")
+
+    def test_saving_answer_without_field_keeps_snapshot(self):
+        self.field.delete()
+        self.field_answer.refresh_from_db()
+        self.field_answer.answer = "Deposited in a repository."
+        self.field_answer.save()
+        self.field_answer.refresh_from_db()
+        self.assertEqual(self.field_answer.field_name, "Data Availability")
+
+    def test_name_prefers_live_field_name(self):
+        models.FieldAnswer.objects.filter(pk=self.field_answer.pk).update(
+            field_name="Stale Name",
+        )
+        self.field_answer.refresh_from_db()
+        self.assertEqual(self.field_answer.name, "Data Availability")
+
+    def test_migration_populates_field_name_from_field(self):
+        models.FieldAnswer.objects.filter(pk=self.field_answer.pk).update(
+            field_name="",
+        )
+        migration = import_module(
+            "submission.migrations.0091_populate_fieldanswer_field_name"
+        )
+        migration.populate_field_answer_field_name(apps, None)
+        self.field_answer.refresh_from_db()
+        self.assertEqual(self.field_answer.field_name, "Data Availability")
