@@ -1151,6 +1151,12 @@ section[aria-label*="Results"] .article-item {
   margin-bottom: 0;
 }
 
+/* WCAG 2.5.8: without the negative block margin, wrapped rows of footer
+   links no longer overlap each other. */
+.site-footer .list-inline-item a {
+  margin-block: 0;
+}
+
 footer svg,
 footer img,
 footer .img-fluid{
