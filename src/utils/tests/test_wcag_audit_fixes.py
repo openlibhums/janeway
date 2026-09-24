@@ -51,6 +51,17 @@ class ProhibitedAriaTests(SimpleTestCase):
                     with self.subTest(template=path):
                         self.assertNotRegex(source, r"<span[^>]*aria-label")
 
+    def test_issue_links_keep_their_visible_title_as_the_name(self):
+        for theme in ["clean", "clarity", "material"]:
+            template = helpers.read_theme_asset(
+                theme, "templates/elements/article_listing.html"
+            )
+            with self.subTest(theme=theme):
+                self.assertNotIn(
+                    'aria-hidden="true">{{ article.issue_title }}', template
+                )
+                self.assertIn("{{ article.issue_title }}", template)
+
     def test_clarity_carousel_has_a_role_for_its_label(self):
         template = helpers.read_theme_asset(
             "clarity",
