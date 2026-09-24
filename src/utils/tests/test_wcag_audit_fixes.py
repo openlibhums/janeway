@@ -42,8 +42,27 @@ class ContrastCssTests(SimpleTestCase):
 
     def test_olh_default_link_colours_meet_contrast(self):
         scss = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
-        self.assertNotIn("#2199e8", scss)
-        self.assertIn("$link-color: #1373b3 !default;", scss)
+        for variable in ["link-color", "toc-link-color", "primary-light-color"]:
+            with self.subTest(variable=variable):
+                self.assertIn(f"${variable}: #1373b3 !default;", scss)
+        self.assertGreaterEqual(helpers.contrast_ratio("#1373b3", "#ffffff"), 4.5)
+
+    def test_olh_text_on_the_dark_primary_colour_meets_contrast(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
+        self.assertIn("$primary-dark-color: #062657 !default;", scss)
+        self.assertIn("$primary-on-dark-color: #2199e8 !default;", scss)
+        self.assertGreaterEqual(helpers.contrast_ratio("#2199e8", "#062657"), 4.5)
+
+    def test_olh_dark_backgrounds_use_the_on_dark_colour(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        for rule in [
+            "  @extend .white-text;\n\n  a {\n    color: var(--primary-on-dark-color);\n  }\n}",
+            "table tr.active td {\n  background-color: var(--primary-dark-color);\n"
+            "  color: var(--primary-on-dark-color);",
+            ".orbit-caption{\n  color: var(--primary-on-dark-color);",
+        ]:
+            with self.subTest(rule=rule):
+                self.assertIn(rule, scss)
 
     def test_material_overrides_materialize_default_colours(self):
         css = helpers.read_theme_asset("material", "assets/mat.css")
