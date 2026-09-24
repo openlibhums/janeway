@@ -103,6 +103,16 @@ class OLHLayoutCssTests(SimpleTestCase):
             scss,
         )
 
+    def test_olh_sort_control_select_starts_from_zero_width(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(
+            ".input-group.sort-control select.input-group-field {\n"
+            "  flex: 1 1 0;\n"
+            "  min-width: 5.5rem;\n"
+            "}",
+            scss,
+        )
+
 
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):

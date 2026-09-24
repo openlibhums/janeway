@@ -148,6 +148,14 @@ html, body {
   min-width: 0;
 }
 
+// The shared sort-control CSS starts the select at its full width and
+// holds it at 7rem, which pushes Apply onto its own line in the 303px
+// articles sidebar. Start it from zero and let it shrink to 5.5rem.
+.input-group.sort-control select.input-group-field {
+  flex: 1 1 0;
+  min-width: 5.5rem;
+}
+
 .sort-control .input-group-button .button {
   height: 100%;
   margin: 0;
