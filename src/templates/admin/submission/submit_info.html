@@ -65,6 +65,12 @@
                             </div>
                         {% endif %}
 
+                        {% if "topic" in form.fields %}
+                            <div class="large-12 columns">
+                                {{ form.topic|foundation }}
+                            </div>
+                        {% endif %}
+
 
                         {% if request.journal.submissionconfiguration.keywords %}
                             <div class="large-12 columns">
