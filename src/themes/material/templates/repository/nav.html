@@ -10,7 +10,7 @@
     <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
         <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
             {% if request.repository.logo %}
-            <img src="{{ request.repository.logo.url }}" class="responsive-img" />
+            <img src="{{ request.repository.logo.url }}" class="responsive-img" alt="{{ request.repository.name }}" />
             {% else %}
             {{ request.repository.name }}
             {% endif %}
