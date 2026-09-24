@@ -2325,3 +2325,9 @@ input[type="submit"]:focus-visible {
     outline-offset: -2px;
 }
 
+/* WCAG 1.4.10: the collection card rows are nested directly in a row, so
+   their negative gutters push empty column padding past the viewport. */
+.collections-page {
+    overflow-x: clip;
+}
+
