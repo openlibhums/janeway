@@ -192,7 +192,7 @@
                     </ul>
                     {% if preprint.preprintversion_set.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
-                    <ul>
+                    <ul class="preprint-versions">
                         {% for version in preprint.preprintversion_set.all %}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
                                 {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}

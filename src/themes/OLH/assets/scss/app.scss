@@ -2379,3 +2379,10 @@ input[type="submit"]:focus-visible {
 .subheader {
   color: #707070;
 }
+
+/* WCAG 2.5.8: stacked preprint version links need 24px between centres. */
+.preprint-versions a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
