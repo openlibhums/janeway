@@ -9,7 +9,7 @@
         <div class="col l2 m2 s12 cell journal-card">
             <div class="card card-full-height">
                 <div class="card-image journal-card-image">
-                    <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+                    <img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="">
                 </div>
                 <div class="card-content journal-card-content">
                     {% if current_journal.is_remote %}
