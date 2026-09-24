@@ -386,6 +386,18 @@ def create_section(journal, **kwargs):
     return section
 
 
+def create_submission_field(journal, **kwargs):
+    defaults = {
+        "name": "Data Availability",
+        "kind": "text",
+        "order": 1,
+        "required": False,
+        "help_text": "Where can the data be found?",
+    }
+    defaults.update(kwargs)
+    return sm_models.Field.objects.create(journal=journal, **defaults)
+
+
 def create_submission(
     owner=None,
     title="A Test Article",
