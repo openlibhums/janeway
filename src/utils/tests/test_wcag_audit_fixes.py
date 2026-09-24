@@ -3,11 +3,20 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from utils.shared import clear_cache
 from utils.testing import helpers
+
+
+class TargetSizeCssTests(SimpleTestCase):
+    def test_material_menu_button_is_at_least_24px_wide(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(
+            "nav a.sidenav-trigger {\n    padding-left: 12px;\n    margin-left: 6px;\n}",
+            css,
+        )
 
 
 @override_settings(URL_CONFIG="domain")
