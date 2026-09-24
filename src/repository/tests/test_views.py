@@ -363,6 +363,16 @@ class TestViews(TestCase):
         self.assertIsNone(p.date_accepted)
 
     @override_settings(URL_CONFIG="domain")
+    def test_repository_list_renders_with_a_query_string_but_no_search(self):
+        for data in [{"theme": "OLH"}, {"subject": self.subject.pk}]:
+            with self.subTest(data=data):
+                response = self.client.get(
+                    reverse("repository_list"),
+                    data=data,
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertEqual(response.status_code, 200)
+
     def test_repo_nav_account_links_do_not_have_return(self):
         """
         Check that the url_with_return tag has *not* been used
