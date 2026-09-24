@@ -60,6 +60,18 @@ class NonTextContrastCssTests(SimpleTestCase):
             settings,
         )
 
+    def test_bootstrap_theme_form_controls_use_the_contrasting_border(self):
+        for theme, path in [
+            ("clean", "assets/css/clean.css"),
+            ("clarity", "assets/css/clarity.css"),
+        ]:
+            with self.subTest(theme=theme):
+                css = helpers.read_theme_asset(theme, path)
+                self.assertIn(
+                    ".form-control,\n.custom-select {\n  border-color: #8491a0;\n}",
+                    css,
+                )
+
 
 class ReflowCssTests(SimpleTestCase):
     def test_clarity_reading_bar_bleeds_only_to_the_narrow_gutter(self):
