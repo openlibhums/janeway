@@ -1461,3 +1461,18 @@ abbr.req {
 .custom-select {
   border-color: #8491a0;
 }
+
+/* WCAG 2.5.8: repository pages use OLH's markup, so give its stacked
+   version links and pagination links 24px targets here too. */
+.preprint-versions a,
+.pagination-block .pagination a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+.pagination-block .pagination a {
+  min-width: 24px;
+  margin-inline: 0;
+  text-align: center;
+}
