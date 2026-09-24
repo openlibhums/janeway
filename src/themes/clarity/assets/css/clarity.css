@@ -1687,6 +1687,13 @@ textarea.tinymce:focus-visible,
   background-image: none;
 }
 
+/* WCAG 1.4.11: Bootstrap's default field border (#ced4da) is 1.5:1
+   against white; this grey reaches 3:1. */
+.form-control,
+.custom-select {
+  border-color: #8491a0;
+}
+
 /* Text-entry and select fields get the ring on any focus, not just
    :focus-visible: browser focus-visible heuristics are unreliable for
    date inputs (the ring drops out between date segments), and focus on
