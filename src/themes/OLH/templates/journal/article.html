@@ -94,7 +94,7 @@
                 <hr aria-hidden="true" />
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
-                                <h3>{% trans "Abstract" %}</h3>
+                                <h2>{% trans "Abstract" %}</h2>
                                 {% if journal_settings.general.uses_isolinear_plugin and not article.is_published %}
                                     {% hook 'preprint_abstract_block' article.abstract %}
                                 {% else %}
