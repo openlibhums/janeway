@@ -28,8 +28,8 @@
             <img class="material-banner-image"
                alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
                src="{{ request.repository.best_large_image_url }}">
-            <div class="material-banner-heading">
-              <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
+            <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="preprint-banner-title">
+              <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
             </div>
           </div>
         </div>

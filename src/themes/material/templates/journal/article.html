@@ -29,11 +29,11 @@
               <img class="material-banner-image"
                 src="{{ article.best_large_image_url }}"
                 alt="{% get_alt_text obj=article.large_image_file file_path=article.issue.large_image default=article.title|striptags %}">
-              <div class="material-banner-heading">
+              <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="article-banner-title">
                 <div class="carousel-text-wrapper">
                   <small>{{ article.section.name }}</small>
                   <br/>
-                  <h1>{{ article.title|safe }}</h1>
+                  <h1 id="article-banner-title">{{ article.title|safe }}</h1>
                 </div>
               </div>
             </div>
