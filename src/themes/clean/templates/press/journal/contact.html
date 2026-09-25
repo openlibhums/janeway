@@ -12,7 +12,9 @@
             <h1 class="sr-only">{% trans 'Contact us' %}</h1>
             <h2 class="side-bar-title">{% trans "Press Representatives" %}</h2>
             {% for contact in contacts %}
+                {% if contact.display_name %}
                 <h3 class="card-title editor-name">{{ contact.display_name }}</h3>
+                {% endif %}
                 <p>{{ contact.role }}</p>
             {% endfor %}
         </div>

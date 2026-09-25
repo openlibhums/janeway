@@ -16,7 +16,9 @@
                     <h2>{% trans "Press Representatives" %}</h2>
                 {% endif %}
                 {% for contact in contacts %}
+                    {% if contact.display_name %}
                     <h3>{{ contact.display_name }}</h3>
+                    {% endif %}
                     <p>{{ contact.role }}</p>
                 {% endfor %}
                 {% if journal_settings.general.contact_info %}
