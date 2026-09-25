@@ -2658,8 +2658,9 @@ def topic_articles(request, topic_id):
         )
         action = request.POST.get("action")
         new_topic = None
-        if action == "move":
-            new_topic = other_topics.filter(pk=request.POST.get("topic") or 0).first()
+        topic_pk = request.POST.get("topic", "")
+        if action == "move" and topic_pk.isdigit():
+            new_topic = other_topics.filter(pk=topic_pk).first()
 
         if not articles:
             message, level = _("No articles were selected."), "warning"

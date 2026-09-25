@@ -1619,10 +1619,18 @@ def issue_toc_article_edit(request, issue_id, article_id):
         if form.is_valid():
             article = form.save()
             if "section" in form.changed_data:
-                # Orderings are stored per section
-                models.ArticleOrdering.objects.filter(article=article).update(
-                    section=article.section,
-                )
+                # Orderings are stored per section. Keep one per issue,
+                # preferring the new section's, so the update can't collide.
+                orderings = models.ArticleOrdering.objects.filter(article=article)
+                kept = {}
+                for ordering in orderings:
+                    if (
+                        ordering.issue_id not in kept
+                        or ordering.section_id == article.section_id
+                    ):
+                        kept[ordering.issue_id] = ordering.pk
+                orderings.exclude(pk__in=kept.values()).delete()
+                orderings.update(section=article.section)
             response = logic.issue_toc_response(request, issue)
             return hx_show_message(
                 response,
