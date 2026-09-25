@@ -3,10 +3,10 @@
     src="{{ carousel_item.best_large_image_url }}"
     alt="{{ carousel_item.best_large_image_alt_text }}">
   {% if carousel_item.carousel_title %}
-    <div class="material-banner-heading">
+    <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="carousel-title-{{ carousel_item.pk }}">
       <div class="carousel-text-wrapper">
         <a href="{{ carousel_item.url }}">
-            <h2>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
+            <h2 id="carousel-title-{{ carousel_item.pk }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
           {% if carousel_item.carousel_subtitle %}
             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
           {% endif %}
