@@ -11,6 +11,8 @@ from dateutil import parser as dateparser
 import warnings
 import csv
 
+from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 from django.db import connection, DEFAULT_DB_ALIAS, models
 from django.db.models import Q, Max, Subquery, OuterRef
 from django.db.models.query import RawQuerySet
@@ -39,6 +41,7 @@ import swapper
 
 from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
+from core import validators as core_validators
 from utils import logic, models as utils_models
 from repository import install
 from utils.function_cache import cache
@@ -119,7 +122,9 @@ class Repository(model_utils.AbstractSiteModel):
     )
     name = models.CharField(max_length=255)
     short_name = models.CharField(
-        max_length=15, help_text="Shortened version of the name eg. olh. Max 15 chars."
+        max_length=15,
+        unique=True,
+        help_text="Unique, short version of the name eg. olh. Max 15 chars.",
     )
     object_name = models.CharField(
         max_length=255,
@@ -385,6 +390,27 @@ class Repository(model_utils.AbstractSiteModel):
             "live" if self.live else "disabled",
             self.name,
         )
+
+    def clean(self):
+        super().clean()
+        if self._short_name_unchanged():
+            return
+        try:
+            core_validators.validate_code(
+                self.short_name, kind="repository", max_length=15, exclude_pk=self.pk
+            )
+        except ValidationError as error:
+            raise ValidationError({"short_name": error})
+
+    def _short_name_unchanged(self):
+        if not self.pk:
+            return False
+        original = (
+            Repository.objects.filter(pk=self.pk)
+            .values_list("short_name", flat=True)
+            .first()
+        )
+        return original == self.short_name
 
     def top_level_subjects(self):
         return Subject.objects.filter(
