@@ -676,7 +676,7 @@ def serve_journal_cover(request, file_to_serve):
         messages.add_message(
             request, messages.ERROR, "File not found. {0}".format(file_path)
         )
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.headers.get("referer"))
 
 
 def serve_press_cover(request, file_to_serve):
@@ -699,7 +699,7 @@ def serve_press_cover(request, file_to_serve):
         messages.add_message(
             request, messages.ERROR, "File not found. {0}".format(file_path)
         )
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        return HttpResponseRedirect(request.headers.get("referer"))
 
 
 def save_file_to_journal(

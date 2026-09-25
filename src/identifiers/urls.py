@@ -2,12 +2,13 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+from django.urls import path
 from django.urls import re_path
 
 from identifiers import views
 
 urlpatterns = [
-    re_path(r"^pingback$", views.pingback, name="crossref_pingback"),
+    path("pingback", views.pingback, name="crossref_pingback"),
     re_path(
         r"^(?P<content_type>article|preprint)/(?P<object_id>\d+)/$",
         views.identifiers,
@@ -49,19 +50,19 @@ urlpatterns = [
         name="poll_doi_output",
     ),
     # Legacy article-only URL aliases for backward compatibility with templates
-    re_path(
-        r"^(?P<object_id>\d+)/$",
+    path(
+        "<int:object_id>/",
         views.identifiers,
         name="article_identifiers",
     ),
-    re_path(
-        r"^(?P<object_id>\d+)/$",
+    path(
+        "<int:object_id>/",
         views.identifiers,
         name="edit_identifiers",
     ),
     # DOI Manager
-    re_path(
-        r"^doi_manager/$",
+    path(
+        "doi_manager/",
         views.IdentifierManager.as_view(),
         name="journal_identifier_manager",
     ),

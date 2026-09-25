@@ -53,13 +53,13 @@ urlpatterns = [
     path("utils/", include("utils.urls")),
     path("workflow/", include("workflow.urls")),
     # Root Site URLS
-    re_path(r"^$", press_views.index, name="website_index"),
-    re_path(r"^journals/$", press_views.journals, name="press_journals"),
-    re_path(r"^conferences/$", press_views.conferences, name="press_conferences"),
-    re_path(r"^kanban/$", core_views.kanban, name="kanban"),
-    re_path(r"^login/$", core_views.user_login, name="core_login"),
-    re_path(r"^login/orcid/$", core_views.user_login_orcid, name="core_login_orcid"),
-    re_path(r"^register/step/1/$", core_views.register, name="core_register"),
+    path("", press_views.index, name="website_index"),
+    path("journals/", press_views.journals, name="press_journals"),
+    path("conferences/", press_views.conferences, name="press_conferences"),
+    path("kanban/", core_views.kanban, name="kanban"),
+    path("login/", core_views.user_login, name="core_login"),
+    path("login/orcid/", core_views.user_login_orcid, name="core_login_orcid"),
+    path("register/step/1/", core_views.register, name="core_register"),
     path(
         "register/step/1/<uuid:orcid_token>/",
         core_views.register,
@@ -75,53 +75,49 @@ urlpatterns = [
         core_views.orcid_registration,
         name="core_orcid_registration",
     ),
-    re_path(
-        r"^reset/step/1/$", core_views.get_reset_token, name="core_get_reset_token"
-    ),
+    path("reset/step/1/", core_views.get_reset_token, name="core_get_reset_token"),
     re_path(
         r"^reset/step/2/(?P<token>[\w-]+)/$",
         core_views.reset_password,
         name="core_reset_password",
     ),
-    re_path(r"^profile/$", core_views.edit_profile, name="core_edit_profile"),
-    re_path(r"^logout/$", core_views.user_logout, name="core_logout"),
-    re_path(r"^dashboard/$", core_views.dashboard, name="core_dashboard"),
-    re_path(
-        r"^dashboard/active/$",
+    path("profile/", core_views.edit_profile, name="core_edit_profile"),
+    path("logout/", core_views.user_logout, name="core_logout"),
+    path("dashboard/", core_views.dashboard, name="core_dashboard"),
+    path(
+        "dashboard/active/",
         core_views.active_submissions,
         name="core_active_submissions",
     ),
-    re_path(
-        r"^dashboard/active/filters/$",
+    path(
+        "dashboard/active/filters/",
         core_views.active_submission_filter,
         name="core_submission_filter",
     ),
-    re_path(
-        r"^dashboard/article/(?P<article_id>\d+)/$",
+    path(
+        "dashboard/article/<int:article_id>/",
         core_views.dashboard_article,
         name="core_dashboard_article",
     ),
-    re_path(
-        r"^press/cover/$", press_views.serve_press_cover, name="press_cover_download"
-    ),
-    re_path(
-        r"^press/file/(?P<file_id>\d+)/$",
+    path("press/cover/", press_views.serve_press_cover, name="press_cover_download"),
+    path(
+        "press/file/<int:file_id>/",
         press_views.serve_press_file,
         name="serve_press_file",
     ),
-    re_path(
-        r"^press/user/all/$",
+    path(
+        "press/user/all/",
         press_views.AllUsers.as_view(),
         name="press_all_users",
     ),
-    re_path(r"^press/merge_users/$", press_views.merge_users, name="merge_users"),
-    re_path(
-        r"^doi_manager/$",
+    path("press/merge_users/", press_views.merge_users, name="merge_users"),
+    path(
+        "doi_manager/",
         press_views.IdentifierManager.as_view(),
         name="press_identifier_manager",
     ),
-    re_path(
-        r"^press/contact/$",
+    path(
+        "press/contact/",
         press_views.contact,
         name="press_contact",
     ),
@@ -131,24 +127,22 @@ urlpatterns = [
         name="press_contact_with_recipient",
     ),
     # Notes
-    re_path(
-        r"^article/(?P<article_id>\d+)/note/(?P<note_id>\d+)/delete/$",
+    path(
+        "article/<int:article_id>/note/<int:note_id>/delete/",
         core_views.delete_note,
         name="kanban_delete_note",
     ),
     # Manager URLS
-    re_path(r"^manager/$", core_views.manager_index, name="core_manager_index"),
-    re_path(
-        r"^manager/whats_new/$",
+    path("manager/", core_views.manager_index, name="core_manager_index"),
+    path(
+        "manager/whats_new/",
         core_views.whats_new,
         name="core_manager_whats_new",
     ),
     # Settings Management
-    re_path(
-        r"^manager/settings/$", core_views.settings_index, name="core_settings_index"
-    ),
-    re_path(
-        r"^manager/default_settings/$",
+    path("manager/settings/", core_views.settings_index, name="core_settings_index"),
+    path(
+        "manager/default_settings/",
         core_views.default_settings_index,
         name="core_default_settings_index",
     ),
@@ -172,18 +166,18 @@ urlpatterns = [
         core_views.edit_plugin_settings_groups,
         name="core_edit_plugin_settings_groups",
     ),
-    re_path(
-        r"^manager/home/settings/$",
+    path(
+        "manager/home/settings/",
         core_views.settings_home,
         name="home_settings_index",
     ),
-    re_path(
-        r"^manager/home/settings/order/$",
+    path(
+        "manager/home/settings/order/",
         core_views.journal_home_order,
         name="journal_home_order",
     ),
     # Role Management
-    re_path(r"^manager/roles/$", core_views.roles, name="core_manager_roles"),
+    path("manager/roles/", core_views.roles, name="core_manager_roles"),
     re_path(
         r"^manager/roles/(?P<slug>[-\w.]+)/$", core_views.role, name="core_manager_role"
     ),
@@ -193,56 +187,56 @@ urlpatterns = [
         name="core_manager_role_action",
     ),
     # Users
-    re_path(r"^manager/user/$", core_views.users, name="core_manager_users"),
-    re_path(
-        r"^manager/user/enrol/$",
+    path("manager/user/", core_views.users, name="core_manager_users"),
+    path(
+        "manager/user/enrol/",
         core_views.enrol_users,
         name="core_manager_enrol_users",
     ),
-    re_path(
-        r"^manager/user/inactive/$",
+    path(
+        "manager/user/inactive/",
         core_views.inactive_users,
         name="core_manager_inactive_users",
     ),
-    re_path(
-        r"^manager/user/authenticated/$",
+    path(
+        "manager/user/authenticated/",
         core_views.logged_in_users,
         name="core_logged_in_users",
     ),
-    re_path(r"^manager/user/add/$", core_views.add_user, name="core_add_user"),
-    re_path(
-        r"^manager/user/(?P<user_id>\d+)/edit/$",
+    path("manager/user/add/", core_views.add_user, name="core_add_user"),
+    path(
+        "manager/user/<int:user_id>/edit/",
         core_views.user_edit,
         name="core_user_edit",
     ),
-    re_path(
-        r"^manager/user/(?P<user_id>\d+)/history/$",
+    path(
+        "manager/user/<int:user_id>/history/",
         core_views.user_history,
         name="core_user_history",
     ),
     # Affiliations
-    re_path(
-        r"^profile/organization/search/$",
+    path(
+        "profile/organization/search/",
         core_views.OrganizationListView.as_view(),
         name="core_organization_search",
     ),
-    re_path(
-        r"^profile/organization_name/create/$",
+    path(
+        "profile/organization_name/create/",
         core_views.organization_name_create,
         name="core_organization_name_create",
     ),
-    re_path(
-        r"^profile/organization_name/(?P<organization_name_id>\d+)/update/$",
+    path(
+        "profile/organization_name/<int:organization_name_id>/update/",
         core_views.organization_name_update,
         name="core_organization_name_update",
     ),
-    re_path(
-        r"^profile/organization/(?P<organization_id>\d+)/affiliation/create/$",
+    path(
+        "profile/organization/<int:organization_id>/affiliation/create/",
         core_views.affiliation_create,
         name="core_affiliation_create",
     ),
-    re_path(
-        r"^profile/affiliation/(?P<affiliation_id>\d+)/update/$",
+    path(
+        "profile/affiliation/<int:affiliation_id>/update/",
         core_views.affiliation_update,
         name="core_affiliation_update",
     ),
@@ -251,94 +245,90 @@ urlpatterns = [
         core_views.affiliation_update_from_orcid,
         name="core_affiliation_update_from_orcid",
     ),
-    re_path(
-        r"^profile/affiliation/(?P<affiliation_id>\d+)/delete/$",
+    path(
+        "profile/affiliation/<int:affiliation_id>/delete/",
         core_views.affiliation_delete,
         name="core_affiliation_delete",
     ),
     # Templates
-    re_path(
-        r"^manager/templates/$", core_views.email_templates, name="core_email_templates"
-    ),
+    path("manager/templates/", core_views.email_templates, name="core_email_templates"),
     # Articles Images
-    re_path(
-        r"^manager/article/images/$",
+    path(
+        "manager/article/images/",
         core_views.article_images,
         name="core_article_images",
     ),
-    re_path(
-        r"^manager/article/images/edit/(?P<article_pk>\d+)/$",
+    path(
+        "manager/article/images/edit/<int:article_pk>/",
         core_views.article_image_edit,
         name="core_article_image_edit",
     ),
     # Contact People
-    re_path(
-        r"^manager/contacts/$",
+    path(
+        "manager/contacts/",
         core_views.contact_people,
         name="core_contact_people",
     ),
-    re_path(
-        r"^manager/contacts/order/$",
+    path(
+        "manager/contacts/order/",
         core_views.contact_people_reorder,
         name="core_contact_people_reorder",
     ),
-    re_path(
-        r"^manager/contacts/search/$",
+    path(
+        "manager/contacts/search/",
         core_views.PotentialContactListView.as_view(),
         name="core_contact_person_search",
     ),
-    re_path(
-        r"^manager/contacts/add/(?P<account_id>\d+)/$",
+    path(
+        "manager/contacts/add/<int:account_id>/",
         core_views.contact_person_create,
         name="core_contact_person_create",
     ),
-    re_path(
-        r"^manager/contacts/(?P<contact_person_id>\d+)/$",
+    path(
+        "manager/contacts/<int:contact_person_id>/",
         core_views.contact_person_update,
         name="core_contact_person_update",
     ),
-    re_path(
-        r"^manager/contacts/(?P<contact_person_id>\d+)/delete/$",
+    path(
+        "manager/contacts/<int:contact_person_id>/delete/",
         core_views.contact_person_delete,
         name="core_contact_person_delete",
     ),
     # Contact messages
-    re_path(
-        r"^manager/contact-messages/$",
+    path(
+        "manager/contact-messages/",
         utils_views.ContactMessageListView.as_view(),
         name="core_contact_messages",
     ),
-    re_path(
-        r"^manager/contact-messages/(?P<log_entry_id>\d+)/$",
+    path(
+        "manager/contact-messages/<int:log_entry_id>/",
         utils_views.contact_message,
         name="core_contact_message",
     ),
-    re_path(
-        r"^manager/contact-messages/(?P<log_entry_id>\d+)/delete/$",
+    path(
+        "manager/contact-messages/<int:log_entry_id>/delete/",
         utils_views.contact_message_delete,
         name="core_contact_message_delete",
     ),
     # Editorial Team
-    re_path(
-        r"^manager/editorial/$", core_views.editorial_team, name="core_editorial_team"
-    ),
-    re_path(
-        r"^manager/editorial/(?P<group_id>\d+)/$",
+    path("manager/editorial/", core_views.editorial_team, name="core_editorial_team"),
+    path(
+        "manager/editorial/<int:group_id>/",
         core_views.edit_editorial_group,
         name="core_edit_editorial_team",
     ),
-    re_path(
-        r"^manager/editorial/new/$",
+    path(
+        "manager/editorial/new/",
         core_views.edit_editorial_group,
         name="core_add_editorial_team",
     ),
-    re_path(
-        r"^manager/editorial/(?P<group_id>\d+)/add/$",
+    path(
+        "manager/editorial/<int:group_id>/add/",
         core_views.add_member_to_group,
         name="core_editorial_member_to_group",
     ),
-    re_path(
-        r"^manager/editorial/(?P<group_id>\d+)/add/(?P<user_id>\d+)/$",
+    path(
+        "manager/editorial/<int:group_id>/add/<int:user_id>/",
         core_views.add_member_to_group,
         name="core_editorial_member_to_group_user",
     ),
@@ -353,87 +343,85 @@ urlpatterns = [
         name="core_editorial_ordering_group",
     ),
     # Notifications
-    re_path(
-        r"^manager/notifications/$",
+    path(
+        "manager/notifications/",
         core_views.manage_notifications,
         name="core_manager_notifications",
     ),
-    re_path(
-        r"^manager/notifications/(?P<notification_id>\d+)/$",
+    path(
+        "manager/notifications/<int:notification_id>/",
         core_views.manage_notifications,
         name="core_manager_edit_notifications",
     ),
     # Plugin home
-    re_path(r"^manager/plugins/$", core_views.plugin_list, name="core_plugin_list"),
-    re_path(r"^plugins/$", core_views.plugin_list, name="core_plugin_list"),
+    path("manager/plugins/", core_views.plugin_list, name="core_plugin_list"),
+    path("plugins/", core_views.plugin_list, name="core_plugin_list"),
     # Journal Sections
-    re_path(
-        r"^manager/sections/$", core_views.section_list, name="core_manager_sections"
-    ),
-    re_path(
-        r"^manager/sections/add/$",
+    path("manager/sections/", core_views.section_list, name="core_manager_sections"),
+    path(
+        "manager/sections/add/",
         core_views.manage_section,
         name="core_manager_section_add",
     ),
-    re_path(
-        r"^manager/sections/(?P<section_id>\d+)/$",
+    path(
+        "manager/sections/<int:section_id>/",
         core_views.manage_section,
         name="core_manager_section",
     ),
-    re_path(
-        r"^manager/sections/(?P<section_id>\d+)/articles/$",
+    path(
+        "manager/sections/<int:section_id>/articles/",
         core_views.section_articles,
         name="core_manager_section_articles",
     ),
     # Pinned Articles
-    re_path(
-        r"^manager/articles/pinned/$",
+    path(
+        "manager/articles/pinned/",
         core_views.pinned_articles,
         name="core_pinned_articles",
     ),
     # Press manager
-    re_path(r"^manager/press/$", press_views.edit_press, name="press_edit_press"),
-    re_path(
-        r"^manager/press/journal_order/$",
+    path("manager/press/", press_views.edit_press, name="press_edit_press"),
+    path(
+        "manager/press/journal_order/",
         press_views.journal_order,
         name="press_journal_order",
     ),
-    re_path(
-        r"^manager/press/journal/(?P<journal_id>\d+)/domain/$",
+    path(
+        "manager/press/journal/<int:journal_id>/domain/",
         press_views.journal_domain,
         name="press_journal_domain",
     ),
-    re_path(
-        r"^manager/press/journal/(?P<journal_id>\d+)/description/$",
+    path(
+        "manager/press/journal/<int:journal_id>/description/",
         press_views.edit_press_journal_description,
         name="edit_press_journal_description",
     ),
     # Workflow
-    re_path(r"^workflow/$", core_views.journal_workflow, name="core_journal_workflow"),
-    re_path(
-        r"^workflow/order/$",
+    path("workflow/", core_views.journal_workflow, name="core_journal_workflow"),
+    path(
+        "workflow/order/",
         core_views.order_workflow_elements,
         name="core_order_workflow_elements",
     ),
     # Cache
-    re_path(r"^manager/cache/flush/$", core_views.flush_cache, name="core_flush_cache"),
-    re_path(
-        r"^edit/article/(?P<article_id>\d+)/metadata/$",
+    path("manager/cache/flush/", core_views.flush_cache, name="core_flush_cache"),
+    path(
+        "edit/article/<int:article_id>/metadata/",
         submission_views.edit_metadata,
         name="edit_metadata",
     ),
-    re_path(
-        r"^edit/article/(?P<article_id>\d+)/author-metadata/$",
+    path(
+        "edit/article/<int:article_id>/author-metadata/",
         submission_views.edit_author_metadata,
         name="submission_edit_author_metadata",
     ),
-    re_path(
-        r"^edit/article/(?P<article_id>\d+)/current-authors/$",
+    path(
+        "edit/article/<int:article_id>/current-authors/",
         submission_views.edit_current_authors,
         name="submission_edit_current_authors",
     ),
-    re_path(
-        r"^edit/article/(?P<article_id>\d+)/authors/order/$",
+    path(
+        "edit/article/<int:article_id>/authors/order/",
         submission_views.order_authors,
         name="order_authors",
     ),
@@ -480,34 +468,34 @@ urlpatterns = [
         {"subject_id": "none"},
         name="repository_no_subject_sitemap",
     ),
-    re_path(
-        r"^download/file/(?P<file_id>\d+)/$",
+    path(
+        "download/file/<int:file_id>/",
         journal_views.download_journal_file,
         name="journal_file",
     ),
-    re_path(r"^set-timezone/$", core_views.set_session_timezone, name="set_timezone"),
-    re_path(
-        r"^accessibility-mode/toggle/$",
+    path("set-timezone/", core_views.set_session_timezone, name="set_timezone"),
+    path(
+        "accessibility-mode/toggle/",
         core_views.toggle_accessibility_mode,
         name="toggle_accessibility_mode",
     ),
-    re_path(
-        r"^reading-options/preferences/$",
+    path(
+        "reading-options/preferences/",
         core_views.save_text_format_preferences,
         name="save_text_format_preferences",
     ),
-    re_path(
-        r"^jsi18n/$",
+    path(
+        "jsi18n/",
         cache_page(60 * 60, key_prefix="jsi18n_catalog")(JavaScriptCatalog.as_view()),
         name="javascript-catalog",
     ),
-    re_path(
-        r"permission/submit/$",
+    path(
+        "permission/submit/",
         core_views.request_submission_access,
         name="request_submission_access",
     ),
-    re_path(
-        r"permission/requests/$",
+    path(
+        "permission/requests/",
         core_views.manage_access_requests,
         name="manage_access_requests",
     ),

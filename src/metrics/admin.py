@@ -96,10 +96,9 @@ class ArticleLinkAdmin(admin_utils.ArticleFKModelAdmin):
 
     actions = ["export_as_csv"]
 
+    @admin.action(description="Export Selected")
     def export_as_csv(self, request, queryset):
         return _export_as_csv(self, request, queryset)
-
-    export_as_csv.short_description = "Export Selected"
 
 
 class BookLinkAdmin(admin_utils.ArticleFKModelAdmin):
@@ -121,10 +120,9 @@ class BookLinkAdmin(admin_utils.ArticleFKModelAdmin):
 
     actions = ["export_as_csv"]
 
+    @admin.action(description="Export Selected")
     def export_as_csv(self, request, queryset):
         return _export_as_csv(self, request, queryset)
-
-    export_as_csv.short_description = "Export Selected"
 
 
 admin_list = [

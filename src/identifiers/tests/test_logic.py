@@ -1,7 +1,7 @@
 import datetime
 from io import BytesIO, StringIO
 import json
-import mock
+from unittest import mock
 import pytz
 import os
 

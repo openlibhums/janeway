@@ -1,9 +1,7 @@
-from django.urls import re_path
+from django.urls import path
 from core.homepage_elements.issue import views
 
 urlpatterns = [
     # Featured Articles
-    re_path(
-        r"^manager/currentissue/$", views.current_issue, name="current_issue_setup"
-    ),
+    path("manager/currentissue/", views.current_issue, name="current_issue_setup"),
 ]

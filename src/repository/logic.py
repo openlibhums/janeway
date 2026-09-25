@@ -474,7 +474,7 @@ def raise_event(event_type, request, preprint):
 
 def store_preprint_access(request, preprint, file=None):
     try:
-        user_agent = parse_ua_string(request.META.get("HTTP_USER_AGENT", None))
+        user_agent = parse_ua_string(request.headers.get("user-agent", None))
     except TypeError:
         user_agent = None
 

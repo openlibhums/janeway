@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.engine import Engine
 from django.template.loader import render_to_string
 
-import mock
+from unittest import mock
 from utils import (
     merge_settings,
     models,
@@ -39,7 +39,9 @@ from utils.orcid import (
     build_redirect_uri,
     encode_state,
     decode_state,
+    retrieve_tokens,
 )
+from requests.exceptions import HTTPError
 
 from utils import install
 from utils.transactional_emails import *
@@ -1346,6 +1348,56 @@ class TestORCiDRecord(TestCase):
         self.assertEqual(
             build_redirect_uri(repo), "http://repo.domain.com/login/orcid/"
         )
+
+    @mock.patch(
+        "utils.orcid.build_redirect_uri",
+        return_value="http://testserver/login/orcid/",
+    )
+    @mock.patch("utils.orcid.requests.post")
+    def test_retrieve_tokens_parses_orcid_id_from_response(
+        self, mock_post, mock_redirect_uri
+    ):
+        # Realistic shape of a successful ORCID token-exchange response,
+        # per https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/
+        mock_response = mock.Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.text = json.dumps(
+            {
+                "access_token": "f5af9f51-07e6-4332-8f1a-c0c11c1e3728",
+                "token_type": "bearer",
+                "refresh_token": "f725f747-3a65-49f6-a231-3e8dc2c15aa1",
+                "expires_in": 631138518,
+                "scope": "/authenticate",
+                "name": "Sofia Garcia",
+                "orcid": "0000-0001-2345-6789",
+            }
+        )
+        mock_post.return_value = mock_response
+
+        orcid_id = retrieve_tokens("auth-code-123", site=mock.Mock())
+
+        self.assertEqual(orcid_id, "0000-0001-2345-6789")
+        mock_post.assert_called_once()
+        called_args, called_kwargs = mock_post.call_args
+        self.assertEqual(called_args[0], settings.ORCID_TOKEN_URL)
+        self.assertEqual(called_kwargs["data"]["code"], "auth-code-123")
+        self.assertEqual(called_kwargs["data"]["grant_type"], "authorization_code")
+
+    @mock.patch(
+        "utils.orcid.build_redirect_uri",
+        return_value="http://testserver/login/orcid/",
+    )
+    @mock.patch("utils.orcid.requests.post")
+    def test_retrieve_tokens_returns_none_on_http_error(
+        self, mock_post, mock_redirect_uri
+    ):
+        mock_response = mock.Mock()
+        mock_response.raise_for_status.side_effect = HTTPError("bad request")
+        mock_post.return_value = mock_response
+
+        orcid_id = retrieve_tokens("auth-code-123", site=mock.Mock())
+
+        self.assertIsNone(orcid_id)
 
 
 class URLLogicTests(TestCase):

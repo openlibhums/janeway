@@ -84,23 +84,23 @@ urlpatterns = [
         views.identifier_figure,
         name="article_figure",
     ),
-    re_path(
-        r"^articles/$",
+    path(
+        "articles/",
         views.PublishedArticlesListView.as_view(),
         name="journal_articles",
     ),
     # Issues/Collections
-    re_path(r"^issues/$", views.issues, name="journal_issues"),
-    re_path(r"^issue/current/$", views.current_issue, name="current_issue"),
-    re_path(r"^issue/(?P<issue_id>\d+)/info/$", views.issue, name="journal_issue"),
-    re_path(
-        r"^issue/(?P<issue_id>\d+)/download/(?P<galley_id>\d+)$",
+    path("issues/", views.issues, name="journal_issues"),
+    path("issue/current/", views.current_issue, name="current_issue"),
+    path("issue/<int:issue_id>/info/", views.issue, name="journal_issue"),
+    path(
+        "issue/<int:issue_id>/download/<int:galley_id>",
         views.download_issue_galley,
         name="journal_issue_download_galley",
     ),
-    re_path(r"^collections/$", views.collections, name="journal_collections_type"),
-    re_path(
-        r"^collections/(?P<collection_id>\d+)/$",
+    path("collections/", views.collections, name="journal_collections_type"),
+    path(
+        "collections/<int:collection_id>/",
         views.collection,
         name="journal_collection",
     ),
@@ -126,9 +126,9 @@ urlpatterns = [
         views.collection_by_code,
         name="journal_collection_by_code_with_digits",
     ),
-    re_path(r"^cover/$", views.serve_journal_cover, name="journal_cover_download"),
-    re_path(
-        r"^volume/(?P<volume_number>\d+)/issue/(?P<issue_number>\d+)/$",
+    path("cover/", views.serve_journal_cover, name="journal_cover_download"),
+    path(
+        "volume/<int:volume_number>/issue/<int:issue_number>/",
         views.volume,
         name="journal_volume",
     ),
@@ -157,86 +157,84 @@ urlpatterns = [
         name="article_view_custom_identifier",
     ),
     # File management
-    re_path(
-        r"^(?P<article_id>\d+)/files/management/$",
+    path(
+        "<int:article_id>/files/management/",
         views.document_management,
         name="document_management",
     ),
-    re_path(
-        r"^(?P<article_id>\d+)/files/(?P<file_id>\d+)/info/$",
+    path(
+        "<int:article_id>/files/<int:file_id>/info/",
         views.submit_files_info,
         name="submit_replacement_files_info",
     ),
-    re_path(
-        r"^(?P<article_id>\d+)/files/(?P<file_id>\d+)/history/$",
+    path(
+        "<int:article_id>/files/<int:file_id>/history/",
         views.file_history,
         name="file_history",
     ),
-    re_path(
-        r"^(?P<article_id>\d+)/files/(?P<file_id>\d+)/delete/$",
+    path(
+        "<int:article_id>/files/<int:file_id>/delete/",
         views.file_delete,
         name="file_delete",
     ),
-    re_path(
-        r"^(?P<article_id>\d+)/files/(?P<file_id>\d+)/old/(?P<file_history_id>\d+)/reinstate/$",
+    path(
+        "<int:article_id>/files/<int:file_id>/old/<int:file_history_id>/reinstate/",
         views.file_reinstate,
         name="file_reinstate",
     ),
-    re_path(
-        r"^(?P<article_id>\d+)/file/(?P<file_id>\d+)/makegalley/$",
+    path(
+        "<int:article_id>/file/<int:file_id>/makegalley/",
         views.article_file_make_galley,
         name="article_file_make_galley",
     ),
-    re_path(
-        r"^note/(?P<article_id>\d+)/new/$", views.new_note, name="article_new_note"
-    ),
+    path("note/<int:article_id>/new/", views.new_note, name="article_new_note"),
     # Publication
-    re_path(r"^publish/$", views.publish, name="publish"),
-    re_path(
-        r"^publish/article/(?P<article_id>\d+)/$",
+    path("publish/", views.publish, name="publish"),
+    path(
+        "publish/article/<int:article_id>/",
         views.publish_article,
         name="publish_article",
     ),
-    re_path(
-        r"^publish/article/(?P<article_id>\d+)/check/$",
+    path(
+        "publish/article/<int:article_id>/check/",
         views.publish_article_check,
         name="publish_article_check",
     ),
     # Issues
-    re_path(r"^manage/issues/$", views.manage_issues, name="manage_issues"),
-    re_path(
-        r"^manage/issues/display/$",
+    path("manage/issues/", views.manage_issues, name="manage_issues"),
+    path(
+        "manage/issues/display/",
         views.manage_issue_display,
         name="manage_issue_display",
     ),
-    re_path(r"^manage/issues/order/$", views.issue_order, name="issue_order"),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/$",
+    path("manage/issues/order/", views.issue_order, name="issue_order"),
+    path(
+        "manage/issues/<int:issue_id>/",
         views.manage_issues,
         name="manage_issues_id",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/add/article/$",
+    path(
+        "manage/issues/<int:issue_id>/add/article/",
         views.issue_add_article,
         name="issue_add_article",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/galley/$",
+    path(
+        "manage/issues/<int:issue_id>/galley/",
         views.issue_galley,
         name="issue_galley",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/order/$",
+    path(
+        "manage/issues/<int:issue_id>/order/",
         views.issue_article_order,
         name="issue_article_order",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/editors/$",
+    path(
+        "manage/issues/<int:issue_id>/editors/",
         views.add_guest_editor,
         name="manage_add_guest_editor",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/editors/remove/$",
+    path(
+        "manage/issues/<int:issue_id>/editors/remove/",
         views.remove_issue_editor,
         name="manage_remove_issue_editor",
     ),
@@ -245,71 +243,71 @@ urlpatterns = [
         views.manage_issues,
         name="manage_issues_event",
     ),
-    re_path(
-        r"^manage/issues/(?P<issue_id>\d+)/sort/sections/$",
+    path(
+        "manage/issues/<int:issue_id>/sort/sections/",
         views.sort_issue_sections,
         name="manage_sort_issue_sections",
     ),
     # Article Archive
-    re_path(
-        r"^manage/archive/$",
+    path(
+        "manage/archive/",
         views.published_article_archive,
         name="manage_archive",
     ),
-    re_path(
-        r"^manage/archive/rejected-archived/$",
+    path(
+        "manage/archive/rejected-archived/",
         views.rejected_archived_article_archive,
         name="manage_rejected_archived_archive",
     ),
-    re_path(
-        r"^manage/archive/article/(?P<article_id>\d+)/$",
+    path(
+        "manage/archive/article/<int:article_id>/",
         views.manage_archive_article,
         name="manage_archive_article",
     ),
-    re_path(
-        r"^manage/article/(?P<article_id>\d+)/log/$",
+    path(
+        "manage/article/<int:article_id>/log/",
         views.manage_article_log,
         name="manage_article_log",
     ),
-    re_path(
-        r"^manage/article/(?P<article_id>\d+)/log/(?P<log_id>\d+)/resend/$",
+    path(
+        "manage/article/<int:article_id>/log/<int:log_id>/resend/",
         views.resend_logged_email,
         name="manage_resend_logged_email",
     ),
-    re_path(
-        r"^manage/articles/schedule/$",
+    path(
+        "manage/articles/schedule/",
         views.publication_schedule,
         name="publication_schedule",
     ),
     # Languages
-    re_path(r"^manage/languages/$", views.manage_languages, name="manage_languages"),
+    path("manage/languages/", views.manage_languages, name="manage_languages"),
     # Reviewer
-    re_path(r"^reviewer/$", views.become_reviewer, name="become_reviewer"),
+    path("reviewer/", views.become_reviewer, name="become_reviewer"),
     # Contact
-    re_path(r"^contact/$", views.contact, name="contact"),
-    re_path(
-        "contact/recipient/(?P<contact_person_id>\d+)/$",
+    path("contact/", views.contact, name="contact"),
+    path(
+        "contact/recipient/<int:contact_person_id>/",
         views.contact,
         name="journal_contact_with_recipient",
     ),
     # Accessibility
-    re_path(r"^accessibility/$", views.accessibility, name="accessibility"),
+    path("accessibility/", views.accessibility, name="accessibility"),
     # Editorial team
-    re_path(r"^editorialteam/$", views.editorial_team, name="editorial_team"),
+    path("editorialteam/", views.editorial_team, name="editorial_team"),
     # Editorial team
-    re_path(
-        r"^editorialteam/(?P<group_id>\d+)/$",
+    path(
+        "editorialteam/<int:group_id>/",
         views.editorial_team,
         name="editorial_team_group",
     ),
     # Authors page
-    re_path(r"^authors/$", views.author_list, name="authors"),
+    path("authors/", views.author_list, name="authors"),
     # Search
-    re_path(r"^search/$", views.search, name="search"),
-    re_path(r"^keywords/$", views.keywords, name="keywords"),
-    re_path(r"^keywords/(?P<keyword_id>\d+)/$", views.keyword, name="keyword"),
+    path("search/", views.search, name="search"),
+    path("keywords/", views.keywords, name="keywords"),
+    path("keywords/<int:keyword_id>/", views.keyword, name="keyword"),
     # Submissions
-    re_path(r"^submissions/$", views.submissions, name="journal_submissions"),
+    path("submissions/", views.submissions, name="journal_submissions"),
     # Download supplementary file
     re_path(
         r"^download/article/(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/",
@@ -323,17 +321,15 @@ urlpatterns = [
         views.doi_redirect,
         name="print_doi_redirect",
     ),
-    re_path(
-        r"^email/user/(?P<user_id>\d+)/$", views.send_user_email, name="send_user_email"
-    ),
-    re_path(
-        r"^email/user/(?P<user_id>\d+)/article/(?P<article_id>\d+)/$",
+    path("email/user/<int:user_id>/", views.send_user_email, name="send_user_email"),
+    path(
+        "email/user/<int:user_id>/article/<int:article_id>/",
         views.send_user_email,
         name="send_user_email_article",
     ),
     # Manage users
-    re_path(
-        r"^user/all/$",
+    path(
+        "user/all/",
         views.JournalUsers.as_view(),
         name="journal_users",
     ),

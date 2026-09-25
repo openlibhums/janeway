@@ -36,7 +36,7 @@ class ArticleAccessTests(TestCase):
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
+            headers={"user-agent": "Chrome/39.0.2171.95 Safari/537.36"},
             follow=True,
         )
         self.assertTrue(
@@ -57,7 +57,7 @@ class ArticleAccessTests(TestCase):
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
+            headers={"user-agent": "Chrome/39.0.2171.95 Safari/537.36"},
             follow=True,
         )
         self.assertTrue(
@@ -77,7 +77,7 @@ class ArticleAccessTests(TestCase):
         self.client.get(
             self.article_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
+            headers={"user-agent": "Chrome/39.0.2171.95 Safari/537.36"},
             follow=True,
         )
         self.assertFalse(
@@ -105,7 +105,7 @@ class ArticleAccessTests(TestCase):
         self.client.get(
             galley_url,
             SERVER_NAME=self.journal_one.domain,
-            HTTP_USER_AGENT="Chrome/39.0.2171.95 Safari/537.36",
+            headers={"user-agent": "Chrome/39.0.2171.95 Safari/537.36"},
             follow=True,
         )
         self.assertTrue(

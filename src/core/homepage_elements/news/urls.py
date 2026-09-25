@@ -1,7 +1,7 @@
-from django.urls import re_path
+from django.urls import path
 from core.homepage_elements.news import views
 
 urlpatterns = [
     # Featured Articles
-    re_path(r"^$", views.news_config, name="news_config"),
+    path("", views.news_config, name="news_config"),
 ]

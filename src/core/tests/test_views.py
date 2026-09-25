@@ -3,8 +3,9 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+import datetime
 import json
-from mock import patch
+from unittest.mock import patch
 from types import SimpleNamespace
 from uuid import uuid4
 from django.core.cache import cache as django_cache
@@ -1039,7 +1040,7 @@ class AccessibilityModeToggleViewTests(TestCase):
         response = self.client.post(
             url,
             {"next": "https://evil.example.com/steal/"},
-            HTTP_REFERER="https://evil.example.com/steal/",
+            headers={"referer": "https://evil.example.com/steal/"},
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(response.status_code, 302)
@@ -1641,8 +1642,8 @@ class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
             organization=org,
             title="Reader",
             department="English",
-            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
-            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+            start=timezone.datetime(2010, 5, 5, tzinfo=datetime.timezone.utc),
+            end=timezone.datetime(2016, 10, 15, tzinfo=datetime.timezone.utc),
         )
         context = {
             "affiliation": affil,
@@ -1783,7 +1784,7 @@ class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
         affil = core_models.ControlledAffiliation.objects.create(
             account=self.user,
             title="Independent scholar",
-            start=timezone.datetime(2010, 5, 5, tzinfo=timezone.utc),
+            start=timezone.datetime(2010, 5, 5, tzinfo=datetime.timezone.utc),
         )
         context = {
             "affiliation": affil,
@@ -1800,7 +1801,7 @@ class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
         affil = core_models.ControlledAffiliation.objects.create(
             account=self.user,
             title="Independent scholar",
-            end=timezone.datetime(2016, 10, 15, tzinfo=timezone.utc),
+            end=timezone.datetime(2016, 10, 15, tzinfo=datetime.timezone.utc),
         )
         context = {
             "affiliation": affil,

@@ -50,6 +50,6 @@ class mutable_cached_property(cached_property):
         obj.__dict__[self.name] = self.real_func(obj)
 
     def setter(self, fsetter):
-        prop = type(self)(self.func, self.name)
+        prop = type(self)(self.func)
         prop.setter = self.fsetter = fsetter
         return prop

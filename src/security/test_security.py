@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.core.management import call_command
-from mock import Mock
+from unittest.mock import Mock
 
 from core import models as core_models, forms as core_forms, logic as core_logic
 from journal import models as journal_models

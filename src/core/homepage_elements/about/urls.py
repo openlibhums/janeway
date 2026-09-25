@@ -3,10 +3,10 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.urls import re_path
+from django.urls import path
 from core.homepage_elements.about import views
 
 urlpatterns = [
     # Featured Articles
-    re_path(r"^$", views.journal_description, name="journal_description"),
+    path("", views.journal_description, name="journal_description"),
 ]

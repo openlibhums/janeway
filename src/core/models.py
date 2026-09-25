@@ -1502,7 +1502,6 @@ class File(AbstractLastModifiedModel):
         else:
             file_text_obj = FileTextModel.objects.create(
                 contents=preprocessed_text,
-                file=self,
             )
             self.text = file_text_obj
             if save:

@@ -34,11 +34,11 @@ try:
             re_path(
                 r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}
             ),
-            re_path(r"^404/$", error_views.handler404),
-            re_path(r"^500/$", error_views.handler500),
+            path("404/", error_views.handler404),
+            path("500/", error_views.handler500),
             path("__debug__/", include("debug_toolbar.urls")),
-            re_path(
-                r"^preview/article/(?P<article_id>\d+)/jats/$",
+            path(
+                "preview/article/<int:article_id>/jats/",
                 view_jats_stub,
                 name="view_jats_stub",
             ),
@@ -58,7 +58,7 @@ except AttributeError:
 if settings.HIJACK_USERS_ENABLED:
     try:
         urlpatterns += [
-            re_path(r"^control_user/", include("hijack.urls", namespace="hijack")),
+            path("control_user/", include("hijack.urls", namespace="hijack")),
         ]
     except AttributeError:
         logger.warning("Could not import Hijack URLs.")

@@ -1,3 +1,4 @@
+import datetime as dt
 from urllib.parse import (
     quote,
     unquote,
@@ -9,7 +10,7 @@ from datetime import datetime
 from dateutil import parser as date_parser
 from django.views.generic.list import BaseListView
 from django.views.generic.base import View, TemplateResponseMixin
-from django.utils.timezone import make_aware, utc
+from django.utils.timezone import make_aware
 
 from api.oai import exceptions
 from utils.http import allow_mutating_GET
@@ -156,7 +157,7 @@ class OAIDateFilterMixin(OAIPaginationMixin):
                         hour=23,
                         minute=59,
                         second=59,
-                        tzinfo=utc,
+                        tzinfo=dt.timezone.utc,
                     )
 
                 qs = qs.filter(date_published__lte=until_date)

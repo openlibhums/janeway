@@ -126,7 +126,6 @@ class PreprintAdmin(admin.ModelAdmin):
         "article__pk",
         "article__title",
     )
-    filter_horizontal = ("keywords",)
     date_hierarchy = "date_submitted"
 
     inlines = [

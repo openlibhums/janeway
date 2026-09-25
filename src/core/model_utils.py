@@ -737,8 +737,7 @@ class DynamicChoiceField(models.CharField):
 
     def formfield(self, *args, **kwargs):
         form_element = super().formfield(**kwargs)
-        for choice in self.dynamic_choices:
-            form_element.choices.append(choice)
+        form_element.choices = list(form_element.choices) + list(self.dynamic_choices)
         return form_element
 
     def validate(self, value, model_instance):
@@ -825,7 +824,7 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
     # Our supported databases have a max length of 64 chars for constraints
     name = truncate_name(long_name, length=64)
     constraint = models.CheckConstraint(
-        check=main_query,
+        condition=main_query,
         name=name,
     )
     return constraint

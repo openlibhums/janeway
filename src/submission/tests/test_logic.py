@@ -6,7 +6,7 @@ __maintainer__ = "Open Library of Humanities"
 from django.contrib.messages import constants as message_constants
 from django.shortcuts import reverse
 from django.test import TestCase, client
-from mock import patch
+from unittest.mock import patch
 
 from utils.testing import helpers
 from submission import models as submission_models
