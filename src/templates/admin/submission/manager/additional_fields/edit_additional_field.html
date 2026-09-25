@@ -1,0 +1,73 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+{% load foundation %}
+
+{% block title %}Submission Field{% endblock %}
+{% block title-section %}Submission Field{% endblock %}
+{% block title-sub %}
+    {% if field %}
+        Edit a field for the submission platform
+    {% else %}
+        Add a field to the submission platform
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'submission_fields' %}">Submission Fields</a></li>
+    {% if field %}
+        <li>Edit {{ field.name }}</li>
+    {% else %}
+        <li>Add New Field</li>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="row expanded">
+            <div class="large-12 columns">
+                <div class="title-area">
+                    {% if field %}
+                        <h2>Edit {{ field.name }}</h2>
+                    {% else %}
+                        <h2>Add New Field</h2>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    {% include "elements/forms/errors.html" with form=form %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|foundation }}
+
+
+                        <div class="form-group">
+                            <label>Field Choices:</label>
+                            <p>Manage field choices with real and display values.</p>
+                            {% if field %}
+                                <p>Save before accessing this page, or you will lose your changes!</p>
+                            {% else %}
+                                <p>Must create this field before managing choice options.</p>
+                            {% endif %}
+                            <a
+                                    {% if field %}
+                                        href="{% url 'manage_field_choices' field.pk %}"
+                                    {% else %}
+                                        disabled aria-disabled="true"
+                                    {% endif %}
+                                        class="button secondary">
+                                <i class="fa fa-list"></i> Manage Field Choices
+                            </a>
+                        </div>
+
+                        <button class="success button" name="save">Save Field</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static "admin/js/csrf.js" %}"></script>
+{% endblock js %}

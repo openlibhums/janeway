@@ -6,46 +6,47 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import json
 import warnings
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 
-from core import files, models as core_models
-from core.logic import create_organization_name, reverse_with_next
-from core.views import GenericFacetedListView
+from core import files
+from core import models as core_models
 from core.forms import (
     AccountAffiliationForm,
     ConfirmDeleteForm,
     OrcidAffiliationForm,
     OrganizationNameForm,
 )
+from core.logic import create_organization_name, reverse_with_next
+from core.views import GenericFacetedListView
+from events import logic as event_logic
 from repository import models as preprint_models
 from security.decorators import (
-    production_user_or_editor_required,
+    article_is_not_submitted,
     editor_user_required,
     editor_user_required_and_can_see_pii,
-    submission_authorised,
-    article_is_not_submitted,
+    production_user_or_editor_required,
     role_can_access,
-    user_can_edit_author,
+    submission_authorised,
     user_can_edit_article,
+    user_can_edit_author,
 )
-from submission import forms, models, logic, decorators
-from events import logic as event_logic
-from utils import setting_handler
-from utils import shared as utils_shared, orcid
-from utils.forms import clean_orcid_id
+from submission import decorators, forms, logic, models
+from utils import orcid, setting_handler
+from utils import shared as utils_shared
 from utils.decorators import GET_language_override
+from utils.forms import clean_orcid_id
 from utils.shared import create_language_override_redirect
 
 
@@ -1061,45 +1062,6 @@ def link_author_to_account(request, article_id, author_id):
                 },
             )
         )
-
-
-@editor_user_required
-def fields(request, field_id=None):
-    """
-    Allows the editor to create, edit and delete new submission fields.
-    :param request: HttpRequest object
-    :param field_id: Field object PK, optional
-    :return: HttpResponse or HttpRedirect
-    """
-
-    field = logic.get_current_field(request, field_id)
-    fields = logic.get_submission_fields(request)
-    form = forms.FieldForm(instance=field)
-
-    if request.POST:
-        if "save" in request.POST:
-            form = forms.FieldForm(request.POST, instance=field)
-
-            if form.is_valid():
-                logic.save_field(request, form)
-                return redirect(reverse("submission_fields"))
-
-        elif "delete" in request.POST:
-            logic.delete_field(request)
-            return redirect(reverse("submission_fields"))
-
-        elif "order[]" in request.POST:
-            logic.order_fields(request, fields)
-            return HttpResponse("Thanks")
-
-    template = "admin/submission/manager/fields.html"
-    context = {
-        "field": field,
-        "fields": fields,
-        "form": form,
-    }
-
-    return render(request, template, context)
 
 
 @role_can_access("licenses")
