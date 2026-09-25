@@ -185,6 +185,52 @@ class RepositoryFixTests(SimpleTestCase):
         self.assertIn("  min-width: 24px;\n  margin-inline: 0;", clean)
 
 
+class FullSweepFixTests(SimpleTestCase):
+    def test_material_collection_titles_are_keyboard_scrollable(self):
+        template = helpers.read_theme_asset(
+            "material", "templates/journal/collections.html"
+        )
+        self.assertIn(
+            '<div class="material-banner-heading" tabindex="0" role="region"'
+            ' aria-labelledby="collection-{{ collection.id }}">',
+            template,
+        )
+
+    def test_contact_pages_skip_headings_for_nameless_contacts(self):
+        for theme, path in [
+            ("OLH", "templates/press/journal/contact.html"),
+            ("OLH", "templates/journal/contact.html"),
+            ("material", "templates/journal/contact.html"),
+            ("clean", "templates/press/journal/contact.html"),
+            ("clean", "templates/journal/contact.html"),
+        ]:
+            template = helpers.read_theme_asset(theme, path)
+            with self.subTest(theme=theme, path=path):
+                self.assertRegex(
+                    template,
+                    r"{% if contact.display_name %}\s*<h3[^>]*>{{ contact.display_name }}</h3>",
+                )
+
+    def test_olh_navigation_landmarks_have_distinct_labels(self):
+        for path in [
+            "templates/core/nav.html",
+            "templates/press/nav.html",
+            "templates/repository/nav.html",
+        ]:
+            with self.subTest(path=path):
+                self.assertIn(
+                    "<nav aria-label=\"{% trans 'Main' %}\">",
+                    helpers.read_theme_asset("OLH", path),
+                )
+        carousel = helpers.read_theme_asset(
+            "OLH", "templates/journal/homepage_elements/carousel.html"
+        )
+        self.assertIn(
+            '<nav class="orbit-bullets" aria-label="{% trans \'Carousel slides\' %}">',
+            carousel,
+        )
+
+
 class NonTextContrastCssTests(SimpleTestCase):
     def test_olh_form_controls_use_the_contrasting_border(self):
         variables = helpers.read_theme_asset("OLH", "assets/scss/_variables.scss")
