@@ -107,7 +107,7 @@ class ContrastCssTests(SimpleTestCase):
     def test_material_overrides_materialize_default_colours(self):
         css = helpers.read_theme_asset("material", "assets/mat.css")
         for rule in [
-            "a {\n  color: #0270a6;\n}",
+            "a {\n  color: #0272a9;\n}",
             ".btn, .btn-small, .btn-large {\n  background-color: #1d7e75;\n}",
             ".collection .collection-item.active {\n  background-color: #1d7e75;\n}",
             "label,\n.input-field > label {\n  color: #767676;\n}",
