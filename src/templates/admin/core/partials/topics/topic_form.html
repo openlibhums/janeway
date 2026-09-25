@@ -1,0 +1,44 @@
+{% load foundation %}
+{# Inputs are linked to the form in the last column via their form attribute #}
+<tr class="topic-row" id="{{ topic_form.html_form_id }}-row">
+    <td>{{ topic.pk|default:"" }}</td>
+    <td>{{ topic_form.title|foundation }}</td>
+    <td>{{ topic_form.public_submissions|foundation }}</td>
+    <td>{{ topic.article_count|default:0 }}</td>
+    <td>
+        <form
+            id="{{ topic_form.html_form_id }}"
+            {% if topic %}
+                hx-post="{% url 'core_manager_topic_edit' topic.pk %}"
+            {% else %}
+                hx-post="{% url 'core_manager_topic_add' %}"
+            {% endif %}
+            hx-target="#{{ topic_form.html_form_id }}-row"
+            hx-swap="outerHTML"
+        >
+            {% csrf_token %}
+            <button type="submit" class="success button">
+                <span class="fa fa-save"></span> {% trans "Save" %}
+            </button>
+            {% if topic %}
+                <button
+                    type="button"
+                    class="secondary button"
+                    hx-get="{% url 'core_manager_topic' topic.pk %}"
+                    hx-target="#{{ topic_form.html_form_id }}-row"
+                    hx-swap="outerHTML"
+                >
+                    {% trans "Cancel" %}
+                </button>
+            {% else %}
+                <button
+                    type="button"
+                    class="secondary button"
+                    onclick="this.closest('tr').remove()"
+                >
+                    {% trans "Cancel" %}
+                </button>
+            {% endif %}
+        </form>
+    </td>
+</tr>

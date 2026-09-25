@@ -1499,7 +1499,12 @@ def manage_issues(request, issue_id=None, event=None):
         "form": form,
         "modal": modal,
         "galley_form": galley_form,
-        "articles": issue.get_sorted_articles(published_only=False) if issue else None,
+        "article_groups": logic.group_issue_articles(
+            issue.get_sorted_articles(published_only=False),
+            request.journal.issue_article_grouping,
+        )
+        if issue
+        else None,
         "sort_form": sort_form,
     }
 
@@ -1570,90 +1575,6 @@ def issue_galley(request, issue_id, delete=False):
         elif form.errors:
             messages.error(request, "\n".join(field.errors.as_text() for field in form))
 
-    return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
-
-
-@editor_user_required
-def sort_issue_sections(request, issue_id):
-    issue = get_object_or_404(models.Issue, pk=issue_id, journal=request.journal)
-    sections = issue.all_sections
-
-    if request.POST:
-        if "up" in request.POST:
-            section_id = request.POST.get("up")
-            section_to_move_up = get_object_or_404(
-                submission_models.Section, pk=section_id, journal=request.journal
-            )
-
-            if section_to_move_up != issue.first_section:
-                section_to_move_up_index = sections.index(section_to_move_up)
-                section_to_move_down = sections[section_to_move_up_index - 1]
-
-                section_to_move_up_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_up
-                    )
-                )
-                section_to_move_down_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_down
-                    )
-                )
-
-                section_to_move_up_ordering.order = section_to_move_up_index - 1
-                section_to_move_down_ordering.order = section_to_move_up_index
-
-                section_to_move_up_ordering.save()
-                section_to_move_down_ordering.save()
-            else:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    _("You cannot move the first section up the order list"),
-                )
-
-        elif "down" in request.POST:
-            section_id = request.POST.get("down")
-            section_to_move_down = get_object_or_404(
-                submission_models.Section,
-                pk=section_id,
-                journal=request.journal,
-            )
-
-            if section_to_move_down != issue.last_section:
-                section_to_move_down_index = sections.index(section_to_move_down)
-                section_to_move_up = sections[section_to_move_down_index + 1]
-
-                section_to_move_up_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_up
-                    )
-                )
-                section_to_move_down_ordering, c = (
-                    models.SectionOrdering.objects.get_or_create(
-                        issue=issue, section=section_to_move_down
-                    )
-                )
-
-                section_to_move_up_ordering.order = section_to_move_down_index
-                section_to_move_down_ordering.order = section_to_move_down_index + 1
-
-                section_to_move_up_ordering.save()
-                section_to_move_down_ordering.save()
-
-            else:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    _("You cannot move the last section down the order list"),
-                )
-
-    else:
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _("This page accepts post requests only."),
-        )
     return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
 
 

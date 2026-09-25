@@ -1,0 +1,53 @@
+{% comment %}
+Requires group (a journal.logic.ArticleGroup), issue and heading_tag.
+{% endcomment %}
+{% if group.kind == "section" %}
+    {% url 'manage_sort_issue_sections' issue.pk as sort_url %}
+    {% trans "section" as kind_label %}
+{% else %}
+    {% url 'manage_sort_issue_topics' issue.pk as sort_url %}
+    {% trans "topic" as kind_label %}
+{% endif %}
+<div class="toc-heading toc-heading-{{ heading_tag }}">
+    <{{ heading_tag }}>
+        <span class="label {% if group.kind == 'section' %}primary{% else %}success{% endif %}">
+            {% if group.kind == "section" %}{% trans "Section" %}{% else %}{% trans "Topic" %}{% endif %}
+        </span>
+        {% if group.obj %}
+            {{ group.label }}
+        {% else %}
+            <em>{% trans "No topic" %}</em>
+        {% endif %}
+        {% if group.obj %}<small>(ID: {{ group.obj.pk }})</small>{% endif %}
+    </{{ heading_tag }}>
+    {% if group.obj %}
+        {% with name=group.label %}
+        <div class="button-group tiny toc-heading-controls">
+            <button
+                type="button"
+                class="button hollow"
+                {% if group.previous %}
+                    hx-post="{{ sort_url }}"
+                    hx-vals='{"move": "{{ group.obj.pk }}", "before": "{{ group.previous.pk }}"}'
+                    title="{% blocktrans %}Move the {{ kind_label }} {{ name }} up{% endblocktrans %}"
+                {% else %}
+                    disabled
+                    title="{% blocktrans %}The {{ kind_label }} {{ name }} is already first{% endblocktrans %}"
+                {% endif %}
+            ><i class="fa fa-arrow-up" aria-hidden="true"></i> {% blocktrans %}Move {{ kind_label }} up{% endblocktrans %}</button>
+            <button
+                type="button"
+                class="button hollow"
+                {% if group.next %}
+                    hx-post="{{ sort_url }}"
+                    hx-vals='{"move": "{{ group.obj.pk }}", "after": "{{ group.next.pk }}"}'
+                    title="{% blocktrans %}Move the {{ kind_label }} {{ name }} down{% endblocktrans %}"
+                {% else %}
+                    disabled
+                    title="{% blocktrans %}The {{ kind_label }} {{ name }} is already last{% endblocktrans %}"
+                {% endif %}
+            ><i class="fa fa-arrow-down" aria-hidden="true"></i> {% blocktrans %}Move {{ kind_label }} down{% endblocktrans %}</button>
+        </div>
+        {% endwith %}
+    {% endif %}
+</div>

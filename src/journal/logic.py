@@ -5,6 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from bs4 import BeautifulSoup
 import csv
+from dataclasses import dataclass, field
+import itertools
 import os
 from os import listdir, makedirs
 from os.path import isfile, join
@@ -16,7 +18,7 @@ import warnings
 
 from django.contrib import messages
 from django.conf import settings
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import get_template
@@ -782,3 +784,204 @@ def merge_sections(destination, to_merge):
             article.section = destination
             article.save()
         section.delete()
+
+
+GROUPING_LEVELS = {
+    journal_models.ARTICLE_GROUPING_SECTION: ("section",),
+    journal_models.ARTICLE_GROUPING_TOPIC: ("topic",),
+    journal_models.ARTICLE_GROUPING_SECTION_TOPIC: ("section", "topic"),
+    journal_models.ARTICLE_GROUPING_TOPIC_SECTION: ("topic", "section"),
+    journal_models.ARTICLE_GROUPING_UNGROUPED: (),
+}
+
+
+@dataclass
+class ArticleGroup:
+    """A group of articles in a table of contents, headed by a section/topic
+
+    Top level groups always contain subgroups and subgroups always contain
+    articles, so templates can always iterate over two levels. Groups without
+    an object (ungrouped articles or articles without a topic) have no heading.
+    """
+
+    kind: str = None  # "section", "topic" or None
+    obj: object = None  # Section or Topic
+    articles: list = field(default_factory=list)
+    subgroups: list = field(default_factory=list)
+    # Objects of the adjacent headed groups, for reordering
+    previous: object = None
+    next: object = None
+
+    @property
+    def article_count(self):
+        return len(self.articles) + sum(
+            subgroup.article_count for subgroup in self.subgroups
+        )
+
+    @property
+    def label(self):
+        """The name of the heading object, regardless of article count"""
+        if self.obj is None:
+            return ""
+        return self.obj.name if self.kind == "section" else self.obj.title
+
+    @property
+    def heading(self):
+        if self.obj is None:
+            return ""
+        if self.kind == "section":
+            if self.obj.plural and self.article_count >= 2:
+                return self.obj.plural
+            return self.obj.name
+        return self.obj.title
+
+
+def group_articles(articles, levels, top_level=True):
+    """Groups sorted articles by the given attributes, one level per attribute
+    :param articles: An iterable of articles sorted by the given attributes
+    :param levels: A sequence of attribute names, such as ("section", "topic")
+    :param top_level: Top level groups always contain subgroups
+    :return: A list of ArticleGroup
+    """
+    if not levels:
+        return [ArticleGroup(articles=list(articles))]
+
+    kind, sublevels = levels[0], levels[1:]
+    groups = []
+    for obj, items in itertools.groupby(articles, key=lambda a: getattr(a, kind)):
+        group = ArticleGroup(kind=kind, obj=obj)
+        if sublevels or top_level:
+            group.subgroups = group_articles(items, sublevels, top_level=False)
+        else:
+            group.articles = list(items)
+        groups.append(group)
+
+    headed_groups = [group for group in groups if group.obj is not None]
+    for previous, following in zip(headed_groups, headed_groups[1:]):
+        previous.next = following.obj
+        following.previous = previous.obj
+    return groups
+
+
+def group_issue_articles(articles, grouping):
+    """Groups articles already sorted with Issue.get_sorted_articles
+    :param articles: An iterable of articles sorted for the given grouping
+    :param grouping: One of journal.models.ARTICLE_GROUPING_CHOICES
+    :return: A list of ArticleGroup, each containing a list of ArticleGroup
+    """
+    levels = GROUPING_LEVELS.get(grouping, ("section",))
+    if not levels:
+        return [ArticleGroup(subgroups=group_articles(articles, levels))]
+    return group_articles(articles, levels)
+
+
+def issue_article_label(article, grouping):
+    """Returns the label displayed above an article title in an issue
+
+    The label names what the top level headings of the grouping do not: the
+    topic under section headings, the section under topic headings and both
+    when articles are not grouped.
+    :param article: an Article object
+    :param grouping: one of journal.models.ARTICLE_GROUPING_CHOICES
+    :return: a string, empty when there is nothing to display
+    """
+    section = article.section.name if article.section else ""
+    topic = article.topic.title if article.topic else ""
+    levels = GROUPING_LEVELS.get(grouping, ("section",))
+    if not levels:
+        parts = [section, topic]
+    elif levels[0] == "section":
+        parts = [topic]
+    else:
+        parts = [section]
+    return " \u2022 ".join(part for part in parts if part)
+
+
+def get_move_target(request, model, ordered):
+    """Returns the object to move and the neighbour to move it next to
+
+    Accepts either `move` and `before`/`after` PKs, or the legacy `up`/`down`
+    PKs, which move the object past the adjacent one in `ordered`.
+    :param request: HttpRequest object
+    :param model: the model of the objects being ordered, Section or Topic
+    :param ordered: a list of the objects in their current order
+    :return: A 3-tuple of (item, neighbour, after) or None if not valid
+    """
+    try:
+        if "up" in request.POST or "down" in request.POST:
+            after = "down" in request.POST
+            item_pk = int(request.POST.get("down" if after else "up"))
+            item = model.objects.get(pk=item_pk, journal=request.journal)
+            index = ordered.index(item) + (1 if after else -1)
+            if not 0 <= index < len(ordered):
+                return None
+            neighbour = ordered[index]
+        else:
+            after = "after" in request.POST
+            item = model.objects.get(
+                pk=int(request.POST.get("move")),
+                journal=request.journal,
+            )
+            neighbour = model.objects.get(
+                pk=int(request.POST.get("after" if after else "before")),
+                journal=request.journal,
+            )
+    except (TypeError, ValueError, model.DoesNotExist):
+        return None
+
+    if item == neighbour or item not in ordered or neighbour not in ordered:
+        return None
+    return item, neighbour, after
+
+
+def issue_toc_response(request, issue):
+    """Renders the issue table of contents for HTMX requests, else redirects
+    :param request: HttpRequest object
+    :param issue: Issue object
+    :return: HttpResponse or HttpResponseRedirect
+    """
+    if "HX-Request" not in request.headers:
+        return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
+
+    template = "admin/journal/partials/issue_toc/table_of_contents.html"
+    context = {
+        "issue": issue,
+        "article_groups": group_issue_articles(
+            issue.get_sorted_articles(published_only=False),
+            request.journal.issue_article_grouping,
+        ),
+    }
+    return render(request, template, context)
+
+
+def get_issue_article(request, issue_id, article_id):
+    """Returns an issue of the current journal and one of its articles
+    :param request: HttpRequest object
+    :param issue_id: Issue object PK
+    :param article_id: Article object PK
+    :return: A 2-tuple of (issue, article)
+    :raises Http404: when either does not exist or the article is not in it
+    """
+    issue = get_object_or_404(
+        journal_models.Issue,
+        pk=issue_id,
+        journal=request.journal,
+    )
+    article = get_object_or_404(
+        issue.articles.all(),
+        pk=article_id,
+        journal=request.journal,
+    )
+    return issue, article
+
+
+def move_in_order(ordered, item, neighbour, after=False):
+    """Returns a copy of ordered with item moved next to neighbour
+    :param ordered: A sequence of objects
+    :param item: The object to be moved
+    :param neighbour: The object item should be placed before or after
+    :param after: If True, item is placed after neighbour instead of before
+    """
+    items = [obj for obj in ordered if obj != item]
+    items.insert(items.index(neighbour) + (1 if after else 0), item)
+    return items

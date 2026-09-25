@@ -223,6 +223,13 @@ class SectionOrderingAdmin(admin.ModelAdmin):
         return truncatewords(obj.issue.__str__(), 10)
 
 
+class TopicAdmin(admin.ModelAdmin):
+    list_display = ("title", "journal", "public_submissions", "article_count")
+    list_filter = ("journal", "public_submissions")
+    search_fields = ("title",)
+    list_select_related = ("journal",)
+
+
 admin_list = [
     (models.Issue, IssueAdmin),
     (models.IssueType, IssueTypeAdmin),
@@ -237,6 +244,7 @@ admin_list = [
     (models.SectionOrdering, SectionOrderingAdmin),
     (models.BannedIPs, BannedIPAdmin),
     (models.Notifications, NotificationsAdmin),
+    (models.Topic, TopicAdmin),
 ]
 
 [admin.site.register(*t) for t in admin_list]

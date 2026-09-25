@@ -21,6 +21,7 @@
                 </div>
             {% endif %}
             <div class="col article-block">
+                    {% if article_group_label %}<h3 class="article-subgroup">{{ article_group_label }}</h3>{% endif %}
                     {% if article.is_remote %}
                         <a href="{{ article.remote_url }}" target="_blank">
                             {% if level == "deep" %}

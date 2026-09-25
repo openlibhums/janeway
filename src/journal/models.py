@@ -24,6 +24,9 @@ from django.db.models import (
     F,
     ExpressionWrapper,
     DateTimeField,
+    BooleanField,
+    Case,
+    When,
 )
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.signals import post_save, m2m_changed
@@ -73,6 +76,19 @@ logger = get_logger(__name__)
 ISSUE_TYPES = [
     ("Issue", "Issue"),
     ("Collection", "Collection"),
+]
+
+ARTICLE_GROUPING_SECTION = "section"
+ARTICLE_GROUPING_TOPIC = "topic"
+ARTICLE_GROUPING_SECTION_TOPIC = "section_topic"
+ARTICLE_GROUPING_TOPIC_SECTION = "topic_section"
+ARTICLE_GROUPING_UNGROUPED = "ungrouped"
+ARTICLE_GROUPING_CHOICES = [
+    (ARTICLE_GROUPING_SECTION, _("Section")),
+    (ARTICLE_GROUPING_TOPIC, _("Topic")),
+    (ARTICLE_GROUPING_SECTION_TOPIC, _("Section, then topic")),
+    (ARTICLE_GROUPING_TOPIC_SECTION, _("Topic, then section")),
+    (ARTICLE_GROUPING_UNGROUPED, _("Ungrouped")),
 ]
 
 fs = JanewayFileSystemStorage()
@@ -394,6 +410,16 @@ class Journal(AbstractSiteModel):
         default=False,
         help_text="When enabled the issue page will group and display issues "
         "by decade.",
+    )
+    issue_article_grouping = models.CharField(
+        max_length=20,
+        choices=ARTICLE_GROUPING_CHOICES,
+        default=ARTICLE_GROUPING_SECTION,
+        verbose_name=_("Group issue articles by"),
+        help_text=_(
+            "Controls the headings under which articles are listed on the "
+            "issue page. Topics can be managed from the Manager page."
+        ),
     )
 
     disable_front_end = models.BooleanField(default=False)
@@ -1348,17 +1374,92 @@ class Issue(AbstractLastModifiedModel):
 
         return structure
 
-    def get_sorted_articles(self, published_only=True):
-        """Returns issue articles sorted by section and article order
+    def get_sorted_sections(self):
+        """Returns the sections of the articles in this issue in display order
+
+        Unlike Issue.all_sections, the order matches get_sorted_articles:
+        sections that have not been explicitly ordered for this issue are
+        listed after those that have, sorted by their sequence.
+        """
+        section_order_subquery = SectionOrdering.objects.filter(
+            section=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        return (
+            submission_models.Section.objects.filter(article__issues=self)
+            .distinct()
+            .annotate(issue_order=Subquery(section_order_subquery))
+            .order_by(F("issue_order").asc(nulls_last=True), "sequence", "pk")
+        )
+
+    def set_section_order(self, sections):
+        """Stores the given sequence of sections as the order for this issue
+        :param sections: an ordered iterable of Section objects
+        """
+        for order, section in enumerate(sections):
+            SectionOrdering.objects.update_or_create(
+                issue=self,
+                section=section,
+                defaults={"order": order},
+            )
+
+    @property
+    def all_topics(self):
+        """Returns the topics of the articles in this issue in display order
+
+        Topics that have not been explicitly ordered for this issue are
+        listed after those that have, sorted by title.
+        """
+        topic_order_subquery = TopicOrdering.objects.filter(
+            topic=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        return (
+            Topic.objects.filter(article__issues=self)
+            .distinct()
+            .annotate(issue_order=Subquery(topic_order_subquery))
+            .order_by(F("issue_order").asc(nulls_last=True), "title", "pk")
+        )
+
+    def set_topic_order(self, topics):
+        """Stores the given sequence of topics as the order for this issue
+        :param topics: an ordered iterable of Topic objects
+        """
+        for order, topic in enumerate(topics):
+            TopicOrdering.objects.update_or_create(
+                issue=self,
+                topic=topic,
+                defaults={"order": order},
+            )
+
+    def get_sorted_articles(self, published_only=True, grouping=None):
+        """Returns issue articles sorted by section, topic and article order
 
         Many fields are prefetched and annotated to handle large issues more
-        eficiently. In particular, it annotates relevant SectionOrder and
-        ArticleOrdering rows as section_order and article_order respectively.
+        eficiently. In particular, it annotates relevant SectionOrder,
+        TopicOrdering and ArticleOrdering rows as section_order, topic_order
+        and article_order respectively.
         Returns a Queryset which should keep the memory footprint at a minimum
+        :param published_only: If True, only published articles are returned
+        :param grouping: One of ARTICLE_GROUPING_CHOICES, determines how
+            articles are grouped by section and/or topic before being sorted
+            by article order. Defaults to the journal's issue_article_grouping.
+            Articles without a topic are sorted last when grouping by topic
+            first, where they are displayed under their own heading, and
+            first within their section otherwise.
         """
+        if grouping is None:
+            grouping = self.journal.issue_article_grouping
 
         section_order_subquery = SectionOrdering.objects.filter(
             section=OuterRef("section__pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        topic_order_subquery = TopicOrdering.objects.filter(
+            topic=OuterRef("topic__pk"),
             issue=Value(self.pk),
         ).values_list("order")
 
@@ -1368,6 +1469,34 @@ class Issue(AbstractLastModifiedModel):
             issue=Value(self.pk),
         ).values_list("order")
 
+        section_ordering = [
+            F("section_order").asc(nulls_last=True),
+            "section__sequence",
+            "section__pk",
+        ]
+        topic_ordering = [
+            "has_topic",
+            F("topic_order").asc(nulls_last=True),
+            "topic__title",
+            "topic__pk",
+        ]
+        article_ordering = [F("article_order").asc(nulls_last=True)]
+        untopiced_last_ordering = ["-has_topic"] + topic_ordering[1:]
+        # Article order must directly follow the innermost group, which is
+        # the list of articles sorted by drag and drop in the issue manager
+        ordering = {
+            ARTICLE_GROUPING_TOPIC: untopiced_last_ordering + article_ordering,
+            ARTICLE_GROUPING_SECTION_TOPIC: (
+                section_ordering + topic_ordering + article_ordering
+            ),
+            ARTICLE_GROUPING_TOPIC_SECTION: (
+                untopiced_last_ordering + section_ordering + article_ordering
+            ),
+            ARTICLE_GROUPING_UNGROUPED: article_ordering,
+        }.get(grouping, section_ordering + article_ordering)
+        # Tie breakers for unsorted articles
+        ordering += section_ordering + ["pk"]
+
         issue_articles = (
             self.articles.prefetch_related(
                 "frozenauthor_set",
@@ -1375,17 +1504,19 @@ class Issue(AbstractLastModifiedModel):
             )
             .select_related(
                 "section",
+                "topic",
             )
             .annotate(
                 section_order=Subquery(section_order_subquery),
+                topic_order=Subquery(topic_order_subquery),
+                has_topic=Case(
+                    When(topic__isnull=True, then=Value(False)),
+                    default=Value(True),
+                    output_field=BooleanField(),
+                ),
                 article_order=Subquery(article_order_subquery),
             )
-            .order_by(
-                "section_order",
-                "section__sequence",
-                "section__pk",
-                "article_order",
-            )
+            .order_by(*ordering)
         )
 
         if published_only:
@@ -1465,19 +1596,15 @@ class Issue(AbstractLastModifiedModel):
             sort_field,
         )
 
-        for section in self.all_sections:
-            section_articles = self.articles.filter(section=section).order_by(
-                order_by_string,
+        # Numbered across the issue so the order holds in any grouping
+        articles = self.articles.order_by(order_by_string)
+        for order, article in enumerate(articles):
+            ArticleOrdering.objects.update_or_create(
+                issue=self,
+                section=article.section,
+                article=article,
+                defaults={"order": order},
             )
-            ids_in_order = [section_article.pk for section_article in section_articles]
-            for article in section_articles:
-                article_ordering, _ = ArticleOrdering.objects.get_or_create(
-                    issue=self,
-                    section=section,
-                    article=article,
-                )
-                article_ordering.order = ids_in_order.index(article_ordering.article.pk)
-                article_ordering.save()
 
     def save(self, *args, **kwargs):
         # get the currently enabled languages for this journal or the default
@@ -1592,6 +1719,37 @@ class IssueEditor(models.Model):
         )
 
 
+class Topic(models.Model):
+    """A thematic grouping of articles, independent from their section.
+
+    Topics are only used for display purposes: depending on
+    Journal.issue_article_grouping, the articles of an issue can be listed
+    under a heading for each topic.
+    """
+
+    journal = models.ForeignKey(
+        "journal.Journal",
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255, blank=True)
+
+    public_submissions = models.BooleanField(
+        default=True,
+        verbose_name=_("Open for submissions"),
+        help_text=_("When enabled, authors can select this topic during submission"),
+    )
+
+    class Meta:
+        ordering = ("title", "pk")
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def article_count(self):
+        return self.article_set.count()
+
+
 class SectionOrdering(models.Model):
     section = models.ForeignKey(
         "submission.Section",
@@ -1614,6 +1772,27 @@ class SectionOrdering(models.Model):
 
     class Meta:
         ordering = ("order", "section")
+
+
+class TopicOrdering(models.Model):
+    """The position of a topic within the table of contents of an issue"""
+
+    topic = models.ForeignKey(
+        "journal.Topic",
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        "journal.Issue",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ("order", "topic")
+        unique_together = ("topic", "issue")
+
+    def __str__(self):
+        return "{0}: {1} {2}".format(self.order, self.issue, self.topic)
 
 
 class ArticleOrdering(models.Model):

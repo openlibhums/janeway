@@ -14,6 +14,7 @@ from tinymce.widgets import TinyMCE
 from core import models as core_models
 from core.forms import FullSettingEmailForm, ContactMessageForm
 from journal import models as journal_models
+from submission import models as submission_models
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
@@ -135,7 +136,55 @@ class IssueDisplayForm(forms.ModelForm):
             "display_article_page_numbers",
             "display_issue_doi",
             "display_issues_grouped_by_decade",
+            "issue_article_grouping",
         )
+
+
+class IssueArticleGroupingForm(forms.ModelForm):
+    """Edits the section and topic of an article from an issue's contents"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        journal = self.instance.journal
+        self.fields["section"].queryset = submission_models.Section.objects.filter(
+            journal=journal,
+        )
+        self.fields["section"].required = True
+        self.fields["section"].empty_label = None
+        self.fields["topic"].queryset = journal_models.Topic.objects.filter(
+            journal=journal,
+        )
+        self.fields["topic"].empty_label = _("No topic")
+        self.auto_id = "id_toc_{}_%s".format(self.instance.pk)
+
+    class Meta:
+        model = submission_models.Article
+        fields = ("section", "topic")
+
+
+class TopicForm(forms.ModelForm):
+    """Form for editing a Topic inline, as a row of a table.
+
+    Since a <form> element can't wrap a table row, inputs are linked to the
+    form via their `form` attribute, using the id returned by html_form_id.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["title"].required = True
+        self.auto_id = "id_{}_%s".format(self.html_form_id)
+        for field in self.fields.values():
+            field.widget.attrs["form"] = self.html_form_id
+
+    @property
+    def html_form_id(self):
+        if self.instance.pk:
+            return "edit-topic-{}".format(self.instance.pk)
+        return "new-topic"
+
+    class Meta:
+        model = journal_models.Topic
+        fields = ("title", "public_submissions")
 
 
 class BasePrepubNotificationFormSet(forms.BaseFormSet):
