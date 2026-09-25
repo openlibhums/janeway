@@ -20,7 +20,7 @@
                         src="{{ collection.hero_image_url }}"
                         alt="{% get_alt_text obj=collection file_path=collection.hero_image_url default=collection.issue_title|striptags %}"
                     >
-                    <div class="material-banner-heading">
+                    <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="collection-{{ collection.id }}">
                       <h2 id="collection-{{ collection.id }}" class="carousel-text-wrapper">
                         {{ collection.issue_title }}
                       </h2>
