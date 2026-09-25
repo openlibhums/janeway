@@ -374,10 +374,6 @@ a:hover .article-title {
     padding-bottom: 8px;
 }
 
-.issue-link {
-    color: rgba(0,0,0,0.87);
-}
-
 .issue-link:hover {
     text-decoration: underline;
 }
@@ -1868,6 +1864,20 @@ abbr.req {
    the text and 4.54:1 or better on white and the grey backgrounds. */
 a {
   color: #0272a9;
+}
+
+/* In-text links are 3:1 against the text by colour alone; underline on hover
+   as the extra cue (WCAG 1.4.1, technique G183). Focus already has its own
+   styles. Navigation, buttons, cards and lists of links are left alone. */
+main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
+.article-body li a:hover {
+  text-decoration: underline;
+}
+
+/* Footer links aren't in running text, and the footer background (#eaeaea)
+   is too dark for the lighter link blue to reach 4.5:1. */
+.footer-copyright a {
+  color: #016d9f;
 }
 
 .btn, .btn-small, .btn-large {
