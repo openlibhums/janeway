@@ -101,7 +101,7 @@
     </div>
 
 {% if issue %}
-    {% include "admin/elements/issue/table_of_contents.html" with issue=issue %}
+    {% include "admin/journal/partials/issue_toc/table_of_contents.html" with issue=issue %}
     {% include "admin/elements/issue/guest_editors.html" with issue=issue %}
     {% include "admin/elements/issue/galleys.html" with issue=issue galleys=galleys %}
 {% endif %}

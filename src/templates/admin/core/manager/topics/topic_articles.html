@@ -37,7 +37,7 @@
                             <button
                                 type="button"
                                 class="success button expanded"
-                                hx-post="{% url 'core_manager_topic_articles' topic.pk %}"
+                                hx-post="{% url 'core_manager_topic_articles_update' topic.pk %}"
                                 hx-vals='{"action": "move"}'
                                 hx-target="#topic-articles-table"
                                 hx-swap="outerHTML"
@@ -49,7 +49,7 @@
                         <button
                             type="button"
                             class="alert button expanded"
-                            hx-post="{% url 'core_manager_topic_articles' topic.pk %}"
+                            hx-post="{% url 'core_manager_topic_articles_update' topic.pk %}"
                             hx-vals='{"action": "clear"}'
                             hx-target="#topic-articles-table"
                             hx-swap="outerHTML"
@@ -58,7 +58,7 @@
                             <i class="fa fa-times"></i> {% trans "Remove from any topic" %}
                         </button>
                     </div>
-                    {% include "admin/core/manager/topics/topic_articles_table.html" %}
+                    {% include "admin/core/partials/topics/topic_articles_table.html" %}
                 </form>
             </div>
         </div>

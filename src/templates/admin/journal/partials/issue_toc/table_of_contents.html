@@ -27,11 +27,11 @@
                 <hr class="toc-group-separator" aria-hidden="true">
             {% endif %}
             {% if group.kind %}
-                {% include "admin/elements/issue/toc_heading.html" with group=group heading_tag="h3" %}
+                {% include "admin/journal/partials/issue_toc/heading.html" with group=group heading_tag="h3" %}
             {% endif %}
             {% for subgroup in group.subgroups %}
                 {% if subgroup.kind %}
-                    {% include "admin/elements/issue/toc_heading.html" with group=subgroup heading_tag="h4" %}
+                    {% include "admin/journal/partials/issue_toc/heading.html" with group=subgroup heading_tag="h4" %}
                 {% endif %}
                 <div class="content">
                     <table class="small scroll">
@@ -51,7 +51,7 @@
                         </tr>
                         <tbody class="sortable">
                         {% for article in subgroup.articles %}
-                            {% include "admin/elements/issue/toc_article_row.html" %}
+                            {% include "admin/journal/partials/issue_toc/article_row.html" %}
                         {% endfor %}
                         </tbody>
                     </table>

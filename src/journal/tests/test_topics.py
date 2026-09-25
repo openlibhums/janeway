@@ -317,7 +317,7 @@ class TestTopicViews(TopicTestMixin, TestCase):
             SERVER_NAME=self.server_name,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "core/manager/topics/topic_form.html")
+        self.assertTemplateUsed(response, "admin/core/partials/topics/topic_form.html")
         self.assertEqual(models.Topic.objects.count(), 2)
 
     def test_edit_topic(self):
@@ -384,7 +384,9 @@ class TestTopicViews(TopicTestMixin, TestCase):
             HTTP_HX_REQUEST="true",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "admin/elements/issue/table_of_contents.html")
+        self.assertTemplateUsed(
+            response, "admin/journal/partials/issue_toc/table_of_contents.html"
+        )
         self.assertEqual(
             list(self.issue.all_topics),
             [self.topic_y, self.topic_x],
@@ -453,7 +455,9 @@ class TestTopicViews(TopicTestMixin, TestCase):
 
     def post_topic_articles(self, topic, data):
         return self.client.post(
-            reverse("core_manager_topic_articles", kwargs={"topic_id": topic.pk}),
+            reverse(
+                "core_manager_topic_articles_update", kwargs={"topic_id": topic.pk}
+            ),
             data,
             SERVER_NAME=self.server_name,
             HTTP_HX_REQUEST="true",
@@ -539,7 +543,7 @@ class TestIssueTocArticleEdit(TopicTestMixin, TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
-            response, "admin/elements/issue/toc_article_edit_row.html"
+            response, "admin/journal/partials/issue_toc/article_edit_row.html"
         )
         self.assertContains(response, 'class="filter-select"', count=2)
         self.assertContains(response, "Section B")
@@ -555,7 +559,9 @@ class TestIssueTocArticleEdit(TopicTestMixin, TestCase):
             HTTP_HX_REQUEST="true",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "admin/elements/issue/toc_article_row.html")
+        self.assertTemplateUsed(
+            response, "admin/journal/partials/issue_toc/article_row.html"
+        )
 
     def test_confirm_updates_article_and_refreshes_toc(self):
         response = self.client.post(
@@ -565,7 +571,9 @@ class TestIssueTocArticleEdit(TopicTestMixin, TestCase):
             HTTP_HX_REQUEST="true",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "admin/elements/issue/table_of_contents.html")
+        self.assertTemplateUsed(
+            response, "admin/journal/partials/issue_toc/table_of_contents.html"
+        )
         self.assertIn("showMessage", response["HX-Trigger"])
         self.a_x.refresh_from_db()
         self.assertEqual(self.a_x.section, self.section_b)

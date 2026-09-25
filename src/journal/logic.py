@@ -943,7 +943,7 @@ def issue_toc_response(request, issue):
     if "HX-Request" not in request.headers:
         return redirect(reverse("manage_issues_id", kwargs={"issue_id": issue.pk}))
 
-    template = "admin/elements/issue/table_of_contents.html"
+    template = "admin/journal/partials/issue_toc/table_of_contents.html"
     context = {
         "issue": issue,
         "article_groups": group_issue_articles(

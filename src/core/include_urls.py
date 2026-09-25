@@ -389,12 +389,12 @@ urlpatterns = [
     re_path(r"^manager/topics/$", core_views.topic_list, name="core_manager_topics"),
     re_path(
         r"^manager/topics/topic/(?P<topic_id>\d+)/$",
-        core_views.topic_item,
+        partial_views.topic_item,
         name="core_manager_topic",
     ),
     re_path(
         r"^manager/topics/topic/(?P<topic_id>\d+)/edit/$",
-        core_views.topic_form,
+        partial_views.topic_form,
         name="core_manager_topic_edit",
     ),
     re_path(
@@ -403,8 +403,13 @@ urlpatterns = [
         name="core_manager_topic_articles",
     ),
     re_path(
+        r"^manager/topics/topic/(?P<topic_id>\d+)/articles/update/$",
+        partial_views.topic_articles_update,
+        name="core_manager_topic_articles_update",
+    ),
+    re_path(
         r"^manager/topics/topic/new/$",
-        core_views.topic_form,
+        partial_views.topic_form,
         name="core_manager_topic_add",
     ),
     # Pinned Articles
