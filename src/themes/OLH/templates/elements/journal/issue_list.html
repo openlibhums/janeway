@@ -17,9 +17,15 @@
                 <img src="{% static 'common/img/sample/issue_cover.png' %}" alt="Default issue cover" />
             {% endif %}
             <div class="info-bar">
-                <h3 id="{{ issue.id }}-box-title">
-                    <span aria-hidden="true">{{ issue.display_title }}</span><span class="sr-only">{{ issue.display_title_a11y }}</span>
-                </h3>
+                {% if level == "deep" %}
+                    <h3 id="{{ issue.id }}-box-title">
+                        <span aria-hidden="true">{{ issue.display_title }}</span><span class="sr-only">{{ issue.display_title_a11y }}</span>
+                    </h3>
+                {% else %}
+                    <h2 id="{{ issue.id }}-box-title">
+                        <span aria-hidden="true">{{ issue.display_title }}</span><span class="sr-only">{{ issue.display_title_a11y }}</span>
+                    </h2>
+                {% endif %}
                 <p id="{{ issue.id }}-box-details">{{ issue.get_sorted_articles.count }} {% trans "items" %}
                 </p>
             </div>
@@ -28,6 +34,10 @@
     {% cycle '' '' '' '</div><div class="row">' %}
     {% empty %}
     <div class="large-12 columns">
-        <h3>{% trans "There are no issues published in this journal yet." %}</h3>
+        {% if level == "deep" %}
+            <h3>{% trans "There are no issues published in this journal yet." %}</h3>
+        {% else %}
+            <h2>{% trans "There are no issues published in this journal yet." %}</h2>
+        {% endif %}
     </div>
 {% endfor %}
