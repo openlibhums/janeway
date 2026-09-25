@@ -474,7 +474,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p, li {
+.footer-copyright p, .footer-copyright li {
     color: #616161;
 }
 
@@ -1862,9 +1862,12 @@ abbr.req {
 
 /* WCAG 1.4.3: Materialize's default link, button, label and card action
    colours fall below 4.5:1, so darken each within its own hue. Journal
-   override stylesheets load after this file and still take precedence. */
+   override stylesheets load after this file and still take precedence.
+   The link blue also has to be 3:1 against the #212121 body text, as links
+   in running text have no underline (WCAG 1.4.1): #0272a9 is 3.05:1 against
+   the text and 4.54:1 or better on white and the grey backgrounds. */
 a {
-  color: #0270a6;
+  color: #0272a9;
 }
 
 .btn, .btn-small, .btn-large {
