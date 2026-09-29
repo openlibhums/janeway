@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.html import escape
 
+from core.templatetags.alt_text import cover_alt
 from utils.shared import clear_cache
 from utils.testing import helpers
 
@@ -360,7 +361,7 @@ class IssueLinkLabelTests(TestCase):
         self.assertContains(
             response,
             'src="/media/cover_images/wcag-test-cover.png"\n'
-            f'                            alt="{escape(self.issue_one.display_title_a11y)}">',
+            f'                            alt="{escape(cover_alt(self.issue_one.display_title_a11y))}">',
         )
         self.assertNotContains(
             response, 'wcag-test-cover.png"\n                            alt="">'

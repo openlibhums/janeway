@@ -2602,7 +2602,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def best_large_image_alt_text(self):
-        default_text = alt_text.plain_text(self.title)
+        default_text = alt_text.banner_alt(self.title)
         if self.large_image_file:
             return alt_text.get_alt_text(
                 obj=self.large_image_file,

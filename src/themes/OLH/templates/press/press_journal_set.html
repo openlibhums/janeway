@@ -15,7 +15,7 @@
                             {% else %}
                             <a href="{{ journal.site_url }}">
                             {% endif %}
-                                {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=journal.default_cover_image default=journal.name.strip|default:unnamed_journal as cover_alt_text %}<img src="{% if journal.default_cover_image %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
+                                {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=journal.default_cover_image default=journal.name.strip|default:unnamed_journal|cover_alt as cover_alt_text %}<img src="{% if journal.default_cover_image %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
                             </a>
                         </div>
                         <div class="large-8 columns title-div" data-equalizer-watch>

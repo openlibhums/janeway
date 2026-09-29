@@ -24,10 +24,32 @@ def plain_text(value):
     return unescape(strip_tags(str(value or "")))
 
 
+# Default alt text says what kind of image it is, so it is not a bare
+# repeat of a nearby heading.
+
+
 @register.filter
 def logo_alt(name):
     """Default alt text for a logo: "{name} logo"."""
     return _("%(name)s logo") % {"name": plain_text(name)}
+
+
+@register.filter
+def cover_alt(name):
+    """Default alt text for a journal or issue cover: "{name} cover"."""
+    return _("%(name)s cover") % {"name": plain_text(name)}
+
+
+@register.filter
+def banner_alt(name):
+    """Default alt text for a banner (large) image: "{name} banner"."""
+    return _("%(name)s banner") % {"name": plain_text(name)}
+
+
+@register.filter
+def thumbnail_alt(name):
+    """Default alt text for a thumbnail: "{name} thumbnail"."""
+    return _("%(name)s thumbnail") % {"name": plain_text(name)}
 
 
 def _resolve_url(value):

@@ -1093,7 +1093,7 @@ class Issue(AbstractLastModifiedModel):
     def best_large_image_alt_text(self):
         return alt_text.get_alt_text(
             file_path=self.best_large_image_url,
-            default=alt_text.plain_text(self.display_title),
+            default=alt_text.banner_alt(self.display_title),
         )
 
     @property
