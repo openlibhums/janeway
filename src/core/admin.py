@@ -715,15 +715,12 @@ class ControlledAffiliationAdmin(admin.ModelAdmin):
         "frozen_author__first_name",
         "frozen_author__last_name",
         "frozen_author__frozen_email",
-        "preprint_author__account__first_name",
-        "preprint_author__account__last_name",
-        "preprint_author__account__email",
     )
-    raw_id_fields = ("account", "frozen_author", "preprint_author", "organization")
+    raw_id_fields = ("account", "frozen_author", "organization")
 
     def _person(self, obj):
         if obj:
-            return obj.account or obj.frozen_author or obj.preprint_author
+            return obj.account or obj.frozen_author
         else:
             return ""
 

@@ -1303,7 +1303,6 @@ class OrcidAffiliationForm(forms.ModelForm):
                 country=address.get("country", "") or "",
                 account=data.get("account"),
                 frozen_author=data.get("frozen_author"),
-                preprint_author=data.get("preprint_author"),
             )
         data["organization"] = org
 

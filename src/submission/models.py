@@ -57,7 +57,6 @@ from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
-from repository import models as repository_models
 from utils.function_cache import cache
 from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
@@ -2667,7 +2666,27 @@ class FrozenAuthor(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-
+    preprint = models.ForeignKey(
+        "repository.Preprint",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    preprint_version = models.ForeignKey(
+        "repository.PreprintVersion",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this record is part of the author list of a "
+        "superseded preprint version.",
+    )
+    version_queue = models.ForeignKey(
+        "repository.VersionQueue",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this record is on the author list of a preprint update.",
+    )
     name_prefix = models.CharField(
         max_length=300,
         blank=True,
@@ -2733,6 +2752,22 @@ class FrozenAuthor(AbstractLastModifiedModel):
         verbose_name = "Author"
         verbose_name_plural = "Authors"
         ordering = ("order", "pk")
+        constraints = [
+            model_utils.check_exclusive_fields_constraint(
+                "frozen_author",
+                ["article", "preprint", "preprint_version", "version_queue"],
+            ),
+            # NULLs are distinct, so this only constrains preprint authors
+            # with accounts, on every supported database.
+            models.UniqueConstraint(
+                fields=["preprint", "author"],
+                name="unique_account_per_preprint_author_list",
+            ),
+            models.UniqueConstraint(
+                fields=["version_queue", "author"],
+                name="unique_account_per_update_author_list",
+            ),
+        ]
 
     def __str__(self):
         return self.full_name()
@@ -2743,8 +2778,24 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.author
         elif self.article:
             return self.article.owner
+        elif self.related_preprint:
+            return self.related_preprint.owner
         else:
             return None
+
+    @property
+    def related_preprint(self):
+        """
+        The preprint this author belongs to, whether on its working author
+        list, a superseded version's snapshot, or an update's author list.
+        """
+        if self.preprint:
+            return self.preprint
+        elif self.preprint_version:
+            return self.preprint_version.preprint
+        elif self.version_queue:
+            return self.version_queue.preprint
+        return None
 
     def can_edit(self, user):
         """
@@ -2757,6 +2808,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
           - they are the owner of the article,
             the author record has no associated account,
             and the article is unsubmitted.
+        For preprint authors, the same rules apply with repository managers
+        and subject editors as the editors. The submitting author can edit
+        the preprint's authors while it is unsubmitted, and the proposed
+        authors of their own draft update. Snapshots of superseded versions
+        and the authors of submitted updates are historical records.
         """
 
         if user.is_staff:
@@ -2773,6 +2829,24 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 # FrozenAuthor.owner is a property that considers both
                 # FrozenAuthor.author and FrozenAuthor.article.owner.
                 return True
+        elif self.preprint_version:
+            return False
+        elif self.version_queue:
+            if not self.version_queue.is_draft or user.is_anonymous:
+                return False
+            preprint = self.version_queue.preprint
+            if user.is_repository_manager(preprint.repository):
+                return True
+            return self.owner == user or (preprint.owner == user and not self.author)
+        elif self.preprint:
+            if user.is_anonymous:
+                return False
+            if user.is_repository_manager(self.preprint.repository):
+                return True
+            elif self.preprint.date_submitted is None and (
+                self.owner == user or (self.preprint.owner == user and not self.author)
+            ):
+                return True
         return False
 
     def associate_with_account(self):
@@ -2782,10 +2856,64 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 account = core_models.Account.objects.get(
                     username=self.frozen_email.lower()
                 )
-                self.author = account
-                self.frozen_email = ""  # linked account, don't store this value
             except core_models.Account.DoesNotExist:
-                pass
+                return
+            if self.preprint_id or self.version_queue_id:
+                already_listed = (
+                    FrozenAuthor.objects.filter(
+                        author=account,
+                        preprint_id=self.preprint_id,
+                        version_queue_id=self.version_queue_id,
+                    )
+                    .exclude(pk=self.pk)
+                    .exists()
+                )
+                if already_listed:
+                    # The same person cannot be on a preprint author list
+                    # twice, so leave this record unlinked.
+                    return
+            self.author = account
+            self.frozen_email = ""  # linked account, don't store this value
+
+    def copy(self, **fields):
+        """
+        Saves and returns a copy of this author, with its affiliations and
+        CRediT records, e.g. to snapshot a preprint's authors onto a
+        superseded version, start an update or carry them over to a journal
+        article.
+        :param fields: field values to set on the copy, such as article,
+            preprint or preprint_version
+        """
+        affiliations = list(self.affiliations)
+        credits = list(self.credits)
+
+        copy = FrozenAuthor.objects.get(pk=self.pk)
+        copy.pk = None
+        for name, value in fields.items():
+            setattr(copy, name, value)
+        copy.save()
+
+        for affiliation in affiliations:
+            affiliation.pk = None
+            affiliation.frozen_author = copy
+        # bulk_create skips save(), which would make the first copy primary.
+        core_models.ControlledAffiliation.objects.bulk_create(affiliations)
+        for credit in credits:
+            credit.pk = None
+            credit.frozen_author = copy
+            credit.save()
+        return copy
+
+    @classmethod
+    def snapshot_account_for_preprint(cls, account, preprint):
+        """
+        Adds an account to a preprint's working author list, copying its
+        name and affiliations. The account itself is never changed.
+        :return: (FrozenAuthor, created)
+        """
+        from repository.logic import PreprintAuthorList
+
+        return PreprintAuthorList(preprint).add_account(account)
 
     @property
     def institution(self):
@@ -2921,6 +3049,14 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return ""
 
     @property
+    def orcid_id(self):
+        """
+        The bare ORCID iD, whether stored as an iD or a URL, or "".
+        """
+        result = COMPILED_ORCID_REGEX.search(self.orcid or "")
+        return result.group(0) if result else ""
+
+    @property
     def corporate_name(self):
         return self.primary_affiliation(as_object=False)
 
@@ -3050,23 +3186,11 @@ class CreditRecord(AbstractLastModifiedModel):
     class Meta:
         verbose_name = "CRediT record"
         verbose_name_plural = "CRediT records"
-        constraints = [
-            model_utils.check_exclusive_fields_constraint(
-                "credit_record",
-                ["frozen_author", "preprint_author"],
-            )
-        ]
         unique_together = [["frozen_author", "role"]]
         ordering = ["role"]
 
     frozen_author = models.ForeignKey(
         FrozenAuthor, blank=True, null=True, on_delete=models.CASCADE
-    )
-    preprint_author = models.ForeignKey(
-        repository_models.PreprintAuthor,
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
     )
     role = models.CharField(
         max_length=100,

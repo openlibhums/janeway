@@ -69,7 +69,7 @@ class RepositoryFieldAnswerAdmin(admin.ModelAdmin):
     list_display = ("_answer", "field", "preprint", "_repository")
     list_filter = ("field__repository__short_name", "field")
     search_fields = ("answer", "preprint__title", "preprint__pk")
-    raw_id_fields = ("field",)
+    raw_id_fields = ("field", "preprint", "preprint_version", "version_queue")
 
     def _answer(self, obj):
         return truncatewords_html(obj.answer, 10) if obj else ""
@@ -130,7 +130,7 @@ class PreprintAdmin(admin.ModelAdmin):
     date_hierarchy = "date_submitted"
 
     inlines = [
-        admin_utils.PreprintAuthorInline,
+        admin_utils.PreprintFrozenAuthorInline,
         admin_utils.RepositoryFieldAnswerInline,
         admin_utils.RepositoryReviewInline,
         admin_utils.PreprintVersionInline,
@@ -189,28 +189,11 @@ class PreprintAccessAdmin(admin_utils.PreprintFKModelAdmin):
     save_as = True
 
 
-class PreprintAuthorAdmin(admin_utils.PreprintFKModelAdmin):
-    list_display = ("pk", "_preprint", "account", "order", "_repository")
-    list_filter = ("preprint__repository__short_name", "account", "preprint")
-    raw_id_fields = ("preprint", "account")
-    search_fields = (
-        "preprint__pk",
-        "preprint__title",
-        "account__email",
-        "account__orcid",
-        "account__first_name",
-        "account__last_name",
-    )
-
-    inlines = [
-        admin_utils.ControlledAffiliationInline,
-    ]
-
-
 class PreprintVersionAdmin(admin_utils.PreprintFKModelAdmin):
     list_display = ("pk", "_preprint", "title", "version", "date_time", "_repository")
     list_filter = ("preprint__repository__short_name",)
-    raw_id_fields = ("preprint", "file")
+    raw_id_fields = ("preprint", "file", "moderated_version")
+    readonly_fields = ("metadata_frozen",)
     date_hierarchy = "date_time"
     search_fields = (
         "preprint__title",
@@ -286,6 +269,13 @@ class VersionQueueAdmin(admin.ModelAdmin):
     raw_id_fields = (
         "preprint",
         "file",
+    )
+    # Set when the update is submitted; editing them here would make
+    # approval disagree with what was submitted.
+    readonly_fields = (
+        "changed_sections",
+        "is_draft",
+        "started_from",
     )
     search_fields = (
         "preprint__title",
@@ -382,7 +372,6 @@ admin_list = [
     (models.PreprintFile, PreprintFileAdmin),
     (models.PreprintSupplementaryFile, PreprintSupplementaryFileAdmin),
     (models.PreprintAccess, PreprintAccessAdmin),
-    (models.PreprintAuthor, PreprintAuthorAdmin),
     (models.PreprintVersion, PreprintVersionAdmin),
     (models.Comment, CommentAdmin),
     (models.Subject, SubjectAdmin),

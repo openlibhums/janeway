@@ -252,7 +252,6 @@ def create_affiliation(
     department="",
     account=None,
     frozen_author=None,
-    preprint_author=None,
 ):
     organization = core_models.Organization.objects.create()
     core_models.OrganizationName.objects.create(
@@ -264,7 +263,6 @@ def create_affiliation(
         department=department,
         account=account,
         frozen_author=frozen_author,
-        preprint_author=preprint_author,
     )
     return affiliation
 
@@ -510,15 +508,17 @@ def create_preprint(
         size=100,
     )
     preprint.submission_file = file
-    preprint_author = repo_models.PreprintAuthor.objects.create(
+    frozen_author = sm_models.FrozenAuthor.objects.create(
         preprint=preprint,
-        account=author,
+        author=author,
+        first_name=author.first_name or "",
+        middle_name=author.middle_name or "",
+        last_name=author.last_name or "",
         order=1,
     )
-    preprint_author.save()
     create_affiliation(
         institution="Made Up University",
-        preprint_author=preprint_author,
+        frozen_author=frozen_author,
     )
     return preprint
 

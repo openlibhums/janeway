@@ -44,6 +44,9 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     raw_id_fields = (
         "article",
         "author",
+        "preprint",
+        "preprint_version",
+        "version_queue",
     )
 
     inlines = [
@@ -51,7 +54,11 @@ class FrozenAuthorAdmin(admin_utils.ArticleFKModelAdmin):
     ]
 
     def _article(self, obj):
-        return truncatewords_html(obj.article, 6) if obj.article else ""
+        if obj.article:
+            return truncatewords_html(obj.article, 6)
+        if obj.preprint:
+            return truncatewords_html(obj.preprint.title, 6)
+        return ""
 
 
 class ArticleAdmin(admin_utils.JanewayModelAdmin):
@@ -146,12 +153,9 @@ class CreditRecordAdmin(admin.ModelAdmin):
         "frozen_author__last_name",
         "frozen_author__frozen_email",
         "frozen_author__author__email",
-        "preprint_author__account__first_name",
-        "preprint_author__account__last_name",
-        "preprint_author__account__email",
     )
 
-    raw_id_fields = ("frozen_author", "preprint_author")
+    raw_id_fields = ("frozen_author",)
 
     def _article(self, obj):
         if obj.frozen_author and obj.frozen_author.article:
