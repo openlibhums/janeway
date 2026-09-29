@@ -1,3 +1,4 @@
+{% load alt_text %}
 {% load svg_or_image from press_url %}
 {% load static %}
 {% load i18n %}
@@ -8,7 +9,7 @@
             <div class="issue-card-inner">
                 {% if issue.cover_image %}
                     <div class="issue-cover">
-                        <img src="{{ issue.cover_image.url }}" alt="{{ issue.display_title }}">
+                        {% get_alt_text file_path=issue.cover_image as cover_alt_text %}<img src="{{ issue.cover_image.url }}" alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{{ issue.display_title }}{% endif %}">
                     </div>
                 {% endif %}
                 <div class="issue-content">

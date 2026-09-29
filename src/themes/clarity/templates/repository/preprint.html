@@ -100,9 +100,8 @@
                 <div class="row mt-3" id="comment-{{ comment.pk }}">
                   <div class="col-md-1">
                     {% if comment.author.profile_image and not comment.review.anonymous %}
-                      <img src="{{ comment.author.profile_image.url }}"
-                           alt="{% blocktrans with name=comment.author.full_name %}Profile image of {{ name }}{% endblocktrans %}"
-                           class="img-fluid rounded-circle">
+                      {% get_alt_text file_path=comment.author.profile_image as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}"
+                           class="img-fluid rounded-circle" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% blocktrans with name=comment.author.full_name %}Profile image of {{ name }}{% endblocktrans %}{% endif %}">
                     {% else %}
                       <img src="{% static 'common/img/icons/users.png' %}"
                            alt="{% trans 'Generic profile image' %}"

@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load alt_text %}
 {% load static %}
 {% load i18n %}
 {% load page_title %}
@@ -16,8 +17,7 @@
             <div class="col s12 m3">
                 <div class="card editorial-card">
                     <div class="card-image">
-                         <img src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                         alt="{% trans 'Author profile image.' %}">
+                         {% get_alt_text file_path=author.profile_image as profile_image_alt_text %}<img src="{% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% trans 'Author profile image.' %}{% endif %}">
                     </div>
                     <div class="card-content" style="min-height: 190px;">
                          <h2 id="author-{{ author.uuid }}" class="card-title small-card-title">{{ author.full_name }}</h2>
