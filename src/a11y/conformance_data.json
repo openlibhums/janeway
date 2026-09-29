@@ -229,7 +229,7 @@
     "olh": {
       "name": "Front of House - OLH Theme",
       "audit_results": {
-        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.1.1": { "commit": "e653aebfb",   "conformance": "Supports", "remarks": "Editors can set alt text for every uploaded image, and JATS alt-text is used for figures and graphics. Alt text inside user-supplied HTML galleys, and third-party CAPTCHA widgets, depend on the content provider or vendor.", "audit": "[5568, September 2026](https://github.com/openlibhums/janeway/issues/5568)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
@@ -289,7 +289,7 @@
     "material": {
       "name": "Front of House - Material Theme",
       "audit_results": {
-        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.1.1": { "commit": "e653aebfb",   "conformance": "Supports", "remarks": "Editors can set alt text for every uploaded image, and JATS alt-text is used for figures and graphics. Alt text inside user-supplied HTML galleys, and third-party CAPTCHA widgets, depend on the content provider or vendor.", "audit": "[5568, September 2026](https://github.com/openlibhums/janeway/issues/5568)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
@@ -349,7 +349,7 @@
     "clean": {
       "name": "Front of House - Clean Theme",
       "audit_results": {
-        "1.1.1": { "commit": "f23d166d8",   "conformance": "Partially supports", "remarks": null, "audit": "[5049, March 2026](https://github.com/openlibhums/janeway/issues/5049)" },
+        "1.1.1": { "commit": "e653aebfb",   "conformance": "Supports", "remarks": "Editors can set alt text for every uploaded image, and JATS alt-text is used for figures and graphics. Alt text inside user-supplied HTML galleys, and third-party CAPTCHA widgets, depend on the content provider or vendor.", "audit": "[5568, September 2026](https://github.com/openlibhums/janeway/issues/5568)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
@@ -410,6 +410,7 @@
       "name": "Front of House - Accessibility Mode",
       "notes": ["Accessibility Mode is provided as an user-selectable alternative from all three themes."],
       "audit_results": {
+        "1.1.1": { "commit": "e653aebfb",   "conformance": "Supports", "remarks": "Editors can set alt text for every uploaded image, and JATS alt-text is used for figures and graphics. Alt text inside user-supplied HTML galleys, and third-party CAPTCHA widgets, depend on the content provider or vendor.", "audit": "[5568, September 2026](https://github.com/openlibhums/janeway/issues/5568)" },
         "1.2.1": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5085, January 2026](https://github.com/openlibhums/janeway/issues/5085)" },
         "1.2.2": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5086, January 2026](https://github.com/openlibhums/janeway/issues/5086)" },
         "1.2.3": { "commit": "f23d166d8",   "conformance": "Not applicable", "remarks": null, "audit": "[5087, January 2026](https://github.com/openlibhums/janeway/issues/5087)" },
