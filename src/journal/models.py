@@ -34,7 +34,6 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.functional import cached_property
-from django.utils.html import strip_tags
 from django.utils.translation import gettext, gettext_lazy as _
 from modeltranslation.utils import build_localized_fieldname
 
@@ -1094,7 +1093,7 @@ class Issue(AbstractLastModifiedModel):
     def best_large_image_alt_text(self):
         return alt_text.get_alt_text(
             file_path=self.best_large_image_url,
-            default=strip_tags(self.display_title),
+            default=alt_text.plain_text(self.display_title),
         )
 
     @property

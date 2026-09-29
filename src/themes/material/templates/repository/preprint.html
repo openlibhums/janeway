@@ -26,7 +26,7 @@
         <div class="card">
           <div class="material-banner">
             <img class="material-banner-image"
-               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|plain_text %}"
                src="{{ request.repository.best_large_image_url }}">
             <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="preprint-banner-title">
               <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>

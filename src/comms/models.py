@@ -8,7 +8,6 @@ from django.http import Http404
 from django.utils.translation import gettext as _
 from django.templatetags.static import static
 from django.utils.html import mark_safe
-from django.utils.html import strip_tags
 
 from core import files
 from core.model_utils import JanewayBleachField, JanewayBleachCharField
@@ -184,7 +183,7 @@ class NewsItem(models.Model):
         return self.best_image_url
 
     def best_large_image_alt_text(self):
-        default_text = strip_tags(self.title)
+        default_text = alt_text.plain_text(self.title)
         if self.large_image_file:
             return alt_text.get_alt_text(
                 obj=self.large_image_file,

@@ -6,7 +6,7 @@
         <div class="clarity-banner">
           <img class="clarity-banner-image"
              src="{{ issue.hero_image_url }}"
-             alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y %}">
+             alt="{% get_alt_text obj=issue file_path=issue.hero_image_url default=issue.display_title_a11y|plain_text %}">
         </div>
         <div class="issue-header">
           {% if level == "deep" %}

@@ -1,12 +1,26 @@
 import hashlib
+import html
 
 from django import template
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from core import models
 
 register = template.Library()
+
+
+@register.filter
+def plain_text(value):
+    """Strips tags and unescapes entities, for use as alt text.
+
+    Titles are stored as sanitised HTML, so "Tom & Jerry" is stored as
+    "Tom &amp; Jerry". Stripping tags alone leaves the entity, which the
+    template then escapes again. The result is plain text, escaped once
+    when output.
+    """
+    return html.unescape(strip_tags(str(value or "")))
 
 
 def _resolve_url(value):
