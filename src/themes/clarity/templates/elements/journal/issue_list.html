@@ -9,7 +9,7 @@
             <div class="issue-card-inner">
                 {% if issue.cover_image %}
                     <div class="issue-cover">
-                        {% get_alt_text file_path=issue.cover_image default=issue.display_title as cover_alt_text %}<img src="{{ issue.cover_image.url }}" alt="{{ cover_alt_text }}">
+                        {% get_alt_text file_path=issue.cover_image default=issue.display_title|plain_text as cover_alt_text %}<img src="{{ issue.cover_image.url }}" alt="{{ cover_alt_text }}">
                     </div>
                 {% endif %}
                 <div class="issue-content">
