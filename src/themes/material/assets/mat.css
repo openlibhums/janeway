@@ -1630,6 +1630,13 @@ p + .btn-background {
       margin: calc(-1 * var(--focus-ring-size));
   }
 
+  /* Materialize sets a select dropdown's height to fit its options
+     exactly. With border-box sizing the padding above comes out of that
+     height and shows a scrollbar; content-box keeps it outside. */
+  .keyboard-focused .select-dropdown.dropdown-content {
+      box-sizing: content-box;
+  }
+
   .keyboard-focused .dropdown-content li {
       margin: 0;
       padding: 0;
@@ -1894,6 +1901,20 @@ main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
 
 .collection .collection-item.active {
   background-color: #1d7e75;
+}
+
+/* Materialize colours dropdown options #26a69a, only 3:1 on white. This
+   teal reaches 4.5:1 on white and on the #eee hover and active background,
+   for the contact form's selects and the navigation dropdowns. */
+.dropdown-content li > a,
+.dropdown-content li > span {
+  color: #186b63;
+}
+
+/* The focus ring rule gives links a negative margin, which pushes
+   dropdown links wider than their menu and shows a scrollbar. */
+.dropdown-content li > a {
+  margin: 0;
 }
 
 label,
