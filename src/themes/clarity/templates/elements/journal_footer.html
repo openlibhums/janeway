@@ -2,7 +2,7 @@
 {% load next_url %}
 {% load sitemap_tags %}
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-lg-6">
         <div class="text-left">
             <ul class="list-unstyled">
                 {% if request.journal.issn %}<li>ISSN: {{ request.journal.issn }}</li>{% endif %}
@@ -25,7 +25,7 @@
             </ul>
         </div>
     </div>
-    <div class="col-md-6 text-right">
+    <div class="col-lg-6 text-right">
         <ul class="list-unstyled">
             {% for item in journal.press.navigation_items %}
                 {% if item.for_footer and item.extend_to_journals %}

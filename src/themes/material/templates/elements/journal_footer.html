@@ -1,6 +1,6 @@
 {% load sitemap_tags %}
 <div class="row expanded">
-    <div class="col m10">
+    <div class="col s12 l8">
         <ul class="list-inline bar-sep">
             {% if request.journal.issn %}<li>ISSN: {{ request.journal.issn }}</li>{% endif %}
             {% if request.journal.print_issn %} <li>Print ISSN: {{ request.journal.print_issn }}</li>{% endif %}
@@ -43,13 +43,13 @@
             <li><a href="{% page_sitemap_url request.resolver_match.url_name article %}">{% trans "Sitemap" %}</a></li>
         </ul>
     </div>
-    <div class="col m2">
+    <div class="col s12 l4">
         {% get_current_language as LANGUAGE_CODE %}
         {% get_language_info for LANGUAGE_CODE as current_language %}
         {% get_available_languages as LANGUAGES %}
         {% get_language_info_list for LANGUAGES as languages %}
         <span class="grey-text text-darken-3">{% trans "Language" %}: {{ current_language.name_local }}</span>
-        <button type="button" data-target="language-modal" class="btn btn-small modal-trigger" aria-haspopup="dialog" aria-controls="language-modal">{% trans "Change" %}</button>
+        <button type="button" data-target="language-modal" class="btn btn-small modal-trigger" aria-haspopup="dialog" aria-controls="language-modal">{% trans "Change language" %}</button>
         <div id="language-modal" class="modal">
             <div class="modal-content">
                 <h2>{% trans "Switch language" %}</h2>
@@ -67,6 +67,9 @@
                     </select>
                     <button type="submit" class="btn">{% trans "Switch language" %}</button>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-close btn-flat">{% trans "Close" %}</button>
             </div>
         </div>
     </div>

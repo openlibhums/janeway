@@ -7,7 +7,7 @@
         {% get_available_languages as LANGUAGES %}
         {% get_language_info_list for LANGUAGES as languages %}
         <span>{% trans "Language" %}: {{ current_language.name_local }}</span>
-        <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#language-modal" aria-haspopup="dialog" aria-controls="language-modal">{% trans "Change" %}</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#language-modal" aria-haspopup="dialog" aria-controls="language-modal">{% trans "Change language" %}</button>
         <div class="modal fade" id="language-modal" tabindex="-1" role="dialog" aria-labelledby="language-modal-title" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
