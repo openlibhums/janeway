@@ -14,7 +14,7 @@
             {% elif request.journal.thumbnail_image %}
                 {% get_alt_text obj=request.journal.thumbnail_image as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}" class="responsive-img" alt="{% if thumbnail_alt_text %}{{ thumbnail_alt_text }}{% else %}{{ request.journal }} thumbnail icon{% endif %}">
             {% else %}
-                <img src="{% static 'common/img/icons/article.png' %}" alt="{{ article.title|striptags|escape }}"
+                <img src="{% static 'common/img/icons/article.png' %}" alt=""
                      class="responsive-img">
             {% endif %}
         </div>

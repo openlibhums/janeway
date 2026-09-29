@@ -54,7 +54,7 @@
             <div class="input-group">
                 <form method="GET" action="{% url 'repository_list' %}">
                     <div class="input-group">
-                        <span class="input-group-label"><i class="fa fa-search"></i></span>
+                        <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
                         <input class="input-group-field" type="search" name="search_term"
                                placeholder="Search {{ request.repository.object_name_plural }}...">
                     </div>
