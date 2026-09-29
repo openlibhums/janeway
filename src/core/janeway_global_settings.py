@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     # Install APP is loaded first to ensure all existing models and migrations
     # relying on installation procedures won't fail
     "install",
+    "a11y",
     "cms",
     "core",
     "copyediting",
