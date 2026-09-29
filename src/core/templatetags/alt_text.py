@@ -1,12 +1,13 @@
 import hashlib
-import html
 
 from django import template
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils.translation import gettext as _
 
 from core import models
+from core.templatetags.escaping import unescape
 
 register = template.Library()
 
@@ -20,7 +21,13 @@ def plain_text(value):
     template then escapes again. The result is plain text, escaped once
     when output.
     """
-    return html.unescape(strip_tags(str(value or "")))
+    return unescape(strip_tags(str(value or "")))
+
+
+@register.filter
+def logo_alt(name):
+    """Default alt text for a logo: "{name} logo"."""
+    return _("%(name)s logo") % {"name": plain_text(name)}
 
 
 def _resolve_url(value):
