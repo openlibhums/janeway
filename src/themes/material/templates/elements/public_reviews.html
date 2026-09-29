@@ -2,7 +2,7 @@
     {% for review in article.public_reviews %}
         <div class="modal" id="reviewmodal-{{ review.pk }}">
         <div class="modal-content">
-            <h4><i aria-hidden="true" class="fa fa-pencil">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}</h4>
+            <h4><i aria-hidden="true" class="fa fa-users">&nbsp;</i>Open peer review from {{ review.reviewer.full_name }}</h4>
             <p>
                 <strong>Reviewer: </strong> {{ review.reviewer.full_name }}<br/>
                 <strong>DOI:</strong> {{ review.get_doi }}
