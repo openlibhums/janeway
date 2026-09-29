@@ -11,9 +11,9 @@
                     <div class="col m4 row-eq-height">
                         <div class="card">
                             <div class="card-image">
-                                {% get_alt_text file_path=current_journal.default_cover_image as cover_alt_text %}<img class="" src="
+                                {% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name as cover_alt_text %}<img class="" src="
 
-                                    {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{{ current_journal.name }}{% endif %}">
+                                    {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
                             </div>
                             <div class="card-content">
                                 {% if current_journal.is_remote %}

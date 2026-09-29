@@ -127,10 +127,13 @@ class FollowupFixTests(SimpleTestCase):
             "material",
             "templates/journal/homepage_elements/journals.html",
         )
+        # No default, so the image is decorative until alt text is set.
         self.assertIn(
-            'alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{% endif %}"',
+            "{% get_alt_text file_path=current_journal.default_cover_image "
+            "as cover_alt_text %}",
             template,
         )
+        self.assertIn('alt="{{ cover_alt_text }}"', template)
 
     def test_outline_primary_buttons_use_the_theme_primary(self):
         clean = helpers.read_theme_asset("clean", "assets/css/clean.css")
@@ -158,10 +161,11 @@ class RepositoryFixTests(SimpleTestCase):
     def test_material_repository_logo_has_alt_text(self):
         template = helpers.read_theme_asset("material", "templates/repository/nav.html")
         self.assertIn(
-            'class="responsive-img" alt="{% if logo_alt_text %}{{ logo_alt_text }}'
-            '{% else %}{{ request.repository.name }}{% endif %}"',
+            "{% get_alt_text file_path=request.repository.logo "
+            "default=request.repository.name as logo_alt_text %}",
             template,
         )
+        self.assertIn('class="responsive-img" alt="{{ logo_alt_text }}"', template)
 
     def test_preprint_pdf_frames_have_titles(self):
         for theme, path, variable in [

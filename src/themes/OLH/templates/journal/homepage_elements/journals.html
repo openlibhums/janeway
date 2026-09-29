@@ -14,7 +14,7 @@
                         <a href="{{ current_journal.remote_view_url }}" class="box-link"
                             aria-labelledby="{{ current_journal.id }}-remote-title" target="_blank">
                         </a>
-                        {% get_alt_text file_path=current_journal.default_cover_image as cover_alt_text %}<img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" aria-hidden="true" alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{{ current_journal.name }}{% endif %}">
+                        {% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name as cover_alt_text %}<img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" aria-hidden="true" alt="{{ cover_alt_text }}">
                         <div class="content" aria-hidden="true">
                             <h3 id="{{ current_journal.id }}-remote-title">
                                 {{ current_journal.name }}
@@ -28,8 +28,8 @@
                            class="box-link"
                            aria-labelledby="{{ current_journal.id }}-journal-box-title">
                         </a>
-                        {% get_alt_text file_path=current_journal.default_cover_image as cover_alt_text %}<img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
-                            aria-hidden="true" alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{% if current_journal.name != " " and current_journal.name != "" %}{{ current_journal.name }}{% else %}{% trans 'Unnamed Journal' %}{% endif %}{% endif %}">
+                        {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name.strip|default:unnamed_journal as cover_alt_text %}<img src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
+                            aria-hidden="true" alt="{{ cover_alt_text }}">
                         <div class="content" aria-hidden="true">
                             <h3 id="{{ current_journal.id }}-journal-box-title" aria-hidden="true">
                                     {% if current_journal.name != " " and current_journal.name != "" %}
