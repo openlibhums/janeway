@@ -25,7 +25,7 @@
                 <div class="col s12 m4">
                     <div class="card">
                         <div class="card-image">
-                            {% if editor.profile_image %}{% blocktrans with name=editor.full_name asvar default_alt %}Profile picture for {{ name }}{% endblocktrans %}{% else %}{% trans 'A generic headshot photograph of a person' as default_alt %}{% endif %}{% get_alt_text file_path=editor.profile_image default=default_alt as profile_image_alt_text %}<img src="
+                            {% if editor.profile_image %}{% blocktrans with name=editor.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% else %}{% trans 'A generic headshot photograph of a person' as default_alt %}{% endif %}{% get_alt_text file_path=editor.profile_image default=default_alt as profile_image_alt_text %}<img src="
                                     {% if editor.profile_image %}{{ editor.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{{ profile_image_alt_text }}">
                             {% if user.enable_public_profile %}
                                 <a href="{% url 'core_public_profile' editor.uuid %}"

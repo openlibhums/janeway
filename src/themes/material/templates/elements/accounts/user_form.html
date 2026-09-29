@@ -79,7 +79,7 @@
 <div class="row">
     <div class="col m3">
         {% if user_to_edit.profile_image %}
-        {% blocktrans with name=user_to_edit.full_name asvar default_alt %}Profile picture for {{ name }}{% endblocktrans %}{% get_alt_text file_path=user_to_edit.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ user_to_edit.profile_image.url }}" style="max-width: 90%;" alt="{{ profile_image_alt_text }}">
+        {% blocktrans with name=user_to_edit.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=user_to_edit.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ user_to_edit.profile_image.url }}" style="max-width: 90%;" alt="{{ profile_image_alt_text }}">
         {% else %}
         <img src="{% static "common/img/icons/users.png" %}" class="responsive-image" alt="{% trans 'A generic headshot photograph of a person' %}">
         {% endif %}
