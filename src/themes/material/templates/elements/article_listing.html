@@ -12,7 +12,7 @@
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
                      alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}" class="responsive-img">
             {% elif request.journal.thumbnail_image %}
-                {% get_alt_text obj=request.journal.thumbnail_image as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}" class="responsive-img" alt="{% if thumbnail_alt_text %}{{ thumbnail_alt_text }}{% else %}{{ request.journal }} thumbnail icon{% endif %}">
+                {% blocktrans with name=request.journal asvar default_alt %}{{ name }} thumbnail icon{% endblocktrans %}{% get_alt_text obj=request.journal.thumbnail_image default=default_alt as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}" class="responsive-img" alt="{{ thumbnail_alt_text }}">
             {% else %}
                 <img src="{% static 'common/img/icons/article.png' %}" alt=""
                      class="responsive-img">

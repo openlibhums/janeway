@@ -92,7 +92,7 @@
                           <div class="row" id="comment-{{ comment.pk }}">
                               <div class="large-2 columns">
                                   {% if comment.author.profile_image and not comment.review.anonymous %}
-                                      {% get_alt_text file_path=comment.author.profile_image as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% blocktrans with name=comment.author.full_name %}Profile picture for {{ name }}{% endblocktrans %}{% endif %}">
+                                      {% blocktrans with name=comment.author.full_name asvar default_alt %}Profile picture for {{ name }}{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" alt="{{ profile_image_alt_text }}">
                                   {% else %}
                                       <img src="{% static "common/img/icons/users.png" %}" alt="{% trans 'A generic headshot photograph of a person' %}">
                                   {% endif %}

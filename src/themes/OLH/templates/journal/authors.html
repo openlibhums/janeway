@@ -24,8 +24,8 @@
 
                         {% if journal_settings.styling.enable_editorial_images %}
 
-                            {% get_alt_text file_path=author.profile_image as profile_image_alt_text %}<img class="thumbnail editorial-image" src="
-                                    {% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% if author.profile_image %}Headshot photograph of {{ author.full_name }}{% else %}A generic headshot photograph of a person {% endif %}{% endif %}">
+                            {% if author.profile_image %}{% blocktrans with name=author.full_name asvar default_alt %}Headshot photograph of {{ name }}{% endblocktrans %}{% else %}{% trans 'A generic headshot photograph of a person' as default_alt %}{% endif %}{% get_alt_text file_path=author.profile_image default=default_alt as profile_image_alt_text %}<img class="thumbnail editorial-image" src="
+                                    {% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{{ profile_image_alt_text }}">
 
                         {% endif %}
 
