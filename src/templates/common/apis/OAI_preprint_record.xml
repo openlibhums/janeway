@@ -8,8 +8,8 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
       <dc:title>{{ article.title }}</dc:title>
-      {% for author in article.preprintauthor_set.all %}
-      <dc:creator>{{ author.dc_name }}</dc:creator>
+      {% for author in article.frozen_authors %}
+      <dc:creator>{{ author.dc_name_string }}</dc:creator>
       {% endfor %}
       {% if article.abstract %}
       <dc:description>{{ article.abstract|striptags }}</dc:description>
