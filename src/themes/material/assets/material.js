@@ -88,7 +88,28 @@ function initSidenavAccessibility() {
         }
         
         var originalTrigger = null;
-        
+
+        // Keep aria-expanded on the trigger in step with the sidenav, however
+        // it is opened or closed (trigger, overlay, escape, focus leaving)
+        function setTriggerExpanded(expanded) {
+            document.querySelectorAll('.sidenav-trigger').forEach(function(trigger) {
+                trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            });
+        }
+        sidenavInstance.options.onOpenStart = function() {
+            setTriggerExpanded(true);
+            sidenavElement.inert = false;
+        };
+        sidenavInstance.options.onCloseStart = function() {
+            setTriggerExpanded(false);
+        };
+        // The closed sidenav is only moved off-screen, so its links would
+        // stay in the tab order; make it inert once it has finished closing
+        sidenavInstance.options.onCloseEnd = function() {
+            sidenavElement.inert = true;
+        };
+        sidenavElement.inert = !sidenavInstance.isOpen;
+
         // Handle escape key to close sidenav
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && sidenavInstance.isOpen) {
@@ -118,7 +139,10 @@ function initSidenavAccessibility() {
                 // If focus is not in sidenav and sidenav is open, close it
                 if (!isFocusInSidenav && sidenavInstance.isOpen) {
                     sidenavInstance.close();
-                    if (originalTrigger && originalTrigger.offsetParent !== null) {
+                    // Only restore focus if it was lost; if it moved on to
+                    // another element, let the user carry on from there
+                    var focusLost = !activeElement || activeElement === document.body;
+                    if (focusLost && originalTrigger && originalTrigger.offsetParent !== null) {
                         originalTrigger.focus();
                     }
                 }

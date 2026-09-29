@@ -16,15 +16,9 @@ $(function() {
   }
 });
 
-// Accessibility: Toggle aria-expanded for any button with data-toggle
-$(document).on('click', '[data-toggle]', function() {
-    var $button = $(this);
-    var currentExpanded = $button.attr('aria-expanded') === 'true';
-    $button.attr('aria-expanded', !currentExpanded);
-});
-
 // Accessibility: Handle Nav aria-expanded on keyboard navigation
-$(document).on('click', '[aria-expanded]', function() {
+// (responsive toggle buttons are synced from menu visibility, see below)
+$(document).on('click', '[aria-expanded]:not([data-toggle])', function() {
     var $button = $(this);
     var currentExpanded = $button.attr('aria-expanded') === 'true';
     $button.attr('aria-expanded', !currentExpanded);
@@ -57,10 +51,12 @@ $(document).ready(function() {
     });
 });
 
-$(document).on('toggled.zf.responsiveToggle', '[data-responsive-toggle="search-menu"]', function() {
-    var isOpen = $("#search-menu").is(':visible');
-    $(".search-toggle").attr('aria-expanded', isOpen ? 'true' : 'false');
-    if (isOpen) {
+// Accessibility: Sync aria-expanded on the mobile menu and search toggles
+$(document).on('toggled.zf.responsiveToggle', '[data-responsive-toggle]', function() {
+    var menuId = $(this).attr('data-responsive-toggle');
+    var isOpen = $('#' + menuId).is(':visible');
+    $('[aria-controls="' + menuId + '"]').attr('aria-expanded', isOpen ? 'true' : 'false');
+    if (menuId === 'search-menu' && isOpen) {
         $(".global-search input").focus();
     }
 });
