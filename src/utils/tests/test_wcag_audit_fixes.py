@@ -162,7 +162,7 @@ class RepositoryFixTests(SimpleTestCase):
         template = helpers.read_theme_asset("material", "templates/repository/nav.html")
         self.assertIn(
             "{% get_alt_text file_path=request.repository.logo "
-            "default=request.repository.name as logo_alt_text %}",
+            "default=request.repository.name|logo_alt as logo_alt_text %}",
             template,
         )
         self.assertIn('class="responsive-img" alt="{{ logo_alt_text }}"', template)
@@ -430,7 +430,7 @@ class FooterPressLogoAltTests(TestCase):
         clear_cache()
 
     def test_raster_press_logo_in_the_footer_has_alt_text(self):
-        logo = f'src="{reverse("press_cover_download")}" alt="{self.press.name}"'
+        logo = f'src="{reverse("press_cover_download")}" alt="{self.press.name} logo"'
         for theme, domain in [
             ("clean", self.press.domain),
             ("clarity", self.press.domain),
@@ -483,7 +483,7 @@ class MaterialPressLogoLinkNameTests(TestCase):
         # the uploaded file's own markup says.
         self.assertContains(
             response,
-            f'<span role="img" aria-label="{self.press.name}">'
+            f'<span role="img" aria-label="{self.press.name} logo">'
             '<svg xmlns="http://www.w3.org/2000/svg"></svg></span>',
             html=True,
         )

@@ -2,10 +2,10 @@
 <div class="row expanded">
     <div class="col m2">
         {% if 'svg' in request.press_cover %}
-            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
             {% svg request.press_cover alt_text=press_logo_alt %}
         {% elif request.press_cover %}
-            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
             <img class="img-fluid top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ press_logo_alt }}">
         {% endif %}
     </div>
