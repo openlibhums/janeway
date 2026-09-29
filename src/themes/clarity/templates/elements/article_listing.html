@@ -19,7 +19,7 @@
                              onerror="this.parentElement.classList.add('fallback-active');" alt="{% if thumbnail_alt_text %}{{ thumbnail_alt_text }}{% else %}{{ request.journal }} thumbnail icon{% endif %}">
                     {% else %}
                         <img src="{% static 'common/img/icons/article.png' %}"
-                             alt="{{ article.title|striptags|escape }}"
+                             alt=""
                              class="article-thumbnail"
                              onerror="this.parentElement.classList.add('fallback-active');">
                     {% endif %}

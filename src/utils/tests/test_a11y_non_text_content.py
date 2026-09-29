@@ -48,6 +48,12 @@ STATIC_OR_CONTROL_TAG = re.compile(
 )
 ALT_TEXT_ASSIGNMENT = re.compile(r"\{%\s*get_alt_text\b[^%]*?\bas\s+(\w+)\s*%\}")
 VARIABLE = re.compile(r"\{\{\s*([\w.]+)")
+SVG_OR_IMAGE_TAG = re.compile(r"\{%\s*svg_or_image\b(.*?)%\}", re.S)
+ALT_TEXT_ARGUMENT = re.compile(r"\balt_text=(\S+)")
+INLINE_SVG_TAG = re.compile(r"\{%\s*svg\s+(\S+)(.*?)%\}", re.S)
+QUOTED = re.compile(r"""\A(["']).*\1\Z""")
+SVG_ELEMENT = re.compile(r"<svg\b[^>]*>", re.I)
+SVG_TITLE = re.compile(r"\s*<title\b", re.I)
 
 
 def theme_for_area(area_key):
@@ -105,8 +111,11 @@ def is_editable_alt(alt, alt_text_names):
     if "get_alt_text" in alt:
         return True
     for variable in VARIABLE.findall(alt):
-        name = variable.split(".")[-1]
-        if name.endswith("alt_text") or variable in alt_text_names:
+        # A bare name must be assigned by get_alt_text in the template;
+        # a property such as article.best_large_image_alt_text reads AltText.
+        if variable in alt_text_names:
+            return True
+        if "." in variable and variable.split(".")[-1].endswith("alt_text"):
             return True
     return False
 
@@ -130,6 +139,39 @@ def image_problems(source):
             attributes["alt"], alt_text_names
         ):
             yield line, "alt text on a data-driven image cannot be edited"
+
+    # svg_or_image renders an <img> from an uploaded file, and svg renders a
+    # file inline. Both take alt_text, used as the alt attribute or the SVG's
+    # aria-label. A quoted path to svg is a shipped asset, which may have
+    # fixed alt text.
+    tags = [(tag, tag.group(1), False) for tag in SVG_OR_IMAGE_TAG.finditer(source)] + [
+        (tag, tag.group(2), bool(QUOTED.match(tag.group(1))))
+        for tag in INLINE_SVG_TAG.finditer(source)
+    ]
+    for tag, arguments, is_static in tags:
+        line = source.count("\n", 0, tag.start()) + 1
+        alt_text = ALT_TEXT_ARGUMENT.search(arguments)
+        if not alt_text:
+            yield line, "image tag without alt_text"
+        elif not is_static and not is_editable_alt(
+            f"{{{{ {alt_text.group(1)} }}}}", alt_text_names
+        ):
+            yield line, "alt text on a data-driven image cannot be edited"
+
+    for tag in SVG_ELEMENT.finditer(masked):
+        attributes = {
+            name.lower(): value[1:-1] for name, value in ATTRIBUTE.findall(tag.group(0))
+        }
+        if attributes.get("aria-hidden") == "true":
+            continue
+        named = (
+            "aria-label" in attributes
+            or "aria-labelledby" in attributes
+            or SVG_TITLE.match(masked, tag.end())
+        )
+        if attributes.get("role") != "img" or not named:
+            line = masked.count("\n", 0, tag.start()) + 1
+            yield line, "svg is neither hidden nor a named image"
 
 
 def file_image_problems(path):
@@ -182,6 +224,12 @@ class ImageClassificationTests(SimpleTestCase):
             'alt="{{ article.best_large_image_alt_text }}">'
         )
 
+    def test_uploaded_image_with_unassigned_alt_text_variable_fails(self):
+        self.assertProblem(
+            '<img src="{{ article.thumbnail_url }}" alt="{{ thumbnail_alt_text }}">',
+            "alt text on a data-driven image cannot be edited",
+        )
+
     def test_uploaded_image_with_derived_alt_fails(self):
         self.assertProblem(
             '<img src="{{ issue.cover_image.url }}" alt="{{ issue.display_title }}">',
@@ -198,6 +246,62 @@ class ImageClassificationTests(SimpleTestCase):
     def test_commented_out_images_are_ignored(self):
         self.assertAllowsAltText(
             '<!-- <img src="{{ x.url }}"> -->{# <img src="{{ y.url }}"> #}'
+        )
+
+    def test_svg_or_image_with_assigned_alt_text_passes(self):
+        self.assertAllowsAltText(
+            "{% get_alt_text file_path=request.journal.header_image as header_alt %}"
+            "{% svg_or_image request.journal.header_image alt_text=header_alt %}"
+        )
+
+    def test_svg_or_image_without_alt_text_fails(self):
+        self.assertProblem(
+            "{% svg_or_image request.repository.logo %}",
+            "image tag without alt_text",
+        )
+
+    def test_svg_or_image_with_derived_alt_text_fails(self):
+        self.assertProblem(
+            "{% svg_or_image request.repository.logo alt_text=request.repository.name %}",
+            "alt text on a data-driven image cannot be edited",
+        )
+
+    def test_inline_svg_with_assigned_alt_text_passes(self):
+        self.assertAllowsAltText(
+            "{% get_alt_text obj=request.press.thumbnail_image as logo_alt %}"
+            "{% svg request.press_cover alt_text=logo_alt %}"
+        )
+
+    def test_inline_svg_without_alt_text_fails(self):
+        self.assertProblem(
+            "{% svg request.press_cover %}",
+            "image tag without alt_text",
+        )
+
+    def test_inline_svg_with_derived_alt_text_fails(self):
+        self.assertProblem(
+            "{% svg request.press_cover alt_text=request.press.name %}",
+            "alt text on a data-driven image cannot be edited",
+        )
+
+    def test_shipped_inline_svg_with_fixed_alt_text_passes(self):
+        self.assertAllowsAltText(
+            '{% svg "static/common/img/sample/janeway.svg" alt_text="Janeway" %}'
+        )
+
+    def test_hidden_svg_element_passes(self):
+        self.assertAllowsAltText(
+            '<svg class="icon" aria-hidden="true" focusable="false"><path/></svg>'
+        )
+
+    def test_named_svg_element_passes(self):
+        self.assertAllowsAltText('<svg role="img"><title>Logo</title><path/></svg>')
+        self.assertAllowsAltText('<svg role="img" aria-label="Logo"><path/></svg>')
+
+    def test_unhidden_svg_element_fails(self):
+        self.assertProblem(
+            '<svg class="icon" viewBox="0 0 24 24"><path/></svg>',
+            "svg is neither hidden nor a named image",
         )
 
 

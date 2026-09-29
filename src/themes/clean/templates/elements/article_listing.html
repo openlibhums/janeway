@@ -15,7 +15,7 @@
                         {% get_alt_text obj=request.journal.thumbnail_image as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}" class="article-thumbnail img-fluid" alt="{% if thumbnail_alt_text %}{{ thumbnail_alt_text }}{% else %}{{ request.journal }} thumbnail icon{% endif %}">
                     {% else %}
                         <img src="{% static 'common/img/icons/article.png' %}"
-                             alt="{{ article.title|striptags|escape }}"
+                             alt=""
                              class="article-thumbnail img-fluid">
                     {% endif %}
                 </div>

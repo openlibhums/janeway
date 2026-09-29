@@ -122,12 +122,15 @@ class FollowupFixTests(SimpleTestCase):
         self.assertIn("main a:has(.fa):not(:has(.fa-external-link)) {", css)
         self.assertNotIn("main a:has(.fa) {", css)
 
-    def test_material_journal_card_images_are_decorative(self):
+    def test_material_journal_card_images_are_decorative_without_alt_text(self):
         template = helpers.read_theme_asset(
             "material",
             "templates/journal/homepage_elements/journals.html",
         )
-        self.assertIn('{% endif %}" alt="">', template)
+        self.assertIn(
+            'alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{% endif %}"',
+            template,
+        )
 
     def test_outline_primary_buttons_use_the_theme_primary(self):
         clean = helpers.read_theme_asset("clean", "assets/css/clean.css")
@@ -155,7 +158,9 @@ class RepositoryFixTests(SimpleTestCase):
     def test_material_repository_logo_has_alt_text(self):
         template = helpers.read_theme_asset("material", "templates/repository/nav.html")
         self.assertIn(
-            'class="responsive-img" alt="{{ request.repository.name }}"', template
+            'class="responsive-img" alt="{% if logo_alt_text %}{{ logo_alt_text }}'
+            '{% else %}{{ request.repository.name }}{% endif %}"',
+            template,
         )
 
     def test_preprint_pdf_frames_have_titles(self):
@@ -472,8 +477,8 @@ class MaterialPressLogoLinkNameTests(TestCase):
         )
         self.assertContains(
             response,
-            '<svg xmlns="http://www.w3.org/2000/svg"></svg>\n'
-            f'                <span class="sr-only">{self.press.name}</span>',
+            f'<svg role="img" aria-label="{self.press.name}" '
+            'xmlns="http://www.w3.org/2000/svg"></svg>',
         )
 
 
