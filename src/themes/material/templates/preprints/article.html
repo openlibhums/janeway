@@ -88,7 +88,7 @@
                             <div class="row" id="comment-{{ comment.pk }}">
                                 <div class="col m2">
                                     {% if comment.author.profile_image %}
-                                        {% blocktrans with name=comment.author.full_name asvar default_alt %}Profile picture for {{ name }}{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" class="responsive-img circle" alt="{{ profile_image_alt_text }}">
+                                        {% blocktrans with name=comment.author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" class="responsive-img circle" alt="{{ profile_image_alt_text }}">
                                     {% else %}
                                         <img src="{% static "common/img/icons/users.png" %}"
                                              class="responsive-img circle" alt="{% trans 'A generic headshot photograph of a person' %}">
