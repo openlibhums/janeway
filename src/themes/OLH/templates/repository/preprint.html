@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load alt_text %}
 {% load static %}
 {% load hooks %}
 {% load i18n %}
@@ -48,7 +49,7 @@
                         {{ author.full_name }}{% if author.orcid %}&nbsp;
                             <a href="https://orcid.org/{{ author.orcid }}"
                                target="_blank"><img
-                                    src="{% static 'common/img/icons/orcid.png' %}"></a>
+                                    src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>
                         {% endif %}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </p>
@@ -91,9 +92,9 @@
                           <div class="row" id="comment-{{ comment.pk }}">
                               <div class="large-2 columns">
                                   {% if comment.author.profile_image and not comment.review.anonymous %}
-                                      <img src="{{ comment.author.profile_image.url }}">
+                                      {% get_alt_text file_path=comment.author.profile_image as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% blocktrans with name=comment.author.full_name %}Profile picture for {{ name }}{% endblocktrans %}{% endif %}">
                                   {% else %}
-                                      <img src="{% static "common/img/icons/users.png" %}">
+                                      <img src="{% static "common/img/icons/users.png" %}" alt="{% trans 'A generic headshot photograph of a person' %}">
                                   {% endif %}
                               </div>
                               <div class="large-10 columns">

@@ -59,6 +59,11 @@
                             </div>
 
                         </form>
+                        {% if step == '2' and repository.logo %}
+                            <hr/>
+                            <p><strong>Logo</strong></p>
+                            {% include "admin/core/partials/alt_text/edit_alt_text_button.html" with file_path=repository.logo %}
+                        {% endif %}
                     </div>
 
                 </div>

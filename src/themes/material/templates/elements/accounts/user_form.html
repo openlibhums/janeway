@@ -1,3 +1,4 @@
+{% load alt_text %}
 {% load foundation %}
 {% load bootstrap4 %}
 {% load static %}
@@ -78,9 +79,9 @@
 <div class="row">
     <div class="col m3">
         {% if user_to_edit.profile_image %}
-        <img src="{{ user_to_edit.profile_image.url }}" style="max-width: 90%;">
+        {% get_alt_text file_path=user_to_edit.profile_image as profile_image_alt_text %}<img src="{{ user_to_edit.profile_image.url }}" style="max-width: 90%;" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% blocktrans with name=user_to_edit.full_name %}Profile picture for {{ name }}{% endblocktrans %}{% endif %}">
         {% else %}
-        <img src="{% static "common/img/icons/users.png" %}" class="responsive-image">
+        <img src="{% static "common/img/icons/users.png" %}" class="responsive-image" alt="{% trans 'A generic headshot photograph of a person' %}">
         {% endif %}
     </div>
     <div class="col m9">

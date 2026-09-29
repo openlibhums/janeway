@@ -14,10 +14,9 @@
                              class="article-thumbnail"
                              onerror="this.parentElement.classList.add('fallback-active');">
                     {% elif request.journal.thumbnail_image %}
-                        <img src="{% url 'journal_cover_download' %}"
+                        {% get_alt_text obj=request.journal.thumbnail_image as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}"
                              class="article-thumbnail"
-                             alt="{{ request.journal }} thumbnail icon"
-                             onerror="this.parentElement.classList.add('fallback-active');">
+                             onerror="this.parentElement.classList.add('fallback-active');" alt="{% if thumbnail_alt_text %}{{ thumbnail_alt_text }}{% else %}{{ request.journal }} thumbnail icon{% endif %}">
                     {% else %}
                         <img src="{% static 'common/img/icons/article.png' %}"
                              alt="{{ article.title|striptags|escape }}"

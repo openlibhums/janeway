@@ -1,3 +1,4 @@
+{% load alt_text %}
 <div class="row row-smaller-gutters">
     <div class="col-md-12">
         <br/>
@@ -6,9 +7,8 @@
     {% for current_journal in featured_journals %}
         <div class="col-md-2 row-eq-height small-gutters">
             <div class="card" style="width: 20rem;">
-                <img class="card-img-top img-fluid"
-                     src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}"
-                     alt="{{ current_journal.name }}'s cover image.">
+                {% get_alt_text file_path=current_journal.default_cover_image as cover_alt_text %}<img class="card-img-top img-fluid"
+                     src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{% if cover_alt_text %}{{ cover_alt_text }}{% else %}{{ current_journal.name }}'s cover image.{% endif %}">
                 <div class="card-block">
                     <p class="journal-card-title">
                         {% if current_journal.is_remote %}

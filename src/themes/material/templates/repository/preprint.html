@@ -102,11 +102,11 @@
                                 <div class="row" id="comment-{{ comment.pk }}">
                                     <div class="col m2">
                                         {% if comment.author.profile_image and not comment.review.anonymous %}
-                                            <img src="{{ comment.author.profile_image.url }}"
-                                                 class="responsive-img circle">
+                                            {% get_alt_text file_path=comment.author.profile_image as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}"
+                                                 class="responsive-img circle" alt="{% if profile_image_alt_text %}{{ profile_image_alt_text }}{% else %}{% blocktrans with name=comment.author.full_name %}Profile picture for {{ name }}{% endblocktrans %}{% endif %}">
                                         {% else %}
                                             <img src="{% static "common/img/icons/users.png" %}"
-                                                 class="responsive-img circle">
+                                                 class="responsive-img circle" alt="{% trans 'A generic headshot photograph of a person' %}">
                                         {% endif %}
                                     </div>
                                     <div class="col m10">
@@ -164,7 +164,7 @@
                     <div class="truncatejs">
                       <p class="authors">
                         {% for author in preprint.authors %}
-                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>
