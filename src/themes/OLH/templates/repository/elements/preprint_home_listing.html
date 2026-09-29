@@ -1,3 +1,4 @@
+{% load dates %}
 <div class="row" data-equalizer data-equalize-on="medium">
     {% for preprint in preprints %}
     <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
@@ -8,9 +9,11 @@
                 href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></strong>
         </p>
         <p><small>{{ preprint.display_authors_compact }}</small></p>
+        {% if preprint.date_published %}
         <p><small><i
-                aria-hidden="true" class="fa fa-calendar">&nbsp;</i>{{ preprint.date_published|date:"Y-m-d" }}
+                aria-hidden="true" class="fa fa-calendar">&nbsp;</i>{{ preprint.date_published|date_human }}
         </small></p>
+        {% endif %}
       </div>
     </div>
     {% if forloop.counter|divisibleby:3 %}

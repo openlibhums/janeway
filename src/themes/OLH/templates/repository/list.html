@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load dates %}
 {% load static %}
 {% load i18n %}
 {% load truncate %}
@@ -59,8 +60,10 @@
                             <p>
                                 <span class="date">
                                     {% include "repository/elements/submission_type_pill.html" %} &nbsp;
+                                    {% if preprint.date_published %}
                                     <i aria-hidden="true" class="fa fa-calendar"></i>
-                                    {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;
+                                    {{ preprint.date_published|date_human }}&nbsp;&nbsp;
+                                    {% endif %}
                                     <i aria-hidden="true" class="fa fa-paperclip"></i>
                                     {% include "common/repository/subject_display.html" %}&nbsp;
                                     {% if preprint.organisation_units.all %}<i aria-hidden="true" class="fa fa-link"></i>{% endif %}
