@@ -2359,14 +2359,41 @@ input[type="submit"]:focus-visible {
     cursor: pointer;
 }
 
+/* Match the menu's links: no highlight on hover or focus, and the theme's
+   focus ring. */
 .menu .a11y-mobile-button:hover,
 .menu .a11y-mobile-button:focus {
-    background: rgba(0, 0, 0, 0.05);
+    background: transparent;
+    color: inherit;
 }
 
 .menu .a11y-mobile-button:focus-visible {
-    outline: 2px solid #1779ba;
-    outline-offset: -2px;
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* In the mobile drilldown the items span the full width of a container
+   that clips its overflow, so a ring drawn outside them is cut off. Keep
+   them inside it and draw the ring inside the item. */
+.is-drilldown .menu li > a,
+.is-drilldown .menu .a11y-mobile-form {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.is-drilldown .menu > li:first-child > a {
+    margin-top: 0;
+}
+
+.is-drilldown .menu li > a:focus-visible {
+    display: block;
+}
+
+.is-drilldown .menu li > a:focus-visible,
+.is-drilldown .menu .a11y-mobile-button:focus-visible {
+    outline-offset: calc(-2px - var(--focus-ring-size));
+    box-shadow: inset 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
 /* WCAG 1.4.10: the collection card rows are nested directly in a row, so
