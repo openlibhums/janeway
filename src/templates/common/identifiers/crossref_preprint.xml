@@ -2,12 +2,16 @@
     <group_title>{{ version.preprint.repository.name }}</group_title>
 
     <contributors>
-        {% for author in version.preprint.preprintauthor_set.all %}
-        <person_name sequence="first" contributor_role="author">
-            <given_name>{{ author.account.first_name }}</given_name>
-            <surname>{{ author.account.last_name }}</surname>
-            {% if author.account.orcid %}<ORCID>https://orcid.org/{{ author.account.orcid }}</ORCID>{% endif %}
+        {% for author in version.authors %}
+        {% if author.is_corporate or not author.last_name %}
+        <organization sequence="{% if forloop.first %}first{% else %}additional{% endif %}" contributor_role="author">{% if author.is_corporate %}{{ author.corporate_name|default:author.full_name }}{% else %}{{ author.full_name }}{% endif %}</organization>
+        {% else %}
+        <person_name sequence="{% if forloop.first %}first{% else %}additional{% endif %}" contributor_role="author">
+            {% if author.given_names %}<given_name>{{ author.given_names }}</given_name>{% endif %}
+            <surname>{{ author.last_name }}</surname>
+            {% if author.orcid_uri %}<ORCID>{{ author.orcid_uri }}</ORCID>{% endif %}
         </person_name>
+        {% endif %}
         {% endfor %}
     </contributors>
     <titles>
