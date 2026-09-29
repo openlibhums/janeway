@@ -23,7 +23,7 @@
         <div class="card">
           <img class="card-img img-fluid article-img"
                src="{{ request.repository.best_large_image_url }}"
-               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|plain_text %}">
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|banner_alt %}">
           <div class="card-img-overlay white-text">
             <div class="card-text">
               <h1 class="card-title article-title">{{ preprint.title|safe }}</h1>

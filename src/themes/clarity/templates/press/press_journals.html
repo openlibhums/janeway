@@ -19,7 +19,7 @@
                 {% setting_var current_journal 'disable_journal_submission' as submission_disabled %}
                 <div class="row journal-div">
                     <div class="col-lg-3 col-md-4">
-                        {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name.strip|default:unnamed_journal as cover_alt_text %}<img class="img-fluid"
+                        {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name.strip|default:unnamed_journal|cover_alt as cover_alt_text %}<img class="img-fluid"
                              src="{% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
                     </div>
                     <div class="col-lg-9 col-md-8 journal-description-box">
