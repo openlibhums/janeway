@@ -479,10 +479,13 @@ class MaterialPressLogoLinkNameTests(TestCase):
             {"theme": "material"},
             SERVER_NAME=self.press.domain,
         )
+        # The SVG is wrapped in role="img", which names the link whatever
+        # the uploaded file's own markup says.
         self.assertContains(
             response,
-            f'<svg role="img" aria-label="{self.press.name}" '
-            'xmlns="http://www.w3.org/2000/svg"></svg>',
+            f'<span role="img" aria-label="{self.press.name}">'
+            '<svg xmlns="http://www.w3.org/2000/svg"></svg></span>',
+            html=True,
         )
 
 

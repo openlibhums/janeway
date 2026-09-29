@@ -1,6 +1,5 @@
 import mimetypes
 import os
-import re
 from functools import lru_cache
 
 from django import template
@@ -16,56 +15,44 @@ logger = get_logger(__name__)
 
 register = template.Library()
 
-# The root element, after any XML declaration, doctype or comments.
-SVG_ROOT = re.compile(
-    r"\A(?:\s|<\?.*?\?>|<!--.*?-->|<!DOCTYPE[^>]*>)*<svg\b",
-    re.S | re.I,
-)
-
 
 @register.simple_tag
 def press_url(request):
     return press_models.Press.get_press(request).site_url()
 
 
-@lru_cache(maxsize=128)
-def _labelled_svg(path, modified, alt_text):
-    """Reads an SVG file and names its root element with alt_text.
-
-    Cached per process. Including the file's modification time in the key
-    means a replaced file is read again.
-    """
-    with open(path) as svg_file:
-        markup = svg_file.read()
-    if not alt_text:
-        return markup
-    root = SVG_ROOT.match(markup)
-    if not root:
-        return markup
-    # The attributes go first, so they win over any the file already sets:
-    # HTML parsers keep the first of a repeated attribute.
-    return (
-        markup[: root.end()]
-        + format_html(' role="img" aria-label="{}"', alt_text)
-        + markup[root.end() :]
-    )
+@lru_cache(maxsize=64)
+def _read_svg(path, modified):
+    """Reads an SVG file, cached per process until the file changes."""
+    with open(path, encoding="utf-8", errors="replace") as svg_file:
+        return svg_file.read()
 
 
 def inline_svg(path, alt_text=""):
+    """Renders an SVG file inline.
+
+    With alt_text, the SVG is wrapped in an element with role="img", which
+    names it and makes its contents presentational, whatever the file's own
+    markup says. Without, it is hidden from assistive technology.
+    """
     try:
-        modified = os.stat(path).st_mtime_ns
-        return mark_safe(_labelled_svg(path, modified, str(alt_text)))
+        markup = _read_svg(path, os.stat(path).st_mtime_ns)
     except FileNotFoundError:
         logger.warning("Could not read SVG file %s", path)
         return None
+    if alt_text:
+        return format_html(
+            '<span role="img" aria-label="{}">{}</span>', alt_text, mark_safe(markup)
+        )
+    return format_html('<span aria-hidden="true">{}</span>', mark_safe(markup))
 
 
 @register.simple_tag
 def svg(filename, alt_text=""):
-    """Renders an SVG file inline, or an <img> for any other file type
+    """Renders an SVG file inline, or an <img> for any other file type.
     :param filename: Path to the file, absolute or relative to BASE_DIR
-    :param alt_text: Text alternative, set as the SVG's aria-label or the
-        <img> alt attribute
+    :param alt_text: Text alternative for the image; without it the image
+        is decorative
     """
     path = filename
 

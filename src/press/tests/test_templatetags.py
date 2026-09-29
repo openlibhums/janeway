@@ -8,16 +8,34 @@ import shutil
 import tempfile
 from types import SimpleNamespace
 
+from bs4 import BeautifulSoup
 from django.test import SimpleTestCase
 
 from press.templatetags import press_url
 
 LOGO = (
-    '<?xml version="1.0" encoding="UTF-8"?>\n'
-    "<!-- Exported from an <svg> editor -->\n"
-    '<svg xmlns="http://www.w3.org/2000/svg" role="presentation">'
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">'
     "<title>Logo-Final</title><path/></svg>"
 )
+
+AWKWARD_FILES = {
+    "byte order mark": "﻿" + LOGO,
+    "illustrator doctype": (
+        '<?xml version="1.0"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
+        '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" '
+        '[<!ENTITY ns_extend "http://ns.adobe.com/Extensibility/1.0/">]>\n' + LOGO
+    ),
+    "prefixed root": (
+        '<svg:svg xmlns:svg="http://www.w3.org/2000/svg"><svg:path/></svg:svg>'
+    ),
+    "hidden root": LOGO.replace("<svg ", '<svg aria-hidden="true" '),
+}
+
+
+def image_name(rendered):
+    """The accessible name of the rendered image, as role="img" gives it."""
+    element = BeautifulSoup(rendered, "html.parser").find(attrs={"role": "img"})
+    return element["aria-label"] if element else None
 
 
 class SVGTagTests(SimpleTestCase):
@@ -26,27 +44,37 @@ class SVGTagTests(SimpleTestCase):
         self.addCleanup(shutil.rmtree, self.directory)
         self.path = self.write("logo.svg", LOGO)
 
-    def write(self, name, content):
+    def write(self, name, content, encoding="utf-8"):
         path = os.path.join(self.directory, name)
-        with open(path, "w") as f:
+        with open(path, "w", encoding=encoding) as f:
             f.write(content)
         return path
 
-    def test_labels_the_root_element(self):
+    def test_names_the_svg(self):
         rendered = press_url.svg(self.path, alt_text="Example Press")
-        self.assertIn(
-            '<svg role="img" aria-label="Example Press" '
-            'xmlns="http://www.w3.org/2000/svg" role="presentation">',
-            rendered,
-        )
-        self.assertIn("<!-- Exported from an <svg> editor -->", rendered)
+        self.assertEqual(image_name(rendered), "Example Press")
+        self.assertIn(LOGO, rendered)
+
+    def test_names_awkward_files(self):
+        for label, content in AWKWARD_FILES.items():
+            with self.subTest(label):
+                path = self.write(f"{label}.svg", content)
+                rendered = press_url.svg(path, alt_text="Example Press")
+                self.assertEqual(image_name(rendered), "Example Press")
+
+    def test_undecodable_file_does_not_raise(self):
+        path = self.write("latin1.svg", LOGO.replace("Logo", "Logó"), "latin-1")
+        rendered = press_url.svg(path, alt_text="Example Press")
+        self.assertEqual(image_name(rendered), "Example Press")
 
     def test_escapes_alt_text(self):
         rendered = press_url.svg(self.path, alt_text='Press " onload="alert(1)')
         self.assertIn('aria-label="Press &quot; onload=&quot;alert(1)"', rendered)
 
-    def test_without_alt_text_leaves_the_file_unchanged(self):
-        self.assertEqual(press_url.svg(self.path), LOGO)
+    def test_without_alt_text_is_decorative(self):
+        rendered = press_url.svg(self.path)
+        self.assertIsNone(image_name(rendered))
+        self.assertIn('aria-hidden="true"', rendered)
 
     def test_rereads_a_replaced_file(self):
         press_url.svg(self.path, alt_text="Example Press")
@@ -83,8 +111,8 @@ class SVGOrImageTagTests(SimpleTestCase):
             'alt="Cover &quot; onerror=&quot;alert(1)">',
         )
 
-    def test_inline_svg_is_labelled(self):
+    def test_inline_svg_is_named(self):
         rendered = press_url.svg_or_image(
             self.field, alt_text="Example Press", inline=True
         )
-        self.assertIn('<svg role="img" aria-label="Example Press" ', rendered)
+        self.assertEqual(image_name(rendered), "Example Press")
