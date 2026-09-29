@@ -254,6 +254,8 @@ class RepositoryFieldAnswerInline(admin.TabularInline):
     raw_id_fields = (
         "field",
         "preprint",
+        "preprint_version",
+        "version_queue",
     )
 
 
@@ -262,6 +264,7 @@ class PreprintVersionInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ("preprint", "file", "moderated_version")
     exclude = ("abstract", "published_doi")
+    readonly_fields = ("metadata_frozen",)
 
 
 class KeywordPreprintInline(admin.TabularInline):
@@ -282,10 +285,13 @@ class PreprintSupplementaryFileInline(admin.TabularInline):
     raw_id_fields = ("preprint",)
 
 
-class PreprintAuthorInline(admin.TabularInline):
-    model = repository_models.PreprintAuthor
+class PreprintFrozenAuthorInline(admin.TabularInline):
+    """The preprint's working author list."""
+
+    model = submission_models.FrozenAuthor
     extra = 0
-    raw_id_fields = ("preprint", "account")
+    raw_id_fields = ("author",)
+    fields = ("order", "first_name", "middle_name", "last_name", "author")
 
 
 class VersionQueueInline(admin.TabularInline):
@@ -293,6 +299,11 @@ class VersionQueueInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ("preprint", "file")
     exclude = ("abstract", "published_doi")
+    readonly_fields = (
+        "changed_sections",
+        "is_draft",
+        "started_from",
+    )
 
 
 class RepositoryReviewInline(admin.TabularInline):

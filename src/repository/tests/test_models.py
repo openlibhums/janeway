@@ -350,12 +350,9 @@ class PreprintSearchManagerTestBase(TestCase):
             order=1,
         )
 
-        cls.preprint_author = rm.PreprintAuthor.objects.get_or_create(
-            preprint=cls.published_preprint,
-            account=cls.owner,
-            defaults=dict(
-                order=0,
-            ),
+        cls.preprint_author, _created = sm.FrozenAuthor.snapshot_account_for_preprint(
+            cls.owner,
+            cls.published_preprint,
         )
 
 

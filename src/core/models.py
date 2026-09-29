@@ -58,7 +58,6 @@ from core.model_utils import (
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
-from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
 from utils.logger import get_logger
@@ -3002,7 +3001,6 @@ class Organization(models.Model):
         country="",
         account=None,
         frozen_author=None,
-        preprint_author=None,
     ):
         """
         Backwards-compatible API for finding a matching organization,
@@ -3016,7 +3014,6 @@ class Organization(models.Model):
         :type country: str or core.models.Country
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
-        :type preprint_author: repository.models.PreprintAuthor
         """
 
         created = False
@@ -3032,7 +3029,7 @@ class Organization(models.Model):
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                 # Or maybe a primary affiliation has already been
                 # entered without a ROR for this
-                # account / frozen author / preprint author?
+                # account / frozen author?
                 try:
                     # If there is no `institution`, this method is being used to update
                     # the department or country in isolation, so we want the primary
@@ -3041,7 +3038,6 @@ class Organization(models.Model):
                         controlledaffiliation__is_primary=True,
                         controlledaffiliation__account=account,
                         controlledaffiliation__frozen_author=frozen_author,
-                        controlledaffiliation__preprint_author=preprint_author,
                         ror_id__exact="",
                     )
                     # If there is an institution name, we should only match organizations
@@ -3101,12 +3097,6 @@ class ControlledAffiliation(models.Model):
         blank=True,
         null=True,
     )
-    preprint_author = models.ForeignKey(
-        repository_models.PreprintAuthor,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
     title = models.CharField(
         blank=True,
         max_length=300,
@@ -3143,7 +3133,7 @@ class ControlledAffiliation(models.Model):
         constraints = [
             check_exclusive_fields_constraint(
                 "controlled_affiliation",
-                ["account", "frozen_author", "preprint_author"],
+                ["account", "frozen_author"],
             )
         ]
         ordering = ["-is_primary", "-pk"]
@@ -3213,7 +3203,6 @@ class ControlledAffiliation(models.Model):
             cls.objects.filter(
                 account=obj.account,
                 frozen_author=obj.frozen_author,
-                preprint_author=obj.preprint_author,
             )
             .exclude(pk=obj.pk)
             .exists()
@@ -3228,7 +3217,6 @@ class ControlledAffiliation(models.Model):
                 is_primary=True,
                 account=obj.account,
                 frozen_author=obj.frozen_author,
-                preprint_author=obj.preprint_author,
             ).exclude(pk=obj.pk).update(
                 is_primary=False,
             )
@@ -3243,7 +3231,7 @@ class ControlledAffiliation(models.Model):
         Get the primary affiliation, or if none,
         the affiliation with the highest pk, or if none,
         an empty string.
-        :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
+        :param affiliated_object: Account or FrozenAuthor
         :param as_object: whether to return a Python object
         """
         if not affiliated_object.affiliations.exists():
@@ -3263,7 +3251,6 @@ class ControlledAffiliation(models.Model):
         country="",
         account=None,
         frozen_author=None,
-        preprint_author=None,
         defaults=None,
     ):
         """
@@ -3271,7 +3258,7 @@ class ControlledAffiliation(models.Model):
         Intended for use in batch importers where ROR data is not available.
         Does not support ROR ids, multiple affiliations, or start or end dates.
         When possible, include department and country to create unified records.
-        Only include one of author, frozen_author, or preprint_author.
+        Only include one of account or frozen_author.
 
         :param institution: the uncontrolled organization name as a string
         :type institution: str
@@ -3280,7 +3267,6 @@ class ControlledAffiliation(models.Model):
         :type country: str or core.models.Country
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
-        :type preprint_author: repository.models.PreprintAuthor
         :param defaults: default dict passed to ControlledAffiliation.get_or_create:
         :type defaults: dict:
         """
@@ -3289,7 +3275,6 @@ class ControlledAffiliation(models.Model):
             country=country,
             account=account,
             frozen_author=frozen_author,
-            preprint_author=preprint_author,
         )
         if not defaults:
             defaults = {}
@@ -3307,11 +3292,10 @@ class ControlledAffiliation(models.Model):
             "is_primary": True,
             "account": account,
             "frozen_author": frozen_author,
-            "preprint_author": preprint_author,
         }
 
         # Create or update the actual affiliation if the associated
-        # account / frozen author / preprint author has been saved already
+        # account / frozen author has been saved already
         try:
             affiliation, created = ControlledAffiliation.objects.update_or_create(
                 defaults=defaults,

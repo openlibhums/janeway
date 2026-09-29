@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 import os
+import html
 import re
 import uuid
 import json
@@ -11,7 +12,7 @@ from dateutil import parser as dateparser
 import warnings
 import csv
 
-from django.db import connection, DEFAULT_DB_ALIAS, models
+from django.db import connection, DEFAULT_DB_ALIAS, models, transaction
 from django.db.models import Q, Max, Subquery, OuterRef
 from django.db.models.query import RawQuerySet
 from django.db.models.sql.query import get_order_dir
@@ -614,6 +615,12 @@ class RepositoryField(models.Model):
 
 
 class RepositoryFieldAnswer(models.Model):
+    """
+    An answer to a repository's custom field. Belongs to exactly one of:
+    a preprint (its current answers), a superseded version (a snapshot), or
+    a pending update (a proposal).
+    """
+
     field = models.ForeignKey(
         RepositoryField,
         null=True,
@@ -622,12 +629,50 @@ class RepositoryFieldAnswer(models.Model):
     )
     preprint = models.ForeignKey(
         "Preprint",
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
+    )
+    preprint_version = models.ForeignKey(
+        "PreprintVersion",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this answer is part of a superseded version's snapshot.",
+    )
+    version_queue = models.ForeignKey(
+        "VersionQueue",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this answer is proposed by a pending update.",
     )
     answer = models.TextField()
 
+    class Meta:
+        constraints = [
+            model_utils.check_exclusive_fields_constraint(
+                "repository_field_answer",
+                ["preprint", "preprint_version", "version_queue"],
+                blank=False,
+            ),
+        ]
+
     def __str__(self):
         return "{}: {}".format(self.preprint, self.answer)
+
+    def copy(self, **fields):
+        """
+        Saves and returns a copy of this answer.
+        :param fields: field values to set on the copy, such as preprint,
+            preprint_version or version_queue
+        """
+        copy = RepositoryFieldAnswer.objects.get(pk=self.pk)
+        copy.pk = None
+        for name, value in fields.items():
+            setattr(copy, name, value)
+        copy.save()
+        return copy
 
 
 class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
@@ -650,9 +695,8 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
     def _search(self, search_term, search_filters, sort=None, site=None, queryset=None):
         """SQLite-compatible search across preprint fields.
 
-        The base implementation targets Article's ``frozenauthor`` relation,
-        which Preprint does not have, so we mirror the Postgres/MySQL author
-        lookups against the ``preprintauthor`` relation here.
+        Mirrors the Postgres/MySQL author lookups against Preprint's
+        ``frozenauthor`` relation.
         """
         preprints = queryset or self.get_queryset()
         if search_term:
@@ -669,8 +713,8 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
                 q_object = q_object | Q(keywords__word=search_term)
             if search_filters.get("authors"):
                 q_object = q_object | (
-                    Q(preprintauthor__account__first_name__iregex=search_regex)
-                    | Q(preprintauthor__account__last_name__iregex=search_regex)
+                    Q(frozenauthor__first_name__iregex=search_regex)
+                    | Q(frozenauthor__last_name__iregex=search_regex)
                 )
             preprints = preprints.filter(q_object)
             if site:
@@ -688,14 +732,10 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
             querysets.append(self.get_queryset().filter(title__search=search_term))
         if search_filters.get("authors"):
             querysets.append(
-                self.get_queryset().filter(
-                    preprintauthor__account__first_name__search=search_term
-                )
+                self.get_queryset().filter(frozenauthor__first_name__search=search_term)
             )
             querysets.append(
-                self.get_queryset().filter(
-                    preprintauthor__account__last_name__search=search_term
-                )
+                self.get_queryset().filter(frozenauthor__last_name__search=search_term)
             )
         if search_filters.get("abstract"):
             querysets.append(self.get_queryset().filter(abstract__search=search_term))
@@ -784,12 +824,8 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         if search_filters.get("keywords"):
             vectors.append(SearchVector("keywords__word", weight="B"))
         if search_filters.get("authors"):
-            vectors.append(
-                SearchVector("preprintauthor__account__last_name", weight="B")
-            )
-            vectors.append(
-                SearchVector("preprintauthor__account__first_name", weight="B")
-            )
+            vectors.append(SearchVector("frozenauthor__last_name", weight="B"))
+            vectors.append(SearchVector("frozenauthor__first_name", weight="B"))
         if search_filters.get("abstract"):
             vectors.append(SearchVector("abstract", weight="C"))
         if search_filters.get("full_text"):
@@ -819,7 +855,12 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
             lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
-            lookups["preprintauthor__account__orcid"] = search_term
+            # An author's ORCID is their own if set, otherwise their account's.
+            lookups["pk__in"] = submission_models.FrozenAuthor.objects.filter(
+                Q(frozen_orcid=search_term)
+                | Q(frozen_orcid="", author__orcid=search_term),
+                preprint__isnull=False,
+            ).values("preprint_id")
         return lookups, annotations
 
     @staticmethod
@@ -894,7 +935,7 @@ class Preprint(models.Model):
         help_text="Add any comments you'd like the editor to consider here.",
     )
     doi = models.CharField(
-        max_length=100,
+        max_length=255,
         blank=True,
         null=True,
         verbose_name="Published DOI",
@@ -978,11 +1019,8 @@ class Preprint(models.Model):
         )
 
     def next_author_order(self):
-        try:
-            last_author = self.preprintauthor_set.all().reverse()[0]
-            return last_author.order + 1
-        except IndexError:
-            return 0
+        last_author = self.frozen_authors().last()
+        return last_author.order + 1 if last_author else 0
 
     def next_version_number(self):
         try:
@@ -991,13 +1029,20 @@ class Preprint(models.Model):
         except IndexError:
             return 1
 
+    def frozen_authors(self):
+        """
+        The working author list: the authors of the current version, which
+        authors and moderators edit. Superseded versions keep their own
+        snapshot, see PreprintVersion.authors.
+        :rtype: QuerySet of submission.models.FrozenAuthor
+        """
+        return submission_models.FrozenAuthor.objects.filter(
+            preprint=self,
+        ).select_related("author")
+
     @property
     def authors(self):
-        preprint_authors = PreprintAuthor.objects.filter(
-            preprint=self,
-        ).select_related("account")
-
-        return [pa.account for pa in preprint_authors if pa.account]
+        return self.frozen_authors()
 
     @property
     def safe_title(self):
@@ -1013,47 +1058,63 @@ class Preprint(models.Model):
         )
 
     def author_objects(self):
-        pks = [author.account.pk for author in self.authors]
-        return core_models.Account.objects.filter(pk__in=pks)
+        """
+        Accounts linked to the working author list. Authors without an
+        account are not included.
+        """
+        return core_models.Account.objects.filter(
+            frozenauthor__in=self.frozen_authors(),
+        ).distinct()
 
     def display_authors_compact(self):
-        etal = ", ".join([author.full_name() for author in self.authors[:3]])
-        if len(self.authors) > 3:
+        authors = list(self.frozen_authors())
+        etal = ", ".join([author.full_name() for author in authors[:3]])
+        if len(authors) > 3:
             etal = etal + ", et al."
         return etal
 
     def display_authors(self):
-        return ", ".join(
-            [author.full_name() for author in self.authors if author is not None]
-        )
+        return ", ".join([author.full_name() for author in self.frozen_authors()])
 
     def add_user_as_author(self, user):
-        preprint_author, created = PreprintAuthor.objects.get_or_create(
-            account=user,
-            preprint=self,
-            defaults={"order": self.next_author_order()},
-        )
-        for affiliation in user.affiliations.all():
-            core_models.ControlledAffiliation.objects.get_or_create(
-                preprint_author=preprint_author,
-                title=affiliation.title,
-                department=affiliation.department,
-                organization=affiliation.organization,
-                is_primary=affiliation.is_primary,
-                start=affiliation.start,
-                end=affiliation.end,
+        """
+        Adds an account to the working author list.
+        :return: True if the author was added, False if already present
+        """
+        _frozen_author, created = (
+            submission_models.FrozenAuthor.snapshot_account_for_preprint(
+                user,
+                self,
             )
-
+        )
         return created
 
-    def add_author(self, author):
-        preprint_author, created = PreprintAuthor.objects.get_or_create(
-            author=author,
-            preprint=self,
-            order=self.next_author_order(),
-        )
-
-        return preprint_author, created
+    def snapshot_to_version(self, version):
+        """
+        Copies the title, abstract, DOI, working author list and custom
+        field answers onto a version that is about to be superseded, so the
+        version keeps the metadata it was published with. Versions already
+        frozen are left alone.
+        """
+        if version.metadata_frozen:
+            return
+        version.title = self.title
+        version.abstract = self.abstract
+        version.published_doi = self.doi
+        for frozen_author in self.frozen_authors():
+            # Freeze the details that otherwise follow the linked account,
+            # so later account changes do not alter the historical record.
+            frozen_author.copy(
+                preprint=None,
+                preprint_version=version,
+                frozen_email=frozen_author.email or "",
+                frozen_orcid=frozen_author.orcid or "",
+                frozen_biography=frozen_author.biography or "",
+            )
+        for answer in self.repositoryfieldanswer_set.all():
+            answer.copy(preprint=None, preprint_version=version)
+        version.metadata_frozen = True
+        version.save()
 
     def add_supplementary_file(self, supplementary):
         return PreprintSupplementaryFile.objects.get_or_create(
@@ -1068,10 +1129,11 @@ class Preprint(models.Model):
         return max(orderings) + 1 if orderings else 0
 
     def user_is_author(self, user):
-        if user.email in [author.email for author in self.authors]:
-            return True
-
-        return False
+        return (
+            self.frozen_authors()
+            .filter(models.Q(author=user) | models.Q(frozen_email__iexact=user.email))
+            .exists()
+        )
 
     def set_file(self, file, original_filename):
         self.submission_file.original_filename = original_filename
@@ -1103,7 +1165,11 @@ class Preprint(models.Model):
             field__display=True,
         )
 
+    @transaction.atomic
     def make_new_version(self, file):
+        Preprint.objects.select_for_update().filter(pk=self.pk).first()
+        if self.current_version is not None:
+            self.snapshot_to_version(self.current_version)
         PreprintVersion.objects.create(
             preprint=self,
             file=file,
@@ -1206,9 +1272,14 @@ class Preprint(models.Model):
             )
 
             # copy authors to submission
-            for preprint_author in self.preprintauthor_set.all():
-                if preprint_author.account:
-                    preprint_author.account.snapshot_as_author(article)
+            for frozen_author in self.frozen_authors():
+                frozen_author.copy(
+                    preprint=None,
+                    article=article,
+                    order=article.next_frozen_author_order(),
+                )
+                if frozen_author.author:
+                    frozen_author.author.add_account_role("author", journal)
 
             # copy preprints latest file and add it as a MS file to the article
             file = files.copy_preprint_file_to_article(
@@ -1413,107 +1484,9 @@ class PreprintAccess(models.Model):
         verbose_name_plural = "preprint access records"
 
 
-class PreprintAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
-    AFFILIATION_RELATED_NAME = "preprint_author"
-
-
-class PreprintAuthorManager(models.Manager):
-    def get_queryset(self):
-        return PreprintAuthorQueryset(self.model).select_related("account")
-
-
-class PreprintAuthor(models.Model):
-    preprint = models.ForeignKey(
-        "Preprint",
-        on_delete=models.CASCADE,
-    )
-    account = models.ForeignKey(
-        "core.Account",
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-    order = models.PositiveIntegerField(default=0)
-
-    objects = PreprintAuthorManager()
-
-    class Meta:
-        ordering = ("order",)
-        unique_together = ("account", "preprint")
-
-    def __str__(self):
-        return "{author} linked to {preprint}".format(
-            author=self.account.full_name() if self.account else "",
-            preprint=self.preprint.title,
-        )
-
-    @property
-    def affiliation(self):
-        """
-        Use `primary_affiliation` or `affiliations` instead.
-
-        For backwards compatibility, this is a property.
-        Different from core.models.Account.affiliation
-        and submission.models.FrozenAuthor.affiliation,
-        which are methods.
-        :rtype: str
-        """
-        return self.primary_affiliation(as_object=False)
-
-    @affiliation.setter
-    def affiliation(self, value):
-        core_models.ControlledAffiliation.get_or_create_without_ror(
-            institution=value,
-            preprint_author=self,
-        )
-
-    def primary_affiliation(self, as_object=True):
-        return core_models.ControlledAffiliation.get_primary(
-            affiliated_object=self,
-            as_object=as_object,
-        )
-
-    @property
-    def affiliations(self):
-        return core_models.ControlledAffiliation.objects.filter(
-            preprint_author=self,
-        )
-
-    @property
-    def full_name(self):
-        if not self.account.middle_name:
-            return "{} {}".format(self.account.first_name, self.account.last_name)
-        else:
-            return "{} {} {}".format(
-                self.account.first_name,
-                self.account.middle_name,
-                self.account.last_name,
-            )
-
-    def dc_name(self):
-        if not self.account.middle_name:
-            return "{}, {}".format(self.account.last_name, self.account.first_name)
-        else:
-            return "{}. {} {}".format(
-                self.account.last_name,
-                self.account.first_name,
-                self.account.middle_name,
-            )
-
-    def to_dc(self):
-        return '<meta name="DC.Contributor" content="{}">'.format(
-            self.dc_name,
-        )
-
-    def display_affiliation(self):
-        if self.affiliation:
-            return self.affiliation
-        if self.account is not None:
-            return self.account.institution
-
-
 class Author(models.Model):
     """
-    Deprecated. Please use PreprintAuthor instead.
+    Deprecated. Please use submission.models.FrozenAuthor instead.
     """
 
     email_address = models.EmailField(unique=True)
@@ -1526,7 +1499,7 @@ class Author(models.Model):
     )
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Use PreprintAuthor instead.")
+        warnings.warn("Use submission.models.FrozenAuthor instead.")
         super().__init__(*args, **kwargs)
 
     @property
@@ -1576,8 +1549,35 @@ class PreprintVersion(models.Model):
         help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
     )
 
+    metadata_frozen = models.BooleanField(
+        default=False,
+        help_text="Whether this version's authors and custom field answers "
+        "were snapshotted when it was superseded. Versions superseded before "
+        "snapshots existed show the preprint's current metadata.",
+    )
+
     class Meta:
         ordering = ("-version", "-date_time", "-id")
+
+    @property
+    def authors(self):
+        """
+        The authors of this version: its snapshot once superseded,
+        otherwise the preprint's working author list.
+        """
+        if self.metadata_frozen:
+            return self.frozenauthor_set.all()
+        return self.preprint.frozen_authors()
+
+    @property
+    def field_answers(self):
+        """
+        The custom field answers of this version: its snapshot once
+        superseded, otherwise the preprint's current answers.
+        """
+        if self.metadata_frozen:
+            return self.repositoryfieldanswer_set.all()
+        return self.preprint.repositoryfieldanswer_set.all()
 
     def render(self):
         """
@@ -1932,53 +1932,198 @@ class VersionQueue(models.Model):
         blank=True,
         null=True,
     )
+    SECTION_LABELS = {
+        "title": _("title"),
+        "abstract": _("abstract"),
+        "published_doi": _("published DOI"),
+        "file": _("file"),
+        "authors": _("authors"),
+        "field_answers": _("additional information"),
+    }
+    UPDATE_SECTIONS = tuple(SECTION_LABELS)
 
-    def approve(self):
-        self.date_decision = timezone.now()
-        self.approved = True
-        current_version = None
+    changed_sections = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="The sections the author changed (title, abstract, "
+        "published_doi, file, authors, field_answers); approving replaces "
+        "these.",
+    )
+    is_draft = models.BooleanField(
+        default=False,
+        help_text="Drafts are still being prepared by the author and are not "
+        "in the moderation queue.",
+    )
+    started_from = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="A checksum of each section of the preprint's metadata when "
+        "this update was started.",
+    )
 
-        # Update the current version to have the Preprint's current title
-        # and abstract.
-        if self.preprint.current_version is not None:
-            current_version = self.preprint.current_version
-            current_version.title = self.preprint.title
-            current_version.abstract = self.preprint.abstract
-            current_version.published_doi = self.preprint.doi
-            this_file = self.preprint.current_version.file
-        # no version yet
-        else:
-            this_file = self.preprint.submission_file
+    @property
+    def is_legacy(self):
+        """
+        Updates from before drafts held a full copy: blank title, abstract
+        and DOI mean no change, and they never change authors or answers.
+        """
+        return not self.started_from
 
-        # Create a new PreprintVersion, this will now be the current_version.
-        # If the current VersionQueue has no file (in the case of Metadata
-        # updates) use the preprint's current version's file.
-        PreprintVersion.objects.create(
-            preprint=self.preprint,
-            file=self.file if self.file else this_file,
-            version=self.preprint.next_version_number(),
-            moderated_version=self,
-            published_doi=self.published_doi,
+    @staticmethod
+    def normalise_metadata(value):
+        """
+        Normalises title, abstract and DOI values for comparison, so that
+        differences the editor introduces (a wrapping paragraph, entities,
+        whitespace) do not count as changes.
+        """
+        text = re.sub(r"\s+", " ", html.unescape(str(value or ""))).strip()
+        text = re.sub(r">\s+<", "><", text)
+        paragraph = re.fullmatch(r"<p>(.*)</p>", text)
+        if paragraph and "<p" not in paragraph.group(1):
+            text = paragraph.group(1).strip()
+        return text
+
+    def _legacy_change(self, proposed, current):
+        proposed = self.normalise_metadata(proposed)
+        return bool(proposed) and proposed != self.normalise_metadata(current)
+
+    @property
+    def title_changed(self):
+        if self.is_legacy:
+            return self._legacy_change(self.title, self.preprint.title)
+        return "title" in self.changed_sections
+
+    @property
+    def abstract_changed(self):
+        if self.is_legacy:
+            return self._legacy_change(self.abstract, self.preprint.abstract)
+        return "abstract" in self.changed_sections
+
+    @property
+    def published_doi_changed(self):
+        if self.is_legacy:
+            return self._legacy_change(self.published_doi, self.preprint.doi)
+        return "published_doi" in self.changed_sections
+
+    @property
+    def authors_changed(self):
+        return "authors" in self.changed_sections
+
+    @property
+    def field_answers_changed(self):
+        return "field_answers" in self.changed_sections
+
+    @property
+    def authors(self):
+        """This update's complete author list."""
+        return self.frozenauthor_set.select_related("author").order_by("order", "pk")
+
+    @property
+    def field_answers(self):
+        """This update's complete custom field answers."""
+        return self.repositoryfieldanswer_set.select_related("field")
+
+    def author_changes(self):
+        """
+        How this update's author list differs from the preprint's current
+        one, worked out now, so it always describes what approving does.
+        """
+        from repository import logic
+
+        return logic.compare_author_lists(self.preprint.frozen_authors(), self.authors)
+
+    def field_answer_changes(self):
+        from repository import logic
+
+        return logic.compare_field_answers(
+            self.preprint.repositoryfieldanswer_set.select_related("field"),
+            self.field_answers,
         )
 
-        # Overwrite the preprint's metadata now we have a historical record.
-        # Check that title and abstract have value, if not there is no change.
-        if self.title:
-            self.preprint.title = self.title
-        if self.abstract:
-            self.preprint.abstract = self.abstract
-        if self.published_doi:
-            self.preprint.doi = self.published_doi
+    def sections_changed_since_started(self):
+        """
+        The sections of the preprint that have changed since this update
+        was started, e.g. by a moderator. Approving replaces the sections
+        the update changes, so changes to those would be lost.
+        """
+        from repository import logic
 
-        if current_version is not None:
-            current_version.save()
-        self.preprint.save()
-        self.save()
+        if self.is_legacy:
+            return []
+        current = logic.preprint_checksums(self.preprint)
+        return [
+            section
+            for section, checksum in current.items()
+            if checksum != self.started_from.get(section)
+        ]
+
+    def approve(self):
+        """
+        Creates a new version from this update: the current version keeps
+        the metadata it had, and each section the author changed replaces
+        the preprint's. All in one transaction.
+        :return: False if the update was already decided
+        """
+        with transaction.atomic():
+            update = VersionQueue.objects.select_for_update().get(pk=self.pk)
+            if update.date_decision or update.is_draft:
+                return False
+            preprint = Preprint.objects.select_for_update().get(pk=update.preprint_id)
+
+            current_version = preprint.current_version
+            if current_version is not None:
+                preprint.snapshot_to_version(current_version)
+                this_file = current_version.file
+            else:
+                this_file = preprint.submission_file
+
+            if update.title_changed and update.title:
+                preprint.title = update.title
+            if update.abstract_changed:
+                preprint.abstract = update.abstract
+            if update.published_doi_changed:
+                preprint.doi = update.published_doi
+            preprint.save()
+
+            if update.authors_changed:
+                preprint.frozen_authors().delete()
+                update.frozenauthor_set.update(version_queue=None, preprint=preprint)
+            if update.field_answers_changed:
+                preprint.repositoryfieldanswer_set.all().delete()
+                update.repositoryfieldanswer_set.update(
+                    version_queue=None,
+                    preprint=preprint,
+                )
+
+            # Metadata corrections keep the current file.
+            takes_file = update.update_type != "metadata_correction"
+            PreprintVersion.objects.create(
+                preprint=preprint,
+                file=update.file if update.file and takes_file else this_file,
+                version=preprint.next_version_number(),
+                moderated_version=update,
+                published_doi=preprint.doi,
+            )
+
+            update.date_decision = timezone.now()
+            update.approved = True
+            update.save()
+        self.refresh_from_db()
+        return True
 
     def decline(self):
-        self.date_decision = timezone.now()
-        self.approved = False
-        self.save()
+        """
+        :return: False if the update was already decided
+        """
+        with transaction.atomic():
+            update = VersionQueue.objects.select_for_update().get(pk=self.pk)
+            if update.date_decision or update.is_draft:
+                return False
+            update.date_decision = timezone.now()
+            update.approved = False
+            update.save()
+        self.refresh_from_db()
+        return True
 
     def decision(self):
         if self.date_decision and self.approved:
@@ -2271,3 +2416,45 @@ def update_preprint_file_index(sender, instance, created, **kwargs):
         return
 
     instance.index_full_text()
+
+
+@receiver(models.signals.post_delete, sender=PreprintVersion)
+def restore_new_current_version(sender, instance, **kwargs):
+    """
+    When the current version is deleted, the version that becomes current
+    gets its own metadata back: its snapshot replaces the preprint's
+    authors, custom field answers, title, abstract and DOI.
+    """
+    try:
+        preprint = Preprint.objects.get(pk=instance.preprint_id)
+    except Preprint.DoesNotExist:
+        return
+    current = preprint.current_version
+    if current is None or not current.metadata_frozen:
+        return
+    with transaction.atomic():
+        preprint.frozen_authors().delete()
+        for frozen_author in current.frozenauthor_set.select_related("author"):
+            account = frozen_author.author
+            if account:
+                # Follow the linked account again, as live authors do.
+                if frozen_author.frozen_email.lower() == (account.email or "").lower():
+                    frozen_author.frozen_email = ""
+                if frozen_author.frozen_orcid == (account.orcid or ""):
+                    frozen_author.frozen_orcid = ""
+                if frozen_author.frozen_biography == (account.biography or ""):
+                    frozen_author.frozen_biography = ""
+            frozen_author.preprint_version = None
+            frozen_author.preprint = preprint
+            frozen_author.save()
+        preprint.repositoryfieldanswer_set.all().delete()
+        current.repositoryfieldanswer_set.update(
+            preprint_version=None,
+            preprint=preprint,
+        )
+        preprint.title = current.title or preprint.title
+        preprint.abstract = current.abstract
+        preprint.doi = current.published_doi
+        preprint.save()
+        current.metadata_frozen = False
+        current.save(update_fields=["metadata_frozen"])

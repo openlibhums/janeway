@@ -34,6 +34,7 @@ from submission import models as submission_models
 from utils import install, logger, setting_handler
 from utils.logic import get_janeway_version
 from repository import views as repository_views, models
+from repository import logic as repository_logic
 from core.model_utils import merge_models
 from identifiers import views as identifier_views
 
@@ -400,6 +401,7 @@ def merge_users(request):
                 messages.ERROR,
                 "Can't find users with ids %d, %d" % (from_id, to_id),
             )
+        repository_logic.resolve_account_merge(from_acc, to_acc)
         merge_models(from_acc, to_acc)
         messages.add_message(
             request,

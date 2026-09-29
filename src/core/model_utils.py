@@ -795,7 +795,7 @@ class SafePaginator(Paginator):
 def check_exclusive_fields_constraint(model_label, fields, blank=True):
     """
     Checks that only one of several exclusive fields is populated.
-    For example, CreditRecord has author, frozen_author, and preprint_author,
+    For example, ControlledAffiliation has account and frozen_author,
     but only one should be populated.
     If blank=True, allows for all fields to be blank.
     Set this as one of the constraints in a model's Meta.constraints.
@@ -818,7 +818,7 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
         query_piece = models.Q()
         for field in fields:
             query_piece &= models.Q((f"{field}__isnull", True))
-            main_query |= query_piece
+        main_query |= query_piece
     fields_str = "_".join(list(fields))
 
     long_name = f"exclusive_fields_{model_label}_{fields_str}"
@@ -839,7 +839,7 @@ AFFILIATION_COMPATIBLE_PATTERNS = (
         "controlledaffiliation__organization__labels__value",
     ),
     (
-        # PreprintAuthor had 'affiliation'
+        # The removed PreprintAuthor model had 'affiliation'
         re.compile(r"^affiliation"),
         "controlledaffiliation__organization__labels__value",
     ),
@@ -858,7 +858,7 @@ AFFILIATION_COMPATIBLE_PATTERNS = (
 
 class AffiliationCompatibleQueryset(models.query.QuerySet):
     """
-    The Account, FrozenAuthor, PreprintAuthor models used to have
+    The Account, FrozenAuthor and (removed) PreprintAuthor models used to have
     fields like 'institution', 'affiliation', 'department', and 'country'.
     When we migrated this data to the ControlledAffiliation model, we preserved
     the old fields via this queryset class. It maps the old lookups to
