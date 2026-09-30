@@ -532,10 +532,31 @@ nav a.sidenav-trigger i {
         justify-content: flex-end;
         margin-left: auto;
     }
+    /* Rows take their natural height, so a wrapped nav doesn't stack
+       90px rows; the wrapper's min-height keeps a single row at 90px. */
     nav.header-overrides ul.right > li {
         display: flex;
         align-items: center;
-        min-height: 90px;
+        line-height: 48px;
+    }
+    nav.header-overrides ul.right > li > a,
+    nav.header-overrides ul.right > li > a > i {
+        line-height: inherit;
+    }
+    nav.header-overrides ul.right > li.a11y-toggle-host {
+        height: auto;
+        line-height: 48px;
+    }
+}
+
+/* Below 993px the logo link is absolutely positioned and inherits the
+   nav's 90px line-height, which made it taller than the header and cover
+   what follows. Keep it to the header's height. */
+@media (max-width: 992px) {
+    nav.header-overrides .brand-logo {
+        height: 90px;
+        display: flex;
+        align-items: center;
     }
 }
 
