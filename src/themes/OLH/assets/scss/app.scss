@@ -5,6 +5,17 @@
 
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css);
 
+// WCAG 1.4.3: Foundation's default primary (#2199e8) and secondary (#777)
+// fall just short of 4.5:1 against white, so darken them slightly. This must
+// come before Foundation, whose palette is set with !default.
+$foundation-palette: (
+  primary: #1373b3,
+  secondary: #767676,
+  success: #3adb76,
+  warning: #ffae00,
+  alert: #ec5840,
+);
+
 @import 'foundation';
 
 @import "variables";
@@ -62,6 +73,7 @@
   --primary-dark-color: #{$primary-dark-color};
   --very-dark-primary-color: #{$very-dark-primary-color};
   --primary-light-color: #{$primary-light-color};
+  --primary-on-dark-color: #{$primary-on-dark-color};
 
   --topbar-background-color: #{$topbar-background-color};
   --menu-background-color: #{$menu-background-color};
@@ -137,6 +149,14 @@ html, body {
   min-width: 0;
 }
 
+// The shared sort-control CSS starts the select at its full width and
+// holds it at 7rem, which pushes Apply onto its own line in the 303px
+// articles sidebar. Start it from zero and let it shrink to 5.5rem.
+.input-group.sort-control select.input-group-field {
+  flex: 1 1 0;
+  min-width: 5.5rem;
+}
+
 .sort-control .input-group-button .button {
   height: 100%;
   margin: 0;
@@ -163,7 +183,7 @@ header {
 
     input {
       background: $very-light-gray;
-      border: 1px solid $medium-gray;
+      border: 1px solid $input-border-color;
       box-shadow: none;
     }
     .global-search {
@@ -181,7 +201,7 @@ header {
       }
       .input-group-button button {
         background: $very-light-gray;
-        border: 1px solid $medium-gray;
+        border: 1px solid $input-border-color;
         border-right: none !important;
         color: $black;
         cursor: pointer;
@@ -196,7 +216,7 @@ header {
         &:focus {
           background: $very-light-gray;
           box-shadow: none;
-          border: 1px solid $medium-gray;
+          border: 1px solid $input-border-color;
         }
       }
 
@@ -454,6 +474,14 @@ pre {@extend blockquote; @extend p;}
   }
 }
 
+// Firefox sizes an inline-block item from its link's negative focus-ring
+// margin but not its padding, so multi-word footer links wrap mid-name.
+footer .inline-list li {
+  @include breakpoint(medium) {
+    display: inline;
+  }
+}
+
 .inline-list-bar li:not(:last-child)::after {
   content: " | " / "";  
   margin-left: rem-calc(10px);
@@ -486,6 +514,10 @@ main section {
   background: var(--primary-dark-color);
 
   @extend .white-text;
+
+  a {
+    color: var(--primary-on-dark-color);
+  }
 }
 
 .gradient-primary-bg {
@@ -630,7 +662,7 @@ div.caption span.label {
       padding: rem-calc(10 20);
 
       h2 {
-        font-size: rem-calc(24);
+        font-size: rem-calc(16);
       }
 
       p {
@@ -1153,6 +1185,18 @@ footer {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
     height: $footer-height;
+
+    // The focus style makes links inline-block, which shrink-wraps them;
+    // an SVG with no width of its own then collapses to 0px. Keep the
+    // link inline-block throughout and give the SVG a fixed width.
+    a {
+      display: inline-block;
+    }
+
+    a svg {
+      display: block;
+      width: 180px;
+    }
   }
   p, li {
     font-family: $header-font-family;
@@ -1206,7 +1250,7 @@ table tr th {
 
 table tr.active td {
   background-color: var(--primary-dark-color);
-  color: var(--primary-light-color);
+  color: var(--primary-on-dark-color);
 }
 
 .orbit {
@@ -2019,7 +2063,7 @@ section.invisible-landmark{
 }
 
 .orbit-caption{
-  color: var(--primary-light-color);
+  color: var(--primary-on-dark-color);
   background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
 }
 
@@ -2325,3 +2369,20 @@ input[type="submit"]:focus-visible {
     outline-offset: -2px;
 }
 
+/* WCAG 1.4.10: the collection card rows are nested directly in a row, so
+   their negative gutters push empty column padding past the viewport. */
+.collections-page {
+    overflow-x: clip;
+}
+
+/* WCAG 1.4.3: Foundation's subheader grey (#8a8a8a) is 3.4:1 on the page. */
+.subheader {
+  color: #707070;
+}
+
+/* WCAG 2.5.8: stacked preprint version links need 24px between centres. */
+.preprint-versions a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}

@@ -23,8 +23,8 @@
                   <img class="material-banner-image"
                       src="{{ news_item.best_image_url }}"
                         alt="{{ news_item.best_large_image_alt_text }}"/>
-                    <div class="material-banner-heading">
-                      <div class="carousel-text-wrapper">
+                    <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="news-banner-title-{{ news_item.pk }}">
+                      <div id="news-banner-title-{{ news_item.pk }}" class="carousel-text-wrapper">
                         {{ news_item.title|safe }}
                       </div>
                     </div>

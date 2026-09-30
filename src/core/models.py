@@ -69,9 +69,7 @@ from production import logic as production_logic
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
 
-IMAGE_GALLEY_TEMPLATE = """
-    <img class="responsive-img" src={url} alt="{alt}">
-"""
+IMAGE_GALLEY_TEMPLATE = '<img class="responsive-img" src="{}" alt="{}">'
 
 
 def profile_images_upload_path(instance, filename):
@@ -1759,11 +1757,18 @@ class Galley(AbstractLastModifiedModel):
                 "article_download_galley",
                 kwargs={"article_id": self.article.id, "galley_id": self.id},
             )
-            contents = IMAGE_GALLEY_TEMPLATE.format(
-                url=url,
-                alt=self.label,
+            # The image is the article's content, so it falls back to the
+            # article title rather than the galley label (usually "Image").
+            from core.templatetags import alt_text
+
+            return format_html(
+                IMAGE_GALLEY_TEMPLATE,
+                url,
+                alt_text.get_alt_text(
+                    obj=self.file,
+                    default=alt_text.plain_text(self.article.title),
+                ),
             )
-            return contents
 
     def path(self):
         url = reverse(

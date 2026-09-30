@@ -26,10 +26,10 @@
         <div class="card">
           <div class="material-banner">
             <img class="material-banner-image"
-               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|striptags %}"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|banner_alt %}"
                src="{{ request.repository.best_large_image_url }}">
-            <div class="material-banner-heading">
-              <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
+            <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="preprint-banner-title">
+              <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
             </div>
           </div>
         </div>
@@ -57,7 +57,8 @@
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
-                            webkitallowfullscreen></iframe>
+                            webkitallowfullscreen
+                            title="{{ preprint.title|striptags }} PDF"></iframe>
                 {% else %}
                     <div class="preprint-content">
                         {% if preprint.current_version.file %}
@@ -101,11 +102,11 @@
                                 <div class="row" id="comment-{{ comment.pk }}">
                                     <div class="col m2">
                                         {% if comment.author.profile_image and not comment.review.anonymous %}
-                                            <img src="{{ comment.author.profile_image.url }}"
-                                                 class="responsive-img circle">
+                                            {% blocktrans with name=comment.author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}"
+                                                 class="responsive-img circle" alt="{{ profile_image_alt_text }}">
                                         {% else %}
                                             <img src="{% static "common/img/icons/users.png" %}"
-                                                 class="responsive-img circle">
+                                                 class="responsive-img circle" alt="{% trans 'A generic headshot photograph of a person' %}">
                                         {% endif %}
                                     </div>
                                     <div class="col m10">
@@ -163,7 +164,7 @@
                     <div class="truncatejs">
                       <p class="authors">
                         {% for author in preprint.authors %}
-                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>

@@ -374,10 +374,6 @@ a:hover .article-title {
     padding-bottom: 8px;
 }
 
-.issue-link {
-    color: rgba(0,0,0,0.87);
-}
-
 .issue-link:hover {
     text-decoration: underline;
 }
@@ -474,7 +470,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p, li {
+.footer-copyright p, .footer-copyright li {
     color: #616161;
 }
 
@@ -581,6 +577,13 @@ nav a.sidenav-trigger i {
 
 .sidenav-trigger {
     color: #616161;
+}
+
+/* WCAG 2.5.8: the icon alone is 12px wide, so widen the target to the
+   left, into the existing margin, leaving the icon where it was. */
+nav a.sidenav-trigger {
+    padding-left: 12px;
+    margin-left: 6px;
 }
 
 .card .card-image img {
@@ -1851,6 +1854,95 @@ abbr.req {
 
 .inline-select-group .btn {
   flex: 0 0 auto;
+}
+
+/* WCAG 1.4.3: Materialize's default link, button, label and card action
+   colours fall below 4.5:1, so darken each within its own hue. Journal
+   override stylesheets load after this file and still take precedence.
+   The link blue also has to be 3:1 against the #212121 body text, as links
+   in running text have no underline (WCAG 1.4.1): #0272a9 is 3.05:1 against
+   the text and 4.54:1 or better on white and the grey backgrounds. */
+a {
+  color: #0272a9;
+}
+
+/* In-text links are 3:1 against the text by colour alone; underline on hover
+   as the extra cue (WCAG 1.4.1, technique G183). Focus already has its own
+   styles. Navigation, buttons, cards and lists of links are left alone. */
+main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
+.article-body li a:hover {
+  text-decoration: underline;
+}
+
+/* Footer links aren't in running text, and the footer background (#eaeaea)
+   is too dark for the lighter link blue to reach 4.5:1. */
+.footer-copyright a {
+  color: #016d9f;
+}
+
+.btn, .btn-small, .btn-large {
+  background-color: #1d7e75;
+}
+
+.btn:hover, .btn-small:hover, .btn-large:hover {
+  background-color: #186b63;
+}
+
+.collection a.collection-item {
+  color: #1d7e75;
+}
+
+.collection .collection-item.active {
+  background-color: #1d7e75;
+}
+
+label,
+.input-field > label {
+  color: #767676;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating) {
+  color: #b16300;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating):hover {
+  color: #8a4d00;
+}
+
+/* WCAG 1.4.11: Materialize's field underline (#9e9e9e) is 2.7:1 against
+   white. Same selectors as Materialize, so its focus states still win. */
+input:not([type]):not(.browser-default),
+input[type=text]:not(.browser-default),
+input[type=password]:not(.browser-default),
+input[type=email]:not(.browser-default),
+input[type=url]:not(.browser-default),
+input[type=time]:not(.browser-default),
+input[type=date]:not(.browser-default),
+input[type=datetime]:not(.browser-default),
+input[type=datetime-local]:not(.browser-default),
+input[type=month]:not(.browser-default),
+input[type=tel]:not(.browser-default),
+input[type=number]:not(.browser-default),
+input[type=search]:not(.browser-default),
+textarea.materialize-textarea,
+.select-wrapper input.select-dropdown {
+  border-bottom-color: #949494;
+}
+
+/* WCAG 2.5.8: stacked download links need 24px between target centres. */
+.article-downloads a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+/* The article sidebar headings are h2 for document structure (#5557) but
+   keep the size and spacing they had as h4. */
+h2.sidebar-heading {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 110%;
+  margin: 1.52rem 0 0.912rem 0;
 }
 
 /* Section and/or topic of an issue article */

@@ -38,7 +38,6 @@ from django.dispatch import receiver
 from django.core import exceptions
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
-from django.utils.html import strip_tags
 import swapper
 
 from core.file_system import JanewayFileSystemStorage
@@ -2610,7 +2609,7 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def best_large_image_alt_text(self):
-        default_text = strip_tags(self.title)
+        default_text = alt_text.banner_alt(self.title)
         if self.large_image_file:
             return alt_text.get_alt_text(
                 obj=self.large_image_file,

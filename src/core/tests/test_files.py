@@ -1,4 +1,5 @@
 import os
+import re
 from tempfile import NamedTemporaryFile
 
 from django.urls import reverse
@@ -201,3 +202,79 @@ class TestDefaultXSLTransform(TestCase):
 
         self.assertEqual(output.count('<a href="{}"'.format(uri)), 1)
         self.assertEqual(output.count('<a href="{}"'.format(doi)), 1)
+
+    def render_images(self, body):
+        """Renders a JATS body fragment and returns each <img>'s alt."""
+        output = self.render(
+            '<article xmlns:xlink="http://www.w3.org/1999/xlink">'
+            "<body><sec>{}</sec></body></article>".format(body)
+        )
+        alts = [
+            re.search(r'alt="([^"]*)"', img).group(1) if "alt=" in img else None
+            for img in re.findall(r"<img\b[^>]*>", output)
+        ]
+        return alts, re.sub(r"<[^>]+>", " ", output)
+
+    def test_inline_graphic_uses_its_alt_text(self):
+        alts, _ = self.render_images(
+            '<p><inline-graphic xlink:href="i.png">'
+            "<alt-text>Plus sign</alt-text></inline-graphic></p>"
+        )
+        self.assertEqual(alts, ["Plus sign"])
+
+    def test_inline_graphic_without_alt_text_has_empty_alt(self):
+        alts, _ = self.render_images('<p><inline-graphic xlink:href="i.png"/></p>')
+        self.assertEqual(alts, [""])
+
+    def test_graphic_uses_its_alt_text_and_does_not_show_it(self):
+        alts, text = self.render_images(
+            '<p><graphic xlink:href="g.png"><alt-text>A map of Leeds</alt-text>'
+            "<caption>Map</caption></graphic></p>"
+        )
+        self.assertEqual(alts, ["A map of Leeds"])
+        self.assertNotIn("A map of Leeds", text)
+
+    def test_graphic_without_alt_text_uses_its_caption(self):
+        alts, _ = self.render_images(
+            '<p><graphic xlink:href="g.png"><caption>Map</caption></graphic></p>'
+        )
+        self.assertEqual(alts, ["Map"])
+
+    def test_figure_uses_alt_text_on_the_graphic_or_the_figure(self):
+        for body in [
+            '<fig id="f1"><label>Figure 1</label><graphic xlink:href="f.png">'
+            "<alt-text>Bar chart of sales</alt-text></graphic></fig>",
+            '<fig id="f1"><label>Figure 1</label>'
+            "<alt-text>Bar chart of sales</alt-text>"
+            '<graphic xlink:href="f.png"/></fig>',
+        ]:
+            with self.subTest(body=body):
+                alts, _ = self.render_images(body)
+                self.assertEqual(alts, ["Bar chart of sales"])
+
+    def test_figure_without_alt_text_uses_its_label(self):
+        alts, _ = self.render_images(
+            '<fig id="f1"><label>Figure 1</label><graphic xlink:href="f.png"/></fig>'
+        )
+        self.assertEqual(alts, ["Figure 1"])
+
+    def test_table_image_uses_the_table_alt_text_and_does_not_show_it(self):
+        alts, text = self.render_images(
+            '<table-wrap id="t1"><label>Table 1</label>'
+            "<alt-text>Scanned table of results</alt-text>"
+            '<caption><p>Results</p></caption><graphic xlink:href="t.png"/>'
+            "</table-wrap>"
+        )
+        self.assertEqual(alts, ["Scanned table of results"])
+        self.assertNotIn("Scanned table of results", text)
+
+    def test_figure_group_images_use_alt_text_then_labels(self):
+        alts, _ = self.render_images(
+            '<fig-group><fig id="a"><label>Figure 2</label>'
+            '<graphic xlink:href="a.png"><alt-text>Map of sites</alt-text></graphic>'
+            '</fig><fig id="b" specific-use="child"><label>Figure 2b</label>'
+            '<graphic xlink:href="b.png"/></fig></fig-group>'
+        )
+        self.assertIn("Map of sites", alts)
+        self.assertIn("Figure 2b", alts)
+        self.assertNotIn("Figure 2", alts)

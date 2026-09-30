@@ -21,9 +21,10 @@
                     {% if issue_item.id == issue.id %}
                         <li>
                             <span class="sr-only"></span>
-                            <span aria-label='{{ issue.display_title_a11y }}'>
+                            <span aria-hidden="true">
                                 {{ issue.display_title }}
                             </span>
+                            <span class="sr-only">{{ issue.display_title_a11y }}</span>
                             ({{ issue.articles.all.count}})
                             <span class="sr-only">{% trans 'Articles' %} {% trans 'this page' %}</span>
                         </li>

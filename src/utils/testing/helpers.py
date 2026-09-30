@@ -777,6 +777,61 @@ def create_news_item(content_type, object_id, **kwargs):
     return item
 
 
+def read_theme_asset(theme, relative_path):
+    path = os.path.join(settings.BASE_DIR, "themes", theme, relative_path)
+    with open(path, encoding="utf-8") as asset_file:
+        return asset_file.read()
+
+
+def create_press_thumbnail(press, filename="press-logo.png", mime_type="image/png"):
+    """Give the press a logo record; the file itself is not written."""
+    thumbnail = File.objects.create(
+        mime_type=mime_type,
+        original_filename=filename,
+        uuid_filename=filename,
+        label="Press logo",
+    )
+    press.thumbnail_image = thumbnail
+    press.save()
+    return thumbnail
+
+
+def relative_luminance(hex_colour):
+    channels = []
+    for start in (1, 3, 5):
+        value = int(hex_colour[start : start + 2], 16) / 255
+        if value <= 0.03928:
+            channels.append(value / 12.92)
+        else:
+            channels.append(((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(foreground, background):
+    """WCAG 2 contrast ratio between two #rrggbb colours."""
+    lighter, darker = sorted(
+        [relative_luminance(foreground), relative_luminance(background)],
+        reverse=True,
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def create_homepage_element(site_object, name, template_path, **kwargs):
+    element, _created = core_models.HomepageElement.objects.update_or_create(
+        name=name,
+        content_type=ContentType.objects.get_for_model(site_object),
+        object_id=site_object.pk,
+        defaults={
+            "template_path": template_path,
+            "has_config": False,
+            "active": kwargs.get("active", True),
+            "sequence": kwargs.get("sequence", 0),
+        },
+    )
+    return element
+
+
 def create_cms_page(content_type, object_id, **kwargs):
     name = kwargs.get("name", "test-name")
     display_name = kwargs.get("display_name", "Test display name")

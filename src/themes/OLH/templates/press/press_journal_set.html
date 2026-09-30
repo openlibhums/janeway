@@ -1,3 +1,4 @@
+{% load alt_text %}
 {% load settings i18n %}
 {% load static %}
 
@@ -14,8 +15,7 @@
                             {% else %}
                             <a href="{{ journal.site_url }}">
                             {% endif %}
-                                <img src="{% if journal.default_cover_image %}{{ journal.default_cover_image.url }}{% endif %}"
-                                     alt="{% if journal.name != " " and journal.name != "" %}{{ journal.name }}{% else %}Unnamed Journal{% endif %}">
+                                {% trans "Unnamed Journal" as unnamed_journal %}{% get_alt_text file_path=journal.default_cover_image default=journal.name.strip|default:unnamed_journal|cover_alt as cover_alt_text %}<img src="{% if journal.default_cover_image %}{{ journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
                             </a>
                         </div>
                         <div class="large-8 columns title-div" data-equalizer-watch>

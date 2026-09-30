@@ -121,6 +121,7 @@ class SubmissionTests(TestCase):
     def test_article_image_galley(self):
         article = models.Article.objects.create(
             journal=self.journal_one,
+            title="Tom &amp; Jerry <em>abroad</em>",
             date_published=FROZEN_DATETIME_2020,
             stage=models.STAGE_PUBLISHED,
         )
@@ -133,7 +134,12 @@ class SubmissionTests(TestCase):
 
         galley = create_galley(article, galley_file)
         galley.label = "image"
-        expected = f'<img class="responsive-img" src=/article/{article.pk}/galley/{galley.pk}/download/ alt="image">'
+        # The image is the article, so its alt falls back to the plain title.
+        expected = (
+            f'<img class="responsive-img" '
+            f'src="/article/{article.pk}/galley/{galley.pk}/download/" '
+            f'alt="Tom &amp; Jerry abroad">'
+        )
 
         self.assertEqual(galley.file_content().strip(), expected)
 

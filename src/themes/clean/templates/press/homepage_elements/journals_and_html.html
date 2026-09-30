@@ -1,3 +1,4 @@
+{% load alt_text %}
 <section aria-labelledby="featured-journals-title">
     <div class="row">
         <div class="col-md-6">
@@ -7,10 +8,10 @@
                 {% for current_journal in featured_journals %}
                     <div class="col-md-4 row-eq-height">
                         <div class="card" style="width: 20rem;">
-                            <img class="card-img-top img-fluid" src="
+                            {% get_alt_text file_path=current_journal.default_cover_image default=current_journal.name|cover_alt as cover_alt_text %}<img class="card-img-top img-fluid" src="
 
 
-                                {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}">
+                                {% if current_journal.default_cover_image %}{{ current_journal.default_cover_image.url }}{% endif %}" alt="{{ cover_alt_text }}">
                         <div class="card-block">
                             {% if current_journal.is_remote %}
                                 <a href="{{ current_journal.remote_view_url }}" target="_blank">

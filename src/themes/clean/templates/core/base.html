@@ -41,7 +41,7 @@
         <div id="journal-title">
             <div class="row">
                 {% if request.journal and request.journal.header_image %}
-                    {% get_alt_text file_path=request.journal.header_image default=request.journal.name as header_alt_text %}
+                    {% get_alt_text file_path=request.journal.header_image default=request.journal.name|logo_alt as header_alt_text %}
                     <div class="col-md-2">
                         <a href="{{ request.journal.site_url }}" aria-label="{% trans Home %}">
                             <img src="{{ request.journal.header_image.url }}"
@@ -58,9 +58,10 @@
             {% elif request.press and not request.journal %}
                     <div class="col-md-2">
                         {% if 'svg' in request.press_cover %}
-                            {% svg request.press_cover %}
+                            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
+                            {% svg request.press_cover alt_text=press_logo_alt %}
                         {% else %}
-                            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name as press_logo_alt %}
+                            {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
                             <img class="img-fluid header-image top-bar-image" src="{% url 'press_cover_download' %}"
                                              alt="{{ press_logo_alt }}">
                         {% endif %}

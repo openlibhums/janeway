@@ -291,8 +291,8 @@ class TestProfileImageAltText(TestCase):
         )
         rendered = self.render_partial()
         self.assertIn("Kathryn smiling in the ready room", rendered)
-        self.assertNotIn("Profile picture for", rendered)
+        self.assertNotIn(", profile image", rendered)
 
     def test_profile_image_falls_back_to_default_alt_text(self):
         rendered = self.render_partial()
-        self.assertIn("Profile picture for Kathryn Janeway", rendered)
+        self.assertIn("Kathryn Janeway, profile image", rendered)

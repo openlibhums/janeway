@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load alt_text %}
 {% load static %}
 {% load hooks %}
 {% load i18n %}
@@ -48,7 +49,7 @@
                         {{ author.full_name }}{% if author.orcid %}&nbsp;
                             <a href="https://orcid.org/{{ author.orcid }}"
                                target="_blank"><img
-                                    src="{% static 'common/img/icons/orcid.png' %}"></a>
+                                    src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>
                         {% endif %}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </p>
@@ -70,7 +71,8 @@
                 {% elif preprint.current_version_file_type == 'pdf' %}
                     <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
-                            webkitallowfullscreen></iframe>
+                            webkitallowfullscreen
+                            title="{{ preprint.title|striptags }} PDF"></iframe>
                 {% endif %}
 
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
@@ -90,9 +92,9 @@
                           <div class="row" id="comment-{{ comment.pk }}">
                               <div class="large-2 columns">
                                   {% if comment.author.profile_image and not comment.review.anonymous %}
-                                      <img src="{{ comment.author.profile_image.url }}">
+                                      {% blocktrans with name=comment.author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" alt="{{ profile_image_alt_text }}">
                                   {% else %}
-                                      <img src="{% static "common/img/icons/users.png" %}">
+                                      <img src="{% static "common/img/icons/users.png" %}" alt="{% trans 'A generic headshot photograph of a person' %}">
                                   {% endif %}
                               </div>
                               <div class="large-10 columns">
@@ -132,7 +134,7 @@
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
                             <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
-                                    class="fa fa-download"></span>
+                                    aria-hidden="true" class="fa fa-download"></span>
                                 Download {{ preprint.submission_type.name }}
                             </a>
                         </p>
@@ -191,7 +193,7 @@
                     </ul>
                     {% if preprint.preprintversion_set.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
-                    <ul>
+                    <ul class="preprint-versions">
                         {% for version in preprint.preprintversion_set.all %}
                             <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
                                 {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}
@@ -213,7 +215,7 @@
 
                     {% hook 'preprint_sidebar' %}
 
-                    <a href="{% url 'repository_list' %}"><i class="fa fa-arrow-left"></i>
+                    <a href="{% url 'repository_list' %}"><i aria-hidden="true" class="fa fa-arrow-left"></i>
                       {% trans "All submissions" %}</a>
 
                 </small>

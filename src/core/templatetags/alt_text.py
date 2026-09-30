@@ -3,10 +3,53 @@ import hashlib
 from django import template
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils.translation import gettext as _
 
 from core import models
+from core.templatetags.escaping import unescape
 
 register = template.Library()
+
+
+@register.filter
+def plain_text(value):
+    """Strips tags and unescapes entities, for use as alt text.
+
+    Titles are stored as sanitised HTML, so "Tom & Jerry" is stored as
+    "Tom &amp; Jerry". Stripping tags alone leaves the entity, which the
+    template then escapes again. The result is plain text, escaped once
+    when output.
+    """
+    return unescape(strip_tags(str(value or "")))
+
+
+# Default alt text says what kind of image it is, so it is not a bare
+# repeat of a nearby heading.
+
+
+@register.filter
+def logo_alt(name):
+    """Default alt text for a logo: "{name} logo"."""
+    return _("%(name)s logo") % {"name": plain_text(name)}
+
+
+@register.filter
+def cover_alt(name):
+    """Default alt text for a journal or issue cover: "{name} cover"."""
+    return _("%(name)s cover") % {"name": plain_text(name)}
+
+
+@register.filter
+def banner_alt(name):
+    """Default alt text for a banner (large) image: "{name} banner"."""
+    return _("%(name)s banner") % {"name": plain_text(name)}
+
+
+@register.filter
+def thumbnail_alt(name):
+    """Default alt text for a thumbnail: "{name} thumbnail"."""
+    return _("%(name)s thumbnail") % {"name": plain_text(name)}
 
 
 def _resolve_url(value):

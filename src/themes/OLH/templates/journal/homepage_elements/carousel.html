@@ -31,7 +31,7 @@
                             </li>
                         {% endfor %}
                     </ul>
-                    <nav class="orbit-bullets">
+                    <nav class="orbit-bullets" aria-label="{% trans 'Carousel slides' %}">
                         {% for carousel_item in carousel_items %}
                             <button data-slide="{{ forloop.counter0 }}">
                                 <span class="sr-only">

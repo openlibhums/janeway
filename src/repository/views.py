@@ -401,6 +401,7 @@ def repository_list(request):
         submission_type = form.cleaned_data.get("submission_type")
         search_term = form.cleaned_data.get("search_term", "").strip()
         sort = form.cleaned_data.get("sort", "")
+        search_filters = None
 
         if search_term:
             search_filters = form.search_filters()

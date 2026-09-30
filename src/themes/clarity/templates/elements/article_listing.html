@@ -10,17 +10,16 @@
                 <div class="thumbnail-container">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                             alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}"
+                             alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|thumbnail_alt %}"
                              class="article-thumbnail"
                              onerror="this.parentElement.classList.add('fallback-active');">
                     {% elif request.journal.thumbnail_image %}
-                        <img src="{% url 'journal_cover_download' %}"
+                        {% blocktrans with name=request.journal asvar default_alt %}{{ name }} thumbnail icon{% endblocktrans %}{% get_alt_text obj=request.journal.thumbnail_image default=default_alt as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}"
                              class="article-thumbnail"
-                             alt="{{ request.journal }} thumbnail icon"
-                             onerror="this.parentElement.classList.add('fallback-active');">
+                             onerror="this.parentElement.classList.add('fallback-active');" alt="{{ thumbnail_alt_text }}">
                     {% else %}
                         <img src="{% static 'common/img/icons/article.png' %}"
-                             alt="{{ article.title|striptags|escape }}"
+                             alt=""
                              class="article-thumbnail"
                              onerror="this.parentElement.classList.add('fallback-active');">
                     {% endif %}
@@ -74,7 +73,7 @@
                     <li class="list-inline-item">
                         <a href="{{ article.issue.url }}" class="meta-item issue-link">
                             <i aria-hidden="true" class="fa fa-book"></i>
-                            <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
+                            {{ article.issue_title }}
                         </a>
                     </li>
                 {% endif %}

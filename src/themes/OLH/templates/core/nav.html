@@ -3,7 +3,7 @@
 {% load hooks %}
 {% load next_url %}
 
-<nav>
+<nav aria-label="{% trans 'Main' %}">
     <div class="top-bar" id="main-menu" style="display: block;">
         <ul class="menu vertical medium-horizontal" data-responsive-menu="drilldown medium-dropdown">
             {% if request.journal.nav_home %}

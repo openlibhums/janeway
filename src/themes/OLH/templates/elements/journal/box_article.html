@@ -12,17 +12,17 @@
          <div class="large-2 columns show-for-large">
             {% if article.thumbnail_image_file %}
                 <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                   alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|striptags|escape %}"
+                   alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|thumbnail_alt %}"
                      class="article-thumbnail"
                 >
             {% elif request.journal.thumbnail_image %}
                 <img src="{% url 'journal_cover_download' %}"
-                     alt="{% get_alt_text obj=request.journal.thumbnail_image default=article.title|striptags|escape %}"
+                     alt="{% get_alt_text obj=request.journal.thumbnail_image default=article.title|thumbnail_alt %}"
                      class="article-thumbnail"
                 >
             {% else %}
                 <img src="{% static 'common/img/icons/article.png' %}"
-                     alt="{{ thumbnail_alt_text }}"
+                     alt=""
                      class="article-thumbnail"
                 >
             {% endif %}
@@ -69,7 +69,7 @@
                 </span>
                 <i aria-hidden="true" class="fa fa-book"></i>
                 {% if article.issue.issue_type.code == 'issue' %}
-                    <span aria-label='{{ article.issue_title_a11y }}'>{{ article.issue_title }}</span>
+                    <span aria-hidden="true">{{ article.issue_title }}</span><span class="sr-only">{{ article.issue_title_a11y }}</span>
                 {% else %}
                     {{ article.issue.issue_title }}
                 {% endif %}

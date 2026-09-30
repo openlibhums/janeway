@@ -10,7 +10,7 @@
       <div class="card border-0">
         <img class="card-img img-fluid article-img"
              src="{{ request.repository.best_large_image_url }}"
-             alt="{% get_alt_text file_path=request.repository.best_large_image_url default=request.repository.name %}">
+             alt="{% get_alt_text file_path=request.repository.best_large_image_url default=request.repository.name|banner_alt %}">
         <div class="card-img-overlay d-flex align-items-center justify-content-center text-center">
           <div class="card-text p-3">
             <h1 class="card-title white-text" style="font-size: 2.5rem;">{{ request.repository.name }}</h1>

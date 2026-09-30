@@ -54,8 +54,10 @@ main a {
     text-decoration: underline;
 }
 
-/* Do not automatically underline links that contain font-awesome icons */
-main a:has(.fa) {
+/* Do not automatically underline links that contain font-awesome icons,
+   except text links marked as external, which keep their underline so they
+   stand out from surrounding text (WCAG 1.4.1). */
+main a:has(.fa):not(:has(.fa-external-link)) {
   text-decoration: none;
 }
 
@@ -183,6 +185,20 @@ main a:hover {
     background-color: #1C304A;
     border-color: #1C304A;
     color: white;
+}
+
+/* WCAG 1.4.3: Bootstrap's default outline primary (#007bff) is 3.98:1 on
+   white; match the theme's primary button instead. */
+.btn-outline-primary {
+    color: #1C304A;
+    border-color: #1C304A;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
 }
 
 .btn-primary:hover,
@@ -1437,6 +1453,28 @@ abbr.req {
   .navbar-custom .navbar-nav {
     flex-wrap: wrap;
   }
+}
+
+/* WCAG 1.4.11: Bootstrap's default field border (#ced4da) is 1.5:1
+   against white; this grey reaches 3:1. */
+.form-control,
+.custom-select {
+  border-color: #8491a0;
+}
+
+/* WCAG 2.5.8: repository pages use OLH's markup, so give its stacked
+   version links and pagination links 24px targets here too. */
+.preprint-versions a,
+.pagination-block .pagination a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+.pagination-block .pagination a {
+  min-width: 24px;
+  margin-inline: 0;
+  text-align: center;
 }
 
 /* Section and/or topic of an issue article */

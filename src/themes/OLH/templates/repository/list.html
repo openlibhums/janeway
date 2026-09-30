@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load dates %}
 {% load static %}
 {% load i18n %}
 {% load truncate %}
@@ -59,11 +60,13 @@
                             <p>
                                 <span class="date">
                                     {% include "repository/elements/submission_type_pill.html" %} &nbsp;
-                                    <i class="fa fa-calendar"></i>
-                                    {{ preprint.date_published|date:"Y-m-d" }}&nbsp;&nbsp;
-                                    <i class="fa fa-paperclip"></i>
+                                    {% if preprint.date_published %}
+                                    <i aria-hidden="true" class="fa fa-calendar"></i>
+                                    {{ preprint.date_published|date_human }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    <i aria-hidden="true" class="fa fa-paperclip"></i>
                                     {% include "common/repository/subject_display.html" %}&nbsp;
-                                    {% if preprint.organisation_units.all %}<i class="fa fa-link"></i>{% endif %}
+                                    {% if preprint.organisation_units.all %}<i aria-hidden="true" class="fa fa-link"></i>{% endif %}
                                     {% for rou in preprint.organisation_units.all %}
                                     <a href="{% url 'repository_preprints_by_rou' rou.code %}">
                                         {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
@@ -97,7 +100,7 @@
               <div class="section">
                   <form method="get" action="{% url 'repository_list' %}">
                       <div class="input-group">
-                            <span class="input-group-label"><i class="fa fa-search"></i></span>
+                            <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
                             <input class="input-group-field" type="search" name="search_term"
                                    placeholder="{% trans "Search" %}"
                                    value="{{ form.search_term.value|default_if_none:'' }}">
