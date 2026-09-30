@@ -2587,6 +2587,50 @@ def section_articles(request, section_id):
     return render(request, template, context)
 
 
+@role_can_access("topics")
+def topic_list(request):
+    """
+    Displays a list of the journal's topics.
+    :param request: HttpRequest object
+    :return: HttpResponse
+    """
+    topics = journal_models.Topic.objects.filter(
+        journal=request.journal,
+    )
+
+    template = "core/manager/topics/topic_list.html"
+    context = {
+        "topics": topics,
+    }
+    return render(request, template, context)
+
+
+@role_can_access("topics")
+def topic_articles(request, topic_id):
+    """
+    Lists the articles of a topic. Moving or removing them is handled by
+    partial_views.topic_articles_update.
+    :param request: HttpRequest object
+    :param topic_id: Topic object PK
+    :return: HttpResponse
+    """
+    topic = get_object_or_404(
+        journal_models.Topic,
+        id=topic_id,
+        journal=request.journal,
+    )
+    other_topics = journal_models.Topic.objects.filter(
+        journal=request.journal,
+    ).exclude(pk=topic.pk)
+
+    template = "core/manager/topics/topic_articles.html"
+    context = {
+        "topic": topic,
+        "other_topics": other_topics,
+    }
+    return render(request, template, context)
+
+
 @editor_user_required
 def pinned_articles(request):
     """

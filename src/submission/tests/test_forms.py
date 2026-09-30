@@ -5,6 +5,7 @@ __maintainer__ = "Open Library of Humanities"
 
 from django.test import TestCase, override_settings
 
+from journal import models as journal_models
 from submission import forms
 from submission import models as sm_models
 from utils.testing import helpers
@@ -192,3 +193,83 @@ class CreditRecordFormTests(TestCase):
         )
         self.assertFalse(form_with_duplicate_data.is_valid())
         self.assertTrue(form_with_duplicate_data.errors)
+
+
+class ArticleInfoTopicTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article = helpers.create_article(cls.journal_one)
+        cls.public_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_one,
+            title="Public",
+        )
+        cls.closed_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_one,
+            title="Closed",
+            public_submissions=False,
+        )
+        cls.other_journal_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_two,
+            title="Other journal",
+        )
+
+    def setUp(self):
+        self.configuration = self.journal_one.submissionconfiguration
+        self.configuration.topic = True
+        self.configuration.save()
+
+    def test_topic_disabled_by_default(self):
+        self.assertFalse(
+            sm_models.SubmissionConfiguration().topic,
+        )
+
+    def test_topic_hidden_when_disabled(self):
+        self.configuration.topic = False
+        self.configuration.save()
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertNotIn("topic", form.fields)
+
+    def test_submit_only_offers_public_topics(self):
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertEqual(
+            list(form.fields["topic"].queryset),
+            [self.public_topic],
+        )
+
+    def test_editor_submit_offers_all_journal_topics(self):
+        form = forms.EditorArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertEqual(
+            set(form.fields["topic"].queryset),
+            {self.public_topic, self.closed_topic},
+        )
+
+    def test_topic_hidden_when_no_topics_available(self):
+        self.public_topic.public_submissions = False
+        self.public_topic.save()
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertNotIn("topic", form.fields)
+
+    def test_edit_metadata_shows_topic_regardless_of_configuration(self):
+        self.configuration.topic = False
+        self.configuration.save()
+        form = forms.EditArticleMetadata(
+            instance=self.article,
+            pop_disabled_fields=False,
+            editor_view=True,
+        )
+        self.assertIn("topic", form.fields)
+        self.assertNotIn(self.other_journal_topic, form.fields["topic"].queryset)

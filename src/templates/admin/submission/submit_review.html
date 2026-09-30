@@ -77,6 +77,15 @@
                                 <td>{{ article.license.name }}</td>{% endif %}
                         </tr>
 
+                        {% if request.journal.submissionconfiguration.topic and article.topic %}
+                            <tr>
+                                <th colspan="3">{% trans "Topic" %}</th>
+                            </tr>
+                            <tr>
+                                <td colspan="3">{{ article.topic.title }}</td>
+                            </tr>
+                        {% endif %}
+
                         {% if request.journal.submissionconfiguration.competing_interests %}
                             <tr>
                                 <th colspan="3">Competing Interests</th>
