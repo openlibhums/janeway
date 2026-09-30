@@ -274,8 +274,36 @@ main a:hover {
     background-color: rgba(55, 55, 55, .8);
 }
 
-.carousel-caption h2 a {
+.carousel-caption h2 a,
+.carousel-caption h3 a {
     color: white;
+}
+
+/* The prev/next chevrons were half-opacity white straight on the image.
+   Give them a dark circle so they stand out from any image. */
+.carousel-control-prev,
+.carousel-control-next {
+    opacity: 1;
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-size: 50% 50%;
+    border-radius: 50%;
+}
+
+/* Show which of play and pause is active. */
+#carousel-buttons .btn[aria-pressed="true"] {
+    background-color: #1a1a1a;
+    border-color: #ffffff;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+/* Keep the dark half of the focus ring when the pressed button has focus. */
+#carousel-buttons .btn[aria-pressed="true"]:focus {
+    box-shadow: inset 0 0 0 2px #ffffff, 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
 .row-eq-height {
