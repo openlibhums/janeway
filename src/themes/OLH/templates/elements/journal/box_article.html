@@ -33,6 +33,7 @@
             <i aria-hidden="true" class="float-right fa fa-thumb-tack"></i>
             <span class="sr-only">{% trans 'Pinned' %}</span>
         {% endif %}
+            {% if article_group_label %}<h3 class="article-subgroup">{{ article_group_label }}</h3>{% endif %}
 
             {% if level == "deep" %}
                 <h4>{{ article.title|safe }}

@@ -1966,6 +1966,17 @@ h2.sidebar-heading {
   margin: 1.52rem 0 0.912rem 0;
 }
 
+/* Section and/or topic of an issue article */
+h3.article-subgroup {
+    margin: 0 0 0.35rem;
+    color: #00796b; /* Materialize teal darken-2 */
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
 /* Rendered article images keep their natural width; never let them be
    wider than the text column, or narrow screens scroll sideways. */
 #main_article img {

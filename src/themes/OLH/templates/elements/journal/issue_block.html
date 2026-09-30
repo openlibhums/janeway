@@ -1,32 +1,27 @@
 {% load i18n %}
+{% load journal %}
+{% with grouping=request.journal.issue_article_grouping %}
 <div class="padding-block-1">
-    {% regroup articles by section as grouped_articles %}
-    {% for section, section_articles in grouped_articles %}
-        {% if level == "deep" %}
-            <h3 class="em">
-                {% if section.plural and section_articles|length >= 2 %}
-                    {{ section.plural }}
-                {% else %}
-                    {{ section.name }}
-                {% endif %}
-            </h3>
-        {% else %}
-            <h2 class="em">
-                {% if section.plural and section_articles|length >= 2 %}
-                    {{ section.plural }}
-                {% else %}
-                    {{ section.name }}
-                {% endif %}
-            </h2>
+    {% for group in articles|group_issue_articles:grouping %}
+        {# Articles without a topic listed after topics #}
+        {% if group.heading or group.kind == "topic" and not forloop.first %}
+            {% if level == "deep" %}
+                <h3 class="em">{% if group.heading %}{{ group.heading }}{% else %}{% trans "Other articles" %}{% endif %}</h3>
+            {% else %}
+                <h2 class="em">{% if group.heading %}{{ group.heading }}{% else %}{% trans "Other articles" %}{% endif %}</h2>
+            {% endif %}
+            <hr aria-hidden="true" />
         {% endif %}
 
-        <hr aria-hidden="true" />
-        {% for article in section_articles %}
-            {% if level == "deep" %}
-                {% include "elements/journal/box_article.html" with article=article level=level %}
-            {% else %}
-                {% include "elements/journal/box_article.html" with article=article level="shallow" %}
-            {% endif %}
+        {% for subgroup in group.subgroups %}
+            {% for article in subgroup.articles %}
+                {% if level == "deep" %}
+                    {% include "elements/journal/box_article.html" with article=article level=level article_group_label=article|issue_article_label:grouping %}
+                {% else %}
+                    {% include "elements/journal/box_article.html" with article=article level="shallow" article_group_label=article|issue_article_label:grouping %}
+                {% endif %}
+            {% endfor %}
         {% endfor %}
     {% endfor %}
 </div>
+{% endwith %}

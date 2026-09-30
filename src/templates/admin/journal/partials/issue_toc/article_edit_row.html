@@ -1,0 +1,36 @@
+<tr id="articles-{{ article.pk }}" class="toc-article-editing">
+    <td><i class="fa fa-sort"></i> {{ article.id }}</td>
+    <td>
+        <a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a>
+    </td>
+    <td>{{ article.date_published }}</td>
+    <td>{{ article.author_list }}</td>
+    <td>
+        {% include "admin/elements/forms/filter_select.html" with field=form.section %}
+    </td>
+    <td>
+        {% include "admin/elements/forms/filter_select.html" with field=form.topic %}
+    </td>
+    <td>{{ article.get_doi }}</td>
+    <td>{{ article.get_pubid }}</td>
+    <td>{{ article.first_page|default_if_none:"--" }}</td>
+    <td>{{ article.page_numbers|default_if_none:"--"  }}</td>
+    <td>{{ article.article_number }}</td>
+    <td class="toc-article-actions">
+        <button
+            type="button"
+            class="tiny success button"
+            hx-post="{% url 'issue_toc_article_edit' issue.pk article.pk %}"
+            hx-include="closest tr"
+            hx-target="#issue-toc"
+            hx-swap="outerHTML"
+        ><i class="fa fa-check" aria-hidden="true"></i> {% trans "Confirm" %}</button>
+        <button
+            type="button"
+            class="tiny secondary button"
+            hx-get="{% url 'issue_toc_article_row' issue.pk article.pk %}"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+        ><i class="fa fa-times" aria-hidden="true"></i> {% trans "Cancel" %}</button>
+    </td>
+</tr>

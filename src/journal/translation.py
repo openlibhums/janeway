@@ -14,3 +14,8 @@ class IssueTranslationOptions(TranslationOptions):
         "cached_display_title",
         "cached_display_title_a11y",
     )
+
+
+@register(models.Topic)
+class TopicTranslationOptions(TranslationOptions):
+    fields = ("title",)
