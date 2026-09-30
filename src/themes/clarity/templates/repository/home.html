@@ -2,6 +2,15 @@
 {% load i18n %}
 {% load static %}
 {% load alt_text %}
+{% load page_title %}
+
+{% block title %}
+  {% if selected_rou %}
+    {% page_title selected_rou.name %}
+  {% else %}
+    {% page_title %}
+  {% endif %}
+{% endblock %}
 
 {% block body %}
 
@@ -13,8 +22,8 @@
              alt="{% get_alt_text file_path=request.repository.best_large_image_url default=request.repository.name|banner_alt %}">
         <div class="card-img-overlay d-flex align-items-center justify-content-center text-center">
           <div class="card-text p-3">
-            <h1 class="card-title white-text" style="font-size: 2.5rem;">{{ request.repository.name }}</h1>
-            {% if request.repository.description %}
+            <h1 class="card-title white-text" style="font-size: 2.5rem;">{% if selected_rou %}{{ selected_rou.name }}{% else %}{{ request.repository.name }}{% endif %}</h1>
+            {% if request.repository.description and not selected_rou %}
               <p class="white-text lead d-none d-md-block">{{ request.repository.description|striptags|truncatechars:200 }}</p>
             {% endif %}
           </div>
@@ -23,13 +32,28 @@
     </div>
   {% else %}
     <div class="repo-hero">
-      <h1>{{ request.repository.name }}</h1>
-      {% if request.repository.description %}
+      <h1>{% if selected_rou %}{{ selected_rou.name }}{% else %}{{ request.repository.name }}{% endif %}</h1>
+      {% if request.repository.description and not selected_rou %}
         <p class="lead">{{ request.repository.description|safe }}</p>
       {% endif %}
     </div>
   {% endif %}
 
+  {% if selected_rou %}
+  <div class="row mb-4 justify-content-center">
+    <div class="col-md-6">
+      <p class="text-center">
+        <a href="{% url 'repository_preprints_by_rou' selected_rou.code %}" class="btn btn-primary">
+          {% blocktrans with rou_name=selected_rou.name object_name_plural=request.repository.object_name_plural %}View {{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}
+        </a>
+        &nbsp;
+        <a href="{% url 'repository_submit' %}" class="btn btn-outline-secondary">
+          {% trans 'Submit' %} {{ request.repository.object_name|capfirst }}
+        </a>
+      </p>
+    </div>
+  </div>
+  {% else %}
   <div class="row mb-4 justify-content-center">
     <div class="col-md-6">
       <form method="POST" action="{% url 'repository_search' %}">
@@ -57,6 +81,28 @@
       </p>
     </div>
   </div>
+  {% endif %}
+
+  {% if rous %}
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <h2>
+          {% if selected_rou %}
+            {% blocktrans with rou_name=request.repository.rou_default_name selected_name=selected_rou.name %}Select Sub-{{ rou_name }} of {{ selected_name }}{% endblocktrans %}
+          {% else %}
+            {% trans 'Select' %} {{ request.repository.rou_default_name }}
+          {% endif %}
+        </h2>
+        <ul class="list-unstyled d-flex flex-wrap">
+          {% for rou in rous %}
+            <li class="mr-2 mb-2">
+              <a href="{% url 'repository_home_by_rou' rou.code %}" class="btn btn-outline-primary">{{ rou.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
 
   {% if preprints %}
     <div class="row">
@@ -69,7 +115,7 @@
     </div>
     <div class="row justify-content-center mb-3">
       <div class="col-md-6 text-center">
-        <a href="{% url 'repository_list' %}" class="btn btn-outline-primary">
+        <a href="{% if selected_rou %}{% url 'repository_preprints_by_rou' selected_rou.code %}{% else %}{% url 'repository_list' %}{% endif %}" class="btn btn-outline-primary">
           {% trans 'View all' %} {{ request.repository.object_name_plural }}
         </a>
       </div>
@@ -77,7 +123,11 @@
   {% else %}
     <div class="row justify-content-center">
       <div class="col-md-6 text-center">
-        <p class="text-muted">{% trans 'No' %} {{ request.repository.object_name_plural }} {% trans 'have been published yet.' %}</p>
+        {% if selected_rou %}
+          <p class="text-muted">{% blocktrans with object_name_plural=request.repository.object_name_plural rou_name=selected_rou.name %}No {{ object_name_plural }} have been published in {{ rou_name }} yet.{% endblocktrans %}</p>
+        {% else %}
+          <p class="text-muted">{% trans 'No' %} {{ request.repository.object_name_plural }} {% trans 'have been published yet.' %}</p>
+        {% endif %}
       </div>
     </div>
   {% endif %}
