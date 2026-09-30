@@ -37,6 +37,15 @@
         </a>
       </li>
     {% endif %}
+  {% elif preprint and author %}
+    {% include "admin/elements/breadcrumbs/edit_preprint_author_base.html" with subpage="yes" %}
+    {% if not affiliation %}
+      <li>
+        <a href="{% url_with_next 'repository_organization_search' preprint.pk author.pk %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
   {% elif article and author %}
     {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
     {% if not affiliation %}
@@ -82,6 +91,8 @@
         <div class="button-group small no-bottom-margin">
           {% if account %}
             {% url_with_return 'core_organization_name_update' organization.custom_label.pk as edit_url %}
+          {% elif preprint and author %}
+            {% url_with_return 'repository_organization_name_update' preprint.pk author.pk organization.custom_label.pk as edit_url %}
           {% elif article and author %}
             {% url_with_return 'submission_organization_name_update' article.pk author.pk organization.custom_label.pk as edit_url %}
           {% endif %}
@@ -96,15 +107,15 @@
     {% endif %}
   </div>
   <div class="grid auto row-gap-0">
-    {% if not author or journal_settings.metadata.author_job_title %}
+    {% if not author or preprint or journal_settings.metadata.author_job_title %}
       {% include "admin/elements/forms/field.html" with field=form.title %}
     {% endif %}
-    {% if not author or journal_settings.metadata.author_department %}
+    {% if not author or preprint or journal_settings.metadata.author_department %}
       {% include "admin/elements/forms/field.html" with field=form.department %}
     {% endif %}
     {% include "admin/elements/forms/field.html" with field=form.is_primary %}
   </div>
-  {% if not author or journal_settings.metadata.author_affiliation_dates %}
+  {% if not author or preprint or journal_settings.metadata.author_affiliation_dates %}
     <div class="grid auto row-gap-0">
       {% include "admin/elements/forms/field.html" with field=form.start %}
       {% include "admin/elements/forms/field.html" with field=form.end %}
@@ -112,6 +123,7 @@
   {% endif %}
   <div class="button-group no-bottom-margin">
     {% include "elements/button_save.html" %}
-    {% include "elements/a_cancel.html" with href=request.GET.next %}
+    {% firstof author_list_url request.GET.next as cancel_url %}
+    {% include "elements/a_cancel.html" with href=cancel_url %}
   </div>
 {% endblock gritty_form %}
