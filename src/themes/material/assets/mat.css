@@ -539,6 +539,36 @@ nav a.sidenav-trigger i {
     }
 }
 
+/* A repository without a logo shows its name instead. Below 993px it
+   wrapped onto 90px lines and spilled out of the header over the page;
+   keep it to the header's height, clear of the menu button. */
+@media (max-width: 992px) {
+    nav.header-overrides .brand-logo.brand-logo-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90px;
+        /* Materialize centres it with left: 50% and a transform, which caps
+           its width at half the header; span the gap between the buttons. */
+        left: 60px;
+        right: 60px;
+        width: auto;
+        transform: none;
+        font-size: 1.25rem;
+        line-height: 1.2;
+        text-align: center;
+        white-space: normal;
+    }
+    /* Three lines fill the header; clip longer names rather than spill. */
+    nav.header-overrides .brand-logo-text .brand-logo-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
+    }
+}
+
 /* Cards in a row share the tallest card's height and grow with their
    content. */
 .row.equal-height-row {
