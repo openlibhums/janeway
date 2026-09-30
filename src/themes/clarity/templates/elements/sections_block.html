@@ -1,7 +1,8 @@
 <h2>{% trans 'Sections' %}</h2>
 
+<div class="table-scroll" tabindex="0" role="region" aria-labelledby="sections-caption">
 <table class="table">
-    <caption>{% trans 'Sections submission information' %}</caption>
+    <caption id="sections-caption">{% trans 'Sections submission information' %}</caption>
     <thead>
         <tr>
             <th scope="col">{% trans 'Section or article type' %}</th>
@@ -39,3 +40,4 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
