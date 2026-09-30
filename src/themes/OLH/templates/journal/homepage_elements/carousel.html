@@ -33,12 +33,16 @@
                     </ul>
                     <nav class="orbit-bullets" aria-label="{% trans 'Carousel slides' %}">
                         {% for carousel_item in carousel_items %}
-                            <button data-slide="{{ forloop.counter0 }}">
+                            <button data-slide="{{ forloop.counter0 }}"{% if forloop.first %} class="is-active"{% endif %}>
                                 <span class="sr-only">
                                     {% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}
                                         Slide {{ slide_number }} of {{ total_slides }}
                                     {% endblocktrans %}
                                 </span>
+                                {% if forloop.first %}
+                                    {# Orbit moves the last span of the active bullet to the newly active one, so this must stay last. #}
+                                    <span class="sr-only" data-slide-active-label>{% trans 'Current slide' %}</span>
+                                {% endif %}
                             </button>
                         {% endfor %}
                     </nav>
