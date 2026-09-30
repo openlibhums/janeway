@@ -2011,6 +2011,9 @@ span + .btn-background {
   left: 0;
   width: 100%;
   padding: 1rem;
+  /* WCAG 1.4.3: with the banner overlay, this keeps white text at 4.5:1
+     or more over any image, even a white one. */
+  background: rgba(0, 0, 0, 0.6);
 }
 .olh-banner-heading h1 {
   font-size: 1.75rem;
@@ -2060,6 +2063,7 @@ section.invisible-landmark{
 .orbit-bullets button{
   min-width: 24px;
   min-height: 24px;
+  vertical-align: middle;
 }
 
 .orbit-caption{
