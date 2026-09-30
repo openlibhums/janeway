@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import re_path
 
-from repository import views
+from repository import author_views, views
 
 urlpatterns = [
     re_path(r"^dashboard/$", views.repository_dashboard, name="repository_dashboard"),
@@ -17,8 +17,13 @@ urlpatterns = [
     ),
     re_path(
         r"^dashboard/(?P<preprint_id>\d+)/action/(?P<action>correction|version|metadata_correction)/$",
-        views.repository_submit_update,
+        author_views.repository_submit_update,
         name="repository_submit_update",
+    ),
+    re_path(
+        r"^dashboard/(?P<preprint_id>\d+)/update/(?P<update_id>\d+)/$",
+        author_views.repository_update_draft,
+        name="repository_update_draft",
     ),
     re_path(r"^about/$", views.repository_about, name="repository_about"),
     re_path(r"^search/$", views.repository_search, name="repository_search"),
@@ -61,18 +66,8 @@ urlpatterns = [
     ),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/authors/$",
-        views.repository_authors,
+        author_views.repository_authors,
         name="repository_authors",
-    ),
-    re_path(
-        r"^submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$",
-        views.repository_delete_author,
-        name="repository_delete_author",
-    ),
-    re_path(
-        r"^submit/(?P<preprint_id>\d+)/authors/order/$",
-        views.preprints_author_order,
-        name="preprints_author_order",
     ),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/files/$",
@@ -96,24 +91,49 @@ urlpatterns = [
         name="repository_edit_metadata",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/edit/authors/(?P<author_id>\d+)/$",
-        views.repository_edit_author,
-        name="repository_edit_authors",
+        r"^manager/(?P<preprint_id>\d+)/authors/$",
+        author_views.repository_manager_authors,
+        name="repository_manager_authors",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/add/author/$",
-        views.repository_edit_author,
-        name="repository_add_author",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/edit/$",
+        author_views.repository_edit_author,
+        name="repository_edit_author",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/author/order/$",
-        views.reorder_preprint_authors,
-        name="repository_manager_order_authors",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization/search/$",
+        author_views.RepositoryOrganizationListView.as_view(),
+        name="repository_organization_search",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/author/delete/$",
-        views.delete_preprint_author,
-        name="repository_manager_delete_author",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization_name/create/$",
+        author_views.repository_organization_name_create,
+        name="repository_organization_name_create",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization_name/(?P<organization_name_id>\d+)/update/$",
+        author_views.repository_organization_name_update,
+        name="repository_organization_name_update",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization/(?P<organization_id>\d+)/affiliation/create/$",
+        author_views.repository_affiliation_create,
+        name="repository_affiliation_create",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/update/$",
+        author_views.repository_affiliation_update,
+        name="repository_affiliation_update",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/delete/$",
+        author_views.repository_affiliation_delete,
+        name="repository_affiliation_delete",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/update-from-orcid/(?P<how_many>primary|all)/$",
+        author_views.repository_affiliation_update_from_orcid,
+        name="repository_affiliation_update_from_orcid",
     ),
     re_path(
         r"^manager/submission-types/$",

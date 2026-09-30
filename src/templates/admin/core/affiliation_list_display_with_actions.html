@@ -11,7 +11,10 @@
         {% endif %}
       </div>
       <div class="button-group small stacked no-bottom-margin">
-        {% if article %}
+        {% if preprint %}
+          {% url_with_return "repository_affiliation_update" preprint.pk author.pk affiliation.pk as edit_url %}
+          {% url_with_return "repository_affiliation_delete" preprint.pk author.pk affiliation.pk as remove_url %}
+        {% elif article %}
           {% url_with_return "submission_affiliation_update" article.pk author.pk affiliation.pk as edit_url %}
           {% url_with_return "submission_affiliation_delete" article.pk author.pk affiliation.pk as remove_url %}
         {% else %}
@@ -30,7 +33,10 @@
   <div class="bs-callout bs-callout-info flex">
     <div class="button-group no-bottom-margin">
       {% if interface.orcid %}
-        {% if article %}
+        {% if preprint %}
+          {% url_with_return 'repository_affiliation_update_from_orcid' preprint.pk author.pk 'primary' as primary_url %}
+          {% url_with_return 'repository_affiliation_update_from_orcid' preprint.pk author.pk 'all' as all_url %}
+        {% elif article %}
           {% url_with_return 'submission_affiliation_update_from_orcid' article.pk author.pk 'primary' as primary_url %}
           {% url_with_return 'submission_affiliation_update_from_orcid' article.pk author.pk 'all' as all_url %}
         {% else %}
@@ -50,7 +56,9 @@
           {% trans "Update all affiliations from ORCID" %}
         </a>
       {% endif %}
-      {% if article %}
+      {% if preprint %}
+        {% url_with_return 'repository_organization_search' preprint.pk author.pk as create_url %}
+      {% elif article %}
         {% url_with_return 'submission_organization_search' article.pk author.pk as create_url %}
       {% else %}
         {% url_with_return 'core_organization_search' as create_url %}

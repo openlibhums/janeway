@@ -241,48 +241,35 @@
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
-                <a class="button" href="{% url 'repository_add_author' preprint.pk %}"><i class="fa fa-plus"></i> Add
-                    Author</a>
+                {% if request.user.is_staff or request.user in request.repository.managers.all %}
+                    <a class="button" href="{% url 'repository_manager_authors' preprint.pk %}"><i class="fa fa-edit"></i> {% trans "Edit authors" %}</a>
+                {% endif %}
             </div>
             <div class="content">
-                <form method="POST" action="{% url 'repository_manager_delete_author' preprint.pk %}">
-                    {% csrf_token %}
-                    <table class="small">
-                        <thead>
-                        <tr>
-                            <th>{% trans 'Name' %}</th>
-                            <th>{% trans 'Email' %}</th>
-                            <th>{% trans 'Affiliation' %}</th>
-                            <th>{% trans 'Edit' %}</th>
-                            <th>{% trans 'Delete' %}</th>
+                <table class="small">
+                    <thead>
+                    <tr>
+                        <th>{% trans 'Name' %}</th>
+                        <th>{% trans 'Email' %}</th>
+                        <th>{% trans 'ORCID' %}</th>
+                        <th>{% trans 'Affiliations' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for author in preprint.frozen_authors %}
+                        <tr id="authors-{{ author.pk }}">
+                            <td>{{ author.full_name }}</td>
+                            <td>{{ author.email|default_if_none:"" }}</td>
+                            <td>{{ author.orcid|default:"" }}</td>
+                            <td>{% for affiliation in author.affiliations %}{{ affiliation }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
                         </tr>
-                        </thead>
-                        <tbody id="sortable">
-                        {% for author in preprint.preprintauthor_set.all %}
-                            <tr id="authors-{{ author.pk }}">
-                                <td><span class="fa fa-sort"></span> {{ author.account.full_name }}</td>
-                                <td>{{ author.account.email }}</td>
-                                <td>{% if author.affiliation %}{{ author.affiliation }}{% else %}
-                                    {{ author.account.institution }}{% endif %}</td>
-                                <td>
-                                    <a href="{% url 'repository_edit_authors' preprint.pk author.pk %}">
-                                        Edit
-                                    </a>
-                                </td>
-                                <td>
-                                    <button class="del" name="author_id" value="{{ author.pk }}"><span
-                                            class="fa fa-trash"></span> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3">{% trans 'No authors added.' %}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </form>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">{% trans 'No authors added.' %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -478,23 +465,5 @@
     {% if modal %}
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
-    <script src="{% static "admin/js/csrf.js" %}"></script>
-    <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
-    <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
-    <script>
-        $("#sortable").sortable({
-            update: function (event, ui) {
-                var data = $(this).sortable('serialize');
-                console.log(data);
-                // POST to server using $.post or $.ajax
-                $.ajax({
-                    data: data,
-                    type: 'POST',
-                    url: '{% url 'repository_manager_order_authors' preprint.pk %}'
-                });
-            }
-        });
-        $("#sortable").disableSelection();
-    </script>
     <script src="{% static "common/js/confirm.js" %}"></script>
 {% endblock %}

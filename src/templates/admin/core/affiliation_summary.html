@@ -14,8 +14,11 @@
 {% if article %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article ID" value=article.pk %}
   {% include "admin/elements/layout/key_value_above.html" with key="Article title" value=article.safe_title %}
+{% elif preprint %}
+  {% include "admin/elements/layout/key_value_above.html" with key=request.repository.object_name|add:" ID" value=preprint.pk %}
+  {% include "admin/elements/layout/key_value_above.html" with key="Title" value=preprint.safe_title %}
 {% endif %}
-{% if author %}
+{% if author and not preprint %}
   {% if user_is_editor or request.user.is_staff %}
     <div class="title-area">
       <h2>Related settings</h2>
