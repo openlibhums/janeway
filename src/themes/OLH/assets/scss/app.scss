@@ -315,9 +315,45 @@ header {
     }
   }
 
+  // At medium widths the top bar's items don't fit on one line and wrap
+  // into extra rows; tighten them so they stay on one.
+  @include breakpoint(medium only) {
+    .main.top-bar {
+      .top-bar-left,
+      .top-bar-right {
+        padding: rem-calc(10px);
+      }
+    }
+
+    .top-bar-image {
+      max-width: 220px;
+      margin-top: 0;
+    }
+
+    #search-menu {
+      max-width: 160px;
+    }
+
+    /* Below 768px the full header only fits on one row with a smaller
+       logo and search box. */
+    @media screen and (max-width: 47.9375em) {
+      .top-bar-image,
+      #search-menu {
+        max-width: 150px;
+      }
+    }
+  }
+
   @include breakpoint(small only) {
     .main.top-bar {
       padding: rem-calc(20px) 0;
+    }
+
+    // Logos only had a size limit from medium up, so a square logo filled
+    // the header on phones.
+    .top-bar-image {
+      max-height: 60px;
+      width: auto;
     }
 
     .top-bar-left {
@@ -504,6 +540,10 @@ body, main, #orbiter, #orbitsection {
 main section {
   position: relative;
   padding: rem-calc(50px) 0;
+
+  @include breakpoint(small only) {
+    padding: rem-calc(20px) 0;
+  }
 
   &.no-padding {
     padding: 0;
