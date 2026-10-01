@@ -34,8 +34,9 @@
                                     {% endfor %}
                                 </ul>
                             </li>
-                            <li><button onclick="resizeText(-1);" aria-label="{% trans 'decrease text size' %}" title="{% trans 'Decrease text size' %}">A-</button></li>
-                            <li><button onclick="resizeText(1);" aria-label="{% trans 'increase text size' %}" title="{% trans 'Increase text size' %}">A+</button></li>
+                            {# The name starts with the visible "A-"/"A+" so speech users can say what they see (WCAG 2.5.3). #}
+                            <li><button type="button" onclick="resizeText(-1);" title="{% trans 'Decrease text size' %}">A-<span class="sr-only"> {% trans 'decrease text size' %}</span></button></li>
+                            <li><button type="button" onclick="resizeText(1);" title="{% trans 'Increase text size' %}">A+<span class="sr-only"> {% trans 'increase text size' %}</span></button></li>
                             <li>
                                 <button
                                     type="button"
