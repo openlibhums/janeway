@@ -43,13 +43,18 @@
             <li><a href="{% page_sitemap_url request.resolver_match.url_name article %}">{% trans "Sitemap" %}</a></li>
         </ul>
     </div>
-    <div class="col s12 l4">
+    {# Only offered when the journal has another language to change to. #}
+    {% if journal_settings.general.switch_language and request.available_languages|length > 1 %}
+    <div class="col s12 l4 language-switcher">
         {% get_current_language as LANGUAGE_CODE %}
         {% get_language_info for LANGUAGE_CODE as current_language %}
         {% get_available_languages as LANGUAGES %}
         {% get_language_info_list for LANGUAGES as languages %}
         <span class="grey-text text-darken-3">{% trans "Language" %}: {{ current_language.name_local }}</span>
-        <button type="button" data-target="language-modal" class="btn btn-small modal-trigger" aria-haspopup="dialog" aria-controls="language-modal">{% trans "Change language" %}</button>
+        <button type="button" data-target="language-modal" class="btn btn-small modal-trigger" aria-haspopup="dialog" aria-controls="language-modal">
+            {% trans "Change language" %}
+            {% include "elements/icons/link_modal.html" %}
+        </button>
         <div id="language-modal" class="modal">
             <div class="modal-content">
                 <h2>{% trans "Switch language" %}</h2>
@@ -73,6 +78,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
     {% if press.journal_footer_text %}
         <div class="col m10 l9 xl8">
             {{ press.journal_footer_text|safe }}
