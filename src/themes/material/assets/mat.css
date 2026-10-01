@@ -539,6 +539,33 @@ nav a.sidenav-trigger i {
     }
 }
 
+/* A repository without a logo shows its name instead. On wide screens a
+   long name shares the header with the menu: it shrinks and wraps to at
+   most two lines, keeping a gap before the menu, so the menu stays on one
+   line beside it instead of wrapping below the header. */
+@media (min-width: 993px) {
+    nav.header-overrides .brand-logo.brand-logo-text {
+        /* Start from no width so the name gives way to the menu, rather
+           than the row wrapping before anything shrinks. */
+        flex: 1 1 0%;
+        min-width: 0;
+        margin-right: 1rem;
+        font-size: 1.75rem;
+        line-height: 1.2;
+        white-space: normal;
+    }
+    nav.header-overrides .brand-logo-text .brand-logo-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+    nav.header-overrides .brand-logo-text ~ ul.right {
+        flex-shrink: 0;
+    }
+}
+
 /* A repository without a logo shows its name instead. Below 993px it
    wrapped onto 90px lines and spilled out of the header over the page;
    keep it to the header's height, clear of the menu button. */
