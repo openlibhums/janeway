@@ -1275,14 +1275,26 @@ header svg {
 
 .input-group .custom-select,
 .input-group .input-group-text {
-  height: 2.5rem;
+  min-height: 2.5rem;
   display: flex;
   align-items: center;
 }
 
-.input-group{
+/* WCAG 1.4.4 and 1.4.10: when text is enlarged or the column is narrow,
+   the controls wrap onto another line instead of spilling into the next
+   column, and labels wrap instead of being cut off. */
+.input-group {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+}
+
+.input-group .input-group-text {
+  white-space: normal;
+  text-align: left;
+}
+
+.input-group > .custom-select {
+  min-width: 8rem;
 }
 
 .input-group > input {

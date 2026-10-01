@@ -50,7 +50,8 @@
                         <div class="form-group">
                             {% if not keyword %}
                                 {% include 'elements/forms/errors.html'  with form=form%}
-                                {% bootstrap_form form %}
+                                {# A search has nothing to mark valid, and Bootstrap's valid green fails contrast (WCAG 1.4.3). #}
+                                {% bootstrap_form form bound_css_class="" %}
                             {% else %}
                                 {% trans "You are currently browsing by keyword" %}. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
                             {% endif %}

@@ -41,7 +41,8 @@
                     {% if request.journal and request.journal.header_image %}
                         {% get_alt_text file_path=request.journal.header_image default=request.journal.name|logo_alt as header_alt_text %}
                         <div class="col-md-3">
-                            <a href="{{ request.journal.site_url }}" aria-label="{% trans 'Home' %}">
+                            {# The image's alt text names the link (WCAG 2.5.3). #}
+                            <a href="{{ request.journal.site_url }}">
                                 <img src="{{ request.journal.header_image.url }}"
                                      class="img-fluid header-image top-bar-image"
                                      alt="{{ header_alt_text }}">
@@ -78,15 +79,19 @@
         {% endif %}
         <main id="main-content" class="container">
             {% block reading_options_bar %}{% endblock reading_options_bar %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissable">
-                    <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
-                        <span aria-hidden="true">&times;</span>
-                        <span class="sr-only">{% trans 'Close message' %}</span>
-                    </button>
-                    <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>
+            {% if messages %}
+                <div role="status">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissable">
+                            <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">{% trans 'Close message' %}</span>
+                            </button>
+                            <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            {% endif %}
             {% block body %}{% endblock body %}
         </main>
         <footer class="site-footer" id="footer">

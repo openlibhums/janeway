@@ -120,6 +120,8 @@ class ContactMessageForm(CaptchaForm):
     sender = forms.EmailField(
         max_length=ACTOR_EMAIL_MAX_LENGTH,
         label=_("Your contact email address"),
+        # WCAG 1.3.5: identifies the field as the user's own email address.
+        widget=forms.EmailInput(attrs={"autocomplete": "email"}),
         error_messages={
             "required": _(
                 "Enter the email address you would like to receive a reply on."
