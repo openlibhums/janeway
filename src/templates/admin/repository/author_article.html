@@ -92,11 +92,11 @@
                             <th>{% trans 'Email' %}</th>
                             <th>{% trans 'Affiliation' %}</th>
                         </tr>
-                        {% for author in preprint.preprintauthor_set.all %}
+                        {% for author in preprint.frozen_authors %}
                             <tr id="authors-{{ author.pk }}">
-                                <td>{{ author.account.full_name }}</td>
-                                <td>{{ author.account.email }}</td>
-                                <td>{{ author.display_affiliation }}</td>
+                                <td>{{ author.full_name }}</td>
+                                <td>{{ author.email|default_if_none:"" }}</td>
+                                <td>{{ author.affiliation }}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -135,13 +135,25 @@
                                 <td colspan="2">{{ preprint.preprint_decline_note }}</td>
                             </tr>
                         {% endif %}
-                        {% for version in preprint.preprintversion_set.all %}
+                        {% for version in versions %}
+                            {% if version.moderated_version.date_submitted %}
+                                <tr>
+                                    <th>Version #{{ version.version }} {% trans "submitted" %}</th>
+                                    <td>{{ version.moderated_version.date_submitted }}</td>
+                                </tr>
+                            {% endif %}
                             <tr>
-                                <th>Version #{{ version.version }} (<a
+                                <th>Version #{{ version.version }} {% trans "published" %} (<a
                                         href="{{ version.file.download_url }}"><i
                                         class="fa fa-download"></i></a>)
                                 </th>
                                 <td>{{ version.date_time }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% for update in pending_updates %}
+                            <tr data-pending-update>
+                                <th>{{ update.get_update_type_display }} {% trans "submitted" %}<br><span class="label warning">{% trans "Awaiting moderation" %}</span></th>
+                                <td>{{ update.date_submitted }}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -292,20 +304,32 @@
                 <span aria-hidden="true">&times;</span>
             </button>
 
-            <form method="POST" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                <input type="hidden" name="upload" value="upload">
-                <div class="clearfix">
-                    <p>
-                        There are three types of update you can select from. Click on of the links to get started.
-                    </p>
-                    <ol>
-                        <li><a href="{% url 'repository_submit_update' preprint.pk 'correction' %}">Correction</a> - This is a small update. You can update the metadata.</li>
-                        <li><a href="{% url 'repository_submit_update' preprint.pk 'version' %}">New Version</a> - A large update. You can update the medadata.</li>
-                        <li><a href="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">Metadata Correction</a> - You can only make changes to the metadata.</li>
-                    </ol>
+            {% if preprint.owner != request.user %}
+                <p>{% trans "Only the submitting author can start an update." %}</p>
+            {% elif pending_updates %}
+                <div class="callout warning">
+                    <p>{% trans "Your update is awaiting moderation. You can start another once a moderator has decided on it." %}</p>
                 </div>
-            </form>
+            {% else %}
+                {% if draft_update %}
+                    <div class="callout primary">
+                        <p>{% trans "You have a draft update that has not been submitted yet." %}</p>
+                        <a class="button" href="{% url 'repository_update_draft' preprint.pk draft_update.pk %}">
+                            <span class="fa fa-edit"></span> {% trans "Continue draft update" %}
+                        </a>
+                        <p>{% trans "Choosing a type below also continues it, as that type. A metadata correction cannot change the file, so choosing one removes any file uploaded to the draft." %}</p>
+                    </div>
+                {% endif %}
+                <p>{% trans "Choose the type of update:" %}</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <ol>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'correction' %}">{% trans "Correction" %}</button> - {% trans "A small update. You can update the file and metadata." %}</li>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'version' %}">{% trans "New Version" %}</button> - {% trans "A large update. You can update the file and metadata." %}</li>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">{% trans "Metadata Correction" %}</button> - {% trans "You can only change the metadata." %}</li>
+                    </ol>
+                </form>
+            {% endif %}
         </div>
     </div>
 

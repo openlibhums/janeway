@@ -1,18 +1,17 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.urls import resolve, Resolver404
-from django.contrib import messages
 from tinymce.widgets import TinyMCE
 
 
 from submission import models as submission_models
 from repository import models
+from repository.logic import set_update_field_answers
 from press import models as press_models
 from review.logic import render_choices
-from core import models as core_models, workflow
+from core import workflow
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -82,6 +81,74 @@ class PreSubmissionStartForm(forms.Form):
         )
 
 
+def build_additional_field(element):
+    """
+    Returns a form field for a repository custom field.
+    :param element: RepositoryField
+    """
+    if element.input_type == "text":
+        field = forms.CharField(
+            widget=forms.TextInput(),
+            required=element.required,
+        )
+    elif element.input_type == "textarea":
+        field = forms.CharField(
+            widget=forms.Textarea,
+            required=element.required,
+        )
+    elif element.input_type == "date":
+        field = forms.CharField(
+            widget=forms.DateInput(attrs={"class": "datepicker"}),
+            required=element.required,
+        )
+    elif element.input_type == "select":
+        field = forms.ChoiceField(
+            widget=forms.Select(),
+            choices=render_choices(element.choices),
+            required=element.required,
+        )
+    elif element.input_type == "email":
+        field = forms.EmailField(
+            widget=forms.TextInput(),
+            required=element.required,
+        )
+    elif element.input_type == "checkbox":
+        field = forms.BooleanField(
+            widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
+            required=element.required,
+        )
+    elif element.input_type == "number":
+        field = forms.IntegerField(
+            required=element.required,
+        )
+    else:
+        field = forms.CharField(
+            widget=forms.Textarea(),
+            required=element.required,
+        )
+
+    if element.input_type == "date":
+        field.help_text = f"Use ISO 8601 Date Format YYYY-MM-DD. {element.help_text}"
+    else:
+        field.help_text = element.help_text
+    field.label = element.name
+    return field
+
+
+def additional_field_answer_text(element, value):
+    """
+    Converts a cleaned custom field value to the text stored on
+    RepositoryFieldAnswer, matching what the submission form stores:
+    checkboxes are "on" when ticked, and empty values are not stored.
+    :return: str, or None if there is no answer to store
+    """
+    if element.input_type == "checkbox":
+        return "on" if value else None
+    if value in (None, ""):
+        return None
+    return str(value)
+
+
 class PreprintInfo(utils_forms.KeywordModelForm):
     subject = forms.ModelMultipleChoiceField(
         required=True,
@@ -142,57 +209,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         if elements:
             for element in elements:
-                if element.input_type == "text":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(),
-                        required=element.required,
-                    )
-                elif element.input_type == "textarea":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea,
-                        required=element.required,
-                    )
-                elif element.input_type == "date":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.DateInput(attrs={"class": "datepicker"}),
-                        required=element.required,
-                    )
-                elif element.input_type == "select":
-                    choices = render_choices(element.choices)
-                    self.fields[element.name] = forms.ChoiceField(
-                        widget=forms.Select(),
-                        choices=choices,
-                        required=element.required,
-                    )
-                elif element.input_type == "email":
-                    self.fields[element.name] = forms.EmailField(
-                        widget=forms.TextInput(),
-                        required=element.required,
-                    )
-                elif element.input_type == "checkbox":
-                    self.fields[element.name] = forms.BooleanField(
-                        widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
-                        required=element.required,
-                    )
-                elif element.input_type == "number":
-                    self.fields[element.name] = forms.IntegerField(
-                        required=element.required,
-                    )
-                else:
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea(),
-                        required=element.required,
-                    )
-
-                if element.input_type == "date":
-                    self.fields[
-                        element.name
-                    ].help_text = (
-                        f"Use ISO 8601 Date Format YYYY-MM-DD. {element.help_text}"
-                    )
-                else:
-                    self.fields[element.name].help_text = element.help_text
-                self.fields[element.name].label = element.name
+                self.fields[element.name] = build_additional_field(element)
 
                 preprint = kwargs["instance"]
                 if preprint:
@@ -271,75 +288,6 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
             link.save()
 
         return link
-
-
-class AuthorForm(forms.Form):
-    email_address = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=200)
-    middle_name = forms.CharField(max_length=200, required=False)
-    last_name = forms.CharField(max_length=200)
-    affiliation = forms.CharField(max_length=200, required=False)
-
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop("instance")
-        self.request = kwargs.pop("request")
-        self.preprint = kwargs.pop("preprint")
-        super(AuthorForm, self).__init__(*args, **kwargs)
-
-        if self.instance:
-            self.fields["email_address"].initial = self.instance.account.email
-            self.fields["first_name"].initial = self.instance.account.first_name
-            self.fields["middle_name"].initial = self.instance.account.middle_name
-            self.fields["last_name"].initial = self.instance.account.last_name
-            self.fields["affiliation"].initial = (
-                self.instance.affiliation or self.instance.account.institution
-            )
-
-    def save(self):
-        cleaned_data = self.cleaned_data
-        if self.instance:
-            account = self.instance.account
-            account.email = cleaned_data.get("email_address")
-            account.first_name = cleaned_data.get("first_name")
-            account.middle_name = cleaned_data.get("middle_name")
-            account.last_name = cleaned_data.get("last_name")
-            self.instance.affiliation = cleaned_data.get("affiliation")
-
-            account.save()
-            self.instance.save()
-            return self.instance
-        else:
-            account, ac = core_models.Account.objects.get_or_create(
-                email=cleaned_data.get("email_address"),
-                defaults={
-                    "first_name": cleaned_data.get("first_name"),
-                    "middle_name": cleaned_data.get("middle_name"),
-                    "last_name": cleaned_data.get("last_name"),
-                },
-            )
-            preprint_author, pc = models.PreprintAuthor.objects.get_or_create(
-                account=account,
-                preprint=self.preprint,
-                defaults={
-                    "affiliation": cleaned_data.get("affiliation"),
-                    "order": self.preprint.next_author_order(),
-                },
-            )
-
-            if not ac:
-                messages.add_message(
-                    self.request,
-                    messages.WARNING,
-                    "A user with this email address was found. They have been added.",
-                )
-            else:
-                messages.add_message(
-                    self.request,
-                    messages.SUCCESS,
-                    "User added as Author.",
-                )
-
-            return preprint_author
 
 
 class CommentForm(forms.ModelForm):
@@ -571,9 +519,10 @@ class VersionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
         super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields["title"].initial = self.preprint.title
-        self.fields["abstract"].initial = self.preprint.abstract
-        self.fields["published_doi"].initial = self.preprint.doi
+        if not self.instance.pk:
+            self.fields["title"].initial = self.preprint.title
+            self.fields["abstract"].initial = self.preprint.abstract
+            self.fields["published_doi"].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
@@ -594,6 +543,61 @@ class VersionForm(forms.ModelForm):
             )
 
         return doi_string
+
+
+class UpdateFieldAnswersForm(forms.Form):
+    """
+    A draft update's answers to the repository's custom fields.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop("preprint")
+        self.version_queue = kwargs.pop("version_queue")
+        super().__init__(*args, **kwargs)
+        self.elements = list(
+            self.preprint.repository.type_additional_submission_fields(
+                submission_type_slug=(
+                    self.preprint.submission_type.slug
+                    if self.preprint.submission_type
+                    else None
+                ),
+            )
+        )
+        answers = {
+            answer.field_id: answer.answer
+            for answer in self.version_queue.repositoryfieldanswer_set.all()
+        }
+        for element in self.elements:
+            field = build_additional_field(element)
+            answer = answers.get(element.pk)
+            if isinstance(field, forms.ChoiceField):
+                # Without these, the browser would post the first choice for
+                # a field with no answer, or for an answer that is no longer
+                # a choice.
+                choices = list(field.choices)
+                if answer and answer not in dict(choices):
+                    choices.insert(0, (answer, answer))
+                if not element.required or not answer:
+                    choices.insert(0, ("", "---------"))
+                field.choices = choices
+            field.initial = bool(answer) if element.input_type == "checkbox" else answer
+            self.fields[self.field_name(element)] = field
+
+    @staticmethod
+    def field_name(element):
+        return f"field_{element.pk}"
+
+    def save(self):
+        set_update_field_answers(
+            self.version_queue,
+            {
+                element: additional_field_answer_text(
+                    element,
+                    self.cleaned_data.get(self.field_name(element)),
+                )
+                for element in self.elements
+            },
+        )
 
 
 class RepositoryBase(forms.ModelForm):

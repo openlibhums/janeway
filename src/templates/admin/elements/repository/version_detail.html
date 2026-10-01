@@ -1,8 +1,8 @@
-<div class="reveal large" id="detail-{{ version.pk }}" data-reveal data-animation-in="slide-in-up"
+<div class="reveal large" id="detail-{{ version.pk }}" data-version-detail aria-labelledby="detail-title-{{ version.pk }}" data-reveal data-animation-in="slide-in-up"
      data-animation-out="slide-out-down">
     <div class="card">
         <div class="card-divider">
-            <h4>{{ preprint.title|safe }} Version Detail</h4>
+            <h2 id="detail-title-{{ version.pk }}">{{ preprint.title|safe }} Version Detail</h2>
         </div>
     </div>
     <div class="card-section">
@@ -10,7 +10,12 @@
             <span aria-hidden="true">&times;</span>
         </button>
         <div class="row expanded">
-            <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>. Where Title and Abstract are blank in the New Metadata section this means no change will be made.</p>
+            <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>. Approving replaces each changed section with the update's version.</p>
+            {% if changed_since_started %}
+                <div class="callout warning" data-changed-since-started>
+                    <p>This {{ request.repository.object_name }} has changed since the update was started, for example by a moderator: {{ changed_since_started|join:", " }}. Approving keeps those changes unless the update also changes the same section, so check the sections marked changed below.</p>
+                </div>
+            {% endif %}
             <div class="large-6 columns">
                 <div class="title-area">
                     <h2>Current Metadata</h2>
@@ -21,7 +26,7 @@
                     <p><strong>Abstract</strong></p>
                     <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
                     <p><strong>Published DOI</strong></p>
-                    <p>{{ version.preprint.doi }}</p>
+                    <p>{{ version.preprint.doi|default:"None" }}</p>
                     <p><strong>File</strong></p>
                     {% if version.preprint.current_version.file %}
                     <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}">{% trans "Download" %} {% include "elements/icons/link_download.html" %}</a></p>
@@ -41,13 +46,13 @@
                     <h2>New Metadata</h2>
                 </div>
                 <div class="content">
-                    <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
-                    <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
-                    <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
-                    <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
+                    <p><strong>Title{% if version.title_changed %} (changed){% endif %}</strong></p>
+                    <p>{% if version.title_changed %}{{ version.title }}{% else %}Unchanged{% endif %}</p>
+                    <p><strong>Abstract{% if version.abstract_changed %} (changed){% endif %}</strong></p>
+                    <p>{% if version.abstract_changed %}{{ version.abstract|default:"<em>Cleared</em>"|safe|linebreaksbr }}{% else %}Unchanged{% endif %}</p>
 
-                    <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
-                    <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
+                    <p><strong>Published DOI{% if version.published_doi_changed %} (changed){% endif %}</strong></p>
+                    <p>{% if version.published_doi_changed %}{{ version.published_doi|default:"Cleared" }}{% else %}Unchanged{% endif %}</p>
                     <p><strong>File</strong></p>
                     {% if version.file %}
                     <p><a href="{% url 'repository_download_file' version.preprint.id version.file.pk %}">{% trans "Download" %} {% include "elements/icons/link_download.html" %}</a></p>
@@ -64,6 +69,47 @@
                     {% endif %}
                 </div>
             </div>
+            {% if author_changes %}
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Author Changes</h2>
+                </div>
+                <div class="content">
+                    {% include "admin/elements/repository/author_changes.html" with changes=author_changes %}
+                </div>
+            </div>
+            <div class="large-6 columns">
+                <div class="title-area">
+                    <h2>Authors After Approval</h2>
+                </div>
+                <div class="content">
+                    <ol>
+                        {% for author in version.authors %}
+                            <li>{{ author.full_name }}{% if author.email %} ({{ author.email }}){% endif %}{% if author.orcid %}<br><small>ORCID {{ author.orcid }}</small>{% endif %}{% if author.affiliation %}<br><small>{{ author.affiliation }}</small>{% endif %}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+            {% endif %}
+            {% if field_changes %}
+            <div class="large-12 columns">
+                <div class="title-area">
+                    <h2>Additional Information Changes</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr><th>Field</th><th>Current</th><th>New</th></tr>
+                        {% for name, current, new in field_changes %}
+                            <tr>
+                                <td>{{ name }}</td>
+                                <td>{% if current %}{{ current|linebreaksbr }}{% else %}<em>none</em>{% endif %}</td>
+                                <td>{% if new %}{{ new|linebreaksbr }}{% else %}<em>cleared</em>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
             <div class="large-12 columns">
                 <div class="title-area">
                     <h2>Decision</h2>
