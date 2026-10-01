@@ -851,3 +851,12 @@ a.twitter-x{
   height: 100%;
   margin: 0;
 }
+
+/* WCAG 1.4.10: wide tables scroll inside their own box, rather than
+   making the whole page scroll sideways on narrow screens. The box is
+   focusable so keyboard users can scroll it too. */
+.table-scroll {
+    position: relative; /* so hidden text positioned inside stays inside */
+    max-width: 100%;
+    overflow-x: auto;
+}

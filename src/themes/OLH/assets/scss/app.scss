@@ -93,10 +93,19 @@ a {
 }
 
 a[target="_blank"] {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word.
+   Templates put no space before the icon, so the margin stands in for one. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
+  margin-left: 0.15em;
 }
 
 #toc a, aside a {

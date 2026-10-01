@@ -1490,3 +1490,14 @@ h3.article-subgroup {
     line-height: 1.4;
     text-transform: uppercase;
 }
+
+/* Rendered article images keep their natural width; never let them be
+   wider than the text column, or narrow screens scroll sideways. */
+#main_article img {
+    max-width: 100%;
+}
+/* When the width is capped, keep the ratio from width and height
+   attributes. An image sized by height alone keeps that height. */
+#main_article img[width][height] {
+    height: auto;
+}

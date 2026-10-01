@@ -379,10 +379,17 @@ a:hover .article-title {
 }
 
 a[target="_blank"] {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
 }
 
 .feature-article-image {
@@ -561,6 +568,20 @@ nav a.sidenav-trigger i {
 .header-override-image {
     padding: 5px;
     max-height: 90px;
+}
+
+/* Below 993px the logo is centred between the menu buttons; a wide header
+   image was wider than the screen. */
+@media (max-width: 992px) {
+    nav.header-overrides .header-override-image {
+        max-width: calc(100vw - 120px);
+        height: auto;
+    }
+    /* Capped widths meet the 75px min-height above; scale the logo inside
+       its box rather than squashing it. */
+    .brand-logo img {
+        object-fit: contain;
+    }
 }
 
 .card .card-content p {
@@ -1975,4 +1996,15 @@ h3.article-subgroup {
     letter-spacing: 0.06em;
     line-height: 1.4;
     text-transform: uppercase;
+}
+
+/* Rendered article images keep their natural width; never let them be
+   wider than the text column, or narrow screens scroll sideways. */
+#main_article img {
+    max-width: 100%;
+}
+/* When the width is capped, keep the ratio from width and height
+   attributes. An image sized by height alone keeps that height. */
+#main_article img[width][height] {
+    height: auto;
 }
