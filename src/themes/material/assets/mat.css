@@ -828,6 +828,14 @@ nav a.sidenav-trigger {
     color: #616161;
 }
 
+/* When the footer columns stack, leave room above the language switcher so
+   its button never covers the focus ring of the footer link above it. */
+@media only screen and (max-width: 992px) {
+    .language-switcher {
+        margin-top: 1rem;
+    }
+}
+
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
