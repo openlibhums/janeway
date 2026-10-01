@@ -78,15 +78,19 @@
     </header>
     <main id="main-content">
         {% block reading_options_bar %}{% endblock reading_options_bar %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissable">
-                <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">{% trans 'Close message' %}</span>
-                </button>
-                <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>          
+        {% if messages %}
+            <div role="status">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissable">
+                        <button class="close" data-dismiss="alert" aria-describedby="message-{{ forloop.counter }}">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">{% trans 'Close message' %}</span>
+                        </button>
+                        <span id="message-{{ forloop.counter }}">{{ message|linebreaksbr }}</span>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        {% endif %}
         {% block body %}{% endblock body %}
     </main>
     <footer class="site-footer" id="footer">

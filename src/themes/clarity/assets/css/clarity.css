@@ -1280,14 +1280,23 @@ header svg {
 
 .input-group .custom-select,
 .input-group .input-group-text {
-  height: 2.5rem;
+  min-height: 2.5rem;
   display: flex;
   align-items: center;
 }
 
-.input-group{
+.input-group {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+}
+
+.input-group .input-group-text {
+  white-space: normal;
+  text-align: left;
+}
+
+.input-group > .custom-select {
+  min-width: 8rem;
 }
 
 .input-group > input {
