@@ -480,6 +480,13 @@ nav .hide-on-med-and-down li.a11y-toggle-host .a11y-toggle-dropdown {
     line-height: 1;
 }
 
+/* Narrow screens show a "Reading Options" title row above the controls;
+   separate the two while the bar is open. The title row is hidden on wide
+   screens, taking the divider with it. */
+#tf-bar:not(.tf-bar-hidden) .title-bar {
+    border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
 .a11y-toggle-host .a11y-toggle-menu {
     position: absolute;
     top: calc(100% + 6px);
