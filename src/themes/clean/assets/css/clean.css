@@ -285,6 +285,27 @@ main a:hover {
 .carousel-control-next {
     opacity: 1;
 }
+
+/* Bootstrap makes each prev/next control a full-height strip down the side
+   of the slide, so the target was far larger than the visible circle and
+   reached over the caption link. Shrink each control to the circle itself,
+   centred on the image, with the focus ring following its shape. */
+.carousel-control-prev,
+.carousel-control-next {
+    top: 50%;
+    bottom: auto;
+    width: auto;
+    height: auto;
+    padding: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+.carousel-control-prev {
+    left: 1rem;
+}
+.carousel-control-next {
+    right: 1rem;
+}
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
     width: 2.5rem;
@@ -328,14 +349,6 @@ main a:hover {
     right: 5px;
 }
 
-.carousel-control-next {
-	top: 40px;
-}
-
-.carousel-control-prev {
-	top: 40px;
-}
-
 .carousel-item .carousel-caption {
   /* Bootstrap 4.4 hides the caption on small screens by default,
    * even for active carousel items.
@@ -351,9 +364,10 @@ main a:hover {
   .carousel-item .carousel-caption {
     position: static;
   }
+  /* The caption sits beneath the image here, so centre on the image. */
   .carousel-control-prev,
   .carousel-control-next {
-    bottom: calc(100% - var(--carousel-image-height, 360px));
+    top: calc(var(--carousel-image-height, 360px) / 2);
   }
 }
 @media (width >= 992px) {
