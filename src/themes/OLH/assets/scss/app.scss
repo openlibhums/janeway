@@ -2267,6 +2267,14 @@ input[type="submit"]:focus-visible {
         inset 0 0 0 calc(var(--focus-ring-size) + 4px) var(--focus-light);
 }
 
+/* The reading options bar sits directly below the main menu and would
+   otherwise paint over the bottom of a focused item's ring. */
+#main-menu a:focus-visible,
+#main-menu button:focus-visible {
+    position: relative;
+    z-index: 10;
+}
+
 /* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
 
 .preprint-section {
