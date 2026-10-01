@@ -2109,10 +2109,79 @@ section.invisible-landmark{
 }
 
 // carousel style overrides
-.orbit-bullets button{
-  min-width: 24px;
-  min-height: 24px;
-  vertical-align: middle;
+// Bullets are a fixed 24px (WCAG 2.5.8) so they don't grow with the text
+// size and wrap onto a second row. Padding rather than margin keeps the
+// space inside the carousel background.
+.orbit-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 0;
+
+  button {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+  }
+}
+
+// Let the carousel grow to fit its caption (WCAG 1.4.4, 1.4.10). Orbit sets
+// a fixed height when it loads, which clips long or enlarged captions.
+// The slides share one grid cell so they overlap during transitions.
+.orbit {
+  .orbit-container {
+    display: grid;
+    grid-template-columns: 100%;
+    height: auto !important;
+    max-height: none;
+  }
+
+  .orbit-slide {
+    grid-area: 1 / 1;
+    max-height: none !important;
+  }
+
+  // The image fills the banner and the caption overlays its bottom edge.
+  .olh-banner {
+    display: grid;
+    grid-template-columns: 100%;
+    max-height: none;
+    overflow: hidden;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+  }
+
+  .olh-banner-image {
+    align-self: stretch;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .olh-banner-heading {
+    position: relative;
+    bottom: auto;
+    align-self: end;
+  }
+
+  // On small screens the caption sits below the image.
+  @include breakpoint(small only) {
+    .olh-banner-image {
+      max-height: 200px;
+    }
+
+    .olh-banner .olh-banner-heading {
+      grid-area: 2 / 1;
+    }
+  }
 }
 
 .orbit-caption{
