@@ -68,7 +68,7 @@
                 {% elif request.repository %}
                     {% if request.repository.logo %}
                         {% get_alt_text file_path=request.repository.logo default=request.repository.name|logo_alt as logo_alt_text %}
-                        {% svg_or_image request.repository.logo alt_text=logo_alt_text %}
+                        {% svg_or_image request.repository.logo css_class='top-bar-image' alt_text=logo_alt_text %}
                     {% else %}
                         {{ request.repository.name }}
                     {% endif %}

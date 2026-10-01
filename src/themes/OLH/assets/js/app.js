@@ -61,6 +61,56 @@ $(document).on('toggled.zf.responsiveToggle', '[data-responsive-toggle]', functi
     }
 });
 
+// Foundation's drilldown moves keyboard focus between links only, so the
+// accessibility mode switch (a button in a form) in the mobile menu could
+// not be reached. Move focus through that submenu's items ourselves, in the
+// capture phase so Foundation's handlers on the links don't run.
+$(".a11y-mobile-form").closest("ul").each(function() {
+    var submenu = this;
+    var trigger = $(submenu).siblings("a").get(0);
+    var openedByKeyboard = false;
+
+    function items() {
+        return $(submenu).children("li").find("> a, > form button").filter(":visible").get();
+    }
+
+    submenu.addEventListener("keydown", function(e) {
+        var list = items();
+        var index = list.indexOf(document.activeElement);
+        var step = 0;
+        if (e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey)) {
+            step = 1;
+        } else if (e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey)) {
+            step = -1;
+        }
+        var next = list[index + step];
+        if (index === -1 || !step || !next) {
+            return;
+        }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        next.focus();
+    }, true);
+
+    // Opening the submenu from the keyboard focuses its first link, which
+    // skips the switch; focus the switch instead.
+    if (trigger) {
+        trigger.addEventListener("keydown", function(e) {
+            openedByKeyboard = ["Enter", " ", "ArrowRight"].indexOf(e.key) !== -1;
+        }, true);
+    }
+    submenu.addEventListener("focusin", function(e) {
+        if (!openedByKeyboard) {
+            return;
+        }
+        openedByKeyboard = false;
+        var button = $(submenu).find(".a11y-mobile-form button").get(0);
+        if (button && e.target !== button && $(button).is(":visible")) {
+            button.focus();
+        }
+    });
+});
+
 
 
 function kanbanInit() {

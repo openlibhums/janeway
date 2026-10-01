@@ -12,7 +12,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav font-weight-bold d-flex w-100">
+        <ul class="navbar-nav mr-auto font-weight-bold">
             {% if request.journal.nav_home %}
             <li class="nav-item"><a href="{% url 'website_index' %}" class="nav-link">{% trans 'Home' %}</a></li>{% endif %}
             {% if request.journal.nav_news %}
@@ -87,8 +87,12 @@
                 <li class="nav-item"><a href="{% url 'become_reviewer' %}" class="nav-link">
                     {% trans 'Become a Reviewer' %}</a>
                 </li>{% endif %}
+        </ul>
+        {# Account links and the accessibility menu are their own list, so     #}
+        {# they stay together on the right when the links above wrap.          #}
+        <ul class="navbar-nav ml-auto font-weight-bold">
             {% if request.user.is_authenticated %}
-                <li class="nav-item dropdown ml-lg-auto">
+                <li class="nav-item dropdown">
                     <button class="nav-link dropdown-toggle dropdown-button" href="" id="user"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% trans 'Account '%}
@@ -118,7 +122,7 @@
                     </ul>
                 </li>
             {% else %}
-                <li class="nav-item ml-lg-auto">
+                <li class="nav-item">
                   <a href="{% url 'core_login' %}" class="nav-link">
                     {% trans 'Log in' %}
                   </a>

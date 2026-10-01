@@ -379,10 +379,17 @@ a:hover .article-title {
 }
 
 a[target="_blank"] {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
 }
 
 .feature-article-image {
@@ -532,10 +539,31 @@ nav a.sidenav-trigger i {
         justify-content: flex-end;
         margin-left: auto;
     }
+    /* Rows take their natural height, so a wrapped nav doesn't stack
+       90px rows; the wrapper's min-height keeps a single row at 90px. */
     nav.header-overrides ul.right > li {
         display: flex;
         align-items: center;
-        min-height: 90px;
+        line-height: 48px;
+    }
+    nav.header-overrides ul.right > li > a,
+    nav.header-overrides ul.right > li > a > i {
+        line-height: inherit;
+    }
+    nav.header-overrides ul.right > li.a11y-toggle-host {
+        height: auto;
+        line-height: 48px;
+    }
+}
+
+/* Below 993px the logo link is absolutely positioned and inherits the
+   nav's 90px line-height, which made it taller than the header and cover
+   what follows. Keep it to the header's height. */
+@media (max-width: 992px) {
+    nav.header-overrides .brand-logo {
+        height: 90px;
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -561,6 +589,20 @@ nav a.sidenav-trigger i {
 .header-override-image {
     padding: 5px;
     max-height: 90px;
+}
+
+/* Below 993px the logo is centred between the menu buttons; a wide header
+   image was wider than the screen. */
+@media (max-width: 992px) {
+    nav.header-overrides .header-override-image {
+        max-width: calc(100vw - 120px);
+        height: auto;
+    }
+    /* Capped widths meet the 75px min-height above; scale the logo inside
+       its box rather than squashing it. */
+    .brand-logo img {
+        object-fit: contain;
+    }
 }
 
 .card .card-content p {
@@ -1630,6 +1672,13 @@ p + .btn-background {
       margin: calc(-1 * var(--focus-ring-size));
   }
 
+  /* Materialize sets a select dropdown's height to fit its options
+     exactly. With border-box sizing the padding above comes out of that
+     height and shows a scrollbar; content-box keeps it outside. */
+  .keyboard-focused .select-dropdown.dropdown-content {
+      box-sizing: content-box;
+  }
+
   .keyboard-focused .dropdown-content li {
       margin: 0;
       padding: 0;
@@ -1896,6 +1945,20 @@ main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
   background-color: #1d7e75;
 }
 
+/* Materialize colours dropdown options #26a69a, only 3:1 on white. This
+   teal reaches 4.5:1 on white and on the #eee hover and active background,
+   for the contact form's selects and the navigation dropdowns. */
+.dropdown-content li > a,
+.dropdown-content li > span {
+  color: #186b63;
+}
+
+/* The focus ring rule gives links a negative margin, which pushes
+   dropdown links wider than their menu and shows a scrollbar. */
+.dropdown-content li > a {
+  margin: 0;
+}
+
 label,
 .input-field > label {
   color: #767676;
@@ -1943,4 +2006,26 @@ h2.sidebar-heading {
   font-weight: 300;
   line-height: 110%;
   margin: 1.52rem 0 0.912rem 0;
+}
+
+/* Section and/or topic of an issue article */
+h3.article-subgroup {
+    margin: 0 0 0.35rem;
+    color: #00796b; /* Materialize teal darken-2 */
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+/* Rendered article images keep their natural width; never let them be
+   wider than the text column, or narrow screens scroll sideways. */
+#main_article img {
+    max-width: 100%;
+}
+/* When the width is capped, keep the ratio from width and height
+   attributes. An image sized by height alone keeps that height. */
+#main_article img[width][height] {
+    height: auto;
 }

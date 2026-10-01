@@ -93,10 +93,19 @@ a {
 }
 
 a[target="_blank"] {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word.
+   Templates put no space before the icon, so the margin stands in for one. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
+  margin-left: 0.15em;
 }
 
 #toc a, aside a {
@@ -306,9 +315,45 @@ header {
     }
   }
 
+  // At medium widths the top bar's items don't fit on one line and wrap
+  // into extra rows; tighten them so they stay on one.
+  @include breakpoint(medium only) {
+    .main.top-bar {
+      .top-bar-left,
+      .top-bar-right {
+        padding: rem-calc(10px);
+      }
+    }
+
+    .top-bar-image {
+      max-width: 220px;
+      margin-top: 0;
+    }
+
+    #search-menu {
+      max-width: 160px;
+    }
+
+    /* Below 768px the full header only fits on one row with a smaller
+       logo and search box. */
+    @media screen and (max-width: 47.9375em) {
+      .top-bar-image,
+      #search-menu {
+        max-width: 150px;
+      }
+    }
+  }
+
   @include breakpoint(small only) {
     .main.top-bar {
       padding: rem-calc(20px) 0;
+    }
+
+    // Logos only had a size limit from medium up, so a square logo filled
+    // the header on phones.
+    .top-bar-image {
+      max-height: 60px;
+      width: auto;
     }
 
     .top-bar-left {
@@ -495,6 +540,10 @@ body, main, #orbiter, #orbitsection {
 main section {
   position: relative;
   padding: rem-calc(50px) 0;
+
+  @include breakpoint(small only) {
+    padding: rem-calc(20px) 0;
+  }
 
   &.no-padding {
     padding: 0;
@@ -2363,14 +2412,41 @@ input[type="submit"]:focus-visible {
     cursor: pointer;
 }
 
+/* Match the menu's links: no highlight on hover or focus, and the theme's
+   focus ring. */
 .menu .a11y-mobile-button:hover,
 .menu .a11y-mobile-button:focus {
-    background: rgba(0, 0, 0, 0.05);
+    background: transparent;
+    color: inherit;
 }
 
 .menu .a11y-mobile-button:focus-visible {
-    outline: 2px solid #1779ba;
-    outline-offset: -2px;
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* In the mobile drilldown the items span the full width of a container
+   that clips its overflow, so a ring drawn outside them is cut off. Keep
+   them inside it and draw the ring inside the item. */
+.is-drilldown .menu li > a,
+.is-drilldown .menu .a11y-mobile-form {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.is-drilldown .menu > li:first-child > a {
+    margin-top: 0;
+}
+
+.is-drilldown .menu li > a:focus-visible {
+    display: block;
+}
+
+.is-drilldown .menu li > a:focus-visible,
+.is-drilldown .menu .a11y-mobile-button:focus-visible {
+    outline-offset: calc(-2px - var(--focus-ring-size));
+    box-shadow: inset 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
 /* WCAG 1.4.10: the collection card rows are nested directly in a row, so

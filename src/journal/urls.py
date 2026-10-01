@@ -5,7 +5,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import path, re_path
 
-from journal import views
+from journal import partial_views, views
 from identifiers.models import NON_DOI_IDENTIFIER_TYPES, DOI_REGEX_PATTERN
 
 NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
@@ -247,8 +247,23 @@ urlpatterns = [
     ),
     re_path(
         r"^manage/issues/(?P<issue_id>\d+)/sort/sections/$",
-        views.sort_issue_sections,
+        partial_views.sort_issue_sections,
         name="manage_sort_issue_sections",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/$",
+        partial_views.issue_toc_article_row,
+        name="issue_toc_article_row",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/edit/$",
+        partial_views.issue_toc_article_edit,
+        name="issue_toc_article_edit",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/sort/topics/$",
+        partial_views.sort_issue_topics,
+        name="manage_sort_issue_topics",
     ),
     # Article Archive
     re_path(

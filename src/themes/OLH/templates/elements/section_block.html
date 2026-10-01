@@ -1,4 +1,5 @@
-<h2>{% trans 'Sections' %}</h2>
+<h2 id="sections-heading">{% trans 'Sections' %}</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-labelledby="sections-heading">
 <table>
     <thead>
         <tr>
@@ -6,6 +7,7 @@
             <th scope="col" >{% trans "Public Submissions" %}</th>
             <th scope="col" >{% trans "Peer Reviewed" %}</th>
             <th scope="col" >{% trans "Indexed" %}</th>
+        </tr>
     </thead>
     <tbody>
         {% for section in sections %}
@@ -48,3 +50,4 @@
         {% endfor %}
     </tbody>
 </table>
+</div>

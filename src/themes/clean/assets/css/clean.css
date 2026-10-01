@@ -274,8 +274,57 @@ main a:hover {
     background-color: rgba(55, 55, 55, .8);
 }
 
-.carousel-caption h2 a {
+.carousel-caption h2 a,
+.carousel-caption h3 a {
     color: white;
+}
+
+/* The prev/next chevrons were half-opacity white straight on the image.
+   Give them a dark circle so they stand out from any image. */
+.carousel-control-prev,
+.carousel-control-next {
+    opacity: 1;
+}
+
+/* Bootstrap makes each prev/next control a full-height strip down the side
+   of the slide, so the target was far larger than the visible circle and
+   reached over the caption link. Shrink each control to the circle itself,
+   centred on the image, with the focus ring following its shape. */
+.carousel-control-prev,
+.carousel-control-next {
+    top: 50%;
+    bottom: auto;
+    width: auto;
+    height: auto;
+    padding: 0;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+.carousel-control-prev {
+    left: 1rem;
+}
+.carousel-control-next {
+    right: 1rem;
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-size: 50% 50%;
+    border-radius: 50%;
+}
+
+/* Show which of play and pause is active. */
+#carousel-buttons .btn[aria-pressed="true"] {
+    background-color: #1a1a1a;
+    border-color: #ffffff;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+/* Keep the dark half of the focus ring when the pressed button has focus. */
+#carousel-buttons .btn[aria-pressed="true"]:focus {
+    box-shadow: inset 0 0 0 2px #ffffff, 0 0 0 var(--focus-ring-size) var(--focus-dark);
 }
 
 .row-eq-height {
@@ -300,14 +349,6 @@ main a:hover {
     right: 5px;
 }
 
-.carousel-control-next {
-	top: 40px;
-}
-
-.carousel-control-prev {
-	top: 40px;
-}
-
 .carousel-item .carousel-caption {
   /* Bootstrap 4.4 hides the caption on small screens by default,
    * even for active carousel items.
@@ -323,9 +364,10 @@ main a:hover {
   .carousel-item .carousel-caption {
     position: static;
   }
+  /* The caption sits beneath the image here, so centre on the image. */
   .carousel-control-prev,
   .carousel-control-next {
-    bottom: calc(100% - var(--carousel-image-height, 360px));
+    top: calc(var(--carousel-image-height, 360px) / 2);
   }
 }
 @media (width >= 992px) {
@@ -1137,8 +1179,11 @@ span + .btn-background {
     position: static;
   }
 
+  /* Full width whether open or closed, so the caret doesn't jump; flex lets
+     the full-width button and its margins fit inside. */
   .mini-bar .title-bar {
-    display: block;
+    display: flex;
+    width: 100%;
   }
 
   .reading-options-bar.tf-bar-hidden #options-menu {
@@ -1475,4 +1520,26 @@ abbr.req {
   min-width: 24px;
   margin-inline: 0;
   text-align: center;
+}
+
+/* Section and/or topic of an issue article */
+h3.article-subgroup {
+    margin: 0 0 0.35rem;
+    color: #00688B;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+/* Rendered article images keep their natural width; never let them be
+   wider than the text column, or narrow screens scroll sideways. */
+#main_article img {
+    max-width: 100%;
+}
+/* When the width is capped, keep the ratio from width and height
+   attributes. An image sized by height alone keeps that height. */
+#main_article img[width][height] {
+    height: auto;
 }

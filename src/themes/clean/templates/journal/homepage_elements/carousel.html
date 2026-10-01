@@ -7,7 +7,7 @@
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner" aria-roledescription="carousel" aria-label="News and article carousel">
                 {% for carousel_item in carousel_items %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_item|length }}">
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ carousel_items|length }}">
                       <div class="clean-banner explicit-image-height">
                         <img class="d-block clean-banner-image"
                           src="{{ carousel_item.best_large_image_url }}"
@@ -29,11 +29,11 @@
                 <span class="sr-only">{% trans 'Next' %}</span>
             </button>
               <div id="carousel-buttons">
-                <button id="carousel-play" type="button" class="btn btn-secondary btn-sm">
+                <button id="carousel-play" type="button" class="btn btn-secondary btn-sm" aria-pressed="true">
                   <i aria-hidden="true" class="fa fa-play" ></i>
                   <span class="sr-only">{% trans 'Play' %}</span>
                </button>
-                <button id="carousel-pause" type="button" class="btn btn-secondary btn-sm">
+                <button id="carousel-pause" type="button" class="btn btn-secondary btn-sm" aria-pressed="false">
                   <i aria-hidden="true" class="fa fa-pause" ></i>
                   <span class="sr-only">{% trans 'Pause' %}</span>
                 </button>
@@ -41,3 +41,20 @@
         </div>
     </div>
 </div>
+<script>
+  // Play and pause show which is active, on the journal and press homepages.
+  document.addEventListener("DOMContentLoaded", function () {
+    var play = document.getElementById("carousel-play");
+    var pause = document.getElementById("carousel-pause");
+    if (!play || !pause || !window.jQuery) {
+      return;
+    }
+    function setPlaying(playing) {
+      jQuery("#carousel").carousel(playing ? "cycle" : "pause");
+      play.setAttribute("aria-pressed", playing ? "true" : "false");
+      pause.setAttribute("aria-pressed", playing ? "false" : "true");
+    }
+    play.addEventListener("click", function () { setPlaying(true); });
+    pause.addEventListener("click", function () { setPlaying(false); });
+  });
+</script>

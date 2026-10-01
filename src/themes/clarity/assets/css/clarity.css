@@ -1004,8 +1004,11 @@ a.btn {
     position: static;
   }
 
+  /* Full width whether open or closed, so the caret doesn't jump; flex lets
+     the full-width button and its margins fit inside. */
   .mini-bar .title-bar {
-    display: block;
+    display: flex;
+    width: 100%;
   }
 
   .reading-options-bar.tf-bar-hidden #options-menu {
@@ -2049,4 +2052,15 @@ abbr.req {
 
 .form-errors dd:last-child {
   margin-bottom: 0;
+}
+
+/* Section and/or topic of an issue article */
+.article-subgroup {
+  margin: 0 0 var(--spacing-xs);
+  color: var(--article-subgroup-color);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
