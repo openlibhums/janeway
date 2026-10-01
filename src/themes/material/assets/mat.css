@@ -1998,8 +1998,19 @@ main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
   background-color: #1d7e75;
 }
 
+/* A slightly darker hover colour is hard to see, so keep the colour and
+   underline the label instead. */
 .btn:hover, .btn-small:hover, .btn-large:hover {
-  background-color: #186b63;
+  background-color: #1d7e75;
+  text-decoration: underline;
+}
+
+/* Superscript icons raise the line box and push button text off centre;
+   lift the icon without moving the line. */
+.btn .superscript-icon, .btn-small .superscript-icon, .btn-large .superscript-icon {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
 }
 
 .collection a.collection-item {
