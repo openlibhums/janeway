@@ -1,0 +1,118 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{{ request.repository.object_name }} #{{ preprint.pk }} - {{ preprint.title|safe }}{% endblock %}
+{% block title-sub %}{% trans "Draft update" %}: {{ draft.get_update_type_display }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
+    <li><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>{% trans "Draft update" %}</li>
+{% endblock %}
+
+{% block body %}
+<div class="box">
+    <div class="row expanded">
+        <div class="large-6 columns">
+            <div class="padding-block-end-2">
+                <div class="title-area">
+                    <h2>{% trans "Details" %}</h2>
+                </div>
+                <form method="POST" id="update-details" data-unsaved-warning>
+                    {% csrf_token %}
+                    {% include "admin/elements/forms/errors.html" with form=version_form %}
+                    {{ version_form|foundation }}
+                    {% if field_form.elements %}
+                        <h3>{% trans "Additional information" %}</h3>
+                        {% include "admin/elements/forms/errors.html" with form=field_form %}
+                        {{ field_form|foundation }}
+                    {% endif %}
+                    {# The first button, so pressing Enter in a field saves rather than submits. #}
+                    <button name="save_draft" class="button secondary">
+                        <span class="fa fa-save"></span> {% trans "Save draft" %}
+                    </button>
+                </form>
+            </div>
+            {% if file_form %}
+                <div class="padding-block-end-2" data-draft-file>
+                    <div class="title-area">
+                        <h2>{% trans "File" %}</h2>
+                    </div>
+                    {% if draft.file %}
+                        <div class="callout success">
+                            <p class="no-bottom-margin">
+                                <span class="fa fa-file"></span>
+                                {% trans "Uploaded for this update" %}: <strong>{{ draft.file.original_filename }}</strong>
+                            </p>
+                        </div>
+                    {% else %}
+                        <p>{% trans "Upload the file for this update. It is saved with the draft straight away." %}</p>
+                    {% endif %}
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include "admin/elements/forms/errors.html" with form=file_form %}
+                        {{ file_form|foundation }}
+                        <button name="upload_file" class="button">
+                            <span class="fa fa-upload"></span>
+                            {% if draft.file %}{% trans "Replace file" %}{% else %}{% trans "Upload file" %}{% endif %}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+            {% include "admin/repository/elements/author_list_editor.html" %}
+            <div class="button-group padding-block-2">
+                <button name="submit_update" class="success button" form="update-details">
+                    <span class="fa fa-paper-plane"></span> {% trans "Submit update for moderation" %}
+                </button>
+                <button name="discard_draft" class="button alert hollow" form="update-details" formnovalidate
+                        onclick="return confirm('{% filter escapejs %}{% trans "Discard this draft update?" %}{% endfilter %}');">
+                    <span class="fa fa-trash"></span> {% trans "Discard draft" %}
+                </button>
+            </div>
+        </div>
+        <div class="large-6 columns">
+            <div class="title-area">
+                <h2>{% trans "Information" %}</h2>
+            </div>
+            <div class="content">
+                <p>{% blocktrans with object=request.repository.object_name %}This is a draft. Change the authors and details, then submit the update for moderation. Nothing changes on your {{ object }} until a moderator approves the update.{% endblocktrans %}</p>
+                {% if request.repository.limit_upload_to_pdf and action != "metadata_correction" %}
+                    <p>{% blocktrans with name=request.repository.name %}{{ name }} limits upload types to PDF.{% endblocktrans %}</p>
+                {% endif %}
+                {% if request.repository.additional_version_help %}
+                    {{ request.repository.additional_version_help|safe }}
+                {% endif %}
+            </div>
+            {% include "admin/repository/elements/author_list_sidebar.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script>
+        // Other actions on this page reload it, so warn before unsaved
+        // details are lost.
+        (function () {
+            var form = document.getElementById("update-details");
+            // Values shown again after a validation error are not saved yet.
+            var changed = {% if version_form.errors or field_form.errors %}true{% else %}false{% endif %};
+            var submitting = false;
+            form.addEventListener("input", function () { changed = true; });
+            form.addEventListener("submit", function () { submitting = true; });
+            window.addEventListener("beforeunload", function (event) {
+                // The abstract is edited in TinyMCE, outside the form's events.
+                var editorChanged = window.tinymce && tinymce.get().some(function (editor) {
+                    return editor.isDirty();
+                });
+                if (!submitting && (changed || editorChanged)) {
+                    event.preventDefault();
+                    event.returnValue = "";
+                }
+            });
+        })();
+    </script>
+{% endblock %}

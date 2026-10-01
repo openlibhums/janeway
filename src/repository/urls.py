@@ -295,6 +295,11 @@ urlpatterns = [
         name="preprints_orphaned_preprints",
     ),
     re_path(r"^manager/versions/$", views.version_queue, name="version_queue"),
+    re_path(
+        r"^manager/versions/(?P<update_id>\d+)/detail/$",
+        views.version_detail,
+        name="repository_version_detail",
+    ),
     re_path(r"^wizard/$", views.repository_wizard, name="repository_wizard"),
     re_path(
         r"^wizard/repository/(?P<short_name>[-\w]+)/step/(?P<step>\d+)/$",
