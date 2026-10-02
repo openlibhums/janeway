@@ -1,7 +1,9 @@
+import logging
 import uuid
 
 from rest_framework import exceptions, serializers, validators
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.shortcuts import reverse
 from django.utils import timezone
@@ -12,6 +14,11 @@ from submission import models as submission_models
 from repository import models as repository_models
 from identifiers import models as identifier_models
 from events import logic as event_logic
+from repository import forms as repository_forms, logic as repository_logic
+from utils import orcid as orcid_utils
+from utils.forms import plain_text_validator
+
+logger = logging.getLogger(__name__)
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -159,6 +166,28 @@ class PreprintFileCreateSerializer(serializers.ModelSerializer):
         method_name="get_public_url",
     )
 
+    def validate_preprint(self, preprint):
+        """
+        Files can only be added to preprints in this repository that the
+        user owns, unless they are staff or a manager of the repository.
+        """
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        repository = getattr(request, "repository", None)
+        if repository is not None and preprint.repository != repository:
+            raise serializers.ValidationError(
+                "This preprint does not belong to this repository."
+            )
+        if not user or not (
+            preprint.owner == user
+            or user.is_staff
+            or user.is_repository_manager(preprint.repository)
+        ):
+            raise serializers.ValidationError(
+                "You can only add files to your own preprints."
+            )
+        return preprint
+
     def get_manager_url(self, obj):
         return obj.preprint.repository.site_url(
             path=reverse(
@@ -287,39 +316,120 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class PreprintAccountSerializer(serializers.HyperlinkedModelSerializer):
-    def get_fields(self):
-        fields = super().get_fields()
-        if "email" in fields:
-            fields["email"].validators = [
-                validator
-                for validator in fields["email"].validators
-                if not isinstance(validator, validators.UniqueValidator)
-            ]
-        return fields
+class PreprintAuthorSerializer(serializers.Serializer):
+    """
+    A preprint author (submission.models.FrozenAuthor). Keeps the field
+    names of the account-based serializer it replaced; pk is the pk of the
+    linked account, if there is one, and salutation is the name prefix
+    shown before the author's name. ORCIDs are accepted as an iD or URL
+    and returned as an iD. An author needs an email address or a name.
+    """
 
-    def create(self, validated_data):
-        account_email = validated_data.pop("email")
-        account, created = core_models.Account.objects.get_or_create(
-            email=account_email,
-            defaults={
-                **validated_data,
-            },
-        )
-        return account
+    pk = serializers.SerializerMethodField()
+    email = serializers.EmailField(
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
+    first_name = serializers.CharField(
+        max_length=300,
+        required=False,
+        allow_blank=True,
+        validators=[plain_text_validator],
+    )
+    middle_name = serializers.CharField(
+        max_length=300,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        validators=[plain_text_validator],
+    )
+    last_name = serializers.CharField(
+        max_length=300,
+        required=False,
+        allow_blank=True,
+        validators=[plain_text_validator],
+    )
+    salutation = serializers.CharField(
+        source="name_prefix",
+        max_length=300,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        validators=[plain_text_validator],
+    )
+    suffix = serializers.CharField(
+        source="name_suffix",
+        max_length=300,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        validators=[plain_text_validator],
+    )
+    orcid = serializers.CharField(
+        source="orcid_id",
+        max_length=255,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
+    institution = serializers.CharField(
+        max_length=1000,
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
 
-    class Meta:
-        model = core_models.Account
-        fields = (
-            "pk",
-            "email",
-            "first_name",
-            "middle_name",
-            "last_name",
-            "salutation",
-            "suffix",
-            "orcid",
-            "institution",
+    def get_pk(self, obj):
+        return obj.author.pk if obj.author else None
+
+    def validate(self, data):
+        if not (
+            data.get("email")
+            or data.get("first_name")
+            or data.get("last_name")
+            or data.get("institution")
+        ):
+            raise serializers.ValidationError(
+                "An author needs an email address, a name or an institution."
+            )
+        return data
+
+    def validate_orcid(self, value):
+        if not value:
+            return value
+        match = orcid_utils.COMPILED_ORCID_REGEX.search(value)
+        if not match:
+            raise serializers.ValidationError(f"{value} is not a valid ORCID")
+        return match.group(0)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["orcid"] = data["orcid"] or None
+        return data
+
+
+def author_rows(validated_authors):
+    """
+    Converts validated PreprintAuthorSerializer data to the detail dicts
+    the repository author logic takes.
+    """
+    rows = []
+    for author in validated_authors:
+        details = dict(author)
+        if "orcid_id" in details:
+            details["orcid"] = details.pop("orcid_id") or ""
+        if "institution" in details:
+            details["affiliation"] = details.pop("institution") or ""
+        rows.append(details)
+    return rows
+
+
+def validate_unique_author_emails(authors):
+    emails = [author["email"].lower() for author in authors if author.get("email")]
+    if len(emails) != len(set(emails)):
+        raise serializers.ValidationError(
+            {"authors": "Each author needs a different email address."}
         )
 
 
@@ -391,7 +501,8 @@ class PreprintSerializer(serializers.ModelSerializer):
         depth = 2
 
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    authors = PreprintAccountSerializer(
+    authors = PreprintAuthorSerializer(
+        source="frozen_authors",
         many=True,
     )
     license = LicenceSerializer()
@@ -421,6 +532,57 @@ class PreprintSerializer(serializers.ModelSerializer):
 
 
 class PreprintCreateSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        authors = data.get("frozen_authors")
+        if authors is not None:
+            validate_unique_author_emails(authors)
+
+        request = self.context.get("request")
+        preprint = self.instance
+        moderated = (
+            preprint
+            and preprint.date_submitted
+            and request
+            and not request.user.is_staff
+            and not request.user.is_repository_manager(preprint.repository)
+        )
+        if moderated:
+            # Once submitted, owners change authors and custom fields through
+            # a moderated update, and cannot unsubmit to get round that.
+            errors = {}
+            if "date_submitted" in data and not data["date_submitted"]:
+                errors["date_submitted"] = "A submitted preprint cannot be unsubmitted."
+            if authors is not None and repository_logic.PreprintAuthorList(
+                preprint
+            ).differs_from(author_rows(authors)):
+                errors["authors"] = (
+                    "The authors of a submitted preprint can only be changed "
+                    "by submitting an update."
+                )
+            answers = data.get("repositoryfieldanswer_set")
+            if answers is not None and self.answers_differ(preprint, answers):
+                errors["additional_field_answers"] = (
+                    "The additional information of a submitted preprint can "
+                    "only be changed by submitting an update."
+                )
+            if errors:
+                raise serializers.ValidationError(errors)
+        return data
+
+    @staticmethod
+    def answers_differ(preprint, answers):
+        current = {
+            answer.field.name: answer.answer
+            for answer in preprint.repositoryfieldanswer_set.select_related("field")
+            if answer.field
+        }
+        proposed = {
+            answer.get("field", {}).get("name"): answer.get("answer")
+            for answer in answers
+            if answer.get("field", {}).get("name") and answer.get("answer")
+        }
+        return current != proposed
+
     @transaction.atomic
     def create(self, validated_data):
         preprint = repository_models.Preprint.objects.create(
@@ -438,21 +600,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             comments_editor=validated_data.get("comments_editor"),
         )
 
-        for i, author_data in enumerate(validated_data.get("authors", [])):
-            author_email = author_data.pop("email").lower()
-            author, created = core_models.Account.objects.get_or_create(
-                email=author_email,
-                defaults={
-                    **author_data,
-                },
-            )
-            repository_models.PreprintAuthor.objects.get_or_create(
-                account=author,
-                preprint=preprint,
-                defaults={
-                    "order": i,
-                    "affiliation": author.affiliation(),
-                },
+        if "frozen_authors" in validated_data:
+            repository_logic.PreprintAuthorList(preprint).replace(
+                author_rows(validated_data["frozen_authors"]),
+                editor=self.context["request"].user,
             )
 
         for keywords in validated_data.get("keywords", []):
@@ -508,6 +659,13 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         pre_save_stage = instance.stage
 
+        # Before submitting, while the owner can still edit the authors.
+        if "frozen_authors" in validated_data:
+            repository_logic.PreprintAuthorList(instance).replace(
+                author_rows(validated_data["frozen_authors"]),
+                editor=self.context["request"].user,
+            )
+
         if (
             pre_save_stage == repository_models.STAGE_PREPRINT_UNSUBMITTED
             and validated_data.get("stage") == repository_models.STAGE_PREPRINT_REVIEW
@@ -526,41 +684,16 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         instance.repository = validated_data.get("repository")
         instance.stage = validated_data.get("stage")
         instance.license = validated_data.get("license")
-        instance.date_submitted = validated_data.get("date_submitted")
+        instance.date_submitted = validated_data.get(
+            "date_submitted",
+            instance.date_submitted,
+        )
         instance.date_accepted = validated_data.get("date_accepted")
         instance.date_published = validated_data.get("date_published")
         instance.doi = validated_data.get("doi")
         instance.preprint_doi = validated_data.get("preprint_doi")
         instance.comments_editor = validated_data.get("comments_editor")
         instance.save()
-
-        authors = []
-        for i, author_data in enumerate(validated_data.get("authors", [])):
-            author_email = author_data.pop("email").lower()
-            # check if there is an existing PreprintAuthor record and update it
-            account, created = core_models.Account.objects.update_or_create(
-                email=author_email,
-                defaults={
-                    **author_data,
-                },
-            )
-            preprint_author, c = (
-                repository_models.PreprintAuthor.objects.update_or_create(
-                    account=account,
-                    preprint=instance,
-                    defaults={
-                        "order": i,
-                        "affiliation": author_data.get("institution"),
-                    },
-                )
-            )
-            authors.append(preprint_author)
-
-        # Delete any authors not present in the list of authors
-        # that were found/created above.
-        for preprint_author in instance.preprintauthor_set.all():
-            if preprint_author not in authors:
-                preprint_author.delete()
 
         # Remove all keywords and add those present back.
         instance.keywords.clear()
@@ -651,8 +784,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             "comments_editor",
         )
 
-    authors = PreprintAccountSerializer(
+    authors = PreprintAuthorSerializer(
+        source="frozen_authors",
         many=True,
+        required=False,
     )
     keywords = KeywordsSerializer(
         many=True,
@@ -727,7 +862,82 @@ class SubmissionAccountSearch(serializers.ModelSerializer):
         )
 
 
+class ProposedFieldAnswerSerializer(serializers.Serializer):
+    """
+    A custom field answer proposed by a preprint update. The field is
+    identified by name, as when creating a preprint. A blank or null answer
+    clears the field.
+    """
+
+    field = RepositoryFieldSerializer()
+    answer = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+    )
+
+
+class VersionQueueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = repository_models.VersionQueue
+        fields = (
+            "pk",
+            "preprint",
+            "update_type",
+            "date_submitted",
+            "date_decision",
+            "approved",
+            "published_doi",
+            "title",
+            "abstract",
+            "file",
+            "changed_sections",
+            "authors_changed",
+            "field_answers_changed",
+            "authors",
+            "additional_field_answers",
+        )
+
+    authors = PreprintAuthorSerializer(
+        source="frozenauthor_set",
+        many=True,
+        read_only=True,
+    )
+    additional_field_answers = RepositoryFieldAnswerSerializer(
+        source="repositoryfieldanswer_set",
+        many=True,
+        read_only=True,
+    )
+
+
 class VersionQueueCreateSerializer(serializers.ModelSerializer):
+    """
+    Requests an update to a submitted preprint the user owns, as the web
+    form does. Besides title, abstract, DOI and file (required, except for
+    a metadata correction), an update can give:
+
+    - authors: the complete new author list, in order. Authors already on
+      the preprint are matched by email address, or by name when there is
+      none, and keep their account link, affiliations and CRediT roles.
+      Omit it to keep the current list.
+    - additional_field_answers: answers to the repository's custom fields,
+      by field name. Fields not listed keep their current answer.
+
+    A preprint has one open update at a time. A moderator applies the
+    sections that differ from the preprint by approving the update.
+    """
+
+    authors = PreprintAuthorSerializer(
+        many=True,
+        required=False,
+        write_only=True,
+    )
+    additional_field_answers = ProposedFieldAnswerSerializer(
+        many=True,
+        required=False,
+        write_only=True,
+    )
+
     class Meta:
         model = repository_models.VersionQueue
         fields = (
@@ -737,6 +947,8 @@ class VersionQueueCreateSerializer(serializers.ModelSerializer):
             "abstract",
             "published_doi",
             "file",
+            "authors",
+            "additional_field_answers",
         )
 
     def validate(self, data):
@@ -750,24 +962,148 @@ class VersionQueueCreateSerializer(serializers.ModelSerializer):
                     "that you do not own."
                 }
             )
+        if preprint.repository != getattr(request, "repository", preprint.repository):
+            raise serializers.ValidationError(
+                {"preprint": "This preprint does not belong to this repository."}
+            )
+        if preprint.stage not in repository_models.SUBMITTED_STAGES:
+            raise serializers.ValidationError(
+                {"preprint": "Only submitted preprints can be updated."}
+            )
+        open_update = repository_logic.open_update(preprint)
+        if open_update and open_update.is_draft:
+            raise serializers.ValidationError(
+                {
+                    "preprint": "This preprint has a draft update on the "
+                    "website. Submit or discard it there first."
+                }
+            )
+        if open_update:
+            raise serializers.ValidationError(
+                {"preprint": "This preprint already has an update awaiting moderation."}
+            )
+        update_file = data.get("file")
+        if data.get("update_type") == "metadata_correction":
+            if update_file:
+                raise serializers.ValidationError(
+                    {"file": "A metadata correction cannot change the file."}
+                )
+        elif not update_file:
+            raise serializers.ValidationError(
+                {"file": "A correction or new version needs a file."}
+            )
+        if update_file and update_file.preprint_id != preprint.pk:
+            raise serializers.ValidationError(
+                {"file": "This file does not belong to this preprint."}
+            )
+
+        authors = data.get("authors")
+        if authors is not None:
+            if not authors:
+                raise serializers.ValidationError(
+                    {"authors": "You must list at least one author."}
+                )
+            validate_unique_author_emails(authors)
+
+        answers = data.get("additional_field_answers")
+        if answers is not None:
+            available = {
+                field.name: field
+                for field in preprint.repository.type_additional_submission_fields(
+                    submission_type_slug=(
+                        preprint.submission_type.slug
+                        if preprint.submission_type
+                        else None
+                    ),
+                )
+            }
+            resolved = {}
+            for answer in answers:
+                name = answer["field"]["name"]
+                field = available.get(name)
+                if field is None:
+                    raise serializers.ValidationError(
+                        {"additional_field_answers": f"Unknown field: {name}"}
+                    )
+                if field in resolved:
+                    raise serializers.ValidationError(
+                        {"additional_field_answers": f"Field listed twice: {name}"}
+                    )
+                resolved[field] = self.clean_field_answer(field, answer.get("answer"))
+            data["additional_field_answers"] = resolved
 
         return data
 
+    @staticmethod
+    def clean_field_answer(field, value):
+        """
+        Validates a proposed answer as the web form would.
+        :return: the answer text, or None to clear the field
+        """
+        if value in (None, ""):
+            if field.required:
+                raise serializers.ValidationError(
+                    {"additional_field_answers": f"{field.name} is required."}
+                )
+            return None
+        form_field = repository_forms.build_additional_field(field)
+        try:
+            cleaned = form_field.clean(value)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(
+                {
+                    "additional_field_answers": f"{field.name}: {' '.join(error.messages)}"
+                }
+            )
+        return repository_forms.additional_field_answer_text(field, cleaned)
 
-class VersionQueueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = repository_models.VersionQueue
-        fields = (
-            "preprint",
-            "update_type",
-            "date_submitted",
-            "date_decision",
-            "approved",
-            "published_doi",
-            "title",
-            "abstract",
-            "file",
+    @transaction.atomic
+    def create(self, validated_data):
+        authors = validated_data.pop("authors", None)
+        answers = validated_data.pop("additional_field_answers", None)
+        version_queue, error = repository_logic.start_update(
+            validated_data.pop("preprint"),
+            validated_data.pop("update_type"),
         )
+        if error:
+            raise serializers.ValidationError({"preprint": str(error)})
+        for name, value in validated_data.items():
+            setattr(version_queue, name, value)
+        version_queue.save()
+        if authors is not None:
+            repository_logic.PreprintAuthorList(
+                version_queue.preprint,
+                version_queue,
+            ).replace(author_rows(authors), editor=self.context["request"].user)
+        if answers:
+            repository_logic.set_update_field_answers(version_queue, answers)
+        error = repository_logic.submit_update(version_queue)
+        if error:
+            raise serializers.ValidationError({"error": str(error)})
+        version_queue.refresh_from_db()
+
+        # Notify moderators as the web form does, once the update is saved.
+        request = self.context.get("request")
+
+        def notify():
+            try:
+                event_logic.Events.raise_event(
+                    event_logic.Events.ON_PREPRINT_NEW_VERSION,
+                    request=request,
+                    new_version=version_queue,
+                    preprint=version_queue.preprint,
+                )
+            except Exception:
+                # The update is saved; a failed notification must not turn
+                # the response into an error.
+                logger.exception("Could not notify moderators of a new version")
+
+        transaction.on_commit(notify)
+
+        return version_queue
+
+    def to_representation(self, instance):
+        return VersionQueueSerializer(instance, context=self.context).data
 
 
 class RegisterAccountSerializer(serializers.ModelSerializer):

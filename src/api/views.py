@@ -212,14 +212,14 @@ class PreprintViewSet(viewsets.ModelViewSet):
 
             # Author names and affiliations, on published preprints.
             from_author = (
-                repository_models.PreprintAuthor.objects.filter(
+                submission_models.FrozenAuthor.objects.filter(
                     preprint__repository=self.request.repository,
                     preprint__date_published__lte=timezone.now(),
                 )
                 .annotate(
-                    lower_first_name=Lower("account__first_name"),
-                    lower_middle_name=Lower("account__middle_name"),
-                    lower_last_name=Lower("account__last_name"),
+                    lower_first_name=Lower("first_name"),
+                    lower_middle_name=Lower("middle_name"),
+                    lower_last_name=Lower("last_name"),
                 )
                 .filter(
                     Q(lower_first_name__in=terms)
@@ -236,7 +236,8 @@ class PreprintViewSet(viewsets.ModelViewSet):
             )
             matches |= Q(pk__in=from_author)
 
-            # Never widen the results beyond this repository.
+            # Filter the repository's queryset in the database, never widening
+            # it beyond the site this request is for.
             preprints = preprints.filter(
                 pk__in=repository_models.Preprint.objects.filter(matches).values("pk")
             )
@@ -386,12 +387,20 @@ class RepositoryVersionQueue(viewsets.ModelViewSet):
         return serializers.VersionQueueSerializer
 
     def get_queryset(self):
-        version_queues = repository_models.VersionQueue.objects.filter(
-            preprint__repository=self.request.repository,
-            preprint__owner=self.request.user,
+        version_queues = (
+            repository_models.VersionQueue.objects.filter(
+                preprint__repository=self.request.repository,
+                preprint__owner=self.request.user,
+                is_draft=False,
+            )
+            .select_related("preprint", "file")
+            .prefetch_related(
+                "frozenauthor_set__author",
+                "repositoryfieldanswer_set__field",
+            )
         )
-        preprint_filter = self.request.GET.get("preprint")
-        if preprint_filter:
+        preprint_filter = self.request.GET.get("preprint", "")
+        if preprint_filter.isdigit():
             version_queues = version_queues.filter(preprint=preprint_filter)
         return version_queues
 
