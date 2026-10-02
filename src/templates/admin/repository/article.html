@@ -302,12 +302,15 @@
                             <td>{{ version.date_time }}</td>
                             <td>{{ version.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
-                            <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><span
-                                    class="fa fa-download" aria-hidden="true"></span> Download<span class="show-for-sr"> {{ version.file.original_filename }}</span></a></td>
+                            <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}">
+                                    {% trans "Download" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
+                                    {% include "elements/icons/link_download.html" %}
+                                </a></td>
                             <td>
                                 {% if version.file.is_pdf %}
                                 <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk version.file.pk %}">
-                                    <span class="fa fa-eye" aria-hidden="true"></span> Preview<span class="show-for-sr"> {{ version.file.original_filename }} (opens in new tab)</span>
+                                    {% trans "Preview" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
+                                    {% include "elements/icons/link_preview.html" %}
                                 </a>
                                 {% endif %}
                             </td>
@@ -349,12 +352,15 @@
                             {% if update.file %}
                                 <td>{{ update.file.original_filename }}</td>
                                 <td>{{ update.file.uploaded }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><span
-                                        class="fa fa-download" aria-hidden="true"></span> Download<span class="show-for-sr"> {{ update.file.original_filename }}</span></a></td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}">
+                                        {% trans "Download" %}<span class="sr-only"> {{ update.file.original_filename }}</span>
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a></td>
                                 <td>
                                     {% if update.file.is_pdf %}
                                     <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk update.file.pk %}">
-                                        <span class="fa fa-eye" aria-hidden="true"></span> Preview<span class="show-for-sr"> {{ update.file.original_filename }} (opens in new tab)</span>
+                                        {% trans "Preview" %}<span class="sr-only"> {{ update.file.original_filename }}</span>
+                                        {% include "elements/icons/link_preview.html" %}
                                     </a>
                                     {% endif %}
                                 </td>
@@ -403,13 +409,16 @@
                                 <td>{{ file.mime_type }}</td>
                                 <td>{{ file.size|filesizeformat }}</td>
                                 <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><span
-                                        class="fa fa-download" aria-hidden="true"></span> Download<span class="show-for-sr"> {{ file.original_filename }}</span></a>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}">
+                                        {% trans "Download" %}<span class="sr-only"> {{ file.original_filename }}</span>
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a>
                                 </td>
                                 <td>
                                     {% if file.is_pdf %}
                                     <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk file.pk %}">
-                                        <span class="fa fa-eye" aria-hidden="true"></span> Preview<span class="show-for-sr"> {{ file.original_filename }} (opens in new tab)</span>
+                                        {% trans "Preview" %}<span class="sr-only"> {{ file.original_filename }}</span>
+                                        {% include "elements/icons/link_preview.html" %}
                                     </a>
                                     {% endif %}
                                 </td>
