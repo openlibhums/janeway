@@ -24,21 +24,20 @@
         <div class="large-12 columns">
             {% include "repository/elements/submission_type_pill.html" %}
             <h1>{{ preprint.title|safe }}</h1>
+            {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
             <p>
-                This is a {{ preprint.submission_type.name }} and has not been
-                peer reviewed.
+                This {{ type_name }} may not have been peer reviewed.
                 {% if preprint.doi %}
                     The published version of this
-                    {{ preprint.submission_type.name }} is available:
+                    {{ type_name }} is available:
                     <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
                 {% elif preprint.article %}
                     A published version of this
-                    {{ preprint.submission_type.name }} is available on
+                    {{ type_name }} is available on
                     <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
                     .
                 {% endif %}
-                This is version {{ preprint.current_version.version }} of
-                this {{ preprint.submission_type.name }}.
+                This is version {{ preprint.current_version.version }}.
             </p>
         </div>
         <div class="large-8 columns">

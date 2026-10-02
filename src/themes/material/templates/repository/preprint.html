@@ -37,15 +37,16 @@
 
         <div class="col m7">
             <div itemprop="articleBody" id="pdf">
+                {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
                 <p class="preprint-text">
-                    This is a {{ request.repository.object_name }} and has not been peer reviewed.
+                    This {{ type_name }} may not have been peer reviewed.
                     {% if preprint.doi %}
-                        The published version of this {{ request.repository.object_name }} is available: 
+                        The published version of this {{ type_name }} is available:
                         {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
                     {% elif preprint.article %}
-                        A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
+                        A published version of this {{ type_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
-                    This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
+                    This is version {{ preprint.current_version.version }}.
                 </p>
                 {% if preprint.current_version_file_type == 'html' %}
                     <div class="card text-format-region">

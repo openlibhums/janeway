@@ -43,15 +43,16 @@
           <h1>{{ preprint.title|safe }}</h1>
         {% endif %}
 
+        {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
         <p class="text-muted">
-          {% trans 'This is a' %} {{ request.repository.object_name }} {% trans 'and has not been peer reviewed.' %}
+          {% blocktrans %}This {{ type_name }} may not have been peer reviewed.{% endblocktrans %}
           {% if preprint.doi %}
-            {% trans 'The published version of this' %} {{ request.repository.object_name }} {% trans 'is available:' %}
+            {% blocktrans %}The published version of this {{ type_name }} is available:{% endblocktrans %}
             {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
           {% elif preprint.article %}
-            {% blocktrans with url=preprint.article.url journal=preprint.article.journal.name %}A published version of this preprint is available on <a href="{{ url }}">{{ journal }}</a>.{% endblocktrans %}
+            {% blocktrans with url=preprint.article.url journal=preprint.article.journal.name %}A published version of this {{ type_name }} is available on <a href="{{ url }}">{{ journal }}</a>.{% endblocktrans %}
           {% endif %}
-          {% blocktrans with version=preprint.current_version.version object_name=request.repository.object_name %}This is version {{ version }} of this {{ object_name }}.{% endblocktrans %}
+          {% blocktrans with version=preprint.current_version.version %}This is version {{ version }}.{% endblocktrans %}
         </p>
 
         {% if preprint.current_version_file_type == 'html' %}
