@@ -971,6 +971,7 @@ class OrganisationUnitTests(TestCase):
     def test_code_validation_with_path_prefix(self):
         """Path mode sites have a script prefix; it must not affect the check."""
         set_script_prefix(f"/{self.repository.short_name}/")
+        self.addCleanup(clear_script_prefix)
         valid = forms.OrganisationUnitForm(
             data={"name": "Classics", "code": "classics"},
             repository=self.repository,
