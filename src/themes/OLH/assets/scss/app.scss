@@ -2544,16 +2544,11 @@ input[type="submit"]:focus-visible {
   line-height: 24px;
 }
 
-/* Repository homepage preprint cards: equal heights per row with flexbox.
-   Foundation's Equalizer measured the cards before fonts and pill styles
-   settled, fixing them too short so text spilled out of the box. */
 .preprint-home-listing {
   display: flex;
   flex-wrap: wrap;
 }
 
-/* .row's clearfix pseudo-elements would otherwise become flex items, which
-   wraps the third card onto its own line in Safari. */
 .preprint-home-listing::before,
 .preprint-home-listing::after {
   content: none;
@@ -2567,4 +2562,12 @@ input[type="submit"]:focus-visible {
 .preprint-home-listing .callout {
   flex: 1;
   margin-bottom: 0;
+}
+
+.preprint-list-meta {
+  margin-bottom: 1rem;
+}
+
+.preprint-list-meta .list-inline {
+  display: inline;
 }

@@ -3,6 +3,7 @@
 {% for preprint in preprints %}
   <div class="card h-100">
     <div class="card-body">
+      {% if preprint.submission_type %}{% include "repository/elements/submission_type_pill.html" %}{% endif %}
       <h3 class="article-title">
         <a href="{% url 'repository_preprint' preprint.pk %}" class="article-link">
           {{ preprint.title|safe }}

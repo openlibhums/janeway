@@ -13,6 +13,10 @@
     {% endif %}
 {% endblock %}
 
+{% block css %}
+  {% include "common/repository/style/submission_type_pills.html" %}
+{% endblock css %}
+
 {% block body %}
   <div class="row">
     <section class="col-md-8" aria-label="{% trans 'Results' %}">
@@ -29,7 +33,7 @@
           {% trans 'Filtering by Subject:' %} {{ subject }}
         {% else %}
           {% with count=preprints.paginator.count %}
-            {% blocktrans count count as n %}There is {{ n }} {{ object_name }} listed.{% plural %}There are {{ n }} {{ object_name_plural }} listed.{% endblocktrans %}
+            {% blocktrans count count as n with object_name=request.repository.object_name object_name_plural=request.repository.object_name_plural %}There is {{ n }} {{ object_name }} listed.{% plural %}There are {{ n }} {{ object_name_plural }} listed.{% endblocktrans %}
           {% endwith %}
         {% endif %}
       </p>

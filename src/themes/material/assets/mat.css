@@ -2106,9 +2106,6 @@ h3.article-subgroup {
     height: auto;
 }
 
-/* Breadcrumbs for repository organisational unit pages. Materialize's
-   .breadcrumb is styled for dark navbars, so this is a light-page variant.
-   Materialize also styles every <nav> as a coloured navbar, so undo that. */
 nav.rou-breadcrumbs-nav {
   background-color: transparent;
   box-shadow: none;
@@ -2141,4 +2138,12 @@ nav.rou-breadcrumbs-nav a:hover {
   content: "/";
   padding: 0 0.5rem;
   color: #616161;
+}
+
+.card-content .info {
+  margin-bottom: 1rem;
+}
+
+.card-content .info .list-inline {
+  display: inline;
 }

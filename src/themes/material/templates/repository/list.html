@@ -21,7 +21,7 @@
                     {% include "repository/elements/rou_breadcrumbs.html" with rou=rou current_page=request.repository.object_name_plural|capfirst %}
                     <h1>{% blocktrans with object_name_plural=request.repository.object_name_plural|capfirst rou_name=rou.name %}{{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}</h1>
                 {% else %}
-                    <h1>{{ request.repository.object_name_plural }}</h1>
+                    <h1>{{ request.repository.object_name_plural|capfirst }}</h1>
                 {% endif %}
                 <p>
                     {% if search_term %}

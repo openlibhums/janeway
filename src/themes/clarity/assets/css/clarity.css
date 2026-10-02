@@ -597,6 +597,11 @@ a.btn {
   gap: 0.25rem;
 }
 
+.meta-item .list-inline {
+  display: inline;
+  margin: 0;
+}
+
 .article-item {
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--border-light);
@@ -2109,4 +2114,16 @@ abbr.req {
   letter-spacing: 0.06em;
   line-height: 1.4;
   text-transform: uppercase;
+}
+
+.submission-type-pill {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
