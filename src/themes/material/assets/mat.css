@@ -1944,3 +1944,22 @@ h2.sidebar-heading {
   line-height: 110%;
   margin: 1.52rem 0 0.912rem 0;
 }
+
+/* Breadcrumbs for repository organisational unit pages. Materialize's
+   .breadcrumb is styled for dark navbars, so this is a light-page variant. */
+.rou-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem 0 0 0;
+  padding: 0;
+}
+
+.rou-breadcrumbs li {
+  list-style-type: none;
+}
+
+.rou-breadcrumbs li + li::before {
+  content: "/";
+  padding: 0 0.5rem;
+  color: #616161;
+}

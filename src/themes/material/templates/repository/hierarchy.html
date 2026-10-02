@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load page_title %}
+
+{% block title %}
+    {% if rou %}
+        {% page_title request.repository.rou_default_name rou.name %}
+    {% else %}
+        {% page_title request.repository.rou_default_name %}
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col s12">
+            <h1>{{ request.repository.rou_default_name }}</h1>
+            {{ page_text|safe }}
+        </div>
+
+        <div class="col s12 m6">
+            <ul class="tree">
+                <li>
+                    {% if rou %}
+                        <a href="{% url 'rou_hierarchy' %}">{% blocktrans with name=request.repository.name object_name_plural=request.repository.object_name_plural %}{{ name }} (all {{ object_name_plural }}){% endblocktrans %}</a>
+                    {% else %}
+                        <strong aria-current="page">{% blocktrans with name=request.repository.name object_name_plural=request.repository.object_name_plural %}{{ name }} (all {{ object_name_plural }}){% endblocktrans %}</strong>
+                    {% endif %}
+                    {% if hierarchy %}
+                        <ul class="nested tree">
+                            {% include "repository/elements/hierarchy_list.html" with hierarchy=hierarchy %}
+                        </ul>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+
+        <div class="col s12 m6">
+            {% if rou %}
+                <h2>
+                    {{ rou.name }}
+                    ({% blocktrans count counter=rou.preprint_count with object_name=request.repository.object_name object_name_plural=request.repository.object_name_plural %}{{ counter }} {{ object_name }}{% plural %}{{ counter }} {{ object_name_plural }}{% endblocktrans %})
+                </h2>
+                <p>
+                    <a href="{% url 'repository_home_by_rou' rou.code %}">{% blocktrans with rou_name=rou.name %}Go to the {{ rou_name }} page{% endblocktrans %}</a>
+                </p>
+                {% if rou.latest_preprints %}
+                    <h3>{% trans "Latest Submissions" %}</h3>
+                    <ul class="collection">
+                        {% for preprint in rou.latest_preprints %}
+                            <li class="collection-item">
+                                <a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a><br>
+                                {{ preprint.display_authors_compact }} &middot; {{ preprint.date_published|date:"Y-m-d" }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if rou.preprint_count > 10 %}
+                        <a href="{% url 'repository_preprints_by_rou' rou.code %}" class="btn waves-effect waves-light">
+                            {% blocktrans with object_name_plural=request.repository.object_name_plural rou_name=rou.name %}View all {{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% elif recent_preprints %}
+                <h2>{% trans "Recent Submissions" %}</h2>
+                <ul class="collection">
+                    {% for preprint in recent_preprints %}
+                        <li class="collection-item">
+                            <a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a><br>
+                            {{ preprint.display_authors_compact }} &middot; {{ preprint.date_published|date:"Y-m-d" }}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'repository_list' %}" class="btn waves-effect waves-light">
+                    {% blocktrans with object_name_plural=request.repository.object_name_plural %}View all {{ object_name_plural }}{% endblocktrans %}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

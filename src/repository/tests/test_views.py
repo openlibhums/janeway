@@ -1010,7 +1010,7 @@ class OrganisationUnitTests(TestCase):
             "repository_home_by_rou",
             kwargs={"rou_code": self.faculty.code},
         )
-        for theme in ("OLH", "clarity"):
+        for theme in ("OLH", "clarity", "material"):
             with self.subTest(theme=theme):
                 response = self.client.get(
                     path,
@@ -1022,7 +1022,7 @@ class OrganisationUnitTests(TestCase):
 
     @override_settings(URL_CONFIG="domain")
     def test_hierarchy_page_name_is_not_double_pluralised(self):
-        for theme in ("OLH", "clarity"):
+        for theme in ("OLH", "clarity", "material"):
             with self.subTest(theme=theme):
                 response = self.client.get(
                     reverse("rou_hierarchy"),
@@ -1043,3 +1043,37 @@ class OrganisationUnitTests(TestCase):
                     SERVER_NAME=self.server_name,
                 )
                 self.assertContains(response, f'href="{hierarchy_path}"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unit_preprint_list_links_up_to_unit(self):
+        path = reverse(
+            "repository_preprints_by_rou",
+            kwargs={"rou_code": self.department.code},
+        )
+        unit_path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": self.department.code},
+        )
+        for theme in ("OLH", "clarity", "material"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    path,
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, f'href="{unit_path}"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_home_lists_top_level_units(self):
+        unit_path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": self.faculty.code},
+        )
+        for theme in ("OLH", "clarity", "material"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    reverse("website_index"),
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, f'href="{unit_path}"')
