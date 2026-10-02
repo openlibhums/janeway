@@ -85,7 +85,7 @@ main.container {
   line-height: 1;
   border-bottom: 1px solid var(--border-light);
   padding: var(--spacing-md);
-  color: var(--text-on-dark);
+  color: var(--header-text);
 }
 
 main {
@@ -654,8 +654,17 @@ a.btn {
   margin-top: var(--spacing-xl);
 }
 
-#main_article img {
+#main_article img,
+#main_article video {
   max-width: 100%;
+  height: auto;
+}
+
+.homepage-element-html img,
+.homepage-element-html video,
+.homepage-element-html iframe {
+  max-width: 100%;
+  height: auto;
 }
 
 #article blockquote {
@@ -1645,13 +1654,6 @@ a.fn-backref {
   padding: 0 0.75rem;
 }
 
-/* Only the press nav is dark. On the light journal and repository navs
-   the control must inherit, or its icon and its currentColor border are
-   white on white. */
-.navbar-dark .a11y-toggle-host .a11y-toggle-summary {
-  color: #ffffff;
-}
-
 /* Focus Management */
 button, input, select, textarea, [tabindex]:not([tabindex="-1"]),
 .dropdown-menu, .dropdown-item, .nav-link, .nav-link a, .btn {
@@ -1962,7 +1964,7 @@ textarea:focus,
    ======================================================================== */
 .repo-hero {
   background-color: var(--header-bg);
-  color: var(--text-on-dark);
+  color: var(--header-text);
   text-align: center;
   padding: 3.5rem 1.5rem;
   margin-bottom: 2rem;
@@ -1970,13 +1972,13 @@ textarea:focus,
 }
 
 .repo-hero h1 {
-  color: var(--text-on-dark);
+  color: var(--header-text);
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
 }
 
 .repo-hero .lead {
-  color: var(--text-on-dark);
+  color: var(--header-text);
   opacity: 0.85;
   max-width: 640px;
   margin: 0 auto;

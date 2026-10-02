@@ -6,7 +6,7 @@
 <article class="article-item" aria-label="{{ article.title|striptags }}">
     <div class="row align-items-start">
         {% if not journal_settings.article.disable_article_thumbnails %}
-            <div class="col-2 col-md-2 d-none d-md-block">
+            <div class="col-auto d-none d-md-block">
                 <div class="thumbnail-container">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
