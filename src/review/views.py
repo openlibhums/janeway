@@ -3085,6 +3085,7 @@ def hypothesis_review(request, assignment_id):
         "assignment": assignment,
         "pdf": pdf,
         "grant_token": grant_token,
+        "access_code": access_code,
         "authority": settings.HYPOTHESIS_CLIENT_AUTHORITY,
     }
 
