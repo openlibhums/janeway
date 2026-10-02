@@ -65,6 +65,9 @@ def repository_home(
     selected_rou = None
     rous = []
 
+    if rou_code and not repository.has_organisation_units:
+        raise Http404
+
     if rou_code:
         # Get the selected ROU
         selected_rou = get_object_or_404(
@@ -76,12 +79,14 @@ def repository_home(
         descendant_rous = selected_rou.get_descendants()
         relevant_rous = [selected_rou] + descendant_rous
         rous = selected_rou.children.all()
-    else:
+    elif repository.has_organisation_units:
         # Fetch top-level ROUs
         rous = models.RepositoryOrganisationUnit.objects.filter(
             repository=repository,
             parent__isnull=True,
         )
+        relevant_rous = []
+    else:
         relevant_rous = []
 
     # Filter preprints, ensuring they belong to the repository and are published
@@ -2779,6 +2784,9 @@ def manage_review_recommendation(request, recommendation_id=None):
 
 
 def preprints_by_rou(request, rou_code):
+    if not request.repository.has_organisation_units:
+        raise Http404
+
     # Get the selected ROU
     rou = get_object_or_404(
         models.RepositoryOrganisationUnit,
@@ -2846,6 +2854,9 @@ def build_hierarchy(units):
 
 def rou_hierarchy_view(request, rou_code=None):
     repository = request.repository
+    if not repository.has_organisation_units:
+        raise Http404
+
     selected_rou = None
     hierarchy = []
 

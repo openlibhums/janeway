@@ -18,12 +18,19 @@
             <div class="box">
                 <div class="title-area">
                     <h2>{{ request.repository.rou_default_name }}</h2>
-                    <a href="{% url 'rou_hierarchy' %}" class="button" target="_blank">
-                        {% trans "View" %}
-                        {% include "elements/icons/link_new_tab.html" %}
-                    </a>
+                    {% if request.repository.has_organisation_units %}
+                        <a href="{% url 'rou_hierarchy' %}" class="button" target="_blank">
+                            {% trans "View" %}
+                            {% include "elements/icons/link_new_tab.html" %}
+                        </a>
+                    {% endif %}
                 </div>
                 <div class="content">
+                    {% if not request.repository.enable_organisation_units %}
+                        <div class="callout warning">
+                            <p>{% trans "Organisational units are turned off, so they are hidden on the public site and in the submission form. You can still set them up here; turn them on under Settings when you're ready." %}</p>
+                        </div>
+                    {% endif %}
                     {% if top_level_units %}
                         <table class="small scroll">
                             <thead>
@@ -52,6 +59,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {% include "elements/forms/errors.html" with form=settings_form %}
+                        {{ settings_form.enable_organisation_units|foundation }}
                         {{ settings_form.rou_default_name|foundation }}
                         {{ settings_form.rou_struct_page_text|foundation }}
                         <button class="success button" name="save_settings">{% trans "Save Settings" %}</button>

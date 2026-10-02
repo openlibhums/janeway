@@ -77,6 +77,8 @@ class PreSubmissionStartForm(forms.Form):
         ].queryset = models.RepositoryOrganisationUnit.objects.filter(
             repository=repository,
         )
+        if not repository.has_organisation_units:
+            del self.fields["organisation_unit"]
 
 
 class PreprintInfo(utils_forms.KeywordModelForm):
@@ -490,12 +492,22 @@ class OrganisationUnitForm(forms.ModelForm):
 class OrganisationUnitSettingsForm(forms.ModelForm):
     class Meta:
         model = models.Repository
-        fields = ("rou_default_name", "rou_struct_page_text")
+        fields = (
+            "enable_organisation_units",
+            "rou_default_name",
+            "rou_struct_page_text",
+        )
         labels = {
+            "enable_organisation_units": _("Enable organisational units"),
             "rou_default_name": _("Name for organisational units"),
             "rou_struct_page_text": _("Organisational structure page text"),
         }
         help_texts = {
+            "enable_organisation_units": _(
+                "Show units on the public site and in the submission form. "
+                "Turning this off hides them without deleting any units or "
+                "their links to submissions."
+            ),
             "rou_default_name": _(
                 "Plural name used in headings and navigation, "
                 "eg. 'Departments' or 'Organisational Units'."

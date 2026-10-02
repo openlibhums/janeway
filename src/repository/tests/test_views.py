@@ -1091,3 +1091,100 @@ class OrganisationUnitTests(TestCase):
                     SERVER_NAME=self.server_name,
                 )
                 self.assertContains(response, f'href="{unit_path}"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manager_can_disable_units(self):
+        self.client.force_login(self.repo_manager)
+        self.client.post(
+            reverse("repository_organisation_units"),
+            data={
+                "save_settings": "",
+                "rou_default_name": "Organisational Units",
+                "rou_struct_page_text": "",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        self.repository.refresh_from_db()
+        self.assertFalse(self.repository.enable_organisation_units)
+        # Units and their links are kept, only hidden.
+        self.assertTrue(
+            rm.RepositoryOrganisationUnit.objects.filter(
+                pk=self.department.pk,
+            ).exists()
+        )
+
+
+@override_settings(URL_CONFIG="domain")
+class DisabledOrganisationUnitTests(TestCase):
+    """With organisational units turned off they are hidden but kept."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.server_name = "rou-off.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.repository.enable_organisation_units = False
+        cls.repository.save()
+        cls.unit = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Faculty of Arts",
+            code="arts",
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    def get(self, path, **params):
+        return self.client.get(path, params, SERVER_NAME=self.server_name)
+
+    def test_public_unit_pages_return_404(self):
+        paths = [
+            reverse("rou_hierarchy"),
+            reverse("rou_hierarchy", kwargs={"rou_code": self.unit.code}),
+            reverse("repository_home_by_rou", kwargs={"rou_code": self.unit.code}),
+            reverse(
+                "repository_preprints_by_rou",
+                kwargs={"rou_code": self.unit.code},
+            ),
+        ]
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertEqual(self.get(path).status_code, 404)
+
+    def test_units_hidden_on_homepage_and_nav(self):
+        unit_path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": self.unit.code},
+        )
+        hierarchy_path = reverse("rou_hierarchy")
+        for theme in ("OLH", "clarity", "material"):
+            with self.subTest(theme=theme):
+                response = self.get(reverse("website_index"), theme=theme)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotContains(response, f'href="{unit_path}"')
+                self.assertNotContains(response, f'href="{hierarchy_path}"')
+
+    def test_submission_start_form_has_no_unit_field(self):
+        form = forms.PreSubmissionStartForm(repository=self.repository)
+        self.assertNotIn("organisation_unit", form.fields)
+
+    def test_submission_ignores_unit_parameter(self):
+        submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=self.repository,
+            name="Article",
+            name_plural="Articles",
+            slug="rou-off-article",
+        )
+        request = helpers.Request()
+        request.repository = self.repository
+        request.GET = {"submission_type": submission_type.slug, "ou": "arts"}
+        result = repository_logic.get_submission_type_or_redirect(request)
+        self.assertEqual(result, submission_type)
+        self.assertIsNone(request.organisation_unit)

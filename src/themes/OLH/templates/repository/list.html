@@ -69,11 +69,13 @@
                                     {% endif %}
                                     <i aria-hidden="true" class="fa fa-paperclip"></i>
                                     {% include "common/repository/subject_display.html" %}&nbsp;
+                                    {% if request.repository.has_organisation_units %}
                                     {% if preprint.organisation_units.all %}<i aria-hidden="true" class="fa fa-link"></i>{% endif %}
                                     {% for rou in preprint.organisation_units.all %}
                                     <a href="{% url 'repository_preprints_by_rou' rou.code %}">
                                         {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
+                                    {% endif %}
                                 </span>
                             </p>
                             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>

@@ -140,7 +140,7 @@
                         </p>
                     {% endif %}
                     {% with preprint.organisation_units.all as rous %}
-                        {% if rous %}
+                        {% if rous and request.repository.has_organisation_units %}
                             <h2>
                                 {{ request.repository.rou_default_name }}
                             </h2>

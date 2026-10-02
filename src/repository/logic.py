@@ -552,7 +552,7 @@ def get_submission_type_or_redirect(request):
     ou_code = request.GET.get("ou")
     request.organisation_unit = None
 
-    if ou_code:
+    if ou_code and request.repository.has_organisation_units:
         request.organisation_unit = models.RepositoryOrganisationUnit.objects.filter(
             repository=request.repository,
             code=ou_code,

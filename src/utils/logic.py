@@ -476,9 +476,9 @@ def _canonical_journal_links(journal):
 
 def _repo_organisation_unit_links(repo):
     """Hierarchy and landing page links for a repository's organisational units."""
-    units = repo.repositoryorganisationunit_set.order_by("name")
-    if not units:
+    if not repo.has_organisation_units:
         return []
+    units = repo.repositoryorganisationunit_set.order_by("name")
 
     structure_name = _plain_label(repo.rou_default_name)
     links = [(_site_url_for(repo, "rou_hierarchy"), structure_name, None)]

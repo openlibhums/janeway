@@ -309,6 +309,12 @@ class Repository(model_utils.AbstractSiteModel):
     display_public_metrics = models.BooleanField(
         default=False, help_text="Enable this setting to display metrics publicly."
     )
+    enable_organisation_units = models.BooleanField(
+        default=True,
+        help_text="Show organisational units on the public site and in the "
+        "submission form. Turning this off hides them without deleting any "
+        "units or their links to submissions.",
+    )
     rou_default_name = models.CharField(
         max_length=255,
         default="Organisational Units",
@@ -448,7 +454,11 @@ class Repository(model_utils.AbstractSiteModel):
 
     @cached_property
     def has_organisation_units(self):
-        return self.repositoryorganisationunit_set.exists()
+        """Whether organisational units should be shown and used."""
+        return (
+            self.enable_organisation_units
+            and self.repositoryorganisationunit_set.exists()
+        )
 
     def render_setting(self, setting_text):
         """

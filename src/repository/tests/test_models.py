@@ -205,6 +205,13 @@ class TestRepositoryOrganisationUnit(TestCase):
         self.assertTrue(self.repository.has_organisation_units)
         self.assertFalse(other_repo.has_organisation_units)
 
+    def test_has_organisation_units_false_when_disabled(self):
+        """has_organisation_units is False when the repository turns units off."""
+        self.repository.enable_organisation_units = False
+        self.repository.save()
+        repository = rm.Repository.objects.get(pk=self.repository.pk)
+        self.assertFalse(repository.has_organisation_units)
+
     def test_unique_together_code_and_repository(self):
         """Two ROUs in the same repository cannot share a code."""
         with self.assertRaises(IntegrityError):
