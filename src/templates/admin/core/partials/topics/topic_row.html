@@ -1,0 +1,32 @@
+{% load bool_fa %}
+<tr class="topic-row" id="topic-{{ topic.pk }}">
+    <td>{{ topic.pk }}</td>
+    <td><a href="{% url 'core_manager_topic_articles' topic.pk %}">{{ topic.title }}</a></td>
+    <td>{{ topic.public_submissions|bool_fa }}</td>
+    <td><a href="{% url 'core_manager_topic_articles' topic.pk %}">{{ topic.article_count }}</a></td>
+    <td>
+        <button
+            class="warning button"
+            hx-get="{% url 'core_manager_topic_edit' topic.pk %}"
+            hx-target="#topic-{{ topic.pk }}"
+            hx-swap="outerHTML"
+        >
+            <span class="fa fa-edit"></span> {% trans "Edit" %}
+        </button>
+        <form
+            hx-delete="{% url 'core_manager_topic_edit' topic.pk %}"
+            hx-target="#topic-{{ topic.pk }}"
+            hx-swap="outerHTML swap:0.5s"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-confirm="{% trans 'Are you sure you want to delete this topic?' %}"
+        >
+            <button
+                type="submit"
+                class="alert button"
+                {% if topic.article_count %}disabled title="{% trans 'Topics that contain articles cannot be deleted' %}"{% endif %}
+            >
+                <span class="fa fa-trash"></span> {% trans "Delete" %}
+            </button>
+        </form>
+    </td>
+</tr>

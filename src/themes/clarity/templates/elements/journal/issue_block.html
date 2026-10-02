@@ -1,28 +1,24 @@
-{% regroup articles by section as grouped_articles %}
-{% for section, section_articles in grouped_articles %}
+{% load i18n %}
+{% load journal %}
+{% with grouping=request.journal.issue_article_grouping %}
+{% for group in articles|group_issue_articles:grouping %}
     <div class="issue-section">
-        {% if level == "deep" %}
-            <h3 class="section-title">
-                {% if section.plural and section_articles|length >= 2 %}
-                    {{ section.plural }}
-                {% else %}
-                    {{ section.name }}
-                {% endif %}
-            </h3>
-        {% else %}
-            <h2 class="section-title">
-                {% if section.plural and section_articles|length >= 2 %}
-                    {{ section.plural }}
-                {% else %}
-                    {{ section.name }}
-                {% endif %}
-            </h2>
+        {# Articles without a topic listed after topics #}
+        {% if group.heading or group.kind == "topic" and not forloop.first %}
+            {% if level == "deep" %}
+                <h3 class="section-title">{% if group.heading %}{{ group.heading }}{% else %}{% trans "Other articles" %}{% endif %}</h3>
+            {% else %}
+                <h2 class="section-title">{% if group.heading %}{{ group.heading }}{% else %}{% trans "Other articles" %}{% endif %}</h2>
+            {% endif %}
         {% endif %}
 
         <div class="article-list">
-            {% for article in section_articles %}
-                {% include "elements/article_listing.html" with article=article level=level %}
+            {% for subgroup in group.subgroups %}
+                {% for article in subgroup.articles %}
+                    {% include "elements/article_listing.html" with article=article level=level article_group_label=article|issue_article_label:grouping %}
+                {% endfor %}
             {% endfor %}
         </div>
     </div>
 {% endfor %}
+{% endwith %}

@@ -40,6 +40,15 @@ function relocate_language_modal() {
     var languageModal = document.getElementById('language-modal');
     if (languageModal) {
         document.body.appendChild(languageModal);
+        // Materialize doesn't return focus when a modal closes, which leaves
+        // keyboard users at the top of the page.
+        var modal = window.M && M.Modal.getInstance(languageModal);
+        var trigger = document.querySelector('[data-target="language-modal"]');
+        if (modal && trigger) {
+            modal.options.onCloseEnd = function() {
+                trigger.focus();
+            };
+        }
     }
 }
 

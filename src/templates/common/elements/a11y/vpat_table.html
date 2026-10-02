@@ -1,4 +1,6 @@
 <h4>WCAG 2.2 Level {{ wcag_level }}</h4>
+{# A press page can list several themes' VPATs, so name each region by theme too. #}
+<div class="table-scroll" tabindex="0" role="region" aria-label="{{ theme_data.name }}: WCAG 2.2 Level {{ wcag_level }}">
 <table>
     <thead>
     <tr>
@@ -31,3 +33,4 @@
     {% endfor %}
     </tbody>
 </table>
+</div>

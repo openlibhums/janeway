@@ -7,12 +7,15 @@ import re
 import warnings
 
 from django import forms
+from django.urls import reverse
+from django.utils.html import format_html
 from django.db.models import Q
 from django.utils.translation import gettext, gettext_lazy as _
 
 from submission import models
 from core import models as core_models
 from identifiers import models as ident_models
+from journal import models as journal_models
 from review.logic import render_choices
 from utils.forms import (
     KeywordModelForm,
@@ -85,6 +88,7 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             "non_specialist_summary",
             "language",
             "section",
+            "topic",
             "license",
             "primary_issue",
             "article_number",
@@ -133,6 +137,9 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
             license_queryset = models.Licence.objects.filter(
                 journal=article.journal,
             )
+            topic_queryset = journal_models.Topic.objects.filter(
+                journal=article.journal,
+            )
             if self.FILTER_PUBLIC_FIELDS:
                 section_queryset = section_queryset.filter(
                     public_submissions=self.FILTER_PUBLIC_FIELDS,
@@ -140,8 +147,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
                 license_queryset = license_queryset.filter(
                     available_for_submission=self.FILTER_PUBLIC_FIELDS,
                 )
+                topic_queryset = topic_queryset.filter(
+                    public_submissions=self.FILTER_PUBLIC_FIELDS,
+                )
             self.fields["section"].queryset = section_queryset
             self.fields["license"].queryset = license_queryset
+            self.fields["topic"].queryset = topic_queryset
 
             if self.FILTER_PUBLIC_FIELDS:
                 from core import plugin_loader
@@ -187,6 +198,12 @@ class ArticleInfo(KeywordModelForm, JanewayTranslationModelForm):
 
                 if not journal.submissionconfiguration.section:
                     self.fields.pop("section")
+
+                if not journal.submissionconfiguration.topic:
+                    self.fields.pop("topic")
+
+            if "topic" in self.fields and not self.fields["topic"].queryset.exists():
+                self.fields.pop("topic")
 
             # Add additional fields
             if elements:
@@ -419,6 +436,12 @@ class LicenseForm(forms.ModelForm):
 class ConfiguratorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ConfiguratorForm, self).__init__(*args, **kwargs)
+        self.fields["topic"].help_text = format_html(
+            '{} <a href="{}" target="_blank" rel="noopener">{}</a>',
+            self.fields["topic"].help_text,
+            reverse("core_manager_topics"),
+            _("Manage topics (opens in a new tab)"),
+        )
         self.fields["default_section"].queryset = models.Section.objects.filter(
             journal=self.instance.journal,
         )
