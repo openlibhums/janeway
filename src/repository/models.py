@@ -29,9 +29,8 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.templatetags.static import static
-from django.template import Template, Context
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.core.validators import RegexValidator
 
 from openpyxl import load_workbook
@@ -58,6 +57,9 @@ SUBMITTED_STAGES = {
     STAGE_PREPRINT_PUBLISHED,
     STAGE_PREPRINT_REJECTED,
 }
+
+# The only placeholder repository settings support, eg. {{ repository.name }}.
+SETTING_NAME_PLACEHOLDER = re.compile(r"{{\s*repository\.name\s*}}")
 
 
 def html_input_types():
@@ -462,15 +464,20 @@ class Repository(model_utils.AbstractSiteModel):
 
     def render_setting(self, setting_text):
         """
-        Renders a repository setting string, replacing placeholders like
-        {{ repository.name }}.
+        Renders a repository setting string, replacing the
+        {{ repository.name }} placeholder.
+
+        Settings can be edited by repository managers, so they are not run
+        through the template engine: only the placeholder is substituted and
+        anything else that looks like template syntax is left as text.
         """
         if not setting_text:
             return ""
 
-        template = Template(setting_text)
-        context = Context({"repository": self})  # Mimic request context
-        return template.render(context)
+        return SETTING_NAME_PLACEHOLDER.sub(
+            lambda _match: escape(self.name),
+            setting_text,
+        )
 
 
 class RepositoryOrganisationUnit(models.Model):
