@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
-from django.db.models import Case, When, Value, IntegerField
+from django.db.models import Case, When, Value, IntegerField, Max
 
 from utils import admin_utils
 from core import models, forms
@@ -704,34 +704,35 @@ class OrganizationAdmin(admin.ModelAdmin):
         if search_term:
             queryset = (
                 queryset.annotate(
-                    relevance=Case(
-                        When(ror_id__iexact=search_term, then=Value(100)),
-                        When(acronyms__value__iexact=search_term, then=Value(100)),
-                        When(aliases__value__iexact=search_term, then=Value(90)),
-                        When(custom_label__value__iexact=search_term, then=Value(90)),
-                        When(ror_display__value__iexact=search_term, then=Value(90)),
-                        When(ror_id__istartswith=search_term, then=Value(80)),
-                        When(
-                            custom_label__value__istartswith=search_term, then=Value(70)
-                        ),
-                        When(
-                            ror_display__value__istartswith=search_term, then=Value(70)
-                        ),
-                        When(ror_id__icontains=search_term, then=Value(60)),
-                        When(
-                            custom_label__value__icontains=search_term, then=Value(50)
-                        ),
-                        When(ror_display__value__icontains=search_term, then=Value(50)),
-                        When(labels__value__icontains=search_term, then=Value(40)),
-                        When(aliases__value__icontains=search_term, then=Value(40)),
-                        When(acronyms__value__icontains=search_term, then=Value(40)),
-                        When(website__icontains=search_term, then=Value(20)),
-                        default=Value(0),
-                        output_field=IntegerField(),
+                    relevance=Max(
+                        Case(
+                            When(ror_id__iexact=search_term, then=Value(100)),
+                            When(acronyms__value__iexact=search_term, then=Value(100)),
+                            When(aliases__value__iexact=search_term, then=Value(90)),
+                            When(custom_label__value__iexact=search_term, then=Value(90)),
+                            When(ror_display__value__iexact=search_term, then=Value(90)),
+                            When(ror_id__istartswith=search_term, then=Value(80)),
+                            When(
+                                custom_label__value__istartswith=search_term, then=Value(70)
+                            ),
+                            When(
+                                ror_display__value__istartswith=search_term, then=Value(70)
+                            ),
+                            When(ror_id__icontains=search_term, then=Value(60)),
+                            When(
+                                custom_label__value__icontains=search_term, then=Value(50)
+                            ),
+                            When(ror_display__value__icontains=search_term, then=Value(50)),
+                            When(labels__value__icontains=search_term, then=Value(40)),
+                            When(aliases__value__icontains=search_term, then=Value(40)),
+                            When(acronyms__value__icontains=search_term, then=Value(40)),
+                            When(website__icontains=search_term, then=Value(20)),
+                            default=Value(0),
+                            output_field=IntegerField(),
+                        )
                     )
                 )
-                .order_by("-relevance")
-                .distinct()
+                .order_by("-relevance", "ror_display__value", "pk")
             )
 
         return queryset, may_have_duplicates
