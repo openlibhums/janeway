@@ -116,7 +116,10 @@
                                                                                          aria-hidden="true">&nbsp;</span>Edit
                         Metadata</a></li>
                     <li>
-                        <a onclick="return popitup('{% url 'send_user_email_preprint' preprint.owner.pk preprint.pk %}')"><i class="fa fa-envelope"></i> Contact the Owner</a>
+                        <a onclick="return popitup('{% url 'send_user_email_preprint' preprint.owner.pk preprint.pk %}')">
+                            <i class="fa fa-envelope" aria-hidden="true"></i> Contact the Owner
+                            {% include "elements/icons/link_modal.html" %}
+                        </a>
                     </li>
                     <li>
                         <a href="{% url 'repository_preprint_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
@@ -141,6 +144,7 @@
                         <a target="_blank" href="{% url 'discussion_threads' 'preprint' preprint.pk %}">
                             <i class="fa fa-align-justify" aria-hidden="true">&nbsp;</i>
                             Discussion ({{ preprint.thread_set.count }})
+                            {% include "elements/icons/link_new_tab.html" %}
                         </a>
                     </li>
                     {% if not preprint.date_declined and preprint.has_version %}
@@ -178,6 +182,13 @@
                             </li>
                         {% endif %}
                     </form>
+                    <li>
+                        {% if preprint.current_version %}
+                            <a href="#preprint_versions"><i class="fa fa-file-pdf-o" aria-hidden="true">&nbsp;</i>Current Version ({{ preprint.current_version.version }})</a>
+                        {% else %}
+                            <a href="#preprint_files"><i class="fa fa-file-pdf-o" aria-hidden="true">&nbsp;</i>Create Version</a>
+                        {% endif %}
+                    </li>
                     <li>
                         <a href="{% url 'repository_send_to_a_journal' preprint.pk %}"><i class="fa fa-exchange">&nbsp;</i>Send to Journal
                         </a>
@@ -271,7 +282,7 @@
 
         <div class="box">
             <div class="title-area">
-                <h2>Versions</h2>
+                <h2 id="preprint_versions">Versions</h2>
             </div>
             <div class="content">
                 <table class="scroll small">
@@ -283,6 +294,7 @@
                         <th>Filename</th>
                         <th>Uploaded</th>
                         <th>Download</th>
+                        <th>Preview</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
@@ -294,8 +306,18 @@
                             <td>{{ version.date_time }}</td>
                             <td>{{ version.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
-                            <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}"><i
-                                    class="fa fa-download"></i></a></td>
+                            <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}">
+                                    {% trans "Download" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
+                                    {% include "elements/icons/link_download.html" %}
+                                </a></td>
+                            <td>
+                                {% if version.file.is_pdf %}
+                                <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk version.file.pk %}">
+                                    {% trans "Preview" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
+                                    {% include "elements/icons/link_preview.html" %}
+                                </a>
+                                {% endif %}
+                            </td>
                             <td>
                                 <form method="POST">{% csrf_token %}
                                     <button type="submit" value="{{ version.pk }}" name="delete_version"
@@ -321,6 +343,7 @@
                         <th>Filename</th>
                         <th>Uploaded</th>
                         <th>Download</th>
+                        <th>Preview</th>
                         <th>Manage</th>
                     </tr>
                     </thead>
@@ -333,9 +356,20 @@
                             {% if update.file %}
                                 <td>{{ update.file.original_filename }}</td>
                                 <td>{{ update.file.uploaded }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}"><i
-                                        class="fa fa-download"></i></a></td>
+                                <td><a href="{% url 'repository_download_file' preprint.pk update.file.pk %}">
+                                        {% trans "Download" %}<span class="sr-only"> {{ update.file.original_filename }}</span>
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a></td>
+                                <td>
+                                    {% if update.file.is_pdf %}
+                                    <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk update.file.pk %}">
+                                        {% trans "Preview" %}<span class="sr-only"> {{ update.file.original_filename }}</span>
+                                        {% include "elements/icons/link_preview.html" %}
+                                    </a>
+                                    {% endif %}
+                                </td>
                             {% else %}
+                                <td>n/a</td>
                                 <td>n/a</td>
                                 <td>n/a</td>
                                 <td>n/a</td>
@@ -343,6 +377,10 @@
                             <td>
                                 <a href="{% url 'version_queue' %}">Manage</a>
                             </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8">This {{ request.repository.object_name }} has no pending updates.</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -352,7 +390,7 @@
 
         <div class="box">
             <div class="title-area">
-                <h2>Files</h2>
+                <h2 id="preprint_files">Files</h2>
                 <a href="#" class="button" data-open="new_file"><span class="fa fa-upload">&nbsp;</span> Upload File</a>
             </div>
             <div class="content">
@@ -363,6 +401,7 @@
                         <th>Size</th>
                         <th>Uploaded</th>
                         <th>Download</th>
+                        <th>Preview</th>
                         <th>Delete</th>
                         <th></th>
                     </tr>
@@ -374,8 +413,18 @@
                                 <td>{{ file.mime_type }}</td>
                                 <td>{{ file.size|filesizeformat }}</td>
                                 <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
-                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}"><i
-                                        class="fa fa-download">&nbsp;</i></a>
+                                <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}">
+                                        {% trans "Download" %}<span class="sr-only"> {{ file.original_filename }}</span>
+                                        {% include "elements/icons/link_download.html" %}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if file.is_pdf %}
+                                    <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk file.pk %}">
+                                        {% trans "Preview" %}<span class="sr-only"> {{ file.original_filename }}</span>
+                                        {% include "elements/icons/link_preview.html" %}
+                                    </a>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <button class="del" name="delete_file" value="{{ file.pk }}">

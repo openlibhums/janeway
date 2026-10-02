@@ -24,7 +24,15 @@
                     <p>{{ version.preprint.doi }}</p>
                     <p><strong>File</strong></p>
                     {% if version.preprint.current_version.file %}
-                    <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}"><i class="fa fa-download"></i> Download</a></p>
+                    <p><a href="{% url 'repository_file_download' version.preprint.id version.preprint.current_version.file.id %}">{% trans "Download" %} {% include "elements/icons/link_download.html" %}</a></p>
+                    {% if version.preprint.current_version.file.is_pdf %}
+                    <p>
+                        <a target="_blank" href="{% url 'repository_pdf' version.preprint.pk %}?file={% url 'repository_download_file' version.preprint.pk version.preprint.current_version.file.pk %}">
+                            {% trans "Preview" %}<span class="sr-only"> current file</span>
+                            {% include "elements/icons/link_preview.html" %}
+                        </a>
+                    </p>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -41,7 +49,19 @@
                     <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
                     <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
                     <p><strong>File</strong></p>
-                    <p>{% if version.file %}<a href="{% url 'repository_download_file' version.preprint.id version.file.pk %}"><i class="fa fa-download"></i> Download</a>{% else %}No File{% endif %}</p>
+                    {% if version.file %}
+                    <p><a href="{% url 'repository_download_file' version.preprint.id version.file.pk %}">{% trans "Download" %} {% include "elements/icons/link_download.html" %}</a></p>
+                    {% if version.file.is_pdf %}
+                    <p>
+                        <a target="_blank" href="{% url 'repository_pdf' version.preprint.pk %}?file={% url 'repository_download_file' version.preprint.pk version.file.pk %}">
+                            {% trans "Preview" %}<span class="sr-only"> new file</span>
+                            {% include "elements/icons/link_preview.html" %}
+                        </a>
+                    </p>
+                    {% endif %}
+                    {% else %}
+                    <p>No File</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="large-12 columns">
