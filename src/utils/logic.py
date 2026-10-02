@@ -474,9 +474,28 @@ def _canonical_journal_links(journal):
     return links
 
 
+def _repo_organisation_unit_links(repo):
+    """The units overview page and each unit's page."""
+    if not repo.has_organisation_units:
+        return []
+    units = repo.repositoryorganisationunit_set.order_by("name")
+
+    structure_name = _plain_label(repo.rou_default_name)
+    links = [(_site_url_for(repo, "rou_hierarchy"), structure_name, None)]
+    for unit in units:
+        links.append(
+            (
+                _site_url_for(repo, "repository_home_by_rou", rou_code=unit.code),
+                f"{structure_name}: {unit.name}",
+                None,
+            )
+        )
+    return links
+
+
 def _canonical_repo_links(repo):
     """Always-include links for the repository pages sitemap."""
-    return [
+    return _repo_organisation_unit_links(repo) + [
         (_site_url_for(repo, "website_index"), "Home", None),
         (
             _site_url_for(repo, "accessibility"),

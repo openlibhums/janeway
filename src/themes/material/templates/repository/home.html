@@ -1,14 +1,41 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load static %}
+{% load page_title %}
+
+{% block title %}
+    {% if selected_rou %}
+        {% page_title request.repository.rou_default_name selected_rou.name %}
+    {% else %}
+        {% page_title %}
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     <div class="row">
 
+        {% if selected_rou %}
+        <div class="col s12">
+            {% include "repository/elements/rou_breadcrumbs.html" with rou=selected_rou %}
+        </div>
+        {% endif %}
+
         <div class="col m12 spacer">
-            <h1 class="center">{{ request.repository.name }}</h1>
+            <h1 class="center">{% if selected_rou %}{{ selected_rou.name }}{% else %}{{ request.repository.name }}{% endif %}</h1>
         </div>
 
+        {% if selected_rou %}
+        <div class="col s12 m6 offset-m3 spacer">
+            <p class="center">
+                <a class="btn waves-effect waves-light" href="{% url 'repository_preprints_by_rou' selected_rou.code %}">
+                    {% blocktrans with rou_name=selected_rou.name object_name_plural=request.repository.object_name_plural %}View {{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}
+                </a>
+                <a class="btn-flat waves-effect" href="{% url 'repository_submit' %}">
+                    {% trans 'Submit' %} {{ request.repository.object_name|capfirst }}
+                </a>
+            </p>
+        </div>
+        {% else %}
 
         <div class="input-field col s12 m6 offset-m3 spacer">
             <form method="POST" action="{% url 'repository_search' %}">
@@ -42,13 +69,43 @@
                 </a>.
             </p>
         </div>
+        {% endif %}
+
+        {% if rous %}
+        <div class="col s12 spacer">
+            <h2 class="center">
+                {% if selected_rou %}
+                    {% blocktrans with rou_name=request.repository.rou_default_name selected_name=selected_rou.name %}Select Sub-{{ rou_name }} of {{ selected_name }}{% endblocktrans %}
+                {% else %}
+                    {% trans 'Select' %} {{ request.repository.rou_default_name }}
+                {% endif %}
+            </h2>
+            <ul class="center">
+                {% for rou in rous %}
+                    <li style="display: inline-block; margin: 0 0.5rem 0.5rem 0;">
+                        <a href="{% url 'repository_home_by_rou' rou.code %}" class="btn-flat waves-effect">{{ rou.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
         {% if preprints %}
         <div class="col m12 spacer">
-            <h2 class="center">Latest {{ request.repository.object_name_plural }}</h2>
+            <h2 class="center">{% trans "Latest" %} {{ request.repository.object_name_plural }}</h2>
         </div>
 
         {% include "repository/elements/preprint_home_listing.html" with preprints=preprints %}
+
+        <div class="col s12 center spacer">
+            <a class="btn-flat waves-effect" href="{% if selected_rou %}{% url 'repository_preprints_by_rou' selected_rou.code %}{% else %}{% url 'repository_list' %}{% endif %}">
+                {% trans 'View all' %} {{ request.repository.object_name_plural }}
+            </a>
+        </div>
+        {% elif selected_rou %}
+        <div class="col s12 center spacer">
+            <p>{% blocktrans with object_name_plural=request.repository.object_name_plural rou_name=selected_rou.name %}No {{ object_name_plural }} have been published in {{ rou_name }} yet.{% endblocktrans %}</p>
+        </div>
         {% endif %}
     </div>
 {% endblock %}

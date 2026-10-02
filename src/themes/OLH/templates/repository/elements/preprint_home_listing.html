@@ -1,9 +1,8 @@
 {% load dates %}
-<div class="row" data-equalizer data-equalize-on="medium">
+<div class="row preprint-home-listing">
     {% for preprint in preprints %}
     <div class="medium-4 columns {% if forloop.last %}end{% endif %}">
-      <div class="callout"
-           data-equalizer-watch>
+      <div class="callout">
         {% include "repository/elements/submission_type_pill.html" %}
         <p><strong><a
                 href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></strong>
@@ -18,7 +17,7 @@
     </div>
     {% if forloop.counter|divisibleby:3 %}
       </div>
-      <div class="row" data-equalizer data-equalize-on="medium">
+      <div class="row preprint-home-listing">
     {% endif %}
   {% endfor %}
   </div>

@@ -37,6 +37,7 @@
             {% if request.user.is_staff or repository_manager %}
                 <li><a href="{% url 'preprints_manager' %}"><i aria-hidden="true" class="fa fa-file-pdf-o">&nbsp;</i>Repository Manager</a></li>
                 <li><a href="{% url 'submission_type_list' %}"><i aria-hidden="true" class="fa fa-tag">&nbsp;</i>Submission Types</a></li>
+                <li><a href="{% url 'repository_organisation_units' %}"><i aria-hidden="true" class="fa fa-sitemap">&nbsp;</i>{{ request.repository.rou_default_name }}</a></li>
             {% endif %}
             {% if request.user.is_staff %}
                 <li><a href="{% url 'repository_subjects' %}"><i aria-hidden="true" class="fa fa-object-group">&nbsp;</i>Subjects</a></li>

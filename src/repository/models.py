@@ -23,14 +23,14 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.conf import settings
+from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.templatetags.static import static
-from django.template import Template, Context
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.core.validators import RegexValidator
 
 from openpyxl import load_workbook
@@ -57,6 +57,9 @@ SUBMITTED_STAGES = {
     STAGE_PREPRINT_PUBLISHED,
     STAGE_PREPRINT_REJECTED,
 }
+
+# The only placeholder repository settings support, eg. {{ repository.name }}.
+SETTING_NAME_PLACEHOLDER = re.compile(r"{{\s*repository\.name\s*}}")
 
 
 def html_input_types():
@@ -308,10 +311,17 @@ class Repository(model_utils.AbstractSiteModel):
     display_public_metrics = models.BooleanField(
         default=False, help_text="Enable this setting to display metrics publicly."
     )
+    enable_organisation_units = models.BooleanField(
+        default=True,
+        help_text="Show organisational units on the public site and in the "
+        "submission form. Turning this off hides them without deleting any "
+        "units or their links to submissions.",
+    )
     rou_default_name = models.CharField(
         max_length=255,
         default="Organisational Units",
-        help_text="Default name for the organisation structure within this repository.",
+        help_text="Plural name for organisational units, used in headings and "
+        "navigation, eg. 'Departments' or 'Organisational Units'.",
     )
     rou_struct_page_text = model_utils.JanewayBleachField(
         blank=True,
@@ -445,17 +455,30 @@ class Repository(model_utils.AbstractSiteModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    @cached_property
+    def has_organisation_units(self):
+        """Whether organisational units should be shown and used."""
+        return (
+            self.enable_organisation_units
+            and self.repositoryorganisationunit_set.exists()
+        )
+
     def render_setting(self, setting_text):
         """
-        Renders a repository setting string, replacing placeholders like
-        {{ repository.name }}.
+        Renders a repository setting string, replacing the
+        {{ repository.name }} placeholder.
+
+        Settings can be edited by repository managers, so they are not run
+        through the template engine: only the placeholder is substituted and
+        anything else that looks like template syntax is left as text.
         """
         if not setting_text:
             return ""
 
-        template = Template(setting_text)
-        context = Context({"repository": self})  # Mimic request context
-        return template.render(context)
+        return SETTING_NAME_PLACEHOLDER.sub(
+            lambda _match: escape(self.name),
+            setting_text,
+        )
 
 
 class RepositoryOrganisationUnit(models.Model):
@@ -499,6 +522,19 @@ class RepositoryOrganisationUnit(models.Model):
             queue.extend(children)
 
         return descendants
+
+    def get_ancestors(self):
+        """Returns all ancestor ROUs, top-level unit first."""
+        ancestors = []
+        seen = {self.pk}
+        parent = self.parent
+
+        while parent and parent.pk not in seen:
+            ancestors.insert(0, parent)
+            seen.add(parent.pk)
+            parent = parent.parent
+
+        return ancestors
 
 
 class RepositoryRole(models.Model):

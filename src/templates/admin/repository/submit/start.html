@@ -47,6 +47,7 @@
             {% endfor %}
           </div>
 
+          {% if "organisation_unit" in form.fields %}
           <div class="title-area">
             <h2>{{ request.repository.rou_default_name }}</h2>
           </div>
@@ -65,6 +66,7 @@
 {% endfor %}
 
 </div>
+          {% endif %}
 
 
           <button class="button pull-right spacer-top-20" type="submit"

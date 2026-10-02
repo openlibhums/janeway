@@ -2543,3 +2543,31 @@ input[type="submit"]:focus-visible {
   min-height: 24px;
   line-height: 24px;
 }
+
+.preprint-home-listing {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.preprint-home-listing::before,
+.preprint-home-listing::after {
+  content: none;
+}
+
+.preprint-home-listing > .columns {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.preprint-home-listing .callout {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.preprint-list-meta {
+  margin-bottom: 1rem;
+}
+
+.preprint-list-meta .list-inline {
+  display: inline;
+}

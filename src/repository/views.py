@@ -65,6 +65,9 @@ def repository_home(
     selected_rou = None
     rous = []
 
+    if rou_code and not repository.has_organisation_units:
+        raise Http404
+
     if rou_code:
         # Get the selected ROU
         selected_rou = get_object_or_404(
@@ -76,12 +79,14 @@ def repository_home(
         descendant_rous = selected_rou.get_descendants()
         relevant_rous = [selected_rou] + descendant_rous
         rous = selected_rou.children.all()
-    else:
+    elif repository.has_organisation_units:
         # Fetch top-level ROUs
         rous = models.RepositoryOrganisationUnit.objects.filter(
             repository=repository,
             parent__isnull=True,
         )
+        relevant_rous = []
+    else:
         relevant_rous = []
 
     # Filter preprints, ensuring they belong to the repository and are published
@@ -982,6 +987,9 @@ def preprints_manager(request):
         "rejected_preprints": rejected_preprints,
         "version_queue": versions,
         "subjects": subjects,
+        "organisation_unit_count": models.RepositoryOrganisationUnit.objects.filter(
+            repository=request.repository,
+        ).count(),
         "comments_awaiting_moderation": comments_awaiting_moderation,
     }
 
@@ -1481,6 +1489,112 @@ def repository_delete_subject(request):
     )
 
     return redirect(reverse("repository_subjects"))
+
+
+def _get_organisation_unit_or_404(request, unit_id):
+    """Gets one of this repository's units from a submitted id, or 404."""
+    if not str(unit_id).isdigit():
+        raise Http404
+    return get_object_or_404(
+        models.RepositoryOrganisationUnit,
+        pk=unit_id,
+        repository=request.repository,
+    )
+
+
+@is_repository_manager
+def repository_organisation_units(request, unit_id=None):
+    """
+    Allows repository managers to manage organisational units and the
+    settings that control how they are displayed.
+    """
+    unit, initial = None, {}
+
+    if unit_id:
+        unit = get_object_or_404(
+            models.RepositoryOrganisationUnit,
+            pk=unit_id,
+            repository=request.repository,
+        )
+
+    if request.GET.get("parent"):
+        initial["parent"] = _get_organisation_unit_or_404(
+            request,
+            request.GET.get("parent"),
+        )
+
+    form = forms.OrganisationUnitForm(
+        instance=unit,
+        repository=request.repository,
+        initial=initial,
+    )
+    settings_form = forms.OrganisationUnitSettingsForm(
+        instance=request.repository,
+    )
+
+    if request.POST and "save_settings" in request.POST:
+        # Bind to a copy so invalid input isn't copied onto request.repository,
+        # which the rest of the page uses to show the saved settings.
+        settings_form = forms.OrganisationUnitSettingsForm(
+            request.POST,
+            instance=models.Repository.objects.get(pk=request.repository.pk),
+        )
+        if settings_form.is_valid():
+            settings_form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Settings saved."),
+            )
+            return redirect(reverse("repository_organisation_units"))
+
+    elif request.POST:
+        form = forms.OrganisationUnitForm(
+            request.POST,
+            instance=unit,
+            repository=request.repository,
+        )
+        if form.is_valid():
+            saved_unit = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("{name} saved.").format(name=saved_unit.name),
+            )
+            return redirect(reverse("repository_organisation_units"))
+
+    top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+        parent__isnull=True,
+        repository=request.repository,
+    ).order_by("name")
+
+    template = "admin/repository/organisation_units.html"
+    context = {
+        "top_level_units": top_level_units,
+        "form": form,
+        "settings_form": settings_form,
+        "unit": unit,
+    }
+
+    return render(request, template, context)
+
+
+@require_POST
+@is_repository_manager
+def repository_delete_organisation_unit(request):
+    unit = _get_organisation_unit_or_404(request, request.POST.get("delete"))
+    unit.delete()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _(
+            "{name} and any sub-units deleted. "
+            "Submissions are no longer linked to them."
+        ).format(name=unit.name),
+    )
+
+    return redirect(reverse("repository_organisation_units"))
 
 
 @is_repository_manager
@@ -2678,6 +2792,9 @@ def manage_review_recommendation(request, recommendation_id=None):
 
 
 def preprints_by_rou(request, rou_code):
+    if not request.repository.has_organisation_units:
+        raise Http404
+
     # Get the selected ROU
     rou = get_object_or_404(
         models.RepositoryOrganisationUnit,
@@ -2724,72 +2841,48 @@ def preprints_by_rou(request, rou_code):
     )
 
 
+def _published(preprints):
+    """Limits a preprint queryset to those publicly visible."""
+    return preprints.filter(
+        stage=models.STAGE_PREPRINT_PUBLISHED,
+        date_published__lte=timezone.now(),
+    )
+
+
 def build_hierarchy(units):
     """Recursively builds a nested dictionary structure for hierarchy"""
     hierarchy = []
     for unit in units:
-        children = unit.children.annotate(preprint_count=Count("preprints"))
-        latest_preprints = unit.preprints.order_by("-date_published")[
-            :10
-        ]  # Get latest 10 preprints
         hierarchy.append(
             {
                 "unit": unit,
-                "preprint_count": unit.preprints.count(),
-                "latest_preprints": latest_preprints,  # Add latest preprints
-                "children": build_hierarchy(children),
+                "preprint_count": _published(unit.preprints).count(),
+                "children": build_hierarchy(unit.children.all()),
             }
         )
     return hierarchy
 
 
-def rou_hierarchy_view(request, rou_code=None):
+def rou_hierarchy_view(request):
+    """Overview of a repository's organisational units, linking to each
+    unit's own page."""
     repository = request.repository
-    selected_rou = None
-    hierarchy = []
+    if not repository.has_organisation_units:
+        raise Http404
 
-    if rou_code:
-        # Get the selected ROU
-        selected_rou = get_object_or_404(
-            models.RepositoryOrganisationUnit.objects.annotate(
-                preprint_count=Count("preprints")
-            ),
-            repository=repository,
-            code=rou_code,
-        )
-        # Fetch the latest 10 preprints for the selected ROU
-        selected_rou.latest_preprints = selected_rou.preprints.order_by(
-            "-date_published",
-        )[:10]
-
-        # Build hierarchy from the **top level down**
-        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
-            repository=repository,
-            parent__isnull=True,
-        ).annotate(preprint_count=Count("preprints"))
-
-        hierarchy = build_hierarchy(top_level_units)
-
-    else:
-        # No ROU selected – Show **all top-level ROUs and their full hierarchy**
-        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
-            repository=repository,
-            parent__isnull=True,
-        ).annotate(preprint_count=Count("preprints"))
-
-        hierarchy = build_hierarchy(top_level_units)
+    # Build hierarchy from the top level down
+    top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+        repository=repository,
+        parent__isnull=True,
+    )
+    hierarchy = build_hierarchy(top_level_units)
 
     return render(
         request,
         "repository/hierarchy.html",
         {
-            "rou": selected_rou,
             "repository": repository,
             "hierarchy": hierarchy,
-            "recent_preprints": models.Preprint.objects.filter(
-                repository=request.repository,
-                date_published__lte=timezone.now(),
-            ).order_by("-date_published")[:10],
             "page_text": repository.render_setting(repository.rou_struct_page_text),
         },
     )

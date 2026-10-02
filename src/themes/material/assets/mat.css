@@ -2105,3 +2105,45 @@ h3.article-subgroup {
 #main_article img[width][height] {
     height: auto;
 }
+
+nav.rou-breadcrumbs-nav {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+  height: auto;
+  line-height: inherit;
+}
+
+nav.rou-breadcrumbs-nav a {
+  color: #00796b;
+  font-size: 1rem;
+}
+
+nav.rou-breadcrumbs-nav a:hover {
+  text-decoration: underline;
+}
+
+.rou-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem 0 0 0;
+  padding: 0;
+}
+
+.rou-breadcrumbs li {
+  list-style-type: none;
+}
+
+.rou-breadcrumbs li + li::before {
+  content: "/";
+  padding: 0 0.5rem;
+  color: #616161;
+}
+
+.card-content .info {
+  margin-bottom: 1rem;
+}
+
+.card-content .info .list-inline {
+  display: inline;
+}

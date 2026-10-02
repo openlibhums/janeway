@@ -57,6 +57,10 @@
                         <a href="{% url 'repository_subjects' %}" class="box-link"></a>
                     </div>
                     <div class="summary">
+                        <span class="title">{{ organisation_unit_count }} {{ request.repository.rou_default_name }}</span>
+                        <a href="{% url 'repository_organisation_units' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
                         <span class="title">{{ published_preprints|length }} Published Submissions</span>
                         <a href="" class="box-link"></a>
                     </div>

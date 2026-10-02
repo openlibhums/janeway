@@ -11,7 +11,7 @@
 
 {% block title %}
     {% if rou %}
-        {% page_title request.repository.object_name_plural|capfirst rou.name %}
+        {% page_title request.repository.rou_default_name rou.name request.repository.object_name_plural|capfirst %}
     {% elif subject %}
         {% page_title request.repository.object_name_plural|capfirst subject.name %}
     {% else %}
@@ -24,6 +24,9 @@
     <div class="row">
         <div class="large-8 columns border-right">
             <div class="large-12 columns">
+                {% if rou %}
+                    {% include "repository/elements/rou_breadcrumbs.html" with rou=rou current_page=request.repository.object_name_plural|capfirst %}
+                {% endif %}
                 <h1>
                     {% if rou %}
                         {{ rou.name }} {{ request.repository.object_name_plural }}
@@ -57,22 +60,22 @@
                         <div class="large-12s columns end">
                             <h2><a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title|safe }}</a></h2>
                             <p>{{ preprint.display_authors_compact }}</p>
-                            <p>
-                                <span class="date">
-                                    {% include "repository/elements/submission_type_pill.html" %} &nbsp;
-                                    {% if preprint.date_published %}
-                                    <i aria-hidden="true" class="fa fa-calendar"></i>
-                                    {{ preprint.date_published|date_human }}&nbsp;&nbsp;
-                                    {% endif %}
-                                    <i aria-hidden="true" class="fa fa-paperclip"></i>
-                                    {% include "common/repository/subject_display.html" %}&nbsp;
-                                    {% if preprint.organisation_units.all %}<i aria-hidden="true" class="fa fa-link"></i>{% endif %}
-                                    {% for rou in preprint.organisation_units.all %}
-                                    <a href="{% url 'repository_preprints_by_rou' rou.code %}">
-                                        {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </span>
-                            </p>
+                            <div class="preprint-list-meta">
+                                {% include "repository/elements/submission_type_pill.html" %} &nbsp;
+                                {% if preprint.date_published %}
+                                <i aria-hidden="true" class="fa fa-calendar"></i>
+                                {{ preprint.date_published|date_human }}&nbsp;&nbsp;
+                                {% endif %}
+                                <i aria-hidden="true" class="fa fa-paperclip"></i>
+                                {% include "common/repository/subject_display.html" %}&nbsp;
+                                {% if request.repository.has_organisation_units %}
+                                {% if preprint.organisation_units.all %}<i aria-hidden="true" class="fa fa-link"></i>{% endif %}
+                                {% for rou in preprint.organisation_units.all %}
+                                <a href="{% url 'repository_preprints_by_rou' rou.code %}">
+                                    {{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                            </div>
                             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
                         </div>
                     </div>

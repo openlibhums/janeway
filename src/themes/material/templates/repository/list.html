@@ -4,7 +4,9 @@
 {% load page_title %}
 
 {% block title %}
-    {% if subject %}
+    {% if rou %}
+        {% page_title request.repository.rou_default_name rou.name request.repository.object_name_plural|capfirst %}
+    {% elif subject %}
         {% page_title request.repository.object_name_plural|capfirst subject.name %}
     {% else %}
         {% page_title request.repository.object_name_plural|capfirst %}
@@ -15,7 +17,12 @@
     <div class="row">
         <section aria-label="{% trans 'Results' %}">
             <div class="col m8 spacer">
-                <h1>{{ request.repository.object_name_plural }}</h1>
+                {% if rou %}
+                    {% include "repository/elements/rou_breadcrumbs.html" with rou=rou current_page=request.repository.object_name_plural|capfirst %}
+                    <h1>{% blocktrans with object_name_plural=request.repository.object_name_plural|capfirst rou_name=rou.name %}{{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}</h1>
+                {% else %}
+                    <h1>{{ request.repository.object_name_plural|capfirst }}</h1>
+                {% endif %}
                 <p>
                     {% if search_term %}
                         Search for <em>{{ search_term }}</em> ({{ preprints.paginator.count }} results)

@@ -186,6 +186,32 @@ class TestRepositoryOrganisationUnit(TestCase):
         """get_descendants on a leaf node returns an empty list."""
         self.assertEqual(self.grandchild.get_descendants(), [])
 
+    def test_get_ancestors_returns_top_level_first(self):
+        """get_ancestors returns the path from the top-level unit down."""
+        self.assertEqual(
+            self.grandchild.get_ancestors(),
+            [self.root, self.child_a],
+        )
+
+    def test_get_ancestors_of_top_level_is_empty(self):
+        """get_ancestors on a top-level unit returns an empty list."""
+        self.assertEqual(self.root.get_ancestors(), [])
+
+    def test_has_organisation_units(self):
+        """has_organisation_units reflects whether a repository has any units."""
+        other_repo, _ = helpers.create_repository(
+            self.press, [], [], domain="rou-empty.domain.com"
+        )
+        self.assertTrue(self.repository.has_organisation_units)
+        self.assertFalse(other_repo.has_organisation_units)
+
+    def test_has_organisation_units_false_when_disabled(self):
+        """has_organisation_units is False when the repository turns units off."""
+        self.repository.enable_organisation_units = False
+        self.repository.save()
+        repository = rm.Repository.objects.get(pk=self.repository.pk)
+        self.assertFalse(repository.has_organisation_units)
+
     def test_unique_together_code_and_repository(self):
         """Two ROUs in the same repository cannot share a code."""
         with self.assertRaises(IntegrityError):

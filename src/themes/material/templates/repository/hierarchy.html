@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load page_title %}
+
+{% block title %}{% page_title request.repository.rou_default_name %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col s12">
+            <h1>{{ request.repository.rou_default_name }}</h1>
+            {{ page_text|safe }}
+        </div>
+
+        <div class="col s12">
+            <ul class="tree">
+                <li>
+                    <a href="{% url 'repository_list' %}">{% blocktrans with name=request.repository.name object_name_plural=request.repository.object_name_plural %}{{ name }} (all {{ object_name_plural }}){% endblocktrans %}</a>
+                    {% if hierarchy %}
+                        <ul class="nested tree">
+                            {% include "common/repository/hierarchy_list.html" with hierarchy=hierarchy list_class="nested tree" %}
+                        </ul>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

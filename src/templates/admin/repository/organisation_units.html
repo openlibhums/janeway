@@ -1,0 +1,96 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+{% load foundation %}
+
+{% block title %}{{ request.repository.rou_default_name }}{% endblock %}
+{% block title-section %}{{ request.repository.rou_default_name }}{% endblock %}
+{% block title-sub %}{% blocktrans with name=request.repository.name %}Manage the organisational structure of {{ name }}{% endblocktrans %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">{% trans "Press Manager" %}</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{% trans "Repository Manager" %}</a></li>
+    <li>{{ request.repository.rou_default_name }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row expanded">
+        <div class="large-6 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{{ request.repository.rou_default_name }}</h2>
+                    {% if request.repository.has_organisation_units %}
+                        <a href="{% url 'rou_hierarchy' %}" class="button" target="_blank">
+                            {% trans "View" %}
+                            {% include "elements/icons/link_new_tab.html" %}
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    {% if not request.repository.enable_organisation_units %}
+                        <div class="callout warning">
+                            <p>{% trans "Organisational units are turned off, so they are hidden on the public site and in the submission form. You can still set them up here; turn them on under Settings when you're ready." %}</p>
+                        </div>
+                    {% endif %}
+                    {% if top_level_units %}
+                        <table class="small scroll">
+                            <thead>
+                            <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Code" %}</th>
+                                <th>{% trans "Add sub-unit" %}</th>
+                                <th>{% trans "Delete" %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% include "admin/elements/repository/organisation_unit_rows.html" with units=top_level_units depth=0 %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>{% trans "No units have been set up yet. Use the form to add the first one." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% trans "Settings" %}</h2>
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% include "admin/elements/forms/errors.html" with form=settings_form %}
+                        {{ settings_form.enable_organisation_units|foundation }}
+                        {{ settings_form.rou_default_name|foundation }}
+                        {{ settings_form.rou_struct_page_text|foundation }}
+                        <button class="success button" name="save_settings">{% trans "Save Settings" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-6 columns end">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{% if unit %}{% blocktrans with name=unit.name %}Edit {{ name }}{% endblocktrans %}{% else %}{% trans "Add Unit" %}{% endif %}</h2>
+                    {% if unit or form.initial.parent %}
+                        <a href="{% url 'repository_organisation_units' %}" class="button">
+                            <span class="fa fa-arrow-left" aria-hidden="true"></span> {% trans "Back" %}
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% include "admin/elements/forms/errors.html" with form=form %}
+                        {{ form|foundation }}
+                        <button class="success button" name="save_unit">{% trans "Save" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% include "admin/elements/post_check.html" %}
+{% endblock %}

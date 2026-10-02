@@ -250,6 +250,21 @@ urlpatterns = [
         name="repository_subjects_with_id",
     ),
     re_path(
+        r"^manager/units/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units",
+    ),
+    re_path(
+        r"^manager/units/delete/$",
+        views.repository_delete_organisation_unit,
+        name="repository_delete_organisation_unit",
+    ),
+    re_path(
+        r"^manager/units/(?P<unit_id>\d+)/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units_with_id",
+    ),
+    re_path(
         r"^manager/rejected/$",
         views.repository_rejected_submissions,
         name="repository_rejected_submissions",
@@ -312,11 +327,6 @@ urlpatterns = [
         r"^email/user/(?P<user_id>\d+)/preprint/(?P<preprint_id>\d+)/$",
         views.send_user_email,
         name="send_user_email_preprint",
-    ),
-    re_path(
-        r"^hierarchy/(?P<rou_code>[\w-]+)/$",
-        views.rou_hierarchy_view,
-        name="rou_hierarchy",
     ),
     re_path(
         r"^hierarchy/$",

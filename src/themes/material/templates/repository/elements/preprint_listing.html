@@ -10,11 +10,18 @@
                 </a>
             </h2>
             <p class="authors card-text">{{ preprint.display_authors_compact }}</p>
-            <p class="info">
+            <div class="info">
                 <strong>Published</strong>: {{ preprint.date_published|date_human }}
                 <br />
                 {% if preprint.subject.exists %}<strong>Subjects</strong>: {% include "common/repository/subject_display.html" %}{% endif %}
-            </p>
+                {% if request.repository.has_organisation_units and preprint.organisation_units.all %}
+                <br />
+                <strong>{{ request.repository.rou_default_name }}</strong>:
+                {% for rou in preprint.organisation_units.all %}
+                <a href="{% url 'repository_preprints_by_rou' rou.code %}">{{ rou.name }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
             <p>{{ preprint.abstract|striptags|truncatesmart:400 }}</p>
         </div>
     </div>
