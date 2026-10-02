@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
+from django.urls import reverse, resolve, Resolver404
 from django.contrib import messages
 from tinymce.widgets import TinyMCE
 
@@ -430,6 +431,78 @@ class SubjectForm(forms.ModelForm):
             subject.save()
 
         return subject
+
+
+class OrganisationUnitForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositoryOrganisationUnit
+        fields = ("name", "code", "parent")
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop("repository")
+        super(OrganisationUnitForm, self).__init__(*args, **kwargs)
+        parents = models.RepositoryOrganisationUnit.objects.filter(
+            repository=self.repository,
+        )
+        if self.instance.pk:
+            # A unit cannot be moved underneath itself or one of its children.
+            excluded = [self.instance.pk] + [
+                unit.pk for unit in self.instance.get_descendants()
+            ]
+            parents = parents.exclude(pk__in=excluded)
+        self.fields["parent"].queryset = parents
+
+    def clean_code(self):
+        code = self.cleaned_data["code"]
+        clashes = models.RepositoryOrganisationUnit.objects.filter(
+            repository=self.repository,
+            code=code,
+        ).exclude(pk=self.instance.pk)
+        if clashes.exists():
+            raise forms.ValidationError(
+                _("Another unit in this repository already uses this code."),
+            )
+
+        # Unit home pages live at /repository/<code>/, after the other
+        # repository URLs, so a code like "about" would never be reachable.
+        path = reverse("repository_home_by_rou", kwargs={"rou_code": code})
+        try:
+            match = resolve(path)
+        except Resolver404:
+            match = None
+        if not match or match.url_name != "repository_home_by_rou":
+            raise forms.ValidationError(
+                _("This code is reserved by another page. Choose a different code."),
+            )
+        return code
+
+    def save(self, commit=True):
+        unit = super(OrganisationUnitForm, self).save(commit=False)
+        unit.repository = self.repository
+
+        if commit:
+            unit.save()
+
+        return unit
+
+
+class OrganisationUnitSettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = ("rou_default_name", "rou_struct_page_text")
+        labels = {
+            "rou_default_name": _("Name for organisational units"),
+            "rou_struct_page_text": _("Organisational structure page text"),
+        }
+        help_texts = {
+            "rou_default_name": _(
+                "Plural name used in headings and navigation, "
+                "eg. 'Departments' or 'Organisational Units'."
+            ),
+        }
+        widgets = {
+            "rou_struct_page_text": TinyMCE,
+        }
 
 
 class ActiveLicenseForm(forms.ModelForm):

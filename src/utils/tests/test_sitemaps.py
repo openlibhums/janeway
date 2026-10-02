@@ -1205,6 +1205,58 @@ class PagesSitemapTests(SitemapScenario, SitemapChecks, TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Organisational unit links in the repository pages sitemap.
+# ---------------------------------------------------------------------------
+
+
+@override_settings(URL_CONFIG="domain")
+class SitemapOrganisationUnitTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("load_default_settings")
+        cls.press = helpers.create_press()
+        cls.repository, _ = helpers.create_repository(cls.press, [], [])
+        cls.parent_unit = repo_models.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Faculty of Arts",
+            code="arts",
+        )
+        cls.child_unit = repo_models.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="History",
+            code="history",
+            parent=cls.parent_unit,
+        )
+
+    def sitemap_urls(self, owner):
+        return [
+            url for url, _label, _lastmod in build_pages_sitemap_context(owner)["links"]
+        ]
+
+    def test_hierarchy_and_unit_pages_listed(self):
+        urls = self.sitemap_urls(self.repository)
+        expected = [reverse("rou_hierarchy")]
+        for unit in (self.parent_unit, self.child_unit):
+            expected.append(
+                reverse("repository_home_by_rou", kwargs={"rou_code": unit.code})
+            )
+            expected.append(reverse("rou_hierarchy", kwargs={"rou_code": unit.code}))
+        for path in expected:
+            with self.subTest(path=path):
+                self.assertTrue(any(url.endswith(path) for url in urls))
+
+    def test_no_hierarchy_link_without_units(self):
+        self.repository.repositoryorganisationunit_set.all().delete()
+        hierarchy_path = reverse("rou_hierarchy")
+        self.assertFalse(
+            any(
+                url.endswith(hierarchy_path)
+                for url in self.sitemap_urls(self.repository)
+            )
+        )
+
+
+# ---------------------------------------------------------------------------
 # Editorial links in the pages sitemap: per-group under multi_page_editorial,
 # aggregate fallback when no groups exist, and never a stale cached list.
 # ---------------------------------------------------------------------------

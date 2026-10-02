@@ -1,0 +1,30 @@
+{% load i18n %}
+{% for unit in units %}
+    <tr>
+        <td>
+            {% if depth %}<span aria-hidden="true">{% for i in ""|center:depth %}&mdash;{% endfor %}</span> {% endif %}
+            <a href="{% url 'repository_organisation_units_with_id' unit.pk %}">{{ unit.name }}<span class="sr-only"> ({% trans "edit" %})</span></a>
+        </td>
+        <td>{{ unit.code }}</td>
+        <td>
+            <a href="{% url 'repository_organisation_units' %}?parent={{ unit.pk }}">
+                <span class="fa fa-plus-square" aria-hidden="true"></span>
+                <span class="sr-only">{% blocktrans with name=unit.name %}Add sub-unit to {{ name }}{% endblocktrans %}</span>
+            </a>
+        </td>
+        <td>
+            <form method="POST" action="{% url 'repository_delete_organisation_unit' %}">
+                {% csrf_token %}
+                <button name="delete" value="{{ unit.pk }}" class="delete control-button">
+                    <span class="fa fa-trash" aria-hidden="true"></span>
+                    <span class="sr-only">{% blocktrans with name=unit.name %}Delete {{ name }}{% endblocktrans %}</span>
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% with children=unit.children.all|dictsort:"name" %}
+        {% if children %}
+            {% include "admin/elements/repository/organisation_unit_rows.html" with units=children depth=depth|add:1 %}
+        {% endif %}
+    {% endwith %}
+{% endfor %}

@@ -982,6 +982,9 @@ def preprints_manager(request):
         "rejected_preprints": rejected_preprints,
         "version_queue": versions,
         "subjects": subjects,
+        "organisation_unit_count": models.RepositoryOrganisationUnit.objects.filter(
+            repository=request.repository,
+        ).count(),
         "comments_awaiting_moderation": comments_awaiting_moderation,
     }
 
@@ -1481,6 +1484,104 @@ def repository_delete_subject(request):
     )
 
     return redirect(reverse("repository_subjects"))
+
+
+@is_repository_manager
+def repository_organisation_units(request, unit_id=None):
+    """
+    Allows repository managers to manage organisational units and the
+    settings that control how they are displayed.
+    """
+    unit, initial = None, {}
+
+    if unit_id:
+        unit = get_object_or_404(
+            models.RepositoryOrganisationUnit,
+            pk=unit_id,
+            repository=request.repository,
+        )
+
+    if request.GET.get("parent"):
+        initial["parent"] = get_object_or_404(
+            models.RepositoryOrganisationUnit,
+            pk=request.GET.get("parent"),
+            repository=request.repository,
+        )
+
+    form = forms.OrganisationUnitForm(
+        instance=unit,
+        repository=request.repository,
+        initial=initial,
+    )
+    settings_form = forms.OrganisationUnitSettingsForm(
+        instance=request.repository,
+    )
+
+    if request.POST and "save_settings" in request.POST:
+        settings_form = forms.OrganisationUnitSettingsForm(
+            request.POST,
+            instance=request.repository,
+        )
+        if settings_form.is_valid():
+            settings_form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Settings saved."),
+            )
+            return redirect(reverse("repository_organisation_units"))
+
+    elif request.POST:
+        form = forms.OrganisationUnitForm(
+            request.POST,
+            instance=unit,
+            repository=request.repository,
+        )
+        if form.is_valid():
+            saved_unit = form.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("{name} saved.").format(name=saved_unit.name),
+            )
+            return redirect(reverse("repository_organisation_units"))
+
+    top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+        parent__isnull=True,
+        repository=request.repository,
+    ).order_by("name")
+
+    template = "admin/repository/organisation_units.html"
+    context = {
+        "top_level_units": top_level_units,
+        "form": form,
+        "settings_form": settings_form,
+        "unit": unit,
+    }
+
+    return render(request, template, context)
+
+
+@require_POST
+@is_repository_manager
+def repository_delete_organisation_unit(request):
+    unit = get_object_or_404(
+        models.RepositoryOrganisationUnit,
+        pk=request.POST.get("delete"),
+        repository=request.repository,
+    )
+    unit.delete()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        _(
+            "{name} and any sub-units deleted. "
+            "Submissions are no longer linked to them."
+        ).format(name=unit.name),
+    )
+
+    return redirect(reverse("repository_organisation_units"))
 
 
 @is_repository_manager

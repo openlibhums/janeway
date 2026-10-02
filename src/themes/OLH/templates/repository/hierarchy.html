@@ -5,9 +5,9 @@
 
 {% block title %}
   {% if rou %}
-    {% page_title request.repository.rou_default_name|add:"s" rou.name %}
+    {% page_title request.repository.rou_default_name rou.name %}
   {% else %}
-    {% page_title request.repository.rou_default_name|add:"s" %}
+    {% page_title request.repository.rou_default_name %}
   {% endif %}
 {% endblock %}
 
@@ -20,7 +20,7 @@
   <section id="content" class="ou-container">
     <div class="row">
       <div class="large-12 columns">
-        <h1>{{ request.repository.rou_default_name|safe }}s</h1>
+        <h1>{{ request.repository.rou_default_name }}</h1>
 
         <div class="ou-info-box">
           {{ page_text|safe }}
@@ -55,6 +55,11 @@
                       {{ request.site_type.object_name_plural }}{% endif %})
                 </span>
                   </h2>
+                  <p>
+                    <a href="{% url 'repository_home_by_rou' rou.code %}">
+                      {% blocktrans with rou_name=rou.name %}Go to the {{ rou_name }} page{% endblocktrans %}
+                    </a>
+                  </p>
                 </div>
 
                 {% if rou.latest_preprints %}
@@ -85,14 +90,13 @@
                 {% endif %}
               </div>
             {% else %}
-              <div class="ou-card"
+              <div class="ou-card">
                 {% if recent_preprints %}
                   <div class="ou-section" style="margin-top: 1.5rem;">
                     <div class="ou-preprints-header">
                       <h3 class="ou-preprints-header-title">{% trans "Recent Submissions" %}</h3>
                       <a href="{% url 'repository_list' %}">
-                        {% trans "View all submissions" %}&nbsp;<i
-                              aria-hidden="true" class="fa fa-external-link"></i>
+                        {% trans "View all submissions" %}
                       </a>
                     </div>
 

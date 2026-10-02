@@ -21,6 +21,9 @@
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural | capfirst }}</a></li>
             <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            {% if request.repository.has_organisation_units %}
+            <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+            {% endif %}
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% hook 'nav_block' %}
@@ -58,6 +61,9 @@
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a></li>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
             <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            {% if request.repository.has_organisation_units %}
+            <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+            {% endif %}
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% if request.user.is_authenticated %}

@@ -879,3 +879,167 @@ class RepositoryFieldTypeScopingTests(TestCase):
         field = rm.RepositoryField.objects.get(name="Scoped Field 5440")
         self.assertEqual(field.submission_type, self.local_type)
         self.assertEqual(field.repository, self.repository)
+
+
+class OrganisationUnitTests(TestCase):
+    """Back office management and navigation of organisational units."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repo_manager = helpers.create_user("rou_manager@janeway.systems")
+        cls.repo_manager.is_active = True
+        cls.repo_manager.save()
+        cls.server_name = "rou.test.com"
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.repo_manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.faculty = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="Faculty of Arts",
+            code="arts",
+        )
+        cls.department = rm.RepositoryOrganisationUnit.objects.create(
+            repository=cls.repository,
+            name="History Department",
+            code="history",
+            parent=cls.faculty,
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manager_can_add_unit(self):
+        self.client.force_login(self.repo_manager)
+        self.client.post(
+            reverse("repository_organisation_units"),
+            data={"name": "Classics", "code": "classics", "parent": self.faculty.pk},
+            SERVER_NAME=self.server_name,
+        )
+        unit = rm.RepositoryOrganisationUnit.objects.get(code="classics")
+        self.assertEqual(unit.repository, self.repository)
+        self.assertEqual(unit.parent, self.faculty)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manager_can_update_settings(self):
+        self.client.force_login(self.repo_manager)
+        self.client.post(
+            reverse("repository_organisation_units"),
+            data={
+                "save_settings": "",
+                "rou_default_name": "Departments",
+                "rou_struct_page_text": "<p>Our departments.</p>",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        self.repository.refresh_from_db()
+        self.assertEqual(self.repository.rou_default_name, "Departments")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_manager_can_delete_unit(self):
+        self.client.force_login(self.repo_manager)
+        self.client.post(
+            reverse("repository_delete_organisation_unit"),
+            data={"delete": self.department.pk},
+            SERVER_NAME=self.server_name,
+        )
+        self.assertFalse(
+            rm.RepositoryOrganisationUnit.objects.filter(
+                pk=self.department.pk,
+            ).exists()
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_reserved_code_rejected(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.post(
+            reverse("repository_organisation_units"),
+            data={"name": "About Us", "code": "about"},
+            SERVER_NAME=self.server_name,
+        )
+        self.assertTrue(response.context["form"].errors.get("code"))
+        self.assertFalse(
+            rm.RepositoryOrganisationUnit.objects.filter(code="about").exists()
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_duplicate_code_rejected(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.post(
+            reverse("repository_organisation_units"),
+            data={"name": "Art History", "code": "arts"},
+            SERVER_NAME=self.server_name,
+        )
+        self.assertTrue(response.context["form"].errors.get("code"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unit_cannot_be_moved_under_its_descendant(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.get(
+            reverse(
+                "repository_organisation_units_with_id",
+                kwargs={"unit_id": self.faculty.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        parents = response.context["form"].fields["parent"].queryset
+        self.assertNotIn(self.faculty, parents)
+        self.assertNotIn(self.department, parents)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_anonymous_user_cannot_manage_units(self):
+        response = self.client.get(
+            reverse("repository_organisation_units"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertNotEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unit_page_links_up_to_parent(self):
+        path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": self.department.code},
+        )
+        parent_path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": self.faculty.code},
+        )
+        for theme in ("OLH", "clarity"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    path,
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, f'href="{parent_path}"')
+                self.assertContains(response, 'aria-current="page"')
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_page_name_is_not_double_pluralised(self):
+        for theme in ("OLH", "clarity"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    reverse("rou_hierarchy"),
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, "Organisational Units")
+                self.assertNotContains(response, "Organisational Unitss")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_nav_links_to_hierarchy_when_units_exist(self):
+        hierarchy_path = reverse("rou_hierarchy")
+        for theme in ("OLH", "clarity", "material"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    reverse("repository_about"),
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, f'href="{hierarchy_path}"')

@@ -1,0 +1,16 @@
+{% load i18n %}
+<nav aria-label="{% trans 'Breadcrumb' %}">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'website_index' %}">{{ request.repository.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+    {% for ancestor in rou.get_ancestors %}
+      <li class="breadcrumb-item"><a href="{% url 'repository_home_by_rou' ancestor.code %}">{{ ancestor.name }}</a></li>
+    {% endfor %}
+    {% if current_page %}
+      <li class="breadcrumb-item"><a href="{% url 'repository_home_by_rou' rou.code %}">{{ rou.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ current_page }}</li>
+    {% else %}
+      <li class="breadcrumb-item active" aria-current="page">{{ rou.name }}</li>
+    {% endif %}
+  </ol>
+</nav>

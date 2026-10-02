@@ -142,11 +142,7 @@
                     {% with preprint.organisation_units.all as rous %}
                         {% if rous %}
                             <h2>
-                                {% if rous.count > 1 %}
-                                  {{ request.repository.rou_default_name }}s
-                                {% else %}
-                                    {{ request.repository.rou_default_name }}
-                                {% endif %}
+                                {{ request.repository.rou_default_name }}
                             </h2>
                             <ul>
                                 {% for rou in rous %}

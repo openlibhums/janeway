@@ -6,6 +6,9 @@
             <li><a href="{% url 'repository_about' %}">{% trans 'About' %}</a></li>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural | capfirst }}</a></li>
             <li><a href="{% url 'repository_subject_list' %}">{% trans 'Subjects' %}</a></li>
+            {% if request.repository.has_organisation_units %}
+            <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+            {% endif %}
             <li><a href="{% url 'repository_submit' %}">{% trans 'Submit' %} {{ request.repository.object_name }}</a></li>
             {% if journal_settings.general.accessibility_mode or not request.journal %}
             <li class="is-dropdown-submenu-parent show-for-small-only">

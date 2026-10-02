@@ -250,6 +250,21 @@ urlpatterns = [
         name="repository_subjects_with_id",
     ),
     re_path(
+        r"^manager/units/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units",
+    ),
+    re_path(
+        r"^manager/units/delete/$",
+        views.repository_delete_organisation_unit,
+        name="repository_delete_organisation_unit",
+    ),
+    re_path(
+        r"^manager/units/(?P<unit_id>\d+)/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units_with_id",
+    ),
+    re_path(
         r"^manager/rejected/$",
         views.repository_rejected_submissions,
         name="repository_rejected_submissions",

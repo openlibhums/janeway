@@ -23,6 +23,7 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.conf import settings
+from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
@@ -445,6 +446,10 @@ class Repository(model_utils.AbstractSiteModel):
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
+    @cached_property
+    def has_organisation_units(self):
+        return self.repositoryorganisationunit_set.exists()
+
     def render_setting(self, setting_text):
         """
         Renders a repository setting string, replacing placeholders like
@@ -499,6 +504,19 @@ class RepositoryOrganisationUnit(models.Model):
             queue.extend(children)
 
         return descendants
+
+    def get_ancestors(self):
+        """Returns all ancestor ROUs, top-level unit first."""
+        ancestors = []
+        seen = {self.pk}
+        parent = self.parent
+
+        while parent and parent.pk not in seen:
+            ancestors.insert(0, parent)
+            seen.add(parent.pk)
+            parent = parent.parent
+
+        return ancestors
 
 
 class RepositoryRole(models.Model):

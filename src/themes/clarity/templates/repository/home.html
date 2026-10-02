@@ -14,6 +14,10 @@
 
 {% block body %}
 
+  {% if selected_rou %}
+    {% include "repository/elements/rou_breadcrumbs.html" with rou=selected_rou %}
+  {% endif %}
+
   {% if request.repository.hero_image or request.repository.default_large_image %}
     <div class="repo-hero-image mb-4">
       <div class="card border-0">

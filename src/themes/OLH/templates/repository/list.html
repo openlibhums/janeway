@@ -24,6 +24,9 @@
     <div class="row">
         <div class="large-8 columns border-right">
             <div class="large-12 columns">
+                {% if rou %}
+                    {% include "repository/elements/rou_breadcrumbs.html" with rou=rou current_page=request.repository.object_name_plural|capfirst %}
+                {% endif %}
                 <h1>
                     {% if rou %}
                         {{ rou.name }} {{ request.repository.object_name_plural }}
