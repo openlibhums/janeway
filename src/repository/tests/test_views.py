@@ -9,13 +9,13 @@ from django.utils import timezone
 from django.core import mail
 from django.contrib.messages.storage.cookie import CookieStorage
 from django.http import QueryDict
-from django.urls.base import clear_script_prefix
+from django.urls.base import clear_script_prefix, set_script_prefix
 from django.utils.formats import date_format
 
 from utils.testing import helpers
 from utils.install import update_settings
 from core import models as cm
-from repository import models as rm, install, logic as repository_logic
+from repository import models as rm, install, logic as repository_logic, forms
 from freezegun import freeze_time
 
 from dateutil import tz
@@ -967,6 +967,20 @@ class OrganisationUnitTests(TestCase):
         self.assertFalse(
             rm.RepositoryOrganisationUnit.objects.filter(code="about").exists()
         )
+
+    def test_code_validation_with_path_prefix(self):
+        """Path mode sites have a script prefix; it must not affect the check."""
+        set_script_prefix(f"/{self.repository.short_name}/")
+        valid = forms.OrganisationUnitForm(
+            data={"name": "Classics", "code": "classics"},
+            repository=self.repository,
+        )
+        reserved = forms.OrganisationUnitForm(
+            data={"name": "About Us", "code": "about"},
+            repository=self.repository,
+        )
+        self.assertTrue(valid.is_valid(), valid.errors)
+        self.assertIn("code", reserved.errors)
 
     @override_settings(URL_CONFIG="domain")
     def test_duplicate_code_rejected(self):

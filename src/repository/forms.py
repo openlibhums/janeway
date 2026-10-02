@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
-from django.urls import reverse, resolve, Resolver404
+from django.urls import resolve, Resolver404
 from django.contrib import messages
 from tinymce.widgets import TinyMCE
 
@@ -465,9 +465,10 @@ class OrganisationUnitForm(forms.ModelForm):
 
         # Unit home pages live at /repository/<code>/, after the other
         # repository URLs, so a code like "about" would never be reachable.
-        path = reverse("repository_home_by_rou", kwargs={"rou_code": code})
+        # Resolve against the repository URLs directly so the site's path
+        # prefix (in path mode) doesn't affect the check.
         try:
-            match = resolve(path)
+            match = resolve(f"/{code}/", urlconf="repository.urls")
         except Resolver404:
             match = None
         if not match or match.url_name != "repository_home_by_rou":
