@@ -135,6 +135,16 @@ class TestModels(TestCase):
                 article_two,
             )
 
+    def test_preprint_file_is_pdf(self):
+        for mime_type in ("application/pdf", "application/x-pdf"):
+            preprint_file = rm.PreprintFile(mime_type=mime_type)
+            self.assertTrue(preprint_file.is_pdf)
+
+    def test_preprint_file_is_not_pdf(self):
+        for mime_type in ("text/plain", "text/html", "", None):
+            preprint_file = rm.PreprintFile(mime_type=mime_type)
+            self.assertFalse(preprint_file.is_pdf)
+
 
 class TestRepositoryOrganisationUnit(TestCase):
     """Tests for the RepositoryOrganisationUnit model introduced in iowa-and-isolinear."""

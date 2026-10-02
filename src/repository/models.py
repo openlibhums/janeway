@@ -1303,6 +1303,10 @@ class PreprintFile(models.Model):
     def get_file_mime_type(self):
         return files.file_path_mime(self.file.path)
 
+    @property
+    def is_pdf(self):
+        return self.mime_type in files.PDF_MIMETYPES
+
     def path_parts(self):
         path = os.path.dirname(os.path.abspath(self.file.path))
         return path
