@@ -2833,20 +2833,25 @@ def preprints_by_rou(request, rou_code):
     )
 
 
+def _published(preprints):
+    """Limits a preprint queryset to those publicly visible."""
+    return preprints.filter(
+        stage=models.STAGE_PREPRINT_PUBLISHED,
+        date_published__lte=timezone.now(),
+    )
+
+
 def build_hierarchy(units):
     """Recursively builds a nested dictionary structure for hierarchy"""
     hierarchy = []
     for unit in units:
-        children = unit.children.annotate(preprint_count=Count("preprints"))
-        latest_preprints = unit.preprints.order_by("-date_published")[
-            :10
-        ]  # Get latest 10 preprints
+        published = _published(unit.preprints)
         hierarchy.append(
             {
                 "unit": unit,
-                "preprint_count": unit.preprints.count(),
-                "latest_preprints": latest_preprints,  # Add latest preprints
-                "children": build_hierarchy(children),
+                "preprint_count": published.count(),
+                "latest_preprints": published.order_by("-date_published")[:10],
+                "children": build_hierarchy(unit.children.all()),
             }
         )
     return hierarchy
@@ -2858,38 +2863,23 @@ def rou_hierarchy_view(request, rou_code=None):
         raise Http404
 
     selected_rou = None
-    hierarchy = []
 
     if rou_code:
-        # Get the selected ROU
         selected_rou = get_object_or_404(
-            models.RepositoryOrganisationUnit.objects.annotate(
-                preprint_count=Count("preprints")
-            ),
+            models.RepositoryOrganisationUnit,
             repository=repository,
             code=rou_code,
         )
-        # Fetch the latest 10 preprints for the selected ROU
-        selected_rou.latest_preprints = selected_rou.preprints.order_by(
-            "-date_published",
-        )[:10]
+        published = _published(selected_rou.preprints)
+        selected_rou.preprint_count = published.count()
+        selected_rou.latest_preprints = published.order_by("-date_published")[:10]
 
-        # Build hierarchy from the **top level down**
-        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
-            repository=repository,
-            parent__isnull=True,
-        ).annotate(preprint_count=Count("preprints"))
-
-        hierarchy = build_hierarchy(top_level_units)
-
-    else:
-        # No ROU selected – Show **all top-level ROUs and their full hierarchy**
-        top_level_units = models.RepositoryOrganisationUnit.objects.filter(
-            repository=repository,
-            parent__isnull=True,
-        ).annotate(preprint_count=Count("preprints"))
-
-        hierarchy = build_hierarchy(top_level_units)
+    # Build hierarchy from the top level down
+    top_level_units = models.RepositoryOrganisationUnit.objects.filter(
+        repository=repository,
+        parent__isnull=True,
+    )
+    hierarchy = build_hierarchy(top_level_units)
 
     return render(
         request,
@@ -2898,9 +2888,8 @@ def rou_hierarchy_view(request, rou_code=None):
             "rou": selected_rou,
             "repository": repository,
             "hierarchy": hierarchy,
-            "recent_preprints": models.Preprint.objects.filter(
-                repository=request.repository,
-                date_published__lte=timezone.now(),
+            "recent_preprints": _published(
+                models.Preprint.objects.filter(repository=repository),
             ).order_by("-date_published")[:10],
             "page_text": repository.render_setting(repository.rou_struct_page_text),
         },
