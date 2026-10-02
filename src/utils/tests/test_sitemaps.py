@@ -1233,17 +1233,22 @@ class SitemapOrganisationUnitTests(TestCase):
             url for url, _label, _lastmod in build_pages_sitemap_context(owner)["links"]
         ]
 
-    def test_hierarchy_and_unit_pages_listed(self):
+    def test_overview_and_one_page_per_unit_listed(self):
         urls = self.sitemap_urls(self.repository)
         expected = [reverse("rou_hierarchy")]
         for unit in (self.parent_unit, self.child_unit):
             expected.append(
                 reverse("repository_home_by_rou", kwargs={"rou_code": unit.code})
             )
-            expected.append(reverse("rou_hierarchy", kwargs={"rou_code": unit.code}))
         for path in expected:
             with self.subTest(path=path):
-                self.assertTrue(any(url.endswith(path) for url in urls))
+                self.assertEqual(
+                    len([url for url in urls if url.endswith(path)]),
+                    1,
+                )
+        self.assertFalse(
+            any("/hierarchy/" in url and not url.endswith(expected[0]) for url in urls)
+        )
 
     def test_no_hierarchy_link_without_units(self):
         self.repository.repositoryorganisationunit_set.all().delete()

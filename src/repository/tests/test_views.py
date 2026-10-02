@@ -503,23 +503,45 @@ class TestHierarchyView(TestCase):
         self.assertContains(response, "Research")
 
     @override_settings(URL_CONFIG="domain")
-    def test_hierarchy_rou_view_returns_200(self):
-        """Navigating to a specific ROU returns HTTP 200."""
-        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
-        response = self.client.get(path, SERVER_NAME=self.server_name)
-        self.assertEqual(response.status_code, 200)
+    def test_hierarchy_links_to_unit_pages(self):
+        """The overview links each unit to its own page."""
+        response = self.client.get(
+            reverse("rou_hierarchy"),
+            SERVER_NAME=self.server_name,
+        )
+        for unit in (self.root, self.child):
+            with self.subTest(unit=unit.code):
+                self.assertContains(
+                    response,
+                    'href="{}"'.format(
+                        reverse(
+                            "repository_home_by_rou",
+                            kwargs={"rou_code": unit.code},
+                        )
+                    ),
+                )
 
     @override_settings(URL_CONFIG="domain")
-    def test_hierarchy_rou_view_shows_preprints(self):
-        """The selected-ROU page lists preprints belonging to that unit."""
-        path = reverse("rou_hierarchy", kwargs={"rou_code": self.root.code})
+    def test_no_separate_hierarchy_page_per_unit(self):
+        """Each unit has one page; there is no per-unit hierarchy page."""
+        path = "{}{}/".format(reverse("rou_hierarchy"), self.root.code)
+        response = self.client.get(path, SERVER_NAME=self.server_name)
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_unit_page_shows_preprints(self):
+        """A unit's page lists preprints belonging to that unit."""
+        path = reverse("repository_home_by_rou", kwargs={"rou_code": self.root.code})
         response = self.client.get(path, SERVER_NAME=self.server_name)
         self.assertContains(response, self.preprint.title)
 
     @override_settings(URL_CONFIG="domain")
-    def test_hierarchy_unknown_rou_code_returns_404(self):
-        """A request for a non-existent ROU code returns HTTP 404."""
-        path = reverse("rou_hierarchy", kwargs={"rou_code": "does-not-exist"})
+    def test_unknown_unit_code_returns_404(self):
+        """A request for a non-existent unit code returns HTTP 404."""
+        path = reverse(
+            "repository_home_by_rou",
+            kwargs={"rou_code": "does-not-exist"},
+        )
         response = self.client.get(path, SERVER_NAME=self.server_name)
         self.assertEqual(response.status_code, 404)
 
@@ -1131,7 +1153,7 @@ class OrganisationUnitTests(TestCase):
         self.assertNotContains(response, self.repo_manager.email)
 
     @override_settings(URL_CONFIG="domain")
-    def test_hierarchy_only_shows_published_preprints(self):
+    def test_hierarchy_counts_only_published_preprints(self):
         author = helpers.create_user("rou_author@janeway.systems")
         published = helpers.create_preprint(
             self.repository,
@@ -1154,12 +1176,13 @@ class OrganisationUnitTests(TestCase):
             preprint.organisation_units.add(self.department)
 
         response = self.client.get(
-            reverse("rou_hierarchy", kwargs={"rou_code": self.department.code}),
+            reverse("rou_hierarchy"),
             SERVER_NAME=self.server_name,
         )
-        self.assertContains(response, published.title)
-        self.assertNotContains(response, draft.title)
-        self.assertEqual(response.context["rou"].preprint_count, 1)
+        (faculty,) = response.context["hierarchy"]
+        (department,) = faculty["children"]
+        self.assertEqual(department["unit"], self.department)
+        self.assertEqual(department["preprint_count"], 1)
 
     @override_settings(URL_CONFIG="domain")
     def test_invalid_settings_do_not_change_displayed_settings(self):
@@ -1242,7 +1265,6 @@ class DisabledOrganisationUnitTests(TestCase):
     def test_public_unit_pages_return_404(self):
         paths = [
             reverse("rou_hierarchy"),
-            reverse("rou_hierarchy", kwargs={"rou_code": self.unit.code}),
             reverse("repository_home_by_rou", kwargs={"rou_code": self.unit.code}),
             reverse(
                 "repository_preprints_by_rou",

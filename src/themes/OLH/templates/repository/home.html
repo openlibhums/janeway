@@ -4,7 +4,7 @@
 
 {% block title %}
     {% if selected_rou %}
-        {% page_title selected_rou.name %}
+        {% page_title request.repository.rou_default_name selected_rou.name %}
     {% else %}
         {% page_title %}
     {% endif %}

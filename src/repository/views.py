@@ -2853,34 +2853,22 @@ def build_hierarchy(units):
     """Recursively builds a nested dictionary structure for hierarchy"""
     hierarchy = []
     for unit in units:
-        published = _published(unit.preprints)
         hierarchy.append(
             {
                 "unit": unit,
-                "preprint_count": published.count(),
-                "latest_preprints": published.order_by("-date_published")[:10],
+                "preprint_count": _published(unit.preprints).count(),
                 "children": build_hierarchy(unit.children.all()),
             }
         )
     return hierarchy
 
 
-def rou_hierarchy_view(request, rou_code=None):
+def rou_hierarchy_view(request):
+    """Overview of a repository's organisational units, linking to each
+    unit's own page."""
     repository = request.repository
     if not repository.has_organisation_units:
         raise Http404
-
-    selected_rou = None
-
-    if rou_code:
-        selected_rou = get_object_or_404(
-            models.RepositoryOrganisationUnit,
-            repository=repository,
-            code=rou_code,
-        )
-        published = _published(selected_rou.preprints)
-        selected_rou.preprint_count = published.count()
-        selected_rou.latest_preprints = published.order_by("-date_published")[:10]
 
     # Build hierarchy from the top level down
     top_level_units = models.RepositoryOrganisationUnit.objects.filter(
@@ -2893,12 +2881,8 @@ def rou_hierarchy_view(request, rou_code=None):
         request,
         "repository/hierarchy.html",
         {
-            "rou": selected_rou,
             "repository": repository,
             "hierarchy": hierarchy,
-            "recent_preprints": _published(
-                models.Preprint.objects.filter(repository=repository),
-            ).order_by("-date_published")[:10],
             "page_text": repository.render_setting(repository.rou_struct_page_text),
         },
     )

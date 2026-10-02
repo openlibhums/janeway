@@ -329,11 +329,6 @@ urlpatterns = [
         name="send_user_email_preprint",
     ),
     re_path(
-        r"^hierarchy/(?P<rou_code>[\w-]+)/$",
-        views.rou_hierarchy_view,
-        name="rou_hierarchy",
-    ),
-    re_path(
         r"^hierarchy/$",
         views.rou_hierarchy_view,
         name="rou_hierarchy",

@@ -11,7 +11,7 @@
 
 {% block title %}
     {% if rou %}
-        {% page_title request.repository.object_name_plural|capfirst rou.name %}
+        {% page_title request.repository.rou_default_name rou.name request.repository.object_name_plural|capfirst %}
     {% elif subject %}
         {% page_title request.repository.object_name_plural|capfirst subject.name %}
     {% else %}

@@ -1,20 +1,10 @@
 {% extends "core/base.html" %}
-{% load static %}
 {% load i18n %}
 {% load page_title %}
 
 {% block title %}
-  {% if rou %}
-    {% page_title request.repository.rou_default_name rou.name %}
-  {% else %}
-    {% page_title request.repository.rou_default_name %}
-  {% endif %}
+  {% page_title request.repository.rou_default_name %}
 {% endblock %}
-
-
-{% block css %}
-  {% include "common/repository/style/submission_type_pills.html" with preprints=recent_preprints %}
-{% endblock css %}
 
 {% block body %}
   <section id="content" class="ou-container">
@@ -27,12 +17,12 @@
         </div>
 
         <div class="row">
-          <div class="medium-6 large-6 columns">
+          <div class="medium-8 large-6 columns end">
             <div class="ou-block">
               <ul class="ou-tree">
                 <li>
-                  <div class="ou-tree-item {% if not rou %}selected{% endif %}">
-                    <a href="{% url 'rou_hierarchy' %}"
+                  <div class="ou-tree-item">
+                    <a href="{% url 'repository_list' %}"
                        class="ou-tree-item-link">{{ repository.name }} (All {{ request.site_type.object_name_plural }})</a>
                   </div>
                   <ul class="ou-tree-first-list">
@@ -41,89 +31,6 @@
                 </li>
               </ul>
             </div>
-          </div>
-
-          <div class="medium-6 large-6 columns">
-            {% if rou %}
-              <div class="ou-block">
-                <div class="ou-selected-unit">
-                  <h2>
-                    {{ rou.name }}
-                    <span class="ou-selected-unit-count">
-                  ({{ rou.preprint_count }} {% if rou.preprint_count == 1 %}
-                      {{ request.site_type.object_name }}{% else %}
-                      {{ request.site_type.object_name_plural }}{% endif %})
-                </span>
-                  </h2>
-                  <p>
-                    <a href="{% url 'repository_home_by_rou' rou.code %}">
-                      {% blocktrans with rou_name=rou.name %}Go to the {{ rou_name }} page{% endblocktrans %}
-                    </a>
-                  </p>
-                </div>
-
-                {% if rou.latest_preprints %}
-                  <h3>{% trans "Latest Submissions" %}</h3>
-                  {% if rou.preprint_count > 10 %}
-                    <a href="{% url 'repository_preprints_by_rou' rou.code %}">
-                      {% trans "View all preprints" %}
-                    </a>
-                  {% endif %}
-
-                  <div class="ou-preprint-list">
-                    {% for preprint in rou.latest_preprints %}
-                      <div class="ou-preprint-item">
-                        <a href="{% url 'repository_preprint' preprint.pk %}">{{ preprint.title }}</a>
-                        <div class="ou-preprint-meta">
-                          <span>{{ preprint.display_authors_compact }}</span>
-                          <span class="ou-preprint-meta-separator">•</span>
-                          <span>{{ preprint.date_published|date:"Y-m-d" }}</span>
-                        </div>
-                        {% if preprint.abstract %}
-                          <p class="ou-preprint-abstract">
-                            {{ preprint.abstract|truncatewords_html:30 }}</p>
-                        {% endif %}
-                      </div>
-                    {% endfor %}
-                  </div>
-
-                {% endif %}
-              </div>
-            {% else %}
-              <div class="ou-card">
-                {% if recent_preprints %}
-                  <div class="ou-section" style="margin-top: 1.5rem;">
-                    <div class="ou-preprints-header">
-                      <h3 class="ou-preprints-header-title">{% trans "Recent Submissions" %}</h3>
-                      <a href="{% url 'repository_list' %}">
-                        {% trans "View all submissions" %}
-                      </a>
-                    </div>
-
-                    <div class="ou-preprint-list">
-                      {% for preprint in recent_preprints %}
-                        <div class="ou-preprint-item">
-                          <div class="flex-between">
-                            <div class="title-wrap">
-                              <a href="{% url 'repository_preprint' preprint.pk %}"
-                                 class="ou-preprint-title">{{ preprint.title }}</a>
-                            </div>
-                            <div class="pill-wrap">
-                              {% include "repository/elements/submission_type_pill.html" %}
-                            </div>
-                          </div>
-                          <div class="ou-preprint-meta">
-                            <span>{{ preprint.display_authors_compact }}</span>
-                            <span class="ou-preprint-meta-separator">•</span>
-                            <span>{{ preprint.date_published|date:"Y-m-d" }}</span>
-                          </div>
-                        </div>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endif %}
-              </div>
-            {% endif %}
           </div>
         </div>
       </div>

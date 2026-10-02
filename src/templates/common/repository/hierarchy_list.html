@@ -1,11 +1,7 @@
 {% load i18n %}
 {% for item in hierarchy %}
   <li>
-    {% if rou and item.unit == rou %}
-      <strong aria-current="page">{{ item.unit.name }}</strong>
-    {% else %}
-      <a href="{% url 'rou_hierarchy' item.unit.code %}">{{ item.unit.name }}</a>
-    {% endif %}
+    <a href="{% url 'repository_home_by_rou' item.unit.code %}">{{ item.unit.name }}</a>
     ({% blocktrans count counter=item.preprint_count with object_name=request.repository.object_name object_name_plural=request.repository.object_name_plural %}{{ counter }} {{ object_name }}{% plural %}{{ counter }} {{ object_name_plural }}{% endblocktrans %})
     {% if item.children %}
       <ul{% if list_class %} class="{{ list_class }}"{% endif %}>
