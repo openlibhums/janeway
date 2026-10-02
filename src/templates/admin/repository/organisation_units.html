@@ -58,7 +58,7 @@
                 <div class="content">
                     <form method="POST">
                         {% csrf_token %}
-                        {% include "elements/forms/errors.html" with form=settings_form %}
+                        {% include "admin/elements/forms/errors.html" with form=settings_form %}
                         {{ settings_form.enable_organisation_units|foundation }}
                         {{ settings_form.rou_default_name|foundation }}
                         {{ settings_form.rou_struct_page_text|foundation }}
@@ -81,7 +81,7 @@
                 <div class="content">
                     <form method="POST">
                         {% csrf_token %}
-                        {% include "elements/forms/errors.html" with form=form %}
+                        {% include "admin/elements/forms/errors.html" with form=form %}
                         {{ form|foundation }}
                         <button class="success button" name="save_unit">{% trans "Save" %}</button>
                     </form>
