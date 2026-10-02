@@ -51,6 +51,9 @@ class PreSubmissionStartForm(forms.Form):
         )
 
         self.ou_depth_map = {}
+        if not repository.has_organisation_units:
+            del self.fields["organisation_unit"]
+            return
 
         def walk(unit, level=0):
             self.ou_depth_map[str(unit.id)] = level
@@ -77,8 +80,6 @@ class PreSubmissionStartForm(forms.Form):
         ].queryset = models.RepositoryOrganisationUnit.objects.filter(
             repository=repository,
         )
-        if not repository.has_organisation_units:
-            del self.fields["organisation_unit"]
 
 
 class PreprintInfo(utils_forms.KeywordModelForm):
