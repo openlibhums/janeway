@@ -1946,7 +1946,25 @@ h2.sidebar-heading {
 }
 
 /* Breadcrumbs for repository organisational unit pages. Materialize's
-   .breadcrumb is styled for dark navbars, so this is a light-page variant. */
+   .breadcrumb is styled for dark navbars, so this is a light-page variant.
+   Materialize also styles every <nav> as a coloured navbar, so undo that. */
+nav.rou-breadcrumbs-nav {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+  height: auto;
+  line-height: inherit;
+}
+
+nav.rou-breadcrumbs-nav a {
+  color: #00796b;
+  font-size: 1rem;
+}
+
+nav.rou-breadcrumbs-nav a:hover {
+  text-decoration: underline;
+}
+
 .rou-breadcrumbs {
   display: flex;
   flex-wrap: wrap;

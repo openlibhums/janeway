@@ -1,5 +1,5 @@
 {% load i18n %}
-<nav aria-label="{% trans 'Breadcrumb' %}">
+<nav class="rou-breadcrumbs-nav" aria-label="{% trans 'Breadcrumb' %}">
     <ol class="rou-breadcrumbs">
         <li><a href="{% url 'website_index' %}">{{ request.repository.name }}</a></li>
         <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
