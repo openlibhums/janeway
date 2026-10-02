@@ -320,7 +320,8 @@ class Repository(model_utils.AbstractSiteModel):
     rou_default_name = models.CharField(
         max_length=255,
         default="Organisational Units",
-        help_text="Default name for the organisation structure within this repository.",
+        help_text="Plural name for organisational units, used in headings and "
+        "navigation, eg. 'Departments' or 'Organisational Units'.",
     )
     rou_struct_page_text = model_utils.JanewayBleachField(
         blank=True,

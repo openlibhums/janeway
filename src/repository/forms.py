@@ -508,10 +508,6 @@ class OrganisationUnitSettingsForm(forms.ModelForm):
                 "Turning this off hides them without deleting any units or "
                 "their links to submissions."
             ),
-            "rou_default_name": _(
-                "Plural name used in headings and navigation, "
-                "eg. 'Departments' or 'Organisational Units'."
-            ),
         }
         widgets = {
             "rou_struct_page_text": TinyMCE,
