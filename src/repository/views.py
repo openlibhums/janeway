@@ -1491,6 +1491,17 @@ def repository_delete_subject(request):
     return redirect(reverse("repository_subjects"))
 
 
+def _get_organisation_unit_or_404(request, unit_id):
+    """Gets one of this repository's units from a submitted id, or 404."""
+    if not str(unit_id).isdigit():
+        raise Http404
+    return get_object_or_404(
+        models.RepositoryOrganisationUnit,
+        pk=unit_id,
+        repository=request.repository,
+    )
+
+
 @is_repository_manager
 def repository_organisation_units(request, unit_id=None):
     """
@@ -1507,10 +1518,9 @@ def repository_organisation_units(request, unit_id=None):
         )
 
     if request.GET.get("parent"):
-        initial["parent"] = get_object_or_404(
-            models.RepositoryOrganisationUnit,
-            pk=request.GET.get("parent"),
-            repository=request.repository,
+        initial["parent"] = _get_organisation_unit_or_404(
+            request,
+            request.GET.get("parent"),
         )
 
     form = forms.OrganisationUnitForm(
@@ -1572,11 +1582,7 @@ def repository_organisation_units(request, unit_id=None):
 @require_POST
 @is_repository_manager
 def repository_delete_organisation_unit(request):
-    unit = get_object_or_404(
-        models.RepositoryOrganisationUnit,
-        pk=request.POST.get("delete"),
-        repository=request.repository,
-    )
+    unit = _get_organisation_unit_or_404(request, request.POST.get("delete"))
     unit.delete()
 
     messages.add_message(
