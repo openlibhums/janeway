@@ -1114,6 +1114,100 @@ class OrganisationUnitTests(TestCase):
             ).exists()
         )
 
+    @override_settings(URL_CONFIG="domain")
+    def test_page_text_is_not_run_as_a_template(self):
+        self.repository.rou_struct_page_text = (
+            "<p>{{ repository.name }} {{ repository.managers.all.0.email }} "
+            "{% bad tag %}</p>"
+        )
+        self.repository.save()
+        response = self.client.get(
+            reverse("rou_hierarchy"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.repository.name)
+        self.assertContains(response, "{{ repository.managers.all.0.email }}")
+        self.assertNotContains(response, self.repo_manager.email)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_only_shows_published_preprints(self):
+        author = helpers.create_user("rou_author@janeway.systems")
+        published = helpers.create_preprint(
+            self.repository,
+            author,
+            self.subject,
+            title="Published unit preprint",
+        )
+        published.stage = rm.STAGE_PREPRINT_PUBLISHED
+        published.date_published = timezone.now() - timezone.timedelta(days=1)
+        published.save()
+        draft = helpers.create_preprint(
+            self.repository,
+            author,
+            self.subject,
+            title="Draft unit preprint",
+        )
+        draft.stage = rm.STAGE_PREPRINT_UNSUBMITTED
+        draft.save()
+        for preprint in (published, draft):
+            preprint.organisation_units.add(self.department)
+
+        response = self.client.get(
+            reverse("rou_hierarchy", kwargs={"rou_code": self.department.code}),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertContains(response, published.title)
+        self.assertNotContains(response, draft.title)
+        self.assertEqual(response.context["rou"].preprint_count, 1)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_invalid_settings_do_not_change_displayed_settings(self):
+        self.client.force_login(self.repo_manager)
+        response = self.client.post(
+            reverse("repository_organisation_units"),
+            data={
+                "save_settings": "",
+                "rou_default_name": "",
+                "rou_struct_page_text": "",
+            },
+            SERVER_NAME=self.server_name,
+        )
+        self.assertTrue(response.context["settings_form"].errors)
+        self.assertEqual(
+            response.wsgi_request.repository.rou_default_name,
+            "Organisational Units",
+        )
+        self.assertTrue(response.wsgi_request.repository.enable_organisation_units)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_non_numeric_unit_ids_return_404(self):
+        self.client.force_login(self.repo_manager)
+        get_response = self.client.get(
+            reverse("repository_organisation_units"),
+            {"parent": "abc"},
+            SERVER_NAME=self.server_name,
+        )
+        post_response = self.client.post(
+            reverse("repository_delete_organisation_unit"),
+            data={"delete": "abc"},
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(get_response.status_code, 404)
+        self.assertEqual(post_response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_hierarchy_counts_use_object_name(self):
+        for theme in ("OLH", "clarity", "material"):
+            with self.subTest(theme=theme):
+                response = self.client.get(
+                    reverse("rou_hierarchy"),
+                    {"theme": theme},
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertContains(response, "0 Preprints")
+                self.assertNotContains(response, "submissions)")
+
 
 @override_settings(URL_CONFIG="domain")
 class DisabledOrganisationUnitTests(TestCase):
