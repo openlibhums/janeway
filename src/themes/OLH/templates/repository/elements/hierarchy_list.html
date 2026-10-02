@@ -14,7 +14,7 @@
     {% endif %}
 
     <span class="ou-tree-item-count">
-      ({{ item.preprint_count }} submission{% if item.preprint_count != 1 %}s{% endif %})
+      ({% blocktrans count counter=item.preprint_count with object_name=request.repository.object_name object_name_plural=request.repository.object_name_plural %}{{ counter }} {{ object_name }}{% plural %}{{ counter }} {{ object_name_plural }}{% endblocktrans %})
     </span>
   </div>
 

@@ -27,7 +27,7 @@
                     {% endif %}
                     {% if hierarchy %}
                         <ul class="nested tree">
-                            {% include "repository/elements/hierarchy_list.html" with hierarchy=hierarchy %}
+                            {% include "common/repository/hierarchy_list.html" with hierarchy=hierarchy list_class="nested tree" %}
                         </ul>
                     {% endif %}
                 </li>
