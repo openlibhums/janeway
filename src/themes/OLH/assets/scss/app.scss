@@ -2386,3 +2386,21 @@ input[type="submit"]:focus-visible {
   min-height: 24px;
   line-height: 24px;
 }
+
+/* Repository homepage preprint cards: equal heights per row with flexbox.
+   Foundation's Equalizer measured the cards before fonts and pill styles
+   settled, fixing them too short so text spilled out of the box. */
+.preprint-home-listing {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.preprint-home-listing > .columns {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.preprint-home-listing .callout {
+  flex: 1;
+  margin-bottom: 0;
+}
