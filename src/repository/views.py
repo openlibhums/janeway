@@ -1523,9 +1523,11 @@ def repository_organisation_units(request, unit_id=None):
     )
 
     if request.POST and "save_settings" in request.POST:
+        # Bind to a copy so invalid input isn't copied onto request.repository,
+        # which the rest of the page uses to show the saved settings.
         settings_form = forms.OrganisationUnitSettingsForm(
             request.POST,
-            instance=request.repository,
+            instance=models.Repository.objects.get(pk=request.repository.pk),
         )
         if settings_form.is_valid():
             settings_form.save()
