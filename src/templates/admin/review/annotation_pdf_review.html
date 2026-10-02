@@ -8,7 +8,11 @@
     <link href="{% static "admin/css/app.css" %}" rel="stylesheet">
     <link href="{% static "admin/css/admin.css" %}" rel="stylesheet">
     {% url 'review_file_download' assignment.pk pdf.pk as pdf_url %}
-    {% include "common/elements/pdf_viewer.html" %}
+    {% if access_code %}
+        {% include "common/elements/pdf_viewer.html" with pdf_url=pdf_url|add:"?access_code="|add:access_code %}
+    {% else %}
+        {% include "common/elements/pdf_viewer.html" %}
+    {% endif %}
 </head>
 <body>
 
