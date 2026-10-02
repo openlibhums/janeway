@@ -116,7 +116,10 @@
                                                                                          aria-hidden="true">&nbsp;</span>Edit
                         Metadata</a></li>
                     <li>
-                        <a onclick="return popitup('{% url 'send_user_email_preprint' preprint.owner.pk preprint.pk %}')"><i class="fa fa-envelope"></i> Contact the Owner</a>
+                        <a onclick="return popitup('{% url 'send_user_email_preprint' preprint.owner.pk preprint.pk %}')">
+                            <i class="fa fa-envelope" aria-hidden="true"></i> Contact the Owner
+                            {% include "elements/icons/link_modal.html" %}
+                        </a>
                     </li>
                     <li>
                         <a href="{% url 'repository_preprint_log' preprint.pk %}?return={% url 'repository_manager_article' preprint.pk %}"><i
@@ -141,6 +144,7 @@
                         <a target="_blank" href="{% url 'discussion_threads' 'preprint' preprint.pk %}">
                             <i class="fa fa-align-justify" aria-hidden="true">&nbsp;</i>
                             Discussion ({{ preprint.thread_set.count }})
+                            {% include "elements/icons/link_new_tab.html" %}
                         </a>
                     </li>
                     {% if not preprint.date_declined and preprint.has_version %}
