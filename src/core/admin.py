@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
-from django.db.models import Case, When, Value, IntegerField, Max
+from django.db.models import Case, When, Value, IntegerField, Max, Q
 
 from utils import admin_utils
 from core import models, forms
@@ -702,8 +702,22 @@ class OrganizationAdmin(admin.ModelAdmin):
         )
 
         if search_term:
+            # Find a set of candidates for before calculating relevance for speed
+            matching_names = models.OrganizationName.objects.filter(value__icontains=search_term)
+
+            candidate_filter = (
+                Q(ror_id__icontains=search_term)
+                | Q(website__icontains=search_term)
+                | Q(pk__in=matching_names.filter(label_for__isnull=False).values("label_for"))
+                | Q(pk__in=matching_names.filter(alias_for__isnull=False).values("alias_for"))
+                | Q(pk__in=matching_names.filter(acronym_for__isnull=False).values("acronym_for"))
+                | Q(pk__in=matching_names.filter(ror_display_for__isnull=False).values("ror_display_for"))
+                | Q(pk__in=matching_names.filter(custom_label_for__isnull=False).values("custom_label_for"))
+            )
+
             queryset = (
-                queryset.annotate(
+                queryset.filter(candidate_filter)
+                .annotate(
                     relevance=Max(
                         Case(
                             When(ror_id__iexact=search_term, then=Value(100)),

@@ -1258,9 +1258,13 @@ class OrganizationListView(GenericFacetedListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        # Exclude user-created organizations from search results
-        return queryset.exclude(custom_label__isnull=False)
+        # save the queryset in this view so we don't call
+        # the search builder twice
+        if not self.queryset:
+            queryset = super().get_queryset(*args, **kwargs)
+            # Exclude user-created organizations from search results
+            self.queryset = queryset.exclude(custom_label__isnull=False)
+        return self.queryset
 
     def get_facets(self):
         return {
