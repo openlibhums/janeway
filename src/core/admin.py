@@ -703,16 +703,38 @@ class OrganizationAdmin(admin.ModelAdmin):
 
         if search_term:
             # Find a set of candidates for before calculating relevance for speed
-            matching_names = models.OrganizationName.objects.filter(value__icontains=search_term)
+            matching_names = models.OrganizationName.objects.filter(
+                value__icontains=search_term
+            )
 
             candidate_filter = (
                 Q(ror_id__icontains=search_term)
                 | Q(website__icontains=search_term)
-                | Q(pk__in=matching_names.filter(label_for__isnull=False).values("label_for"))
-                | Q(pk__in=matching_names.filter(alias_for__isnull=False).values("alias_for"))
-                | Q(pk__in=matching_names.filter(acronym_for__isnull=False).values("acronym_for"))
-                | Q(pk__in=matching_names.filter(ror_display_for__isnull=False).values("ror_display_for"))
-                | Q(pk__in=matching_names.filter(custom_label_for__isnull=False).values("custom_label_for"))
+                | Q(
+                    pk__in=matching_names.filter(label_for__isnull=False).values(
+                        "label_for"
+                    )
+                )
+                | Q(
+                    pk__in=matching_names.filter(alias_for__isnull=False).values(
+                        "alias_for"
+                    )
+                )
+                | Q(
+                    pk__in=matching_names.filter(acronym_for__isnull=False).values(
+                        "acronym_for"
+                    )
+                )
+                | Q(
+                    pk__in=matching_names.filter(ror_display_for__isnull=False).values(
+                        "ror_display_for"
+                    )
+                )
+                | Q(
+                    pk__in=matching_names.filter(custom_label_for__isnull=False).values(
+                        "custom_label_for"
+                    )
+                )
             )
 
             queryset = (
@@ -723,23 +745,35 @@ class OrganizationAdmin(admin.ModelAdmin):
                             When(ror_id__iexact=search_term, then=Value(100)),
                             When(acronyms__value__iexact=search_term, then=Value(100)),
                             When(aliases__value__iexact=search_term, then=Value(90)),
-                            When(custom_label__value__iexact=search_term, then=Value(90)),
-                            When(ror_display__value__iexact=search_term, then=Value(90)),
-                            When(ror_id__istartswith=search_term, then=Value(80)),
                             When(
-                                custom_label__value__istartswith=search_term, then=Value(70)
+                                custom_label__value__iexact=search_term, then=Value(90)
                             ),
                             When(
-                                ror_display__value__istartswith=search_term, then=Value(70)
+                                ror_display__value__iexact=search_term, then=Value(90)
+                            ),
+                            When(ror_id__istartswith=search_term, then=Value(80)),
+                            When(
+                                custom_label__value__istartswith=search_term,
+                                then=Value(70),
+                            ),
+                            When(
+                                ror_display__value__istartswith=search_term,
+                                then=Value(70),
                             ),
                             When(ror_id__icontains=search_term, then=Value(60)),
                             When(
-                                custom_label__value__icontains=search_term, then=Value(50)
+                                custom_label__value__icontains=search_term,
+                                then=Value(50),
                             ),
-                            When(ror_display__value__icontains=search_term, then=Value(50)),
+                            When(
+                                ror_display__value__icontains=search_term,
+                                then=Value(50),
+                            ),
                             When(labels__value__icontains=search_term, then=Value(40)),
                             When(aliases__value__icontains=search_term, then=Value(40)),
-                            When(acronyms__value__icontains=search_term, then=Value(40)),
+                            When(
+                                acronyms__value__icontains=search_term, then=Value(40)
+                            ),
                             When(website__icontains=search_term, then=Value(20)),
                             default=Value(0),
                             output_field=IntegerField(),
