@@ -41,8 +41,8 @@
                             <td>{{ version.preprint.title|safe }} {% if version.preprint in duplicates %}<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" tabindex="1" title="This {{ request.repository.object_name }} has multiple requests in queue."><i class="fa fa-info-circle"></i></span>{% endif %}</td>
                             <td>{{ version.preprint.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
-                            <td>{{ version.get_update_type_display }}</td>
-                            <td><a href="#" data-open="detail-{{ version.pk }}">View Detail</a></td>
+                            <td>{{ version.get_update_type_display }}{% if version.authors_changed %}<br><small>{% trans "Changes authors" %}</small>{% endif %}{% if version.field_answers_changed %}<br><small>{% trans "Changes additional information" %}</small>{% endif %}</td>
+                            <td><button type="button" class="button clear no-bottom-margin" hx-get="{% url 'repository_version_detail' version.pk %}" hx-target="#version-details" hx-swap="innerHTML">View Detail</button></td>
                             <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
                             <td><a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> </a></td>
                         </tr>
@@ -54,10 +54,57 @@
     </div>
     {% for version in version_queue %}
         {% include "admin/elements/repository/decline_update.html" %}
-        {% include "admin/elements/repository/version_detail.html" %}
     {% endfor %}
+    <div id="version-details"></div>
 {% endblock %}
 
 {% block js %}
     {% include "admin/elements/datatables.html" with target="#versions" page_length=25 sort=3 order="asc" %}
+    {% include "admin/core/partials/htmx.html" %}
+    <script>
+        // HTMX loads each update's details when the moderator opens them;
+        // open the returned popup and drop any previously loaded one.
+        // HTMX 1.9 does not say which element made a request when the
+        // response is swapped, so remember it here.
+        var opener = null;
+        document.body.addEventListener("htmx:beforeRequest", function (event) {
+            if (event.detail.target.id === "version-details") {
+                opener = event.detail.elt;
+            }
+        });
+        // The update may have been decided in another tab.
+        document.body.addEventListener("htmx:responseError", function (event) {
+            if (event.detail.target.id === "version-details") {
+                window.location.reload();
+            }
+        });
+        document.body.addEventListener("htmx:afterSwap", function (event) {
+            if (event.detail.target.id !== "version-details") {
+                return;
+            }
+            var detail = $(event.detail.target).children(".reveal");
+            var returnTo = opener;
+            $("[data-version-detail]").not(detail).each(function () {
+                var old = $(this);
+                if (old.data("zfPlugin")) {
+                    old.foundation("destroy");
+                }
+                old.closest(".reveal-overlay").remove();
+                old.remove();
+            });
+            detail.foundation();
+            // Return focus to the button that opened the popup.
+            detail.on("closed.zf.reveal", function () {
+                if (returnTo) {
+                    returnTo.focus();
+                }
+            });
+            detail.foundation("open");
+        });
+        // DataTables adds rows from later pages after HTMX has set up the
+        // page, so set up each newly drawn page too.
+        $("#versions").on("draw.dt", function () {
+            htmx.process(this);
+        });
+    </script>
 {% endblock %}
