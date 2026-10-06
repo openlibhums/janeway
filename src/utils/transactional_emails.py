@@ -1829,7 +1829,7 @@ def preprint_comment(**kwargs):
         "target": preprint,
     }
 
-    for manager in request.repository.managers.all():
+    for manager in request.repository.moderating_accounts():
         context = {
             "preprint": preprint,
             "manager": manager,

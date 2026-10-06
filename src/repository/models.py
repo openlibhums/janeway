@@ -133,7 +133,18 @@ class Repository(model_utils.AbstractSiteModel):
         max_length=255,
         help_text="eg. preprints or articles",
     )
-    managers = models.ManyToManyField("core.Account", blank=True)
+    managers = models.ManyToManyField(
+        "core.Account",
+        blank=True,
+        help_text="Managers configure the repository and moderate it.",
+    )
+    moderators = models.ManyToManyField(
+        "core.Account",
+        blank=True,
+        related_name="moderated_repositories",
+        help_text="Moderators handle submissions, updates, comments and "
+        "reviews, but cannot configure the repository.",
+    )
     submission_notification_recipients = models.ManyToManyField(
         "core.Account",
         blank=True,
@@ -382,6 +393,12 @@ class Repository(model_utils.AbstractSiteModel):
 
     class Meta:
         verbose_name_plural = "repositories"
+
+    def moderating_accounts(self):
+        """The accounts that moderate this repository: managers and moderators."""
+        return core_models.Account.objects.filter(
+            Q(pk__in=self.managers.all()) | Q(pk__in=self.moderators.all())
+        )
 
     @classmethod
     def get_by_request(cls, request):

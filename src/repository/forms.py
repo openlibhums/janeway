@@ -677,6 +677,7 @@ class RepositorySubmission(RepositoryBase):
             "require_pdf_help",
             "additional_version_help",
             "managers",
+            "moderators",
         )
 
         widgets = {
@@ -685,6 +686,24 @@ class RepositorySubmission(RepositoryBase):
             "file_upload_help": TinyMCE,
             "additional_version_help": TinyMCE,
             "managers": FilteredSelectMultiple(
+                "Accounts",
+                False,
+                attrs={"rows": "2"},
+            ),
+            "moderators": FilteredSelectMultiple(
+                "Accounts",
+                False,
+                attrs={"rows": "2"},
+            ),
+        }
+
+
+class RepositoryModeratorsForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = ("moderators",)
+        widgets = {
+            "moderators": FilteredSelectMultiple(
                 "Accounts",
                 False,
                 attrs={"rows": "2"},
@@ -729,7 +748,7 @@ class RepositoryEmails(RepositoryBase):
 
     def __init__(self, *args, **kwargs):
         super(RepositoryEmails, self).__init__(*args, **kwargs)
-        repo_managers = kwargs["instance"].managers.all()
+        repo_managers = kwargs["instance"].moderating_accounts()
         self.fields["submission_notification_recipients"].queryset = repo_managers
         self.fields["submission_notification_recipients"].choices = [
             (m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers

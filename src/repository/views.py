@@ -47,6 +47,7 @@ from security.decorators import (
     preprint_editor_or_author_required,
     is_article_preprint_editor,
     is_repository_manager,
+    is_repository_moderator,
     submission_authorised,
     repository_setting_enabled,
 )
@@ -801,7 +802,7 @@ def repository_review(request, preprint_id):
     return render(request, template, context)
 
 
-@is_repository_manager
+@is_repository_moderator
 def preprints_manager(request):
     """
     Displays preprint information and management interfaces for them.
@@ -1177,7 +1178,7 @@ def repository_preprint_log(request, preprint_id):
     attr_name="enable_comments",
     error_message="The comment feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def repository_manager_comment_list(request, preprint_id=None, show_reviewed=False):
     """
     Displays comments for the repository manager. Shows pending comments by
@@ -1415,7 +1416,7 @@ def repository_delete_organisation_unit(request):
     return redirect(reverse("repository_organisation_units"))
 
 
-@is_repository_manager
+@is_repository_moderator
 def repository_rejected_submissions(request):
     """
     A staff only view that displays a list of preprints that have been
@@ -1437,7 +1438,7 @@ def repository_rejected_submissions(request):
     return render(request, template, context)
 
 
-@is_repository_manager
+@is_repository_moderator
 def orphaned_preprints(request):
     """
     Displays a list of preprints that have bee orphaned from subjects.
@@ -1456,7 +1457,7 @@ def orphaned_preprints(request):
     return render(request, template, context)
 
 
-@is_repository_manager
+@is_repository_moderator
 def version_detail(request, update_id):
     """
     The detail popup for one pending update, loaded when a moderator opens
@@ -1489,7 +1490,7 @@ def version_detail(request, update_id):
     )
 
 
-@is_repository_manager
+@is_repository_moderator
 def version_queue(request):
     """
     Displays a list of version update requests.
@@ -1698,9 +1699,8 @@ def manage_supplementary_files(request, preprint_id):
         preprint=preprint,
     )
     template = "admin/repository/manage_supp_files.html"
-    if (
-        preprint.owner == request.user
-        and not request.user in request.repository.managers.all()
+    if preprint.owner == request.user and not request.user.is_repository_moderator(
+        request.repository
     ):
         template = "admin/repository/author_supp_files.html"
     context = {
@@ -1805,7 +1805,7 @@ def delete_supplementary_file(request, preprint_id):
     )
 
 
-@is_repository_manager
+@is_repository_moderator
 def send_preprint_to_journal(request, preprint_id, journal_id=None):
     preprint = get_object_or_404(
         models.Preprint,
@@ -1879,7 +1879,7 @@ def send_preprint_to_journal(request, preprint_id, journal_id=None):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def list_reviews(request, preprint_id):
     """
     For a given preprint list active reviews.
@@ -1912,7 +1912,7 @@ def list_reviews(request, preprint_id):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def review_detail(request, preprint_id, review_id):
     """
     Displays detailed information about a review.
@@ -1992,7 +1992,7 @@ def review_detail(request, preprint_id, review_id):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def manage_review(request, preprint_id):
     """
     Allows an editor to create and edit a review.
@@ -2046,7 +2046,7 @@ def manage_review(request, preprint_id):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def notify_reviewer(request, preprint_id, review_id):
     preprint = get_object_or_404(
         models.Preprint,
@@ -2191,7 +2191,7 @@ def download_review_file(request, review_id, access_code):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def edit_review_comment(request, preprint_id, review_id):
     preprint = get_object_or_404(
         models.Preprint,
@@ -2244,7 +2244,7 @@ def edit_review_comment(request, preprint_id, review_id):
     attr_name="enable_invited_comments",
     error_message="The invited comments feature is disabled.",
 )
-@is_repository_manager
+@is_repository_moderator
 def manage_reviewers(request):
     role = core_models.Role.objects.get(slug="reviewer")
     user_search = []
@@ -2331,6 +2331,28 @@ def manage_reviewers(request):
 
 
 @is_repository_manager
+def repository_moderators(request):
+    """
+    Allows repository managers to choose the repository's moderators.
+    """
+    form = forms.RepositoryModeratorsForm(instance=request.repository)
+    if request.POST:
+        form = forms.RepositoryModeratorsForm(
+            request.POST,
+            instance=request.repository,
+        )
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, "Moderators saved.")
+            return redirect(reverse("repository_moderators"))
+    template = "admin/repository/moderators.html"
+    context = {
+        "form": form,
+    }
+    return render(request, template, context)
+
+
+@is_repository_manager
 def repository_licenses(request):
     """
     Allows a repository manage to select the active licenses from the Press set.
@@ -2362,7 +2384,7 @@ def repository_licenses(request):
     )
 
 
-@is_repository_manager
+@is_repository_moderator
 def send_user_email(request, user_id, preprint_id):
     user = get_object_or_404(core_models.Account, pk=user_id)
     form = core_forms.EmailForm(

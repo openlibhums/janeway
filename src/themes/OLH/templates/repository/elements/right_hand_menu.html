@@ -3,7 +3,7 @@
 
 <ul class="menu">
     <li><a href="{% url 'repository_dashboard' %}">{% trans 'Dashboard' %}</a></li>
-    {% if request.user in request.repository.managers.all %}
+    {% if request.user in request.repository.moderating_accounts %}
     <li><a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a></li>
     {% endif %}
     {% if request.user.is_admin %}<li><a href="/admin/">{% trans 'Admin' %}</a></li>{% endif %}

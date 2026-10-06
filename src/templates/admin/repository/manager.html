@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% load cache %}
+{% load securitytags %}
 
 {% block body %}
     <div class="row expanded" data-equalizer data-equalize-on="medium">
@@ -82,11 +83,18 @@
                         <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
                     </div>
                     {% endif %}
+                    {% is_repository_manager as repository_manager %}
+                    {% if request.user.is_staff or repository_manager %}
                     {% url 'report_preprints_metrics' as reporting_url %}
                     {% if reporting_url %}
                     <div class="summary">
                         <span class="title">Reports</span>
                         <a href="{{ reporting_url }}" class="box-link"></a>
+                    </div>
+                    {% endif %}
+                    <div class="summary">
+                        <span class="title">{{ request.repository.moderators.count }} Moderators</span>
+                        <a href="{% url 'repository_moderators' %}" class="box-link"></a>
                     </div>
                     {% endif %}
                     <div class="summary">

@@ -47,7 +47,9 @@ class IsRepositoryManager(permissions.BasePermission):
         if request.user.is_staff:
             return True
 
-        if request.repository and request.user in request.repository.managers.all():
+        if request.repository and request.user.is_repository_moderator(
+            request.repository
+        ):
             return True
 
 

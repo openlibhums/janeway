@@ -181,7 +181,7 @@ class PreprintFileCreateSerializer(serializers.ModelSerializer):
         if not user or not (
             preprint.owner == user
             or user.is_staff
-            or user.is_repository_manager(preprint.repository)
+            or user.is_repository_moderator(preprint.repository)
         ):
             raise serializers.ValidationError(
                 "You can only add files to your own preprints."
@@ -544,7 +544,7 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             and preprint.date_submitted
             and request
             and not request.user.is_staff
-            and not request.user.is_repository_manager(preprint.repository)
+            and not request.user.is_repository_moderator(preprint.repository)
         )
         if moderated:
             # Once submitted, owners change authors and custom fields through

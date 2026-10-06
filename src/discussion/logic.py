@@ -15,15 +15,15 @@ def user_can_manage_discussions(user, journal=None, repository=None):
     Canonical check for who can manage discussion threads.
 
     Journal editors, journal managers and staff manage a journal's threads;
-    repository managers and staff manage a repository's threads. Outside any
-    tenant only staff qualify.
+    repository moderators, managers and staff manage a repository's threads.
+    Outside any tenant only staff qualify.
     """
     if not user or not user.is_authenticated:
         return False
     if journal:
         return user.check_role(journal, "editor")
     if repository:
-        return user.is_staff or repository.managers.filter(pk=user.pk).exists()
+        return user.is_staff or user.is_repository_moderator(repository)
     return user.is_staff
 
 

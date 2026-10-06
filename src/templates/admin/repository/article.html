@@ -241,7 +241,7 @@
         <div class="box">
             <div class="title-area">
                 <h2>Authors</h2>
-                {% if request.user.is_staff or request.user in request.repository.managers.all %}
+                {% if request.user.is_staff or request.user in request.repository.moderating_accounts %}
                     <a class="button" href="{% url 'repository_manager_authors' preprint.pk %}"><i class="fa fa-edit"></i> {% trans "Edit authors" %}</a>
                 {% endif %}
             </div>

@@ -1442,7 +1442,7 @@ def preprint_editor_or_author_required(func):
         if request.user in preprint.subject_editors():
             return func(request, *args, **kwargs)
 
-        if request.user in request.repository.managers.all():
+        if request.user.is_repository_moderator(request.repository):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1473,7 +1473,7 @@ def is_article_preprint_editor(func):
         if (
             request.user in preprint.subject_editors()
             or request.user.is_staff
-            or request.user.is_repository_manager(request.repository)
+            or request.user.is_repository_moderator(request.repository)
         ):
             return func(request, *args, **kwargs)
 
@@ -1501,6 +1501,25 @@ def is_repository_manager(func):
         deny_access(request)
 
     return preprint_manager_wrapper
+
+
+def is_repository_moderator(func):
+    """
+    Checks that the current user moderates the current repository, as a
+    moderator or a manager.
+    """
+
+    @base_check_required
+    def preprint_moderator_wrapper(request, *args, **kwargs):
+        if request.repository and request.user:
+            if request.user.is_staff or request.user.is_repository_moderator(
+                request.repository
+            ):
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return preprint_moderator_wrapper
 
 
 def deny_access(request, *args, required_roles=None, **kwargs):
@@ -1595,7 +1614,8 @@ def submission_authorised(func):
             request.user.is_staff
             or (request.journal and request.user in request.journal.editors())
             or (
-                request.repository and request.user in request.repository.managers.all()
+                request.repository
+                and request.user.is_repository_moderator(request.repository)
             )
         ):
             return func(request, *args, **kwargs)
@@ -1696,7 +1716,7 @@ def identifier_access_required(func):
         if content_type == "preprint":
             if not request.repository or not request.repository.identifier_management:
                 raise Http404("Identifier management is not enabled.")
-            if request.user.is_staff or request.user.is_repository_manager(
+            if request.user.is_staff or request.user.is_repository_moderator(
                 request.repository
             ):
                 return func(request, *args, **kwargs)

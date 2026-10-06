@@ -360,7 +360,9 @@ def get_unpublished_preprints(request, user_subject_pks):
         repository=request.repository,
     ).annotate(author_full_name=Subquery(author_name_subq[:1]))
 
-    if request.user.is_staff or request.user.is_repository_manager(request.repository):
+    if request.user.is_staff or request.user.is_repository_moderator(
+        request.repository
+    ):
         return unpublished_preprints
     else:
         return unpublished_preprints.filter(pk__in=user_subject_pks)
@@ -387,7 +389,9 @@ def get_published_preprints(request, user_subject_pks):
         repository=request.repository,
     ).annotate(author_full_name=Subquery(author_name_subq[:1]))
 
-    if request.user.is_staff or request.user.is_repository_manager(request.repository):
+    if request.user.is_staff or request.user.is_repository_moderator(
+        request.repository
+    ):
         return published_preprints
     else:
         return published_preprints.filter(pk__in=user_subject_pks)
