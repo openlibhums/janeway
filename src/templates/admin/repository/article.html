@@ -147,7 +147,7 @@
                             {% include "elements/icons/link_new_tab.html" %}
                         </a>
                     </li>
-                    {% if not preprint.date_declined and preprint.has_version %}
+                    {% if not preprint.date_declined and preprint.has_version or not preprint.date_declined and preprint.submission_file %}
                         <li><a href="#" data-open="accept_preprint">
                             {% if preprint.date_accepted %}
                                 <i class="fa fa-edit action-icon">&nbsp;</i>Edit Published Date
@@ -212,10 +212,16 @@
                         <small>This {{ request.repository.object_name }} is currently awaiting review.</small>
                     {% endif %}
                     {% if not preprint.has_version and not preprint.date_declined %}
-                        <small> This {{ request.repository.object_name }} requires at least one version. You can either
-                            turn an existing file
-                            into a version in the table below, or upload a new file to be a version.
-                        </small>
+                        {% if preprint.submission_file %}
+                            <small> When accepted, the submitted file becomes version 1. To use a different
+                                file, turn it into a version in the table below first.
+                            </small>
+                        {% else %}
+                            <small> This {{ request.repository.object_name }} requires at least one version. You can either
+                                turn an existing file
+                                into a version in the table below, or upload a new file to be a version.
+                            </small>
+                        {% endif %}
                     {% endif %}
                     {% if preprint.date_published %}
                         <br/>
