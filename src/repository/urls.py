@@ -38,6 +38,11 @@ urlpatterns = [
         name="repository_preprint",
     ),
     re_path(
+        r"^view/(?P<preprint_id>\d+)/version/(?P<version>\d+)/$",
+        views.repository_preprint,
+        name="repository_preprint_version",
+    ),
+    re_path(
         r"^view/(?P<preprint_id>\d+)/pdf/$", views.repository_pdf, name="repository_pdf"
     ),
     re_path(

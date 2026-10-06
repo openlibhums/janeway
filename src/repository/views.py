@@ -401,11 +401,13 @@ def repository_search(request, search_term=None):
 
 
 @decorators.headless_mode_check
-def repository_preprint(request, preprint_id):
+def repository_preprint(request, preprint_id, version=None):
     """
-    Fetches a single article and displays its metadata
+    Displays a published preprint: its current version, or an earlier
+    version with the metadata and file it was published with.
     :param request: HttpRequest
-    :param preprint_id: integer, PK of an Article object
+    :param preprint_id: integer, PK of a Preprint object
+    :param version: an earlier version number, or None for the current one
     :return: HttpResponse or Http404 if object not found
     """
     preprint = get_object_or_404(
@@ -414,6 +416,19 @@ def repository_preprint(request, preprint_id):
         repository=request.repository,
         date_published__lte=timezone.now(),
     )
+    if version is None:
+        # Unsaved when there are no versions yet, so the page shows the
+        # preprint's own metadata.
+        shown_version = preprint.current_version or models.PreprintVersion(
+            preprint=preprint,
+        )
+    else:
+        shown_version = get_object_or_404(
+            preprint.public_versions(),
+            version=version,
+        )
+        if shown_version.is_current:
+            return redirect(preprint.local_url)
     comments = models.Comment.objects.filter(preprint=preprint, is_public=True)
 
     if not preprint.repository.enable_invited_comments:
@@ -475,6 +490,7 @@ def repository_preprint(request, preprint_id):
     template = "repository/preprint.html"
     context = {
         "preprint": preprint,
+        "version": shown_version,
         "comments": comments,
         "form": form,
     }

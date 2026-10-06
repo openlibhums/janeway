@@ -9,7 +9,7 @@
 {% load settings %}
 {% load page_title %}
 
-{% block title %}{% page_title preprint.title|striptags %}{% endblock %}
+{% block title %}{% page_title version.display_title|striptags %}{% endblock %}
 
 {% block head %}
     {% include "common/metadata/preprint_dc.html" %}
@@ -26,10 +26,10 @@
         <div class="card">
           <div class="material-banner">
             <img class="material-banner-image"
-               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=preprint.title|banner_alt %}"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=version.display_title|banner_alt %}"
                src="{{ request.repository.best_large_image_url }}">
             <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="preprint-banner-title">
-              <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
+              <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ version.display_title|safe }}</h1>
             </div>
           </div>
         </div>
@@ -40,32 +40,35 @@
                 {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
                 <p class="preprint-text">
                     This {{ type_name }} may not have been peer reviewed.
-                    {% if preprint.doi %}
+                    {% if version.display_doi %}
                         The published version of this {{ type_name }} is available:
-                        {% include "elements/doi_display.html" with doi=preprint.doi title=preprint.title %}
+                        {% include "elements/doi_display.html" with doi=version.display_doi title=version.display_title %}
                     {% elif preprint.article %}
                         A published version of this {{ type_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
-                    This is version {{ preprint.current_version.version }}.
+                    This is version {{ version.version }}.
                 </p>
-                {% if preprint.current_version_file_type == 'html' %}
+                {% if not version.is_current %}
+                    {% include "common/repository/older_version_notice.html" %}
+                {% endif %}
+                {% if version.file_type == 'html' %}
                     <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
-                            {{ preprint.current_version.html|safe }}
+                            {{ version.html|safe }}
                         </div>
                     </div>
-                {% elif preprint.current_version_file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                {% elif version.file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen
-                            title="{{ preprint.title|striptags }} PDF"></iframe>
+                            title="{{ version.display_title|striptags }} PDF"></iframe>
                 {% else %}
                     <div class="preprint-content">
-                        {% if preprint.current_version.file %}
+                        {% if version.file %}
                             <p>This {{ request.repository.object_name }} has no
                                 visible version.</p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
                                class="waves-effect waves-light btn">
                                 {{ request.repository.object_name }}
                                 {% include "elements/icons/link_download.html" %} 
@@ -143,10 +146,10 @@
         <div class="col m5">
             <div class="card">
                 <div class="card-content preprint-content">
-                    {% if preprint.current_version.file %}
+                    {% if version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
                                 {{ request.repository.object_name }}
                                 {% include "elements/icons/link_download.html" %} 
                             </a></p>
@@ -164,22 +167,22 @@
                     <h2>{% trans "Authors" %}</h2>
                     <div class="truncatejs">
                       <p class="authors">
-                        {% for author in preprint.authors %}
+                        {% for author in version.authors %}
                             {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>
                     <h2>{% trans "Abstract" %}</h2>
                     <div class="truncatejs">
-                        <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                        <p class="preprint-text">{{ version.display_abstract|safe|linebreaksbr }}</p>
                     </div>
 
                     {% if preprint.preprint_doi %}
                     <h2>DOI</h2>
                     <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
-                    {% elif preprint.current_version.get_doi %}
+                    {% elif version.get_doi %}
                     <h5>DOI</h5>
-                    <p><a href="https://doi.org/{{ preprint.current_version.get_doi }}">https://doi.org/{{ preprint.current_version.get_doi }}</a></p>
+                    <p><a href="https://doi.org/{{ version.get_doi }}">https://doi.org/{{ version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}
@@ -203,21 +206,20 @@
 
                     <h2>Dates</h2>
                     <p><strong>Published: </strong>{{ preprint.date_published }}</p>
-                    {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
+                    {% if preprint.preprintversion_set.count > 0 and preprint.current_version and version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ version.date_time }}</p>{% endif %}
 
-                    {% if preprint.preprintversion_set.count > 1 %}
-                        <h2>Older Versions</h2>
+                    {% if preprint.public_versions.count > 1 %}
+                        <h2>{% trans "Versions" %}</h2>
                         <ul>
-                        {% for version in preprint.preprintversion_set.all %}
-                            {% if not version == preprint.current_version %}
-                                <li>
-                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
-                                        <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
-                                        <span class="sr-only">{% trans 'Download' %}</span>
-                                        Version {{ version.version }} - {{ version.date_time|date_human}}
-                                    </a>
-                                </li>
-                            {% endif %}
+                        {% for each in preprint.public_versions %}
+                            <li>
+                                {% if each == version %}
+                                    <span aria-current="page">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</span>
+                                {% else %}
+                                    <a href="{{ each.local_url }}">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</a>
+                                {% endif %}
+                                {% if forloop.first %}({% trans "latest" %}){% endif %}
+                            </li>
                         {% endfor %}
                         </ul>
                     {% endif %}
@@ -227,9 +229,9 @@
                     <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
                 {% endif %}
 
-                    {% if preprint.display_additional_fields %}
+                    {% if version.display_field_answers %}
                     <h2>Additional Metadata</h2>
-                    {% for answer in preprint.display_additional_fields %}
+                    {% for answer in version.display_field_answers %}
                     <p><strong>{{ answer.field.name }}: </strong><br/> {{ answer.answer|safe }}</p>
                     {% endfor %}
                     {% endif %}

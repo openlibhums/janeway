@@ -1,0 +1,5 @@
+{% load i18n %}
+<p class="older-version-notice">
+  <strong>{% blocktrans with number=version.version %}You are reading version {{ number }}, which is not the latest version.{% endblocktrans %}</strong>
+  <a href="{{ preprint.local_url }}">{% trans "Read the latest version" %}</a>
+</p>

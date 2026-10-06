@@ -995,12 +995,7 @@ class Preprint(models.Model):
             return None
 
     def version_files(self):
-        return [
-            version.file
-            for version in self.preprintversion_set.filter(
-                Q(moderated_version__approved=True) | Q(moderated_version__isnull=True)
-            )
-        ]
+        return [version.file for version in self.public_versions()]
 
     @property
     @cache(300)
@@ -1206,11 +1201,18 @@ class Preprint(models.Model):
         return False
 
     def current_version_file_type(self):
-        if self.current_version.file.mime_type in files.HTML_MIMETYPES:
-            return "html"
-        elif self.current_version.file.mime_type in files.PDF_MIMETYPES:
-            return "pdf"
-        return None
+        if self.current_version is None:
+            return None
+        return self.current_version.file_type
+
+    def public_versions(self):
+        """
+        The versions readers can see: those not created from an update,
+        and those from approved updates.
+        """
+        return self.preprintversion_set.filter(
+            Q(moderated_version__approved=True) | Q(moderated_version__isnull=True)
+        )
 
     def make_first_version(self):
         """
@@ -1575,6 +1577,51 @@ class PreprintVersion(models.Model):
         if self.metadata_frozen:
             return self.repositoryfieldanswer_set.all()
         return self.preprint.repositoryfieldanswer_set.all()
+
+    @property
+    def display_field_answers(self):
+        return self.field_answers.filter(field__display=True)
+
+    @property
+    def display_title(self):
+        if self.metadata_frozen and self.title:
+            return self.title
+        return self.preprint.title
+
+    @property
+    def display_abstract(self):
+        if self.metadata_frozen:
+            return self.abstract
+        return self.preprint.abstract
+
+    @property
+    def display_doi(self):
+        if self.metadata_frozen:
+            return self.published_doi
+        return self.preprint.doi
+
+    @property
+    def is_current(self):
+        return not self.pk or self == self.preprint.current_version
+
+    @property
+    def file_type(self):
+        if not self.file:
+            return None
+        if self.file.mime_type in files.HTML_MIMETYPES:
+            return "html"
+        elif self.file.mime_type in files.PDF_MIMETYPES:
+            return "pdf"
+        return None
+
+    @property
+    def local_url(self):
+        if self.is_current:
+            return self.preprint.local_url
+        return reverse(
+            "repository_preprint_version",
+            kwargs={"preprint_id": self.preprint_id, "version": self.version},
+        )
 
     def render(self):
         """
