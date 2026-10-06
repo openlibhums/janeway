@@ -1340,6 +1340,9 @@ class RankedOrganizationResults:
     Supports count() and slicing, so it can be handed to a Paginator.
     """
 
+    # Lets ListView name the results organization_list in the context
+    model = models.Organization
+
     def __init__(self, search_term, exclude_custom_labels=False):
         self.search_term = search_term
         self.exclude_custom_labels = exclude_custom_labels
