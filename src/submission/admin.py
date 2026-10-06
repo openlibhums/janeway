@@ -3,12 +3,12 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.template.defaultfilters import truncatewords_html
 
-from utils import admin_utils
 from submission import models
+from utils import admin_utils
 
 
 class LicenseChoiceField(forms.ModelChoiceField):
@@ -255,10 +255,24 @@ class SectionAdmin(admin.ModelAdmin):
         return qs.prefetch_related("journal")
 
 
+class FieldSectionInline(admin.TabularInline):
+    model = models.FieldSection
+    extra = 1
+    raw_id_fields = ("section",)  # Enables popup selector with filtering
+    ordering = ("order",)
+
+
+class FieldChoiceInline(admin.TabularInline):
+    model = models.FieldChoice
+    extra = 1
+    ordering = ("order",)
+
+
 class FieldAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "press", "kind", "width", "required", "display")
     list_filter = ("journal", "press", "kind", "width", "required", "display")
     search_fields = ("pk", "name", "help_text", "choices")
+    inlines = [FieldChoiceInline]
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
@@ -267,7 +281,7 @@ class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
     search_fields = ("pk", "field__name", "article__pk", "article__title", "answer")
 
     def _answer(self, obj):
-        return truncatewords_html(obj.answer, 10) if obj else ""
+        return truncatewords_html(obj.display_value, 10) if obj else ""
 
 
 class SubmissionConfigAdmin(admin.ModelAdmin):
