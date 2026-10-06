@@ -169,16 +169,14 @@ class RepositoryFixTests(SimpleTestCase):
         self.assertIn('class="responsive-img" alt="{{ logo_alt_text }}"', template)
 
     def test_preprint_pdf_frames_have_titles(self):
-        for theme, path, variable in [
-            ("OLH", "templates/repository/preprint.html", "preprint"),
-            ("material", "templates/repository/preprint.html", "preprint"),
-            ("material", "templates/preprints/article.html", "article"),
+        for theme, path, title in [
+            ("OLH", "templates/repository/preprint.html", "version.display_title"),
+            ("material", "templates/repository/preprint.html", "version.display_title"),
+            ("material", "templates/preprints/article.html", "article.title"),
         ]:
             template = helpers.read_theme_asset(theme, path)
             with self.subTest(theme=theme, path=path):
-                self.assertIn(
-                    f'title="{{{{ {variable}.title|striptags }}}} PDF"', template
-                )
+                self.assertIn(f'title="{{{{ {title}|striptags }}}} PDF"', template)
 
     def test_olh_subheader_meets_contrast(self):
         scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")

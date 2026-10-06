@@ -7,7 +7,7 @@
 {% load dates %}
 {% load page_title %}
 
-{% block title %}{% page_title preprint.title|striptags %}{% endblock %}
+{% block title %}{% page_title version.display_title|striptags %}{% endblock %}
 
 {% block css %}
   {% include "common/repository/style/submission_type_pills.html" with preprint=preprint %}
@@ -23,28 +23,31 @@
         <br/><br/>
         <div class="large-12 columns">
             {% include "repository/elements/submission_type_pill.html" %}
-            <h1>{{ preprint.title|safe }}</h1>
+            <h1>{{ version.display_title|safe }}</h1>
             {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
             <p>
                 This {{ type_name }} may not have been peer reviewed.
-                {% if preprint.doi %}
+                {% if version.display_doi %}
                     The published version of this
                     {{ type_name }} is available:
-                    <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    <a href="{{ version.display_doi }}">{{ version.display_doi }}</a>.
                 {% elif preprint.article %}
                     A published version of this
                     {{ type_name }} is available on
                     <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
                     .
                 {% endif %}
-                This is version {{ preprint.current_version.version }}.
+                This is version {{ version.version }}.
             </p>
+            {% if not version.is_current %}
+                {% include "common/repository/older_version_notice.html" %}
+            {% endif %}
         </div>
         <div class="large-8 columns">
             <h2>{% trans "Authors" %}</h2>
             <div class="truncatejs">
                 <p class="authors">
-                    {% for author in preprint.authors %}
+                    {% for author in version.authors %}
                         {{ author.full_name }}{% if author.orcid %}&nbsp;
                             <a href="https://orcid.org/{{ author.orcid }}"
                                target="_blank"><img
@@ -57,21 +60,21 @@
                 <h2>{% trans "Abstract" %}</h2>
                 <div class="truncatejs">
                     <p>
-                        {{ preprint.abstract|safe }}
+                        {{ version.display_abstract|safe }}
                     </p>
                 </div>
             </div>
             <div itemprop="articleBody" id="pdf">
-                {% if preprint.current_version_file_type == 'html' %}
+                {% if version.file_type == 'html' %}
                     <div class="text-format-region">
                         <h2>{% trans 'Preprint Body' %}</h2>
-                        {{ preprint.current_version.html|safe }}
+                        {{ version.html|safe }}
                     </div>
-                {% elif preprint.current_version_file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                {% elif version.file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen
-                            title="{{ preprint.title|striptags }} PDF"></iframe>
+                            title="{{ version.display_title|striptags }} PDF"></iframe>
                 {% endif %}
 
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
@@ -129,10 +132,10 @@
         <div class="large-3 columns">
             <div class="article-menu">
                 <small>
-                    {% if preprint.current_version.file %}
+                    {% if version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"><span
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"><span
                                     aria-hidden="true" class="fa fa-download"></span>
                                 Download {{ preprint.submission_type.name }}
                             </a>
@@ -157,7 +160,7 @@
                     <h2>{% trans "Metadata" %}</h2>
                     <ul>
                         <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
-                        <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date_human }}</li>
+                        <li>{% trans "Last Updated" %}: {{ version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
                           {% trans "License" %}: 
                           <a href="{{ preprint.license.url }}" data-toggle="tooltip"
@@ -183,19 +186,21 @@
                             </li>
                         {% endif %}
                         {% if preprint.preprint_doi %}
-                            <li>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=preprint.title %}</li>
+                            <li>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=version.display_title %}</li>
                         {% endif %}
                     </ul>
-                    {% if preprint.preprintversion_set.count > 1 %}
+                    {% if preprint.public_versions.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
                     <ul class="preprint-versions">
-                        {% for version in preprint.preprintversion_set.all %}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
-                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date_human }}
-                                {% include "elements/icons/link_download.html" %} 
-                            </a></li>
-                            {% empty %}
-                            <li>{% trans "This is the only version of the preprint." %}</li>
+                        {% for each in preprint.public_versions %}
+                            <li>
+                                {% if each == version %}
+                                    <span aria-current="page">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</span>
+                                {% else %}
+                                    <a href="{{ each.local_url }}">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</a>
+                                {% endif %}
+                                {% if forloop.first %}({% trans "latest" %}){% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                     {% endif %}
