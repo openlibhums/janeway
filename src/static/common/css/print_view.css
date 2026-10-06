@@ -1,0 +1,17 @@
+@media screen {
+    table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    img,
+    video {
+        max-width: 100%;
+        height: auto;
+    }
+
+    iframe {
+        max-width: 100%;
+    }
+}
