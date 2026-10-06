@@ -3152,26 +3152,27 @@ class BaseUserList(GenericFacetedListView):
         return super().post(request, *args, **kwargs)
 
 
-@method_decorator(login_required, name="dispatch")
-class OrganizationListView(GenericFacetedListView):
+class OrganizationSearchMixin:
     """
-    Allows a user to search for an organization to add
-    as one of their own affiliations.
+    Ranks organizations by relevance to the search term
+    instead of using the generic admin search.
     """
 
     model = core_models.Organization
     template_name = "admin/core/organization_search.html"
 
+    def get_queryset(self, *args, **kwargs):
+        self.facets = self.get_facets()
+        search_term = self.request.GET.get("q", "").strip()
+        if not search_term:
+            return core_models.Organization.objects.none()
+        # Exclude user-created organizations from search results
+        return logic.search_organizations(search_term, exclude_custom_labels=True)
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["account"] = self.request.user
         context["search_term"] = self.request.GET.get("q", None)
         return context
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        # Exclude user-created organizations from search results
-        return queryset.exclude(custom_label__isnull=False)
 
     def get_facets(self):
         return {
@@ -3180,6 +3181,19 @@ class OrganizationListView(GenericFacetedListView):
                 "field_label": "Search",
             },
         }
+
+
+@method_decorator(login_required, name="dispatch")
+class OrganizationListView(OrganizationSearchMixin, GenericFacetedListView):
+    """
+    Allows a user to search for an organization to add
+    as one of their own affiliations.
+    """
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["account"] = self.request.user
+        return context
 
 
 @login_required

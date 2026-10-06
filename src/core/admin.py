@@ -8,7 +8,6 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
-from django.db.models import Case, When, Value, IntegerField, Max, Q
 
 from utils import admin_utils
 from core import models, forms
@@ -695,95 +694,6 @@ class OrganizationAdmin(admin.ModelAdmin):
 
     def _custom_label(self, obj):
         return obj.custom_label if obj and obj.custom_label else ""
-
-    def get_search_results(self, request, queryset, search_term):
-        queryset, may_have_duplicates = super().get_search_results(
-            request, queryset, search_term
-        )
-
-        if search_term:
-            # Find a set of candidates for before calculating relevance for speed
-            matching_names = models.OrganizationName.objects.filter(
-                value__icontains=search_term
-            )
-
-            candidate_filter = (
-                Q(ror_id__icontains=search_term)
-                | Q(website__icontains=search_term)
-                | Q(
-                    pk__in=matching_names.filter(label_for__isnull=False).values(
-                        "label_for"
-                    )
-                )
-                | Q(
-                    pk__in=matching_names.filter(alias_for__isnull=False).values(
-                        "alias_for"
-                    )
-                )
-                | Q(
-                    pk__in=matching_names.filter(acronym_for__isnull=False).values(
-                        "acronym_for"
-                    )
-                )
-                | Q(
-                    pk__in=matching_names.filter(ror_display_for__isnull=False).values(
-                        "ror_display_for"
-                    )
-                )
-                | Q(
-                    pk__in=matching_names.filter(custom_label_for__isnull=False).values(
-                        "custom_label_for"
-                    )
-                )
-            )
-
-            queryset = (
-                queryset.filter(candidate_filter)
-                .annotate(
-                    relevance=Max(
-                        Case(
-                            When(ror_id__iexact=search_term, then=Value(100)),
-                            When(acronyms__value__iexact=search_term, then=Value(100)),
-                            When(aliases__value__iexact=search_term, then=Value(90)),
-                            When(
-                                custom_label__value__iexact=search_term, then=Value(90)
-                            ),
-                            When(
-                                ror_display__value__iexact=search_term, then=Value(90)
-                            ),
-                            When(ror_id__istartswith=search_term, then=Value(80)),
-                            When(
-                                custom_label__value__istartswith=search_term,
-                                then=Value(70),
-                            ),
-                            When(
-                                ror_display__value__istartswith=search_term,
-                                then=Value(70),
-                            ),
-                            When(ror_id__icontains=search_term, then=Value(60)),
-                            When(
-                                custom_label__value__icontains=search_term,
-                                then=Value(50),
-                            ),
-                            When(
-                                ror_display__value__icontains=search_term,
-                                then=Value(50),
-                            ),
-                            When(labels__value__icontains=search_term, then=Value(40)),
-                            When(aliases__value__icontains=search_term, then=Value(40)),
-                            When(
-                                acronyms__value__icontains=search_term, then=Value(40)
-                            ),
-                            When(website__icontains=search_term, then=Value(20)),
-                            default=Value(0),
-                            output_field=IntegerField(),
-                        )
-                    )
-                )
-                .order_by("-relevance", "ror_display__value", "pk")
-            )
-
-        return queryset, may_have_duplicates
 
 
 class OrganizationNameAdmin(admin.ModelAdmin):
