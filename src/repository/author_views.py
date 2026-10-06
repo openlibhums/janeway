@@ -129,6 +129,7 @@ def author_list_context(request, author_list, new_author_form, back_url):
 
 
 @submission_authorised
+@transaction.atomic
 def repository_authors(request, preprint_id):
     """
     The author step of a new submission.
@@ -145,6 +146,7 @@ def repository_authors(request, preprint_id):
     this_url = reverse("repository_authors", kwargs={"preprint_id": preprint.pk})
 
     if request.method == "POST":
+        author_list.lock()
         if "complete" in request.POST:
             if author_list.authors().exists():
                 return redirect(
@@ -165,6 +167,7 @@ def repository_authors(request, preprint_id):
 
 
 @is_repository_manager
+@transaction.atomic
 def repository_manager_authors(request, preprint_id):
     """
     Moderators edit a preprint's live author list.
@@ -181,6 +184,7 @@ def repository_manager_authors(request, preprint_id):
         kwargs={"preprint_id": preprint.pk},
     )
     if request.method == "POST":
+        author_list.lock()
         handled, new_author_form = handle_author_list_post(request, author_list)
         if handled:
             return redirect(this_url)
@@ -196,12 +200,11 @@ def get_draft_update(request, preprint_id, update_id):
         stage__in=models.SUBMITTED_STAGES,
         repository=request.repository,
     )
-    draft = get_object_or_404(
-        models.VersionQueue,
-        pk=update_id,
-        preprint=preprint,
-        is_draft=True,
-    )
+    drafts = models.VersionQueue.objects.filter(preprint=preprint, is_draft=True)
+    if request.method == "POST":
+        # Locked, so a change cannot reopen or alter a submitted update.
+        drafts = drafts.select_for_update()
+    draft = get_object_or_404(drafts, pk=update_id)
     if not (
         preprint.owner == request.user
         or request.user.is_staff
@@ -239,6 +242,7 @@ def repository_submit_update(request, preprint_id, action):
 
 
 @preprint_editor_or_author_required
+@transaction.atomic
 def repository_update_draft(request, preprint_id, update_id):
     """
     A draft update: the author prepares the new metadata, file, custom
@@ -287,11 +291,10 @@ def repository_update_draft(request, preprint_id, update_id):
                 )
             if file_form.is_valid():
                 replaced = draft.file
-                with transaction.atomic():
-                    draft.file = file_form.save()
-                    draft.save()
-                    if replaced:
-                        repository_logic.delete_unused_draft_file(replaced)
+                draft.file = file_form.save()
+                draft.save()
+                if replaced:
+                    repository_logic.delete_unused_draft_file(replaced)
                 messages.add_message(request, messages.SUCCESS, _("File uploaded."))
                 return redirect(this_url)
         elif "save_draft" in request.POST or "submit_update" in request.POST:
@@ -307,9 +310,8 @@ def repository_update_draft(request, preprint_id, update_id):
                 prefix="fields",
             )
             if version_form.is_valid() and field_form.is_valid():
-                with transaction.atomic():
-                    draft = version_form.save()
-                    field_form.save()
+                draft = version_form.save()
+                field_form.save()
                 if "save_draft" in request.POST:
                     messages.add_message(request, messages.SUCCESS, _("Draft saved."))
                     return redirect(this_url)
@@ -317,11 +319,13 @@ def repository_update_draft(request, preprint_id, update_id):
                 if error:
                     messages.add_message(request, messages.WARNING, error)
                     return redirect(this_url)
-                event_logic.Events.raise_event(
-                    event_logic.Events.ON_PREPRINT_NEW_VERSION,
-                    request=request,
-                    new_version=draft,
-                    preprint=preprint,
+                transaction.on_commit(
+                    lambda: event_logic.Events.raise_event(
+                        event_logic.Events.ON_PREPRINT_NEW_VERSION,
+                        request=request,
+                        new_version=draft,
+                        preprint=preprint,
+                    )
                 )
                 messages.add_message(
                     request,
@@ -360,13 +364,14 @@ def get_preprint_author(request, preprint_id, author_id):
         pk=preprint_id,
         repository=request.repository,
     )
-    author = get_object_or_404(
-        submission_models.FrozenAuthor.objects.filter(
-            Q(preprint=preprint)
-            | Q(version_queue__preprint=preprint, version_queue__is_draft=True)
-        ),
-        pk=author_id,
+    authors = submission_models.FrozenAuthor.objects.filter(
+        Q(preprint=preprint)
+        | Q(version_queue__preprint=preprint, version_queue__is_draft=True)
     )
+    if request.method == "POST":
+        author = repository_logic.lock_author(authors, author_id)
+    else:
+        author = get_object_or_404(authors, pk=author_id)
     if not author.can_edit(request.user):
         raise Http404
     return preprint, author
@@ -415,6 +420,7 @@ def author_page_context(request, preprint, author, **extra):
 
 
 @login_required
+@transaction.atomic
 def repository_edit_author(request, preprint_id, author_id):
     """
     Edit an author's name, biography and identifiers, and their
@@ -477,6 +483,7 @@ class RepositoryOrganizationListView(GenericFacetedListView):
 
 
 @login_required
+@transaction.atomic
 def repository_organization_name_create(request, preprint_id, author_id):
     preprint, author = get_preprint_author(request, preprint_id, author_id)
     next_url = safe_next_url(request)
@@ -500,6 +507,7 @@ def repository_organization_name_create(request, preprint_id, author_id):
 
 
 @login_required
+@transaction.atomic
 def repository_organization_name_update(
     request, preprint_id, author_id, organization_name_id
 ):
@@ -529,13 +537,12 @@ def repository_organization_name_update(
             if shared:
                 # Other records (another version, a draft, someone's profile)
                 # use this organization, so rename only this affiliation's.
-                with transaction.atomic():
-                    affiliation.organization = core_models.Organization.objects.create()
-                    affiliation.save()
-                    organization = core_models.OrganizationName.objects.create(
-                        value=form.cleaned_data["value"],
-                        custom_label_for=affiliation.organization,
-                    )
+                affiliation.organization = core_models.Organization.objects.create()
+                affiliation.save()
+                organization = core_models.OrganizationName.objects.create(
+                    value=form.cleaned_data["value"],
+                    custom_label_for=affiliation.organization,
+                )
             else:
                 organization = form.save()
             messages.add_message(
@@ -552,6 +559,7 @@ def repository_organization_name_update(
 
 
 @login_required
+@transaction.atomic
 def repository_affiliation_create(request, preprint_id, author_id, organization_id):
     preprint, author = get_preprint_author(request, preprint_id, author_id)
     organization = get_object_or_404(core_models.Organization, pk=organization_id)
@@ -582,6 +590,7 @@ def repository_affiliation_create(request, preprint_id, author_id, organization_
 
 
 @login_required
+@transaction.atomic
 def repository_affiliation_update(request, preprint_id, author_id, affiliation_id):
     preprint, author = get_preprint_author(request, preprint_id, author_id)
     affiliation = get_object_or_404(
@@ -622,6 +631,7 @@ def repository_affiliation_update(request, preprint_id, author_id, affiliation_i
 
 
 @login_required
+@transaction.atomic
 def repository_affiliation_delete(request, preprint_id, author_id, affiliation_id):
     preprint, author = get_preprint_author(request, preprint_id, author_id)
     affiliation = get_object_or_404(
@@ -654,6 +664,7 @@ def repository_affiliation_delete(request, preprint_id, author_id, affiliation_i
 
 
 @login_required
+@transaction.atomic
 def repository_affiliation_update_from_orcid(
     request, preprint_id, author_id, how_many="primary"
 ):

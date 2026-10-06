@@ -1064,6 +1064,7 @@ class VersionQueueCreateSerializer(serializers.ModelSerializer):
         version_queue, error = repository_logic.start_update(
             validated_data.pop("preprint"),
             validated_data.pop("update_type"),
+            resume=False,
         )
         if error:
             raise serializers.ValidationError({"preprint": str(error)})

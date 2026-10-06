@@ -699,6 +699,7 @@ AUTHOR_CHANGE_FIELDS = AUTHOR_NAME_FIELDS + (
     "email",
     "orcid",
     "affiliations",
+    "credit",
 )
 AUTHOR_CHANGE_LABELS = {
     "name_prefix": _("Name prefix"),
@@ -712,6 +713,7 @@ AUTHOR_CHANGE_LABELS = {
     "email": _("Email"),
     "orcid": _("ORCID"),
     "affiliations": _("Affiliations"),
+    "credit": _("CRediT roles"),
 }
 
 
@@ -729,10 +731,16 @@ def _affiliation_signature(frozen_author):
     )
 
 
+def _credit_roles(frozen_author):
+    return sorted(record.role for record in frozen_author.credits)
+
+
 def _change_value(frozen_author, field):
     """A comparable value of one of AUTHOR_CHANGE_FIELDS."""
     if field == "affiliations":
         return _affiliation_signature(frozen_author)
+    if field == "credit":
+        return _credit_roles(frozen_author)
     if field in ("is_corporate", "display_email"):
         return bool(getattr(frozen_author, field))
     if field == "biography":
@@ -748,6 +756,8 @@ def display_change_value(frozen_author, field):
     """A readable value of one of AUTHOR_CHANGE_FIELDS, for moderators."""
     if field == "affiliations":
         return "; ".join(str(affiliation) for affiliation in frozen_author.affiliations)
+    if field == "credit":
+        return "; ".join(str(record) for record in frozen_author.credits)
     if field in ("is_corporate", "display_email"):
         return _("Yes") if getattr(frozen_author, field) else _("No")
     if field == "biography":
@@ -881,6 +891,7 @@ def _stored_author_details(frozen_author):
         frozen_author.frozen_orcid or "",
         frozen_author.frozen_biography or "",
         _affiliation_signature(frozen_author),
+        _credit_roles(frozen_author),
     ]
 
 
@@ -947,6 +958,22 @@ class PreprintAuthorList:
             .select_related("author")
             .order_by("order", "pk")
         )
+
+    def lock(self):
+        """
+        Locks the list's update or preprint, as approval does, before
+        changing the list.
+        :return: False if the update is no longer a draft
+        """
+        if self.version_queue:
+            return (
+                models.VersionQueue.objects.select_for_update()
+                .filter(pk=self.version_queue.pk, is_draft=True)
+                .first()
+                is not None
+            )
+        models.Preprint.objects.select_for_update().filter(pk=self.preprint.pk).first()
+        return True
 
     def get(self, author_id):
         if not str(author_id or "").isdigit():
@@ -1324,12 +1351,13 @@ def open_update(preprint):
     )
 
 
-def start_update(preprint, update_type):
+def start_update(preprint, update_type, resume=True):
     """
     Starts a draft update holding a complete copy of the preprint's title,
     abstract, DOI, authors and custom field answers, or returns the
     author's existing draft. A preprint has one open update at a time, so
     each update starts from the metadata the previous one left.
+    :param resume: False to refuse, rather than return, an existing draft
     :return: (VersionQueue or None, error message or None)
     """
     with transaction.atomic():
@@ -1339,6 +1367,11 @@ def start_update(preprint, update_type):
             return None, _(
                 "There is already an update awaiting moderation. You can "
                 "start another once a moderator has decided on it."
+            )
+        if update and not resume:
+            return None, _(
+                "This preprint has a draft update on the website. Submit or "
+                "discard it there first."
             )
         if update:
             set_update_type(update, update_type)
@@ -1435,10 +1468,48 @@ def submit_update(update):
 
 
 def discard_update(update):
-    file = update.file
-    update.delete()
-    if file:
-        delete_unused_draft_file(file)
+    """
+    :return: False if the update is no longer a draft
+    """
+    with transaction.atomic():
+        update = (
+            models.VersionQueue.objects.select_for_update()
+            .filter(pk=update.pk, is_draft=True)
+            .first()
+        )
+        if update is None:
+            return False
+        file = update.file
+        update.delete()
+        if file:
+            delete_unused_draft_file(file)
+    return True
+
+
+def lock_author(authors, author_id):
+    """
+    Gets an author for editing, with the update or preprint that owns it
+    locked as approval locks them, so an edit cannot interleave with an
+    approval or write back an author that approval has moved.
+    :param authors: the authors the user may reach
+    """
+    author = get_object_or_404(authors, pk=author_id)
+    while True:
+        if author.version_queue_id:
+            models.VersionQueue.objects.select_for_update().filter(
+                pk=author.version_queue_id,
+            ).first()
+        else:
+            models.Preprint.objects.select_for_update().filter(
+                pk=author.related_preprint.pk,
+            ).first()
+        locked = get_object_or_404(authors, pk=author_id)
+        if (locked.version_queue_id, locked.preprint_id) == (
+            author.version_queue_id,
+            author.preprint_id,
+        ):
+            return locked
+        author = locked
 
 
 def delete_unused_draft_file(preprint_file):
