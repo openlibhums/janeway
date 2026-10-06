@@ -82,6 +82,13 @@
                         <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
                     </div>
                     {% endif %}
+                    {% url 'report_preprints_metrics' as reporting_url %}
+                    {% if reporting_url %}
+                    <div class="summary">
+                        <span class="title">Reports</span>
+                        <a href="{{ reporting_url }}" class="box-link"></a>
+                    </div>
+                    {% endif %}
                     <div class="summary">
                         <span class="title">View Orphaned Preprints</span>
                         <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
