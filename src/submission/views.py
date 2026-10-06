@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 
 from core import files, models as core_models
 from core.logic import create_organization_name, reverse_with_next
-from core.views import GenericFacetedListView
+from core.views import GenericFacetedListView, OrganizationSearchMixin
 from core.forms import (
     AccountAffiliationForm,
     ConfirmDeleteForm,
@@ -1229,14 +1229,11 @@ def configurator(request):
 
 
 @method_decorator(login_required, name="dispatch")
-class OrganizationListView(GenericFacetedListView):
+class OrganizationListView(OrganizationSearchMixin, GenericFacetedListView):
     """
     Allows a user to search for an organization to add
     as an affiliation of a frozen author record.
     """
-
-    model = core_models.Organization
-    template_name = "admin/core/organization_search.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -1254,25 +1251,7 @@ class OrganizationListView(GenericFacetedListView):
             raise Http404
         context["article"] = article
         context["author"] = author
-        context["search_term"] = self.request.GET.get("q", None)
         return context
-
-    def get_queryset(self, *args, **kwargs):
-        # save the queryset in this view so we don't call
-        # the search builder twice
-        if not self.queryset:
-            queryset = super().get_queryset(*args, **kwargs)
-            # Exclude user-created organizations from search results
-            self.queryset = queryset.exclude(custom_label__isnull=False)
-        return self.queryset
-
-    def get_facets(self):
-        return {
-            "q": {
-                "type": "search",
-                "field_label": "Search",
-            },
-        }
 
 
 @login_required

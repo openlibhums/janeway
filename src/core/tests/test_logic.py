@@ -9,7 +9,7 @@ from mock import patch
 from django.shortcuts import reverse
 from django.test import TestCase, override_settings
 
-from core import logic
+from core import logic, models
 from utils.testing import helpers
 
 
@@ -81,3 +81,78 @@ class TestLogic(TestCase):
             f"/register/step/2/8bd3cdc9-1c3c-4ec9-99bc-9ea0b86a3c55/?next={self.next_url_encoded}",
             url,
         )
+
+
+class TestSearchOrganizations(TestCase):
+    @staticmethod
+    def make_organization(ror_id, display, aliases=(), acronyms=(), labels=()):
+        organization = models.Organization.objects.create(ror_id=ror_id)
+        models.OrganizationName.objects.create(
+            value=display, ror_display_for=organization
+        )
+        for alias in aliases:
+            models.OrganizationName.objects.create(value=alias, alias_for=organization)
+        for acronym in acronyms:
+            models.OrganizationName.objects.create(
+                value=acronym, acronym_for=organization
+            )
+        for label in labels:
+            models.OrganizationName.objects.create(value=label, label_for=organization)
+        return organization
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.oxford = cls.make_organization(
+            "052gg0110",
+            "University of Oxford",
+            aliases=["Oxford", "Oxford University"],
+            acronyms=["OU"],
+        )
+        cls.brookes = cls.make_organization(
+            "04v2twj65", "Oxford Brookes University", acronyms=["OBU"]
+        )
+        cls.zeta = cls.make_organization(
+            "00bbbbbbb", "Zeta Institute", aliases=["Old Oxford Hall"]
+        )
+        cls.alpha = cls.make_organization(
+            "00ccccccc", "Alpha Institute", aliases=["Oxford Alpha"]
+        )
+        cls.bath = cls.make_organization("002h8g185", "Bath University")
+        cls.aberdeen = cls.make_organization("016476m91", "Aberdeen University")
+        cls.custom = models.Organization.objects.create()
+        models.OrganizationName.objects.create(
+            value="Oxford Custom", custom_label_for=cls.custom
+        )
+
+    def search(self, term):
+        return list(logic.search_organizations(term, exclude_custom_labels=True)[:25])
+
+    def test_each_organization_appears_once(self):
+        # University of Oxford matches on several aliases
+        self.assertEqual(
+            self.search("Oxford"),
+            [self.oxford, self.brookes, self.alpha, self.zeta],
+        )
+
+    def test_ties_are_alphabetical(self):
+        self.assertEqual(
+            self.search("university"),
+            [self.oxford, self.aberdeen, self.bath, self.brookes],
+        )
+
+    def test_exact_acronym_ranks_first(self):
+        self.assertEqual(self.search("OU")[0], self.oxford)
+
+    def test_ror_id_match(self):
+        self.assertEqual(self.search("052gg0110"), [self.oxford])
+
+    def test_custom_labels_can_be_excluded(self):
+        self.assertNotIn(self.custom, self.search("Oxford"))
+        self.assertIn(
+            self.custom, list(logic.search_organizations("Oxford Custom")[:25])
+        )
+
+    def test_count(self):
+        results = logic.search_organizations("Oxford", exclude_custom_labels=True)
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(len(results), 4)
