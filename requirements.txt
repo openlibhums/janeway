@@ -45,7 +45,6 @@ mozilla-django-oidc==4.0.1
 openpyxl==3.1.5
 orcid==1.0.3
 packaging==23.2
-pdfkit==1.0.0
 pdfminer.six
 psycopg2-binary==2.9.10
 pyasn1==0.1.9

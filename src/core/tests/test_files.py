@@ -8,7 +8,6 @@ from django.test import TestCase, Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.utils import timezone
-import pdfkit
 
 from utils.testing import helpers
 from utils.shared import clear_cache
@@ -145,22 +144,6 @@ class TestFilesHandler(TestCase):
         expected = "test"
 
         self.assertEqual(parsed_text, expected)
-
-    def test_pdf_to_text(self):
-        with NamedTemporaryFile("r+b") as f:
-            # Write a PDF File
-            text = "Hello World"
-            config = pdfkit.configuration(
-                wkhtmltopdf=os.path.join(
-                    settings.BASE_DIR, "transform/cassius/bin/wkhtmltopdf"
-                )
-            )
-            pdfkit.from_string(text, output_path=f.name, configuration=config)
-
-            # Parse the PDF File
-            parsed_text = files.pdf_to_text(f.name).strip()
-
-        self.assertEqual(parsed_text, text)
 
     def test_index_file(self):
         file_ = files.save_file_to_article(
