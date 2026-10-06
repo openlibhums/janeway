@@ -29,6 +29,9 @@ identifier_choices = (
     ("uri", "URI Path"),
     ("pubid", "Publisher ID"),
     ("openalex", "OpenAlex ID"),
+    ("arxiv", "ArXiv ID"),  # https://arxiv.org/
+    ("preprintid", "Preprint ID"),
+    ("protonid", "IOP Proton ID"),
 )
 
 IDENTIFIER_TYPES = {"uri", "pubid", "id", "doi"}
