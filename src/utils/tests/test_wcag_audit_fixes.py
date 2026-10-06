@@ -642,7 +642,10 @@ class GalleyScriptTemplateTests(SimpleTestCase):
         # An iframe has no intrinsic aspect ratio, so height: auto would
         # shrink an embedded player to 150px.
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
-        self.assertIn(".homepage-element-html iframe,\n.card-text iframe {\n  max-width: 100%;\n}", css)
+        self.assertIn(
+            ".homepage-element-html iframe,\n.card-text iframe {\n  max-width: 100%;\n}",
+            css,
+        )
         head = self.read_template("common/elements/journal/print_head.html")
         self.assertIn("iframe {\n      max-width: 100%;\n    }", head)
         self.assertNotIn("iframe {\n      max-width: 100%;\n      height: auto;", head)
