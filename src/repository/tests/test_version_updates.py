@@ -104,6 +104,47 @@ class TestUpdateWorkflow(VersionUpdateTestBase):
             ["Olive Owner", "Coral B Author"],
         )
 
+    def test_changes_that_count(self):
+        update = self.start()
+        update.authors.get(author=self.owner).add_credit("conceptualization")
+        update.abstract = "<em>one</em><em>two</em>"
+        update.save()
+        self.preprint.abstract = "<em>one</em> <em>two</em>"
+        self.preprint.save()
+        self.assertTrue(self.submit(update).approve())
+        self.assertEqual(
+            [
+                r.role
+                for r in self.preprint.frozen_authors().get(author=self.owner).credits
+            ],
+            ["conceptualization"],
+        )
+        self.preprint.refresh_from_db()
+        self.assertEqual(self.preprint.abstract, "<em>one</em><em>two</em>")
+
+    def test_the_api_does_not_take_over_a_website_draft(self):
+        self.start()
+        update, error = repository_logic.start_update(
+            self.preprint,
+            "metadata_correction",
+            resume=False,
+        )
+        self.assertIsNone(update)
+        self.assertIsNotNone(error)
+
+    def test_snapshots_keep_blank_account_details(self):
+        stale = rm.Preprint.objects.get(pk=self.preprint.pk)
+        self.preprint.title = "Approved title"
+        self.preprint.save()
+        old_version = self.preprint.current_version
+        stale.make_new_version(self.version_file)
+        self.owner.orcid = "0000-0002-1825-0097"
+        self.owner.save()
+
+        old_version.refresh_from_db()
+        self.assertEqual(old_version.title, "Approved title")
+        self.assertIsNone(old_version.authors.get(author=self.owner).orcid)
+
     def test_approval_keeps_moderator_changes_the_author_did_not_touch(self):
         update = self.start()
         # A moderator fixes the title and removes an author after the draft
@@ -270,6 +311,32 @@ class TestUpdateViews(VersionUpdateTestBase):
         self.assertFalse(
             rm.PreprintFile.objects.filter(original_filename="first.txt").exists()
         )
+
+    def test_submitted_drafts_cannot_be_changed(self):
+        update = self.start()
+        author = update.authors.get(author=self.owner)
+        url = self.draft_url(update)
+        edit_url = reverse(
+            "repository_edit_author",
+            args=[self.preprint.pk, author.pk],
+        )
+        update.authors.get(author=self.co_author_account).delete()
+        self.submit(update)
+        self.assertEqual(self.post(url, {"save_draft": ""}).status_code, 404)
+        self.assertEqual(self.post(url, {"discard_draft": ""}).status_code, 404)
+        update.approve()
+        self.assertEqual(self.post(edit_url, {"save_author": ""}).status_code, 404)
+        update.refresh_from_db()
+        self.assertFalse(update.is_draft)
+        author.refresh_from_db()
+        self.assertEqual(author.preprint, self.preprint)
+
+    def test_coauthors_cannot_edit_the_owners_draft(self):
+        update = self.start()
+        author = update.authors.get(author=self.co_author_account)
+        self.client.force_login(self.co_author_account)
+        url = reverse("repository_edit_author", args=[self.preprint.pk, author.pk])
+        self.assertEqual(self.post(url, {"save_author": ""}).status_code, 404)
 
     def test_removed_author_can_be_restored(self):
         update = self.start()

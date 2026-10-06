@@ -2837,7 +2837,8 @@ class FrozenAuthor(AbstractLastModifiedModel):
             preprint = self.version_queue.preprint
             if user.is_repository_manager(preprint.repository):
                 return True
-            return self.owner == user or (preprint.owner == user and not self.author)
+            # Drafts belong to the preprint's owner, not its co-authors.
+            return preprint.owner == user and self.owner == user
         elif self.preprint:
             if user.is_anonymous:
                 return False
@@ -3017,9 +3018,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def email(self):
+        # Snapshots keep the values they stored, even blank ones.
         if self.frozen_email:
             return self.frozen_email
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.email
         return None
 
@@ -3034,7 +3036,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def orcid(self):
         if self.frozen_orcid:
             return self.frozen_orcid
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.orcid
         return None
 
@@ -3064,7 +3066,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def biography(self):
         if self.frozen_biography:
             return self.frozen_biography
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.biography
         return None
 

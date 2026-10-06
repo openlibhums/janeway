@@ -1167,13 +1167,13 @@ class Preprint(models.Model):
 
     @transaction.atomic
     def make_new_version(self, file):
-        Preprint.objects.select_for_update().filter(pk=self.pk).first()
-        if self.current_version is not None:
-            self.snapshot_to_version(self.current_version)
+        preprint = Preprint.objects.select_for_update().get(pk=self.pk)
+        if preprint.current_version is not None:
+            preprint.snapshot_to_version(preprint.current_version)
         PreprintVersion.objects.create(
-            preprint=self,
+            preprint=preprint,
             file=file,
-            version=self.next_version_number(),
+            version=preprint.next_version_number(),
         )
 
     def update_date_published(self, date_published):
@@ -1900,6 +1900,10 @@ def version_choices():
     )
 
 
+# HTML block elements, around which whitespace does not show.
+BLOCK_TAGS = "p|div|br|ul|ol|li|h[1-6]|blockquote|table|thead|tbody|tr|td|th|hr"
+
+
 class VersionQueue(models.Model):
     preprint = models.ForeignKey(
         Preprint,
@@ -1974,10 +1978,11 @@ class VersionQueue(models.Model):
         """
         Normalises title, abstract and DOI values for comparison, so that
         differences the editor introduces (a wrapping paragraph, entities,
-        whitespace) do not count as changes.
+        whitespace around blocks) do not count as changes. Whitespace
+        between inline elements is kept, as it shows.
         """
         text = re.sub(r"\s+", " ", html.unescape(str(value or ""))).strip()
-        text = re.sub(r">\s+<", "><", text)
+        text = re.sub(rf"\s*(</?(?:{BLOCK_TAGS})\b[^>]*>)\s*", r"\1", text)
         paragraph = re.fullmatch(r"<p>(.*)</p>", text)
         if paragraph and "<p" not in paragraph.group(1):
             text = paragraph.group(1).strip()
@@ -2425,14 +2430,18 @@ def restore_new_current_version(sender, instance, **kwargs):
     gets its own metadata back: its snapshot replaces the preprint's
     authors, custom field answers, title, abstract and DOI.
     """
-    try:
-        preprint = Preprint.objects.get(pk=instance.preprint_id)
-    except Preprint.DoesNotExist:
-        return
-    current = preprint.current_version
-    if current is None or not current.metadata_frozen:
-        return
     with transaction.atomic():
+        # Locked, as approval locks it, so the two cannot interleave.
+        preprint = (
+            Preprint.objects.select_for_update()
+            .filter(
+                pk=instance.preprint_id,
+            )
+            .first()
+        )
+        current = preprint.current_version if preprint else None
+        if current is None or not current.metadata_frozen:
+            return
         preprint.frozen_authors().delete()
         for frozen_author in current.frozenauthor_set.select_related("author"):
             account = frozen_author.author
