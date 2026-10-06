@@ -638,6 +638,24 @@ class GalleyScriptTemplateTests(SimpleTestCase):
             template,
         )
 
+    def test_embedded_frames_keep_their_own_height(self):
+        # An iframe has no intrinsic aspect ratio, so height: auto would
+        # shrink an embedded player to 150px.
+        css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn(".homepage-element-html iframe {\n  max-width: 100%;\n}", css)
+        head = self.read_template("common/elements/journal/print_head.html")
+        self.assertIn("iframe {\n      max-width: 100%;\n    }", head)
+        self.assertNotIn("iframe {\n      max-width: 100%;\n      height: auto;", head)
+
+    def test_tables_are_rechecked_when_they_change_size(self):
+        path = os.path.join(
+            settings.BASE_DIR, "static", "common", "js", "scroll-regions.js"
+        )
+        with open(path, encoding="utf-8") as script_file:
+            script = script_file.read()
+        self.assertIn("new ResizeObserver(scheduleUpdate)", script)
+        self.assertIn("document.activeElement !== table", script)
+
     def test_print_views_scroll_wide_tables_on_screen(self):
         head = self.read_template("common/elements/journal/print_head.html")
         self.assertIn('name="viewport"', head)

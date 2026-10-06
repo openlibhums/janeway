@@ -661,10 +661,13 @@ a.btn {
 }
 
 .homepage-element-html img,
-.homepage-element-html video,
-.homepage-element-html iframe {
+.homepage-element-html video {
   max-width: 100%;
   height: auto;
+}
+
+.homepage-element-html iframe {
+  max-width: 100%;
 }
 
 #article blockquote {
