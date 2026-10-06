@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <h2 id="news-item-{{ item.pk }}">{{ item.title|safe }}</h2>
                 <p class="byline">{{ item.byline }} on {{ item.posted|date_human }}</p>
-                <p>{{ item.body|truncatewords_html:50|safe }}</p>
+                <div class="news-summary">{{ item.body|truncatewords_html:50|safe }}</div>
                 <p><a href="{% url 'core_news_item' item.pk %}" aria-describedby="news-item-{{ item.pk }}">{% trans 'Read More' %}</a></p>
                 <hr aria-hidden="true" />
             </div>
