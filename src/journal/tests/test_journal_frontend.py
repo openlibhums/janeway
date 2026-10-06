@@ -2,6 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.urls.base import clear_script_prefix
+from django.contrib.contenttypes.models import ContentType
 
 from journal import models
 from journal.tests.utils import make_test_journal
@@ -9,6 +10,7 @@ from press.models import Press
 from utils.testing import helpers
 from utils import setting_handler
 from core import models as core_models
+from core.homepage_elements.featured import models as featured_models
 from submission import models as submission_models
 
 
@@ -100,6 +102,29 @@ class TestJournalSite(TestCase):
         for page in flat_pages_to_test:
             response = self.client.get(reverse(page), SERVER_NAME=self.journal_domain)
             self.assertEqual(response.status_code, 200)
+
+    def test_homepage_renders_featured_articles_when_element_is_renamed(self):
+        core_models.HomepageElement.objects.create(
+            name="Editor's Picks",
+            configure_url="featured_articles_setup",
+            template_path="journal/homepage_elements/featured.html",
+            content_type=ContentType.objects.get_for_model(self.journal),
+            object_id=self.journal.pk,
+            active=True,
+            has_config=True,
+        )
+        featured_models.FeaturedArticle.objects.create(
+            article=self.published_article,
+            journal=self.journal,
+        )
+
+        response = self.client.get(
+            reverse("website_index"),
+            SERVER_NAME=self.journal_domain,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.article_title)
 
     def test_issue_page(self):
         response = self.client.get(
