@@ -237,6 +237,11 @@ urlpatterns = [
         r"^manager/licenses/$", views.repository_licenses, name="repository_licenses"
     ),
     re_path(
+        r"^manager/languages/$",
+        views.repository_languages,
+        name="repository_languages",
+    ),
+    re_path(
         r"^manager/subjects/$", views.repository_subjects, name="repository_subjects"
     ),
     re_path(

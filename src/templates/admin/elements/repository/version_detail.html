@@ -16,10 +16,21 @@
                     <h2>Current Metadata</h2>
                 </div>
                 <div class="content">
-                    <p><strong>Title</strong></p>
-                    <p>{{ version.preprint.title|safe }}</p>
-                    <p><strong>Abstract</strong></p>
-                    <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
+                    {% with version.preprint.translated_metadata as current_meta %}
+                    {% if current_meta %}
+                        {% for meta in current_meta %}
+                            <p><strong>Title ({{ meta.language }})</strong></p>
+                            <p>{{ meta.title|default:"—" }}</p>
+                            <p><strong>Abstract ({{ meta.language }})</strong></p>
+                            <p>{{ meta.abstract|default:"—"|safe|linebreaksbr }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p><strong>Title</strong></p>
+                        <p>{{ version.preprint.title|safe }}</p>
+                        <p><strong>Abstract</strong></p>
+                        <p>{{ version.preprint.abstract|safe|linebreaksbr }}</p>
+                    {% endif %}
+                    {% endwith %}
                     <p><strong>Published DOI</strong></p>
                     <p>{{ version.preprint.doi }}</p>
                     <p><strong>File</strong></p>
@@ -33,10 +44,21 @@
                     <h2>New Metadata</h2>
                 </div>
                 <div class="content">
-                    <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
-                    <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
-                    <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
-                    <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
+                    {% with version.translated_metadata as new_meta %}
+                    {% if new_meta %}
+                        {% for meta in new_meta %}
+                            <p><strong>Title ({{ meta.language }})</strong></p>
+                            <p>{{ meta.title|default:"Unchanged" }}</p>
+                            <p><strong>Abstract ({{ meta.language }})</strong></p>
+                            <p>{{ meta.abstract|default:"Unchanged"|safe|linebreaksbr }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p><strong>Title{% if version.title and version.title != version.preprint.title %} (changed){% endif %}</strong></p>
+                        <p>{% if version.title == version.preprint.title %}Unchanged{% else %} {{ version.title }}{% endif %}</p>
+                        <p><strong>Abstract{% if version.abstract and version.abstract != version.preprint.abstract %} (changed){% endif %}</strong></p>
+                        <p>{% if version.abstract == version.preprint.abstract %}Unchanged{% else %}{{ version.abstract|safe|linebreaksbr }}{% endif %}</p>
+                    {% endif %}
+                    {% endwith %}
 
                     <p><strong>Published DOI{% if version.published_doi and version.published_doi != version.preprint.doi %} (changed){% endif %}</strong></p>
                     <p>{% if version.published_doi == version.preprint.doi %}Unchanged{% else %}{{ version.published_doi }}{% endif %}</p>
