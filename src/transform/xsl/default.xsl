@@ -1120,7 +1120,17 @@
     </xsl:template>
 
     <xsl:template match="table-wrap/label" mode="captionLabel">
-        <span class="table-label" id="tab{count(preceding::table-wrap)+1}-label">
+        <span class="table-label">
+            <xsl:attribute name="id">
+                <xsl:choose>
+                    <xsl:when test="parent::table-wrap/@id">
+                        <xsl:value-of select="concat(parent::table-wrap/@id, '-label')"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('tab', count(preceding::table-wrap)+1, '-label')"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
             <xsl:apply-templates/>
         </span>
         <xsl:text> </xsl:text>
