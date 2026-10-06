@@ -610,6 +610,11 @@ class GalleyScriptTemplateTests(SimpleTestCase):
         with open(path, encoding="utf-8") as template_file:
             return template_file.read()
 
+    def read_static(self, relative_path):
+        path = os.path.join(settings.BASE_DIR, "static", relative_path)
+        with open(path, encoding="utf-8") as static_file:
+            return static_file.read()
+
     def test_article_pages_use_the_shared_mathjax_and_scroll_scripts(self):
         for theme in self.THEMES:
             with self.subTest(theme=theme):
@@ -633,9 +638,12 @@ class GalleyScriptTemplateTests(SimpleTestCase):
     def test_mathjax_formulas_keep_their_own_line_height(self):
         template = self.read_template("common/elements/mathjax.html")
         self.assertIn("mathjax/4.", template)
+        self.assertIn("common/css/mathjax.css", template)
+        self.assertNotIn("<style", template)
+        css = self.read_static("common/css/mathjax.css")
         self.assertIn(
-            "mjx-math,\n  mjx-math * {\n    line-height: 0 !important;\n  }",
-            template,
+            "mjx-math,\nmjx-math * {\n    line-height: 0 !important;\n}",
+            css,
         )
 
     def test_embedded_frames_keep_their_own_height(self):
@@ -646,9 +654,11 @@ class GalleyScriptTemplateTests(SimpleTestCase):
             ".homepage-element-html iframe,\n.card-text iframe {\n  max-width: 100%;\n}",
             css,
         )
-        head = self.read_template("common/elements/journal/print_head.html")
-        self.assertIn("iframe {\n      max-width: 100%;\n    }", head)
-        self.assertNotIn("iframe {\n      max-width: 100%;\n      height: auto;", head)
+        print_css = self.read_static("common/css/print_view.css")
+        self.assertIn("iframe {\n        max-width: 100%;\n    }", print_css)
+        self.assertNotIn(
+            "iframe {\n        max-width: 100%;\n        height: auto;", print_css
+        )
 
     def test_tables_are_rechecked_when_they_change_size(self):
         path = os.path.join(
@@ -662,9 +672,12 @@ class GalleyScriptTemplateTests(SimpleTestCase):
     def test_print_views_scroll_wide_tables_on_screen(self):
         head = self.read_template("common/elements/journal/print_head.html")
         self.assertIn('name="viewport"', head)
-        self.assertIn("@media screen", head)
-        self.assertIn("overflow-x: auto;", head)
+        self.assertIn("common/css/print_view.css", head)
+        self.assertNotIn("<style", head)
         self.assertIn("common/js/scroll-regions.js", head)
+        print_css = self.read_static("common/css/print_view.css")
+        self.assertIn("@media screen", print_css)
+        self.assertIn("overflow-x: auto;", print_css)
         for theme in self.PRINT_THEMES:
             with self.subTest(theme=theme):
                 template = helpers.read_theme_asset(
