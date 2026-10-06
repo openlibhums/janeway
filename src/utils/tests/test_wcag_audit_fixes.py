@@ -642,7 +642,7 @@ class GalleyScriptTemplateTests(SimpleTestCase):
         # An iframe has no intrinsic aspect ratio, so height: auto would
         # shrink an embedded player to 150px.
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
-        self.assertIn(".homepage-element-html iframe {\n  max-width: 100%;\n}", css)
+        self.assertIn(".homepage-element-html iframe,\n.card-text iframe {\n  max-width: 100%;\n}", css)
         head = self.read_template("common/elements/journal/print_head.html")
         self.assertIn("iframe {\n      max-width: 100%;\n    }", head)
         self.assertNotIn("iframe {\n      max-width: 100%;\n      height: auto;", head)
@@ -668,3 +668,37 @@ class GalleyScriptTemplateTests(SimpleTestCase):
                     theme, "templates/journal/print.html"
                 )
                 self.assertIn('"common/elements/journal/print_head.html"', template)
+
+
+class EditorContentReflowTests(SimpleTestCase):
+    """Editor images and media keep to the page width at 320px."""
+
+    def test_material_news_cards_take_the_full_width_on_phones(self):
+        template = helpers.read_theme_asset(
+            "material", "templates/core/news/index.html"
+        )
+        self.assertNotIn('<div class="col m12">', template)
+        self.assertIn('<div class="col s12 m12">', template)
+
+    def test_material_card_and_homepage_media_keep_to_the_width(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(".card-content img,", css)
+        self.assertIn(".homepage-element-html iframe {\n    max-width: 100%;\n}", css)
+
+    def test_clean_news_summaries_and_galley_media_keep_to_the_width(self):
+        css = helpers.read_theme_asset("clean", "assets/css/clean.css")
+        self.assertIn("#main_article video,\n#main_article iframe,", css)
+        self.assertIn(".news-summary img,", css)
+        template = helpers.read_theme_asset("clean", "templates/core/news/index.html")
+        self.assertIn('<div class="news-summary">', template)
+
+    def test_clarity_news_summaries_keep_to_the_width(self):
+        css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn(".card-text img,", css)
+        self.assertIn(".card-text iframe {\n  max-width: 100%;\n}", css)
+
+    def test_olh_galley_media_keep_to_the_width(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(
+            "#main_article video,\n#main_article iframe {\n  max-width: 100%;\n}", scss
+        )

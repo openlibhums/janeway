@@ -9,12 +9,12 @@
 
 {% block body %}
     <div class="row">
-        <div class="col m12">
+        <div class="col s12 m12">
             <h1>{{ journal_settings.news.news_title }}</h1>
             {% if tag %} <h2>{% trans "Filtering tag" %}: {{ tag }}</h2>{% endif %}
         </div>
         {% for item in news_items %}
-            <div class="col m12">
+            <div class="col s12 m12">
                 <div class="card">
                     {% if item.large_image_file or request.journal and request.journal.default_large_image or request.press.default_carousel_image %}
                     <div class="card-image">

@@ -2106,6 +2106,22 @@ h3.article-subgroup {
     height: auto;
 }
 
+.card-content img,
+.card-content video,
+.card-content iframe,
+.homepage-element-html img,
+.homepage-element-html video,
+.homepage-element-html iframe {
+    max-width: 100%;
+}
+
+.card-content img[width][height],
+.card-content video,
+.homepage-element-html img[width][height],
+.homepage-element-html video {
+    height: auto;
+}
+
 nav.rou-breadcrumbs-nav {
   background-color: transparent;
   box-shadow: none;

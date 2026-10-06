@@ -554,6 +554,15 @@ main section {
   word-wrap: break-word;
 }
 
+#main_article video,
+#main_article iframe {
+  max-width: 100%;
+}
+
+#main_article video {
+  height: auto;
+}
+
 .math-formulae {
     overflow-x: auto;
     padding-bottom: 1rem;

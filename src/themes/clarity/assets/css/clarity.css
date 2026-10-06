@@ -661,12 +661,15 @@ a.btn {
 }
 
 .homepage-element-html img,
-.homepage-element-html video {
+.homepage-element-html video,
+.card-text img,
+.card-text video {
   max-width: 100%;
   height: auto;
 }
 
-.homepage-element-html iframe {
+.homepage-element-html iframe,
+.card-text iframe {
   max-width: 100%;
 }
 
