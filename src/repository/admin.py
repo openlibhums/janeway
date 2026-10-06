@@ -21,6 +21,7 @@ class RepositoryAdmin(SimpleHistoryAdmin):
     )
     raw_id_fields = (
         "managers",
+        "moderators",
         "homepage_preprints",
         "active_licenses",
         "submission_notification_recipients",

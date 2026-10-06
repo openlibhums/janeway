@@ -103,7 +103,7 @@ def send_bounce_notification_to_event_actor(event):
             request.journal = target.journal
         elif isinstance(target, repo_models.Preprint):
             # check if the actor is a manager for the preprint's repo
-            if actor in target.repository.managers.all():
+            if actor.is_repository_moderator(target.repository):
                 to = actor.email
             request.site_type = target.repository
             request.repository = target.repository

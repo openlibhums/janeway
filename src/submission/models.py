@@ -2835,14 +2835,14 @@ class FrozenAuthor(AbstractLastModifiedModel):
             if not self.version_queue.is_draft or user.is_anonymous:
                 return False
             preprint = self.version_queue.preprint
-            if user.is_repository_manager(preprint.repository):
+            if user.is_repository_moderator(preprint.repository):
                 return True
             # Drafts belong to the preprint's owner, not its co-authors.
             return preprint.owner == user and self.owner == user
         elif self.preprint:
             if user.is_anonymous:
                 return False
-            if user.is_repository_manager(self.preprint.repository):
+            if user.is_repository_moderator(self.preprint.repository):
                 return True
             elif self.preprint.date_submitted is None and (
                 self.owner == user or (self.preprint.owner == user and not self.author)

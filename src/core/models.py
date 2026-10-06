@@ -852,6 +852,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return False
 
+    def is_repository_moderator(self, repository):
+        """Managers moderate too."""
+        return (
+            self.is_repository_manager(repository)
+            or self in repository.moderators.all()
+        )
+
     def is_preprint_editor(self, request):
         if self in request.press.preprint_editors():
             return True

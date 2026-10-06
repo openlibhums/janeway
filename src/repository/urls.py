@@ -301,6 +301,11 @@ urlpatterns = [
     ),
     re_path(r"^manager/versions/$", views.version_queue, name="version_queue"),
     re_path(
+        r"^manager/moderators/$",
+        views.repository_moderators,
+        name="repository_moderators",
+    ),
+    re_path(
         r"^manager/versions/(?P<update_id>\d+)/detail/$",
         views.version_detail,
         name="repository_version_detail",

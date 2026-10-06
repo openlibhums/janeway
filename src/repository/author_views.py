@@ -26,7 +26,7 @@ from core.views import GenericFacetedListView
 from events import logic as event_logic
 from repository import forms, logic as repository_logic, models
 from security.decorators import (
-    is_repository_manager,
+    is_repository_moderator,
     preprint_editor_or_author_required,
     submission_authorised,
 )
@@ -166,7 +166,7 @@ def repository_authors(request, preprint_id):
     return render(request, "admin/repository/submit/authors.html", context)
 
 
-@is_repository_manager
+@is_repository_moderator
 @transaction.atomic
 def repository_manager_authors(request, preprint_id):
     """
@@ -208,7 +208,7 @@ def get_draft_update(request, preprint_id, update_id):
     if not (
         preprint.owner == request.user
         or request.user.is_staff
-        or request.user.is_repository_manager(request.repository)
+        or request.user.is_repository_moderator(request.repository)
     ):
         raise Http404
     return preprint, draft
