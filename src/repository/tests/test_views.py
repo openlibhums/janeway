@@ -1305,3 +1305,38 @@ class DisabledOrganisationUnitTests(TestCase):
         result = repository_logic.get_submission_type_or_redirect(request)
         self.assertEqual(result, submission_type)
         self.assertIsNone(request.organisation_unit)
+
+
+class ClarityRepositoryLogoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.server_name = "repo5615.test.com"
+        cls.repository, _ = helpers.create_repository(
+            cls.press, [], [], domain=cls.server_name
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    def get_home(self):
+        return self.client.get(
+            reverse("website_index"),
+            {"theme": "clarity"},
+            SERVER_NAME=self.server_name,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_clarity_header_shows_the_repository_logo(self):
+        self.repository.logo.name = "repos/5615/logo.png"
+        self.repository.save()
+        response = self.get_home()
+        self.assertContains(response, self.repository.logo.url)
+        self.assertNotContains(response, reverse("press_cover_download"))
+
+    @override_settings(URL_CONFIG="domain")
+    def test_clarity_header_without_a_repository_logo_skips_the_press_logo(self):
+        response = self.get_home()
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, reverse("press_cover_download"))

@@ -53,6 +53,15 @@
                                 <p class="journal-name">{{ request.journal.name }}</p>
                             </div>
                         {% endif %}
+                    {% elif request.repository %}
+                        {% if request.repository.logo %}
+                            {% get_alt_text file_path=request.repository.logo default=request.repository.name|logo_alt as repository_logo_alt %}
+                            <div class="col-md-3">
+                                <a href="{% url 'website_index' %}">
+                                    {% svg_or_image request.repository.logo css_class='img-fluid header-image top-bar-image' alt_text=repository_logo_alt %}
+                                </a>
+                            </div>
+                        {% endif %}
                     {% elif request.press and not request.journal %}
                         <div class="col-md-2">
                             {% if 'svg' in request.press_cover %}
