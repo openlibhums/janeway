@@ -485,16 +485,9 @@
 {% block js %}
     <script src="{% static 'material/toc.js' %}"></script>
 
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
-    <script>
-        MathJax.Hub.Config({
-            tex2jax: {inlineMath: [["\\(", "\\)"]]},
-            "HTML-CSS": {
-                linebreaks: {automatic: true, width: "container"}
-            }
-        });
-    </script>
+    {% include "common/elements/mathjax.html" with linebreaks=True %}
     <script src="{% static 'common/js/table-expansion.js' %}"></script>
+    <script src="{% static 'common/js/scroll-regions.js' %}"></script>
     <script>
         initTableExpansion({
             modalSelector: '.modal',

@@ -599,3 +599,54 @@ class ArticleFilterAccordionTests(TestCase):
             response,
             '<li class="accordion-item" data-accordion-item role="presentation">',
         )
+
+
+class GalleyScriptTemplateTests(SimpleTestCase):
+    THEMES = ("OLH", "clarity", "clean", "material")
+    PRINT_THEMES = ("OLH", "clarity", "clean")
+
+    def read_template(self, relative_path):
+        path = os.path.join(settings.BASE_DIR, "templates", relative_path)
+        with open(path, encoding="utf-8") as template_file:
+            return template_file.read()
+
+    def test_article_pages_use_the_shared_mathjax_and_scroll_scripts(self):
+        for theme in self.THEMES:
+            with self.subTest(theme=theme):
+                template = helpers.read_theme_asset(
+                    theme, "templates/journal/article.html"
+                )
+                self.assertIn('"common/elements/mathjax.html"', template)
+                self.assertIn("common/js/scroll-regions.js", template)
+                self.assertNotIn("mathjax/2.", template)
+
+    def test_admin_templates_use_the_shared_mathjax(self):
+        for path in [
+            "admin/core/base.html",
+            "admin/proofing/preview/rendered.html",
+        ]:
+            with self.subTest(path=path):
+                template = self.read_template(path)
+                self.assertIn('"common/elements/mathjax.html"', template)
+                self.assertNotIn("mathjax/2.", template)
+
+    def test_mathjax_formulas_keep_their_own_line_height(self):
+        template = self.read_template("common/elements/mathjax.html")
+        self.assertIn("mathjax/4.", template)
+        self.assertIn(
+            "mjx-math,\n  mjx-math * {\n    line-height: 0 !important;\n  }",
+            template,
+        )
+
+    def test_print_views_scroll_wide_tables_on_screen(self):
+        head = self.read_template("common/elements/journal/print_head.html")
+        self.assertIn('name="viewport"', head)
+        self.assertIn("@media screen", head)
+        self.assertIn("overflow-x: auto;", head)
+        self.assertIn("common/js/scroll-regions.js", head)
+        for theme in self.PRINT_THEMES:
+            with self.subTest(theme=theme):
+                template = helpers.read_theme_asset(
+                    theme, "templates/journal/print.html"
+                )
+                self.assertIn('"common/elements/journal/print_head.html"', template)
