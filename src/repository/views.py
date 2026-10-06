@@ -1016,7 +1016,9 @@ def repository_manager_article(request, preprint_id):
 
     if request.POST:
         if "accept" in request.POST:
-            if not preprint.has_version():
+            # The submitted file becomes version 1 unless a moderator has
+            # already made a version.
+            if not preprint.make_first_version():
                 messages.add_message(
                     request,
                     messages.WARNING,

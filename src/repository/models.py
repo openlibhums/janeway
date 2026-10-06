@@ -1149,6 +1149,18 @@ class Preprint(models.Model):
             return "pdf"
         return None
 
+    def make_first_version(self):
+        """
+        Makes the submitted file version 1, if the preprint has no versions.
+        :return: False if there is no version and no file to make one from
+        """
+        if self.has_version():
+            return True
+        if not self.submission_file:
+            return False
+        self.make_new_version(self.submission_file)
+        return True
+
     @property
     @cache(600)
     def url(self):
