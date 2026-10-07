@@ -1,5 +1,5 @@
 @media screen {
-    table {
+    .table-expansion > table {
         display: block;
         max-width: 100%;
         overflow-x: auto;

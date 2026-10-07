@@ -329,6 +329,7 @@ a:hover .article-title {
 
 .table-wrap {
     overflow-x: auto;
+    padding: var(--focus-ring-size, 4px);
 }
 
 .table-center {
@@ -2103,6 +2104,15 @@ h3.article-subgroup {
 /* When the width is capped, keep the ratio from width and height
    attributes. An image sized by height alone keeps that height. */
 #main_article img[width][height] {
+    height: auto;
+}
+
+#main_article video,
+#main_article iframe {
+    max-width: 100%;
+}
+
+#main_article video {
     height: auto;
 }
 

@@ -1862,6 +1862,7 @@ button.list-group-item-danger.active:focus {
 
 .table-wrap {
   overflow-x: scroll;
+  padding: var(--focus-ring-size, 4px);
 }
 
 .no-margin-left {

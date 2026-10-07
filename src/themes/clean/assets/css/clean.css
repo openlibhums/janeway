@@ -473,6 +473,10 @@ footer svg {
   overflow-x: scroll;
 }
 
+table.article-table[data-scroll-region] {
+  margin: 0;
+}
+
 .table-caption {
     margin-bottom: 8px;
 }

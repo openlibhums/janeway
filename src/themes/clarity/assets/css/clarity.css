@@ -645,6 +645,10 @@ a.btn {
   border-top: 2px solid var(--border-medium);
 }
 
+table.article-table[data-scroll-region] {
+  margin: 0 0 1rem;
+}
+
 .article-table-sm th,
 .article-table-sm td {
   padding: 0.3rem;
@@ -655,16 +659,20 @@ a.btn {
 }
 
 #main_article img,
-#main_article video {
-  max-width: 100%;
-  height: auto;
-}
-
+#main_article video,
 .homepage-element-html img,
 .homepage-element-html video,
 .card-text img,
 .card-text video {
   max-width: 100%;
+}
+
+#main_article img[width][height],
+#main_article video,
+.homepage-element-html img[width][height],
+.homepage-element-html video,
+.card-text img[width][height],
+.card-text video {
   height: auto;
 }
 
