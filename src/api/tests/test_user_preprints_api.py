@@ -206,3 +206,30 @@ class TestPreprintSearchAPI(TestCase):
         self.assertEqual(response.status_code, 200)
         results = response.data.get("results", response.data)
         self.assertEqual([result["pk"] for result in results], [self.ours.pk])
+
+
+@override_settings(URL_CONFIG="domain")
+class TestPublishedPreprintsAPI(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=DOMAIN
+        )
+        cls.owner = helpers.create_user("owner@example.org")
+        cls.preprint = helpers.create_preprint(
+            cls.repository, cls.owner, cls.subject, title="Public"
+        )
+        cls.preprint.stage = repository_models.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now() - timedelta(days=1)
+        cls.preprint.save()
+
+    def test_owner_account_details_are_not_exposed(self):
+        response = APIClient().get(
+            reverse("repository_published_preprint-list"),
+            SERVER_NAME=DOMAIN,
+        )
+        self.assertEqual(response.status_code, 200)
+        result = response.data["results"][0]
+        self.assertEqual(result["owner"], self.owner.pk)
+        self.assertNotIn("password", response.content.decode())
