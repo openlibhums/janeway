@@ -115,21 +115,6 @@ def query_parameter_from_url(url, parameter):
     return values[0] if values else None
 
 
-def login_with_expired_oidc_session(client, user):
-    """
-    Logs a user in through the OIDC backend with an id token that has
-    already expired, so that session refresh middleware treats the next
-    request as needing silent re-authentication.
-    AUTHENTICATION_BACKENDS must include utils.oidc.JanewayOIDCAB.
-    :param client: a django.test.Client
-    :param user: the core.Account to log in
-    """
-    client.force_login(user, backend="utils.oidc.JanewayOIDCAB")
-    session = client.session
-    session["oidc_id_token_expiration"] = 0
-    session.save()
-
-
 def create_journals():
     """
     Creates a set of dummy journals for testing
