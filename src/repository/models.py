@@ -849,7 +849,7 @@ class Preprint(models.Model):
         help_text="The account that submitted this item.",
     )
     stage = models.CharField(max_length=25, default=STAGE_PREPRINT_UNSUBMITTED)
-    title = models.CharField(
+    title = model_utils.JanewayBleachCharField(
         max_length=300,
         help_text=_("Your article title"),
     )
@@ -1547,7 +1547,7 @@ class PreprintVersion(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    title = models.CharField(
+    title = model_utils.JanewayBleachCharField(
         max_length=300,
         help_text=_("Your article title"),
         blank=True,
@@ -1912,7 +1912,7 @@ class VersionQueue(models.Model):
         help_text="Please use the following format for your DOI: https://doi.org/10.xxxx/xxxx",
     )
 
-    title = models.CharField(
+    title = model_utils.JanewayBleachCharField(
         max_length=300,
         help_text=_("Your article title"),
     )
