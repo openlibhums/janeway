@@ -1,7 +1,9 @@
+from datetime import timedelta
 from unittest import mock
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from rest_framework.test import APIClient
 
@@ -154,3 +156,53 @@ class TestUserPreprintsAPI(TestCase):
         preprint = repository_models.Preprint.objects.get(pk=response.data["pk"])
         self.assertNotIn("<script>", preprint.title)
         self.assertIn("<i>Fine</i>", preprint.title)
+
+
+@override_settings(URL_CONFIG="domain")
+class TestPreprintSearchAPI(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.manager = helpers.create_user("manager@example.org")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.manager], [], domain=DOMAIN
+        )
+        cls.other_repository = repository_models.Repository.objects.create(
+            press=cls.press,
+            name="Other",
+            short_name="other",
+            object_name="Preprint",
+            object_name_plural="Preprints",
+            publisher="Publisher",
+            live=True,
+            domain="other-search-api.domain.com",
+        )
+        other_subject = repository_models.Subject.objects.create(
+            repository=cls.other_repository,
+            name="Other subject",
+            slug="other-subject",
+            enabled=True,
+        )
+        author = helpers.create_user("author@example.org", last_name="Zebedee")
+        cls.ours = helpers.create_preprint(
+            cls.repository, author, cls.subject, title="Ours"
+        )
+        cls.theirs = helpers.create_preprint(
+            cls.other_repository, author, other_subject, title="Theirs"
+        )
+        for preprint in (cls.ours, cls.theirs):
+            preprint.stage = repository_models.STAGE_PREPRINT_PUBLISHED
+            preprint.date_published = timezone.now() - timedelta(days=1)
+            preprint.save()
+
+    def test_author_search_stays_in_the_repository(self):
+        client = APIClient()
+        client.force_authenticate(user=self.manager)
+        response = client.get(
+            reverse("repository_preprints-list"),
+            {"search": "Zebedee"},
+            SERVER_NAME=DOMAIN,
+        )
+        self.assertEqual(response.status_code, 200)
+        results = response.data.get("results", response.data)
+        self.assertEqual([result["pk"] for result in results], [self.ours.pk])

@@ -201,44 +201,44 @@ class PreprintViewSet(viewsets.ModelViewSet):
         subjects = self.request.query_params.getlist("subject")
 
         if search_term:
-            split_search_term = search_term.split(" ")
-            lower_split_search_term = [term.lower() for term in split_search_term]
+            terms = [term.lower() for term in search_term.split()]
 
-            # Initial filter on Title, Abstract and Keywords.
-            preprint_search = preprints.filter(
+            # Title, abstract and keywords.
+            matches = (
                 Q(title__icontains=search_term)
                 | Q(abstract__icontains=search_term)
                 | Q(keywords__word=search_term)
             )
 
-            from_author = repository_models.PreprintAuthor.objects.annotate(
-                lower_first_name=Lower("account__first_name"),
-                lower_middle_name=Lower("account__middle_name"),
-                lower_last_name=Lower("account__last_name"),
-            ).filter(
-                Q(lower_first_name__in=lower_split_search_term)
-                | Q(lower_middle_name__in=lower_split_search_term)
-                | Q(lower_last_name__in=lower_split_search_term)
-                | Q(account__institution__icontains=search_term)
-            )
-
-            preprints_from_author = [
-                pa.preprint
-                for pa in repository_models.PreprintAuthor.objects.filter(
-                    pk__in=from_author,
+            # Author names and affiliations, on published preprints.
+            from_author = (
+                repository_models.PreprintAuthor.objects.filter(
+                    preprint__repository=self.request.repository,
                     preprint__date_published__lte=timezone.now(),
                 )
-            ]
-
-            preprint_pks = list(
-                {
-                    preprint.pk
-                    for preprint in list(preprint_search) + preprints_from_author
-                }
+                .annotate(
+                    lower_first_name=Lower("account__first_name"),
+                    lower_middle_name=Lower("account__middle_name"),
+                    lower_last_name=Lower("account__last_name"),
+                )
+                .filter(
+                    Q(lower_first_name__in=terms)
+                    | Q(lower_middle_name__in=terms)
+                    | Q(lower_last_name__in=terms)
+                    | Q(
+                        controlledaffiliation__organization__labels__value__icontains=search_term
+                    )
+                    | Q(
+                        controlledaffiliation__organization__custom_label__value__icontains=search_term
+                    )
+                )
+                .values("preprint_id")
             )
+            matches |= Q(pk__in=from_author)
 
-            preprints = repository_models.Preprint.objects.filter(
-                pk__in=preprint_pks,
+            # Never widen the results beyond this repository.
+            preprints = preprints.filter(
+                pk__in=repository_models.Preprint.objects.filter(matches).values("pk")
             )
 
         if stage:
