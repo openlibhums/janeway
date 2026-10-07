@@ -49,7 +49,7 @@ from security.decorators import (
     user_has_completed_review_for_article,
 )
 from submission import models as submission_models, forms as submission_forms
-from utils import models as util_models, ithenticate, shared, setting_handler
+from utils import models as util_models, shared, setting_handler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -111,7 +111,7 @@ def unassigned(request):
 @editor_user_required
 def unassigned_article(request, article_id):
     """
-    Displays metadata of an individual article, can send details to Crosscheck for reporting.
+    Displays metadata of an individual article.
     :param request: HttpRequest object
     :param article_id: Article PK
     :return: HttpResponse or Redirect if POST
@@ -121,30 +121,6 @@ def unassigned_article(request, article_id):
         pk=article_id,
         journal=request.journal,
     )
-
-    if article.ithenticate_id and not article.ithenticate_score:
-        ithenticate.fetch_percentage(request.journal, [article])
-
-    if "crosscheck" in request.POST:
-        file_id = request.POST.get("crosscheck")
-        file = get_object_or_404(core_models.File, pk=file_id)
-        try:
-            id = ithenticate.send_to_ithenticate(article, file)
-            article.ithenticate_id = id
-            article.save()
-        except AssertionError:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                "Error returned by iThenticate. Check login details and API status.",
-            )
-
-        return redirect(
-            reverse(
-                "review_unassigned_article",
-                kwargs={"article_id": article.pk},
-            )
-        )
 
     current_editors = [
         assignment.editor.pk
@@ -210,29 +186,6 @@ def add_projected_issue(request, article_id):
     context = {
         "article": article,
         "form": form,
-    }
-
-    return render(request, template, context)
-
-
-@editor_user_required
-def view_ithenticate_report(request, article_id):
-    """Allows editor to view similarity report."""
-    article = get_object_or_404(
-        submission_models.Article,
-        pk=article_id,
-        ithenticate_id__isnull=False,
-        journal=request.journal,
-    )
-
-    ithenticate_url = ithenticate.fetch_url(article)
-
-    if ithenticate_url:
-        return redirect(ithenticate_url)
-
-    template = "review/ithenticate_failure.html"
-    context = {
-        "article": article,
     }
 
     return render(request, template, context)
