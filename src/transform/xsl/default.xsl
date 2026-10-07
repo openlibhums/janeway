@@ -1517,11 +1517,16 @@
 
     <xsl:template match="table-wrap" mode="testing">
         <div class="table-expansion">
-            <xsl:if test="@id">
-                <xsl:attribute name="id">
-                    <xsl:value-of select="@id"/>
-                </xsl:attribute>
-            </xsl:if>
+            <xsl:attribute name="id">
+                <xsl:choose>
+                    <xsl:when test="@id">
+                        <xsl:value-of select="@id"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('tab', count(preceding::table-wrap)+1)"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
             <xsl:apply-templates/>
         </div>
     </xsl:template>

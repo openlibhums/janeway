@@ -626,14 +626,14 @@ class GalleyScriptTemplateTests(SimpleTestCase):
                 self.assertNotIn("mathjax/2.", template)
 
     def test_admin_templates_use_the_shared_mathjax(self):
-        for path in [
-            "admin/core/base.html",
-            "admin/proofing/preview/rendered.html",
-        ]:
-            with self.subTest(path=path):
-                template = self.read_template(path)
-                self.assertIn('"common/elements/mathjax.html"', template)
-                self.assertNotIn("mathjax/2.", template)
+        template = self.read_template("admin/core/base.html")
+        self.assertIn('"common/elements/mathjax.html"', template)
+        self.assertNotIn("mathjax/2.", template)
+
+    def test_proofing_preview_loads_mathjax_once_from_the_admin_base(self):
+        template = self.read_template("admin/proofing/preview/rendered.html")
+        self.assertIn('{% extends "admin/core/base.html" %}', template)
+        self.assertNotIn("mathjax", template.lower())
 
     def test_mathjax_formulas_keep_their_own_line_height(self):
         template = self.read_template("common/elements/mathjax.html")
@@ -667,7 +667,37 @@ class GalleyScriptTemplateTests(SimpleTestCase):
         with open(path, encoding="utf-8") as script_file:
             script = script_file.read()
         self.assertIn("new ResizeObserver(scheduleUpdate)", script)
+        self.assertIn("observer.observe(tables[i].firstElementChild)", script)
         self.assertIn("document.activeElement !== table", script)
+
+    def test_focusable_tables_are_named_by_their_label(self):
+        script = self.read_static("common/js/scroll-regions.js")
+        self.assertIn("closest('.table-expansion')", script)
+        self.assertIn("table.setAttribute('aria-labelledby', labelId)", script)
+
+    def test_tab_stop_does_not_add_the_focus_margin_to_tables(self):
+        for theme, rule in [
+            (
+                "clarity",
+                "table.article-table[data-scroll-region] {\n  margin: 0 0 1rem;\n}",
+            ),
+            ("clean", "table.article-table[data-scroll-region] {\n  margin: 0;\n}"),
+        ]:
+            with self.subTest(theme=theme):
+                css = helpers.read_theme_asset(theme, "assets/css/%s.css" % theme)
+                self.assertIn(rule, css)
+
+    def test_table_wrappers_leave_room_for_the_focus_ring(self):
+        scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")
+        self.assertIn(
+            ".table-wrap {\n  overflow-x: scroll;\n  padding: var(--focus-ring-size, 4px);\n}",
+            scss,
+        )
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(
+            ".table-wrap {\n    overflow-x: auto;\n    padding: var(--focus-ring-size, 4px);\n}",
+            css,
+        )
 
     def test_print_views_scroll_wide_tables_on_screen(self):
         head = self.read_template("common/elements/journal/print_head.html")
@@ -677,6 +707,8 @@ class GalleyScriptTemplateTests(SimpleTestCase):
         self.assertIn("common/js/scroll-regions.js", head)
         print_css = self.read_static("common/css/print_view.css")
         self.assertIn("@media screen", print_css)
+        self.assertIn(".table-expansion > table {\n        display: block;", print_css)
+        self.assertNotIn("    table {", print_css)
         self.assertIn("overflow-x: auto;", print_css)
         for theme in self.PRINT_THEMES:
             with self.subTest(theme=theme):
@@ -701,6 +733,13 @@ class EditorContentReflowTests(SimpleTestCase):
         self.assertIn(".card-content img,", css)
         self.assertIn(".homepage-element-html iframe {\n    max-width: 100%;\n}", css)
 
+    def test_material_galley_media_keep_to_the_width(self):
+        css = helpers.read_theme_asset("material", "assets/mat.css")
+        self.assertIn(
+            "#main_article video,\n#main_article iframe {\n    max-width: 100%;\n}", css
+        )
+        self.assertIn("#main_article video {\n    height: auto;\n}", css)
+
     def test_clean_news_summaries_and_galley_media_keep_to_the_width(self):
         css = helpers.read_theme_asset("clean", "assets/css/clean.css")
         self.assertIn("#main_article video,\n#main_article iframe,", css)
@@ -712,6 +751,14 @@ class EditorContentReflowTests(SimpleTestCase):
         css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
         self.assertIn(".card-text img,", css)
         self.assertIn(".card-text iframe {\n  max-width: 100%;\n}", css)
+
+    def test_clarity_only_frees_the_height_of_images_sized_by_both_attributes(self):
+        css = helpers.read_theme_asset("clarity", "assets/css/clarity.css")
+        self.assertIn("#main_article img[width][height],", css)
+        self.assertNotIn(
+            "#main_article video {\n  max-width: 100%;\n  height: auto;", css
+        )
+        self.assertNotIn(".card-text video {\n  max-width: 100%;\n  height: auto;", css)
 
     def test_olh_galley_media_keep_to_the_width(self):
         scss = helpers.read_theme_asset("OLH", "assets/scss/app.scss")

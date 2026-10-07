@@ -85,8 +85,9 @@ class TestTableLabelTransform(SimpleTestCase):
             ["T1-label"],
         )
 
-    def test_table_without_an_id_keeps_a_numbered_label_id(self):
+    def test_table_without_an_id_gets_a_numbered_id_matching_its_label(self):
         html = self.render(None)
+        self.assertTrue(html.xpath('//div[@class="table-expansion"][@id="tab1"]'))
         self.assertEqual(
             html.xpath('//span[@class="table-label"]/@id'),
             ["tab1-label"],

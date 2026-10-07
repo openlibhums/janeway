@@ -19,13 +19,27 @@
         return null;
     }
 
+    function label(table) {
+        var wrapper = table.closest('.table-expansion');
+        var heading = wrapper && wrapper.querySelector('.table-label[id]');
+        return heading ? heading.id : null;
+    }
+
     function update(table) {
         var box = scroller(table);
         var overflows = box && box.scrollWidth > box.clientWidth + 1;
         if (overflows && !table.hasAttribute('tabindex')) {
             table.setAttribute('tabindex', '0');
             table.setAttribute(MARK, '');
+            var labelId = label(table);
+            if (labelId && !table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+                table.setAttribute('aria-labelledby', labelId);
+                table.setAttribute(MARK, 'labelled');
+            }
         } else if (!overflows && table.hasAttribute(MARK) && document.activeElement !== table) {
+            if (table.getAttribute(MARK) === 'labelled') {
+                table.removeAttribute('aria-labelledby');
+            }
             table.removeAttribute('tabindex');
             table.removeAttribute(MARK);
         }
@@ -59,6 +73,9 @@
         var tables = document.querySelectorAll('table');
         for (var i = 0; i < tables.length; i++) {
             observer.observe(tables[i]);
+            if (tables[i].firstElementChild) {
+                observer.observe(tables[i].firstElementChild);
+            }
             var box = scroller(tables[i]);
             if (box && box !== tables[i]) {
                 observer.observe(box);
