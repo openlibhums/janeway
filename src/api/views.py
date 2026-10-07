@@ -291,7 +291,7 @@ class UserPreprintsViewSet(PreprintViewSet):
         if self.request.method in "GET":
             return serializers.PreprintSerializer
         elif self.request.method in ["POST", "PUT"]:
-            return serializers.PreprintCreateSerializer
+            return serializers.UserPreprintSerializer
         return serializers.PreprintSerializer
 
     def get_queryset(self):
