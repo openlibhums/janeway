@@ -55,12 +55,6 @@ class Command(BaseCommand):
                 "type": "mins",
             },
             {
-                "name": "{}_janeway_ithenticate_job".format(cwd),
-                "time": 30,
-                "task": "store_ithenticate_scores",
-                "type": "mins",
-            },
-            {
                 "name": "{}_janeway_sitemaps_job".format(cwd),
                 "time": 4,
                 "task": "generate_sitemaps",
@@ -106,6 +100,15 @@ class Command(BaseCommand):
                     "type": task_type,
                 }
             )
+
+        # Jobs for commands that have since been removed from Janeway.
+        removed_jobs = [
+            "{}_janeway_ithenticate_job".format(cwd),
+        ]
+        for name in removed_jobs:
+            old_job = find_job(tab, name)
+            if old_job:
+                tab.remove(old_job)
 
         for job in jobs:
             current_job = find_job(tab, job["name"])
