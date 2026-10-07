@@ -390,6 +390,7 @@ class PreprintSerializer(serializers.ModelSerializer):
         )
         depth = 2
 
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
     authors = PreprintAccountSerializer(
         many=True,
     )
