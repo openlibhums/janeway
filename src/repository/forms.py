@@ -564,6 +564,9 @@ class VersionForm(forms.ModelForm):
     class Meta:
         model = models.VersionQueue
         fields = ("title", "abstract", "published_doi")
+        widgets = {
+            "title": forms.TextInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")

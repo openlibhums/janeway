@@ -144,3 +144,13 @@ class TestUserPreprintsAPI(TestCase):
         self.assertEqual(response.status_code, 403)
         self.submitted.refresh_from_db()
         self.assertEqual(self.submitted.title, "Submitted")
+
+    def test_titles_are_sanitised(self):
+        response = self.send(
+            "post",
+            self.payload(title="<i>Fine</i><script>alert(1)</script>"),
+        )
+        self.assertEqual(response.status_code, 201)
+        preprint = repository_models.Preprint.objects.get(pk=response.data["pk"])
+        self.assertNotIn("<script>", preprint.title)
+        self.assertIn("<i>Fine</i>", preprint.title)
