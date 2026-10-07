@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submission', '0090_article_topic_submissionconfiguration_topic'),
-        ('submission', '0091_populate_fieldanswer_field_name'),
+        ("submission", "0090_article_topic_submissionconfiguration_topic"),
+        ("submission", "0091_populate_fieldanswer_field_name"),
     ]
 
-    operations = [
-    ]
+    operations = []
