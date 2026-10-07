@@ -309,8 +309,7 @@ class PreprintLicenses(viewsets.ModelViewSet):
     serializer_class = serializers.LicenceSerializer
     http_method_names = ["get", "post", "delete"]
     permission_classes = [
-        api_permissions.IsRepositoryManager,
-        api_permissions.IsEditor,
+        api_permissions.IsRepositoryManager | api_permissions.IsEditor,
     ]
 
     def get_queryset(self):
