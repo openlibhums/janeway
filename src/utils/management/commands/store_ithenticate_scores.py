@@ -3,6 +3,9 @@ from django.core.management.base import BaseCommand
 from submission import models
 from journal import models as journal_models
 from utils import ithenticate
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -23,7 +26,16 @@ class Command(BaseCommand):
                     ithenticate_id__isnull=False,
                     ithenticate_score__isnull=True,
                 )
-                ithenticate.fetch_percentage(journal, articles)
+                if not articles.exists():
+                    continue
+                try:
+                    ithenticate.fetch_percentage(journal, articles)
+                except AssertionError:
+                    logger.warning(
+                        "Ithenticate login failed for {journal}. Skipping.".format(
+                            journal=journal.name,
+                        )
+                    )
             else:
                 print(
                     "Ithenticate is not enabled for {journal}. Skipping.".format(
