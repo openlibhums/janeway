@@ -1948,6 +1948,7 @@ def publication_schedule(request):
     return render(request, template, context)
 
 
+@has_journal
 def become_reviewer(request):
     """
     If a user is signed in and not a reviewer, lets them become one, otherwsie asks them to login/tells them they
