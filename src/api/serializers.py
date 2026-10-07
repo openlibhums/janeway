@@ -1,9 +1,10 @@
 import uuid
 
-from rest_framework import serializers, validators
+from rest_framework import exceptions, serializers, validators
 
 from django.db import transaction
 from django.shortcuts import reverse
+from django.utils import timezone
 
 from core import models as core_models, logic as core_logic
 from journal import models as journal_models
@@ -666,6 +667,50 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         source="preprintsupplementaryfile_set",
         many=True,
     )
+
+
+class UserPreprintSerializer(PreprintCreateSerializer):
+    """
+    Creates and updates a user's own preprints. Owners can only submit them:
+    moderators decide the stage, dates and DOI, and submitted preprints change
+    through new versions.
+    """
+
+    OWNER_STAGES = (
+        repository_models.STAGE_PREPRINT_UNSUBMITTED,
+        repository_models.STAGE_PREPRINT_REVIEW,
+    )
+
+    def validate(self, attrs):
+        request = self.context["request"]
+        if self.instance and self.instance.date_submitted:
+            raise exceptions.PermissionDenied(
+                "Submitted preprints can only be changed by submitting a new version."
+            )
+        attrs = super().validate(attrs)
+
+        default_stage = (
+            repository_models.STAGE_PREPRINT_UNSUBMITTED
+            if self.instance
+            else repository_models.STAGE_PREPRINT_REVIEW
+        )
+        stage = attrs.get("stage") or default_stage
+        if stage not in self.OWNER_STAGES:
+            raise serializers.ValidationError(
+                {"stage": f"Choose one of: {', '.join(self.OWNER_STAGES)}."}
+            )
+
+        submitted = stage == repository_models.STAGE_PREPRINT_REVIEW
+        attrs.update(
+            stage=stage,
+            owner=request.user,
+            repository=request.repository,
+            date_submitted=timezone.now() if submitted else None,
+            date_accepted=None,
+            date_published=None,
+            preprint_doi=None,
+        )
+        return attrs
 
 
 class SubmissionAccountSearch(serializers.ModelSerializer):
