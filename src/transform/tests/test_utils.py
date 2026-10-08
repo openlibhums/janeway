@@ -1,6 +1,9 @@
 from django.test import SimpleTestCase
 
-from transform.utils import convert_html_abstract_to_jats
+from transform.utils import (
+    convert_html_abstract_to_jats,
+    convert_html_title_to_jats,
+)
 
 
 class TestConvertHtmlAbstractToJats(SimpleTestCase):
@@ -60,3 +63,51 @@ class TestConvertHtmlAbstractToJats(SimpleTestCase):
         self.assertNotEqual(result, "")
         self.assertIn("212 patients.", result)
         self.assertIn("<bold>Conclusion:</bold>", result)
+
+
+class TestConvertHtmlTitleToJats(SimpleTestCase):
+    """Tests for convert_html_title_to_jats (issue #5505)."""
+
+    def test_empty_inputs(self):
+        self.assertEqual(convert_html_title_to_jats(""), "")
+        self.assertEqual(convert_html_title_to_jats(None), "")
+
+    def test_plain_title_unchanged(self):
+        self.assertEqual(
+            convert_html_title_to_jats("A plain title"),
+            "A plain title",
+        )
+
+    def test_inline_tags_converted(self):
+        result = convert_html_title_to_jats(
+            "<em>E. coli</em>, <i>in vitro</i>, <strong>A</strong>, <b>B</b>, "
+            "H<sub>2</sub>O and x<sup>2</sup>"
+        )
+        self.assertEqual(
+            result,
+            "<italic>E. coli</italic>, <italic>in vitro</italic>, "
+            "<bold>A</bold>, <bold>B</bold>, H<sub>2</sub>O and x<sup>2</sup>",
+        )
+
+    def test_no_paragraph_wrapping(self):
+        result = convert_html_title_to_jats("Title with <em>italics</em>")
+        self.assertNotIn("<p>", result)
+
+    def test_span_unwrapped(self):
+        result = convert_html_title_to_jats('<span lang="fr">Le titre</span>')
+        self.assertEqual(result, "Le titre")
+
+    def test_html_entities_do_not_produce_empty_output(self):
+        for entity, label in [
+            ("&nbsp;", "nbsp"),
+            ("&mdash;", "mdash"),
+            ("&ldquo;text&rdquo;", "curly quotes"),
+        ]:
+            with self.subTest(entity=label):
+                result = convert_html_title_to_jats(f"Test {entity} here")
+                self.assertIn("Test", result)
+                self.assertIn("here", result)
+
+    def test_special_characters_escaped(self):
+        result = convert_html_title_to_jats("Smith & Jones: p&lt;0.05 < 1")
+        self.assertEqual(result, "Smith &amp; Jones: p&lt;0.05 &lt; 1")

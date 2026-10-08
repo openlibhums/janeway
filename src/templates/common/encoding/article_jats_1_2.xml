@@ -33,7 +33,7 @@
                 </subj-group>
             </article-categories>
             <title-group>
-                <article-title>{{ article.title }}</article-title>
+                <article-title>{{ article.get_clean_title }}</article-title>
             </title-group>
             <contrib-group>
                 {% for item in article.frozen_authors_for_jats_contribs %}
