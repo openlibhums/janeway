@@ -11,7 +11,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _apply_html_to_jats_xsl(xsl_name, html_string):
+def apply_html_to_jats_xsl(xsl_name, html_string):
     xslt_path = os.path.join(
         settings.BASE_DIR,
         "transform",
@@ -44,7 +44,7 @@ def convert_html_abstract_to_jats(abstract_string):
 
     try:
         return mark_safe(
-            _apply_html_to_jats_xsl("html_abstract_to_jats.xsl", abstract_string)
+            apply_html_to_jats_xsl("html_abstract_to_jats.xsl", abstract_string)
         )
 
     except Exception as e:
@@ -63,7 +63,7 @@ def convert_html_title_to_jats(title_string):
 
     try:
         return mark_safe(
-            _apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string)
+            apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string)
         )
 
     except Exception as e:
