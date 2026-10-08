@@ -667,10 +667,7 @@ class RepositoryFieldAnswer(models.Model):
         :param fields: field values to set on the copy, such as preprint,
             preprint_version or version_queue
         """
-        copy = RepositoryFieldAnswer.objects.get(pk=self.pk)
-        copy.pk = None
-        for name, value in fields.items():
-            setattr(copy, name, value)
+        copy = model_utils.copy_instance(self, **fields)
         copy.save()
         return copy
 

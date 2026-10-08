@@ -42,6 +42,7 @@ from django.core.validators import (
     FileExtensionValidator,
     get_available_image_extensions,
 )
+from django.forms.models import model_to_dict
 from django.db.models.fields.related_descriptors import (
     create_forward_many_to_many_manager,
     ManyToManyDescriptor,
@@ -213,6 +214,22 @@ def merge_models(src, dest):
                 # Ignore unique constraint violations
                 pass
     src.delete()
+
+
+def copy_instance(instance, **fields):
+    """
+    Returns an unsaved copy of a model instance, built with model_to_dict so
+    that a many-to-many field added to the model later raises an error here
+    rather than being silently left off the copy.
+    :param instance: Model instance to copy
+    :param fields: field values to set on the copy
+    """
+    model = instance._meta.model
+    data = model_to_dict(instance, exclude=[model._meta.pk.name, *fields])
+    for field in model._meta.concrete_fields:
+        if field.is_relation and field.name in data:
+            data[field.attname] = data.pop(field.name)
+    return model(**data, **fields)
 
 
 class JanewayMultilingualQuerySet(MultilingualQuerySet):

@@ -2885,24 +2885,16 @@ class FrozenAuthor(AbstractLastModifiedModel):
         :param fields: field values to set on the copy, such as article,
             preprint or preprint_version
         """
-        affiliations = list(self.affiliations)
-        credits = list(self.credits)
-
-        copy = FrozenAuthor.objects.get(pk=self.pk)
-        copy.pk = None
-        for name, value in fields.items():
-            setattr(copy, name, value)
+        copy = model_utils.copy_instance(self, **fields)
         copy.save()
 
-        for affiliation in affiliations:
-            affiliation.pk = None
-            affiliation.frozen_author = copy
         # bulk_create skips save(), which would make the first copy primary.
-        core_models.ControlledAffiliation.objects.bulk_create(affiliations)
-        for credit in credits:
-            credit.pk = None
-            credit.frozen_author = copy
-            credit.save()
+        core_models.ControlledAffiliation.objects.bulk_create(
+            model_utils.copy_instance(affiliation, frozen_author=copy)
+            for affiliation in self.affiliations
+        )
+        for credit in self.credits:
+            model_utils.copy_instance(credit, frozen_author=copy).save()
         return copy
 
     @classmethod
