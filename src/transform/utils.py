@@ -62,9 +62,7 @@ def convert_html_title_to_jats(title_string):
         return ""
 
     try:
-        return mark_safe(
-            apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string)
-        )
+        return mark_safe(apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string))
 
     except Exception as e:
         logger.error(e)
