@@ -158,7 +158,7 @@ Accessing Settings in Templates and Code
 
 Setting values can be accessed inside templates using **{{ journal_settings.group_name.setting_name }}**::
 
-    {{ journal_settings.crosscheck.enable_crosscheck }}
+    {{ journal_settings.general.journal_name }}
 
 
 In Django they can be accessed with **get_setting**::

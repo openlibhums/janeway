@@ -274,7 +274,7 @@ def settings_for_context(request):
 
 @cache(600)
 def cached_settings_for_context(journal, language):
-    setting_groups = ["general", "metadata", "crosscheck", "article", "news", "styling"]
+    setting_groups = ["general", "metadata", "article", "news", "styling"]
     _dict = {group: {} for group in setting_groups}
 
     for group in setting_groups:
@@ -643,12 +643,6 @@ def get_settings_to_edit(display_group, journal, user):
 
         group_of_settings = process_setting_list(xref_settings, "Identifiers", journal)
         setting_group = "Identifiers"
-
-    elif display_group == "crosscheck":
-        xref_settings = ["enable", "username", "password"]
-
-        group_of_settings = process_setting_list(xref_settings, "crosscheck", journal)
-        setting_group = "crosscheck"
 
     elif display_group == "journal":
         journal_settings = [
