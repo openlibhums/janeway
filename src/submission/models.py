@@ -2561,6 +2561,15 @@ class Article(AbstractLastModifiedModel):
             return ""
         return transform_utils.convert_html_abstract_to_jats(self.abstract)
 
+    def get_clean_title(self):
+        """
+        Returns a JATS-safe title with allowed inline HTML tags converted to
+        their JATS equivalents.
+        """
+        if not self.title:
+            return ""
+        return transform_utils.convert_html_title_to_jats(self.title)
+
     @property
     def iso639_1_lang_code(self):
         """Return the ISO 639-1 two-letter code for use in xml:lang."""
