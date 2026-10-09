@@ -3,7 +3,7 @@
 {% load dates %}
 {% load alt_text %}
 
-<article class="article-item" aria-label="{{ article.title|striptags }}">
+<article class="article-item" aria-label="{{ article.stripped_title }}">
     <div class="row align-items-start">
         {% if not journal_settings.article.disable_article_thumbnails %}
             <div class="col-auto d-none d-md-block">
@@ -34,21 +34,21 @@
             {% if article.is_remote %}
                 <a href="{{ article.remote_url }}" target="_blank" class="article-link">
                     {% if level == "deep" %}
-                        <h4 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h4>
+                        <h4 class="article-title">{{ article.safe_title_html }}&nbsp;{% include "elements/icons/link_external.html" %}</h4>
                     {% elif level == "shallow" %}
-                        <h3 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h3>
+                        <h3 class="article-title">{{ article.safe_title_html }}&nbsp;{% include "elements/icons/link_external.html" %}</h3>
                     {% else %}
-                        <h2 class="article-title">{{ article.title|safe }}&nbsp;{% include "elements/icons/link_external.html" %}</h2>
+                        <h2 class="article-title">{{ article.safe_title_html }}&nbsp;{% include "elements/icons/link_external.html" %}</h2>
                     {% endif %}
                 </a>
             {% else %}
                 <a href="{{ article.url }}" class="article-link">
                     {% if level == "deep" %}
-                        <h4 class="article-title">{{ article.title|safe }}</h4>
+                        <h4 class="article-title">{{ article.safe_title_html }}</h4>
                     {% elif level == "shallow" %}
-                        <h3 class="article-title">{{ article.title|safe }}</h3>
+                        <h3 class="article-title">{{ article.safe_title_html }}</h3>
                     {% else %}
-                        <h2 class="article-title">{{ article.title|safe }}</h2>
+                        <h2 class="article-title">{{ article.safe_title_html }}</h2>
                     {% endif %}
                 </a>
             {% endif %}

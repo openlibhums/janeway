@@ -3,5 +3,5 @@
 ({{ article.date_published.year }}) “{{ article.safe_title_html }}”,
 <em>{{ journal.name }}</em>.{% if article.issue.volume %} {{ article.issue.volume }}{% endif %}{% if article.issue.issue %}({{ article.issue.issue }}).{% endif %}
 {% if article.identifier.id_type == 'doi' %}
-    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.stripped_title %}
 {% endif %}</p>
