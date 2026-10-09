@@ -261,8 +261,8 @@ class TestLogic(TestCase):
 
     def test_create_crossref_article_context_not_published(self):
         expected_data = {
-            "title": self.article_one.stripped_title,
-            "abstract": self.article_one.safe_abstract_jats,
+            "stripped_title": self.article_one.stripped_title,
+            "safe_abstract_jats": self.article_one.safe_abstract_jats,
             "url": self.article_one.url,
             "authors": [
                 author.email for author in self.article_one.frozenauthor_set.all()
@@ -281,7 +281,6 @@ class TestLogic(TestCase):
             "other_pages": None,
             "first_page": self.article_one.first_page,
             "last_page": self.article_one.last_page,
-            "other_pages": None,
             "scheduled": False,
         }
 
