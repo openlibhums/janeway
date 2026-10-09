@@ -1,0 +1,41 @@
+{% comment %}
+Overrides foundationform/_foundation_form_field.html (vendored
+django-foundation-form package) to add programmatic error/help-text
+association (id on the error/help text + aria-describedby on the widget)
+for assistive tech. See janeway-code-style / issue #5255.
+{% endcomment %}
+{% load i18n %}
+{% load a11y %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<div class="row expanded{% if field.errors %} error{% endif %}">
+    {% if inline %}
+        <div class="large-3 columns">
+            <label for="{{ field.auto_id }}" class="right inline">
+                {{ field.label }} {% if field.field.required %}<abbr class="red req" title="required">*</abbr>{% endif %}
+            </label>
+        </div>
+        <div class="large-9 columns">
+            {{ field|field_describedby:False }}
+            {% for error in field.errors %}
+                <small id="{{ field.auto_id }}_error_{{ forloop.counter }}"{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="large-12 columns">
+            <label for="{{ field.auto_id }}">
+                {{ field.label }}
+                {% if field.field.required %}<abbr class="red req" title="required">*</abbr>{% endif %}
+                {% if languages|length > 1 and field.name in form.translated_field_names %}
+                    <small class="float-right">[{% trans 'translatable' %}]</small>
+                {% endif %}
+            </label>
+            {{ field|field_describedby }}
+            {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="help-text">{{ field.help_text }}</p>{% endif %}
+            {% for error in field.errors %}
+                <small id="{{ field.auto_id }}_error_{{ forloop.counter }}"{% if field.errors %} class="error"{% endif %}>{{ error|escape }}</small>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

@@ -1,4 +1,5 @@
-from django.core.management.base import BaseCommand
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.utils import translation
 
@@ -39,9 +40,10 @@ class Command(BaseCommand):
             if options.get("journal_name")
             else input("Enter the full name of the Journal: ")
         )
+        journal_code_from_option = bool(options.get("journal_code"))
         journal_code = (
             options.get("journal_code")
-            if options.get("journal_code")
+            if journal_code_from_option
             else input("Enter a short name for the Journal: ")
         )
         base_url = (
@@ -51,15 +53,26 @@ class Command(BaseCommand):
         )
 
         if journal_name and journal_code and base_url:
-            print(
-                "Creating new journal {0} ({1}) with domain {2}.".format(
-                    journal_name, journal_code, base_url
+            while True:
+                print(
+                    "Creating new journal {0} ({1}) with domain {2}.".format(
+                        journal_name, journal_code, base_url
+                    )
                 )
-            )
-
-            install.journal(
-                name=journal_name, code=journal_code, base_url=base_url, delete=delete
-            )
+                try:
+                    install.journal(
+                        name=journal_name,
+                        code=journal_code,
+                        base_url=base_url,
+                        delete=delete,
+                    )
+                    break
+                except ValidationError as error:
+                    message = "; ".join(error.messages)
+                    if journal_code_from_option:
+                        raise CommandError(message)
+                    print(message)
+                    journal_code = input("Enter a short name for the Journal: ")
 
             if not delete:
                 journal = journal_models.Journal.objects.get(code=journal_code)

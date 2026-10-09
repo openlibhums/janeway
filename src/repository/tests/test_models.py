@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Andy Byers, Mauro Sanchez & Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+import importlib
 import mock
 from datetime import timedelta
 
@@ -11,6 +12,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from journal.tests.utils import make_test_journal
 from utils.testing import helpers
 from submission import models as sm
 from repository import models as rm
@@ -153,6 +155,84 @@ class TestModels(TestCase):
         self.assertEqual(self.preprint_one.preprintversion_set.count(), 0)
 
 
+class TestRepository(TestCase):
+    """Tests for the Repository model itself."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.repository, _ = helpers.create_repository(
+            cls.press, [], [], domain="short-name-test.domain.com"
+        )
+
+    def test_repository_short_name_unique_constraint(self):
+        """Two repositories cannot share a short_name."""
+        with self.assertRaises(IntegrityError):
+            rm.Repository.objects.create(
+                press=self.press,
+                name="Duplicate Repository",
+                short_name=self.repository.short_name,
+                object_name="Preprint",
+                object_name_plural="Preprints",
+                publisher="Test Publisher",
+                live=True,
+                domain="short-name-test-2.domain.com",
+            )
+
+
+class TestCheckNoDuplicateShortNames(TestCase):
+    """Tests for the migration 0057 pre-check guarding Repository.short_name uniqueness."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        migration_module = importlib.import_module(
+            "repository.migrations.0057_alter_historicalrepository_short_name_and_more"
+        )
+        cls.check_no_duplicate_short_names = staticmethod(
+            migration_module.check_no_duplicate_short_names
+        )
+
+    def _fake_apps(self):
+        apps = mock.Mock()
+        apps.get_model.return_value = rm.Repository
+        return apps
+
+    def test_raises_on_duplicate_short_names(self):
+        """The check names both repositories sharing a short_name.
+
+        The unique constraint this migration adds makes it impossible to
+        seed real duplicate rows via the ORM, so the Repository manager is
+        mocked to simulate the duplicate the pre-check is meant to catch.
+        """
+        duplicates = mock.MagicMock()
+        duplicates.exists.return_value = True
+        duplicates.__iter__.return_value = iter([{"short_name": "clash"}])
+        with mock.patch.object(rm.Repository, "objects") as mock_objects:
+            mock_objects.values.return_value.annotate.return_value.filter.return_value = duplicates
+            mock_objects.filter.return_value.values_list.return_value = [
+                (1, "Repository One"),
+                (2, "Repository Two"),
+            ]
+            with self.assertRaises(RuntimeError) as ctx:
+                self.check_no_duplicate_short_names(self._fake_apps(), None)
+        self.assertIn("Repository One", str(ctx.exception))
+        self.assertIn("Repository Two", str(ctx.exception))
+
+    def test_does_not_raise_without_duplicates(self):
+        """No shared short_name values means the pre-check passes silently."""
+        press = helpers.create_press()
+        press.save()
+        helpers.create_repository(
+            press, [], [], domain="nodupe-one.domain.com", short_name="repoone"
+        )
+        helpers.create_repository(
+            press, [], [], domain="nodupe-two.domain.com", short_name="repotwo"
+        )
+        self.check_no_duplicate_short_names(self._fake_apps(), None)
+
+
 class TestRepositoryOrganisationUnit(TestCase):
     """Tests for the RepositoryOrganisationUnit model introduced in iowa-and-isolinear."""
 
@@ -215,7 +295,7 @@ class TestRepositoryOrganisationUnit(TestCase):
     def test_same_code_allowed_in_different_repository(self):
         """The same code is allowed in a different repository."""
         other_repo, _ = helpers.create_repository(
-            self.press, [], [], domain="rou-other.domain.com"
+            self.press, [], [], domain="rou-other.domain.com", short_name="otherrepo"
         )
         unit = rm.RepositoryOrganisationUnit.objects.create(
             repository=other_repo,
@@ -382,3 +462,54 @@ class TestPreprintSearchManagerSearch(PreprintSearchManagerTestBase):
             1,
             "search returned additional results: {}".format([r for r in results]),
         )
+
+
+class TestRepositoryClean(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+
+    def _make_repository(self, short_name, domain):
+        return rm.Repository(
+            press=self.press,
+            name="Test Repository",
+            short_name=short_name,
+            domain=domain,
+            object_name="Preprint",
+            object_name_plural="Preprints",
+            publisher="Test Publisher",
+        )
+
+    def test_repository_full_clean_rejects_reserved_short_name(self):
+        repository = self._make_repository("cms", "reserved.example.org")
+        with self.assertRaises(ValidationError):
+            repository.full_clean()
+
+    def test_repository_full_clean_allows_normal_short_name(self):
+        repository = self._make_repository("myrepo", "normal.example.org")
+        repository.full_clean()  # should not raise
+
+    def test_repository_full_clean_allows_unchanged_legacy_reserved_short_name(self):
+        repository = self._make_repository("cms", "legacy.example.org")
+        repository.save()
+        repository.full_clean()  # should not raise: short_name is unchanged
+
+    def test_repository_full_clean_rejects_short_name_matching_existing_journal_code(
+        self,
+    ):
+        make_test_journal(code="jcode", domain="jcode.example.org")
+        repository = self._make_repository("jcode", "crossmodel.example.org")
+        with self.assertRaises(ValidationError) as context:
+            repository.full_clean()
+        self.assertIn("already in use by a journal", str(context.exception))
+
+    def test_repository_unique_error_message_includes_suggestion(self):
+        existing, _ = helpers.create_repository(
+            self.press, [], [], domain="existing.example.org"
+        )
+        repository = self._make_repository(existing.short_name, "samemodel.example.org")
+        with self.assertRaises(ValidationError) as context:
+            repository.full_clean()
+        message = str(context.exception)
+        self.assertIn("already in use by another repository", message)
+        self.assertIn("Try '", message)

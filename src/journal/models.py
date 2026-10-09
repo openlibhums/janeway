@@ -14,6 +14,7 @@ import re
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import (
     OuterRef,
@@ -41,6 +42,7 @@ from core import (
     models as core_models,
     workflow,
 )
+from core import validators as core_validators
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
     AbstractSiteModel,
@@ -814,6 +816,25 @@ class Journal(AbstractSiteModel):
             content_type__model="journal",
             object_id=self.id,
         )
+
+    def clean(self):
+        super().clean()
+        if self._code_unchanged():
+            return
+        try:
+            core_validators.validate_code(
+                self.code, kind="journal", max_length=40, exclude_pk=self.pk
+            )
+        except ValidationError as error:
+            raise ValidationError({"code": error})
+
+    def _code_unchanged(self):
+        if not self.pk:
+            return False
+        original = (
+            Journal.objects.filter(pk=self.pk).values_list("code", flat=True).first()
+        )
+        return original == self.code
 
 
 class PinnedArticle(models.Model):
