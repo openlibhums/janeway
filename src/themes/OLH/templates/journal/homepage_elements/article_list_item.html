@@ -22,6 +22,6 @@
   {% endif %}
   <div {% if not disable_image %}class="olh-banner-heading"{% endif %} aria-hidden="true">
     <p id="byline-{{ item_id }}" class="byline">{{ article.author_list }}</p>
-    <h3 id="title-{{ item_id }}">{{ article.title|safe|truncatechars:200 }}</h3>
+    <h3 id="title-{{ item_id }}">{{ article.safe_title_html|truncatechars:200 }}</h3>
   </div>
 </div>

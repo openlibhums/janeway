@@ -305,7 +305,7 @@
                                      <h3>{% trans "Identifiers" %}</h3>
                                      <ul>
                                          <li>
-                                            {% include "elements/doi_display.html" with doi=doi_url title=article.title %}
+                                            {% include "elements/doi_display.html" with doi=doi_url title=article.stripped_title %}
                                         </li>
                                      </ul>
                                  </div>

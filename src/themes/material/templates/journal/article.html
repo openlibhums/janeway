@@ -386,7 +386,7 @@
                         {% if doi_url %}
                         <h2>{% trans "Identifiers" %}</h2>
                         <ul>
-                            <li>{% include "elements/doi_display.html" with doi=doi_url title=article.title %}</li>
+                            <li>{% include "elements/doi_display.html" with doi=doi_url title=article.stripped_title %}</li>
                         </ul>
                         <div class="spacer">
                             <div class="divider"></div>

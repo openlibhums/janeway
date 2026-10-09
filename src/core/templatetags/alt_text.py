@@ -8,6 +8,8 @@ from django.utils.translation import gettext as _
 
 from core import models
 from core.templatetags.escaping import unescape
+from core.templatetags.latex_mathml import strip_latex_delimiters
+from utils import logic
 
 register = template.Library()
 
@@ -21,7 +23,12 @@ def plain_text(value):
     template then escapes again. The result is plain text, escaped once
     when output.
     """
-    return unescape(strip_tags(str(value or "")))
+    request = logic.get_current_request()
+    without_latex_delimiters = strip_latex_delimiters(
+        str(value or ""),
+        journal=request.journal,
+    )
+    return unescape(strip_tags(without_latex_delimiters))
 
 
 # Default alt text says what kind of image it is, so it is not a bare
