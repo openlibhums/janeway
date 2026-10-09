@@ -1469,7 +1469,8 @@ class Article(AbstractLastModifiedModel):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": self.safe_title,
+            "safe_title": self.safe_title_html,
+            "stripped_title": self.stripped_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_id": doi_id,

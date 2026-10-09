@@ -17,7 +17,7 @@
                 {% endif %}
                 {% if article.page_range %}:{{ article.page_range }}.{% endif %}
                 {% if article.identifier.id_type == 'doi' %}
-                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.stripped_title %}
                 {% endif %}
             </span>
             {% include "admin/elements/button_copy_element.html" with element_id="harvard-cite" %}
@@ -54,7 +54,7 @@
                 {% endif %}
                 {% if article.page_range %}:{{ article.page_range }}.{% endif %}
                 {% if article.identifier.id_type == 'doi' %}
-                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.stripped_title %}
                 {% endif %}
             </span>
             {% include "admin/elements/button_copy_element.html" with element_id="vancouver-cite" %}
@@ -92,7 +92,7 @@
                     {{ article.issue.volume }}{% endif %}
                 {% if article.page_range %}:{{ article.page_range }}.{% endif %}
                 {% if article.identifier.id_type == 'doi' %}
-                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.title %}
+                    {% include "elements/doi_display.html" with doi=article.identifier.identifier title=article.stripped_title %}
                 {% endif %}
             </span>
             {% include "admin/elements/button_copy_element.html" with element_id="apa-cite" %}
