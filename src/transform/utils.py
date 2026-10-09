@@ -63,7 +63,7 @@ def convert_html_title_to_jats(title_string, journal=None):
         return ""
 
     try:
-        xml_str = apply_html_to_jats_xsl("html_abstract_to_jats.xsl", title_string)
+        xml_str = apply_html_to_jats_xsl("html_title_to_jats.xsl", title_string)
         mathml = to_mathml(xml_str, journal, target="xml", allow_block=False)
         return mark_safe(mathml)
 
