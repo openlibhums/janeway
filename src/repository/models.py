@@ -45,6 +45,7 @@ from utils.function_cache import cache
 from submission import models as submission_models
 from events import logic as event_logic
 from identifiers import models as identifier_models
+from utils.orcid import normalized_orcid
 
 
 STAGE_PREPRINT_UNSUBMITTED = "preprint_unsubmitted"
@@ -1394,6 +1395,26 @@ class PreprintAuthor(models.Model):
             author=self.account.full_name() if self.account else "",
             preprint=self.preprint.title,
         )
+
+    # These orcid properties mirror those in FrozenAuthor
+    # it allows us to use the same template to display orcids
+    @property
+    def orcid(self):
+        if self.account:
+            return self.account.orcid
+        return None
+
+    @property
+    def orcid_uri(self):
+        if not self.orcid:
+            return ""
+        return normalized_orcid(self.orcid)
+
+    @property
+    def is_orcid_valid(self):
+        if self.account:
+            return self.account.has_orcid_token
+        return False
 
     @property
     def affiliation(self):

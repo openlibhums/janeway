@@ -8,7 +8,7 @@ import re
 import uuid
 import statistics
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 import pytz
@@ -64,6 +64,7 @@ from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
 from production import logic as production_logic
+from utils.orcid import is_token_valid, normalized_orcid
 
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
@@ -478,6 +479,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     orcid = models.CharField(
         max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
     )
+    orcid_token = models.CharField(max_length=40, blank=True, default="")
+    orcid_token_expiration = models.DateTimeField(null=True, blank=True)
+    date_orcid_requested = models.DateTimeField(blank=True, null=True)
     twitter = models.CharField(
         max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
     )
@@ -892,6 +896,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
             "order": article.next_frozen_author_order(),
         }
 
+        if self.orcid:
+            frozen_dict["frozen_orcid"] = self.orcid
+            frozen_dict["is_frozen_orcid_valid"] = self.has_orcid_token
+
         frozen_author, created = submission_models.FrozenAuthor.objects.get_or_create(
             author=self,
             article=article,
@@ -956,6 +964,32 @@ class Account(AbstractBaseUser, PermissionsMixin):
         )[:30]
         return username.lower()
 
+    def get_orcid_url(self):
+        return normalized_orcid(self.orcid)
+
+    @cached_property
+    def has_orcid_token(self):
+        if not self.orcid_token or timezone.now() > self.orcid_token_expiration:
+            return False
+        return True
+
+    @cached_property
+    def is_orcid_token_valid(self):
+        # orcid api will return true for empty string
+        # also, no need to call api if expiration has passed
+        # we only validate against the API when explicitly told to:
+        # login, register or add validated orcid token
+        if self.has_orcid_token:
+            try:
+                return is_token_valid(self.orcid, self.orcid_token)
+            except ValidationError as e:
+                self.orcid_token = ""
+                self.orcid_token_expiration = None
+                self.save()
+                logger.info(f"Removed token from {self}: {self.orcid}")
+                return False
+        return False
+
 
 def generate_expiry_date():
     return timezone.now() + timedelta(days=1)
@@ -967,9 +1001,11 @@ class OrcidToken(models.Model):
     expiry = models.DateTimeField(
         default=generate_expiry_date, verbose_name=_("Expires on")
     )
+    access_token = models.CharField(max_length=40, blank=True, default="")
+    access_token_expiration = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return "ORCiD Token [{0}] - {1}".format(self.orcid, self.token)
+        return "ORCID iD Token [{0}] - {1}".format(self.orcid, self.token)
 
 
 class PasswordResetToken(models.Model):
