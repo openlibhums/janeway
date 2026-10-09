@@ -2135,6 +2135,21 @@ section.invisible-landmark{
     width: 24px;
     height: 24px;
     margin: 0;
+    // Every bullet is a solid disc with a border of the same colour. The
+    // current one is a ring (transparent centre), so it is distinguishable
+    // without relying on colour contrast, and the size doesn't change.
+    box-sizing: border-box;
+    border: 7px solid $dark-gray;
+    background-color: $dark-gray;
+
+    &:hover {
+      background-color: $dark-gray;
+    }
+
+    &.is-active,
+    &.is-active:hover {
+      background-color: transparent;
+    }
   }
 }
 
