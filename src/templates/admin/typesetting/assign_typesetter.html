@@ -16,7 +16,7 @@
 {% block body %}
     <div class="box">
         <div class="title-area">
-            <h2>Assign Typesetter to {{ article.title|safe }}</h2>
+            <h2>Assign Typesetter to {{ article.safe_title_html }}</h2>
         </div>
         <div class="content">
             {% if not article.issue and not article.projected_issue %}

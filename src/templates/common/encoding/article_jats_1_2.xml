@@ -150,7 +150,7 @@
             {% if article.pdfs.exists %}
             <self-uri content-type="application/pdf" xlink:href="{% journal_url 'serve_article_pdf' 'id' article.id %}"/>
             {% endif %}
-            <abstract>{{ article.get_clean_abstract }}</abstract>
+            <abstract>{{ article.safe_abstract_jats }}</abstract>
             {% if article.keywords.exists %}
             <kwd-group xml:lang="en">
                 <title>Keywords</title>

@@ -12,7 +12,7 @@
         </th>
     </tr>
     <tr>
-        <td colspan="3">{{ article.title|safe }}</td>
+        <td colspan="3">{{ article.safe_title_html }}</td>
     </tr>
     <tr>
         <th>Section</th>
@@ -36,7 +36,7 @@
         <th colspan="4">Abstract</th>
     </tr>
     <tr>
-        <td colspan="4">{{ article.abstract|safe }}</td>
+        <td colspan="4">{{ article.safe_abstract_html }}</td>
     </tr>
     <tr>
         <th colspan="4">Keywords</th>

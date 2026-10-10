@@ -25,17 +25,17 @@
                 <a href="{{ article.remote_url }}" target="_blank">
                     {% if level == "issuepage" %}
                         <h3 class="article-title">
-                            {{ article.title|safe }}
+                            {{ article.safe_title_html }}
                             {% include "elements/icons/link_external.html" %}
                         </h3>
                     {% elif level == "deep" %}
                         <h4 class="article-title">
-                            {{ article.title|safe }}
+                            {{ article.safe_title_html }}
                             {% include "elements/icons/link_external.html" %}
-                        </h4>    
+                        </h4>
                     {% else %}
                         <h2 class="article-title">
-                            {{ article.title|safe }}
+                            {{ article.safe_title_html }}
                             {% include "elements/icons/link_external.html" %}
                         </h2>
                     {% endif %}
@@ -43,11 +43,11 @@
             {% else %}
                 <a href="{{ article.url }}">
                     {% if level == "issuepage" %}
-                        <h3 class="article-title">{{ article.title|safe }}</h3>
+                        <h3 class="article-title">{{ article.safe_title_html }}</h3>
                     {% elif level == "deep" %}
-                        <h4 class="article-title">{{ article.title|safe }}</h4>    
+                        <h4 class="article-title">{{ article.safe_title_html }}</h4>
                     {% else %}
-                        <h2 class="article-title">{{ article.title|safe }}</h2>
+                        <h2 class="article-title">{{ article.safe_title_html }}</h2>
                     {% endif %}
                 </a>
             {% endif %}

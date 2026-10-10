@@ -19,12 +19,12 @@
                 <strong>
                     {% if article.is_remote %}
                         <a href="{{ article.remote_url }}" target="_blank">
-                            {{ article.title|safe|truncatechars:200 }}
+                            {{ article.safe_title_html|truncatechars:200 }}
                             {% include "elements/icons/link_external.html" %}
                         </a>
                     {% else %}
                         <a href="{{ article.url }}">
-                            {{ article.title|safe|truncatechars:200 }}
+                            {{ article.safe_title_html|truncatechars:200 }}
                         </a>
                     {% endif %}
                 </strong>

@@ -30,6 +30,7 @@ from django.contrib.postgres.search import (
 )
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.template.defaultfilters import striptags
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.templatetags.static import static
@@ -52,7 +53,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
-from core.templatetags import alt_text
+from core.templatetags import alt_text, latex_mathml
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -1347,11 +1348,84 @@ class Article(AbstractLastModifiedModel):
         return result
 
     @property
-    def safe_title(self):
+    def safe_title_html(self):
+        """Title for use where HTML is supported, marked safe"""
         if self.title:
-            return mark_safe(self.title)
+            return mark_safe(
+                latex_mathml.to_mathml(
+                    self.title,
+                    self.journal,
+                    target="html",
+                    allow_block=False,
+                )
+            )
         else:
             return "[Untitled]"
+
+    @property
+    def safe_title(self):
+        """Use safe_title_html instead"""
+        return self.safe_title_html
+
+    @property
+    def safe_title_jats(self):
+        """Title for use in JATS XML, marked safe"""
+        if self.title:
+            return transform_utils.convert_html_title_to_jats(
+                self.title,
+                journal=self.journal,
+            )
+        else:
+            return "[Untitled]"
+
+    @property
+    def stripped_title(self):
+        """
+        The title without HTML or XML tags or LaTeX delimiters.
+        """
+        if self.title:
+            return striptags(
+                latex_mathml.strip_latex_delimiters(
+                    self.title,
+                    self.journal,
+                )
+            )
+        else:
+            return "[Untitled]"
+
+    @property
+    def safe_abstract_html(self):
+        """Abstract with HTML, marked safe"""
+        return mark_safe(
+            latex_mathml.to_mathml(
+                self.abstract,
+                self.journal,
+                target="html",
+                allow_block=True,
+            )
+        )
+
+    @property
+    def safe_abstract_jats(self):
+        """Abstract for use in JATS XML, marked safe"""
+        if not self.abstract:
+            return ""
+        return transform_utils.convert_html_abstract_to_jats(
+            self.abstract,
+            self.journal,
+        )
+
+    @property
+    def stripped_abstract(self):
+        """
+        The abstract without HTML tags or LaTeX delimiters.
+        """
+        return striptags(
+            latex_mathml.strip_latex_delimiters(
+                self.abstract,
+                self.journal,
+            )
+        )
 
     @property
     def how_to_cite(self):
@@ -1395,7 +1469,8 @@ class Article(AbstractLastModifiedModel):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "title": self.safe_title,
+            "safe_title": self.safe_title_html,
+            "stripped_title": self.stripped_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
             "doi_id": doi_id,
@@ -2555,19 +2630,10 @@ class Article(AbstractLastModifiedModel):
 
     def get_clean_abstract(self):
         """
-        Returns a JATS-safe abstract with only allowed inline tags and wrapped in <p>.
+        Returns a JATS-safe abstract with a chosen subset of tags.
         """
-        if not self.abstract:
-            return ""
-        return transform_utils.convert_html_abstract_to_jats(self.abstract)
-
-    @property
-    def safe_title_jats(self):
-        """Title for use in JATS XML, marked safe"""
-        if self.title:
-            return transform_utils.convert_html_title_to_jats(self.title)
-        else:
-            return "[Untitled]"
+        warnings.warn("Deprecated. Use safe_abstract_jats.")
+        return self.safe_abstract_jats
 
     @property
     def iso639_1_lang_code(self):

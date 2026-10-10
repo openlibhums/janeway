@@ -30,7 +30,9 @@
               </div>
               <div class="article-header card-text">
                 <div class="text-uppercase">{{ article.section.name }}</div>
-                <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
+                <h1 class="card-title align-text-bottom article-title">
+                  {{ article.safe_title_html }}
+                </h1>
                 {% include "elements/journal/article_authors_compact.html" with limit=10 %}
               </div>
             </div>
@@ -45,11 +47,11 @@
             <div id="article" class="text-format-region">
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
-                    <h1>{{ article.title|safe }}</h1>
+                    <h1>{{ article.safe_title_html }}</h1>
                 {% endif %}
                 {% if article.abstract and article.abstract != '' %}
                     <h2>{% trans "Abstract" %}</h2>
-                    <p>{{ article.abstract | safe }}</p>
+                    <p>{{ article.safe_abstract_html }}</p>
                 {% endif %}
                 {% if journal_settings.general.keyword_list_page %}
                     {% include "elements/journal/article_keywords.html" with keywords=article.keywords linked="True" %}

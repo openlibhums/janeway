@@ -2,7 +2,6 @@
 {% load hooks %}
 {% load i18n %}
 <html lang="{{ request.current_language }}">
-
 <head>
   <title>
     {% include "common/elements/journal/article_title.html" %}
@@ -12,7 +11,7 @@
 </head>
 <body>
 <p class="uppercase">{{ article.section.name }}</p>
-<h1>{{ article.title|safe }}</h1>
+<h1>{{ article.safe_title_html }}</h1>
 <p>
   <strong>
     {% blocktrans count counter=article.frozen_authors.count %}
@@ -24,7 +23,7 @@
 </p>
 {% include "common/elements/journal/article_authors_full.html" %}
 <h2>{% trans "Abstract" %}</h2>
-<p>{{ article.abstract | safe }}</p>
+<p>{{ article.safe_abstract_html }}</p>
 {% if article.keywords %}
     <h2>{% trans "Keywords" %}:</h2><p> {% for keyword in article.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}
     </p>{% endif %}
