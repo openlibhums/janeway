@@ -184,7 +184,11 @@ class AccountManagementTemplateTests(CoreViewTestsWithData):
         self.assertTemplateUsed(response, template)
 
     def test_edit_profile(self):
-        self.client.login(username=self.user_email, password=self.user_password)
+        self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+            backend="django.contrib.auth.backends.ModelBackend",
+        )
         url = "/profile/"
         data = {}
         template = "admin/core/accounts/edit_profile.html"
@@ -295,7 +299,11 @@ class GenericFacetedListViewTests(CoreViewTestsWithData):
 class UserLoginTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     def test_is_authenticated_redirects_to_next(self):
-        self.client.login(username=self.user_email, password=self.user_password)
+        self.client.login(
+            username=self.user_email,
+            password=self.user_password,
+            backend="django.contrib.auth.backends.ModelBackend",
+        )
         get_data = {
             "next": self.next_url_raw,
         }
@@ -1102,6 +1110,7 @@ class AccessibilityModeToggleViewTests(TestCase):
         self.client.login(
             username=self.user_email,
             password=self.user_password,
+            backend="django.contrib.auth.backends.ModelBackend",
         )
         # The preference has migrated onto the account and the mode is active.
         self.user.refresh_from_db()
@@ -1166,6 +1175,7 @@ class AccessibilityModePersistenceTests(TestCase):
             self.client.login(
                 username=self.user_email,
                 password=self.user_password,
+                backend="django.contrib.auth.backends.ModelBackend",
             )
         )
         self.user.refresh_from_db()
@@ -1556,6 +1566,7 @@ class TextFormatPreferencesPersistenceTests(TestCase):
             self.client.login(
                 username=self.user_email,
                 password=self.user_password,
+                backend="django.contrib.auth.backends.ModelBackend",
             )
         )
         self.user.refresh_from_db()
