@@ -583,18 +583,17 @@ OIDC_USERNAME_ALGO = "utils.oidc.generate_oidc_username"
 OIDC_LOGOUT_URL = os.environ.get("OIDC_LOGOUT_URL")
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
-OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO")
+OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get("OIDC_OP_AUTHORIZATION_ENDPOINT")
 OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT")
 OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
 OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 
-if ENABLE_OIDC:
-    AUTHENTICATION_BACKENDS = (
-        "django.contrib.auth.backends.ModelBackend",
-        "utils.oidc.JanewayOIDCAB",
-    )
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "utils.oidc.JanewayOIDCAB",  # This class checks whether ENABLE_OIDC is True
+)
 
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
