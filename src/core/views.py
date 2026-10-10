@@ -102,7 +102,11 @@ def user_login(request):
             user = authenticate(username=username, password=password)
 
             if user is not None:
-                login(request, user)
+                login(
+                    request,
+                    user,
+                    backend="django.contrib.auth.backends.ModelBackend",
+                )
                 messages.info(request, "Login successful.")
                 logic.clear_bad_login_attempts(request)
 
