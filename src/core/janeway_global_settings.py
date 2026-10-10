@@ -590,11 +590,10 @@ OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
 OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 
-if ENABLE_OIDC:
-    AUTHENTICATION_BACKENDS = (
-        "django.contrib.auth.backends.ModelBackend",
-        "utils.oidc.JanewayOIDCAB",
-    )
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "utils.oidc.JanewayOIDCAB",  # This class checks whether ENABLE_OIDC is True
+)
 
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
