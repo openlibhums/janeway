@@ -11,16 +11,18 @@
 <body>
 <p class="uppercase">{{ article.section.name }}</p>
 <h3>{{ article.title|safe }}</h3>
-<p>
-  <strong>
-    {% blocktrans count counter=article.frozen_authors.count %}
-      Author
-    {% plural %}
-      Authors
-    {% endblocktrans %}
-  </strong>
-</p>
-{% include "common/elements/journal/article_authors_full.html" %}
+{% if article.frozen_authors.exists %}
+  <p>
+    <strong>
+      {% blocktrans count counter=article.frozen_authors.count %}
+        Author
+      {% plural %}
+        Authors
+      {% endblocktrans %}
+    </strong>
+  </p>
+  {% include "common/elements/journal/article_authors_full.html" %}
+{% endif %}
 
 <h2>{% trans "Abstract" %}</h2>
 <p>{{ article.abstract | safe }}</p>
