@@ -23,14 +23,16 @@
                 <div class="large-8 columns">
                     <small class="uppercase">{{ article.section.name }}</small>
                     <h2>{{ article.title|safe }}</h2>
-                    <small class="uppercase">
-                      {% blocktrans count counter=article.frozen_authors.count %}
-                        Author
-                      {% plural %}
-                        Authors
-                      {% endblocktrans %}
-                    </small>
-                    {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                    {% if article.frozen_authors.exists %}
+                      <small class="uppercase">
+                        {% blocktrans count counter=article.frozen_authors.count %}
+                          Author
+                        {% plural %}
+                          Authors
+                        {% endblocktrans %}
+                      </small>
+                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -53,14 +55,16 @@
                             <div class="orbit-caption">
                                 <p class="uppercase">{{ article.section.name }}</p>
                                 <h3>{{ article.title|safe }}</h3>
-                                <p class="uppercase">
-                                  {% blocktrans count counter=article.frozen_authors.count %}
-                                    Author
-                                  {% plural %}
-                                    Authors
-                                  {% endblocktrans %}
-                                </p>
-                                {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                                {% if article.frozen_authors.exists %}
+                                  <p class="uppercase">
+                                    {% blocktrans count counter=article.frozen_authors.count %}
+                                      Author
+                                    {% plural %}
+                                      Authors
+                                    {% endblocktrans %}
+                                  </p>
+                                  {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                                {% endif %}
                             </div>
                         </div>
                     </li>
@@ -130,16 +134,18 @@
                 {% if journal_settings.article.disable_article_large_image %}
                     <small>{{ article.section.name }}</small>
                     <h1>{{ article.title|safe }}</h1>
-                    <div class="section show-for-small-only">
-                      <small>
-                        {% blocktrans count counter=article.frozen_authors.count %}
-                          Author
-                        {% plural %}
-                          Authors
-                        {% endblocktrans %}
-                      </small>
-                      {% include "elements/journal/article_authors_compact.html" with limit=10 %}
-                    </div>
+                    {% if article.frozen_authors.exists %}
+                      <div class="section show-for-small-only">
+                        <small>
+                          {% blocktrans count counter=article.frozen_authors.count %}
+                            Author
+                          {% plural %}
+                            Authors
+                          {% endblocktrans %}
+                        </small>
+                        {% include "elements/journal/article_authors_compact.html" with limit=10 %}
+                      </div>
+                    {% endif %}
                 <hr/>
                 {% endif %}
                             {% if article.abstract and article.abstract != ''%}
@@ -280,10 +286,12 @@
 
                             {% include "common/elements/altmetric_badges.html" with article=article class='section' %}
                             {% include "elements/journal/share.html" %}
-                            <div class="section">
-                              <h3>Author details</h3>
-                              {% include "elements/journal/article_authors_full.html" %}
-                            </div>
+                            {% if article.frozen_authors.exists %}
+                              <div class="section">
+                                <h3>{% trans "Author details" %}</h3>
+                                {% include "elements/journal/article_authors_full.html" %}
+                              </div>
+                            {% endif %}
                             <div class="section">
                                 {% if article.is_published or proofing %}
                                     <h3>{% trans "Downloads" %}</h3>
