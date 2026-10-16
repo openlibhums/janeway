@@ -235,13 +235,15 @@
                         <div class="spacer">
                             <div class="divider"></div>
                         </div>
-                        <h4>
-                          {% blocktrans count counter=article.frozen_authors.count %}
-                            Author
-                          {% plural %}
-                            Authors
-                          {% endblocktrans %}
-                        </h4>
+                        {% if article.frozen_authors.exists %}
+                          <h4>
+                            {% blocktrans count counter=article.frozen_authors.count %}
+                              Author
+                            {% plural %}
+                              Authors
+                            {% endblocktrans %}
+                          </h4>
+                        {% endif %}
                         {% include "common/elements/journal/article_authors_full.html" %}
                     {% endif %}
 
