@@ -1093,6 +1093,22 @@ class TestOIDC(TestCase):
             "Andrew",
         )
 
+    @override_settings(ENABLE_OIDC=True)
+    @mock.patch("utils.oidc.OIDCAuthenticationBackend.authenticate")
+    def test_enable_oidc_true(self, mozilla_authenticate):
+        request = helpers.Request()
+        janeway_backend = oidc.JanewayOIDCAB()
+        janeway_backend.authenticate(request)
+        mozilla_authenticate.assert_called_once()
+
+    @override_settings(ENABLE_OIDC=False)
+    @mock.patch("utils.oidc.OIDCAuthenticationBackend.authenticate")
+    def test_enable_oidc_false(self, mozilla_authenticate):
+        request = helpers.Request()
+        janeway_backend = oidc.JanewayOIDCAB()
+        janeway_backend.authenticate(request)
+        mozilla_authenticate.assert_not_called()
+
 
 class TestThemeMiddleware(TestCase):
     def setUp(self):

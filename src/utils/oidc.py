@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import BaseUserManager
 from django.shortcuts import redirect, reverse
 from django.utils.http import urlencode
@@ -61,6 +62,13 @@ class JanewayOIDCAB(OIDCAuthenticationBackend):
         user.save()
 
         return user
+
+    def authenticate(self, request, **kwargs):
+        """Checks if OIDC is enabled and runs OIDC authentication if so."""
+        if settings.ENABLE_OIDC:
+            return super().authenticate(request, **kwargs)
+        else:
+            return None
 
 
 def logout_url(request):
