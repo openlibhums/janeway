@@ -96,7 +96,7 @@ class Thread(models.Model):
 
     def object_title(self):
         if self.article:
-            return self.article.safe_title
+            return self.article.safe_title_html
         elif self.preprint:
             return self.preprint.safe_title
 

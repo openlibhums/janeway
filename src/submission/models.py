@@ -1364,8 +1364,15 @@ class Article(AbstractLastModifiedModel):
 
     @property
     def safe_title(self):
-        """Use safe_title_html instead"""
-        return self.safe_title_html
+        """
+        Marks the title safe.
+        Note that in most cases, safe_title_html is better,
+        because it includes support for LaTeX mathematics and MathML.
+        """
+        if self.title:
+            return mark_safe(self.title)
+        else:
+            return "[Untitled]"
 
     @property
     def safe_title_jats(self):

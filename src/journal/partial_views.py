@@ -64,7 +64,7 @@ def issue_toc_article_edit(request, issue_id, article_id):
             return hx_show_message(
                 response,
                 _("Updated the section and topic of %(title)s.")
-                % {"title": article.safe_title},
+                % {"title": article.safe_title_html},
             )
 
     template = "admin/journal/partials/issue_toc/article_edit_row.html"
