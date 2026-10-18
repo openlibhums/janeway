@@ -26,7 +26,7 @@ def plain_text(value):
     request = logic.get_current_request()
     without_latex_delimiters = strip_latex_delimiters(
         str(value or ""),
-        journal=request.journal,
+        journal=request.journal if request else None,
     )
     return unescape(strip_tags(without_latex_delimiters))
 
