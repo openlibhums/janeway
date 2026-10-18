@@ -41,12 +41,16 @@ def _convert(value, display):
         return value
 
 
+def _trim_delimiters(match):
+    return match.group("value")
+
+
 def _to_html_block(match):
-    return _convert(match.group("value"), display="block")
+    return _convert(_trim_delimiters(match), display="block")
 
 
 def _to_html_inline(match):
-    return _convert(match.group("value"), display="inline")
+    return _convert(_trim_delimiters(match), display="inline")
 
 
 def _add_mml_namespace_prefix(value):
@@ -55,17 +59,13 @@ def _add_mml_namespace_prefix(value):
 
 
 def _to_xml_block(match):
-    mathml = _convert(match.group("value"), display="block")
+    mathml = _convert(_trim_delimiters(match), display="block")
     return _add_mml_namespace_prefix(mathml)
 
 
 def _to_xml_inline(match):
-    mathml = _convert(match.group("value"), display="inline")
+    mathml = _convert(_trim_delimiters(match), display="inline")
     return _add_mml_namespace_prefix(mathml)
-
-
-def _trim_delimiters(match):
-    return match.group("value")
 
 
 def _should_parse(journal):
