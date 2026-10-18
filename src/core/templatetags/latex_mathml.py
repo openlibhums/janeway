@@ -30,6 +30,21 @@ INLINE_LATEX_RES = [
 ET.register_namespace("mml", "http://www.w3.org/1998/Math/MathML")
 
 
+def _trim_delimiters(match):
+    """Returns the "value" group of a match,
+    effectively removing the LaTeX delimiters before and after the "value" group.
+    Intended for use in two cases:
+      - As an argument to re.sub when LaTeX is not allowed,
+        like if someone puts a block LaTeX expression in an article title.
+        In this case we don't want to convert the match,
+        just display it without the delimiters.
+      - To prepare matches for _convert
+
+    :match: a re.Match instance with a named group "value"
+    """
+    return match.group("value")
+
+
 def _convert(value, display):
     try:
         return latex2mathml.converter.convert(value, display=display)
@@ -39,10 +54,6 @@ def _convert(value, display):
         # We don't want MathJax touching TeX syntax because we support $...$ and
         # MathJax does not.
         return value
-
-
-def _trim_delimiters(match):
-    return match.group("value")
 
 
 def _to_html_block(match):

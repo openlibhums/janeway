@@ -1403,6 +1403,8 @@ class Article(AbstractLastModifiedModel):
     @property
     def safe_abstract_html(self):
         """Abstract with HTML, marked safe"""
+        if not self.abstract:
+            return ""
         return mark_safe(
             latex_mathml.to_mathml(
                 self.abstract,
