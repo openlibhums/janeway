@@ -105,7 +105,6 @@ def user_login(request):
                 login(
                     request,
                     user,
-                    backend="django.contrib.auth.backends.ModelBackend",
                 )
                 messages.info(request, "Login successful.")
                 logic.clear_bad_login_attempts(request)

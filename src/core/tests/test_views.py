@@ -319,6 +319,7 @@ class UserLoginTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @patch("core.views.authenticate")
     def test_login_success_redirects_to_next(self, authenticate):
+        self.user.backend = "django.contrib.auth.backends.ModelBackend"
         authenticate.return_value = self.user
         post_data = {
             "user_name": self.user_email,
