@@ -3035,31 +3035,10 @@ class Organization(models.Model):
                 organization = cls.objects.get(
                     controlledaffiliation__account=account,
                     controlledaffiliation__frozen_author=frozen_author,
-                    controlledaffiliation__preprint_author=preprint_author,
                 )
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                # Or maybe a primary affiliation has already been
-                # entered without a ROR for this
-                # account / frozen author?
-                try:
-                    # If there is no `institution`, this method is being used to update
-                    # the department or country in isolation, so we want the primary
-                    # affiliation's org regardless of what its custom label is.
-                    query = models.Q(
-                        controlledaffiliation__is_primary=True,
-                        controlledaffiliation__account=account,
-                        controlledaffiliation__frozen_author=frozen_author,
-                        ror_id__exact="",
-                    )
-                    # If there is an institution name, we should only match organizations
-                    # with that as a custom label.
-                    if institution and institution != " ":
-                        query &= models.Q(custom_label__value=institution)
-                    organization = cls.objects.get(query)
-                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                    # Otherwise, create a new, disconnected record.
-                    organization = cls.objects.create()
-                    created = True
+                organization = cls.objects.create()
+                created = True
 
         else:
             # Is there a single exact match in the
@@ -3074,12 +3053,11 @@ class Organization(models.Model):
                 except (cls.DoesNotExist, cls.MultipleObjectsReturned):
                     # Or maybe a primary affiliation has already been
                     # entered without a ROR for this
-                    # account / frozen author / preprint author?
+                    # account / frozen author?
                     try:
                         organization = cls.objects.get(
                             controlledaffiliation__account=account,
                             controlledaffiliation__frozen_author=frozen_author,
-                            controlledaffiliation__preprint_author=preprint_author,
                             custom_label__value=institution,
                             ror_id__exact="",
                         )

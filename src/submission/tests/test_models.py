@@ -68,7 +68,7 @@ class CreditRecordTests(TestCase):
 
 class ArticleURLTests(TestCase):
     @classmethod
-    def setuptestdata(cls):
+    def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         cls.article_one = helpers.create_article(cls.journal_one)
@@ -134,7 +134,7 @@ class ArticleURLTests(TestCase):
 
 class WorkflowRollbackTests(TestCase):
     @classmethod
-    def setuptestdata(cls):
+    def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
         core_workflow.create_default_workflow(cls.journal_one)
