@@ -1,3 +1,3 @@
 from packaging import version
 
-__version__ = version.parse("1.8.2")
+__version__ = version.parse("1.8.3")
