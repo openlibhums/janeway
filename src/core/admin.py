@@ -254,6 +254,7 @@ class FileAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "original_filename",
+        "uuid_filename",
         "article_id",
         "label",
         "description",
@@ -261,7 +262,7 @@ class FileAdmin(admin.ModelAdmin):
         "owner__first_name",
         "owner__last_name",
     )
-    raw_id_fields = ("owner", "history")
+    raw_id_fields = ("owner", "history", "text")
     readonly_fields = ["article_id"]
 
     def article_pk(self, obj):
@@ -292,6 +293,7 @@ class FileHistoryAdmin(admin.ModelAdmin):
     list_filter = ("mime_type",)
     search_fields = (
         "original_filename",
+        "uuid_filename",
         "article_id",
         "label",
         "description",

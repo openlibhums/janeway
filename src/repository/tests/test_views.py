@@ -423,6 +423,34 @@ class TestViews(TestCase):
             self.assertIn("/login/?next=", content)
 
     @override_settings(URL_CONFIG="domain")
+    def test_journal_search_url_redirects_to_repository_search(self):
+        response = self.client.get(
+            "/search/",
+            SERVER_NAME=self.server_name,
+        )
+        self.assertRedirects(
+            response,
+            reverse("repository_search"),
+            fetch_redirect_response=False,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_search_url_redirects_with_search_term(self):
+        response = self.client.get(
+            "/search/",
+            data={"article_search": "water"},
+            SERVER_NAME=self.server_name,
+        )
+        self.assertRedirects(
+            response,
+            reverse(
+                "repository_search_with_term",
+                kwargs={"search_term": "water"},
+            ),
+            fetch_redirect_response=False,
+        )
+
+    @override_settings(URL_CONFIG="domain")
     def test_get_submission_type_or_redirect_missing_type(self):
         request = helpers.Request(repository=self.repository)
         result = repository_logic.get_submission_type_or_redirect(request)

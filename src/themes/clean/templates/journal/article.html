@@ -121,8 +121,10 @@
                 {% if article.is_published or proofing %}
                   {% include "elements/journal/share.html" %}
                 {% endif %}
-                <h2>Author details</h2>
-                {% include "elements/journal/article_authors_full.html" %}
+                {% if article.frozen_authors.exists %}
+                  <h2>{% trans "Author details" %}</h2>
+                  {% include "elements/journal/article_authors_full.html" %}
+                {% endif %}
                 {% if article.is_published or proofing %}
                     <h2>{% trans "Downloads" %}</h2>
                     {% if galleys %}

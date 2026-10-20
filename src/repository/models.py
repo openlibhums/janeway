@@ -42,7 +42,7 @@ from core.file_system import JanewayFileSystemStorage
 from core import model_utils, files, models as core_models
 from utils import logic, models as utils_models
 from repository import install
-from utils.function_cache import cache
+from utils.function_cache import cache, site_cache
 from submission import models as submission_models
 from events import logic as event_logic
 from identifiers import models as identifier_models
@@ -1244,7 +1244,7 @@ class Preprint(models.Model):
         return True
 
     @property
-    @cache(600)
+    @site_cache(600)
     def url(self):
         return self.repository.site_url(path=self.local_url)
 

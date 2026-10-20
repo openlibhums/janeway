@@ -124,7 +124,11 @@ ORCID_RECORD_ALL_FIELDS = {
                     },
                     "department-name": None,
                     "role-title": None,
-                    "start-date": None,
+                    "start-date": {
+                        "year": {
+                            "value": 1999,
+                        }
+                    },
                     "end-date": None,
                     "organization": {
                         "name": "California Digital Library",

@@ -2258,6 +2258,16 @@ def pages_sitemap(request):
 
 @decorators.frontend_enabled
 def search(request):
+    if request.repository:
+        search_term = request.GET.get("article_search")
+        if search_term:
+            return redirect(
+                reverse(
+                    "repository_search_with_term",
+                    kwargs={"search_term": search_term},
+                )
+            )
+        return redirect(reverse("repository_search"))
     if settings.ENABLE_FULL_TEXT_SEARCH:
         return full_text_search(request)
     else:

@@ -7,26 +7,67 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 from hashlib import sha1
 
 from django.core.cache import cache as django_cache
+from django.urls import get_script_prefix
 from django.utils.functional import cached_property
+
+
+def make_cache_key(f, args, kwargs, prefix=""):
+    return sha1(
+        prefix.encode("utf-8")
+        + f.__module__.encode("utf-8")
+        + f.__name__.encode("utf-8")
+        + str(args).encode("UTF-8")
+        + str(kwargs).encode("UTF-8")
+    ).hexdigest()
+
+
+def get_or_set_cache(key, f, args, kwargs, seconds):
+    result = django_cache.get(key)
+    if result is None:
+        result = f(*args, **kwargs)
+        django_cache.set(key, result, seconds)
+
+    return result
+
+
+def get_site_cache_key():
+    """Identifies the site being served by the current request, if any
+
+    Script Prefix is included to disambiguate path and domain mode
+    """
+    from utils.logic import get_current_request
+
+    request = get_current_request()
+    if request is None:
+        return ""
+    site = getattr(request, "site_object", None) or getattr(request, "site_type", None)
+    if site is None:
+        return ""
+    return "%s:%s:%s" % (site._meta.label_lower, site.pk, get_script_prefix())
 
 
 def cache(seconds=900):
     def do_cache(f):
         def y(*args, **kwargs):
-            f_module = f.__module__.encode("utf-8")
-            f_name = f.__name__.encode("utf-8")
-            key = sha1(
-                f_module
-                + f_name
-                + str(args).encode("UTF-8")
-                + str(kwargs).encode("UTF-8")
-            ).hexdigest()
-            result = django_cache.get(key)
-            if result is None:
-                result = f(*args, **kwargs)
-                django_cache.set(key, result, seconds)
+            key = make_cache_key(f, args, kwargs)
+            return get_or_set_cache(key, f, args, kwargs, seconds)
 
-            return result
+        return y
+
+    return do_cache
+
+
+def site_cache(seconds=900):
+    """Like `cache`, but a request serving a site gets its own cache entries
+
+    When there is a request in context with a site object set, the site and
+    the path it is being served under become part of the cache key.
+    """
+
+    def do_cache(f):
+        def y(*args, **kwargs):
+            key = make_cache_key(f, args, kwargs, prefix=get_site_cache_key())
+            return get_or_set_cache(key, f, args, kwargs, seconds)
 
         return y
 

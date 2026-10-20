@@ -2,14 +2,19 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Andy Byers, Mauro Sanchez & Joseph Muller"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
+
+from urllib.parse import urlparse
 import mock
+
 from datetime import timedelta
+from django.core.cache import cache
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls.base import clear_script_prefix
 
 from utils.testing import helpers
 from submission import models as sm
@@ -134,6 +139,64 @@ class TestModels(TestCase):
                 self.preprint_one.article,
                 article_two,
             )
+
+
+class PreprintURLTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        helpers.create_roles(["author"])
+        cls.press = helpers.create_press()
+        cls.repository, cls.subject = helpers.create_repository(cls.press, [], [])
+        cls.preprint_author = helpers.create_user(
+            username="preprint_url_author@janeway.systems",
+        )
+        cls.preprint_one = helpers.create_preprint(
+            cls.repository,
+            cls.preprint_author,
+            cls.subject,
+        )
+
+    def setUp(self):
+        cache.clear()
+        clear_script_prefix()
+
+    def tearDown(self):
+        clear_script_prefix()
+        cache.clear()
+        helpers.clear_current_request()
+
+    @override_settings(URL_CONFIG="domain", DEBUG=False)
+    def test_preprint_url_generated_in_path_mode_is_not_reused_in_domain_mode(self):
+        path_mode_request = helpers.browse(
+            f"http://{self.press.domain}/{self.repository.short_name}/",
+        )
+        self.assertEqual(path_mode_request.site_object, self.repository)
+        path_mode_url = self.preprint_one.url
+        self.assertIn(
+            f"/{self.repository.short_name}",
+            urlparse(path_mode_url).path,
+        )
+
+        domain_mode_request = helpers.browse(
+            f"http://{self.repository.domain}/",
+        )
+        self.assertEqual(domain_mode_request.site_object, self.repository)
+        expected_url = f"http://{self.repository.domain}{self.preprint_one.local_url}"
+        self.assertEqual(self.preprint_one.url, expected_url)
+
+    @override_settings(URL_CONFIG="domain", DEBUG=False)
+    def test_preprint_url_without_request_unaffected_by_path_mode_render(self):
+        helpers.browse(f"http://{self.press.domain}/{self.repository.short_name}/")
+        path_mode_url = self.preprint_one.url
+        self.assertIn(
+            f"/{self.repository.short_name}",
+            urlparse(path_mode_url).path,
+        )
+
+        helpers.clear_current_request()
+        clear_script_prefix()
+        expected_url = f"http://{self.repository.domain}{self.preprint_one.local_url}"
+        self.assertEqual(self.preprint_one.url, expected_url)
 
     def test_preprint_file_is_pdf(self):
         for mime_type in ("application/pdf", "application/x-pdf"):

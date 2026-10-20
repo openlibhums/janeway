@@ -11,8 +11,8 @@ from urllib.parse import parse_qs, urlparse
 
 from django.http import HttpRequest
 from django.test import override_settings
-from django.test.client import QueryDict
-from django.urls import reverse
+from django.test.client import QueryDict, RequestFactory
+from django.urls import clear_script_prefix, reverse
 from django.utils import translation, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -416,6 +416,7 @@ def create_submission(
     journal_id=1,
     stage=sm_models.STAGE_UNASSIGNED,
     authors=None,
+    correspondence_author=None,
     **kwargs,
 ):
     if not authors:
@@ -434,6 +435,9 @@ def create_submission(
         **kwargs,
     )
     for author in authors:
+        if author == correspondence_author:
+            article.correspondence_author = author
+            article.save()
         author.snapshot_as_author(article)
     return article
 
@@ -586,6 +590,31 @@ class activate_translation(ContextDecorator):
 
     def __exit__(self, *exc):
         translation.deactivate()
+
+
+def browse(url):
+    """Builds a request for the given absolute URL and resolves its site
+
+    Runs the real site-resolution middleware so the script prefix and the
+    thread-local request are set exactly as they would be for a page view of
+    that URL, making request-dependent URL generation behave per site.
+    Callers should clean up with clear_script_prefix and
+    clear_current_request, e.g. in tearDown.
+    """
+    clear_script_prefix()
+    parsed_url = urlparse(url)
+    request = RequestFactory().get(
+        parsed_url.path,
+        HTTP_HOST=parsed_url.netloc,
+    )
+    middleware.SiteSettingsMiddleware(lambda request: None).process_request(request)
+    middleware.GlobalRequestMiddleware.process_request(request)
+    return request
+
+
+def clear_current_request():
+    """Removes any request stored by GlobalRequestMiddleware in this thread."""
+    middleware._threadlocal.request = None
 
 
 class request_context(ContextDecorator):

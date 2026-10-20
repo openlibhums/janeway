@@ -70,11 +70,31 @@ class KeywordModelForm(ModelForm):
     keywords = CharField(required=False, help_text=_("Hit Enter to add a new keyword."))
 
     def __init__(self, *args, **kwargs):
+        from core.forms.widgets import TagitWidget
+
         super().__init__(*args, **kwargs)
+        self.fields["keywords"].widget = TagitWidget(
+            attrs={"data-allow-spaces": "true"},
+        )
         if self.instance.pk:
             current_keywords = self.instance.keywords.values_list("word", flat=True)
             field = self.fields["keywords"]
             field.initial = ",".join(current_keywords)
+
+    def clean_keywords(self):
+        posted_keywords = self.cleaned_data.get("keywords", "")
+        max_length = submission_models.Keyword._meta.get_field("word").max_length
+        for keyword in posted_keywords.split(","):
+            if len(keyword) > max_length:
+                raise ValidationError(
+                    _(
+                        "A keyword cannot exceed %(max_length)s characters. "
+                        "Please enter keywords one at a time, pressing Enter "
+                        "after each keyword."
+                    ),
+                    params={"max_length": max_length},
+                )
+        return posted_keywords
 
     def save(self, commit=True, *args, **kwargs):
         posted_keywords = self.cleaned_data.get("keywords", "")

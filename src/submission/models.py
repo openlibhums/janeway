@@ -57,7 +57,7 @@ from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
 from review import models as review_models
-from utils.function_cache import cache
+from utils.function_cache import cache, site_cache
 from utils.logger import get_logger
 from utils.orcid import validate_orcid, COMPILED_ORCID_REGEX
 from utils.forms import plain_text_validator
@@ -1750,7 +1750,7 @@ class Article(AbstractLastModifiedModel):
             return None
 
     @property
-    @cache(600)
+    @site_cache(600)
     def url(self):
         return self.journal.site_url(path=self.local_url)
 
@@ -3176,6 +3176,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
                     orcid__contains=orcid,
                 )
                 author = account.snapshot_as_author(article)
+                created = True
             except core_models.Account.DoesNotExist:
                 author = None
 
