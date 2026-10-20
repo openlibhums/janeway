@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
+{% load alt_text %}
 {% load static %}
+{% load page_title %}
 
-{% block title %}{% trans "Authors" %}{% endblock title %}
+{% block title %}{% trans "Authors" as authors_label %}{% page_title authors_label %}{% endblock title %}
 {% block page_title %}{% trans "Authors" %}{% endblock page_title %}
 
 {% block body %}
@@ -22,13 +24,12 @@
 
                         {% if journal_settings.styling.enable_editorial_images %}
 
-                            <img class="thumbnail editorial-image" src="
-                                    {% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}"
-                                 alt="{% if author.profile_image %}Headshot photograph of {{ author.full_name }}{% else %}A generic headshot photograph of a person {% endif %}">
+                            {% if author.profile_image %}{% blocktrans with name=author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% else %}{% trans 'A generic headshot photograph of a person' as default_alt %}{% endif %}{% get_alt_text file_path=author.profile_image default=default_alt as profile_image_alt_text %}<img class="thumbnail editorial-image" src="
+                                    {% if author.profile_image %}{{ author.profile_image.url }}{% else %}{% static "common/img/icons/users.png" %}{% endif %}" alt="{{ profile_image_alt_text }}">
 
                         {% endif %}
 
-                        <strong>{{ author.full_name }}</strong><br/>
+                        <h2 id="author-{{ author.uuid }}">{{ author.full_name }}</h2>
                         <i>
                             <small>{{ author.affiliation }}</small>
                         </i>
@@ -37,9 +38,13 @@
                         {% if author.enable_public_profile %}
 
                             <p>
-                                <small><a
-                                        href="{% url 'core_public_profile' author.uuid %}">View
-                                    Profile</a></small>
+                                <small>
+                                    <a href="{% url 'core_public_profile' author.uuid %}"
+                                        aria-describedby="author-{{ author.uuid }}"
+                                        >
+                                        {% trans 'View Profile' %}
+                                    </a>
+                                </small>
                             </p>
 
                         {% endif %}

@@ -13,6 +13,13 @@
 {% block breadcrumbs %}
   {% if account and account == request.user %}
     {% include "elements/breadcrumbs/edit_profile_base.html" %}
+  {% elif preprint and author %}
+    {% include "admin/elements/breadcrumbs/edit_preprint_author_base.html" with subpage="yes" %}
+    <li>
+      <a href="{% url_with_return 'repository_edit_author' preprint.pk author.pk %}">
+        {% trans "Edit author details" %}
+      </a>
+    </li>
   {% elif article and author %}
     {% include "elements/breadcrumbs/submit_authors_base.html" %}
     <li>
@@ -70,7 +77,8 @@
         <span class="fa fa-check"></span>
         {% trans "Yes, continue" %}
       </button>
-      {% include "elements/a_no_go_back.html" with href=request.GET.next %}
+      {% firstof author_list_url request.GET.next as cancel_url %}
+      {% include "elements/a_no_go_back.html" with href=cancel_url %}
     </div>
   </form>
 {% endblock gritty %}

@@ -7,11 +7,12 @@ import os
 from contextlib import ContextDecorator
 from unittest.mock import Mock
 import datetime
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from django.http import HttpRequest
+from django.test import override_settings
 from django.test.client import QueryDict, RequestFactory
-from django.urls import clear_script_prefix
+from django.urls import clear_script_prefix, reverse
 from django.utils import translation, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -20,6 +21,8 @@ from utils import template_override_middleware
 from django.template.engine import Engine
 
 from core import (
+    forms as core_forms,
+    logic as core_logic,
     middleware,
     models as core_models,
     files,
@@ -30,9 +33,10 @@ from press import models as press_models
 from submission import models as sm_models
 from review import models as review_models
 from copyediting import models as copyediting_models
+from proofing import models as proofing_models
 from comms import models as comms_models
 from cms import models as cms_models
-from utils import setting_handler
+from utils import setting_handler, models as utils_models
 from utils.install import update_xsl_files, update_settings, update_issue_types
 from repository import models as repo_models
 from utils.logic import get_aware_datetime
@@ -99,6 +103,18 @@ def create_roles(roles=None):
         )
 
 
+def query_parameter_from_url(url, parameter):
+    """
+    Returns the first value of a query string parameter found in a URL.
+    :param url: a URL string, for example a response's Location header
+    :param parameter: the name of the query string parameter to read
+    :return: the parameter's first value, or None if it is not present
+    """
+    query_string = urlparse(url).query
+    values = parse_qs(query_string).get(parameter, [])
+    return values[0] if values else None
+
+
 def create_journals():
     """
     Creates a set of dummy journals for testing
@@ -118,6 +134,44 @@ def create_journals():
     update_issue_types(journal_two)
 
     return journal_one, journal_two
+
+
+def set_journal_languages(journal, available=None, default="en"):
+    """
+    Configures the languages a journal publishes in, as used by
+    JournalLocaleMiddleware.
+
+    :param journal: the Journal to configure
+    :param available: a list of language codes for the journal_languages setting
+    :param default: the default_journal_language code
+    """
+    setting_handler.save_setting(
+        "general",
+        "journal_languages",
+        journal,
+        available or [],
+    )
+    setting_handler.save_setting(
+        "general",
+        "default_journal_language",
+        journal,
+        default,
+    )
+
+
+def create_journal_with_test_status():
+    """
+    Creates a journal with a publishing status of TEST
+    """
+    journal = journal_models.Journal(
+        code="third",
+        domain="teststatus.example.org",
+    )
+    journal.name = "Test Journal"
+    journal.status = journal_models.Journal.PublishingStatus.TEST
+    journal.save()
+    update_issue_types(journal)
+    return journal
 
 
 def create_press():
@@ -169,6 +223,9 @@ def create_editor(journal, **kwargs):
     editor = create_user(email, ["editor"], journal=journal)
     editor.is_active = True
     editor.save()
+    for k, v in kwargs.items():
+        setattr(editor, k, v)
+        editor.save()
     return editor
 
 
@@ -195,7 +252,6 @@ def create_affiliation(
     department="",
     account=None,
     frozen_author=None,
-    preprint_author=None,
 ):
     organization = core_models.Organization.objects.create()
     core_models.OrganizationName.objects.create(
@@ -207,7 +263,6 @@ def create_affiliation(
         department=department,
         account=account,
         frozen_author=frozen_author,
-        preprint_author=preprint_author,
     )
     return affiliation
 
@@ -342,6 +397,18 @@ def create_section(journal, **kwargs):
     return section
 
 
+def create_submission_field(journal, **kwargs):
+    defaults = {
+        "name": "Data Availability",
+        "kind": "text",
+        "order": 1,
+        "required": False,
+        "help_text": "Where can the data be found?",
+    }
+    defaults.update(kwargs)
+    return sm_models.Field.objects.create(journal=journal, **defaults)
+
+
 def create_submission(
     owner=None,
     title="A Test Article",
@@ -419,13 +486,19 @@ def create_repository(press, managers, subject_editors, domain="repo.domain.com"
     return repository, subject
 
 
-def create_preprint(repository, author, subject, title="This is a Test Preprint"):
+def create_preprint(
+    repository,
+    author,
+    subject,
+    title="This is a Test Preprint",
+    abstract="This is a fake abstract.",
+):
     preprint = repo_models.Preprint.objects.create(
         repository=repository,
         owner=author,
         stage=repo_models.STAGE_PREPRINT_REVIEW,
         title=title,
-        abstract="This is a fake abstract.",
+        abstract=abstract,
         comments_editor="",
         date_submitted=timezone.now(),
     )
@@ -439,17 +512,25 @@ def create_preprint(repository, author, subject, title="This is a Test Preprint"
         size=100,
     )
     preprint.submission_file = file
-    preprint_author = repo_models.PreprintAuthor.objects.create(
+    frozen_author = sm_models.FrozenAuthor.objects.create(
         preprint=preprint,
-        account=author,
+        author=author,
+        first_name=author.first_name or "",
+        middle_name=author.middle_name or "",
+        last_name=author.last_name or "",
         order=1,
     )
-    preprint_author.save()
     create_affiliation(
         institution="Made Up University",
-        preprint_author=preprint_author,
+        frozen_author=frozen_author,
     )
     return preprint
+
+
+def render_widget(widget, choices, value=""):
+    """Render a widget with the given choices and return the HTML string."""
+    widget.choices = choices
+    return widget.render("field", value)
 
 
 class Request(HttpRequest):
@@ -463,6 +544,7 @@ class Request(HttpRequest):
         self.press = kwargs.get("press", None)
         self.repository = kwargs.get("repository", None)
         self.journal = kwargs.get("journal", None)
+        self._messages = Mock()
         self.site_type = kwargs.get("site_type", None)
         self.port = kwargs.get("port", 8000)
         self.secure = kwargs.get("secure", False)
@@ -639,6 +721,21 @@ def create_reminder(journal=None, reminder_type=None):
     return reminder
 
 
+def submit_review(client, assignment, form_element, journal):
+    return client.post(
+        reverse(
+            "do_review",
+            kwargs={"assignment_id": assignment.pk},
+        ),
+        data={
+            "complete": "1",
+            "decision": "accept",
+            str(form_element.pk): "Looks good.",
+        },
+        SERVER_NAME=journal.domain,
+    )
+
+
 def create_editor_assignment(article, editor, **kwargs):
     assignment_type = kwargs.get("assignment_type", "editor")
     assignment, created = review_models.EditorAssignment.objects.get_or_create(
@@ -708,6 +805,7 @@ def create_access_request(journal, user, role, **kwargs):
 def create_news_item(content_type, object_id, **kwargs):
     title = kwargs.get("title", "Test title")
     body = kwargs.get("body", "Test body")
+    posted = kwargs.get("posted", timezone.now())
     posted_by = kwargs.get(
         "posted_by",
         create_user(
@@ -715,18 +813,77 @@ def create_news_item(content_type, object_id, **kwargs):
             attrs={"first_name": "News", "last_name": "Writer"},
         ),
     )
+    start_display = kwargs.get("start_display", timezone.now())
     tags = kwargs.get("tags", ["test tag 1", "test tag 2"])
-    item = comms_models.NewsItem.objects.create(
+    item, _created = comms_models.NewsItem.objects.get_or_create(
         content_type=content_type,
         object_id=object_id,
         title=title,
         body=body,
+        posted=posted,
         posted_by=posted_by,
+        start_display=start_display,
     )
     for tag in tags:
-        item.tags.add(comms_models.Tag.objects.create(text=tag))
+        tag_obj, _created = comms_models.Tag.objects.get_or_create(text=tag)
+        item.tags.add(tag_obj)
     item.save()
     return item
+
+
+def read_theme_asset(theme, relative_path):
+    path = os.path.join(settings.BASE_DIR, "themes", theme, relative_path)
+    with open(path, encoding="utf-8") as asset_file:
+        return asset_file.read()
+
+
+def create_press_thumbnail(press, filename="press-logo.png", mime_type="image/png"):
+    """Give the press a logo record; the file itself is not written."""
+    thumbnail = File.objects.create(
+        mime_type=mime_type,
+        original_filename=filename,
+        uuid_filename=filename,
+        label="Press logo",
+    )
+    press.thumbnail_image = thumbnail
+    press.save()
+    return thumbnail
+
+
+def relative_luminance(hex_colour):
+    channels = []
+    for start in (1, 3, 5):
+        value = int(hex_colour[start : start + 2], 16) / 255
+        if value <= 0.03928:
+            channels.append(value / 12.92)
+        else:
+            channels.append(((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(foreground, background):
+    """WCAG 2 contrast ratio between two #rrggbb colours."""
+    lighter, darker = sorted(
+        [relative_luminance(foreground), relative_luminance(background)],
+        reverse=True,
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def create_homepage_element(site_object, name, template_path, **kwargs):
+    element, _created = core_models.HomepageElement.objects.update_or_create(
+        name=name,
+        content_type=ContentType.objects.get_for_model(site_object),
+        object_id=site_object.pk,
+        defaults={
+            "template_path": template_path,
+            "has_config": False,
+            "active": kwargs.get("active", True),
+            "sequence": kwargs.get("sequence", 0),
+        },
+    )
+    return element
 
 
 def create_cms_page(content_type, object_id, **kwargs):
@@ -734,28 +891,38 @@ def create_cms_page(content_type, object_id, **kwargs):
     display_name = kwargs.get("display_name", "Test display name")
     content = kwargs.get("content", "Test content")
     is_markdown = kwargs.get("is_markdown", False)
+    is_draft = kwargs.get("is_draft", None)
 
-    return cms_models.Page.objects.create(
-        content_type=content_type,
-        object_id=object_id,
-        name=name,
-        display_name=display_name,
-        content=content,
-        is_markdown=is_markdown,
-    )
+    page_data = {
+        "content_type": content_type,
+        "object_id": object_id,
+        "name": name,
+        "display_name": display_name,
+        "content": content,
+        "is_markdown": is_markdown,
+    }
+    if is_draft is not None:
+        page_data["is_draft"] = is_draft
+
+    return cms_models.Page.objects.create(**page_data)
 
 
-def create_contact(content_type, object_id, **kwargs):
-    name = kwargs.get("name", "Test Contact")
-    email = kwargs.get("email", "contact@example.org")
+def create_contact_person(account, site, **kwargs):
+    """
+    :account: a core.Account
+    :site: a journal.Journal or a press.Press
+    :return: a ContactPerson
+    """
     role = kwargs.get("role", "Test contact role")
-    return core_models.Contacts.objects.create(
-        content_type=content_type,
-        object_id=object_id,
-        name=name,
-        email=email,
-        role=role,
+    contact_person, _created = core_models.ContactPerson.objects.get_or_create(
+        account=account,
+        content_type=ContentType.objects.get_for_model(site),
+        object_id=site.pk,
+        defaults={
+            "role": role,
+        },
     )
+    return contact_person
 
 
 def create_setting(
@@ -796,5 +963,79 @@ def create_licence(journal, name, short_name, **kwargs):
         name=name,
         short_name=short_name,
         url="https://example.com",
+        **kwargs,
+    )
+
+
+def send_contact_message(
+    site,
+    contact_person,
+    sender_email="notloggedin@example.org",
+    subject="Merry Christmas",
+    body="Tis the season\nTo be jolly",
+):
+    """
+    Sends a contact message via core logic so that it is formed and logged
+    in the same way as if a user filled out the contact form.
+    :param site: the Journal or Press to be associated with the contact message
+    :param contact_person: ContactPerson object
+    :param sender_email: email address of unauthenticated user
+    :param subject: email subject line
+    :param body: body of message
+    """
+    if isinstance(site, journal_models.Journal):
+        request = get_request(journal=site, press=site.press)
+    else:
+        request = get_request(press=site)
+    request.POST = {
+        "contact_person": contact_person.pk,
+        "sender": sender_email,
+        "subject": subject,
+        "body": body,
+    }
+
+    create_setting(
+        setting_group_name="general",
+        setting_name="contact_message",
+        pretty_name="Contact Message",
+        description="<p>{{ body|safe }}</p>",
+    )
+    with override_settings(CAPTCHA_TYPE=""):
+        contact_form = core_forms.ContactMessageForm(
+            request.POST,
+            contact_people=site.contact_people,
+        )
+        if contact_form.is_valid():
+            core_logic.send_contact_message(contact_form, request)
+            return utils_models.LogEntry.objects.order_by("-date").first()
+
+
+def create_proofing_task(article, proofreader, manager=None, **kwargs):
+    """Builds the assignment, round and task a proofreader is given."""
+    if not manager:
+        manager = create_editor(article.journal)
+
+    assignment, _created = proofing_models.ProofingAssignment.objects.get_or_create(
+        article=article,
+        defaults={"proofing_manager": manager, "editor": manager},
+    )
+    proofing_round = proofing_models.ProofingRound.objects.create(
+        assignment=assignment,
+        number=assignment.current_proofing_round_number + 1,
+    )
+    return proofing_models.ProofingTask.objects.create(
+        round=proofing_round,
+        proofreader=proofreader,
+        due=timezone.now() + datetime.timedelta(days=3),
+        **kwargs,
+    )
+
+
+def create_typesetter_proofing_task(proofing_task, typesetter, **kwargs):
+    """Builds the corrections task a typesetter is given after proofing."""
+    return proofing_models.TypesetterProofingTask.objects.create(
+        proofing_task=proofing_task,
+        typesetter=typesetter,
+        due=timezone.now() + datetime.timedelta(days=3),
         **kwargs,
     )

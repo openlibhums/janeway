@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>PDF Proofing</title>
+    {% if proofing_task %}
+        {% url 'typesetting_proofing_download' galley.article.pk proofing_task.pk galley.file.pk as pdf_url %}
+    {% else %}
+        {% url 'article_file_download' 'id' article.pk galley.file.pk as pdf_url %}
+    {% endif %}
+    {% include "common/elements/pdf_viewer.html" %}
+</head>
+<body>
+    <div id="viewerContainer">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+</body>
+</html>

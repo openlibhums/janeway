@@ -46,14 +46,13 @@ COMMAND = sys.argv[1:]
 IN_TEST_RUNNER = COMMAND[:1] == ["test"]
 ALLOWED_HOSTS = ["*"]
 
-ENABLE_TEXTURE = False
-
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Application definition
 
 INSTALLED_APPS = [
     "modeltranslation",
+    "django.contrib.admindocs",
     "apps.JanewayAdminConfig",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -66,6 +65,7 @@ INSTALLED_APPS = [
     # Install APP is loaded first to ensure all existing models and migrations
     # relying on installation procedures won't fail
     "install",
+    "a11y",
     "cms",
     "core",
     "copyediting",
@@ -122,11 +122,10 @@ MIDDLEWARE = (
     "core.middleware.MaintenanceModeMiddleware",
     "cron.middleware.CronMiddleware",
     "core.middleware.CounterCookieMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "journal.middleware.JournalLocaleMiddleware",
     "core.middleware.PressMiddleware",
     "core.middleware.GlobalRequestMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "journal.middleware.LanguageMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 )
@@ -157,6 +156,9 @@ TEMPLATES = [
                 "core.context_processors.active",
                 "core.context_processors.navigation",
                 "core.context_processors.version",
+                "core.context_processors.accessibility_mode",
+                "core.context_processors.text_format_preferences",
+                "core.context_processors.text_format_options",
                 "django_settings_export.settings_export",
                 "django.template.context_processors.i18n",
             ],
@@ -167,6 +169,7 @@ TEMPLATES = [
             ],
             "builtins": [
                 "core.templatetags.fqdn",
+                "core.templatetags.alt_text",
                 "security.templatetags.securitytags",
                 "django.templatetags.i18n",
             ],
@@ -190,6 +193,7 @@ SETTINGS_EXPORT = [
     "HIJACK_USERS_ENABLED",
     "ENABLE_OIDC",
     "OIDC_SERVICE_NAME",
+    "HERO_IMAGE_FALLBACK",
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
@@ -230,7 +234,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+            "NAME": os.environ.get("DB_NAME", os.path.join(PROJECT_DIR, "db.sqlite3")),
         }
     }
 
@@ -277,9 +281,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 STATIC_URL = "/static/"
-
-if ENABLE_TEXTURE:
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, "texture"))
 
 # Django bleach settings
 BLEACH_ALLOWED_TAGS = get_allowed_html_tags()
@@ -524,6 +525,12 @@ HTTP_TIMEOUT_SECONDS = 5
 # are first uploaded
 DEFAULT_XSL_FILE_LABEL = "Janeway default (1.6.0)"
 
+# When this setting is enabled, Janeway will ignore the preserved XSLT
+# associated with a galley and will instead rely on src/xsl/default.xsl
+# useful for XSLT development
+FORCE_BUILTIN_XSL = False
+BUILTIN_XSL_PATH = os.path.join(BASE_DIR, "transform/xsl/default.xsl")
+
 # Skip migrations by default on sqlite for faster execution
 if IN_TEST_RUNNER and "--keepdb" not in COMMAND:
     from collections.abc import Mapping
@@ -570,23 +577,23 @@ HIJACK_LOGIN_REDIRECT_URL = "/manager/"
 ENABLE_OIDC = bool(os.environ.get("ENABLE_OIDC", False))
 OIDC_SERVICE_NAME = "OIDC Service Name"
 OIDC_CALLBACK_CLASS = "utils.oidc.JanewayOIDCAuthenticationCallbackView"
+OIDC_AUTHENTICATE_CLASS = "utils.oidc.JanewayOIDCAuthenticationRequestView"
 OIDC_OP_LOGOUT_URL_METHOD = "utils.oidc.logout_url"
 OIDC_USERNAME_ALGO = "utils.oidc.generate_oidc_username"
 OIDC_LOGOUT_URL = os.environ.get("OIDC_LOGOUT_URL")
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
-OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO")
+OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get("OIDC_OP_AUTHORIZATION_ENDPOINT")
 OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT")
 OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
 OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
 
 
-if ENABLE_OIDC:
-    AUTHENTICATION_BACKENDS = (
-        "django.contrib.auth.backends.ModelBackend",
-        "utils.oidc.JanewayOIDCAB",
-    )
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "utils.oidc.JanewayOIDCAB",  # This class checks whether ENABLE_OIDC is True
+)
 
 CORE_FILETEXT_MODEL = "core.FileText"
 if os.environ.get("DB_VENDOR") == "postgres":
@@ -718,3 +725,13 @@ ROR_RECORDS_FILE = "https://zenodo.org/api/communities/ror-data/records?sort=new
 # 'Server has gone away' errors on large dumps. Operators on a MySQL server
 # with a smaller max_allowed_packet may need to lower this value in their local settings.
 ROR_BULK_BATCH_SIZE = 1000
+# Last-resort hero image (a.k.a. large image), loadable as a static file
+HERO_IMAGE_FALLBACK = "common/img/ahmet-yuksek-FSw9F6FOORw-unsplash.webp"
+# The default crop size, used mainly for hero / large images.
+# Note that the provided theme CSS expects a default crop size of (1500, 648)
+# and may not work properly with a different size.
+DEFAULT_CROP_SIZE = (1500, 648)
+
+# This setting should only be enabled where CORS is properly
+# configured to stop misuse of this endpoint.
+API_ENABLE_ACCOUNT_ENDPOINTS = False

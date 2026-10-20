@@ -1,0 +1,23 @@
+<script type="module">
+  for (const copyButton of document.querySelectorAll(
+    '[data-copy-button]'
+  )) {
+    const content = copyButton.dataset.copyContent;
+    copyButton.addEventListener('click', () => writeToClipboard(content));
+    async function writeToClipboard(content) {
+      await navigator.clipboard.writeText(content);
+      for (const otherCopyButton of document.querySelectorAll(
+        '[data-copy-button]'
+      )) {
+        otherCopyButton.innerHTML = `
+          <span class="fa fa-copy"></span>
+          ${ otherCopyButton.dataset.labelCopy }
+        `
+      }
+      copyButton.innerHTML = `
+        <span class="fa fa-check-circle"></span>
+        ${ copyButton.dataset.labelCopied }
+      `
+    }
+  }
+</script>

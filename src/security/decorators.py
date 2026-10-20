@@ -19,6 +19,8 @@ from production import models as production_models
 from submission import models
 from copyediting import models as copyediting_models
 from proofing import models as proofing_models
+from security import logic as security_logic
+from security.const import AccessDeniedMessages as ADM
 from security.logic import (
     can_edit_file,
     can_see_pii,
@@ -26,11 +28,42 @@ from security.logic import (
     can_view_file_history,
     is_data_figure_file,
 )
-from utils import setting_handler
+from utils import setting_handler, models as utils_models
 from utils.logger import get_logger
 from repository import models as preprint_models
+from discussion import logic as discussion_logic
 
 logger = get_logger(__name__)
+
+
+def review_not_assigned(request):
+    return security_logic.task_not_assigned_message(
+        request.user, ADM.REVIEW_NOT_ASSIGNED
+    )
+
+
+def copyedit_not_assigned(request):
+    return security_logic.task_not_assigned_message(
+        request.user, ADM.COPYEDIT_NOT_ASSIGNED
+    )
+
+
+def proofing_not_assigned(request):
+    return security_logic.task_not_assigned_message(
+        request.user, ADM.PROOFING_NOT_ASSIGNED
+    )
+
+
+def typesetting_not_assigned(request):
+    return security_logic.task_not_assigned_message(
+        request.user, ADM.TYPESETTING_NOT_ASSIGNED
+    )
+
+
+def article_not_yours(request):
+    return security_logic.task_not_assigned_message(
+        request.user, ADM.ARTICLE_NOT_ASSOCIATED
+    )
 
 
 # General role-based security decorators
@@ -131,7 +164,7 @@ def senior_editor_user_required(func):
             return func(request, *args, **kwargs)
 
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["editor"])
 
     return wrapper
 
@@ -143,13 +176,47 @@ def editor_or_manager(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
-        if request.journal and request.user in request.journal.editor_list():
-            return func(request, *args, **kwargs)
-
-        if request.repository and request.user in request.repository.managers.all():
+        if discussion_logic.user_can_manage_discussions(
+            request.user,
+            journal=request.journal,
+            repository=request.repository,
+        ):
             return func(request, *args, **kwargs)
 
         deny_access(request)
+
+    return wrapper
+
+
+def can_access_thread(func):
+    """
+    Checks if the user can access the thread or has global editor/manager access.
+    """
+
+    @base_check_required
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        user = request.user
+
+        thread_id = kwargs.get("thread_id")
+        if thread_id:
+            thread = discussion_logic.get_thread_or_404(request, thread_id)
+
+            if thread.user_can_access(user):
+                return func(request, *args, **kwargs)
+
+            return deny_access(request)
+
+        # If no thread_id provided (e.g. thread list),
+        # allow access if the user is editor/manager for the object
+        if discussion_logic.user_can_manage_discussions(
+            user,
+            journal=request.journal,
+            repository=request.repository,
+        ):
+            return func(request, *args, **kwargs)
+
+        return deny_access(request)
 
     return wrapper
 
@@ -171,7 +238,10 @@ def production_manager_roles(func):
             return func(request, *args, **kwargs)
 
         else:
-            deny_access(request)
+            deny_access(
+                request,
+                required_roles=["editor", "production manager", "section editor"],
+            )
 
     return wrapper
 
@@ -193,7 +263,9 @@ def proofing_manager_roles(func):
             return func(request, *args, **kwargs)
 
         else:
-            deny_access(request)
+            deny_access(
+                request, required_roles=["editor", "proofing manager", "section editor"]
+            )
 
     return wrapper
 
@@ -274,7 +346,9 @@ def editor_or_journal_manager_required(func):
             request.journal
         ):
             return func(request, *args, **kwargs)
-        deny_access(request)
+        deny_access(request, required_roles=["editor", "journal manager"])
+
+    return wrapper
 
 
 def editor_user_required(func):
@@ -308,7 +382,7 @@ def editor_user_required(func):
                 deny_access(request, "You are not a section editor for this article")
 
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["editor", "journal manager"])
 
     return wrapper
 
@@ -346,7 +420,7 @@ def any_editor_user_required(func):
         if request.user.has_an_editor_role(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["editor", "section editor"])
 
     return wrapper
 
@@ -389,7 +463,7 @@ def reviewer_user_required(func):
         if request.user.is_reviewer(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["reviewer"])
 
     return wrapper
 
@@ -406,7 +480,7 @@ def author_user_required(func):
         if request.user.is_author(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["author"])
 
     return wrapper
 
@@ -421,12 +495,18 @@ def article_author_required(func):
     @base_check_required
     def wrapper(request, *args, **kwargs):
         article_id = kwargs["article_id"]
-        article = models.Article.get_article(request.journal, "id", article_id)
+        article = get_object_or_404(
+            models.Article,
+            pk=article_id,
+            journal=request.journal,
+        )
 
         if request.user.is_author(request) and article.user_is_author(request.user):
             return func(request, *args, **kwargs)
+        elif not article.user_is_author(request.user):
+            deny_access(request, article_not_yours(request))
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["author"])
 
     return wrapper
 
@@ -443,7 +523,7 @@ def proofreader_user_required(func):
         if request.user.is_proofreader(request) or request.user.is_proofreader(request):
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["proofreader"])
 
     return wrapper
 
@@ -460,7 +540,7 @@ def copyeditor_user_required(func):
         if request.user.is_copyeditor(request) or request.user.is_copyeditor(request):
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["copyeditor"])
 
     return wrapper
 
@@ -476,17 +556,19 @@ def copyeditor_for_copyedit_required(func):
     def wrapper(request, *args, **kwargs):
         copyedit_id = kwargs["copyedit_id"]
         copyedit = get_object_or_404(
-            copyediting_models.CopyeditAssignment, pk=copyedit_id
+            copyediting_models.CopyeditAssignment,
+            pk=copyedit_id,
+            article__journal=request.journal,
         )
 
-        if (
-            request.user == copyedit.copyeditor
-            and request.user.is_copyeditor(request)
-            or request.user.is_staff
+        if request.user == copyedit.copyeditor and (
+            request.user.is_copyeditor(request) or request.user.is_staff
         ):
             return func(request, *args, **kwargs)
+        elif request.user != copyedit.copyeditor:
+            deny_access(request, copyedit_not_assigned(request))
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["copyeditor"])
 
     return wrapper
 
@@ -500,6 +582,9 @@ def typesetting_user_or_production_user_or_editor_required(func):
 
     @base_check_required
     def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get("article_id", None)
+        galley_id = kwargs.get("galley_id", None)
+
         if (
             request.user.is_typesetter(request)
             or request.user.is_production(request)
@@ -507,8 +592,24 @@ def typesetting_user_or_production_user_or_editor_required(func):
             or request.user.is_staff
         ):
             return func(request, *args, **kwargs)
-        else:
-            deny_access(request)
+
+        elif article_id:
+            article = get_object_or_404(
+                models.Article,
+                pk=article_id,
+                journal=request.journal,
+            )
+            if request.user in article.section_editors():
+                return func(request, *args, **kwargs)
+        elif galley_id:
+            galley = get_object_or_404(
+                core_models.Galley,
+                pk=galley_id,
+            )
+            if request.user in galley.article.section_editors():
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
 
     return wrapper
 
@@ -578,47 +679,38 @@ def reviewer_user_for_assignment_required(func):
         if access_code is not None:
             try:
                 assignment = review_models.ReviewAssignment.objects.get(
-                    pk=assignment_id, access_code=access_code
+                    pk=assignment_id,
+                    access_code=access_code,
+                    article__journal=request.journal,
                 )
 
                 if assignment:
                     return func(request, *args, **kwargs)
                 else:
-                    deny_access(request)
+                    deny_access(request, ADM.REVIEW_LINK_INVALID.value)
 
             except review_models.ReviewAssignment.DoesNotExist:
-                deny_access(request)
+                deny_access(request, ADM.REVIEW_LINK_INVALID.value)
 
         if request.user.is_anonymous or not request.user.is_active:
             deny_access(request)
 
         if not request.user.is_reviewer(request):
-            deny_access(request)
+            deny_access(request, required_roles=["reviewer"])
 
         try:
-            if request.user.is_staff:
-                assignment = review_models.ReviewAssignment.objects.get(
-                    pk=assignment_id
-                )
-
-                if assignment:
-                    return func(request, *args, **kwargs)
-                else:
-                    deny_access(request)
-
             assignment = review_models.ReviewAssignment.objects.get(
-                pk=assignment_id, reviewer=request.user
+                pk=assignment_id,
+                reviewer=request.user,
+                article__journal=request.journal,
             )
 
-            if assignment:
-                if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
-                    deny_access(request)
-                else:
-                    return func(request, *args, **kwargs)
+            if assignment.article.stage in models.REVIEW_ACCESSIBLE_STAGES:
+                return func(request, *args, **kwargs)
             else:
-                deny_access(request)
+                deny_access(request, ADM.REVIEW_STAGE_PASSED.value)
         except review_models.ReviewAssignment.DoesNotExist:
-            deny_access(request)
+            deny_access(request, review_not_assigned(request))
 
     return wrapper
 
@@ -702,7 +794,7 @@ def article_production_user_required(func):
                 return func(request, *args, **kwargs)
 
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["editor", "production manager"])
 
     return wrapper
 
@@ -747,6 +839,11 @@ def article_stage_accepted_or_later_required(func):
         article_object = models.Article.get_article(
             request.journal, identifier_type, identifier
         )
+        if article_object and article_object.journal.get_setting(
+            "general",
+            "uses_isolinear_plugin",
+        ):
+            return func(request, *args, **kwargs)
 
         if article_object is None or not article_object.is_accepted():
             deny_access(request)
@@ -1082,7 +1179,7 @@ def typesetter_user_required(func):
         if request.user.is_typesetter(request) or request.user.is_staff:
             return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["typesetter"])
 
     return wrapper
 
@@ -1157,7 +1254,7 @@ def proofing_manager_or_editor_required(func):
             if request.user in article.section_editors():
                 return func(request, *args, **kwargs)
         else:
-            deny_access(request)
+            deny_access(request, required_roles=["editor", "proofing manager"])
 
     return wrapper
 
@@ -1252,7 +1349,18 @@ def proofreader_for_article_required(func):
             return func(request, *args, **kwargs)
 
         else:
-            deny_access(request)
+            task = proofing_models.ProofingTask.objects.filter(
+                pk=kwargs["proofing_task_id"],
+                proofreader=request.user,
+                round__assignment__article__journal=request.journal,
+            ).first()
+
+            if task and task.cancelled:
+                deny_access(request, ADM.TASK_CANCELLED.value)
+            elif task and task.completed:
+                deny_access(request, ADM.TASK_COMPLETED.value)
+            else:
+                deny_access(request, proofing_not_assigned(request))
 
     return wrapper
 
@@ -1279,7 +1387,18 @@ def typesetter_for_corrections_required(func):
             )
             return func(request, *args, **kwargs)
         except proofing_models.TypesetterProofingTask.DoesNotExist:
-            deny_access(request)
+            task = proofing_models.TypesetterProofingTask.objects.filter(
+                pk=kwargs["typeset_task_id"],
+                typesetter=request.user,
+                proofing_task__round__assignment__article__journal=request.journal,
+            ).first()
+
+            if task and task.cancelled:
+                deny_access(request, ADM.TASK_CANCELLED.value)
+            elif task and task.completed:
+                deny_access(request, ADM.TASK_COMPLETED.value)
+            else:
+                deny_access(request, typesetting_not_assigned(request))
 
     return wrapper
 
@@ -1323,7 +1442,7 @@ def preprint_editor_or_author_required(func):
         if request.user in preprint.subject_editors():
             return func(request, *args, **kwargs)
 
-        if request.user in request.repository.managers.all():
+        if request.user.is_repository_moderator(request.repository):
             return func(request, *args, **kwargs)
 
         deny_access(request)
@@ -1354,7 +1473,7 @@ def is_article_preprint_editor(func):
         if (
             request.user in preprint.subject_editors()
             or request.user.is_staff
-            or request.user.is_repository_manager(request.repository)
+            or request.user.is_repository_moderator(request.repository)
         ):
             return func(request, *args, **kwargs)
 
@@ -1384,11 +1503,35 @@ def is_repository_manager(func):
     return preprint_manager_wrapper
 
 
-def deny_access(request, *args, **kwargs):
+def is_repository_moderator(func):
+    """
+    Checks that the current user moderates the current repository, as a
+    moderator or a manager.
+    """
+
+    @base_check_required
+    def preprint_moderator_wrapper(request, *args, **kwargs):
+        if request.repository and request.user:
+            if request.user.is_staff or request.user.is_repository_moderator(
+                request.repository
+            ):
+                return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return preprint_moderator_wrapper
+
+
+def deny_access(request, *args, required_roles=None, **kwargs):
     """Wrapper for raising a PermissionDenied exception
 
-    *args and **kwargs are passed to the PermissionDenied constructor
+    *args and **kwargs are passed to the PermissionDenied constructor.
+
+    Callers that pass neither a message nor required_roles keep the bare
+    denial they have always raised.
+
     :param request: A django HttpRequest
+    :param required_roles: names of the roles this page asks for, if known
     """
     try:
         ident = request.user.email
@@ -1402,6 +1545,16 @@ def deny_access(request, *args, **kwargs):
             request=request, ident=ident, roles={r.role for r in roles}
         ),
     )
+
+    if not args and required_roles:
+        args = (
+            security_logic.access_denied_message(
+                request.user,
+                roles,
+                required_roles=required_roles,
+                journal=getattr(request, "journal", None),
+            ),
+        )
 
     raise PermissionDenied(*args, **kwargs)
 
@@ -1420,8 +1573,8 @@ def article_stage_review_required(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if not article.stage in models.REVIEW_STAGES:
-            deny_access(request)
+        if article.stage not in models.REVIEW_STAGES:
+            deny_access(request, ADM.REVIEW_STAGE_PASSED.value)
         else:
             return func(request, article_id, *args, **kwargs)
 
@@ -1461,7 +1614,8 @@ def submission_authorised(func):
             request.user.is_staff
             or (request.journal and request.user in request.journal.editors())
             or (
-                request.repository and request.user in request.repository.managers.all()
+                request.repository
+                and request.user.is_repository_moderator(request.repository)
             )
         ):
             return func(request, *args, **kwargs)
@@ -1543,6 +1697,41 @@ def setting_is_enabled(setting_name, setting_group_name):
     return decorator
 
 
+def identifier_access_required(func):
+    """
+    Checks access for the shared identifier views, which serve both
+    articles and preprints via a content_type argument. Article requests
+    require a production, editor or staff user; preprint requests require
+    the repository's identifier_management setting to be enabled and
+    a staff user or a manager of the current repository.
+    :param func: the function to callback from the decorator
+    :return: either the function call, or raises Http404 when the
+        repository setting is disabled, or raises a PermissionDenied
+    """
+
+    @base_check_required
+    def wrapper(request, *args, **kwargs):
+        content_type = kwargs.get("content_type", "article")
+
+        if content_type == "preprint":
+            if not request.repository or not request.repository.identifier_management:
+                raise Http404("Identifier management is not enabled.")
+            if request.user.is_staff or request.user.is_repository_moderator(
+                request.repository
+            ):
+                return func(request, *args, **kwargs)
+        elif (
+            request.user.is_production(request)
+            or request.user.is_editor(request)
+            or request.user.is_staff
+        ):
+            return func(request, *args, **kwargs)
+
+        deny_access(request)
+
+    return wrapper
+
+
 def repository_setting_enabled(attr_name, error_message="Setting disabled"):
     """
     Generally should only be used with boolean fields. Repository must be set
@@ -1572,3 +1761,23 @@ def repository_setting_enabled(attr_name, error_message="Setting disabled"):
         return inner
 
     return decorator
+
+
+def user_can_view_contact_message(func):
+    """This checks permissions for a user to view a specific contact message.
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        log_entry_id = kwargs["log_entry_id"]
+
+        log_entry = utils_models.LogEntry.objects.get(pk=log_entry_id)
+
+        if log_entry.viewable_as_contact_message_by(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper

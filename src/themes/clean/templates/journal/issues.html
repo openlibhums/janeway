@@ -2,8 +2,11 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load page_title %}
 
 {% block page_title %}{% trans "Issues" %}{% endblock %}
+
+{% block title %}{% trans "Issues" as issues_label %}{% page_title issues_label %}{% endblock %}
 
 {% block body %}
 
@@ -11,7 +14,13 @@
         <div class="col-md-12">
             <h1>{% trans issue_type.plural_name %}</h1>
             {% if request.journal.current_issue %}
-                <p>{% trans 'The current issue is' %}: <a href="{% url 'journal_issue' request.journal.current_issue.id %}">{{ request.journal.current_issue.display_title }}&bull; {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}</a></p>
+                <p>{% trans 'The current issue is' %}:
+                    <a href="{% url 'journal_issue' request.journal.current_issue.id %}"
+                        aria-label='{{ request.journal.current_issue.display_title_a11y }} ({{ request.journal.current_issue.articles.all.count }} {% trans "items" %})'
+                        >
+                        {{ request.journal.current_issue.display_title }} - {{ request.journal.current_issue.articles.all.count }} {% trans "items" %}
+                    </a>
+                </p>
             {% endif %}
 
             {% if request.journal.display_issues_grouped_by_decade %}

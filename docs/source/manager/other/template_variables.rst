@@ -106,7 +106,6 @@ The journal object contains the following attributes:
 - contact_info (Str)
 - Keywords (Keyword)
 - is_conference (Bool)
-- is_archived (Bool)
 - is_remote (Bool)
 - remote_view_url (URLField)
 - remote_submit_url (URLField)

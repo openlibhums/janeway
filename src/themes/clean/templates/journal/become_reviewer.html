@@ -8,16 +8,21 @@
 {% block body %}
     <p>{{ message }}</p>
 
-    {% if not code == 'already-reviewer' %}
-        {% if code == 'not-logged-in' %}
-            <a class="success button" href="{% url_with_return 'core_login' %}">
-              {% trans "Log in" %}
-            </a>
-        {% else %}
-            <form method="POST">
-            {% csrf_token %}
-            <button type="submit" name="action" value="go" class="success button" >{% trans "Become a Reviewer" %}</button>
-            </form>
-        {% endif %}
+    {% if code == 'not-logged-in' %}
+        <a class="btn btn-primary" href="{% url_with_return 'core_login' %}">
+          {% trans "Log in" %}
+        </a>
+        <a class="btn btn-primary" href="{% url_with_return 'core_register' %}">
+          {% trans "Register" %}
+        </a>
+    {% elif code == 'already-reviewer' %}
+        <a class="btn btn-primary" href="{% url 'core_edit_profile' %}">
+          {% trans "Go to Profile" %}
+        </a>
+    {% else %}
+        <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="action" value="go" class="btn btn-primary">{% trans "Become a Reviewer" %}</button>
+        </form>
     {% endif %}
 {% endblock body %}

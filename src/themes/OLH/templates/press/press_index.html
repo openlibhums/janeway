@@ -3,10 +3,10 @@
 {% load i18n %}
 
 {% block page_title %}{% trans "Home" %}{% endblock page_title %}
-{% block title %}{{ press.name }}{% endblock title %}
 {% block navbarbrand %}{{ press.name }}{% endblock navbarbrand %}
 
 {% block body %}
+    <h1 class="sr-only">{{ request.press.name }}</h1>
 
     {% for element in homepage_elements %}
         {% include element.template_path %}

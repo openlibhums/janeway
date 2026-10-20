@@ -40,22 +40,26 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <article-title>{{ article.title }}</article-title>
             </title-group>
             <contrib-group>
-            {% for author in article.preprintauthor_set.all %}
+            {% for author in article.frozen_authors %}
                 <contrib contrib-type="author">
-                    {% if author.account.orcid %}
-                    <contrib-id>{{ author.account.orcid }}</contrib-id>
+                    {% if author.orcid %}
+                    <contrib-id>{{ author.orcid }}</contrib-id>
                     {% endif %}
+                    {% if author.is_corporate or not author.last_name %}
+                    <collab>{% if author.is_corporate %}{{ author.corporate_name|default:author.full_name }}{% else %}{{ author.full_name }}{% endif %}</collab>
+                    {% else %}
                     <name>
-                        <surname>{{ author.account.last_name }}</surname>
-                        <given-names>{{ author.account.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
+                        <surname>{{ author.last_name }}</surname>
+                        <given-names>{{ author.first_name }}{% if author.middle_name %} {{ author.middle_name }}{% endif %}</given-names>
                     </name>
+                    {% endif %}
                     {% if author.affiliation %}
                     <xref ref-type="aff" rid="aff-{{ forloop.counter }}"/>
                     {% endif %}
                 </contrib>
             {% endfor %}
             </contrib-group>
-            {% for author in article.preprintauthor_set.all %}
+            {% for author in article.frozen_authors %}
             {% if author.affiliation %}
             <aff id="aff-{{ forloop.counter }}">{{ author.affiliation }}</aff>
             {% endif %}

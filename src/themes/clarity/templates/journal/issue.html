@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}
+{% load page_title %}
+
+{% block title %}{% page_title issue.issue_type.pretty_name|striptags issue.display_title_a11y %}{% endblock %}
+{% block page_title %}{{ issue.display_title }}{% endblock %}
+
+{% block body %}
+  {% include "journal/issue_display.html" %}
+{% endblock body %}

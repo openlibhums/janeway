@@ -1,0 +1,27 @@
+<tr id="articles-{{ article.pk }}">
+    <td><i class="fa fa-sort"></i> {{ article.id }}</td>
+    <td>
+        <a href="{% url 'manage_archive_article' article.pk %}">{{ article.safe_title }}</a>
+    </td>
+    <td>{{ article.date_published }}</td>
+    <td>{{ article.author_list }}</td>
+    <td>{{ article.section.name }}</td>
+    <td>{{ article.topic.title|default:"--" }}</td>
+    <td>{{ article.get_doi }}</td>
+    <td>{{ article.get_pubid }}</td>
+    <td>{{ article.first_page|default_if_none:"--" }}</td>
+    <td>{{ article.page_numbers|default_if_none:"--"  }}</td>
+    <td>{{ article.article_number }}</td>
+    <td class="toc-article-actions">
+        <button
+            type="button"
+            class="tiny button"
+            hx-get="{% url 'issue_toc_article_edit' issue.pk article.pk %}"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            title="{% trans 'Change the section and topic of this article' %}"
+        ><i class="fa fa-edit" aria-hidden="true"></i> {% trans "Edit" %}</button>
+        <a href="{% url 'manage_issues_event' issue.pk 'remove' %}?article={{ article.pk }}"><i
+                class="fa fa-chain-broken">&nbsp;</i>Remove</a>
+    </td>
+</tr>

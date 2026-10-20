@@ -83,3 +83,13 @@ from utils.shared import clear_cache
 
 clear_cache()
 ```
+
+## Testing views with captchas
+
+Captchas are inserted depending on the `CAPTCHA_TYPE` Django setting, and forms that require them will come up invalid in tests. Disable the captcha during a test run by overriding the setting with an empty string:
+
+```
+    @override_settings(CAPTCHA_TYPE="")
+    def test_posting_view_with_captcha(self):
+        ...
+```

@@ -3,7 +3,7 @@
 
 {% block title %}Copyediting {{ article.title }}{% endblock %}
 {% block title-section %}Copyediting{% endblock %}
-{% block title-sub %}#{{ article.pk }} / {{ article.correspondence_author.last_name }} / {{ article.safe_title }}{% endblock %}
+{% block title-sub %}{% include "admin/elements/article_title_sub.html" %}{% endblock %}
 
 {% block breadcrumbs %}
     {{ block.super }}
@@ -163,6 +163,7 @@
                     </ul>
                 </div>
             </div>
+            {% include "admin/elements/contacts_box.html" %}
         </div>
     </div>
     {% include "admin/elements/summary_modal.html" %}

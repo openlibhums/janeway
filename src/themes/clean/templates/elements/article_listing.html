@@ -1,5 +1,7 @@
 {% load i18n %}
 {% load static %}
+{% load dates %}
+{% load alt_text %}
 
 <div class="card">
     <div class="card-block">
@@ -8,60 +10,93 @@
                 <div class="col-md-2">
                     {% if article.thumbnail_image_file %}
                         <img src="{% url 'article_file_download' 'id' article.id article.thumbnail_image_file.id %}"
-                             alt="{{ article.title|striptags|escape }}" class="article-thumbnail img-fluid">
+                             alt="{% get_alt_text obj=article.thumbnail_image_file default=article.title|thumbnail_alt %}" class="article-thumbnail img-fluid">
                     {% elif request.journal.thumbnail_image %}
-                        <img src="{% url 'journal_cover_download' %}" class="article-thumbnail img-fluid" alt="{{ request.journal }} thumbnail icon">
+                        {% blocktrans with name=request.journal asvar default_alt %}{{ name }} thumbnail icon{% endblocktrans %}{% get_alt_text obj=request.journal.thumbnail_image default=default_alt as thumbnail_alt_text %}<img src="{% url 'journal_cover_download' %}" class="article-thumbnail img-fluid" alt="{{ thumbnail_alt_text }}">
                     {% else %}
                         <img src="{% static 'common/img/icons/article.png' %}"
-                             alt="{{ article.title|striptags|escape }}"
+                             alt=""
                              class="article-thumbnail img-fluid">
                     {% endif %}
                 </div>
             {% endif %}
             <div class="col article-block">
-                <a href="{% if article.is_remote %}{{ article.remote_url }}{% else %}{{ article.url }}{% endif %}">
+                    {% if article_group_label %}<h3 class="article-subgroup">{{ article_group_label }}</h3>{% endif %}
                     {% if article.is_remote %}
-                    <h2 class="card-title article-title">
-                        <span class="sr-only">{% trans 'Externally hosted article' %}: </span>
-                        {{ article.title|safe }}&nbsp;
-                        <i aria-hidden="true" class="fa fa-external-link small-icon-text"></i>
-                    </h2>
+                        <a href="{{ article.remote_url }}" target="_blank">
+                            {% if level == "deep" %}
+                                <h4 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h4>
+                            {% elif level == "shallow" %}
+                                <h3 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h3>
+                            {% else %}
+                                <h2 class="card-title article-title">
+                                    {{ article.title|safe }}&nbsp;
+                                    {% include "elements/icons/link_external.html" %} 
+                                </h2>
+                            {% endif %}
+                        </a>
                     {% else %}
-                    <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                        <a href="{{ article.url }}" >
+                            {% if level == "deep" %}
+                                <h4 class="card-title article-title">{{ article.title|safe }}</h4>
+                            {% elif level == "shallow" %}
+                                <h3 class="card-title article-title">{{ article.title|safe }}</h3>
+                            {% else %}
+                                <h2 class="card-title article-title">{{ article.title|safe }}</h2>
+                            {% endif %}
+                        </a>
                     {% endif %}
                 </a>
-                <p class="card-subtitle mb-2 text-muted">{% for author in article.frozen_authors.all %}{% if forloop.last %}
-                {% if article.frozen_authors.all|length > 1 %} {% trans 'and' %}
-                    {% endif %}{% endif %}{{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}{% endfor %}
+                <p class="card-subtitle mb-2 text-muted">
+                    <ul class="list-inline">
+                        {% for author in article.frozen_authors.all %}
+                            <li>
+                                {% if forloop.last %}{% if article.frozen_authors.all|length > 1 %} {% trans 'and' %}{% endif %}{% endif %}
+                                {{ author.full_name }}{% if not forloop.last %}{% if not forloop.counter == article.frozen_authors.all|length|add:-1 %}, {% endif %}{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </p>
                 <p class="card-text">
                     <span class="date">
                         <i aria-hidden="true" class="fa fa-calendar"></i>
                         <time datetime="{{ article.date_published|date:"Y-m-d" }}">
-                            <span role="time">{{ article.date_published|date:"Y-m-d" }}</span>
+                            <span role="time">{{ article.date_published|date_human}}</span>
                         </time>
                     </span>
                     {% if article.issue %}
-                    <i aria-hidden="true" class="fa fa-book"></i>
-                    <a href="{{ article.issue.url }}">
+                    <a href="{{ article.issue.url }}" >
+                        <i aria-hidden="true" class="fa fa-book"></i>
                         {{ article.issue_title }}
                     </a>
+                    {% endif %}
+                    {% if article.section %}
+                    <span>
+                        <i aria-hidden="true" class="fa fa-tag"></i> {{ article.section.name }}
+                    </span>
                     {% endif %}
                 </p>
                  {% if article.issues.count > 1 %}
                   <p><strong><i aria-hidden="true" class="fa fa-info-circle"></i> {% trans 'Also a part of:'%}</strong></p>
-                  {% for other in article.issues.all %}
-                  {% if other != article.issue %}
-                  <p>
-                    <i aria-hidden="true" class="fa fa-book"></i>
-                    <a class="issue-link" href="{{ other.url }}">
-                        {{other.issue_type.pretty_name}}: {{ other.display_title }}
-                    </a>
-                  </p>
-                  {% endif %}
-                  {% endfor %}
+                  <ul class="list-no-bullet">
+                    {% for other in article.issues.all %}
+                        {% if other != article.issue %}
+                            <li>
+                                <a class="issue-link" href="{{ other.url }}">
+                                    <i aria-hidden="true" class="fa fa-book"></i>
+                                    {{other.issue_type.pretty_name}}: {{ other.display_title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                  </ul>
                 {% endif %}
-                </a>
                 </div>
             </div>
         </div>

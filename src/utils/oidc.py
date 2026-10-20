@@ -1,7 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.models import BaseUserManager
-from django.shortcuts import reverse
+from django.shortcuts import redirect, reverse
+from django.utils.http import urlencode
 
-from mozilla_django_oidc.views import OIDCAuthenticationCallbackView
+from mozilla_django_oidc.views import (
+    OIDCAuthenticationCallbackView,
+    OIDCAuthenticationRequestView,
+)
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 
@@ -17,6 +22,26 @@ class JanewayOIDCAuthenticationCallbackView(OIDCAuthenticationCallbackView):
         next_url = self.request.session.get("oidc_login_next", None)
         self.request.session.is_oidc = True
         return next_url or reverse("website_index")
+
+
+class JanewayOIDCAuthenticationRequestView(OIDCAuthenticationRequestView):
+    """Starts every OIDC login at the press level.
+
+    The identity provider only accepts the callback URLs registered with it,
+    so redirect_uri must never carry a journal or repository path prefix.
+    Requests made under a path mode prefix are redirected to the same view at
+    the press level, with a next url that returns the user to the site they
+    started on once the login is complete.
+    """
+
+    def get(self, request):
+        if request.path == request.path_info:
+            return super().get(request)
+
+        next_url = request.GET.get("next") or reverse("website_index")
+        return redirect(
+            "{}?{}".format(request.path_info, urlencode({"next": next_url}))
+        )
 
 
 class JanewayOIDCAB(OIDCAuthenticationBackend):
@@ -37,6 +62,13 @@ class JanewayOIDCAB(OIDCAuthenticationBackend):
         user.save()
 
         return user
+
+    def authenticate(self, request, **kwargs):
+        """Checks if OIDC is enabled and runs OIDC authentication if so."""
+        if settings.ENABLE_OIDC:
+            return super().authenticate(request, **kwargs)
+        else:
+            return None
 
 
 def logout_url(request):

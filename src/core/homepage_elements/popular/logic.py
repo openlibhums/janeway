@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from submission import models as sm
 from utils import setting_handler
+from utils.function_cache import cache
 from core.homepage_elements.popular import plugin_settings
 
 
@@ -53,17 +54,24 @@ def calc_start_date(time):
     return date_time - timedelta(days=delta)
 
 
-def get_most_popular_articles(journal, number, time):
+@cache(3600)
+def get_most_popular_article_ids(journal_id, number, time):
     start_date = calc_start_date(time)
 
-    articles = (
+    return list(
         sm.Article.objects.filter(
-            journal=journal,
+            journal_id=journal_id,
             stage=sm.STAGE_PUBLISHED,
             articleaccess__accessed__gte=start_date,
         )
         .annotate(access_count=Count("articleaccess"))
-        .order_by("-access_count", "title")[:number]
+        .order_by("-access_count", "title")
+        .values_list("pk", flat=True)[:number]
     )
 
-    return articles
+
+def get_most_popular_articles(journal, number, time):
+    article_ids = get_most_popular_article_ids(journal.pk, number, time)
+    articles = sm.Article.objects.in_bulk(article_ids)
+
+    return [articles[pk] for pk in article_ids if pk in articles]

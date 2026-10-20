@@ -1,7 +1,9 @@
+/* The header's height comes from mat.css: 90px, growing on wide screens
+   when its contents wrap. A fixed height here kept it at 90px, so a menu
+   that wrapped fell out of the header over the page. */
 .header-overrides {
     background-color: #fafafa;
     color: #616161 !important;
-    height: 90px !important;
 }
 
 .page-footer {

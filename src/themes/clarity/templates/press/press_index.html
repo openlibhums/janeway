@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block navbar %}
+    {% include "press/nav.html" %}
+{% endblock navbar %}
+
+{% block body %}
+    <h1 class="sr-only">{{ request.press.name }}</h1>
+    {% for element in homepage_elements %}
+        {% include element.template_path %}
+    {% endfor %}
+{% endblock body %}

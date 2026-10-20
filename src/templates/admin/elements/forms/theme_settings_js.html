@@ -1,0 +1,26 @@
+{% comment %}
+  Theme settings
+  This component is JS only.
+  Shows a setting field only while one of the themes named in its
+  data-themes attribute is the selected journal theme. The attribute is
+  set on the widget by core.forms.GeneratedSettingForm.
+  Each data-theme-settings group is handled separately, so the component
+  works where the surrounding form is rendered more than once on a page.
+{% endcomment %}
+
+<script type="module">
+  document.querySelectorAll('[data-theme-settings]').forEach(group => {
+    const themeField = group.querySelector('select[name="journal_theme"]');
+    if (!themeField) {
+      return;
+    }
+    const showFieldsForTheme = () => {
+      group.querySelectorAll('[data-themes]').forEach(field => {
+        const themes = field.dataset.themes.split(' ');
+        field.closest('div').hidden = !themes.includes(themeField.value);
+      });
+    };
+    themeField.addEventListener('change', showFieldsForTheme);
+    showFieldsForTheme();
+  });
+</script>

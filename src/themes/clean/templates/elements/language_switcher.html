@@ -1,0 +1,46 @@
+{% load i18n %}
+
+{% get_available_languages as LANGUAGES %}
+{# Only offered when there is another language to change to: the journal's languages on a journal, the site's on the press. #}
+{% if journal_settings.general.switch_language and request.journal and request.available_languages|length > 1 or journal_settings.general.switch_language and not request.journal and LANGUAGES|length > 1 %}
+    <div class="mt-2">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_language_info for LANGUAGE_CODE as current_language %}
+        {% get_language_info_list for LANGUAGES as languages %}
+        <span>{% trans "Language" %}: {{ current_language.name_local }}</span>
+        <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#language-modal" aria-haspopup="dialog" aria-controls="language-modal">
+            {% trans "Change language" %}
+            {% include "elements/icons/link_modal.html" %}
+        </button>
+        <div class="modal fade" id="language-modal" tabindex="-1" role="dialog" aria-labelledby="language-modal-title" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="language-modal-title">{% trans "Switch language" %}</h2>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.PATH }}"/>
+                            <div class="form-group">
+                                <label for="language-select">{% trans "Language" %}</label>
+                                <select id="language-select" class="custom-select" name="language" autocomplete="off">
+                                    {% for language in languages %}
+                                        {% if not request.journal or language.code in request.available_languages %}
+                                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                            {{ language.name_local }} ({{ language.code }})
+                                        </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">{% trans "Switch language" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

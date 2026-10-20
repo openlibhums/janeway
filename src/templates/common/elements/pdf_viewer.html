@@ -1,0 +1,41 @@
+{% comment %}
+    Renders a PDF with pdf.js into #viewerContainer > #viewer.pdfViewer.
+    Include in <head> with pdf_url set. The container is absolutely positioned,
+    as pdf.js requires, so its parent must be positioned and sized.
+{% endcomment %}
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf_viewer.css"
+      integrity="sha512-zOUrzgQOOyKZgRuntWsn13OEo/d8VfGtN1s89/ZQsJ+nh/suQRKIS5JLrNB6zIDl1DmeyXYwJmByBzmlLFt1Gg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer">
+<style>
+    #viewerContainer {
+        position: absolute;
+        inset: 0;
+        overflow: auto;
+    }
+</style>
+{{ pdf_url|json_script:"pdf-viewer-url" }}
+<script type="module">
+    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf.min.mjs";
+
+    // pdf_viewer.mjs reads globalThis.pdfjsLib, so it must load after pdf.min.mjs.
+    const pdfjsViewer = await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf_viewer.mjs");
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf.worker.min.mjs";
+
+    const container = document.getElementById("viewerContainer");
+    const eventBus = new pdfjsViewer.EventBus();
+    const linkService = new pdfjsViewer.PDFLinkService({ eventBus });
+    const pdfViewer = new pdfjsViewer.PDFViewer({ container, eventBus, linkService });
+    linkService.setViewer(pdfViewer);
+
+    eventBus.on("pagesinit", () => {
+        pdfViewer.currentScaleValue = "page-width";
+    });
+
+    const url = JSON.parse(document.getElementById("pdf-viewer-url").textContent);
+    const pdfDocument = await pdfjsLib.getDocument({ url }).promise;
+    pdfViewer.setDocument(pdfDocument);
+    linkService.setDocument(pdfDocument, null);
+</script>

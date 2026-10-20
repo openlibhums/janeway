@@ -17,6 +17,7 @@ from bleach import clean
 from django import forms
 from django.apps import apps
 from django.contrib import admin
+from django.contrib.auth.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
 from django.contrib.postgres.lookups import SearchLookup as PGSearchLookup
 from django.contrib.postgres.search import (
@@ -29,6 +30,7 @@ from django.db import (
     connection,
     IntegrityError,
     models,
+    OperationalError,
     ProgrammingError,
     transaction,
 )
@@ -40,6 +42,7 @@ from django.core.validators import (
     FileExtensionValidator,
     get_available_image_extensions,
 )
+from django.forms.models import model_to_dict
 from django.db.models.fields.related_descriptors import (
     create_forward_many_to_many_manager,
     ManyToManyDescriptor,
@@ -136,6 +139,24 @@ class AbstractSiteModel(models.Model):
         """
         return next_url or reverse(self.AUTH_SUCCESS_URL)
 
+    @property
+    def contact_people(self):
+        """
+        For use with journal and press sites.
+        """
+        ContactPerson = apps.get_model("core", "ContactPerson")
+        return ContactPerson.objects.filter(
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.pk,
+        )
+
+    def next_contact_order(self):
+        """
+        For use with journal and press sites.
+        """
+        orderings = [cp.sequence for cp in self.contact_people]
+        return max(orderings) + 1 if orderings else 0
+
 
 class PGCaseInsensitivedMixin:
     """Activates the citext postgres extension for the given field"""
@@ -193,6 +214,22 @@ def merge_models(src, dest):
                 # Ignore unique constraint violations
                 pass
     src.delete()
+
+
+def copy_instance(instance, **fields):
+    """
+    Returns an unsaved copy of a model instance, built with model_to_dict so
+    that a many-to-many field added to the model later raises an error here
+    rather than being silently left off the copy.
+    :param instance: Model instance to copy
+    :param fields: field values to set on the copy
+    """
+    model = instance._meta.model
+    data = model_to_dict(instance, exclude=[model._meta.pk.name, *fields])
+    for field in model._meta.concrete_fields:
+        if field.is_relation and field.name in data:
+            data[field.attname] = data.pop(field.name)
+    return model(**data, **fields)
 
 
 class JanewayMultilingualQuerySet(MultilingualQuerySet):
@@ -524,17 +561,23 @@ models.CharField.register_lookup(SearchLookup)
 class BaseSearchManagerMixin(Manager):
     search_lookups = set()
 
-    def search(self, search_term, search_filters, sort=None, site=None):
+    def search(self, search_term, search_filters, sort=None, site=None, queryset=None):
         if connection.vendor == "postgresql":
-            return self.postgres_search(search_term, search_filters, sort, site)
+            return self.postgres_search(
+                search_term, search_filters, sort, site, queryset=queryset
+            )
         elif connection.vendor == "mysql":
-            return self.mysql_search(search_term, search_filters, sort, site)
+            return self.mysql_search(
+                search_term, search_filters, sort, site, queryset=queryset
+            )
         else:
-            return self._search(search_term, search_filters, sort, site)
+            return self._search(
+                search_term, search_filters, sort, site, queryset=queryset
+            )
 
-    def _search(self, search_term, search_filters, sort=None, site=None):
+    def _search(self, search_term, search_filters, sort=None, site=None, queryset=None):
         """This is a copy of search from journal.views.old_search with filters"""
-        articles = self.get_queryset()
+        articles = queryset or self.get_queryset()
         if search_term:
             escaped = re.escape(search_term)
             split_term = [re.escape(word) for word in search_term.split(" ")]
@@ -589,7 +632,7 @@ class SearchVector(DjangoSearchVector):
 
     # Override template to ignore function
     function = None
-    template = "%(expressions)s"
+    template = "COALESCE(%(expressions)s, '')"
 
 
 def search_model_admin(request, model, q=None, queryset=None):
@@ -692,7 +735,7 @@ def default_press():
     try:
         Press = apps.get_model("press", "Press")
         return Press.objects.first()
-    except ProgrammingError:
+    except (ProgrammingError, OperationalError):
         # Initial migration will attempt to call this,
         # even when no EditorialGroups are created
         return
@@ -769,7 +812,7 @@ class SafePaginator(Paginator):
 def check_exclusive_fields_constraint(model_label, fields, blank=True):
     """
     Checks that only one of several exclusive fields is populated.
-    For example, CreditRecord has author, frozen_author, and preprint_author,
+    For example, ControlledAffiliation has account and frozen_author,
     but only one should be populated.
     If blank=True, allows for all fields to be blank.
     Set this as one of the constraints in a model's Meta.constraints.
@@ -792,7 +835,7 @@ def check_exclusive_fields_constraint(model_label, fields, blank=True):
         query_piece = models.Q()
         for field in fields:
             query_piece &= models.Q((f"{field}__isnull", True))
-            main_query |= query_piece
+        main_query |= query_piece
     fields_str = "_".join(list(fields))
 
     long_name = f"exclusive_fields_{model_label}_{fields_str}"
@@ -813,7 +856,7 @@ AFFILIATION_COMPATIBLE_PATTERNS = (
         "controlledaffiliation__organization__labels__value",
     ),
     (
-        # PreprintAuthor had 'affiliation'
+        # The removed PreprintAuthor model had 'affiliation'
         re.compile(r"^affiliation"),
         "controlledaffiliation__organization__labels__value",
     ),
@@ -832,7 +875,7 @@ AFFILIATION_COMPATIBLE_PATTERNS = (
 
 class AffiliationCompatibleQueryset(models.query.QuerySet):
     """
-    The Account, FrozenAuthor, PreprintAuthor models used to have
+    The Account, FrozenAuthor and (removed) PreprintAuthor models used to have
     fields like 'institution', 'affiliation', 'department', and 'country'.
     When we migrated this data to the ControlledAffiliation model, we preserved
     the old fields via this queryset class. It maps the old lookups to

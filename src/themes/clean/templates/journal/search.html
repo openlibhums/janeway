@@ -1,24 +1,27 @@
 {% extends "core/base.html" %}
 {% load hooks %}
 {% load i18n %}
+{% load page_title %}
 
 {% hook 'filter_search' %}
 
 {% block page_title %}{% trans "Search" %}{% endblock %}
 
-{% block title %}{% trans "Search" %}{% endblock %}
+{% block title %}{% trans "Search" as search_label %}{% page_title search_label article_search %}{% endblock %}
 
 {% block body %}
 
+    <h1>{% trans 'Article Search Results' %}</h1>
+
     {% if search_term %}
-        <h5>Searching for: <i>{{ search_term }}</i></h5>
+        <p>Searching for: <i>{{ search_term }}</i></p>
     {% elif keyword %}
-        <h5>Keyword: <i>{{ keyword }}</i></h5>
+        <p>Keyword: <i>{{ keyword }}</i></p>
     {% endif %}
 
 	<div class="row">
         <div class="col-md-8">
-		    <hr />
+		    <hr aria-hidden="true" />
 		    
 		    {% for article in articles %}
 		        {% include "elements/article_listing.html" with article=article %}
@@ -39,15 +42,18 @@
                                 {{ form.article_search }}
                                 
                             {% else %}
-                                You are currently browsing by keyword. <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
+                                {% trans 'You are currently browsing by keyword.' %}
+                                <a href="{% url 'search' %}">{% trans 'Search for an article' %}.</a>
                             {% endif %}
                         </div>
                         <div class="form-group">
                             <label>{% trans "Keywords" %}
-
-                                {% for keyword in all_keywords %}
-                                    <a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
+                                
+                                <ul class="list-inline comma-sep">
+                                    {% for keyword in all_keywords %}
+                                        <li><a href="{% url 'search' %}?keyword={{ keyword.word }}">{{ keyword.word }}</a></li>
+                                    {% endfor %}
+                                </ul>
 
                             </label>
                         </div>

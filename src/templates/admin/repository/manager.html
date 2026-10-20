@@ -1,14 +1,15 @@
 {% extends "admin/core/base.html" %}
 
-{% block title-section %}Preprint Manager{% endblock %}
+{% block title-section %}{{ request.repository.object_name|capfirst }} Manager{% endblock %}
 {% block title-sub %}Management interface for {{ request.repository.name }}{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li>Preprint Manager</li>
+    <li>{{ request.repository.object_name|capfirst }} Manager</li>
 {% endblock %}
 
 {% load cache %}
+{% load securitytags %}
 
 {% block body %}
     <div class="row expanded" data-equalizer data-equalize-on="medium">
@@ -23,6 +24,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>Type</th>
                             <th>First Author</th>
                             <th>Date Submitted</th>
                         </tr>
@@ -34,6 +36,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_submitted }}</td>
                             </tr>
@@ -55,6 +58,10 @@
                         <a href="{% url 'repository_subjects' %}" class="box-link"></a>
                     </div>
                     <div class="summary">
+                        <span class="title">{{ organisation_unit_count }} {{ request.repository.rou_default_name }}</span>
+                        <a href="{% url 'repository_organisation_units' %}" class="box-link"></a>
+                    </div>
+                    <div class="summary">
                         <span class="title">{{ published_preprints|length }} Published Submissions</span>
                         <a href="" class="box-link"></a>
                     </div>
@@ -70,6 +77,26 @@
                         <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
                         <a href="{% url 'version_queue' %}" class="box-link"></a>
                     </div>
+                    {% if request.repository.enable_comments %}
+                    <div class="summary">
+                        <span class="title">{{ comments_awaiting_moderation.count }} Comments Awaiting Moderation</span>
+                        <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
+                    </div>
+                    {% endif %}
+                    {% is_repository_manager as repository_manager %}
+                    {% if request.user.is_staff or repository_manager %}
+                    {% url 'report_preprints_metrics' as reporting_url %}
+                    {% if reporting_url %}
+                    <div class="summary">
+                        <span class="title">Reports</span>
+                        <a href="{{ reporting_url }}" class="box-link"></a>
+                    </div>
+                    {% endif %}
+                    <div class="summary">
+                        <span class="title">{{ request.repository.moderators.count }} Moderators</span>
+                        <a href="{% url 'repository_moderators' %}" class="box-link"></a>
+                    </div>
+                    {% endif %}
                     <div class="summary">
                         <span class="title">View Orphaned Preprints</span>
                         <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
@@ -98,6 +125,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>Type</th>
                             <th>First Author</th>
                             <th>Date Published</th>
                         </tr>
@@ -109,6 +137,7 @@
                                 <td>
                                     <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
                                 </td>
+                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_published }}</td>
                             </tr>

@@ -3,9 +3,9 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from django.urls import re_path
+from django.urls import path, re_path
 
-from journal import views
+from journal import partial_views, views
 from identifiers.models import NON_DOI_IDENTIFIER_TYPES, DOI_REGEX_PATTERN
 
 NON_DOI_PIPE_SEPARATED_IDENTIFIERS = "|".join(NON_DOI_IDENTIFIER_TYPES)
@@ -247,8 +247,23 @@ urlpatterns = [
     ),
     re_path(
         r"^manage/issues/(?P<issue_id>\d+)/sort/sections/$",
-        views.sort_issue_sections,
+        partial_views.sort_issue_sections,
         name="manage_sort_issue_sections",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/$",
+        partial_views.issue_toc_article_row,
+        name="issue_toc_article_row",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/toc/article/(?P<article_id>\d+)/edit/$",
+        partial_views.issue_toc_article_edit,
+        name="issue_toc_article_edit",
+    ),
+    re_path(
+        r"^manage/issues/(?P<issue_id>\d+)/sort/topics/$",
+        partial_views.sort_issue_topics,
+        name="manage_sort_issue_topics",
     ),
     # Article Archive
     re_path(
@@ -287,6 +302,13 @@ urlpatterns = [
     re_path(r"^reviewer/$", views.become_reviewer, name="become_reviewer"),
     # Contact
     re_path(r"^contact/$", views.contact, name="contact"),
+    re_path(
+        "contact/recipient/(?P<contact_person_id>\d+)/$",
+        views.contact,
+        name="journal_contact_with_recipient",
+    ),
+    # Accessibility
+    re_path(r"^accessibility/$", views.accessibility, name="accessibility"),
     # Editorial team
     re_path(r"^editorialteam/$", views.editorial_team, name="editorial_team"),
     # Editorial team
@@ -303,10 +325,6 @@ urlpatterns = [
     re_path(r"^keywords/(?P<keyword_id>\d+)/$", views.keyword, name="keyword"),
     # Submissions
     re_path(r"^submissions/$", views.submissions, name="journal_submissions"),
-    # Edit file with Texture
-    re_path(
-        r"^texture/(?P<file_id>\d+)/edit/$", views.texture_edit, name="texture_edit"
-    ),
     # Download supplementary file
     re_path(
         r"^download/article/(?P<article_id>\d+)/supp_file/(?P<supp_file_id>\d+)/",

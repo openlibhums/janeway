@@ -11,7 +11,7 @@
                             class="page-link"
                             value="{{ page_obj.previous_page_number }}"
                             form={{ form_id }}>
-                            &laquo;
+                            {% include "elements/icons/page_previous.html" %}
                         </button>
                     </li>
                 {% endif %}
@@ -19,18 +19,32 @@
                 {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
                     {% if page == '...' %}
                         <li class="page-item">
-                            <button disabled class="page-link" name="ellipsis">...</button>
+                            <button disabled class="page-link" name="ellipsis" aria-label="ellipsis">...</button>
                         </li>
                     {% else %}
-                        <li class="page-item {% if page_obj.number == page.number %}active{% endif %}">
-                            <button
-                                name="page"
-                                class="page-link"
-                                value="{{ page.number }}"
-                                form={{ form_id }}>
-                                {{ page.number }}
-                            </button>
-                        </li>
+                        {% if page_obj.number == page.number %}
+                            <li class="page-item active">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'current page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <button
+                                    name="page"
+                                    class="page-link"
+                                    value="{{ page.number }}"
+                                    form={{ form_id }}>
+                                    <span class="sr-only">{% trans 'page' %}</span>
+                                    {{ page.number }}
+                                </button>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
@@ -41,19 +55,19 @@
                             class="page-link"
                             value="{{ page_obj.next_page_number }}"
                             form={{ form_id }}>
-                            &raquo;
+                            {% include "elements/icons/page_next.html" %}
                         </button>
                     </li>
                 {% endif %}
             </ul>
         {% endif %}
     </div>
-    <div class="input-group col-sm-12 col-md-6 col-lg-5">
+    <div class="input-group results-controls col-sm-12 col-md-6 col-lg-5">
         <select
             class="custom-select"
-            onchange="this.form.submit()"
             name="paginate_by"
-            form={{ form_id }}>
+            form={{ form_id }}
+            id="{{ form_id }}-paginate_by">
             <option value="10" {% if paginate_by == "10" %}selected{% endif %}>10</option>
             <option value="25" {% if paginate_by == "25" %}selected{% endif %}>25</option>
             <option value="50" {% if paginate_by == "50" %}selected{% endif %}>50</option>
@@ -63,9 +77,10 @@
             {% endif %}
         </select>
         <div class="input-group-append">
-            <label class="input-group-text" labelfor="paginate_by">
-                records per page
+            <label class="input-group-text" for="{{ form_id }}-paginate_by">
+                {% trans "records per page" %}
             </label>
+            <button type="submit" class="btn btn-secondary" form={{ form_id }}>{% trans "Apply" %}</button>
         </div>
     </div>
 </div>

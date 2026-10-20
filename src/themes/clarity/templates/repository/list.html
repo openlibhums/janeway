@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load pages %}
+{% load page_title %}
+
+{% block title %}
+    {% if rou %}
+        {% page_title request.repository.rou_default_name rou.name request.repository.object_name_plural|capfirst %}
+    {% elif subject %}
+        {% page_title request.repository.object_name_plural|capfirst subject.name %}
+    {% else %}
+        {% page_title request.repository.object_name_plural|capfirst %}
+    {% endif %}
+{% endblock %}
+
+{% block css %}
+  {% include "common/repository/style/submission_type_pills.html" %}
+{% endblock css %}
+
+{% block body %}
+  <div class="row">
+    <section class="col-md-8" aria-label="{% trans 'Results' %}">
+      {% if rou %}
+        {% include "repository/elements/rou_breadcrumbs.html" with rou=rou current_page=request.repository.object_name_plural|capfirst %}
+        <h1>{% blocktrans with object_name_plural=request.repository.object_name_plural|capfirst rou_name=rou.name %}{{ object_name_plural }} in {{ rou_name }}{% endblocktrans %}</h1>
+      {% else %}
+        <h1>{{ request.repository.object_name_plural|capfirst }}</h1>
+      {% endif %}
+      <p>
+        {% if search_term %}
+          {% blocktrans with term=search_term count=preprints.paginator.count %}Search for <em>{{ term }}</em> ({{ count }} results){% endblocktrans %}
+        {% elif subject %}
+          {% trans 'Filtering by Subject:' %} {{ subject }}
+        {% else %}
+          {% with count=preprints.paginator.count %}
+            {% blocktrans count count as n with object_name=request.repository.object_name object_name_plural=request.repository.object_name_plural %}There is {{ n }} {{ object_name }} listed.{% plural %}There are {{ n }} {{ object_name_plural }} listed.{% endblocktrans %}
+          {% endwith %}
+        {% endif %}
+      </p>
+
+      {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+
+      <section aria-label="{% trans 'pagination' %}">
+        <ul class="d-flex justify-content-center list-inline mt-3">
+          {% if preprints.has_previous %}
+            <li class="list-inline-item">
+              <a href="?page={{ preprints.previous_page_number }}" class="btn btn-outline-primary">
+                {% include "elements/icons/page_previous.html" %}
+              </a>
+            </li>
+          {% endif %}
+          {% for page in preprints|slice_pages:3 %}
+            <li class="list-inline-item">
+              <a href="?page={{ page.number }}"
+                 class="btn {% if preprints.number == page.number %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                {% if preprints.number == page.number %}<span class="sr-only">{% trans 'current page' %}</span>{% endif %}
+                {{ page.number }}
+              </a>
+            </li>
+          {% endfor %}
+          {% if preprints.has_next %}
+            <li class="list-inline-item">
+              <a href="?page={{ preprints.next_page_number }}" class="btn btn-outline-primary">
+                {% include "elements/icons/page_next.html" %}
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </section>
+    </section>
+
+    <section class="col-md-4" aria-label="{% trans 'Search' %}">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title h5">{% trans 'Search' %}</h2>
+          <form method="POST" action="{% url 'repository_search' %}">
+            {% csrf_token %}
+            <div class="input-group mb-2">
+              <input type="text" class="form-control" name="search_term"
+                     {% if search_term %}value="{{ search_term }}"{% endif %}
+                     placeholder="{% trans 'Search' %} {{ request.repository.object_name_plural }}"
+                     aria-label="{% trans 'Search' %} {{ request.repository.object_name_plural }}">
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                  <i aria-hidden="true" class="fa fa-search"></i>
+                  <span class="sr-only">{% trans 'Search' %}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+          <small class="text-muted">{% trans 'You can search by title, keywords, author name, or author affiliation.' %}</small>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <h2 class="card-title h5">{% trans 'Browse' %}</h2>
+          <a href="{% url 'repository_subject_list' %}" class="btn btn-outline-secondary btn-block">
+            {% trans 'Browse by Subject' %}
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}

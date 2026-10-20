@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+from uuid import uuid4
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.db.transaction import TransactionManagementError
@@ -19,7 +21,6 @@ from core.model_utils import (
 from journal import models as journal_models
 from utils.testing import helpers
 from submission import models as submission_models
-from repository import models as repository_models
 
 FROZEN_DATETIME_20210101 = timezone.make_aware(timezone.datetime(2021, 1, 1, 0, 0, 0))
 FROZEN_DATETIME_20210102 = timezone.make_aware(timezone.datetime(2021, 1, 2, 0, 0, 0))
@@ -30,8 +31,47 @@ class TestAccount(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one, cls.hidden_journal = helpers.create_journals()
+        cls.hidden_journal.hide_from_press = True
+        cls.hidden_journal.save()
+        cls.test_journal = helpers.create_journal_with_test_status()
+        cls.author_user = helpers.create_user(
+            "{}{}".format(uuid4(), settings.DUMMY_EMAIL_DOMAIN),
+            roles=["author"],
+            journal=cls.journal_one,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.hidden_journal,
+        )
+        models.AccountRole.objects.get_or_create(
+            user=cls.author_user,
+            role=models.Role.objects.get(slug="author"),
+            journal=cls.test_journal,
+        )
         cls.article_one = helpers.create_article(cls.journal_one)
+        cls.published_article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Published article",
+        )
+        cls.author_user.snapshot_as_author(cls.published_article)
+        cls.hidden_article = helpers.create_article(
+            cls.hidden_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in hidden journal",
+        )
+        cls.author_user.snapshot_as_author(cls.hidden_article)
+        cls.test_article = helpers.create_article(
+            cls.test_journal,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published=FROZEN_DATETIME_20210101,
+            title="Article published in test journal",
+        )
+        cls.author_user.snapshot_as_author(cls.test_article)
 
     def test_creation(self):
         data = {
@@ -320,6 +360,13 @@ class TestAccount(TestCase):
             "Conceptualization",
         )
 
+    @patch("utils.logic.get_current_request")
+    def test_published_articles(self, get_request):
+        get_request.return_value = helpers.Request(press=self.press)
+        expected = set([self.published_article])
+        published_articles = set(self.author_user.published_articles())
+        self.assertSetEqual(expected, published_articles)
+
 
 class TestSVGImageFormField(TestCase):
     def test_upload_svg_to_svg_image_form_field(self):
@@ -589,11 +636,8 @@ class TestOrganizationModels(TestCase):
             cls.subject,
             title="Preprint for testing affiliations",
         )
-        cls.kathleen_booth_preprint, _created = (
-            repository_models.PreprintAuthor.objects.get_or_create(
-                preprint=cls.preprint_one,
-                account=cls.kathleen_booth,
-            )
+        cls.kathleen_booth_preprint = cls.preprint_one.frozen_authors().get(
+            author=cls.kathleen_booth,
         )
         cls.affiliation_lecturer = models.ControlledAffiliation.objects.create(
             account=cls.kathleen_booth,
@@ -612,7 +656,7 @@ class TestOrganizationModels(TestCase):
             is_primary=True,
         )
         cls.affiliation_lecturer_preprint = models.ControlledAffiliation.objects.create(
-            preprint_author=cls.kathleen_booth_preprint,
+            frozen_author=cls.kathleen_booth_preprint,
             title="Lecturer",
             department="Department of Numerical Automation",
             organization=cls.organization_bbk,
@@ -876,7 +920,7 @@ class TestOrganizationModels(TestCase):
         )
 
     def test_preprint_author_affiliation_setter(self):
-        self.kathleen_booth_preprint.affiliation = "Birkbeck McMillan"
+        self.kathleen_booth_preprint.institution = "Birkbeck McMillan"
         self.assertIn(
             "Birkbeck McMillan",
             self.kathleen_booth_preprint.primary_affiliation(as_object=False),
@@ -924,12 +968,6 @@ class TestOrganizationModels(TestCase):
             models.ControlledAffiliation.objects.create(
                 account=self.kathleen_booth,
                 frozen_author=self.kathleen_booth_frozen,
-                organization=self.organization_bbk,
-            )
-        with self.assertRaises((IntegrityError, TransactionManagementError)):
-            models.ControlledAffiliation.objects.create(
-                account=self.kathleen_booth,
-                preprint_author=self.kathleen_booth_preprint,
                 organization=self.organization_bbk,
             )
 
@@ -1019,15 +1057,6 @@ class TestOrganizationModels(TestCase):
         with self.assertWarns(DeprecationWarning):
             submission_models.FrozenAuthor.objects.create(**kwargs)
 
-    def test_preprint_author_queryset_deprecated_fields(self):
-        kwargs = {
-            "preprint": self.preprint_one,
-            "account": self.t_s_eliot,
-            "affiliation": "Birkbeck",
-        }
-        with self.assertWarns(DeprecationWarning):
-            repository_models.PreprintAuthor.objects.create(**kwargs)
-
     def test_account_queryset_get_or_create(self):
         kwargs = {
             "first_name": "Michael",
@@ -1076,24 +1105,6 @@ class TestOrganizationModels(TestCase):
             ],
         )
 
-    def test_preprint_author_queryset_get_or_create(self):
-        kwargs = {
-            "preprint": self.preprint_one,
-            "account": self.t_s_eliot,
-            "affiliation": "Birkbeck",
-        }
-        preprint_author, _ = repository_models.PreprintAuthor.objects.get_or_create(
-            **kwargs
-        )
-        self.assertListEqual(
-            list(kwargs.values()),
-            [
-                preprint_author.preprint,
-                preprint_author.account,
-                preprint_author.primary_affiliation(as_object=False),
-            ],
-        )
-
     def test_account_queryset_get(self):
         self.assertTrue(
             models.Account.objects.get(
@@ -1104,14 +1115,8 @@ class TestOrganizationModels(TestCase):
     def test_frozen_author_queryset_get(self):
         self.assertTrue(
             submission_models.FrozenAuthor.objects.get(
+                preprint__isnull=True,
                 institution__contains="Birkbeck, Prifysgol Llundain",
-            )
-        )
-
-    def test_preprint_author_queryset_get(self):
-        self.assertTrue(
-            repository_models.PreprintAuthor.objects.get(
-                affiliation__contains="Birkbeck, Prifysgol Llundain",
             )
         )
 
@@ -1136,15 +1141,6 @@ class TestOrganizationModels(TestCase):
                 institution__contains="Birk",
                 department__iendswith="numerical automation",
                 country__code="GB",
-            ).exists()
-        )
-
-    def test_preprint_author_queryset_filter(self):
-        self.assertTrue(
-            repository_models.PreprintAuthor.objects.filter(
-                preprint=self.preprint_one,
-                account=self.kathleen_booth,
-                affiliation__contains="Birkbeck",
             ).exists()
         )
 
@@ -1198,21 +1194,6 @@ class TestOrganizationModels(TestCase):
                 .country,
             ],
         )
-
-    def test_preprint_author_queryset_update_or_create_with_defaults(self):
-        kwargs = {
-            "account": self.e_hobsbawm,
-            "preprint": self.preprint_one,
-        }
-        defaults = {
-            "affiliation": "Yale",
-        }
-        preprint_author, _ = repository_models.PreprintAuthor.objects.update_or_create(
-            defaults=defaults,
-            **kwargs,
-        )
-        self.assertEqual(self.e_hobsbawm, preprint_author.account)
-        self.assertIn("Yale", preprint_author.affiliation)
 
     def test_account_queryset_update_or_create_with_defaults(self):
         kwargs = {

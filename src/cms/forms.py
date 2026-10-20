@@ -16,7 +16,13 @@ from utils.forms import JanewayTranslationModelForm
 class PageForm(JanewayTranslationModelForm):
     class Meta:
         model = models.Page
-        exclude = ("is_markdown", "content_type", "object_id")
+        exclude = (
+            "is_markdown",
+            "content_type",
+            "object_id",
+            "is_draft",
+            "preview_token",
+        )
 
     def __init__(self, *args, **kwargs):
         # Set the press and journal from the request, if request is passed

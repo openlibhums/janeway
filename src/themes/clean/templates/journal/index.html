@@ -2,12 +2,12 @@
 {% load truncate %}
 
 {% block body %}
-
+    <h1 class="sr-only">{{ request.journal.name }} {% trans 'Home Page' %} </h1>
     {% for element in homepage_elements %}
     <div class="homepage-element-wrapper homepage-element-{{ element.name|slugify }}">
         {% include element.template_path %}
     </div>
-        <hr>
+        <hr aria-hidden="true" />
     {% endfor %}
 
 {% endblock body %}
@@ -17,12 +17,6 @@ $(function () {
     $('#carousel').carousel({
         interval:5000,
         pause: "false"
-    });
-    $('#carousel-play').click(function () {
-        $('#carousel').carousel('cycle');
-    });
-    $('#carousel-pause').click(function () {
-        $('#carousel').carousel('pause');
     });
 });
 </script>

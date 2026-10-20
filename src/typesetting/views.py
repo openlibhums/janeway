@@ -555,35 +555,50 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
             )
         )
 
-    if request.POST:
-        message = request.POST.get("message")
-        notify.event_typesetting_assignment(
-            request,
-            assignment,
-            message,
-            skip=True if "skip" in request.POST else False,
-        )
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            "Assignment created.",
-        )
-
-        return redirect(
-            reverse("typesetting_article", kwargs={"article_id": article.pk})
-        )
-
-    message = logic.get_typesetter_notification(
-        assignment,
-        article,
-        request,
+    email_context = {
+        "article": article,
+        "assignment": assignment,
+        "typesetting_assignments_url": request.journal.site_url(
+            reverse("typesetting_assignments"),
+        ),
+    }
+    form = core_forms.SettingEmailForm(
+        setting_name="typesetting_notify_typesetter",
+        email_context=email_context,
+        request=request,
     )
+
+    if request.POST:
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="typesetting_notify_typesetter",
+            email_context=email_context,
+            request=request,
+        )
+        skip = "skip" in request.POST
+        if form.is_valid() or skip:
+            notify.event_typesetting_assignment(
+                request,
+                assignment,
+                form.as_dataclass(),
+                skip=skip,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Assignment created.",
+            )
+
+            return redirect(
+                reverse("typesetting_article", kwargs={"article_id": article.pk})
+            )
 
     template = "typesetting/notify_typesetter.html"
     context = {
         "article": article,
         "assignment": assignment,
-        "message": message,
+        "form": form,
     }
 
     return render(request, template, context)
@@ -1059,35 +1074,54 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
         completed__isnull=True,
         notified=False,
     )
-    message = logic.get_proofreader_notification(
-        assignment,
-        article,
-        request,
+    email_context = {
+        "article": article,
+        "assignment": assignment,
+        "typesetting_assignments_url": request.journal.site_url(
+            reverse("typesetting_proofreading_assignments"),
+        ),
+    }
+    form = core_forms.SettingEmailForm(
+        setting_name="typesetting_notify_proofreader",
+        email_context=email_context,
+        request=request,
     )
 
     if request.POST:
-        message = request.POST.get("message")
-        skip = True if "skip" in request.POST else False
-        assignment.assign(user=request.user, skip=skip)
-        notify.galley_proofing_assignment(request, assignment, message, skip=skip)
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            "Assignment created",
+        form = core_forms.SettingEmailForm(
+            request.POST,
+            request.FILES,
+            setting_name="typesetting_notify_proofreader",
+            email_context=email_context,
+            request=request,
         )
-
-        return redirect(
-            reverse(
-                "typesetting_article",
-                kwargs={"article_id": article.pk},
+        skip = "skip" in request.POST
+        if form.is_valid() or skip:
+            assignment.assign(user=request.user, skip=skip)
+            notify.galley_proofing_assignment(
+                request,
+                assignment,
+                form.as_dataclass(),
+                skip=skip,
             )
-        )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Assignment created",
+            )
+
+            return redirect(
+                reverse(
+                    "typesetting_article",
+                    kwargs={"article_id": article.pk},
+                )
+            )
 
     template = "typesetting/typesetting_notify_proofreader.html"
     context = {
         "article": article,
         "assignment": assignment,
-        "message": message,
+        "form": form,
     }
 
     return render(request, template, context)

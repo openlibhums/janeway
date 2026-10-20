@@ -1,3 +1,4 @@
+{% load alt_text %}
 {% load static %}
 {% load svg from press_url %}
 {% load roles %}
@@ -8,11 +9,11 @@
 
 <nav class="header-overrides" role="navigation">
     <div class="nav-wrapper{% if not request.journal.full_width_navbar %} container{% endif %}">
-        <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo">
+        <a id="logo-container" href="{% url 'website_index' %}" class="brand-logo{% if not request.repository.logo %} brand-logo-text{% endif %}">
             {% if request.repository.logo %}
-            <img src="{{ request.repository.logo.url }}" class="responsive-img" />
+            {% get_alt_text file_path=request.repository.logo default=request.repository.name|logo_alt as logo_alt_text %}<img src="{{ request.repository.logo.url }}" class="responsive-img" alt="{{ logo_alt_text }}"/>
             {% else %}
-            {{ request.repository.name }}
+            <span class="brand-logo-name">{{ request.repository.name }}</span>
             {% endif %}
         </a>
         <ul class="right hide-on-med-and-down">
@@ -20,6 +21,9 @@
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural | capfirst }}</a></li>
             <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            {% if request.repository.has_organisation_units %}
+            <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+            {% endif %}
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% hook 'nav_block' %}
@@ -45,6 +49,11 @@
                   </a>
                 </li>
             {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-toggle-host">
+                {% include "common/elements/accessibility_mode_toggle.html" %}
+            </li>
+            {% endif %}
         </ul>
 
         <ul class="sidenav" id="nav-mobile">
@@ -52,6 +61,9 @@
             <li><a href="{% url 'repository_about' %}">{% trans "About" %}</a></li>
             <li><a href="{% url 'repository_list' %}">{{ request.repository.object_name_plural }}</a></li>
             <li><a href="{% url 'repository_subject_list' %}">{% trans "Subjects" %}</a></li>
+            {% if request.repository.has_organisation_units %}
+            <li><a href="{% url 'rou_hierarchy' %}">{{ request.repository.rou_default_name }}</a></li>
+            {% endif %}
             <li><a href="{% url 'repository_submit' %}">{% trans "Submit" %}</a></li>
 
             {% if request.user.is_authenticated %}
@@ -59,7 +71,7 @@
                     <a
                         class="dropdown-trigger"
                         href="#!"
-                        data-target="dropdown1">
+                        data-target="sidenav-account">
                         {% trans "Account" %}
                         <i aria-hidden="true" class="fa fa-caret-down right" ></i>
                     </a>
@@ -68,11 +80,21 @@
                 <li><a href="{% url 'core_login' %}" class="nav-link">{% trans "Login" %}</a></li>
                 <li><a href="{% url 'core_register' %}">{% trans "Register" %}</a></li>
             {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <li class="a11y-mobile-item" aria-hidden="true"><div class="divider"></div></li>
+            <li class="a11y-mobile-item">
+                {% include "common/elements/accessibility_mode_mobile_button.html" %}
+            </li>
+            <li class="a11y-mobile-item"><a href="{% url 'accessibility' %}">{% trans 'About accessibility' %}</a></li>
+            {% endif %}
         </ul>
         <a
             href="#!"
             data-target="nav-mobile"
-            class="sidenav-trigger">
+            class="sidenav-trigger"
+            role="button"
+            aria-controls="nav-mobile"
+            aria-expanded="false">
             <i aria-hidden="true" class="fa fa-bars" ></i>
             <span class="sr-only">{% trans 'Open navigation menu' %}</span>
         </a>
@@ -80,11 +102,11 @@
 </nav>
 
 {% if request.user.is_authenticated %}
-    <ul id="dropdown1" class="dropdown-content">
+    <ul id="sidenav-account" class="dropdown-content">
          <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
-        {% if request.user in request.repository.managers.all %}
+        {% if request.user in request.repository.moderating_accounts %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}
@@ -95,9 +117,9 @@
 
     <ul id="account" class="dropdown-content">
         <li><a href="{% url 'repository_dashboard' %}">{% trans "Dashboard" %}</a></li>
-        {% if request.user in request.repository.managers.all %}
+        {% if request.user in request.repository.moderating_accounts %}
             <li>
-                <a href="{% url 'preprints_manager' %}">Manager</a>
+                <a href="{% url 'preprints_manager' %}">{% trans 'Manager' %}</a>
             </li>
         {% endif %}
         {% if request.user.is_staff %}

@@ -1,0 +1,37 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Authors" %}: {{ preprint.title|striptags }}{% endblock %}
+{% block title-section %}{% trans "Authors" %}{% endblock %}
+{% block title-sub %}{{ request.repository.object_name }} #{{ preprint.pk }}: {{ preprint.title|safe }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
+    <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+    <li>{% trans "Authors" %}</li>
+{% endblock %}
+
+{% block body %}
+<div class="button-group">
+    <a class="button secondary hollow" href="{% url 'repository_manager_article' preprint.pk %}">
+        <span class="fa fa-arrow-left"></span> {% trans "Back to" %} {{ request.repository.object_name }}
+    </a>
+</div>
+<div class="box">
+    <div class="row expanded">
+        <div class="large-6 columns">
+            {% include "admin/repository/elements/author_list_editor.html" %}
+        </div>
+        <div class="large-6 columns">
+            <div class="title-area">
+                <h2>{% trans "Information" %}</h2>
+            </div>
+            <div class="content">
+                <p>{% blocktrans %}Changes made here apply to the live author list straight away. Author records are separate from user accounts: editing an author never changes their account.{% endblocktrans %}</p>
+            </div>
+            {% include "admin/repository/elements/author_list_sidebar.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,15 +11,15 @@
                 {% endblocktrans %}
             </p>
         </div>
-        <div class="input-group col-sm-12 col-md-6">
+        <div class="input-group sort-control col-sm-12 col-md-6">
             <div class="input-group-prepend">
-                <label class="input-group-text" labelfor="order_by">
+                <label class="input-group-text" for="order_by">
                     {% trans "Sort results by" %}
                 </label>
             </div>
             <select
+                id="order_by"
                 class="custom-select"
-                onchange="this.form.submit()"
                 name="order_by"
                 form={{ form_id }}>
                 {% for value, label in order_by_choices %}
@@ -32,6 +32,9 @@
                     </option>
                 {% endfor %}
             </select>
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary" form={{ form_id }} aria-label="{% trans 'Apply sort' %}">{% trans 'Sort' %}</button>
+            </div>
         </div>
     </div>
 {% endif %}

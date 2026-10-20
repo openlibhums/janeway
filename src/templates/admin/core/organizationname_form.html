@@ -27,6 +27,21 @@
         </a>
       </li>
     {% endif %}
+  {% elif preprint and author %}
+    {% include "admin/elements/breadcrumbs/edit_preprint_author_base.html" with subpage="yes" %}
+    {% if affiliation %}
+      <li>
+        <a href="{% url_with_next 'repository_affiliation_update' preprint.pk author.pk affiliation.pk %}">
+          {% trans "Edit Affiliation" %}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="{% url_with_next 'repository_organization_search' preprint.pk author.pk %}">
+          {% trans "Add Affiliation" %}
+        </a>
+      </li>
+    {% endif %}
   {% elif article and author %}
     {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
     {% if affiliation %}
@@ -58,6 +73,7 @@
   {% include "admin/elements/forms/field.html" with field=form.value %}
   <div class="button-group no-bottom-margin">
     {% include "elements/button_save.html" %}
-    {% include "elements/a_cancel.html" with href=request.GET.next %}
+    {% firstof author_list_url request.GET.next as cancel_url %}
+    {% include "elements/a_cancel.html" with href=cancel_url %}
   </div>
 {% endblock gritty_form %}

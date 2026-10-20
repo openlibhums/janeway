@@ -72,6 +72,7 @@
                                             class="tiny alert button">Delete
                                     </button>
                                 </p>
+                                {% include "core/partials/alt_text/edit_alt_text_button.html" with object=news_item.large_image_file %}
                             </div>
                         </div>
                     {% endif %}
@@ -103,6 +104,7 @@
     </div>
 {% endblock body %}
 {% block js %}
+    {% include "admin/core/partials/htmx.html" %}
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     <script type="text/javascript" src="{% static "common/js/jq-ui.min.js" %}"></script>
     <script src="{% static "common/js/tagit.js" %}"></script>

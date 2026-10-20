@@ -1,3 +1,10 @@
+###################
+
+# These importers are deprecated. Use the Imports plugin instead.
+
+###################
+
+
 import os
 from datetime import datetime
 import hashlib

@@ -12,8 +12,9 @@ from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 
 from core import models as core_models
-from core.forms import FullSettingEmailForm
+from core.forms import FullSettingEmailForm, ContactMessageForm
 from journal import models as journal_models
+from submission import models as submission_models
 from utils.forms import CaptchaForm
 
 SEARCH_SORT_OPTIONS = [
@@ -36,29 +37,12 @@ class JournalForm(forms.ModelForm):
         }
 
 
-class ContactForm(forms.ModelForm, CaptchaForm):
+class ContactForm(ContactMessageForm):
     def __init__(self, *args, **kwargs):
-        subject = kwargs.pop("subject", None)
-        contacts = kwargs.pop("contacts", None)
-        super(ContactForm, self).__init__(*args, **kwargs)
-
-        if subject:
-            self.fields["subject"].initial = subject
-
-        if contacts:
-            contact_choices = []
-            for contact in contacts:
-                contact_choices.append(
-                    [
-                        contact.email,
-                        "{name}, {role}".format(name=contact.name, role=contact.role),
-                    ]
-                )
-            self.fields["recipient"].widget = forms.Select(choices=contact_choices)
-
-    class Meta:
-        model = core_models.Contact
-        fields = ("recipient", "sender", "subject", "body")
+        return DeprecationWarning("Use ContactMessageForm instead.")
+        if "contact_people" not in kwargs:
+            kwargs["contact_people"] = kwargs.pop("contacts", None)
+        super().__init__(*args, **kwargs)
 
 
 class ResendEmailForm(forms.Form):
@@ -97,6 +81,8 @@ class SearchForm(forms.Form):
             for search_filter in self.SEARCH_FILTERS:
                 self.data[search_filter] = "on"
         self.label_suffix = ""
+
+        self.id = "search_form"
 
     article_search = forms.CharField(
         label=_("Search term"), min_length=3, max_length=100, required=False
@@ -150,7 +136,55 @@ class IssueDisplayForm(forms.ModelForm):
             "display_article_page_numbers",
             "display_issue_doi",
             "display_issues_grouped_by_decade",
+            "issue_article_grouping",
         )
+
+
+class IssueArticleGroupingForm(forms.ModelForm):
+    """Edits the section and topic of an article from an issue's contents"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        journal = self.instance.journal
+        self.fields["section"].queryset = submission_models.Section.objects.filter(
+            journal=journal,
+        )
+        self.fields["section"].required = True
+        self.fields["section"].empty_label = None
+        self.fields["topic"].queryset = journal_models.Topic.objects.filter(
+            journal=journal,
+        )
+        self.fields["topic"].empty_label = _("No topic")
+        self.auto_id = "id_toc_{}_%s".format(self.instance.pk)
+
+    class Meta:
+        model = submission_models.Article
+        fields = ("section", "topic")
+
+
+class TopicForm(forms.ModelForm):
+    """Form for editing a Topic inline, as a row of a table.
+
+    Since a <form> element can't wrap a table row, inputs are linked to the
+    form via their `form` attribute, using the id returned by html_form_id.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["title"].required = True
+        self.auto_id = "id_{}_%s".format(self.html_form_id)
+        for field in self.fields.values():
+            field.widget.attrs["form"] = self.html_form_id
+
+    @property
+    def html_form_id(self):
+        if self.instance.pk:
+            return "edit-topic-{}".format(self.instance.pk)
+        return "new-topic"
+
+    class Meta:
+        model = journal_models.Topic
+        fields = ("title", "public_submissions")
 
 
 class BasePrepubNotificationFormSet(forms.BaseFormSet):

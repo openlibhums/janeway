@@ -32,6 +32,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.template import Context, Template
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.db.models.signals import pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.core import exceptions
@@ -51,6 +52,7 @@ from core.model_utils import (
 )
 from core import workflow, model_utils, files, models as core_models
 from core.templatetags.truncate import truncatesmart
+from core.templatetags import alt_text
 from identifiers import logic as id_logic
 from identifiers import models as identifier_models
 from metrics.logic import ArticleMetrics
@@ -98,15 +100,6 @@ CREDIT_ROLE_CHOICES = [
     ("writing-review-editing", "Writing - Review & Editing"),
 ]
 
-SALUTATION_CHOICES = [
-    ("", "---"),
-    ("Dr", "Dr"),
-    ("Prof", "Prof"),
-    ("Miss", "Miss"),
-    ("Ms", "Ms"),
-    ("Mrs", "Mrs"),
-    ("Mr", "Mr"),
-]
 
 # This language set is ISO 639-2/T
 LANGUAGE_CHOICES = (
@@ -831,8 +824,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             )
         return queryset
 
-    def mysql_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset().none()
+    def mysql_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset().none()
         if not search_term or not any(search_filters.values()):
             return queryset
         querysets = []
@@ -865,8 +860,10 @@ class ArticleSearchManager(BaseSearchManagerMixin):
 
         return queryset
 
-    def postgres_search(self, search_term, search_filters, sort=None, site=None):
-        queryset = self.get_queryset()
+    def postgres_search(
+        self, search_term, search_filters, sort=None, site=None, queryset=None
+    ):
+        queryset = queryset or self.get_queryset()
         if not search_term or not any(search_filters.values()):
             return queryset.none()
         queryset = queryset.filter(
@@ -975,11 +972,9 @@ class ArticleSearchManager(BaseSearchManagerMixin):
             for v in vectors[1:]:
                 vector += v
             query = SearchQuery(search_term)
-            relevance = SearchRank(vector, query)
-            annotations["relevance"] = relevance
-            # Since we weight file contents as 'D', the returned relevance
-            # values can range between .01 and .1
-            lookups["relevance__gte"] = 0.01
+            annotations["search_vector"] = vector
+            annotations["relevance"] = SearchRank(vector, query)
+            lookups["search_vector"] = query
 
         if search_filters.get("ORCID"):
             lookups["frozenauthor__author__orcid"] = search_term
@@ -1050,6 +1045,13 @@ class Article(AbstractLastModifiedModel):
     )
     section = models.ForeignKey(
         "Section", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    topic = models.ForeignKey(
+        "journal.Topic",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_("The thematic group this article belongs to"),
     )
     jats_article_type_override = DynamicChoiceField(
         max_length=255,
@@ -1196,7 +1198,7 @@ class Article(AbstractLastModifiedModel):
         help_text=_("Add any comments you'd like the editor to consider here."),
     )
 
-    # an image of recommended size: 750 x 324
+    # an image of recommended size: 1500 x 648
     large_image_file = models.ForeignKey(
         "core.File",
         null=True,
@@ -1386,15 +1388,10 @@ class Article(AbstractLastModifiedModel):
             if self.article_number:
                 issue_str += ": {}".format(self.article_number)
 
-        doi_str = ""
         pages_str = ""
         if self.page_range:
             pages_str = " {0}.".format(self.page_range)
-        doi = self.get_doi()
-        if doi:
-            doi_str = (
-                'doi: <a href="https://doi.org/{0}">https://doi.org/{0}</a>'.format(doi)
-            )
+        doi_id = self.get_doi()
 
         context = {
             "author_str": author_str,
@@ -1402,7 +1399,7 @@ class Article(AbstractLastModifiedModel):
             "title": self.safe_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
-            "doi_str": doi_str,
+            "doi_id": doi_id,
             "pages_str": pages_str,
         }
         return render_to_string(template, context)
@@ -1685,6 +1682,10 @@ class Article(AbstractLastModifiedModel):
     def in_review_stages(self):
         return self.stage in REVIEW_STAGES
 
+    @property
+    def stage_log_list(self):
+        return [stage.stage_to for stage in self.articlestagelog_set.all()]
+
     def peer_reviews_for_author_consumption(self):
         return self.reviewassignment_set.filter(
             for_author_consumption=True,
@@ -1960,6 +1961,28 @@ class Article(AbstractLastModifiedModel):
                 )
             )
             return mark_safe(template.render(Context()))
+
+    @property
+    def issue_title_a11y(self):
+        """The accessible issue title in the context of the article
+        see issue_title above.
+        """
+        if not self.issue:
+            return ""
+
+        if self.issue.issue_type.code != "issue":
+            return self.issue.issue_title
+        else:
+            template = Template(
+                ", ".join(
+                    [
+                        title_part
+                        for title_part in self.issue.issue_title_parts(article=self)
+                        if title_part
+                    ]
+                )
+            )
+            return template.render(Context())
 
     def author_list(self):
         return ", ".join([author.full_name() for author in self.frozenauthor_set.all()])
@@ -2540,6 +2563,14 @@ class Article(AbstractLastModifiedModel):
         return transform_utils.convert_html_abstract_to_jats(self.abstract)
 
     @property
+    def safe_title_jats(self):
+        """Title for use in JATS XML, marked safe"""
+        if self.title:
+            return transform_utils.convert_html_title_to_jats(self.title)
+        else:
+            return "[Untitled]"
+
+    @property
     def iso639_1_lang_code(self):
         """Return the ISO 639-1 two-letter code for use in xml:lang."""
         if not self.language:
@@ -2547,6 +2578,77 @@ class Article(AbstractLastModifiedModel):
 
         lang = Lang(self.language)
         return lang.pt1 or "en"
+
+    def discussion_stats(self):
+        """Returns thread and post counts for this article's discussions."""
+        threads = self.thread_set.annotate(
+            post_count=models.Count("posts_related")
+        ).aggregate(
+            thread_count=models.Count("id"),
+            total_posts=models.Sum("post_count"),
+        )
+        return {
+            "threads": threads["thread_count"] or 0,
+            "posts": threads["total_posts"] or 0,
+        }
+
+    @property
+    def best_large_image_url(self):
+        """
+        Find the best large image to display for the article, with fallbacks:
+        1. article large image
+        2. issue large image
+        3. journal default large image
+        4. press default carousel image
+        5. static hero image fallback
+        """
+        if self.large_image_file:
+            return reverse(
+                "article_file_download",
+                kwargs={
+                    "identifier_type": "id",
+                    "identifier": self.pk,
+                    "file_id": self.large_image_file.pk,
+                },
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.large_image.url
+        elif self.journal.default_large_image:
+            return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
+        else:
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    def abstract_display(self):
+        if self.is_published:
+            return self.abstract
+        return (
+            "<p><strong>This is an accepted article with a DOI pre-assigned"
+            " that is not yet published.</strong></p>"
+        ) + (self.abstract or "")
+
+    @property
+    def best_large_image_alt_text(self):
+        default_text = alt_text.banner_alt(self.title)
+        if self.large_image_file:
+            return alt_text.get_alt_text(
+                obj=self.large_image_file,
+                default=default_text,
+            )
+        elif self.issue and self.issue.large_image:
+            return self.issue.best_large_image_alt_text
+        elif self.journal.default_large_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.default_large_image.url,
+                default=default_text,
+            )
+        elif self.journal.press.default_carousel_image:
+            return alt_text.get_alt_text(
+                file_path=self.journal.press.default_carousel_image.url,
+                default=default_text,
+            )
+        return default_text
 
 
 class FrozenAuthorQueryset(model_utils.AffiliationCompatibleQueryset):
@@ -2573,7 +2675,27 @@ class FrozenAuthor(AbstractLastModifiedModel):
         null=True,
         on_delete=models.SET_NULL,
     )
-
+    preprint = models.ForeignKey(
+        "repository.Preprint",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    preprint_version = models.ForeignKey(
+        "repository.PreprintVersion",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this record is part of the author list of a "
+        "superseded preprint version.",
+    )
+    version_queue = models.ForeignKey(
+        "repository.VersionQueue",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Set when this record is on the author list of a preprint update.",
+    )
     name_prefix = models.CharField(
         max_length=300,
         blank=True,
@@ -2639,6 +2761,22 @@ class FrozenAuthor(AbstractLastModifiedModel):
         verbose_name = "Author"
         verbose_name_plural = "Authors"
         ordering = ("order", "pk")
+        constraints = [
+            model_utils.check_exclusive_fields_constraint(
+                "frozen_author",
+                ["article", "preprint", "preprint_version", "version_queue"],
+            ),
+            # NULLs are distinct, so this only constrains preprint authors
+            # with accounts, on every supported database.
+            models.UniqueConstraint(
+                fields=["preprint", "author"],
+                name="unique_account_per_preprint_author_list",
+            ),
+            models.UniqueConstraint(
+                fields=["version_queue", "author"],
+                name="unique_account_per_update_author_list",
+            ),
+        ]
 
     def __str__(self):
         return self.full_name()
@@ -2649,8 +2787,24 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return self.author
         elif self.article:
             return self.article.owner
+        elif self.related_preprint:
+            return self.related_preprint.owner
         else:
             return None
+
+    @property
+    def related_preprint(self):
+        """
+        The preprint this author belongs to, whether on its working author
+        list, a superseded version's snapshot, or an update's author list.
+        """
+        if self.preprint:
+            return self.preprint
+        elif self.preprint_version:
+            return self.preprint_version.preprint
+        elif self.version_queue:
+            return self.version_queue.preprint
+        return None
 
     def can_edit(self, user):
         """
@@ -2663,6 +2817,11 @@ class FrozenAuthor(AbstractLastModifiedModel):
           - they are the owner of the article,
             the author record has no associated account,
             and the article is unsubmitted.
+        For preprint authors, the same rules apply with repository managers
+        and subject editors as the editors. The submitting author can edit
+        the preprint's authors while it is unsubmitted, and the proposed
+        authors of their own draft update. Snapshots of superseded versions
+        and the authors of submitted updates are historical records.
         """
 
         if user.is_staff:
@@ -2679,6 +2838,25 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 # FrozenAuthor.owner is a property that considers both
                 # FrozenAuthor.author and FrozenAuthor.article.owner.
                 return True
+        elif self.preprint_version:
+            return False
+        elif self.version_queue:
+            if not self.version_queue.is_draft or user.is_anonymous:
+                return False
+            preprint = self.version_queue.preprint
+            if user.is_repository_moderator(preprint.repository):
+                return True
+            # Drafts belong to the preprint's owner, not its co-authors.
+            return preprint.owner == user and self.owner == user
+        elif self.preprint:
+            if user.is_anonymous:
+                return False
+            if user.is_repository_moderator(self.preprint.repository):
+                return True
+            elif self.preprint.date_submitted is None and (
+                self.owner == user or (self.preprint.owner == user and not self.author)
+            ):
+                return True
         return False
 
     def associate_with_account(self):
@@ -2688,10 +2866,56 @@ class FrozenAuthor(AbstractLastModifiedModel):
                 account = core_models.Account.objects.get(
                     username=self.frozen_email.lower()
                 )
-                self.author = account
-                self.frozen_email = ""  # linked account, don't store this value
             except core_models.Account.DoesNotExist:
-                pass
+                return
+            if self.preprint_id or self.version_queue_id:
+                already_listed = (
+                    FrozenAuthor.objects.filter(
+                        author=account,
+                        preprint_id=self.preprint_id,
+                        version_queue_id=self.version_queue_id,
+                    )
+                    .exclude(pk=self.pk)
+                    .exists()
+                )
+                if already_listed:
+                    # The same person cannot be on a preprint author list
+                    # twice, so leave this record unlinked.
+                    return
+            self.author = account
+            self.frozen_email = ""  # linked account, don't store this value
+
+    def copy(self, **fields):
+        """
+        Saves and returns a copy of this author, with its affiliations and
+        CRediT records, e.g. to snapshot a preprint's authors onto a
+        superseded version, start an update or carry them over to a journal
+        article.
+        :param fields: field values to set on the copy, such as article,
+            preprint or preprint_version
+        """
+        copy = model_utils.copy_instance(self, **fields)
+        copy.save()
+
+        # bulk_create skips save(), which would make the first copy primary.
+        core_models.ControlledAffiliation.objects.bulk_create(
+            model_utils.copy_instance(affiliation, frozen_author=copy)
+            for affiliation in self.affiliations
+        )
+        for credit in self.credits:
+            model_utils.copy_instance(credit, frozen_author=copy).save()
+        return copy
+
+    @classmethod
+    def snapshot_account_for_preprint(cls, account, preprint):
+        """
+        Adds an account to a preprint's working author list, copying its
+        name and affiliations. The account itself is never changed.
+        :return: (FrozenAuthor, created)
+        """
+        from repository.logic import PreprintAuthorList
+
+        return PreprintAuthorList(preprint).add_account(account)
 
     @property
     def institution(self):
@@ -2795,9 +3019,10 @@ class FrozenAuthor(AbstractLastModifiedModel):
 
     @property
     def email(self):
+        # Snapshots keep the values they stored, even blank ones.
         if self.frozen_email:
             return self.frozen_email
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.email
         return None
 
@@ -2812,7 +3037,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def orcid(self):
         if self.frozen_orcid:
             return self.frozen_orcid
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.orcid
         return None
 
@@ -2827,6 +3052,14 @@ class FrozenAuthor(AbstractLastModifiedModel):
             return ""
 
     @property
+    def orcid_id(self):
+        """
+        The bare ORCID iD, whether stored as an iD or a URL, or "".
+        """
+        result = COMPILED_ORCID_REGEX.search(self.orcid or "")
+        return result.group(0) if result else ""
+
+    @property
     def corporate_name(self):
         return self.primary_affiliation(as_object=False)
 
@@ -2834,7 +3067,7 @@ class FrozenAuthor(AbstractLastModifiedModel):
     def biography(self):
         if self.frozen_biography:
             return self.frozen_biography
-        elif self.author:
+        elif self.author and not self.preprint_version_id:
             return self.author.biography
         return None
 
@@ -2957,23 +3190,11 @@ class CreditRecord(AbstractLastModifiedModel):
     class Meta:
         verbose_name = "CRediT record"
         verbose_name_plural = "CRediT records"
-        constraints = [
-            model_utils.check_exclusive_fields_constraint(
-                "credit_record",
-                ["frozen_author", "preprint_author"],
-            )
-        ]
         unique_together = [["frozen_author", "role"]]
         ordering = ["role"]
 
     frozen_author = models.ForeignKey(
         FrozenAuthor, blank=True, null=True, on_delete=models.CASCADE
-    )
-    preprint_author = models.ForeignKey(
-        repository_models.PreprintAuthor,
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
     )
     role = models.CharField(
         max_length=100,
@@ -3195,6 +3416,14 @@ class Field(models.Model):
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Keep the name snapshot on existing answers in step with renames so
+        # that it is accurate if this field is later deleted.
+        self.fieldanswer_set.exclude(field_name=self.name).update(
+            field_name=self.name,
+        )
+
     @property
     def object(self):
         if not self.journal:
@@ -3205,11 +3434,30 @@ class Field(models.Model):
 
 class FieldAnswer(models.Model):
     field = models.ForeignKey(Field, null=True, blank=True, on_delete=models.SET_NULL)
+    field_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="A snapshot of the field's name, retained if the field is deleted.",
+    )
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
     )
     answer = JanewayBleachField()
+
+    def save(self, *args, **kwargs):
+        if self.field:
+            self.field_name = self.field.name
+        super().save(*args, **kwargs)
+
+    @property
+    def name(self):
+        """
+        Returns the name of the field this answers, falling back to the
+        stored snapshot when the field has been deleted.
+        """
+        return self.field.name if self.field else self.field_name
 
 
 class ArticleAuthorOrder(models.Model):
@@ -3249,6 +3497,13 @@ class SubmissionConfiguration(models.Model):
     license = models.BooleanField(default=True)
     keywords = models.BooleanField(default=True)
     section = models.BooleanField(default=True)
+    topic = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Lets authors select a topic for their article. Only topics that "
+            "are open for submissions are presented to authors."
+        ),
+    )
     funding = models.BooleanField(default=False)
 
     figures_data = models.BooleanField(
@@ -3262,6 +3517,14 @@ class SubmissionConfiguration(models.Model):
         blank=True,
         help_text=_("The default license applied when no option is presented"),
         on_delete=models.SET_NULL,
+    )
+    open_peer_review_license = models.ForeignKey(
+        Licence,
+        null=True,
+        blank=True,
+        help_text=_("The license that is applied to open peer reviews."),
+        on_delete=models.SET_NULL,
+        related_name="open_peer_review_license",
     )
     default_language = models.CharField(
         max_length=200,

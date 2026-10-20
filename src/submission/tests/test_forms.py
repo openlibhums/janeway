@@ -3,10 +3,48 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
+from journal import models as journal_models
 from submission import forms
+from submission import models as sm_models
 from utils.testing import helpers
+
+
+def extra_sections_hook(form=None, article=None, journal=None, **kwargs):
+    """Test double for a plugin's submission_form_init hook: makes all
+    of the journal's sections available."""
+    form.fields["section"].queryset = sm_models.Section.objects.filter(
+        journal=journal,
+    )
+
+
+def lock_section_hook(form=None, article=None, journal=None, **kwargs):
+    """Test double for a plugin's submission_form_init hook: narrows the
+    choices to the article's own section and locks the field."""
+    form.fields["section"].queryset = sm_models.Section.objects.filter(
+        pk=article.section_id,
+    )
+    form.fields["section"].disabled = True
+
+
+SECTION_HOOK = {
+    "submission_form_init": [
+        {
+            "module": "submission.tests.test_forms",
+            "function": "extra_sections_hook",
+        },
+    ],
+}
+
+LOCKED_SECTION_HOOK = {
+    "submission_form_init": [
+        {
+            "module": "submission.tests.test_forms",
+            "function": "lock_section_hook",
+        },
+    ],
+}
 
 
 class ArticleFormTests(TestCase):
@@ -35,6 +73,101 @@ class ArticleFormTests(TestCase):
         )
 
 
+class SubmissionFormSectionHookTests(TestCase):
+    """
+    Tests for the submission_form_init plugin hook, which passes the
+    author-facing submission form to plugins so they can alter it, e.g.
+    to make a section closed for public submission available, or to lock
+    the section for a commissioned article.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        helpers.create_press()
+        cls.journal, _ = helpers.create_journals()
+        cls.public_section = helpers.create_section(
+            cls.journal,
+            name="Research Articles",
+            plural="Research Articles",
+        )
+        cls.closed_section = helpers.create_section(
+            cls.journal,
+            name="Reviews",
+            plural="Reviews",
+            public_submissions=False,
+        )
+        cls.licence = helpers.create_licence(
+            cls.journal,
+            name="Creative Commons 4",
+            short_name="CC4",
+        )
+        cls.article = helpers.create_article(
+            cls.journal,
+            title="A Commissioned Review",
+        )
+
+    @override_settings(PLUGIN_HOOKS=SECTION_HOOK)
+    def test_hook_adds_sections_to_author_submit_form(self):
+        form = forms.ArticleInfoSubmit(instance=self.article)
+        self.assertIn(self.closed_section, form.fields["section"].queryset)
+        self.assertIn(self.public_section, form.fields["section"].queryset)
+
+    @override_settings(PLUGIN_HOOKS=SECTION_HOOK)
+    def test_hook_section_accepted_on_post(self):
+        form = forms.ArticleInfoSubmit(
+            {
+                "title": "A Commissioned Review",
+                "section": self.closed_section.pk,
+                "license": self.licence.pk,
+                "abstract": "An abstract.",
+                "language": "eng",
+            },
+            instance=self.article,
+        )
+        form.is_valid()
+        self.assertNotIn("section", form.errors)
+
+    def test_without_hook_closed_sections_stay_hidden(self):
+        form = forms.ArticleInfoSubmit(instance=self.article)
+        self.assertNotIn(self.closed_section, form.fields["section"].queryset)
+        self.assertIn(self.public_section, form.fields["section"].queryset)
+
+    @override_settings(PLUGIN_HOOKS=LOCKED_SECTION_HOOK)
+    def test_editor_form_unaffected_by_hook(self):
+        form = forms.EditorArticleInfoSubmit(instance=self.article)
+        self.assertIn(self.closed_section, form.fields["section"].queryset)
+        self.assertFalse(form.fields["section"].disabled)
+
+    @override_settings(PLUGIN_HOOKS=LOCKED_SECTION_HOOK)
+    def test_lock_hook_disables_section_field(self):
+        self.article.section = self.closed_section
+        self.article.save()
+        form = forms.ArticleInfoSubmit(instance=self.article)
+        self.assertTrue(form.fields["section"].disabled)
+
+    @override_settings(PLUGIN_HOOKS=LOCKED_SECTION_HOOK)
+    def test_lock_hook_prevents_section_change(self):
+        self.article.section = self.closed_section
+        self.article.save()
+        form = forms.ArticleInfoSubmit(
+            {
+                "title": "A Commissioned Review",
+                "section": self.public_section.pk,
+                "license": self.licence.pk,
+                "abstract": "An abstract.",
+                "language": "eng",
+            },
+            instance=self.article,
+        )
+        form.is_valid()
+        self.assertNotIn("section", form.errors)
+        self.assertEqual(form.cleaned_data["section"], self.closed_section)
+
+    def test_without_lock_hook_field_is_enabled(self):
+        form = forms.ArticleInfoSubmit(instance=self.article)
+        self.assertFalse(form.fields["section"].disabled)
+
+
 class CreditRecordFormTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -60,3 +193,83 @@ class CreditRecordFormTests(TestCase):
         )
         self.assertFalse(form_with_duplicate_data.is_valid())
         self.assertTrue(form_with_duplicate_data.errors)
+
+
+class ArticleInfoTopicTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article = helpers.create_article(cls.journal_one)
+        cls.public_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_one,
+            title="Public",
+        )
+        cls.closed_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_one,
+            title="Closed",
+            public_submissions=False,
+        )
+        cls.other_journal_topic = journal_models.Topic.objects.create(
+            journal=cls.journal_two,
+            title="Other journal",
+        )
+
+    def setUp(self):
+        self.configuration = self.journal_one.submissionconfiguration
+        self.configuration.topic = True
+        self.configuration.save()
+
+    def test_topic_disabled_by_default(self):
+        self.assertFalse(
+            sm_models.SubmissionConfiguration().topic,
+        )
+
+    def test_topic_hidden_when_disabled(self):
+        self.configuration.topic = False
+        self.configuration.save()
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertNotIn("topic", form.fields)
+
+    def test_submit_only_offers_public_topics(self):
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertEqual(
+            list(form.fields["topic"].queryset),
+            [self.public_topic],
+        )
+
+    def test_editor_submit_offers_all_journal_topics(self):
+        form = forms.EditorArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertEqual(
+            set(form.fields["topic"].queryset),
+            {self.public_topic, self.closed_topic},
+        )
+
+    def test_topic_hidden_when_no_topics_available(self):
+        self.public_topic.public_submissions = False
+        self.public_topic.save()
+        form = forms.ArticleInfoSubmit(
+            instance=self.article,
+            journal=self.journal_one,
+        )
+        self.assertNotIn("topic", form.fields)
+
+    def test_edit_metadata_shows_topic_regardless_of_configuration(self):
+        self.configuration.topic = False
+        self.configuration.save()
+        form = forms.EditArticleMetadata(
+            instance=self.article,
+            pop_disabled_fields=False,
+            editor_view=True,
+        )
+        self.assertIn("topic", form.fields)
+        self.assertNotIn(self.other_journal_topic, form.fields["topic"].queryset)

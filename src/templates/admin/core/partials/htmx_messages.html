@@ -1,0 +1,9 @@
+<script>
+  document.body.addEventListener("showMessage", function (event) {
+    var type = event.detail.type || "success";
+    var message = event.detail.message || event.detail.value || "";
+    if (message && typeof toastr !== "undefined") {
+      toastr[type](message);
+    }
+  });
+</script>

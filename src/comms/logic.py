@@ -16,6 +16,8 @@ def handle_uploaded_file(request, uploaded_file):
     if files.guess_mime(uploaded_file.name) not in files.IMAGE_MIMETYPES:
         return "File must be an image."
 
+    field_name = "Image file"
+    filename = uploaded_file.name
     if request.model_content_type.name == "journal":
         new_file = files.save_file_to_journal(
             request,
@@ -26,8 +28,8 @@ def handle_uploaded_file(request, uploaded_file):
         )
         core_logic.resize_and_crop(
             new_file.journal_path(request.journal),
-            [750, 324],
-            "middle",
+            field_name=field_name,
+            original_filename=filename,
         )
     elif request.model_content_type.name == "press":
         new_file = files.save_file_to_press(
@@ -39,8 +41,8 @@ def handle_uploaded_file(request, uploaded_file):
         )
         core_logic.resize_and_crop(
             new_file.press_path(),
-            [750, 324],
-            "middle",
+            field_name=field_name,
+            original_filename=filename,
         )
     else:
         return "Invalid content type for file upload."

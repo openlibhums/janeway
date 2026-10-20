@@ -1,11 +1,12 @@
 {% if user.website or user.twitter or user.facebook or user.github or user.linkedin %}
 <p><small>
     {% if user.website %}
-        <a href="{{ user.website }}" 
+        <a href="{{ user.website }}"
             aria-label="{{ member.user.full_name }}'s website" 
             >
             <i aria-hidden="true" class="fa fa-globe"></i> 
             {% trans 'Website' %}
+            {% include "elements/icons/link_external.html" %}  
         </a>
     {% endif %}
 
@@ -15,6 +16,7 @@
             >
             <i aria-hidden="true" class="fa fa-twitter-square"></i> 
             {% trans 'Twitter' %}
+            {% include "elements/icons/link_external.html" %}  
         </a>
     {% endif %}
 
@@ -24,6 +26,7 @@
             >
             <i aria-hidden="true" class="fa fa-facebook-square"></i> 
             {% trans 'Facebook' %}
+            {% include "elements/icons/link_external.html" %}  
         </a>
     {% endif %}
 
@@ -33,6 +36,7 @@
             >
             <i aria-hidden="true" class="fa fa-github-square"></i> 
             {% trans 'Github' %}
+            {% include "elements/icons/link_external.html" %}  
         </a>
     {% endif %}
 
@@ -42,6 +46,7 @@
             >
             <i aria-hidden="true" class="fa fa-linkedin-square"></i> 
             {% trans 'Linkedin' %}
+            {% include "elements/icons/link_external.html" %}  
         </a>
     {% endif %}
 </small></p>

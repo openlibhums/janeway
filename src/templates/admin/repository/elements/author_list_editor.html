@@ -1,0 +1,175 @@
+{% comment %}
+  An editable preprint author list, built from the journal submission author
+  list (admin/elements/current_authors_inner.html). Used for the submission
+  author step, the moderator's author page and draft updates.
+  Pages put it in the main column, with author_list_sidebar.html beside it.
+  Context: preprint, version_queue (for drafts), authors as (author, can_edit)
+  pairs, author_changes (drafts), new_author_form, user_is_author.
+{% endcomment %}
+{% load i18n %}
+{% load next_url %}
+{% load text %}
+
+<div class="padding-block-end-2" data-preprint-authors>
+      <div class="title-area">
+        <h2>{% trans "Authors" %}</h2>
+      </div>
+      {% if authors|length > 1 %}
+        <p>{% trans "Use the arrows to set the order in which author names are displayed." %}</p>
+      {% endif %}
+      <div class="list-group">
+        {% for author, can_edit in authors %}
+          {% with "author-"|concat:author.pk as section_id %}
+            <section id="{{ section_id }}" class="list-group-item static-bg" data-author-row>
+              <div class="flex gap-2 direction-column-small">
+                {% if authors|length > 1 %}
+                  <div class="stat">{{ forloop.counter }}</div>
+                {% endif %}
+                <div class="grow-1">
+                  <div class="list-group-item-heading flex wrap column-gap-2 space-between">
+                    <h3>{{ author.full_name|default:"[No name]" }}</h3>
+                    <div class="button-group no-bottom-margin flex items-center">
+                      {% if can_edit %}
+                        <a href="{% url_with_return 'repository_edit_author' preprint.pk author.pk %}"
+                           class="button hollow secondary no-bottom-margin">
+                          <span class="fa fa-edit"></span>
+                          {% trans "Edit author details" %}<span class="show-for-sr"> {{ author.full_name }}</span>
+                        </a>
+                      {% endif %}
+                      <form method="POST" class="no-bottom-margin">
+                        {% csrf_token %}
+                        <button class="button hollow secondary no-bottom-margin" name="remove_author" value="{{ author.pk }}">
+                          <span class="fa fa-trash"></span>
+                          {% trans "Remove author" %}<span class="show-for-sr"> {{ author.full_name }}</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  {% if not can_edit %}
+                    <div class="bs-callout bs-callout-info">
+                      <p>{% blocktrans %}
+                        You cannot edit this author's details, because they have
+                        a user account. If their details are out of date, ask
+                        them to log in and edit their user profile, then remove
+                        and re-add them by searching.
+                      {% endblocktrans %}</p>
+                    </div>
+                  {% endif %}
+                  <dl class="no-bottom-margin">
+                    <div class="flex column-gap-4 wrap">
+                      {% trans "Email" as email_key %}
+                      {% include "admin/elements/layout/key_value_above.html" with key=email_key value=author.real_email|default:"No email address" %}
+                      {% trans "ORCID" as orcid_key %}
+                      {% include "admin/elements/layout/key_value_above.html" with key=orcid_key value=author.orcid|default:"No ORCID" %}
+                      {% trans "Has user account" as account_key %}
+                      {% include "admin/elements/layout/key_value_above.html" with key=account_key value=author.author|yesno:"Yes,No" %}
+                    </div>
+                    <div class="key-value-pair key-above">
+                      <dt class="key">{% trans "Affiliations" %}</dt>
+                      <dd class="value">
+                        {% for affiliation in author.affiliations %}
+                          <div class="padding-block-0-25">
+                            {% include "admin/core/affiliation_display.html" with affiliation=affiliation display_primary=True %}
+                          </div>
+                        {% empty %}
+                          <div>{% trans "This author has no affiliations." %}</div>
+                        {% endfor %}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+                {% if authors|length > 1 %}
+                  {% include "admin/submission/submit_author_order.html" with author=author %}
+                {% endif %}
+              </div>
+            </section>
+          {% endwith %}
+        {% empty %}
+          <div class="list-group-item">{% trans "There are no authors yet." %}</div>
+        {% endfor %}
+      </div>
+      {% if author_changes.removed %}
+        <div class="callout warning" data-removed-authors>
+          <p><strong>{% trans "Removed in this update" %}</strong></p>
+          {% for author in author_changes.removed %}
+            <form method="POST" class="flex items-center column-gap-2">
+              {% csrf_token %}
+              <span>{{ author.full_name }}</span>
+              <button class="button hollow secondary small no-bottom-margin" name="restore_author" value="{{ author.pk }}">
+                <span class="fa fa-undo"></span>
+                {% trans "Restore" %}<span class="show-for-sr"> {{ author.full_name }}</span>
+              </button>
+            </form>
+          {% endfor %}
+        </div>
+      {% endif %}
+</div>
+
+<div>
+  <div class="title-area">
+    <h2>{% trans "Add more authors" %}</h2>
+  </div>
+      <div class="callout">
+        <p><strong>{% trans "Search for an author" %}</strong></p>
+        <p>{% blocktrans with press=request.press.name %}
+          Some authors may already be registered with {{ press }} or in
+          <a href="https://orcid.org/" target="_blank">the ORCID registry<span
+          class="show-for-sr">(opens in new tab)</span></a>. You can check by
+          searching for their email or ORCID. If a match is found, they will
+          be added to the author list.
+        {% endblocktrans %}</p>
+        <form method="POST">
+          {% csrf_token %}
+          <label for="author_search_text" class="show-for-sr">{% trans "Search" %}</label>
+          <div class="input-group">
+            <input id="author_search_text" class="input-group-field" name="author_search_text"
+                   placeholder="{% trans 'Email address or ORCID, e.g. 0000-0001-2345-6789' %}" type="search">
+            <div class="input-group-button">
+              <button type="submit" class="button" name="search_authors">
+                <span class="fa fa-search"></span>
+                {% trans "Add author from search" %}
+              </button>
+            </div>
+          </div>
+        </form>
+        {% if not user_is_author %}
+          <hr>
+          <form method="POST">
+            {% csrf_token %}
+            <p>{% trans "Are you an author?" %}</p>
+            <button class="button" name="add_self">
+              <span class="fa fa-plus-circle"></span>
+              {% trans "Add Self as Author" %}
+            </button>
+          </form>
+        {% endif %}
+      </div>
+      <div class="callout">
+        <p><strong>{% trans "Add an author manually" %}</strong></p>
+        <p>{% blocktrans %}
+          If you cannot find the author in the search, you can add them
+          manually. You can add their affiliations afterwards.
+        {% endblocktrans %}</p>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="grid auto row-gap-0">
+            {% include "admin/elements/forms/field.html" with field=new_author_form.first_name %}
+            {% include "admin/elements/forms/field.html" with field=new_author_form.middle_name %}
+            {% include "admin/elements/forms/field.html" with field=new_author_form.last_name %}
+          </div>
+          <div class="grid auto row-gap-0">
+            {% include "admin/elements/forms/field.html" with field=new_author_form.name_prefix %}
+            {% include "admin/elements/forms/field.html" with field=new_author_form.name_suffix %}
+            {% include "admin/elements/forms/field.html" with field=new_author_form.is_corporate %}
+          </div>
+          <div class="grid auto row-gap-0">
+            {% include "admin/elements/forms/field.html" with field=new_author_form.frozen_email %}
+            {% include "admin/elements/forms/field.html" with field=new_author_form.display_email %}
+          </div>
+          <button name="add_author" class="button">
+            <span class="fa fa-user-plus"></span>
+            {% trans "Add author manually" %}
+          </button>
+        </form>
+      </div>
+</div>

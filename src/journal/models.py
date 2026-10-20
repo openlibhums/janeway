@@ -10,8 +10,11 @@ import collections
 import uuid
 import os
 import re
+import warnings
 
+from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import (
     OuterRef,
@@ -21,16 +24,21 @@ from django.db.models import (
     F,
     ExpressionWrapper,
     DateTimeField,
+    BooleanField,
+    Case,
+    When,
 )
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.signals import post_save, m2m_changed
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.template import Context, Template
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.functional import cached_property
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_lazy as _
+from modeltranslation.utils import build_localized_fieldname
 
 from core import (
     files,
@@ -45,6 +53,7 @@ from core.model_utils import (
     JanewayBleachField,
     JanewayBleachCharField,
 )
+from core.templatetags import alt_text
 from press import models as press_models
 from submission import models as submission_models
 from utils import (
@@ -66,6 +75,19 @@ logger = get_logger(__name__)
 ISSUE_TYPES = [
     ("Issue", "Issue"),
     ("Collection", "Collection"),
+]
+
+ARTICLE_GROUPING_SECTION = "section"
+ARTICLE_GROUPING_TOPIC = "topic"
+ARTICLE_GROUPING_SECTION_TOPIC = "section_topic"
+ARTICLE_GROUPING_TOPIC_SECTION = "topic_section"
+ARTICLE_GROUPING_UNGROUPED = "ungrouped"
+ARTICLE_GROUPING_CHOICES = [
+    (ARTICLE_GROUPING_SECTION, _("Section")),
+    (ARTICLE_GROUPING_TOPIC, _("Topic")),
+    (ARTICLE_GROUPING_SECTION_TOPIC, _("Section, then topic")),
+    (ARTICLE_GROUPING_TOPIC_SECTION, _("Topic, then section")),
+    (ARTICLE_GROUPING_UNGROUPED, _("Ungrouped")),
 ]
 
 fs = JanewayFileSystemStorage()
@@ -93,6 +115,97 @@ def issue_large_image_path(instance, filename):
 
     path = "issues/{0}".format(instance.pk)
     return os.path.join(path, filename)
+
+
+class JournalManager(models.Manager):
+    def _apply_ordering_az(self, journals):
+        """
+        Order a queryset of journals A-Z on English-language journal name.
+        Note that this does not support multilingual journal names:
+        more work is needed on django-modeltranslation to
+        support Django subqueries.
+        :param journals: Queryset of Journal objects
+        """
+        localized_column = build_localized_fieldname(
+            "value",
+            settings.LANGUAGE_CODE,  # Assumed to be 'en' in default config
+        )
+        name = core_models.SettingValue.objects.filter(
+            journal=models.OuterRef("pk"),
+            setting__name="journal_name",
+        )
+        journals = journals.annotate(
+            journal_name=models.Subquery(
+                name.values_list(localized_column, flat=True)[:1],
+                output_field=models.CharField(),
+            )
+        )
+        return journals.order_by("journal_name")
+
+    def _apply_ordering(self, journals):
+        press = press_models.Press.objects.all().first()
+        if press.order_journals_az:
+            return self._apply_ordering_az(journals)
+        else:
+            # Journals will already have been ordered according to Meta.ordering
+            return journals
+
+    @property
+    def public_journals(self):
+        """
+        Get all journals that are not hidden from the press
+        or designated as conferences.
+        Do not apply ordering yet,
+        since the caller may filter the queryset.
+        """
+        return self.get_queryset().filter(
+            hide_from_press=False,
+            is_conference=False,
+        )
+
+    @property
+    def public_active_journals(self):
+        """
+        Get all journals that are visible to the press
+        and marked as 'Active' or 'Test' in the publishing status field.
+
+        Note: Test journals are included so that users can test the journal
+        list safely. A separate mechanism exists to hide them from the press
+        once the press enters normal operation:
+        Journal.hide_from_press.
+        """
+        return self._apply_ordering(
+            self.public_journals.filter(
+                status__in=[
+                    Journal.PublishingStatus.ACTIVE,
+                    Journal.PublishingStatus.TEST,
+                ]
+            )
+        )
+
+    @property
+    def public_archived_journals(self):
+        """
+        Get all journals that are visible to the press
+        and marked as 'Archived' in the publishing status field.
+        """
+        return self._apply_ordering(
+            self.public_journals.filter(
+                status=Journal.PublishingStatus.ARCHIVED,
+            )
+        )
+
+    @property
+    def public_coming_soon_journals(self):
+        """
+        Get all journals that are visible to the press
+        and marked as 'Coming soon' in the publishing status field.
+        """
+        return self._apply_ordering(
+            self.public_journals.filter(
+                status=Journal.PublishingStatus.COMING_SOON,
+            )
+        )
 
 
 class Journal(AbstractSiteModel):
@@ -203,10 +316,6 @@ class Journal(AbstractSiteModel):
     )
 
     disable_metrics_display = models.BooleanField(default=False)
-    disable_article_images = models.BooleanField(
-        default=False,
-        help_text=gettext("This field has been deprecated in v1.4.3"),
-    )
     enable_correspondence_authors = models.BooleanField(default=True)
     disable_html_downloads = models.BooleanField(
         default=False,
@@ -220,11 +329,6 @@ class Journal(AbstractSiteModel):
         ),
     )
     is_conference = models.BooleanField(default=False)
-    is_archived = models.BooleanField(
-        default=False,
-        help_text="The journal is no longer publishing. This is only used as "
-        "part of the journal metadata.",
-    )
     remote_submit_url = models.URLField(
         blank=True,
         null=True,
@@ -265,6 +369,19 @@ class Journal(AbstractSiteModel):
     # Boolean to determine if this journal should be hidden from the press
     hide_from_press = models.BooleanField(default=False)
 
+    class PublishingStatus(models.TextChoices):
+        ACTIVE = "active", _("Active")
+        ARCHIVED = "archived", _("Archived")
+        COMING_SOON = "coming_soon", _("Coming soon")
+        TEST = "test", _("Test")
+
+    status = models.CharField(
+        max_length=20,
+        choices=PublishingStatus.choices,
+        default=PublishingStatus.ACTIVE,
+        verbose_name="Publishing status",
+    )
+
     # Display sequence on the Journals page
     sequence = models.PositiveIntegerField(default=0)
 
@@ -293,14 +410,58 @@ class Journal(AbstractSiteModel):
         help_text="When enabled the issue page will group and display issues "
         "by decade.",
     )
+    issue_article_grouping = models.CharField(
+        max_length=20,
+        choices=ARTICLE_GROUPING_CHOICES,
+        default=ARTICLE_GROUPING_SECTION,
+        verbose_name=_("Group issue articles by"),
+        help_text=_(
+            "Controls the headings under which articles are listed on the "
+            "issue page. Topics can be managed from the Manager page."
+        ),
+    )
 
     disable_front_end = models.BooleanField(default=False)
+
+    # Deprecated fields
+
+    disable_article_images = models.BooleanField(
+        default=False,
+        help_text=gettext("This field has been deprecated in v1.4.3"),
+    )
+    is_archived = models.BooleanField(
+        default=False,
+        help_text="The 'is_archived' field is deprecated. Use 'journal.status' instead.",
+    )
+
+    objects = JournalManager()
+
+    class Meta:
+        ordering = ("sequence",)
+        # Note that we also commonly want to order journals A-Z by name.
+        # We have built Press methods to handle this since it is not
+        # straightforward to do via 'Meta.ordering'.
 
     def __str__(self):
         if self.domain:
             return "{0}: {1}".format(self.code, self.domain)
         else:
             return self.code
+
+    def __getattribute__(self, name):
+        if name == "disable_article_images":
+            warnings.warn(
+                "This field has been deprecated in v1.4.3",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if name == "is_archived":
+            warnings.warn(
+                "The 'is_archived' field is deprecated. Use 'journal.status' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
     @staticmethod
     def override_cover(request, absolute=True):
@@ -563,13 +724,6 @@ class Journal(AbstractSiteModel):
         ]
         return max(orderings) + 1 if orderings else 0
 
-    def next_contact_order(self):
-        contacts = core_models.Contacts.objects.filter(
-            content_type__model="journal", object_id=self.pk
-        )
-        orderings = [contact.sequence for contact in contacts]
-        return max(orderings) + 1 if orderings else 0
-
     def next_group_order(self):
         orderings = [group.sequence for group in self.editorialgroup_set.all()]
         return max(orderings) + 1 if orderings else 0
@@ -591,7 +745,7 @@ class Journal(AbstractSiteModel):
         if self.carousel.current_issue and self.current_issue:
             items = chain([self.current_issue], items)
 
-        return self.carousel, items
+        return self.carousel, list(items)
 
     def next_pa_seq(self):
         "Works out what the next pinned article sequence should be."
@@ -631,6 +785,15 @@ class Journal(AbstractSiteModel):
             journal=self,
             stage=submission_models.STAGE_PUBLISHED,
             date_published__lte=timezone.now(),
+        )
+
+    @property
+    def published_articles_not_in_issues(self):
+        return submission_models.Article.objects.filter(
+            journal=self,
+            stage=submission_models.STAGE_PUBLISHED,
+            date_published__lte=timezone.now(),
+            articleordering__issue__isnull=True,
         )
 
     def article_keywords(self):
@@ -778,6 +941,29 @@ class Journal(AbstractSiteModel):
             .order_by("-date_declined")
         )
 
+    @property
+    def navigation_items_for_sitemap(self):
+        NavigationItem = apps.get_model("cms.NavigationItem")
+        journal_type = ContentType.objects.get_for_model(self)
+        return NavigationItem.objects.filter(
+            content_type=journal_type,
+            object_id=self.pk,
+            link__isnull=False,
+            is_external=False,
+        ).order_by("sequence")
+
+    @property
+    def active_news_items(self):
+        """
+        Get the active news items belonging to the press,
+        excluding any journal news.
+        """
+        NewsItem = apps.get_model("comms.NewsItem")
+        return NewsItem.active_objects.filter(
+            content_type__model="journal",
+            object_id=self.id,
+        )
+
 
 class PinnedArticle(models.Model):
     journal = models.ForeignKey(
@@ -819,6 +1005,15 @@ class Issue(AbstractLastModifiedModel):
         editable=False,
         help_text=gettext(
             "Autogenerated cache of the display format of an issue title"
+        ),
+    )
+    cached_display_title_a11y = models.CharField(
+        null=True,
+        blank=True,
+        max_length=300,
+        editable=False,
+        help_text=gettext(
+            "Autogenerated cache of the accessible display format of an issue title"
         ),
     )
     date = models.DateTimeField(default=timezone.now)
@@ -908,8 +1103,24 @@ class Issue(AbstractLastModifiedModel):
             return self.large_image.url
         elif self.journal.default_large_image:
             return self.journal.default_large_image.url
+        elif self.journal.press.default_carousel_image:
+            return self.journal.press.default_carousel_image.url
         else:
-            return ""
+            return static(settings.HERO_IMAGE_FALLBACK)
+
+    @property
+    def best_large_image_url(self):
+        """
+        An alias for hero_image_url that is used by the carousel templates.
+        """
+        return self.hero_image_url
+
+    @property
+    def best_large_image_alt_text(self):
+        return alt_text.get_alt_text(
+            file_path=self.best_large_image_url,
+            default=alt_text.banner_alt(self.display_title),
+        )
 
     @property
     def date_published(self):
@@ -971,6 +1182,25 @@ class Issue(AbstractLastModifiedModel):
 
         return title
 
+    @cached_property
+    def display_title_a11y(self):
+        return mark_safe(
+            self.cached_display_title_a11y or self.update_display_title_a11y(save=True)
+        )
+
+    def update_display_title_a11y(self, save=False):
+        title = None
+        if self.issue_type and self.issue_type.code == "issue":
+            if save:
+                self.save()
+                return self.cached_display_title_a11y
+            title = self.cached_display_title_a11y = self.a11y_issue_identifier
+        else:
+            self.cached_display_title_a11y = ""
+            title = self.issue_title
+
+        return title
+
     def issue_title_parts(self, article=None):
         journal = self.journal
         volume = issue = year = issue_title = article_number = page_numbers = ""
@@ -980,7 +1210,10 @@ class Issue(AbstractLastModifiedModel):
         if journal.display_issue_number and self.issue and self.issue != "0":
             issue = "{%% trans 'Issue' %%} %s" % self.issue
         if journal.display_issue_year and self.date:
-            year = "{}".format(self.date.year)
+            try:
+                year = "{}".format(self.date.year)
+            except AttributeError:
+                year = ""
         if journal.display_issue_title:
             issue_title = self.issue_title
         if journal.display_article_number and article and article.article_number:
@@ -1012,6 +1245,12 @@ class Issue(AbstractLastModifiedModel):
         )
 
     @property
+    def a11y_issue_identifier(self):
+        return Template(", ".join((filter(None, self.issue_title_parts())))).render(
+            Context()
+        )
+
+    @property
     def manage_issue_list(self):
         section_article_dict = collections.OrderedDict()
 
@@ -1035,7 +1274,7 @@ class Issue(AbstractLastModifiedModel):
             )
 
             for article in articles:
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
 
             section_article_dict[ordered_section.section] = article_list
@@ -1063,7 +1302,7 @@ class Issue(AbstractLastModifiedModel):
         articles = self.articles.all().order_by("section")
 
         for article in articles:
-            if not article.section in ordered_sections:
+            if article.section not in ordered_sections:
                 ordered_sections.append(article.section)
 
         return ordered_sections
@@ -1128,23 +1367,98 @@ class Issue(AbstractLastModifiedModel):
                 article_list.append(order.article)
 
             for article in articles.filter(section=section):
-                if not article in article_list:
+                if article not in article_list:
                     article_list.append(article)
             structure[section] = article_list
 
         return structure
 
-    def get_sorted_articles(self, published_only=True):
-        """Returns issue articles sorted by section and article order
+    def get_sorted_sections(self):
+        """Returns the sections of the articles in this issue in display order
+
+        Unlike Issue.all_sections, the order matches get_sorted_articles:
+        sections that have not been explicitly ordered for this issue are
+        listed after those that have, sorted by their sequence.
+        """
+        section_order_subquery = SectionOrdering.objects.filter(
+            section=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        return (
+            submission_models.Section.objects.filter(article__issues=self)
+            .distinct()
+            .annotate(issue_order=Subquery(section_order_subquery))
+            .order_by(F("issue_order").asc(nulls_last=True), "sequence", "pk")
+        )
+
+    def set_section_order(self, sections):
+        """Stores the given sequence of sections as the order for this issue
+        :param sections: an ordered iterable of Section objects
+        """
+        for order, section in enumerate(sections):
+            SectionOrdering.objects.update_or_create(
+                issue=self,
+                section=section,
+                defaults={"order": order},
+            )
+
+    @property
+    def all_topics(self):
+        """Returns the topics of the articles in this issue in display order
+
+        Topics that have not been explicitly ordered for this issue are
+        listed after those that have, sorted by title.
+        """
+        topic_order_subquery = TopicOrdering.objects.filter(
+            topic=OuterRef("pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        return (
+            Topic.objects.filter(article__issues=self)
+            .distinct()
+            .annotate(issue_order=Subquery(topic_order_subquery))
+            .order_by(F("issue_order").asc(nulls_last=True), "title", "pk")
+        )
+
+    def set_topic_order(self, topics):
+        """Stores the given sequence of topics as the order for this issue
+        :param topics: an ordered iterable of Topic objects
+        """
+        for order, topic in enumerate(topics):
+            TopicOrdering.objects.update_or_create(
+                issue=self,
+                topic=topic,
+                defaults={"order": order},
+            )
+
+    def get_sorted_articles(self, published_only=True, grouping=None):
+        """Returns issue articles sorted by section, topic and article order
 
         Many fields are prefetched and annotated to handle large issues more
-        eficiently. In particular, it annotates relevant SectionOrder and
-        ArticleOrdering rows as section_order and article_order respectively.
+        eficiently. In particular, it annotates relevant SectionOrder,
+        TopicOrdering and ArticleOrdering rows as section_order, topic_order
+        and article_order respectively.
         Returns a Queryset which should keep the memory footprint at a minimum
+        :param published_only: If True, only published articles are returned
+        :param grouping: One of ARTICLE_GROUPING_CHOICES, determines how
+            articles are grouped by section and/or topic before being sorted
+            by article order. Defaults to the journal's issue_article_grouping.
+            Articles without a topic are sorted last when grouping by topic
+            first, where they are displayed under their own heading, and
+            first within their section otherwise.
         """
+        if grouping is None:
+            grouping = self.journal.issue_article_grouping
 
         section_order_subquery = SectionOrdering.objects.filter(
             section=OuterRef("section__pk"),
+            issue=Value(self.pk),
+        ).values_list("order")
+
+        topic_order_subquery = TopicOrdering.objects.filter(
+            topic=OuterRef("topic__pk"),
             issue=Value(self.pk),
         ).values_list("order")
 
@@ -1154,6 +1468,34 @@ class Issue(AbstractLastModifiedModel):
             issue=Value(self.pk),
         ).values_list("order")
 
+        section_ordering = [
+            F("section_order").asc(nulls_last=True),
+            "section__sequence",
+            "section__pk",
+        ]
+        topic_ordering = [
+            "has_topic",
+            F("topic_order").asc(nulls_last=True),
+            "topic__title",
+            "topic__pk",
+        ]
+        article_ordering = [F("article_order").asc(nulls_last=True)]
+        untopiced_last_ordering = ["-has_topic"] + topic_ordering[1:]
+        # Article order must directly follow the innermost group, which is
+        # the list of articles sorted by drag and drop in the issue manager
+        ordering = {
+            ARTICLE_GROUPING_TOPIC: untopiced_last_ordering + article_ordering,
+            ARTICLE_GROUPING_SECTION_TOPIC: (
+                section_ordering + topic_ordering + article_ordering
+            ),
+            ARTICLE_GROUPING_TOPIC_SECTION: (
+                untopiced_last_ordering + section_ordering + article_ordering
+            ),
+            ARTICLE_GROUPING_UNGROUPED: article_ordering,
+        }.get(grouping, section_ordering + article_ordering)
+        # Tie breakers for unsorted articles
+        ordering += section_ordering + ["pk"]
+
         issue_articles = (
             self.articles.prefetch_related(
                 "frozenauthor_set",
@@ -1161,17 +1503,19 @@ class Issue(AbstractLastModifiedModel):
             )
             .select_related(
                 "section",
+                "topic",
             )
             .annotate(
                 section_order=Subquery(section_order_subquery),
+                topic_order=Subquery(topic_order_subquery),
+                has_topic=Case(
+                    When(topic__isnull=True, then=Value(False)),
+                    default=Value(True),
+                    output_field=BooleanField(),
+                ),
                 article_order=Subquery(article_order_subquery),
             )
-            .order_by(
-                "section_order",
-                "section__sequence",
-                "section__pk",
-                "article_order",
-            )
+            .order_by(*ordering)
         )
 
         if published_only:
@@ -1251,19 +1595,15 @@ class Issue(AbstractLastModifiedModel):
             sort_field,
         )
 
-        for section in self.all_sections:
-            section_articles = self.articles.filter(section=section).order_by(
-                order_by_string,
+        # Numbered across the issue so the order holds in any grouping
+        articles = self.articles.order_by(order_by_string)
+        for order, article in enumerate(articles):
+            ArticleOrdering.objects.update_or_create(
+                issue=self,
+                section=article.section,
+                article=article,
+                defaults={"order": order},
             )
-            ids_in_order = [section_article.pk for section_article in section_articles]
-            for article in section_articles:
-                article_ordering, _ = ArticleOrdering.objects.get_or_create(
-                    issue=self,
-                    section=section,
-                    article=article,
-                )
-                article_ordering.order = ids_in_order.index(article_ordering.article.pk)
-                article_ordering.save()
 
     def save(self, *args, **kwargs):
         # get the currently enabled languages for this journal or the default
@@ -1276,6 +1616,7 @@ class Issue(AbstractLastModifiedModel):
             with translation.override(lang):
                 # set save as False to avoid infinite recursion
                 self.update_display_title(save=False)
+                self.update_display_title_a11y(save=False)
         super().save(*args, **kwargs)
 
     @property
@@ -1377,6 +1718,37 @@ class IssueEditor(models.Model):
         )
 
 
+class Topic(models.Model):
+    """A thematic grouping of articles, independent from their section.
+
+    Topics are only used for display purposes: depending on
+    Journal.issue_article_grouping, the articles of an issue can be listed
+    under a heading for each topic.
+    """
+
+    journal = models.ForeignKey(
+        "journal.Journal",
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255, blank=True)
+
+    public_submissions = models.BooleanField(
+        default=True,
+        verbose_name=_("Open for submissions"),
+        help_text=_("When enabled, authors can select this topic during submission"),
+    )
+
+    class Meta:
+        ordering = ("title", "pk")
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def article_count(self):
+        return self.article_set.count()
+
+
 class SectionOrdering(models.Model):
     section = models.ForeignKey(
         "submission.Section",
@@ -1399,6 +1771,27 @@ class SectionOrdering(models.Model):
 
     class Meta:
         ordering = ("order", "section")
+
+
+class TopicOrdering(models.Model):
+    """The position of a topic within the table of contents of an issue"""
+
+    topic = models.ForeignKey(
+        "journal.Topic",
+        on_delete=models.CASCADE,
+    )
+    issue = models.ForeignKey(
+        "journal.Issue",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ("order", "topic")
+        unique_together = ("topic", "issue")
+
+    def __str__(self):
+        return "{0}: {1} {2}".format(self.order, self.issue, self.topic)
 
 
 class ArticleOrdering(models.Model):

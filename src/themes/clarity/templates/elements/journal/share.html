@@ -1,0 +1,16 @@
+{% with article.get_doi_url|default:article.url as share_url %}
+  <h2>{% trans "Share" %}</h2>
+  <div class="input-group mb-3">
+    <label for="share-link" class="sr-only">{% trans "Article URL" %}</label>
+    <input
+      id="share-link"
+      class="input-group-field"
+      type="text"
+      value="{{ share_url }}"
+      readonly
+    >
+    <div class="input-group-append">
+      {% include "elements/button_copy_element.html" with element_id="share-link" %}
+    </div>
+  </div>
+{% endwith %}

@@ -3,17 +3,43 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
-from django.test import Client, TestCase
+from django.contrib.contenttypes.models import ContentType
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 
+from core import models as core_models
+from core.logic import reverse_with_query
+from utils import models as utils_models
 from utils.testing import helpers
 
 
-class PublishedArticlesListViewTests(TestCase):
+class JournalViewTestsWithData(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
         cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor_one = helpers.create_editor(
+            cls.journal_one,
+            email="editor_jiqjgaysqge1pahnj4xn@example.org",
+            first_name="Editor",
+            last_name="One",
+        )
+        cls.editor_two = helpers.create_editor(
+            cls.journal_one,
+            email="editor_iw9pm21rrrxhm9kp5rfa@example.org",
+            first_name="Editor",
+            last_name="Two",
+        )
+        cls.contact_person_one = helpers.create_contact_person(
+            cls.editor_one,
+            cls.journal_one,
+        )
+        cls.contact_person_two = helpers.create_contact_person(
+            cls.editor_two,
+            cls.journal_one,
+        )
+        cls.journal_content_type = ContentType.objects.get_for_model(cls.journal_one)
         cls.sections = []
         cls.articles = []
         thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
@@ -34,6 +60,8 @@ class PublishedArticlesListViewTests(TestCase):
                     )
                 )
 
+
+class PublishedArticlesListViewTests(JournalViewTestsWithData):
     def setUp(self):
         self.client = Client()
 
@@ -41,7 +69,7 @@ class PublishedArticlesListViewTests(TestCase):
         data = {}
         response = self.client.get("/articles/", data)
         self.assertIn(
-            f"60 results",
+            "60 results",
             response.content.decode(),
         )
 
@@ -49,7 +77,7 @@ class PublishedArticlesListViewTests(TestCase):
         data = {"section__pk": self.sections[0].pk}
         response = self.client.get("/articles/", data)
         self.assertIn(
-            f"15 results",
+            "15 results",
             response.content.decode(),
         )
 
@@ -59,10 +87,136 @@ class PublishedArticlesListViewTests(TestCase):
         }
         response = self.client.get("/articles/", data)
         self.assertIn(
-            f"15 results",
+            "15 results",
             response.content.decode(),
         )
         self.assertIn(
-            f"Article (15)",
+            "Article (15)",
             response.content.decode(),
+        )
+
+
+class JournalContactTests(JournalViewTestsWithData):
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_GET(self):
+        response = self.client.get(
+            reverse("contact"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(
+            self.contact_person_one.account.email,
+            response.context["contacts"][0].account.email,
+        )
+        self.assertEqual(
+            [
+                (self.contact_person_one.pk, self.editor_one.full_name()),
+                (self.contact_person_two.pk, self.editor_two.full_name()),
+            ],
+            response.context["contact_form"].fields["contact_person"].choices,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_contact_with_recipient_GET(self):
+        url = reverse(
+            "journal_contact_with_recipient",
+            kwargs={"contact_person_id": self.contact_person_two.pk},
+        )
+        response = self.client.get(url, SERVER_NAME=self.journal_one.domain)
+        self.assertEqual(
+            self.contact_person_two.pk,
+            response.context["contact_form"].fields["contact_person"].initial,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(CAPTCHA_TYPE="")
+    def test_contact_POST(self):
+        post_data = {
+            "contact_person": self.contact_person_one.pk,
+            "sender": "santa@example.org",
+            "subject": "Merry Christmas",
+            "body": "Tis the season\nTo be jolly",
+        }
+        self.client.post(
+            reverse("contact"),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertTrue(
+            utils_models.LogEntry.objects.filter(
+                actor_email="santa@example.org",
+                content_type=self.journal_content_type,
+                object_id=self.journal_one.pk,
+            ).exists()
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_GET_announces_required_message_body(self):
+        response = self.client.get(
+            reverse("contact"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn('aria-required="true"', content)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_contact_GET_body_is_plain_textarea(self):
+        from django import forms as django_forms
+        from tinymce.widgets import TinyMCE
+
+        response = self.client.get(
+            reverse("contact"),
+            SERVER_NAME=self.journal_one.domain,
+        )
+        widget = response.context["contact_form"].fields["body"].widget
+        self.assertNotIsInstance(widget, TinyMCE)
+        self.assertIsInstance(widget, django_forms.Textarea)
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(CAPTCHA_TYPE="")
+    def test_contact_POST_email_names_journal_and_press(self):
+        from django.core import mail
+
+        post_data = {
+            "contact_person": self.contact_person_one.pk,
+            "sender": "santa@example.org",
+            "subject": "Where am I from?",
+            "body": "A message of unclear provenance.",
+        }
+        self.client.post(
+            reverse("contact"),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        message = mail.outbox[-1]
+        self.assertIn(self.journal_one.name, message.body)
+        self.assertIn(self.press.name, message.body)
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(CAPTCHA_TYPE="")
+    def test_contact_invalid_POST_error_summary(self):
+        post_data = {
+            "contact_person": self.contact_person_one.pk,
+            "sender": "not-an-email-address",
+            "subject": "Merry Christmas",
+            "body": "",
+        }
+        response = self.client.post(
+            reverse("contact"),
+            post_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        content = response.content.decode()
+        self.assertIn('id="form-errors-heading"', content)
+        self.assertIn('aria-labelledby="form-errors-heading"', content)
+        self.assertIn("There is a problem with the form", content)
+        self.assertIn("<dl>", content)
+        self.assertIn('<a href="#id_sender">', content)
+        self.assertIn('<a href="#id_body">', content)
+        self.assertIn(
+            "Provide a valid email address in the format name@domain.com.",
+            content,
+        )
+        self.assertIn(
+            "Enter the message you would like to send.",
+            content,
         )

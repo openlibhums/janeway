@@ -2,7 +2,6 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from core.homepage_elements.featured import models
-from submission import models as submission_models
 
 from security.decorators import editor_user_required
 
@@ -11,15 +10,11 @@ from security.decorators import editor_user_required
 def featured_articles(request):
     featured_arts = models.FeaturedArticle.objects.filter(journal=request.journal)
     featured_article_pks = [f.article.pk for f in featured_arts.all()]
-    articles = submission_models.Article.objects.filter(
-        date_published__isnull=False, journal=request.journal
-    ).exclude(pk__in=featured_article_pks)
+    articles = request.journal.published_articles.exclude(pk__in=featured_article_pks)
 
     if "article_id" in request.POST:
         article_id = request.POST.get("article_id")
-        article = get_object_or_404(
-            submission_models.Article, pk=article_id, journal=request.journal
-        )
+        article = get_object_or_404(request.journal.published_articles, pk=article_id)
 
         models.FeaturedArticle.objects.create(
             article=article,

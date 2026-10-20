@@ -18,6 +18,8 @@ def process_article(link, article):
     issn = link.issn.contents[0] if link.issn else None
 
     defaults = {
+        "object_type": "article",
+        "source": "crossref",
         "year": link.year.contents[0],
         "journal_title": link.journal_title.contents[0],
         "article_title": link.article_title.contents[0],
@@ -29,7 +31,6 @@ def process_article(link, article):
     models.ArticleLink.objects.get_or_create(
         article=article,
         doi=doi,
-        object_type="article",
         defaults=defaults,
     )
     print("[ok]")
@@ -45,6 +46,8 @@ def process_book(link, article):
     title = link.volume_title.contents[0]
 
     defaults = {
+        "object_type": "book",
+        "source": "crossref",
         "year": link.year.contents[0],
         "title": title,
         "component_number": link.component_number.contents[0]
@@ -56,7 +59,6 @@ def process_book(link, article):
     models.BookLink.objects.get_or_create(
         article=article,
         doi=doi,
-        object_type="book",
         defaults=defaults,
     )
     print("[ok]")

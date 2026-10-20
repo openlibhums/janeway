@@ -1,0 +1,1 @@
+{% load securitytags %}#{{ article.pk }} / {{ article.correspondence_author.last_name|se_can_see_pii:article }} / {{ article.safe_title }}

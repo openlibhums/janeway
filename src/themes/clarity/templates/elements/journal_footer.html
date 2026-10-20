@@ -1,0 +1,74 @@
+{% load i18n %}
+{% load next_url %}
+{% load sitemap_tags %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="text-left">
+            <ul class="list-unstyled">
+                {% if request.journal.issn %}<li>ISSN: {{ request.journal.issn }}</li>{% endif %}
+                {% if request.journal.print_issn %}<li> {% trans 'Print ISSN' %}: {{ request.journal.print_issn }}</li>{% endif %}
+                {% if journal_settings.general.publisher_name %}
+                    <li>
+                        <span id="pub-by"> {% trans 'Published by' %}</span>
+                        {% if journal_settings.general.publisher_url %}
+                            <a href="{{ journal_settings.general.publisher_url }}"
+                               id="pub-link"
+                               aria-labelledby="pub-by pub-link"
+                            >
+                                {{ journal_settings.general.publisher_name }}
+                            </a>
+                        {% else %}
+                            {{ journal_settings.general.publisher_name }}
+                        {% endif %}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-6 text-right">
+        <ul class="list-unstyled">
+            {% for item in journal.press.navigation_items %}
+                {% if item.for_footer and item.extend_to_journals %}
+                    <li>
+                        {% if item.is_external %}
+                            <a href="{{ item.link }}" target="_blank">
+                                {{ item.link_name }}
+                                {% include "elements/icons/link_external.html" %}
+                            </a>
+                        {% else %}
+                            <a href="{{ item.link }}">
+                                {{ item.link_name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+            {% if journal_settings.general.privacy_policy_url %}
+                <li><a
+                    href="{{ journal_settings.general.privacy_policy_url }}">{% trans "Privacy Policy" %}</a>
+                </li>
+            {% else %}
+                <li><a
+                    href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
+            {% endif %}
+            <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+            <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
+            {% if not request.user.is_authenticated %}
+                <li>
+                    <a href="{% url 'core_login' %}">
+                        {% trans 'Log in' %}
+                    </a>
+                </li>
+            {% endif %}
+            <li><a href="{% page_sitemap_url request.resolver_match.url_name %}">{% trans "Sitemap" %}</a></li>
+        </ul>
+        {% include "elements/language_switcher.html" %}
+    </div>
+</div>
+{% if request.journal.press.journal_footer_text %}
+    <div class="row">
+        <div id="presswide_footer_text" class="col text-left">
+            {{ request.journal.press.journal_footer_text|safe }}
+        </div>
+    </div>
+{% endif %}

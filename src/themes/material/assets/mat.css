@@ -219,6 +219,10 @@ a:hover .article-title {
     opacity: 0.5;
     padding: 10px
 }
+.carousel-text-wrapper h1,
+.carousel-text-wrapper h2 {
+  margin-block: 0;
+}
 
 .no-bottom-padding {
     padding-bottom: 0px !important;
@@ -293,9 +297,10 @@ a:hover .article-title {
     list-style-type: disc;
 }
 
-.toc-card {
-    position: fixed !important;
-    top: 1%;
+.toc-sticky{
+    position: sticky;
+    top: 0;
+    z-index: 700;
 }
 
 .wide-button {
@@ -324,6 +329,7 @@ a:hover .article-title {
 
 .table-wrap {
     overflow-x: auto;
+    padding: var(--focus-ring-size, 4px);
 }
 
 .table-center {
@@ -369,12 +375,22 @@ a:hover .article-title {
     padding-bottom: 8px;
 }
 
-.issue-link {
-    color: rgba(0,0,0,0.87);
-}
-
 .issue-link:hover {
     text-decoration: underline;
+}
+
+a[target="_blank"] {
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
 }
 
 .feature-article-image {
@@ -403,6 +419,10 @@ h2 {
 
 h3 {
     font-size: 2.0rem;
+}
+
+.card-content > h3{
+    font-size: 20px;
 }
 
 h4 {
@@ -458,7 +478,7 @@ h5 {
     color: #616161;
 }
 
-.footer-copyright p {
+.footer-copyright p, .footer-copyright li {
     color: #616161;
 }
 
@@ -485,9 +505,162 @@ nav a.sidenav-trigger i {
     line-height: 90px;
 }
 
+/* WCAG 1.4.12: on wide screens the header grows and its links wrap
+   instead of relying on a fixed height and line-height, which text
+   spacing overrides push behind the absolutely positioned logo. */
+@media (min-width: 993px) {
+    nav.header-overrides {
+        height: auto;
+        min-height: 90px;
+    }
+    nav.header-overrides .nav-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 90px;
+    }
+    nav.header-overrides .brand-logo {
+        position: static;
+        transform: none;
+        flex-shrink: 0;
+        /* the first link's padding may sit over the logo, as it did when
+           the logo was absolutely positioned */
+        margin-right: -15px;
+        display: flex;
+        align-items: center;
+    }
+    nav.header-overrides ul.right > li > a > i {
+        height: auto;
+    }
+    nav.header-overrides ul.right {
+        float: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+    /* Rows take their natural height, so a wrapped nav doesn't stack
+       90px rows; the wrapper's min-height keeps a single row at 90px. */
+    nav.header-overrides ul.right > li {
+        display: flex;
+        align-items: center;
+        line-height: 48px;
+    }
+    nav.header-overrides ul.right > li > a,
+    nav.header-overrides ul.right > li > a > i {
+        line-height: inherit;
+    }
+    nav.header-overrides ul.right > li.a11y-toggle-host {
+        height: auto;
+        line-height: 48px;
+    }
+}
+
+/* Below 993px the logo link is absolutely positioned and inherits the
+   nav's 90px line-height, which made it taller than the header and cover
+   what follows. Keep it to the header's height. */
+@media (max-width: 992px) {
+    nav.header-overrides .brand-logo {
+        height: 90px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* A repository without a logo shows its name instead. On wide screens a
+   long name shares the header with the menu: it shrinks and wraps to at
+   most two lines, keeping a gap before the menu, so the menu stays on one
+   line beside it instead of wrapping below the header. */
+@media (min-width: 993px) {
+    nav.header-overrides .brand-logo.brand-logo-text {
+        /* Start from no width so the name gives way to the menu, rather
+           than the row wrapping before anything shrinks. */
+        flex: 1 1 0%;
+        min-width: 0;
+        margin-right: 1rem;
+        font-size: 1.75rem;
+        line-height: 1.2;
+        white-space: normal;
+    }
+    nav.header-overrides .brand-logo-text .brand-logo-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+    nav.header-overrides .brand-logo-text ~ ul.right {
+        flex-shrink: 0;
+    }
+}
+
+/* A repository without a logo shows its name instead. Below 993px it
+   wrapped onto 90px lines and spilled out of the header over the page;
+   keep it to the header's height, clear of the menu button. */
+@media (max-width: 992px) {
+    nav.header-overrides .brand-logo.brand-logo-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90px;
+        /* Materialize centres it with left: 50% and a transform, which caps
+           its width at half the header; span the gap between the buttons. */
+        left: 60px;
+        right: 60px;
+        width: auto;
+        transform: none;
+        font-size: 1.25rem;
+        line-height: 1.2;
+        text-align: center;
+        white-space: normal;
+    }
+    /* Three lines fill the header; clip longer names rather than spill. */
+    nav.header-overrides .brand-logo-text .brand-logo-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        overflow: hidden;
+    }
+}
+
+/* Cards in a row share the tallest card's height and grow with their
+   content. */
+.row.equal-height-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+.row.equal-height-row > .col {
+    float: none;
+    margin-left: 0;
+}
+.row.equal-height-row > .col > .card {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 1.5rem);
+}
+.row.equal-height-row > .col > .card > .card-content {
+    flex-grow: 1;
+}
+
 .header-override-image {
     padding: 5px;
     max-height: 90px;
+}
+
+/* Below 993px the logo is centred between the menu buttons; a wide header
+   image was wider than the screen. */
+@media (max-width: 992px) {
+    nav.header-overrides .header-override-image {
+        max-width: calc(100vw - 120px);
+        height: auto;
+    }
+    /* Capped widths meet the 75px min-height above; scale the logo inside
+       its box rather than squashing it. */
+    .brand-logo img {
+        object-fit: contain;
+    }
 }
 
 .card .card-content p {
@@ -504,6 +677,13 @@ nav a.sidenav-trigger i {
 
 .sidenav-trigger {
     color: #616161;
+}
+
+/* WCAG 2.5.8: the icon alone is 12px wide, so widen the target to the
+   left, into the existing margin, leaving the icon where it was. */
+nav a.sidenav-trigger {
+    padding-left: 12px;
+    margin-left: 6px;
 }
 
 .card .card-image img {
@@ -649,6 +829,14 @@ nav a.sidenav-trigger i {
     color: #616161;
 }
 
+/* When the footer columns stack, leave room above the language switcher so
+   its button never covers the focus ring of the footer link above it. */
+@media only screen and (max-width: 992px) {
+    .language-switcher {
+        margin-top: 1rem;
+    }
+}
+
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
@@ -662,6 +850,23 @@ nav a.sidenav-trigger i {
 .modal-large {
     width: 75%;
     max-height: 75%;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 .card-full-height {
@@ -759,4 +964,1212 @@ main {
     height: 40px;
     padding: 0 10px;
     min-width: 40px;
+}
+
+#toc-card {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+#article iframe {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin: 1rem 0;
+}
+
+a {
+    overflow-wrap: break-word;
+}
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.list-inline-bar {
+    padding-left: 0;
+    list-style: none;
+}
+
+.list-inline-bar li {
+    display: inline-block;
+}
+
+.list-inline-bar li:not(:last-child)::after {
+  content: " | " / "";   
+}
+
+.byline {
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 110%;
+  font-weight: 400;
+}
+
+.metrics {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 110%;
+}
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+   padding-left: 0.1rem;
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+.icon-recede{
+    opacity: 70%;
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    background-color: inherit;
+    color: inherit;
+    border: 1px, solid, #00897b;
+    padding: 0 10px;
+    min-width: 7rem;
+    min-height: 2rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.btn-background + .btn-background {
+    margin-left: 0.5rem;
+}
+
+input + .btn-background {
+    height: 2.4375rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+p + .btn-background {
+    height: auto;
+    min-height: 2rem;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #00897b;
+    border-color: #00897b;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+
+.btn-opt {
+    border: 1px solid #00897b;
+    background-color: inherit;
+    text-transform: none;
+    color: inherit;
+}
+
+/*
+   Reading Options bar — shared reading_options_bar.html
+   styles the bar itself, includes custom fonts, css for applying the custom styles
+   and finally hides incompatible elements (due to theme differences).
+*/
+
+/* styling the options bar */
+
+#article_opener > .m12 > .card {
+  margin-bottom: 0;
+}
+
+.reading-bar-band {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
+}
+
+.reading-bar-band .mini-bar {
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reading-bar-band + .container > .section {
+  padding-top: 0;
+}
+
+.reading-options-bar {
+  margin: 0;
+}
+
+.mini-bar {
+  width: 100%;
+  background: #e6e6e6;
+  border-bottom: 1px solid #d5d5d5;
+  margin-bottom: 1rem;
+}
+
+.mini-bar .row,
+.mini-bar #options-menu,
+.mini-bar #options-menu > div,
+.mini-bar #options-menu > div > div {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mini-bar ul.menu.medium-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0.75rem;
+}
+
+.mini-bar ul.menu.medium-horizontal > li {
+  position: relative; /* anchor for the dropdown panes */
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button,
+.mini-bar ul.menu.medium-horizontal > li > a {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 0.75rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  line-height: normal;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal > li > button:hover,
+.mini-bar ul.menu.medium-horizontal > li > a:hover,
+.mini-bar ul.menu.medium-horizontal > li > button:focus,
+.mini-bar ul.menu.medium-horizontal > li > a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.mini-bar ul.menu i {
+  margin-right: 0.4rem;
+}
+.mini-bar ul.menu .fa-caret-down {
+  margin-left: 0.4rem;
+  margin-right: 0;
+}
+
+/* Dropdown panes (font, colour scheme, citation). Hidden until the parent item
+   is hovered or contains focus. */
+.mini-bar ul.menu.medium-horizontal > li > ul.menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 12rem;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25rem 0;
+  background: #fff;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  z-index: 1001;
+}
+
+/* Open only when the menu button is activated (JS toggles aria-expanded)*/
+.mini-bar ul.menu.medium-horizontal > li > button[aria-expanded="true"] + ul.menu {
+  display: flex;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button,
+.mini-bar ul.menu.medium-horizontal ul.menu li a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mini-bar ul.menu.medium-horizontal ul.menu li button:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:hover,
+.mini-bar ul.menu.medium-horizontal ul.menu li button:focus,
+.mini-bar ul.menu.medium-horizontal ul.menu li a:focus {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Hidden items (the custom-colour swatches until "Customise" is chosen). */
+.mini-bar ul.menu li[hidden] {
+  display: none;
+}
+
+
+/* Custom colour swatches. */
+.mini-bar input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin-right: 0.25rem;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* Icon toggles (Dark mode, Italics) carry a tick badge when active. */
+.mini-bar .tf-icon-toggle .tf-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.mini-bar .tf-icon-toggle .tf-tick {
+  display: none;
+  position: absolute;
+  right: -9px;
+  bottom: -3px;
+  font-size: 0.6em;
+  line-height: 1;
+  color: #00897b;
+  background: #fff;
+  border-radius: 50%;
+}
+.mini-bar .tf-icon-toggle .tf-tick i {
+  margin: 0;
+}
+.mini-bar .tf-icon-toggle[aria-pressed="true"] .tf-tick {
+  display: inline-flex;
+}
+
+/* Colour scheme scoping to cards only */
+#article.text-format-region.tf-has-colour,
+#article.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+}
+#article.text-format-region.tf-has-colour .card {
+  background-color: var(--tf-bg) !important;
+  transition: background-color 0.4s ease-out;
+}
+/* Longer card transition when crossing to/from the default */
+#article.text-format-region.tf-default-transition .card {
+  transition: background-color 0.6s ease-out;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+#article.text-format-region.tf-has-colour .draw-attention,
+#article.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* Fonts */
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../common/fonts/opendyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+.text-format-region.tf-has-colour {
+  padding: 1rem;
+}
+
+.text-format-region.tf-has-font *:not([class*="fa"]) {
+  font-family: var(--tf-font) !important;
+}
+
+.text-format-region.tf-has-colour {
+  background-color: var(--tf-bg) !important;
+  color: var(--tf-fg) !important;
+  /* Ease colour-scheme changes so switching so is not jarring. */
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+.text-format-region.tf-has-colour .modal-sticky-close {
+  background-color: var(--tf-bg) !important;
+}
+
+/* Moving to/from the default is a bigger jump, so longer transition */
+.text-format-region.tf-default-transition,
+.text-format-region.tf-default-transition * {
+  transition: background-color 0.6s ease-out, color 0.6s ease-out;
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+.text-format-region.tf-has-colour .draw-attention,
+.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* For when Reader has turned the draw-attention highlight off*/
+#article.text-format-region.tf-no-attention .draw-attention,
+#article.text-format-region.tf-no-attention .draw-attention *,
+.text-format-region.tf-no-attention .draw-attention,
+.text-format-region.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+}
+#article.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+#article.text-format-region.tf-has-colour.tf-no-attention .draw-attention *,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+}
+#article.text-format-region.tf-no-attention .draw-attention:focus,
+.text-format-region.tf-no-attention .draw-attention:focus {
+  outline: none !important;
+}
+
+/* Interactive controls now share the region background, so give them a
+   foreground-coloured border to stay visually delineated. */
+.text-format-region.tf-has-colour button,
+.text-format-region.tf-has-colour .button,
+.text-format-region.tf-has-colour input,
+.text-format-region.tf-has-colour select,
+.text-format-region.tf-has-colour textarea {
+  border-color: var(--tf-fg) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+#article.text-format-region.tf-has-colour thead,
+#article.text-format-region.tf-has-colour tbody,
+#article.text-format-region.tf-has-colour tfoot,
+#article.text-format-region.tf-has-colour tr,
+#article.text-format-region.tf-has-colour th,
+#article.text-format-region.tf-has-colour td,
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour thead,
+.text-format-region.tf-has-colour tbody,
+.text-format-region.tf-has-colour tfoot,
+.text-format-region.tf-has-colour tr,
+.text-format-region.tf-has-colour th,
+.text-format-region.tf-has-colour td {
+  border-color: color-mix(in srgb, var(--tf-fg) 50%, transparent) !important;
+}
+
+#article.text-format-region.tf-has-colour blockquote,
+.text-format-region.tf-has-colour blockquote {
+  border-color: color-mix(in srgb, var(--tf-fg) 70%, transparent) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+#article.text-format-region.tf-has-colour .fig-caption,
+#article.text-format-region.tf-has-colour .table-caption,
+#article.text-format-region.tf-has-colour .table-foot,
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour .fig-caption,
+.text-format-region.tf-has-colour .table-caption,
+.text-format-region.tf-has-colour .table-foot {
+  border: 1px solid var(--tf-fg) !important;
+}
+
+#article.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour table {
+  border-top: none !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-track {
+  background: var(--tf-bg) !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-thumb {
+  background: var(--tf-fg) !important;
+  border-radius: 6px;
+}
+
+.text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+/* The "Reading Options" toggle is hidden on desktop (the full bar shows); on
+   mobile it becomes the disclosure that expands/collapses the options panel. */
+.mini-bar .title-bar {
+  display: none;
+}
+
+.mini-bar .title-bar-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  padding: 0 0.75rem;
+  background: none;
+  border: none;
+  color: #595959;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mini-bar .title-bar-title .menu-icon {
+  display: none;
+}
+
+.mini-bar .title-bar-title .tf-options-caret {
+  margin-left: auto;
+}
+
+.mini-bar .title-bar-title[aria-expanded="true"] .tf-options-caret {
+  transform: rotate(180deg);
+}
+
+/* no citation modals on material */
+.mini-bar li.tf-cite {
+  display: none;
+}
+
+@media (min-width: 993px) {
+  .reading-options-bar.tf-bar-hidden {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .reading-bar-band {
+    position: static;
+  }
+
+  .mini-bar .title-bar {
+    display: block;
+  }
+
+  .reading-options-bar.tf-bar-hidden #options-menu {
+    display: none;
+  }
+
+  .mini-bar .tf-close {
+    display: none;
+  }
+
+  .a11y-bar-show-item {
+    display: none;
+  }
+}
+
+/* end of reading options */
+
+/* Banner for hero / large image */
+.material-banner {
+  position: relative;
+  /* overflow: clip; */
+  overflow: hidden;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.material-banner > *,
+.material-banner .material-banner-image {
+  display: block;
+  flex-grow: 1;
+  max-height: 648px;
+}
+.material-banner-heading {
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+  max-height: 100%;
+  overflow-y: auto;
+}
+/* Full-width banners should be taller on larger screens */
+@media (width > 600px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(432px, 100%);
+  }
+}
+@media (width > 992px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: 540px;
+  }
+}
+@media (width > 1200px) {
+  .m12 .material-banner,
+  .l12 .material-banner {
+    max-height: min(648px, 100%);
+  }
+}
+/* Carousel items should display text at the top because Materialize JS
+ * sets the carousel height for reasons of its own,
+ * which can have the effect of hiding the heading. */
+.carousel-item.material-banner .material-banner-heading {
+  bottom: unset;
+  top: 0;
+}
+/* Materialize sizes the slider from the image, which on narrow screens is
+   shorter than its slides and cuts the caption off. min-height outranks
+   the inline height it sets. */
+@media (max-width: 600px) {
+  .carousel.carousel-slider {
+    min-height: 400px;
+  }
+  .carousel.carousel-slider .carousel-item .material-banner-image {
+    height: 100%;
+    object-fit: cover;
+  }
+}
+/* Partial-width banners should be shorter */
+.m4 .material-banner,
+.l4 .material-banner {
+  max-height: 216px;
+}
+.m6 .material-banner,
+.m8 .material-banner,
+.l6 .material-banner,
+.l8 .material-banner {
+  max-height: 288px;
+}
+/* End banner image styles */
+
+/* Fix chevron icon clipping in pagination */
+  .pagination li a:has(i) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.5rem;
+      padding: 0.5rem;
+  }
+
+  .pagination li a i {
+      font-size: 1rem;
+      line-height: 1;
+      vertical-align: middle;
+  }
+
+/* Hide mobile navigation from keyboard navigation on wide screens */
+@media only screen and (min-width: 993px) {
+  .sidenav {
+    /* Remove from tab order on wide screens */
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
+  .sidenav * {
+    /* Ensure all child elements are also not focusable */
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Ensure mobile navigation is accessible on smaller screens */
+@media only screen and (max-width: 992px) {
+  .sidenav {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  
+  .sidenav * {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+  :root {
+      --focus-light: #F9F9F9;
+      --focus-dark: #193146;
+      --focus-ring-size: 4px;
+  }
+
+  /* General */
+  .keyboard-focused *:focus {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+  /* Prevent layout shifts */
+  .card-panel a,
+  p a,
+  span a, 
+  li a,
+  .dropdown-item {
+      display: inline-block;
+      margin: calc(-1 * var(--focus-ring-size));
+      padding: var(--focus-ring-size);
+      box-sizing: border-box;
+  }
+  .table-of-contents li{
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        padding-left: calc(var(--focus-ring-size) + 3px) ;
+        box-sizing: border-box;
+  }
+
+  /* individual overrides */
+  .keyboard-focused button:focus{
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0px !important;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
+  .keyboard-focused select:focus{
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0px !important;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark) !important;
+  }
+
+  /* article page table of contents links */
+  .keyboard-focused .table-of-contents li:has(a:focus){
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: list-item;
+  }
+  .keyboard-focused .table-of-contents a:focus{
+    outline: none;
+    box-shadow: none;
+  }
+
+  /* Fix focus ring alignment for xref-fn links containing sup tags */
+  .keyboard-focused a:has(sup):focus {
+    display: inline-block;
+    vertical-align: baseline;
+    line-height: 1;
+  }
+
+  /* Show focus on pagination li when its child link is focused */
+  .keyboard-focused .pagination li:has(a:focus),
+  .keyboard-focused .dropdown-item li:has(a:focus) {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0px;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+  }
+
+   /* Dropdown focus improvements */
+  .keyboard-focused .dropdown-content {
+      padding: var(--focus-ring-size);
+      margin: calc(-1 * var(--focus-ring-size));
+  }
+
+  /* Materialize sets a select dropdown's height to fit its options
+     exactly. With border-box sizing the padding above comes out of that
+     height and shows a scrollbar; content-box keeps it outside. */
+  .keyboard-focused .select-dropdown.dropdown-content {
+      box-sizing: content-box;
+  }
+
+  .keyboard-focused .dropdown-content li {
+      margin: 0;
+      padding: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item {
+      display: block;
+      margin: 0;
+      border-radius: 0;
+  }
+
+  .keyboard-focused .dropdown-content .dropdown-item:focus {
+      outline: 2px var(--focus-light) solid !important;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: block;
+  }
+
+  /* focus bounding boxes */
+  .keyboard-focused a:focus {
+      outline: 2px var(--focus-light) solid;
+      outline-offset: 0;
+      box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+      display: inline-block;
+      white-space: normal;
+  }
+
+  .nav-wrapper a:focus {
+    display: block;
+  }
+
+  /* Search input group styling */
+.input-group {
+  display: flex;
+}
+
+/* Accessibility mode toggle */
+nav .a11y-toggle-host {
+  float: left;
+  height: 90px;
+  padding: 0 12px;
+  margin: 0;
+  list-style: none;
+  line-height: 90px;
+}
+
+nav .a11y-toggle-host .a11y-toggle-dropdown {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+nav .a11y-toggle-host .a11y-toggle-summary {
+  color: #1a1a1a;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+
+}
+
+nav .a11y-toggle-host .a11y-toggle-icon {
+  position: relative;
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1.25rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+nav .a11y-toggle-host .a11y-toggle-icon > .fa {
+  display: inline-block;
+  font-size: 1.25rem;
+  line-height: 1.25rem;
+  vertical-align: top;
+}
+
+nav .a11y-toggle-host .a11y-toggle-indicator {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: 50%;
+  line-height: 14px;
+  text-align: center;
+  vertical-align: top;
+}
+
+nav .a11y-toggle-host .a11y-toggle-indicator > .fa {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 14px;
+  vertical-align: top;
+}
+
+.sidenav .a11y-mobile-item {
+  background-color: #fff;
+  min-height: 48px;
+  line-height: 48px;
+}
+
+.sidenav .a11y-mobile-item > a {
+  display: block;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 32px;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidenav .a11y-mobile-form {
+  margin: 0 -4px;
+  padding: 0;
+  display: block;
+}
+
+.sidenav .a11y-mobile-button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 0 32px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: rgba(0, 0, 0, 0.87);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 48px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidenav .a11y-mobile-button:hover,
+.sidenav .a11y-mobile-button:focus {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidenav .a11y-mobile-button:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
+}
+
+.sort-control {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.sort-control .input-field {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+/* Mark required fields with an asterisk, as OLH does. Materialize
+   reserves label::after for its data-error/data-success messages, so
+   only labels without those attributes are marked and the reserved
+   styles overridden. */
+label.required-field:not([data-error]):not([data-success])::after {
+  content: " *" !important;
+  color: #b00020;
+  opacity: 1 !important;
+  position: static !important;
+  display: inline !important;
+}
+
+abbr.req {
+  border: none;
+  text-decoration: none;
+  color: #b00020;
+  /* Materialize's .red helper class paints a red background with !important */
+  background-color: transparent !important;
+}
+
+/* Error summary callout */
+.form-errors {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #b00020;
+  border-left-width: 4px;
+  border-radius: 0.25rem;
+}
+
+.form-errors h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #b00020;
+}
+
+.form-errors dl {
+  margin-bottom: 0;
+}
+
+.form-errors dt {
+  font-weight: 700;
+}
+
+.form-errors dd {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-errors dd:last-child {
+  margin-bottom: 0;
+}
+
+.inline-select-group {
+  display: flex;
+  align-items: center;
+  column-gap: 0.75rem;
+}
+
+.inline-select-group .select-wrapper {
+  flex: 1 1 auto;
+}
+
+.inline-select-group .btn {
+  flex: 0 0 auto;
+}
+
+/* WCAG 1.4.3: Materialize's default link, button, label and card action
+   colours fall below 4.5:1, so darken each within its own hue. Journal
+   override stylesheets load after this file and still take precedence.
+   The link blue also has to be 3:1 against the #212121 body text, as links
+   in running text have no underline (WCAG 1.4.1): #0272a9 is 3.05:1 against
+   the text and 4.54:1 or better on white and the grey backgrounds. */
+a {
+  color: #0272a9;
+}
+
+/* In-text links are 3:1 against the text by colour alone; underline on hover
+   as the extra cue (WCAG 1.4.1, technique G183). Focus already has its own
+   styles. Navigation, buttons, cards and lists of links are left alone. */
+main :is(p, td, th, span) a:not(.btn):not(.btn-small):not(.btn-large):hover,
+.article-body li a:hover {
+  text-decoration: underline;
+}
+
+/* Footer links aren't in running text, and the footer background (#eaeaea)
+   is too dark for the lighter link blue to reach 4.5:1. */
+.footer-copyright a {
+  color: #016d9f;
+}
+
+.btn, .btn-small, .btn-large {
+  background-color: #1d7e75;
+}
+
+/* A slightly darker hover colour is hard to see, so keep the colour and
+   underline the label instead. */
+.btn:hover, .btn-small:hover, .btn-large:hover {
+  background-color: #1d7e75;
+  text-decoration: underline;
+}
+
+/* Superscript icons raise the line box and push button text off centre;
+   lift the icon without moving the line. */
+.btn .superscript-icon, .btn-small .superscript-icon, .btn-large .superscript-icon {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+}
+
+.collection a.collection-item {
+  color: #1d7e75;
+}
+
+.collection .collection-item.active {
+  background-color: #1d7e75;
+}
+
+/* Materialize colours dropdown options #26a69a, only 3:1 on white. This
+   teal reaches 4.5:1 on white and on the #eee hover and active background,
+   for the contact form's selects and the navigation dropdowns. */
+.dropdown-content li > a,
+.dropdown-content li > span {
+  color: #186b63;
+}
+
+/* The focus ring rule gives links a negative margin, which pushes
+   dropdown links wider than their menu and shows a scrollbar. */
+.dropdown-content li > a {
+  margin: 0;
+}
+
+label,
+.input-field > label {
+  color: #767676;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating) {
+  color: #b16300;
+}
+
+.card .card-action a:not(.btn):not(.btn-small):not(.btn-large):not(.btn-large):not(.btn-floating):hover {
+  color: #8a4d00;
+}
+
+/* WCAG 1.4.11: Materialize's field underline (#9e9e9e) is 2.7:1 against
+   white. Same selectors as Materialize, so its focus states still win. */
+input:not([type]):not(.browser-default),
+input[type=text]:not(.browser-default),
+input[type=password]:not(.browser-default),
+input[type=email]:not(.browser-default),
+input[type=url]:not(.browser-default),
+input[type=time]:not(.browser-default),
+input[type=date]:not(.browser-default),
+input[type=datetime]:not(.browser-default),
+input[type=datetime-local]:not(.browser-default),
+input[type=month]:not(.browser-default),
+input[type=tel]:not(.browser-default),
+input[type=number]:not(.browser-default),
+input[type=search]:not(.browser-default),
+textarea.materialize-textarea,
+.select-wrapper input.select-dropdown {
+  border-bottom-color: #949494;
+}
+
+/* WCAG 2.5.8: stacked download links need 24px between target centres. */
+.article-downloads a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+/* The article sidebar headings are h2 for document structure (#5557) but
+   keep the size and spacing they had as h4. */
+h2.sidebar-heading {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 110%;
+  margin: 1.52rem 0 0.912rem 0;
+}
+
+/* Section and/or topic of an issue article */
+h3.article-subgroup {
+    margin: 0 0 0.35rem;
+    color: #00796b; /* Materialize teal darken-2 */
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+/* Rendered article images keep their natural width; never let them be
+   wider than the text column, or narrow screens scroll sideways. */
+#main_article img {
+    max-width: 100%;
+}
+/* When the width is capped, keep the ratio from width and height
+   attributes. An image sized by height alone keeps that height. */
+#main_article img[width][height] {
+    height: auto;
+}
+
+#main_article video,
+#main_article iframe {
+    max-width: 100%;
+}
+
+#main_article video {
+    height: auto;
+}
+
+.card-content img,
+.card-content video,
+.card-content iframe,
+.homepage-element-html img,
+.homepage-element-html video,
+.homepage-element-html iframe {
+    max-width: 100%;
+}
+
+.card-content img[width][height],
+.card-content video,
+.homepage-element-html img[width][height],
+.homepage-element-html video {
+    height: auto;
+}
+
+nav.rou-breadcrumbs-nav {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+  height: auto;
+  line-height: inherit;
+}
+
+nav.rou-breadcrumbs-nav a {
+  color: #00796b;
+  font-size: 1rem;
+}
+
+nav.rou-breadcrumbs-nav a:hover {
+  text-decoration: underline;
+}
+
+.rou-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem 0 0 0;
+  padding: 0;
+}
+
+.rou-breadcrumbs li {
+  list-style-type: none;
+}
+
+.rou-breadcrumbs li + li::before {
+  content: "/";
+  padding: 0 0.5rem;
+  color: #616161;
+}
+
+.card-content .info {
+  margin-bottom: 1rem;
+}
+
+.card-content .info .list-inline {
+  display: inline;
 }

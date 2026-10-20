@@ -50,6 +50,9 @@
       <img
         src="{{ user_to_edit.profile_image.url }}"
         class="thumbnail editorial-image">
+      {% if show_alt_text_button %}
+        {% include "core/partials/alt_text/edit_alt_text_button.html" with file_path=user_to_edit.profile_image %}
+      {% endif %}
     {% else %}
       <img
         src="{% static "common/img/icons/users.png" %}"

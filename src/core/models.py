@@ -13,10 +13,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 import pytz
 from hijack.signals import hijack_started, hijack_ended
-from iso639 import Lang
-from iso639.exceptions import InvalidLanguageValue
 import warnings
-import tqdm
 import zipfile
 
 from bs4 import BeautifulSoup
@@ -35,17 +32,16 @@ from django.db import (
     transaction,
 )
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.contrib.postgres.search import SearchVectorField
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
-from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.template.defaultfilters import date
 import swapper
 
 from core import files, validators
@@ -56,19 +52,14 @@ from core.model_utils import (
     AffiliationCompatibleQueryset,
     DynamicChoiceField,
     JanewayBleachField,
-    JanewayBleachCharField,
     PGCaseInsensitiveEmailField,
-    SearchLookup,
     default_press_id,
     check_exclusive_fields_constraint,
 )
 from review import models as review_models
 from copyediting import models as copyediting_models
-from repository import models as repository_models
 from utils.models import RORImportError
 from submission import models as submission_models
-from utils.forms import clean_orcid_id
-from submission.models import CreditRecord
 from utils.logger import get_logger
 from utils import logic as utils_logic
 from utils.forms import plain_text_validator
@@ -77,9 +68,7 @@ from production import logic as production_logic
 fs = JanewayFileSystemStorage()
 logger = get_logger(__name__)
 
-IMAGE_GALLEY_TEMPLATE = """
-    <img class="responsive-img" src={url} alt="{alt}">
-"""
+IMAGE_GALLEY_TEMPLATE = '<img class="responsive-img" src="{}" alt="{}">'
 
 
 def profile_images_upload_path(instance, filename):
@@ -394,6 +383,8 @@ class AccountQuerySet(AffiliationCompatibleQueryset):
 
 
 class AccountManager(BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, username=None, password=None, email=None, **kwargs):
         """Creates a user from the given username or email
         In Janeway, users rely on email addresses to log in. For compatibility
@@ -446,7 +437,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_("Email"))
     username = models.CharField(max_length=254, unique=True, verbose_name=_("Username"))
 
-    name_prefix = models.CharField(max_length=10, blank=True)
     first_name = models.CharField(
         max_length=300,
         blank=False,
@@ -547,10 +537,33 @@ class Account(AbstractBaseUser, PermissionsMixin):
         help_text=_("If enabled, your basic profile will be available to the public."),
         verbose_name=_("Enable public profile"),
     )
+    accessibility_mode = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If enabled, the site is presented using the Clarity "
+            "accessibility-focused theme."
+        ),
+        verbose_name=_("Accessibility mode"),
+    )
+    text_format_preferences = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Reading options (e.g. font, colour scheme,) chosen via the "
+            "reading options bar, stored so they persist between visits."
+        ),
+        verbose_name=_("Reading options preferences"),
+    )
 
     date_joined = models.DateTimeField(default=timezone.now)
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+
+    name_prefix = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="The 'name_prefix' field is deprecated. Use 'salutation'.",
+    )
 
     objects = AccountManager()
 
@@ -559,6 +572,15 @@ class Account(AbstractBaseUser, PermissionsMixin):
     class Meta:
         ordering = ("first_name", "last_name", "username")
         unique_together = ("email", "username")
+
+    def __getattribute__(self, name):
+        if name == "name_prefix":
+            warnings.warn(
+                "The 'name_prefix' field is deprecated. Use 'salutation'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
 
     def clean(self, *args, **kwargs):
         """Normalizes the email address
@@ -600,6 +622,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         else:
             return ""
 
+    @property
+    def pretty_wrapping_email(self):
+        return mark_safe(self.email.replace("@", "<wbr>@").replace(".", "<wbr>."))
+
     def get_full_name(self):
         """Deprecated in 1.5.2"""
         return self.full_name()
@@ -612,8 +638,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return " ".join([self.first_name, self.middle_name])
 
     def full_name(self):
+        """
+        A string formed from all the name fields and the name suffix.
+        """
         name_elements = [
-            self.name_prefix,
             self.first_name,
             self.middle_name,
             self.last_name,
@@ -622,6 +650,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
         return " ".join([name for name in name_elements if name])
 
     def salutation_name(self):
+        """
+        Used in salutations of templated emails.
+        """
         if self.salutation:
             return "%s %s" % (self.salutation, self.last_name)
         else:
@@ -821,6 +852,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
         return False
 
+    def is_repository_moderator(self, repository):
+        """Managers moderate too."""
+        return (
+            self.is_repository_manager(repository)
+            or self in repository.moderators.all()
+        )
+
     def is_preprint_editor(self, request):
         if self in request.press.preprint_editors():
             return True
@@ -872,15 +910,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         force_update: whether to overwrite fields if a FrozenAuthor exists
         """
         self.add_account_role("author", article.journal)
-        if self.name_prefix:
-            name_prefix = self.name_prefix
-        elif self.salutation:
-            name_prefix = self.salutation
-        else:
-            name_prefix = ""
 
         frozen_dict = {
-            "name_prefix": name_prefix,
             "first_name": self.first_name,
             "middle_name": self.middle_name,
             "last_name": self.last_name,
@@ -933,8 +964,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         )
         request = utils_logic.get_current_request()
         if request and request.journal:
-            articles.filter(journal=request.journal)
-
+            articles = articles.filter(journal=request.journal)
+        else:
+            articles = articles.filter(journal__hide_from_press=False)
+        Journal = apps.get_model("journal.Journal")
+        articles = articles.exclude(
+            journal__status=Journal.PublishingStatus.TEST,
+        )
         return articles
 
     def preprint_subjects(self):
@@ -1184,7 +1220,7 @@ class SettingValue(models.Model):
         elif self.setting.types == "json" and self.value:
             try:
                 return json.loads(self.value)
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 logger.error(
                     "Error loading JSON setting {setting_name} on {site_name} site.".format(
                         setting_name=self.setting.name,
@@ -1658,10 +1694,13 @@ class Galley(AbstractLastModifiedModel):
         )
 
     def render(self, recover=False):
+        xsl_path = self.xsl_file.file.path
+        if settings.FORCE_BUILTIN_XSL:
+            xsl_path = settings.BUILTIN_XSL_PATH
         return files.render_xml(
             self.file,
             self.article,
-            xsl_path=self.xsl_file.file.path,
+            xsl_path=xsl_path,
             recover=recover,
         )
 
@@ -1672,7 +1711,7 @@ class Galley(AbstractLastModifiedModel):
         return files.render_xml(self.file, self.article, xsl_path=xsl_path)
 
     def has_missing_image_files(self, show_all=False):
-        if not self.file.mime_type in files.MIMETYPES_WITH_FIGURES:
+        if self.file.mime_type not in files.MIMETYPES_WITH_FIGURES:
             return []
 
         xml_file_contents = self.file.get_file(self.article)
@@ -1724,11 +1763,18 @@ class Galley(AbstractLastModifiedModel):
                 "article_download_galley",
                 kwargs={"article_id": self.article.id, "galley_id": self.id},
             )
-            contents = IMAGE_GALLEY_TEMPLATE.format(
-                url=url,
-                alt=self.label,
+            # The image is the article's content, so it falls back to the
+            # article title rather than the galley label (usually "Image").
+            from core.templatetags import alt_text
+
+            return format_html(
+                IMAGE_GALLEY_TEMPLATE,
+                url,
+                alt_text.get_alt_text(
+                    obj=self.file,
+                    default=alt_text.plain_text(self.article.title),
+                ),
             )
-            return contents
 
     def path(self):
         url = reverse(
@@ -1962,7 +2008,7 @@ class EditorialGroupMember(models.Model):
         return f"{self.user} in {self.group}"
 
 
-class Contacts(models.Model):
+class ContactPerson(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -1972,23 +2018,61 @@ class Contacts(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     object = GenericForeignKey("content_type", "object_id")
 
-    name = models.CharField(max_length=300)
-    email = models.EmailField()
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     role = models.CharField(max_length=200)
-    sequence = models.PositiveIntegerField(default=999)
+    sequence = models.PositiveIntegerField(default=1)
+
+    name = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="The 'name' field is deprecated. Use 'account.full_name'.",
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text="The 'email' field is deprecated. Use 'account.email'.",
+    )
 
     class Meta:
-        # This verbose name will hopefully more clearly
-        # distinguish this model from the below model `Contact`
-        # in the admin area.
-        verbose_name_plural = "contacts"
-        ordering = ("sequence", "name")
+        ordering = ("sequence",)
+        verbose_name_plural = "contact people"
 
     def __str__(self):
-        return "{0}, {1} - {2}".format(self.name, self.object, self.role)
+        return f"{self.display_name}, {self.object} - {self.role}"
+
+    def __getattribute__(self, name):
+        if name == "name":
+            warnings.warn(
+                "The 'name' field is deprecated. Use 'account.full_name'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        elif name == "email":
+            warnings.warn(
+                "The 'email' field is deprecated. Use 'account.email'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return super().__getattribute__(name)
+
+    @property
+    def display_name(self):
+        return self.account.full_name() if self.account else ""
+
+    @property
+    def display_email(self):
+        return self.account.pretty_wrapping_email if self.account else ""
 
 
 class Contact(models.Model):
+    """
+    Deprecated. Use LogEntry instead.
+    """
+
     recipient = models.EmailField(
         max_length=200, verbose_name=_("Who would you like to contact?")
     )
@@ -2011,6 +2095,14 @@ class Contact(models.Model):
         # distinguish this model from the above model `Contacts`
         # in the admin area.
         verbose_name_plural = "contact messages"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Contact is deprecated. Use LogEntry instead.")
+        super().__init__(*args, **kwargs)
+
+
+# Aliases for backward compatibility
+Contacts = ContactPerson
 
 
 class DomainAlias(AbstractSiteModel):
@@ -2099,6 +2191,9 @@ BASE_ELEMENTS = [
 ]
 
 BASE_ELEMENT_NAMES = [element.get("name") for element in BASE_ELEMENTS]
+
+# Superseded by the typesetting element; due for removal in a future release.
+DEPRECATED_ELEMENT_NAMES = ["production", "proofing"]
 
 
 class Workflow(models.Model):
@@ -2347,7 +2442,7 @@ class OrganizationNameManager(models.Manager):
             for org in Organization.objects.filter(~models.Q(ror_id__exact=""))
         }
         organization_names = []
-        logger.debug(f"Importing organization names")
+        logger.debug("Importing organization names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2389,7 +2484,7 @@ class OrganizationNameManager(models.Manager):
 
         ror_records_with_updated_names = []
         org_name_pks_to_delete = set()
-        logger.debug(f"Updating names")
+        logger.debug("Updating names")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2614,7 +2709,7 @@ class OrganizationManager(models.Manager):
             )
         }
         organization_location_links = []
-        logger.debug(f"Linking locations")
+        logger.debug("Linking locations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2648,7 +2743,7 @@ class OrganizationManager(models.Manager):
 
     def bulk_create_from_ror(self, ror_records):
         new_organizations = []
-        logger.debug(f"Importing organizations")
+        logger.debug("Importing organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             last_modified = record.get("admin", {}).get("last_modified", {})
@@ -2681,7 +2776,7 @@ class OrganizationManager(models.Manager):
         }
         organizations_to_update = []
         fields_to_update = set()
-        logger.debug(f"Updating organizations")
+        logger.debug("Updating organizations")
         for record in ror_records:
             ror_id = os.path.split(record.get("id", ""))[-1]
             organization = organizations_by_ror_id[ror_id]
@@ -2913,7 +3008,6 @@ class Organization(models.Model):
         country="",
         account=None,
         frozen_author=None,
-        preprint_author=None,
     ):
         """
         Backwards-compatible API for finding a matching organization,
@@ -2928,7 +3022,6 @@ class Organization(models.Model):
         :type country: str or core.models.Country
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
-        :type preprint_author: repository.models.PreprintAuthor
         """
 
         created = False
@@ -2945,8 +3038,28 @@ class Organization(models.Model):
                     controlledaffiliation__preprint_author=preprint_author,
                 )
             except (cls.DoesNotExist, cls.MultipleObjectsReturned):
-                organization = cls.objects.create()
-                created = True
+                # Or maybe a primary affiliation has already been
+                # entered without a ROR for this
+                # account / frozen author?
+                try:
+                    # If there is no `institution`, this method is being used to update
+                    # the department or country in isolation, so we want the primary
+                    # affiliation's org regardless of what its custom label is.
+                    query = models.Q(
+                        controlledaffiliation__is_primary=True,
+                        controlledaffiliation__account=account,
+                        controlledaffiliation__frozen_author=frozen_author,
+                        ror_id__exact="",
+                    )
+                    # If there is an institution name, we should only match organizations
+                    # with that as a custom label.
+                    if institution and institution != " ":
+                        query &= models.Q(custom_label__value=institution)
+                    organization = cls.objects.get(query)
+                except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+                    # Otherwise, create a new, disconnected record.
+                    organization = cls.objects.create()
+                    created = True
 
         else:
             # Is there a single exact match in the
@@ -3023,12 +3136,6 @@ class ControlledAffiliation(models.Model):
         blank=True,
         null=True,
     )
-    preprint_author = models.ForeignKey(
-        repository_models.PreprintAuthor,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
     title = models.CharField(
         blank=True,
         max_length=300,
@@ -3065,7 +3172,7 @@ class ControlledAffiliation(models.Model):
         constraints = [
             check_exclusive_fields_constraint(
                 "controlled_affiliation",
-                ["account", "frozen_author", "preprint_author"],
+                ["account", "frozen_author"],
             )
         ]
         ordering = ["-is_primary", "-pk"]
@@ -3135,7 +3242,6 @@ class ControlledAffiliation(models.Model):
             cls.objects.filter(
                 account=obj.account,
                 frozen_author=obj.frozen_author,
-                preprint_author=obj.preprint_author,
             )
             .exclude(pk=obj.pk)
             .exists()
@@ -3150,7 +3256,6 @@ class ControlledAffiliation(models.Model):
                 is_primary=True,
                 account=obj.account,
                 frozen_author=obj.frozen_author,
-                preprint_author=obj.preprint_author,
             ).exclude(pk=obj.pk).update(
                 is_primary=False,
             )
@@ -3165,7 +3270,7 @@ class ControlledAffiliation(models.Model):
         Get the primary affiliation, or if none,
         the affiliation with the highest pk, or if none,
         an empty string.
-        :param affiliated_object: Account, FrozenAuthor, PreprintAuthor
+        :param affiliated_object: Account or FrozenAuthor
         :param as_object: whether to return a Python object
         """
         if not affiliated_object.affiliations.exists():
@@ -3185,7 +3290,6 @@ class ControlledAffiliation(models.Model):
         country="",
         account=None,
         frozen_author=None,
-        preprint_author=None,
         defaults=None,
     ):
         """
@@ -3193,7 +3297,7 @@ class ControlledAffiliation(models.Model):
         Intended for use in batch importers where ROR data is not available.
         Does not support ROR ids, multiple affiliations, or start or end dates.
         When possible, include department and country to create unified records.
-        Only include one of author, frozen_author, or preprint_author.
+        Only include one of account or frozen_author.
 
         :param institution: the uncontrolled organization name as a string
         :type institution: str
@@ -3202,7 +3306,6 @@ class ControlledAffiliation(models.Model):
         :type country: str or core.models.Country
         :type account: core.models.Account
         :type frozen_author: submission.models.FrozenAuthor
-        :type preprint_author: repository.models.PreprintAuthor
         :param defaults: default dict passed to ControlledAffiliation.get_or_create:
         :type defaults: dict:
         """
@@ -3211,7 +3314,6 @@ class ControlledAffiliation(models.Model):
             country=country,
             account=account,
             frozen_author=frozen_author,
-            preprint_author=preprint_author,
         )
         if not defaults:
             defaults = {}
@@ -3229,11 +3331,10 @@ class ControlledAffiliation(models.Model):
             "is_primary": True,
             "account": account,
             "frozen_author": frozen_author,
-            "preprint_author": preprint_author,
         }
 
         # Create or update the actual affiliation if the associated
-        # account / frozen author / preprint author has been saved already
+        # account / frozen author has been saved already
         try:
             affiliation, created = ControlledAffiliation.objects.update_or_create(
                 defaults=defaults,
@@ -3268,7 +3369,7 @@ class LocationManager(models.Manager):
         )
         countries_by_code = {country.code: country for country in Country.objects.all()}
         new_locations = []
-        logger.debug(f"Importing locations")
+        logger.debug("Importing locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3305,7 +3406,7 @@ class LocationManager(models.Manager):
         locations_to_update = []
         ror_records_with_new_loc = []
         fields_to_update = set()
-        logger.debug(f"Updating locations")
+        logger.debug("Updating locations")
         for record in ror_records:
             for record_location in record.get("locations"):
                 geonames_id = record_location.get("geonames_id")
@@ -3359,3 +3460,101 @@ class Location(models.Model):
             str(self.country) if self.country else "",
         ]
         return ", ".join([element for element in elements if element])
+
+
+class AltText(models.Model):
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    object_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
+    content_object = GenericForeignKey(
+        "content_type",
+        "object_id",
+    )
+    file_path = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Path to a file for alt text fallback (e.g., /media/image.jpg).",
+        unique=True,
+    )
+    alt_text = models.TextField(
+        help_text="Descriptive alternative text for screen readers.",
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        unique_together = [
+            ("content_type", "object_id"),
+        ]
+        verbose_name = "Alt text"
+        verbose_name_plural = "Alt texts"
+
+    def __str__(self):
+        return self.alt_text
+
+    def clean(self):
+        """
+        Ensure either a GFK (content_type + object_id) OR file_path is set — not both
+        or neither.
+        """
+        has_gfk = self.content_type is not None and self.object_id is not None
+        has_path = bool(self.file_path)
+
+        if has_gfk and has_path:
+            raise ValidationError(
+                "Provide either a related object or a file path — not both."
+            )
+
+        if not has_gfk and not has_path:
+            raise ValidationError(
+                "You must provide either a related object or a file path."
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_text(
+        cls,
+        obj=None,
+        path=None,
+    ):
+        """
+        Retrieve alt text for a model instance or file path.
+        """
+        if obj is not None:
+            try:
+                content_type = ContentType.objects.get_for_model(obj)
+                object_id = obj.pk
+                qs = cls.objects.filter(
+                    content_type=content_type,
+                    object_id=object_id,
+                )
+
+                match = qs.first()
+                if match:
+                    return match.alt_text
+            except Exception:
+                pass
+
+        if path:
+            qs = cls.objects.filter(file_path=path)
+
+            match = qs.first()
+            if match:
+                return match.alt_text
+
+        return ""

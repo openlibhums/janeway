@@ -2,6 +2,7 @@
 {% load press_url from press_url %}
 {% load svg from press_url %}
 {% load next_url %}
+{% load page_title %}
 
 {% load hijack %}
 
@@ -11,15 +12,14 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% if request.journal %}{{ journal.name }}{% elif request.repository %}{{ request.repository.name }}{% else %}{{ request.press.name }}
-    {% endif %}{% endblock title %}</title>
+    <title>{% block title %}{% page_title %}{% endblock title %}</title>
 
     {% block head %}{% endblock head %}
     <link href="{% static "admin/css/index.css" %}" rel="stylesheet">
     <link href="{% static "common/css/index.css" %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
     <script src="https://use.typekit.net/lff8ikn.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+    {% include "common/elements/mathjax.html" %}
     <script>try {
         Typekit.load({async: true});
     } catch (e) {
@@ -118,6 +118,10 @@
     {% endfor %}
   </script>
 {% endblock toastr %}
+{% include "admin/core/partials/htmx_messages.html" %}
+{% include "admin/core/partials/htmx_spinner.html" %}
+<script src="{% static "common/js/timezone-setter.js" %}"></script>
+{% if not request.timezone %}<script>setTimezone();</script>{% endif %}
 
 {% block js %}{% endblock %}
 </body>

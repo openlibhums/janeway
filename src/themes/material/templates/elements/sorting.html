@@ -11,25 +11,27 @@
                 {% endblocktrans %}
             </p>
         </div>
-        <div class="input-field col s12 m6 l5">
-            <select
-                onchange="this.form.submit()"
-                name="order_by"
-                form={{ form_id }}>
-                {% for value, label in order_by_choices %}
-                    <option
-                        value="{{ value }}"
-                        {% if value == order_by %}
-                            selected
-                        {% endif %}>
-                        {{ label }}
-                    </option>
-                {% endfor %}
-            </select>
-            <label
-                labelfor="order_by">
-                {% trans "Sort results by" %}
-            </label>
+        <div class="col s12 m6 l5 sort-control">
+            <div class="input-field">
+                <select
+                    id="order_by"
+                    name="order_by"
+                    form={{ form_id }}>
+                    {% for value, label in order_by_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if value == order_by %}
+                                selected
+                            {% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <label for="order_by">
+                    {% trans "Sort results by" %}
+                </label>
+            </div>
+            <button type="submit" class="btn" form={{ form_id }} aria-label="{% trans 'Apply sort' %}">{% trans "Sort" %}</button>
         </div>
     </div>
 {% endif %}

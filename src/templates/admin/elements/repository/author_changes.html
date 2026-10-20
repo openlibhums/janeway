@@ -1,0 +1,34 @@
+{% comment %}
+  How an update's author list differs from the preprint's.
+  Context: changes (repository.logic.AuthorListChanges).
+{% endcomment %}
+{% load i18n %}
+{% if changes.has_changes %}
+  <ul data-author-changes>
+    {% for author in changes.added %}
+      <li><strong>{% trans "Added" %}:</strong> {{ author.full_name }}{% if author.email %} ({{ author.email }}){% endif %}</li>
+    {% endfor %}
+    {% for author in changes.removed %}
+      <li><strong>{% trans "Removed" %}:</strong> {{ author.full_name }}</li>
+    {% endfor %}
+    {% for before, after, fields in changes.changed %}
+      <li>
+        <strong>{% trans "Changed" %}:</strong> {{ before.full_name }}
+        <table class="small">
+          {% for label, old, new in fields %}
+            <tr>
+              <th scope="row">{{ label }}</th>
+              <td>{{ old|default:_("none") }}</td>
+              <td>&rarr; {{ new|default:_("none") }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </li>
+    {% endfor %}
+    {% if changes.reordered %}
+      <li><strong>{% trans "Reordered" %}</strong></li>
+    {% endif %}
+  </ul>
+{% else %}
+  <p>{% trans "No changes to the authors." %}</p>
+{% endif %}

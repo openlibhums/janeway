@@ -1,1 +1,5 @@
-{% for subject in preprint.subject.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+<ul class="list-inline comma-sep">
+  {% for subject in preprint.subject.all %}
+    <li>{{ subject.name }}</li>
+  {% endfor %}
+</ul>

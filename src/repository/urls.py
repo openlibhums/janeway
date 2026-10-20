@@ -6,7 +6,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.urls import re_path
 
-from repository import views
+from repository import author_views, views
 
 urlpatterns = [
     re_path(r"^dashboard/$", views.repository_dashboard, name="repository_dashboard"),
@@ -17,8 +17,13 @@ urlpatterns = [
     ),
     re_path(
         r"^dashboard/(?P<preprint_id>\d+)/action/(?P<action>correction|version|metadata_correction)/$",
-        views.repository_submit_update,
+        author_views.repository_submit_update,
         name="repository_submit_update",
+    ),
+    re_path(
+        r"^dashboard/(?P<preprint_id>\d+)/update/(?P<update_id>\d+)/$",
+        author_views.repository_update_draft,
+        name="repository_update_draft",
     ),
     re_path(r"^about/$", views.repository_about, name="repository_about"),
     re_path(r"^search/$", views.repository_search, name="repository_search"),
@@ -31,6 +36,11 @@ urlpatterns = [
         r"^view/(?P<preprint_id>\d+)/$",
         views.repository_preprint,
         name="repository_preprint",
+    ),
+    re_path(
+        r"^view/(?P<preprint_id>\d+)/version/(?P<version>\d+)/$",
+        views.repository_preprint,
+        name="repository_preprint_version",
     ),
     re_path(
         r"^view/(?P<preprint_id>\d+)/pdf/$", views.repository_pdf, name="repository_pdf"
@@ -48,30 +58,21 @@ urlpatterns = [
     ),
     re_path(
         r"^list/(?P<subject_id>\d+)/$",
-        views.repository_list,
+        views.redirect_old_subject,
         name="repository_list_subject",
     ),
     re_path(r"^editors/$", views.preprints_editors, name="preprints_editors"),
     re_path(r"^submit/start/$", views.repository_submit, name="repository_submit"),
+    re_path(r"^submit/info/$", views.repository_info, name="repository_info"),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/$",
-        views.repository_submit,
+        views.repository_info,
         name="repository_submit_with_id",
     ),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/authors/$",
-        views.repository_authors,
+        author_views.repository_authors,
         name="repository_authors",
-    ),
-    re_path(
-        r"^submit/(?P<preprint_id>\d+)/authors/delete/(?P<redirect_string>[-\w]+)/$",
-        views.repository_delete_author,
-        name="repository_delete_author",
-    ),
-    re_path(
-        r"^submit/(?P<preprint_id>\d+)/authors/order/$",
-        views.preprints_author_order,
-        name="preprints_author_order",
     ),
     re_path(
         r"^submit/(?P<preprint_id>\d+)/files/$",
@@ -95,24 +96,69 @@ urlpatterns = [
         name="repository_edit_metadata",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/edit/authors/(?P<author_id>\d+)/$",
-        views.repository_edit_author,
-        name="repository_edit_authors",
+        r"^manager/(?P<preprint_id>\d+)/authors/$",
+        author_views.repository_manager_authors,
+        name="repository_manager_authors",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/add/author/$",
-        views.repository_edit_author,
-        name="repository_add_author",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/edit/$",
+        author_views.repository_edit_author,
+        name="repository_edit_author",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/author/order/$",
-        views.reorder_preprint_authors,
-        name="repository_manager_order_authors",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization/search/$",
+        author_views.RepositoryOrganizationListView.as_view(),
+        name="repository_organization_search",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/author/delete/$",
-        views.delete_preprint_author,
-        name="repository_manager_delete_author",
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization_name/create/$",
+        author_views.repository_organization_name_create,
+        name="repository_organization_name_create",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization_name/(?P<organization_name_id>\d+)/update/$",
+        author_views.repository_organization_name_update,
+        name="repository_organization_name_update",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/organization/(?P<organization_id>\d+)/affiliation/create/$",
+        author_views.repository_affiliation_create,
+        name="repository_affiliation_create",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/update/$",
+        author_views.repository_affiliation_update,
+        name="repository_affiliation_update",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/(?P<affiliation_id>\d+)/delete/$",
+        author_views.repository_affiliation_delete,
+        name="repository_affiliation_delete",
+    ),
+    re_path(
+        r"^preprint/(?P<preprint_id>\d+)/author/(?P<author_id>\d+)/affiliation/update-from-orcid/(?P<how_many>primary|all)/$",
+        author_views.repository_affiliation_update_from_orcid,
+        name="repository_affiliation_update_from_orcid",
+    ),
+    re_path(
+        r"^manager/submission-types/$",
+        views.submission_type_list,
+        name="submission_type_list",
+    ),
+    re_path(
+        r"^manager/submission-types/create/$",
+        views.edit_submission_type,
+        name="create_submission_type",
+    ),
+    re_path(
+        r"^manager/submission-types/(?P<pk>\d+)/edit/$",
+        views.edit_submission_type,
+        name="edit_submission_type",
+    ),
+    re_path(
+        r"^manager/submission-types/(?P<pk>\d+)/delete/$",
+        views.delete_submission_type,
+        name="delete_submission_type",
     ),
     # Review
     re_path(
@@ -171,9 +217,26 @@ urlpatterns = [
         name="repository_preprint_log",
     ),
     re_path(
-        r"^manager/(?P<preprint_id>\d+)/comments/$",
-        views.repository_comments,
-        name="repository_comments",
+        r"^manager/comments/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/$",
+        views.repository_manager_comment_list,
+        name="repository_manager_comment_list_filtered",
+    ),
+    re_path(
+        r"^manager/comments/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_reviewed",
+    ),
+    re_path(
+        r"^manager/comments/(?P<preprint_id>\d+)/reviewed/$",
+        views.repository_manager_comment_list,
+        {"show_reviewed": True},
+        name="repository_manager_comment_list_filtered_reviewed",
     ),
     re_path(
         r"^manager/(?P<preprint_id>\d+)/supp_files/$",
@@ -212,6 +275,21 @@ urlpatterns = [
         name="repository_subjects_with_id",
     ),
     re_path(
+        r"^manager/units/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units",
+    ),
+    re_path(
+        r"^manager/units/delete/$",
+        views.repository_delete_organisation_unit,
+        name="repository_delete_organisation_unit",
+    ),
+    re_path(
+        r"^manager/units/(?P<unit_id>\d+)/$",
+        views.repository_organisation_units,
+        name="repository_organisation_units_with_id",
+    ),
+    re_path(
         r"^manager/rejected/$",
         views.repository_rejected_submissions,
         name="repository_rejected_submissions",
@@ -222,6 +300,16 @@ urlpatterns = [
         name="preprints_orphaned_preprints",
     ),
     re_path(r"^manager/versions/$", views.version_queue, name="version_queue"),
+    re_path(
+        r"^manager/moderators/$",
+        views.repository_moderators,
+        name="repository_moderators",
+    ),
+    re_path(
+        r"^manager/versions/(?P<update_id>\d+)/detail/$",
+        views.version_detail,
+        name="repository_version_detail",
+    ),
     re_path(r"^wizard/$", views.repository_wizard, name="repository_wizard"),
     re_path(
         r"^wizard/repository/(?P<short_name>[-\w]+)/step/(?P<step>\d+)/$",
@@ -274,5 +362,20 @@ urlpatterns = [
         r"^email/user/(?P<user_id>\d+)/preprint/(?P<preprint_id>\d+)/$",
         views.send_user_email,
         name="send_user_email_preprint",
+    ),
+    re_path(
+        r"^hierarchy/$",
+        views.rou_hierarchy_view,
+        name="rou_hierarchy",
+    ),
+    re_path(
+        r"^(?P<rou_code>[\w-]+)/$",
+        views.repository_home,
+        name="repository_home_by_rou",
+    ),
+    re_path(
+        r"^(?P<rou_code>[\w-]+)/list$",
+        views.preprints_by_rou,
+        name="repository_preprints_by_rou",
     ),
 ]

@@ -55,6 +55,13 @@
                             {{ info_form.article_number|foundation }}
                         </div>
                     </div>
+                    {% if "topic" in info_form.fields %}
+                    <div class="row expanded">
+                        <div class="large-3 columns end">
+                            {{ info_form.topic|foundation }}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="row expanded">
                         <div class="large-3 columns">
                             {{ info_form.first_page|foundation }}

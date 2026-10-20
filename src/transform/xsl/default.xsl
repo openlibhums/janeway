@@ -429,7 +429,7 @@
   <xsl:template name="body-footnotes">
     <!-- Handle footnotes scattered around the body inside p tags, rather than fn-group -->
     <xsl:if test="//article/body/p/fn">
-      <h2>Footnotes</h2>
+      <h2 id="footnotes-header">Footnotes</h2>
         <ol class="footnotes">
           <xsl:for-each select="//article/body/p/fn">
 	    <xsl:call-template name="referenced-footnote" />
@@ -443,7 +443,7 @@
          <!-- Adds a header for footnotes when there the first child is not a title tag
            *( See 'back/fn-group/title[1]' for heading implementation)
          -->
-        <h2>Notes</h2>
+        <h2 id="footnotes-header">Notes</h2>
       </xsl:if>
       <xsl:apply-templates select="title" />
         <ol class="footnotes">
@@ -495,7 +495,7 @@
               <xsl:apply-templates/>
             <xsl:for-each select="//xref[@rid=$fn-id]">
               <xsl:variable name="i"><xsl:value-of select="string(position())"></xsl:value-of></xsl:variable>
-              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}"> ⮭</a>
+              <a class="footnotemarker"  href="#{$fn-id}-nm{$i}" aria-label="location of {$fn-id} in text" role="doc-backlink"> ---^ </a>
             </xsl:for-each>
           </li>
     </xsl:template>
@@ -1092,6 +1092,7 @@
                   <xsl:text>nm</xsl:text>
                   <xsl:number level="any" count="xref[@rid=$rid]"/>
               </xsl:attribute>
+              <xsl:attribute name="aria-describedby">footnotes-header</xsl:attribute>
               <sup><xsl:apply-templates/></sup>
             </xsl:when>
             <xsl:otherwise>
@@ -1120,6 +1121,16 @@
 
     <xsl:template match="table-wrap/label" mode="captionLabel">
         <span class="table-label">
+            <xsl:attribute name="id">
+                <xsl:choose>
+                    <xsl:when test="parent::table-wrap/@id">
+                        <xsl:value-of select="concat(parent::table-wrap/@id, '-label')"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('tab', count(preceding::table-wrap)+1, '-label')"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
             <xsl:apply-templates/>
         </span>
         <xsl:text> </xsl:text>
@@ -1133,9 +1144,14 @@
                 <xsl:if test="following-sibling::graphic">
                     <xsl:variable name="caption" select="parent::table-wrap/label/text()"/>
                     <xsl:variable name="graphics" select="following-sibling::graphic/@xlink:href"/>
+                    <xsl:variable name="alt">
+                        <xsl:apply-templates select="following-sibling::graphic[1]" mode="alt-text">
+                            <xsl:with-param name="fallback" select="$caption"/>
+                        </xsl:apply-templates>
+                    </xsl:variable>
                     <div class="fig-inline-img-set">
                         <a href="{$graphics}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="responsive-img img-fluid" />
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$alt}" class="responsive-img img-fluid" />
                         </a>
                     </div>
                 </xsl:if>
@@ -1501,11 +1517,16 @@
 
     <xsl:template match="table-wrap" mode="testing">
         <div class="table-expansion">
-            <xsl:if test="@id">
-                <xsl:attribute name="id">
-                    <xsl:value-of select="@id"/>
-                </xsl:attribute>
-            </xsl:if>
+            <xsl:attribute name="id">
+                <xsl:choose>
+                    <xsl:when test="@id">
+                        <xsl:value-of select="@id"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('tab', count(preceding::table-wrap)+1)"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
             <xsl:apply-templates/>
         </div>
     </xsl:template>
@@ -1538,12 +1559,17 @@
     <xsl:template match="//graphic[not(ancestor::fig) and not(ancestor::alternatives)]">
         <xsl:variable name="caption" select="child::caption/text()"/>
         <xsl:variable name="graphics" select="./@xlink:href"/>
+        <xsl:variable name="alt">
+            <xsl:apply-templates select="." mode="alt-text">
+                <xsl:with-param name="fallback" select="$caption"/>
+            </xsl:apply-templates>
+        </xsl:variable>
         <div class="fig-inline-img-set">
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{$graphics}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
-                            <img data-img="{$graphics}" src="{$graphics}" alt="{$caption}" class="img-fluid"/>
+                        <a href="{$graphics}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}">
+                            <img data-img="{$graphics}" src="{$graphics}" alt="{$alt}" class="img-fluid"/>
                         </a>
                     </div>
                     <xsl:apply-templates/>
@@ -1573,19 +1599,14 @@
         <div id="{$id}" class="fig-inline-img-set">
       <xsl:for-each select="graphic">
           <xsl:variable name="alt">
-              <xsl:choose>
-                  <xsl:when test="../alt-text">
-                      <xsl:value-of select="../alt-text/text()"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                      <xsl:value-of select="../label/text()"/>
-                  </xsl:otherwise>
-              </xsl:choose>
+              <xsl:apply-templates select="." mode="alt-text">
+                  <xsl:with-param name="fallback" select="../label/text()"/>
+              </xsl:apply-templates>
           </xsl:variable>
             <div class="acta-fig-image-caption-wrapper">
                 <div class="fig-expansion">
                     <div class="fig-inline-img">
-                        <a href="{@xlink:href}" class="figure-expand-popup" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
+                        <a href="{@xlink:href}" class="figure-expand-popup" aria-label="Enlarge {$caption}" title="{$caption}" data-lightbox="article-figures" data-title="{$caption}" data-alt="{$alt}">
                             <img data-img="{$graphics}" src="{@xlink:href}" class="responsive-img img-fluid" alt="{$alt}" />
                         </a>
                     </div>
@@ -1607,8 +1628,13 @@
                         <xsl:variable name="primaryid" select="concat('#', child::fig[not(@specific-use)]/@id)"/>
                         <xsl:variable name="primarycap" select="child::fig[not(@specific-use)]//label/text()"/>
                         <xsl:variable name="graphichref" select="substring-before(concat(child::fig[not(@specific-use)]/graphic/@xlink:href, '.'), '.')"/>
+                        <xsl:variable name="primaryalt">
+                            <xsl:apply-templates select="child::fig[not(@specific-use)]/graphic[1]" mode="alt-text">
+                                <xsl:with-param name="fallback" select="$primarycap"/>
+                            </xsl:apply-templates>
+                        </xsl:variable>
                         <a href="{$primaryid}">
-                            <img src="{$graphichref}" alt="{$primarycap}" class="responsive-img"/>
+                            <img src="{$graphichref}" alt="{$primaryalt}" class="responsive-img"/>
                         </a>
                     </div>
                     <div class="figure-carousel-inner-wrapper">
@@ -1617,9 +1643,14 @@
                                 <!-- use variables to set src and alt -->
                                 <xsl:variable name="secondarycap" select="child::label/text()"/>
                                 <xsl:variable name="secgraphichref" select="substring-before(concat(child::graphic/@xlink:href, '.'), '.')"/>
+                                <xsl:variable name="secondaryalt">
+                                    <xsl:apply-templates select="child::graphic[1]" mode="alt-text">
+                                        <xsl:with-param name="fallback" select="$secondarycap"/>
+                                    </xsl:apply-templates>
+                                </xsl:variable>
                                 <div class="acta-fig-slider-img acta-fig-slider-secondary">
                                     <a href="#{@id}">
-                                        <img src="{$secgraphichref}" alt="{$secondarycap}" class="responsive-img"/>
+                                        <img src="{$secgraphichref}" alt="{$secondaryalt}" class="responsive-img"/>
                                     </a>
                                 </div>
                             </xsl:for-each>
@@ -1763,17 +1794,19 @@
     <xsl:template match="ref-list">
         <!-- We inject the references heading only when there is no title block -->
         <xsl:if test="name(*[1]) != 'title'">
-          <h2>References</h2>
+          <h2 id="reference-header">References</h2>
         </xsl:if>
+        <xsl:apply-templates select="title"/>
         <div id="reflist">
           <ul>
-            <xsl:apply-templates/>
+            <xsl:apply-templates select="*[not(self::title)]"/>
           </ul>
         </div>
     </xsl:template>
     <xsl:template match="ref-list/title">
         <xsl:if test="node() != ''">
             <xsl:element name="h2">
+                <xsl:attribute name="id">reference-header</xsl:attribute>
                 <xsl:apply-templates/>
             </xsl:element>
         </xsl:if>
@@ -1861,7 +1894,6 @@
       <!-- Render each mixed-citation as-is https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/mixed-citation.html -->
       <!-- Only exceptions are that we want titles <source> in italics and hyperlinked uris elements-->
       <xsl:apply-templates select="source | node()" mode="nscitation"/>
-      <xsl:apply-templates select="ext-link"/>
   </xsl:template>
 
 
@@ -2623,7 +2655,7 @@
       <xsl:when test="$pub-id-type='doi'">
         <xsl:text>&#160;</xsl:text>
         <a href="https://doi.org/{current()}" target="_blank">
-          <xsl:text>http://doi.org/</xsl:text>
+          <xsl:text>https://doi.org/</xsl:text>
           <xsl:apply-templates/>
         </a>
       </xsl:when>
@@ -3532,7 +3564,28 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <img src="{$graphics}" class="responsive-img" />
+        <xsl:variable name="alt">
+            <xsl:apply-templates select="." mode="alt-text"/>
+        </xsl:variable>
+        <img src="{$graphics}" class="responsive-img" alt="{$alt}" />
+    </xsl:template>
+
+    <!-- Alt text for an image: the graphic's own alt-text, then its parent's
+         (a fig or table-wrap), then the given fallback, such as a caption or
+         label. With none of these, alt is empty. -->
+    <xsl:template match="graphic | inline-graphic" mode="alt-text">
+        <xsl:param name="fallback" select="''"/>
+        <xsl:choose>
+            <xsl:when test="normalize-space(alt-text)">
+                <xsl:value-of select="normalize-space(alt-text)"/>
+            </xsl:when>
+            <xsl:when test="normalize-space(../alt-text)">
+                <xsl:value-of select="normalize-space(../alt-text)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="normalize-space($fallback)"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="bio//title">
@@ -3921,6 +3974,7 @@
     <xsl:template match="abstract/title"/>
     <xsl:template match="fig/graphic"/>
     <xsl:template match="fig/alt-text"/>
+    <xsl:template match="graphic/alt-text | inline-graphic/alt-text | table-wrap/alt-text"/>
     <xsl:template match="fig-group//object-id | fig-group//graphic"/>
     <xsl:template match="ref//year | ref//article-title | ref//fpage | ref//volume | ref//source | ref//pub-id | ref//lpage | ref//comment | ref//supplement | ref//person-group[@person-group-type='editor'] | ref//edition | ref//publisher-loc | ref//publisher-name"/>
     <xsl:template match="person-group[@person-group-type='author']"/>
@@ -5067,7 +5121,7 @@
             <!-- Output -->
             <li id="fn{$fnnumfull}">
                 <xsl:apply-templates/>
-              <a href="#fnLink{$fnnumfull}" > ⮭</a>
+              <a href="#fnLink{$fnnumfull}" aria-label="location of {$fnnumfull} in text" role="doc-backlink"> ---^ </a>
             </li>
           </xsl:for-each>
           <!-- END model for each footnote -->

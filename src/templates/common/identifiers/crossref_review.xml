@@ -1,0 +1,37 @@
+<peer_review stage="pre-publication" revision-round="{{ review.review_round.round_number }}"
+             recommendation="{{ review.decision_to_crossref }}">
+    <contributors>
+        <person_name contributor_role="reviewer" sequence="first">
+            <given_name>{{ review.reviewer.first_name }}</given_name>
+            <surname>{{ review.reviewer.last_name }}</surname>
+        </person_name>
+    </contributors>
+    <titles>
+        <title>Review: {{ review.article.title }}</title>
+    </titles>
+    <review_date>
+        <month>{{ review.date_complete.month }}</month>
+        <day>{{ review.date_complete.day }}</day>
+        <year>{{ review.date_complete.year }}</year>
+    </review_date>
+    <competing_interest_statement> There were no competing interests
+    </competing_interest_statement>
+    <running_number>{{ review.pk }}</running_number>
+    <program xmlns="http://www.crossref.org/relations.xsd">
+        <related_item>
+            <description>Referee report of {{ article.title }}
+            </description>
+            <inter_work_relation
+                    relationship-type="isReviewOf"
+                    identifier-type="doi">
+                {{ review.article.get_doi }}
+            </inter_work_relation>
+        </related_item>
+    </program>
+    <doi_data>
+        <doi>{{ review.get_doi }}</doi>
+        <resource>
+            {{ review.article.url }}
+        </resource>
+    </doi_data>
+</peer_review>

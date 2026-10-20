@@ -73,3 +73,20 @@ class TestModelUtils(TestCase):
         self.article.save()
         self.article.save()
         self.assertEqual(self.article.abstract, abstract_without_comment)
+
+    def test_copy_instance(self):
+        frozen_author = helpers.create_frozen_author(self.article)
+        other_article = helpers.create_article(self.journal_one)
+
+        copy = model_utils.copy_instance(frozen_author, article=other_article)
+        copy.save()
+
+        self.assertNotEqual(copy.pk, frozen_author.pk)
+        self.assertEqual(copy.article, other_article)
+        self.assertEqual(copy.last_name, frozen_author.last_name)
+        self.assertEqual(copy.frozen_email, frozen_author.frozen_email)
+
+    def test_copy_instance_refuses_many_to_many_fields(self):
+        account = helpers.create_user("copy@example.org")
+        with self.assertRaises(TypeError):
+            model_utils.copy_instance(account)

@@ -31,6 +31,7 @@
   function Lightbox(options) {
     this.album = [];
     this.currentImageIndex = void 0;
+    this.triggeringElement = null; // Store reference to element that opened lightbox
     this.init();
 
     // options
@@ -111,7 +112,7 @@
     // on the page below.
     //
     // Github issue: https://github.com/lokesh/lightbox2/issues/663
-    $('<div id="lightboxOverlay" tabindex="-1" class="lightboxOverlay"></div><div id="lightbox" tabindex="-1" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt=""/><div class="lb-nav"><a class="lb-prev" role="button" tabindex="0" aria-label="Previous image" href="" ></a><a class="lb-next" role="button" tabindex="0" aria-label="Next image" href="" ></a></div><div class="lb-loader"><a class="lb-cancel" role="button" tabindex="0"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-closeContainer"><a class="lb-close" role="button" tabindex="0"></a></div></div></div></div>').appendTo($('body'));
+    $('<div id="lightboxOverlay" tabindex="-1" class="lightboxOverlay"></div><div id="lightbox" tabindex="-1" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt=""/><div class="lb-nav"><a class="lb-prev" role="button" tabindex="0" aria-label="Previous image" href="" ></a><a class="lb-next" role="button" tabindex="0" aria-label="Next image" href="" ></a></div><div class="lb-loader"><a class="lb-cancel" role="button" tabindex="0"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-closeContainer"><a class="lb-close" role="button" tabindex="0" aria-label="Close image."></a></div></div></div></div>').appendTo($('body'));
 
     // Cache jQuery objects
     this.$lightbox       = $('#lightbox');
@@ -213,6 +214,9 @@
   Lightbox.prototype.start = function($link) {
     var self    = this;
     var $window = $(window);
+
+    // Store reference to the element that triggered the lightbox for focus restoration
+    this.triggeringElement = $link[0];
 
     $window.on('resize', $.proxy(this.sizeOverlay, this));
 
@@ -564,6 +568,18 @@
 
     if (this.options.disableScrolling) {
       $('body').removeClass('lb-disable-scrolling');
+    }
+
+    // Restore focus to the element that triggered the lightbox
+    if (this.triggeringElement) {
+      // Use setTimeout to ensure the fadeOut animation completes before focusing
+      var self = this;
+      setTimeout(function() {
+        if (self.triggeringElement && typeof self.triggeringElement.focus === 'function') {
+          self.triggeringElement.focus();
+        }
+        self.triggeringElement = null; // Clear the reference
+      }, this.options.fadeDuration);
     }
   };
 

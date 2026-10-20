@@ -60,7 +60,9 @@ class TestOAIViews(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.press = helpers.create_press()
-        cls.journal, _ = helpers.create_journals()
+        cls.journal, cls.hidden_journal = helpers.create_journals()
+        cls.hidden_journal.hide_from_press = True
+        cls.hidden_journal.save()
         cls.author = helpers.create_author(cls.journal)
         cls.article = helpers.create_submission(
             journal_id=cls.journal.pk,
@@ -86,6 +88,13 @@ class TestOAIViews(TestCase):
         )
         cls.article.primary_issue = cls.issue
         cls.article.save()
+        cls.hidden_article = helpers.create_article(
+            cls.hidden_journal,
+            with_author=True,
+            stage=sm_models.STAGE_PUBLISHED,
+            title="Article in journal hidden from press",
+            date_published="1986-07-12T17:00:00.000+0200",
+        )
 
     @classmethod
     def validate_oai_schema(cls, xml):
@@ -96,7 +105,9 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_dc(self):
-        expected = LIST_RECORDS_DATA_DC
+        expected = LIST_RECORDS_DATA_DC.format(
+            article_id=self.article.pk,
+        )
         response = self.client.get(
             reverse("OAI_list_records"), SERVER_NAME="testserver"
         )
@@ -105,7 +116,9 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_records_jats(self):
-        expected = LIST_RECORDS_DATA_JATS
+        expected = LIST_RECORDS_DATA_JATS.format(
+            article_id=self.article.pk,
+        )
         path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
@@ -118,13 +131,15 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_get_record_dc(self):
-        expected = GET_RECORD_DATA_DC
+        expected = GET_RECORD_DATA_DC.format(
+            article_id=self.article.pk,
+        )
 
         path = reverse("OAI_list_records")
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="oai_dc",
-            identifier="oai:TST:id:1",
+            identifier=f"oai:TST:id:{self.article.pk}",
         )
         query_string = urlencode(query_params)
 
@@ -134,8 +149,6 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_1976)
     def test_get_records_until(self):
-        expected = GET_RECORD_DATA_UNTIL
-
         path = reverse("OAI_list_records")
         query_params = dict(
             verb="ListRecords",
@@ -145,11 +158,16 @@ class TestOAIViews(TestCase):
         query_string = urlencode(query_params)
 
         # Create article that will be returned
-        helpers.create_submission(
+        returned_article = helpers.create_submission(
+            title="Returned article",
             journal_id=self.journal.pk,
             stage=sm_models.STAGE_PUBLISHED,
             date_published="1975-01-01T17:00:00.000+0200",
             authors=[self.author],
+        )
+
+        expected = GET_RECORD_DATA_UNTIL.format(
+            article_id=returned_article.pk,
         )
 
         # Create article that will not be returned
@@ -165,7 +183,9 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_get_record_jats(self):
-        expected = GET_RECORD_DATA_JATS
+        expected = GET_RECORD_DATA_JATS.format(
+            article_id=self.article.pk,
+        )
         # Add a non correspondence author
         author_2 = helpers.create_author(self.journal, email="no@email.com")
         author_2.snapshot_as_author(self.article)
@@ -180,7 +200,7 @@ class TestOAIViews(TestCase):
         query_params = dict(
             verb="GetRecord",
             metadataPrefix="jats",
-            identifier="oai:TST:id:1",
+            identifier=f"oai:TST:id:{self.article.pk}",
         )
         query_string = urlencode(query_params)
 
@@ -190,7 +210,9 @@ class TestOAIViews(TestCase):
     @override_settings(URL_CONFIG="domain")
     @freeze_time(FROZEN_DATETIME_2012)
     def test_list_identifiers_jats(self):
-        expected = LIST_IDENTIFIERS_JATS
+        expected = LIST_IDENTIFIERS_JATS.format(
+            article_id=self.article.pk,
+        )
 
         path = reverse("OAI_list_records")
         query_params = dict(
@@ -297,3 +319,33 @@ class TestOAIViews(TestCase):
             expected_encoded in unquote_plus(response.context["resumption_token"]),
             "Query parameter has not been encoded into resumption_token",
         )
+
+    @override_settings(URL_CONFIG="domain")
+    @freeze_time(FROZEN_DATETIME_2012)
+    def test_list_records_jats_excludes_hidden_journal(self):
+        path = self.press.site_url(reverse("OAI_list_records"))
+        query_params = dict(
+            verb="ListRecords",
+            metadataPrefix="jats",
+        )
+        query_string = urlencode(query_params)
+        response = self.client.get(
+            f"{path}?{query_string}",
+            SERVER_NAME=self.press.domain,
+        )
+        self.assertNotIn(self.hidden_article, response.context["object_list"])
+
+    @override_settings(URL_CONFIG="domain")
+    @freeze_time(FROZEN_DATETIME_2012)
+    def test_list_records_jats_works_at_journal_level_even_if_hidden_from_press(self):
+        path = self.hidden_journal.site_url(reverse("OAI_list_records"))
+        query_params = dict(
+            verb="ListRecords",
+            metadataPrefix="jats",
+        )
+        query_string = urlencode(query_params)
+        response = self.client.get(
+            f"{path}?{query_string}",
+            SERVER_NAME=self.hidden_journal.domain,
+        )
+        self.assertIn(self.hidden_article, response.context["object_list"])

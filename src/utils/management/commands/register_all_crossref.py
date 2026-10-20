@@ -8,8 +8,6 @@ from journal import models as journal_models
 
 
 class Command(BaseCommand):
-    """Takes an OAI PMH url and pulls information into Janeway."""
-
     help = "Registers all article DOIs with Crossref."
 
     def add_arguments(self, parser):

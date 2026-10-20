@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load page_title %}
+
+{% block title %}{% page_title request.repository.rou_default_name %}{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{{ request.repository.rou_default_name }}</h1>
+      {{ page_text|safe }}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <ul>
+        <li>
+          <a href="{% url 'repository_list' %}">{% blocktrans with name=request.repository.name object_name_plural=request.repository.object_name_plural %}{{ name }} (all {{ object_name_plural }}){% endblocktrans %}</a>
+          {% if hierarchy %}
+            <ul>
+              {% include "common/repository/hierarchy_list.html" with hierarchy=hierarchy %}
+            </ul>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}

@@ -1,27 +1,155 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
-from django.contrib import messages
+from django.urls import resolve, Resolver404
 from tinymce.widgets import TinyMCE
 
 
 from submission import models as submission_models
 from repository import models
+from repository.logic import set_update_field_answers
 from press import models as press_models
 from review.logic import render_choices
-from core import models as core_models, workflow
+from core import workflow
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
 
 
-class PreprintInfo(utils_forms.KeywordModelForm):
-    submission_agreement = forms.BooleanField(
-        widget=forms.CheckboxInput(),
+class PreSubmissionStartForm(forms.Form):
+    submission_type = forms.ModelChoiceField(
+        queryset=models.RepositorySubmissionType.objects.none(),
         required=True,
+        label="Select the appropriate submission type. This will affect the metadata "
+        "fields shown and the processing steps your submission follows.",
+        widget=forms.RadioSelect,
     )
+
+    submission_agreement = forms.BooleanField(
+        required=True,
+        label="I agree to the terms of submission",
+    )
+
+    organisation_unit = forms.ModelChoiceField(
+        queryset=models.RepositoryOrganisationUnit.objects.none(),
+        required=False,
+        label="Organisational Unit",
+        help_text="Select the relevant unit, department, or group for this submission.",
+        widget=forms.RadioSelect,
+    )
+
+    def __init__(self, *args, **kwargs):
+        repository = kwargs.pop("repository")
+        super().__init__(*args, **kwargs)
+
+        self.fields[
+            "submission_type"
+        ].queryset = models.RepositorySubmissionType.objects.filter(
+            repository=repository,
+        )
+
+        self.ou_depth_map = {}
+        if not repository.has_organisation_units:
+            del self.fields["organisation_unit"]
+            return
+
+        def walk(unit, level=0):
+            self.ou_depth_map[str(unit.id)] = level
+            yield (unit.id, unit.name)
+            for child in unit.children.all().order_by("name"):
+                yield from walk(child, level + 1)
+
+        top_units = (
+            models.RepositoryOrganisationUnit.objects.filter(
+                repository=repository,
+                parent__isnull=True,
+            )
+            .order_by("name")
+            .prefetch_related("children")
+        )
+
+        choices = []
+        for unit in top_units:
+            choices.extend(walk(unit))
+
+        self.fields["organisation_unit"].choices = choices
+        self.fields[
+            "organisation_unit"
+        ].queryset = models.RepositoryOrganisationUnit.objects.filter(
+            repository=repository,
+        )
+
+
+def build_additional_field(element):
+    """
+    Returns a form field for a repository custom field.
+    :param element: RepositoryField
+    """
+    if element.input_type == "text":
+        field = forms.CharField(
+            widget=forms.TextInput(),
+            required=element.required,
+        )
+    elif element.input_type == "textarea":
+        field = forms.CharField(
+            widget=forms.Textarea,
+            required=element.required,
+        )
+    elif element.input_type == "date":
+        field = forms.CharField(
+            widget=forms.DateInput(attrs={"class": "datepicker"}),
+            required=element.required,
+        )
+    elif element.input_type == "select":
+        field = forms.ChoiceField(
+            widget=forms.Select(),
+            choices=render_choices(element.choices),
+            required=element.required,
+        )
+    elif element.input_type == "email":
+        field = forms.EmailField(
+            widget=forms.TextInput(),
+            required=element.required,
+        )
+    elif element.input_type == "checkbox":
+        field = forms.BooleanField(
+            widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
+            required=element.required,
+        )
+    elif element.input_type == "number":
+        field = forms.IntegerField(
+            required=element.required,
+        )
+    else:
+        field = forms.CharField(
+            widget=forms.Textarea(),
+            required=element.required,
+        )
+
+    if element.input_type == "date":
+        field.help_text = f"Use ISO 8601 Date Format YYYY-MM-DD. {element.help_text}"
+    else:
+        field.help_text = element.help_text
+    field.label = element.name
+    return field
+
+
+def additional_field_answer_text(element, value):
+    """
+    Converts a cleaned custom field value to the text stored on
+    RepositoryFieldAnswer, matching what the submission form stores:
+    checkboxes are "on" when ticked, and empty values are not stored.
+    :return: str, or None if there is no answer to store
+    """
+    if element.input_type == "checkbox":
+        return "on" if value else None
+    if value in (None, ""):
+        return None
+    return str(value)
+
+
+class PreprintInfo(utils_forms.KeywordModelForm):
     subject = forms.ModelMultipleChoiceField(
         required=True,
         queryset=models.Subject.objects.none(),
@@ -48,22 +176,27 @@ class PreprintInfo(utils_forms.KeywordModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         self.admin = kwargs.pop("admin", False)
-        elements = self.request.repository.additional_submission_fields()
+        self.submission_type_slug = kwargs.pop("submission_type_slug", None)
         super(PreprintInfo, self).__init__(*args, **kwargs)
 
-        if self.admin:
-            self.fields.pop("submission_agreement")
-            self.fields.pop("comments_editor")
+        if (
+            not self.submission_type_slug
+            and self.instance
+            and self.instance.submission_type
+        ):
+            self.submission_type_slug = self.instance.submission_type.slug
 
-        # If using this form and there is an instance then this has
-        # previously been checked as it is required.
-        if self.instance.id and "submission_agreement" in self._meta.fields:
-            self.fields["submission_agreement"].initial = True
+        elements = self.request.repository.type_additional_submission_fields(
+            submission_type_slug=self.submission_type_slug,
+        )
+        if self.admin:
+            self.fields.pop("comments_editor")
 
         self.fields["subject"].queryset = models.Subject.objects.filter(
             enabled=True,
             repository=self.request.repository,
         )
+
         if self.admin:
             self.fields["license"].queryset = submission_models.Licence.objects.filter(
                 journal__isnull=True,
@@ -76,60 +209,7 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
         if elements:
             for element in elements:
-                if element.input_type == "text":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.TextInput(), required=element.required
-                    )
-                elif element.input_type == "textarea":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea,
-                        required=element.required,
-                    )
-                elif element.input_type == "date":
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.DateInput(
-                            attrs={
-                                "class": "datepicker",
-                            }
-                        ),
-                        required=element.required,
-                    )
-                elif element.input_type == "select":
-                    choices = render_choices(element.choices)
-                    self.fields[element.name] = forms.ChoiceField(
-                        widget=forms.Select(),
-                        choices=choices,
-                        required=element.required,
-                    )
-                elif element.input_type == "email":
-                    self.fields[element.name] = forms.EmailField(
-                        widget=forms.TextInput(),
-                        required=element.required,
-                    )
-                elif element.input_type == "checkbox":
-                    self.fields[element.name] = forms.BooleanField(
-                        widget=forms.CheckboxInput(attrs={"is_checkbox": True}),
-                        required=element.required,
-                    )
-                elif element.input_type == "number":
-                    self.fields[element.name] = forms.IntegerField(
-                        required=element.required,
-                    )
-                else:
-                    self.fields[element.name] = forms.CharField(
-                        widget=forms.Textarea(),
-                        required=element.required,
-                    )
-
-                if element.input_type == "date":
-                    self.fields[
-                        element.name
-                    ].help_text = "Use ISO 8601 Date Format YYYY-MM-DD. {}".format(
-                        element.help_text
-                    )
-                else:
-                    self.fields[element.name].help_text = element.help_text
-                self.fields[element.name].label = element.name
+                self.fields[element.name] = build_additional_field(element)
 
                 preprint = kwargs["instance"]
                 if preprint:
@@ -145,7 +225,6 @@ class PreprintInfo(utils_forms.KeywordModelForm):
     def save(self, commit=True):
         preprint = super(PreprintInfo, self).save()
 
-        # We only set the preprint owner once on creation.
         if not preprint.owner:
             preprint.owner = self.request.user
 
@@ -157,7 +236,6 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             )
             for field in additional_fields:
                 answer = self.request.POST.get(field.name, None)
-
                 if answer:
                     try:
                         field_answer = models.RepositoryFieldAnswer.objects.get(
@@ -210,75 +288,6 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
             link.save()
 
         return link
-
-
-class AuthorForm(forms.Form):
-    email_address = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=200)
-    middle_name = forms.CharField(max_length=200, required=False)
-    last_name = forms.CharField(max_length=200)
-    affiliation = forms.CharField(max_length=200, required=False)
-
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop("instance")
-        self.request = kwargs.pop("request")
-        self.preprint = kwargs.pop("preprint")
-        super(AuthorForm, self).__init__(*args, **kwargs)
-
-        if self.instance:
-            self.fields["email_address"].initial = self.instance.account.email
-            self.fields["first_name"].initial = self.instance.account.first_name
-            self.fields["middle_name"].initial = self.instance.account.middle_name
-            self.fields["last_name"].initial = self.instance.account.last_name
-            self.fields["affiliation"].initial = (
-                self.instance.affiliation or self.instance.account.institution
-            )
-
-    def save(self):
-        cleaned_data = self.cleaned_data
-        if self.instance:
-            account = self.instance.account
-            account.email = cleaned_data.get("email_address")
-            account.first_name = cleaned_data.get("first_name")
-            account.middle_name = cleaned_data.get("middle_name")
-            account.last_name = cleaned_data.get("last_name")
-            self.instance.affiliation = cleaned_data.get("affiliation")
-
-            account.save()
-            self.instance.save()
-            return self.instance
-        else:
-            account, ac = core_models.Account.objects.get_or_create(
-                email=cleaned_data.get("email_address"),
-                defaults={
-                    "first_name": cleaned_data.get("first_name"),
-                    "middle_name": cleaned_data.get("middle_name"),
-                    "last_name": cleaned_data.get("last_name"),
-                },
-            )
-            preprint_author, pc = models.PreprintAuthor.objects.get_or_create(
-                account=account,
-                preprint=self.preprint,
-                defaults={
-                    "affiliation": cleaned_data.get("affiliation"),
-                    "order": self.preprint.next_author_order(),
-                },
-            )
-
-            if not ac:
-                messages.add_message(
-                    self.request,
-                    messages.WARNING,
-                    "A user with this email address was found. They have been added.",
-                )
-            else:
-                messages.add_message(
-                    self.request,
-                    messages.SUCCESS,
-                    "User added as Author.",
-                )
-
-            return preprint_author
 
 
 class CommentForm(forms.ModelForm):
@@ -375,6 +384,85 @@ class SubjectForm(forms.ModelForm):
         return subject
 
 
+class OrganisationUnitForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositoryOrganisationUnit
+        fields = ("name", "code", "parent")
+
+    def __init__(self, *args, **kwargs):
+        self.repository = kwargs.pop("repository")
+        super(OrganisationUnitForm, self).__init__(*args, **kwargs)
+        parents = models.RepositoryOrganisationUnit.objects.filter(
+            repository=self.repository,
+        )
+        if self.instance.pk:
+            # A unit cannot be moved underneath itself or one of its children.
+            excluded = [self.instance.pk] + [
+                unit.pk for unit in self.instance.get_descendants()
+            ]
+            parents = parents.exclude(pk__in=excluded)
+        self.fields["parent"].queryset = parents
+
+    def clean_code(self):
+        code = self.cleaned_data["code"]
+        clashes = models.RepositoryOrganisationUnit.objects.filter(
+            repository=self.repository,
+            code=code,
+        ).exclude(pk=self.instance.pk)
+        if clashes.exists():
+            raise forms.ValidationError(
+                _("Another unit in this repository already uses this code."),
+            )
+
+        # Unit home pages live at /repository/<code>/, after the other
+        # repository URLs, so a code like "about" would never be reachable.
+        # Resolve against the repository URLs directly so the site's path
+        # prefix (in path mode) doesn't affect the check.
+        try:
+            match = resolve(f"/{code}/", urlconf="repository.urls")
+        except Resolver404:
+            match = None
+        if not match or match.url_name != "repository_home_by_rou":
+            raise forms.ValidationError(
+                _("This code is reserved by another page. Choose a different code."),
+            )
+        return code
+
+    def save(self, commit=True):
+        unit = super(OrganisationUnitForm, self).save(commit=False)
+        unit.repository = self.repository
+
+        if commit:
+            unit.save()
+
+        return unit
+
+
+class OrganisationUnitSettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = (
+            "enable_organisation_units",
+            "rou_default_name",
+            "rou_struct_page_text",
+        )
+        labels = {
+            "enable_organisation_units": _("Enable organisational units"),
+            "rou_default_name": _("Name for organisational units"),
+            "rou_struct_page_text": _("Organisational structure page text"),
+        }
+        help_texts = {
+            "enable_organisation_units": _(
+                "Show units on the public site and in the submission form. "
+                "Turning this off hides them without deleting any units or "
+                "their links to submissions."
+            ),
+        }
+        widgets = {
+            "rou_struct_page_text": TinyMCE,
+        }
+
+
 class ActiveLicenseForm(forms.ModelForm):
     class Meta:
         model = models.Repository
@@ -424,13 +512,17 @@ class VersionForm(forms.ModelForm):
     class Meta:
         model = models.VersionQueue
         fields = ("title", "abstract", "published_doi")
+        widgets = {
+            "title": forms.TextInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
         super(VersionForm, self).__init__(*args, **kwargs)
-        self.fields["title"].initial = self.preprint.title
-        self.fields["abstract"].initial = self.preprint.abstract
-        self.fields["published_doi"].initial = self.preprint.doi
+        if not self.instance.pk:
+            self.fields["title"].initial = self.preprint.title
+            self.fields["abstract"].initial = self.preprint.abstract
+            self.fields["published_doi"].initial = self.preprint.doi
 
     def save(self, commit=True):
         version = super(VersionForm, self).save(commit=False)
@@ -451,6 +543,61 @@ class VersionForm(forms.ModelForm):
             )
 
         return doi_string
+
+
+class UpdateFieldAnswersForm(forms.Form):
+    """
+    A draft update's answers to the repository's custom fields.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.preprint = kwargs.pop("preprint")
+        self.version_queue = kwargs.pop("version_queue")
+        super().__init__(*args, **kwargs)
+        self.elements = list(
+            self.preprint.repository.type_additional_submission_fields(
+                submission_type_slug=(
+                    self.preprint.submission_type.slug
+                    if self.preprint.submission_type
+                    else None
+                ),
+            )
+        )
+        answers = {
+            answer.field_id: answer.answer
+            for answer in self.version_queue.repositoryfieldanswer_set.all()
+        }
+        for element in self.elements:
+            field = build_additional_field(element)
+            answer = answers.get(element.pk)
+            if isinstance(field, forms.ChoiceField):
+                # Without these, the browser would post the first choice for
+                # a field with no answer, or for an answer that is no longer
+                # a choice.
+                choices = list(field.choices)
+                if answer and answer not in dict(choices):
+                    choices.insert(0, (answer, answer))
+                if not element.required or not answer:
+                    choices.insert(0, ("", "---------"))
+                field.choices = choices
+            field.initial = bool(answer) if element.input_type == "checkbox" else answer
+            self.fields[self.field_name(element)] = field
+
+    @staticmethod
+    def field_name(element):
+        return f"field_{element.pk}"
+
+    def save(self):
+        set_update_field_answers(
+            self.version_queue,
+            {
+                element: additional_field_answer_text(
+                    element,
+                    self.cleaned_data.get(self.field_name(element)),
+                )
+                for element in self.elements
+            },
+        )
 
 
 class RepositoryBase(forms.ModelForm):
@@ -475,8 +622,6 @@ class RepositoryInitial(RepositoryBase):
             "theme",
             "display_public_metrics",
             "publisher",
-            "enable_comments",
-            "enable_invited_comments",
         )
         help_texts = {
             "domain": "Using a custom domain requires configuring DNS. "
@@ -497,6 +642,8 @@ class RepositorySite(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            "headless_mode",
+            "identifier_management",
             "about",
             "logo",
             "hero_background",
@@ -530,6 +677,7 @@ class RepositorySubmission(RepositoryBase):
             "require_pdf_help",
             "additional_version_help",
             "managers",
+            "moderators",
         )
 
         widgets = {
@@ -542,6 +690,24 @@ class RepositorySubmission(RepositoryBase):
                 False,
                 attrs={"rows": "2"},
             ),
+            "moderators": FilteredSelectMultiple(
+                "Accounts",
+                False,
+                attrs={"rows": "2"},
+            ),
+        }
+
+
+class RepositoryModeratorsForm(forms.ModelForm):
+    class Meta:
+        model = models.Repository
+        fields = ("moderators",)
+        widgets = {
+            "moderators": FilteredSelectMultiple(
+                "Accounts",
+                False,
+                attrs={"rows": "2"},
+            ),
         }
 
 
@@ -549,16 +715,19 @@ class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository
         fields = (
+            "submission_notification_recipients",
             "submission",
             "publication",
             "decline",
             "accept_version",
             "decline_version",
             "new_comment",
+            "comment_published",
+            "comment_approved",
             "review_invitation",
             "manager_review_status_change",
             "reviewer_review_status_change",
-            "submission_notification_recipients",
+            "new_version_submitted",
         )
 
         widgets = {
@@ -568,15 +737,18 @@ class RepositoryEmails(RepositoryBase):
             "accept_version": TinyMCE,
             "decline_version": TinyMCE,
             "new_comment": TinyMCE,
+            "comment_published": TinyMCE,
+            "comment_approved": TinyMCE,
             "review_invitation": TinyMCE,
             "manager_review_status_change": TinyMCE,
             "reviewer_review_status_change": TinyMCE,
+            "new_version_submitted": TinyMCE,
             "submission_notification_recipients": TableMultiSelectUser(),
         }
 
     def __init__(self, *args, **kwargs):
         super(RepositoryEmails, self).__init__(*args, **kwargs)
-        repo_managers = kwargs["instance"].managers.all()
+        repo_managers = kwargs["instance"].moderating_accounts()
         self.fields["submission_notification_recipients"].queryset = repo_managers
         self.fields["submission_notification_recipients"].choices = [
             (m.id, {"name": m.full_name(), "email": m.email}) for m in repo_managers
@@ -594,6 +766,7 @@ class RepositoryFieldForm(forms.ModelForm):
         model = models.RepositoryField
         fields = (
             "name",
+            "submission_type",
             "input_type",
             "choices",
             "required",
@@ -606,6 +779,11 @@ class RepositoryFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.repository = kwargs.pop("repository")
         super(RepositoryFieldForm, self).__init__(*args, **kwargs)
+        self.fields[
+            "submission_type"
+        ].queryset = models.RepositorySubmissionType.objects.filter(
+            repository=self.repository,
+        )
 
     def save(self, commit=True):
         field = super(RepositoryFieldForm, self).save(commit=False)
@@ -748,3 +926,78 @@ class RecommendationForm(forms.ModelForm):
             recommendation.save()
 
         return recommendation
+
+
+class PreprintFilterForm(forms.Form):
+    search_term = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Search..."}),
+    )
+    subject = forms.ModelChoiceField(
+        queryset=models.Subject.objects.none(),
+        required=False,
+        label="Subject",
+        empty_label="— All Subjects —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    submission_type = forms.ModelChoiceField(
+        queryset=models.RepositorySubmissionType.objects.none(),
+        required=False,
+        label="Submission Type",
+        empty_label="— All Types —",
+        widget=forms.Select(attrs={"class": "full-width"}),
+    )
+
+    title = forms.BooleanField(required=False, initial=True)
+    abstract = forms.BooleanField(required=False, initial=True)
+    authors = forms.BooleanField(required=False, initial=True)
+    keywords = forms.BooleanField(required=False)
+    full_text = forms.BooleanField(required=False)
+    orcid = forms.BooleanField(required=False, label="ORCID")
+
+    def __init__(self, *args, repository=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if repository:
+            self.fields["subject"].queryset = models.Subject.objects.filter(
+                repository=repository,
+                enabled=True,
+            )
+            self.fields[
+                "submission_type"
+            ].queryset = models.RepositorySubmissionType.objects.filter(
+                repository=repository,
+            )
+
+    def search_filters(self):
+        if not self.is_valid():
+            return {}
+        return {
+            "title": self.cleaned_data.get("title", False),
+            "abstract": self.cleaned_data.get("abstract", False),
+            "authors": self.cleaned_data.get("authors", False),
+            "keywords": self.cleaned_data.get("keywords", False),
+            "full_text": self.cleaned_data.get("full_text", False),
+            "ORCID": self.cleaned_data.get("orcid", False),
+        }
+
+
+class RepositorySubmissionTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.RepositorySubmissionType
+        fields = [
+            "name",
+            "name_plural",
+            "slug",
+            "pill_colour",
+        ]
+        help_texts = {
+            "slug": (
+                "A URL-safe identifier for this type (e.g. 'preprint'). "
+                "Used in HTML classes and API filters. Must be unique within this site."
+            ),
+            "pill_colour": ("Hex colour code used to style the label (e.g. #1e40af)."),
+        }
+        widgets = {
+            "pill_colour": forms.TextInput(attrs={"placeholder": "#1e40af"}),
+        }

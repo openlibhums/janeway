@@ -6,20 +6,21 @@
 {% load roles %}
 {% load hooks %}
 {% load next_url %}
+{% load page_title %}
 
 <!doctype html>
-<html class="no-js" lang="en">
+{% get_current_language as html_language %}
+<html class="no-js" lang="{{ html_language }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no"/>
-    <title>{% block title %}{{ request.journal.name }}{% endblock title %}</title>
+    <title>{% block title %}{% page_title %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{% url 'website_sitemap' %}">
     <link href="{% static "OLH/css/app.css" %}" rel="stylesheet">
     <link href="{% static "common/css/index.css" %}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
 
     {% if request.journal %}
         <link href="{% static "OLH/css/default_override.css" %}" rel="stylesheet">
@@ -38,8 +39,10 @@
     {% hook 'base_head_css' %}
 
     {% if request.journal %}
-        <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
-        <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+        {% if journal_settings.general.feeds %}
+            <link href="{% journal_url 'rss_articles' %}" type="application/atom+xml" rel="alternate" title="Article Feed for Journal">
+            <link href="{% journal_url 'rss_news' %}" type="application/atom+xml" rel="alternate" title="News Feed for Journal">
+        {% endif %}
     {% else %}
         <link rel="alternate" type="application/rss+xml" title="Articles RSS Feed" href="{% url 'rss_articles' %}"/>
         <link  type="application/atom+xml" rel="alternate" title="News Feed for Journal" href="{% url 'rss_news' %}">
@@ -49,51 +52,63 @@
 <body>
 {% include "common/elements/skip_to_main_content.html" %}
 <div class="wrapper">
-    <header class="main-header" role="banner">
+    <header class="main-header">
         <div class="main top-bar">
             <div class="top-bar-left header-image-bar border-right">
                 {% if request.journal %}
-                    {% if request.journal.header_image %}
                     <a title="{% trans 'Home' %}" href="{{ request.journal.site_url }}">
-                        {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' %}
+                        {% if request.journal.header_image %}
+                            {% get_alt_text file_path=request.journal.header_image default=request.journal.name|logo_alt as header_alt_text %}
+                            {% svg_or_image request.journal.header_image css_class='header-image top-bar-image' alt_text=header_alt_text %}
+                        {% else %}
+                                <img src="{% static "common/img/sample/janeway.png" %}" alt="{{ request.journal.name }}">
+                        {% endif %}
+                        <span class="sr-only">{% trans 'Home' %}</span>
                     </a>
-                    {% else %}
-                        <a href="{{ request.journal.site_url }}"><img src="{% static "common/img/sample/janeway.png" %}"></a>
-                    {% endif %}
                 {% elif request.repository %}
                     {% if request.repository.logo %}
-                        {% svg_or_image request.repository.logo %}
+                        {% get_alt_text file_path=request.repository.logo default=request.repository.name|logo_alt as logo_alt_text %}
+                        {% svg_or_image request.repository.logo css_class='top-bar-image' alt_text=logo_alt_text %}
                     {% else %}
                         {{ request.repository.name }}
                     {% endif %}
                 {% else %}
                     {% if 'svg' in request.press_cover %}
-                        <a href="/">{% svg request.press_cover %}</a>
+                        {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
+                        <a href="/">
+                            {% svg request.press_cover alt_text=press_logo_alt %}
+                            <span class="sr-only">{% trans 'Home' %}</span>
+                        </a>
                     {% else %}
-                        <a href="/"><img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ request.press.name }}"></a>
+                        {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
+                        <a href="/">
+                            <img class="top-bar-image" src="{% url 'press_cover_download' %}" alt="{{ press_logo_alt }}">
+                            <span class="sr-only">{% trans 'Home' %}</span>
+                        </a>
                     {% endif %}
                 {% endif %}
             {% if request.journal  and journal_settings.styling.display_journal_title %}
             <div class="hide-for-medium-only{% if journal_settings.general.switch_language %} border-right{% endif %}" id="journal-title">
-                <h1 class="menu-text">{{ request.journal.name }}</h1>
+                <p class="menu-text">{{ request.journal.name }}</p>
             </div>
             {% endif %}
 
                 <div class="title-bar toggle">
                     <div data-responsive-toggle="main-menu" data-hide-for="medium">
-                        <a href="#" data-responsive-toggle="main-menu" data-hide-for="medium" data-toggle>
-                            <span class="menu-icon"></span>
-                        </a>
+                        <button type="button" class="btn btn-link" data-responsive-toggle="main-menu" data-hide-for="medium" data-toggle aria-label="{% trans 'Toggle main menu' %}" aria-controls="main-menu" aria-expanded="false">
+                            <span aria-hidden="true" class="menu-icon"></span>
+                        </button>
                     </div>
-                    <div data-responsive-toggle="search-menu" data-hide-for="medium">
-                        <a href="#" class="search-toggle" data-toggle>
-                            <i aria-hidden="true" class="fa fa-search"></i>
-                            <span class="sr-only">{% trans 'Search' %}</span>
-                        </a>
-                    </div>
+                    {% if request.journal or request.repository %}
+                        <div data-responsive-toggle="search-menu" data-hide-for="medium">
+                            <button type="button" class="btn btn-link search-toggle" data-toggle aria-label="{% trans 'Toggle search' %}" aria-controls="search-menu" aria-expanded="false">
+                                <i aria-hidden="true" class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-
+            {% hook 'language_header' %}
             {% if journal_settings.general.switch_language %}
                 <div class="top-bar-left">
                 <ul class="menu language-menu">
@@ -107,11 +122,12 @@
                             <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
                                 <input name="next" type="hidden" value="{{ request.PATH }}"/>
                                 {% if journal_settings.general.enable_language_text %}
-                                    <button name="language" value="{{ language.code }}" class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
+                                    <button name="language" value="{{ language.code }}" lang="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} aria-current="true"{% endif %} class="tiny success button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}">{{ language.name_local }}</button>&nbsp;
                                 {% else %}
                                 <button class="flag-button{% if language.code == LANGUAGE_CODE %} flag-active{% endif %}" name="language" value="{{ language.code }}"
+                                        {% if language.code == LANGUAGE_CODE %}aria-current="true"{% endif %}
                                         style="background: url(/static/common/img/flags/{{ language.code }}.png) no-repeat; background-size: contain;">
-                                    &nbsp;
+                                    <span class="sr-only" lang="{{ language.code }}">{{ language.name_local }}</span>
                                 </button>
                                 {% endif %}
                             </form>
@@ -150,20 +166,49 @@
                 </ul>
             </div>
             {% if request.journal %}
-            <div class="top-bar-right hide-for-medium-only" id="search-menu">
+            <div class="top-bar-right" id="search-menu">
                 <ul class="menu global-search">
                     <li>
                         <form method="POST" action="{% url 'search' %}">
                             {% csrf_token %}
+                            <label for="journal-search-input" class="sr-only">{% trans "Search this journal" %}</label>
                             <div class="input-group">
-                                <span class="input-group-label"><i aria-hidden="true" class="fa fa-search"></i></span>
-                                <input class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
+                                <div class="input-group-button">
+                                    <button type="submit">
+                                        <i aria-hidden="true" class="fa fa-search"></i>
+                                        <span class="sr-only">{% trans "Search" %}</span>
+                                    </button>
+                                </div>
+                                <input id="journal-search-input" class="input-group-field" type="search" name="article_search" placeholder="{% trans 'Search' %}">
                                 <input type="hidden" name="sort" value="title">
-
-                            </div><input type="submit" style="visibility: hidden;" />
+                            </div>
                         </form>
                     </li>
                 </ul>
+            </div>
+            {% elif request.repository %}
+            <div class="top-bar-right" id="search-menu">
+                <ul class="menu global-search">
+                    <li>
+                        <form method="GET" action="{% url 'repository_list' %}">
+                            <label for="repository-search-input" class="sr-only">{% trans "Search this repository" %}</label>
+                            <div class="input-group">
+                                <div class="input-group-button">
+                                    <button type="submit">
+                                        <i aria-hidden="true" class="fa fa-search"></i>
+                                        <span class="sr-only">{% trans "Search" %}</span>
+                                    </button>
+                                </div>
+                                <input id="repository-search-input" class="input-group-field" type="search" name="search_term" placeholder="{% trans 'Search' %}">
+                            </div>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            {% if journal_settings.general.accessibility_mode or not request.journal %}
+            <div class="top-bar-right a11y-toggle-host">
+                {% include "common/elements/accessibility_mode_toggle.html" %}
             </div>
             {% endif %}
         </div>
@@ -179,6 +224,14 @@
     </header>
 
     <main id="main-content">
+        {% block reading_options_bar %}{% endblock reading_options_bar %}
+        {% if messages %}
+            <div class="row">
+                <div class="columns">
+                    {% include "common/elements/messages.html" %}
+                </div>
+            </div>
+        {% endif %}
         {% block body %}{% endblock body %}
     </main>
 </div>
@@ -187,11 +240,17 @@
 <footer class="main-footer row expanded">
         <div class="large-2 columns very-dark-primary-color text-center logo-wrapper">
             {% if request.journal.press_image_override %}
-                {% svg_or_image request.journal.press_image_override %}
+                {% get_alt_text file_path=request.journal.press_image_override default=request.press.name|logo_alt as press_alt %}
+                {% svg_or_image request.journal.press_image_override alt_text=press_alt %}
             {% elif 'svg' in request.press_cover %}
-                <a href="{% press_url request %}">{% svg request.press_cover %}</a>
+                {% get_alt_text obj=request.press.thumbnail_image default=request.press.name|logo_alt as press_logo_alt %}
+                <a href="{% press_url request %}" title="{{ request.press.name }}">
+                    {% svg request.press_cover alt_text=press_logo_alt %}
+                </a>
             {% else %}
-                <a href="https://janeway.systems">{% svg "static/common/img/sample/janeway.svg" %}</a>
+                <a href="https://janeway.systems" title="Janeway">
+                    {% svg "static/common/img/sample/janeway.svg" alt_text="Janeway" %}
+                </a>
             {% endif %}
         </div>
         {% if request.journal %}
@@ -205,41 +264,9 @@
 <script src="{% static "OLH/js/app.min.js" %}"></script>
 <script src="{% static "admin/js/csrf.js" %}"></script>
 <script src="{% static "common/js/timezone-setter.js" %}"></script>
+<script src="{% static "common/js/accessibility-toggle.js" %}"></script>
 {% if  not request.timezone %}<script>setTimezone();</script>{% endif %}
-<script>
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": true,
-        "positionClass": "toast-bottom-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "20000",
-        "hideDuration": "3000",
-        "timeOut": "8000",
-        "extendedTimeOut": "60000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    }
-    {% for message in messages %}
-        {% if message.tags == "warning" %}
-            toastr.warning("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "info" %}
-            toastr.info("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "danger" %}
-            toastr.error("{{ message|linebreaksbr }}");
-        {% endif %}
-        {% if message.tags == "success" %}
-            toastr.success("{{ message|linebreaksbr }}")
-        {% endif %}
-    {% endfor %}
-
-</script>
+<script src="{% static "common/js/messages.js" %}"></script>
 {% include "common/elements/analytics.html" %}
 {% block js %}{% endblock %}
 </body>

@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 
 from core import models as core_models
 from repository import models
+from submission import models as submission_models
 
 
 class Command(BaseCommand):
@@ -105,19 +106,14 @@ class Command(BaseCommand):
             preprint.submission_file = preprint_file
 
             for y in range(0, 1):
-                fake_email = "{uuid}@example.com".format(uuid=uuid4())
-                account = core_models.Account.objects.create(
-                    first_name=fake.first_name(),
-                    last_name=fake.last_name(),
-                    email=fake_email,
-                    username=fake_email,
-                    institution=fake.sentence(),
-                )
-                models.PreprintAuthor.objects.create(
+                frozen_author = submission_models.FrozenAuthor.objects.create(
                     preprint=preprint,
                     order=y,
-                    account=account,
+                    first_name=fake.first_name(),
+                    last_name=fake.last_name(),
+                    frozen_email="{uuid}@example.com".format(uuid=uuid4()),
                 )
+                frozen_author.institution = fake.sentence()
 
             if preprint.stage == models.STAGE_PREPRINT_PUBLISHED:
                 preprint.date_accepted = timezone.now()

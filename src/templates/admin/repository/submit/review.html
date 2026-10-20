@@ -56,11 +56,11 @@
               <th>First Name</th>
               <th>Last Name</th>
             </tr>
-            {% for author in preprint.preprintauthor_set.all %}
+            {% for author in preprint.frozen_authors %}
               <tr>
-                <td>{{ author.account.email }}</td>
-                <td>{{ author.account.first_name }}</td>
-                <td>{{ author.account.last_name }}</td>
+                <td>{{ author.email|default_if_none:"" }}</td>
+                <td>{{ author.first_name }}</td>
+                <td>{{ author.last_name }}</td>
               </tr>
             {% endfor %}
           </table>
@@ -130,7 +130,7 @@
           <form method="POST">
             {% csrf_token %}
             <button name="complete" class="button">
-              Complete Step 4 of 4 and Submit {{ request.repository.object_name }}
+              Complete Step 4 of 4 and Submit
             </button>
           </form>
         </div>

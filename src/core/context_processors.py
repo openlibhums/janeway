@@ -3,8 +3,11 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
+from django.utils.encoding import force_str
+from django.utils.safestring import mark_safe
+
 from cms import models as cms_models
-from core import logic
+from core import logic, text_format
 from utils.logic import get_janeway_version
 
 
@@ -86,3 +89,45 @@ def version(request):
     :return: a dictionary containing the current version.
     """
     return {"version": get_janeway_version()}
+
+
+def accessibility_mode(request):
+    """Expose the resolved accessibility-mode flag in template context."""
+    return {"accessibility_mode_active": logic.accessibility_mode_active(request)}
+
+
+def text_format_preferences(request):
+    """Expose the reader's stored reading-options preferences to templates.
+
+    ``text_format_initial_style`` is server-rendered CSS that paints the reading
+    region in a restored colour scheme on first paint, so there is no flash of
+    the default colour before text_readability.js runs. Safe: the helper only
+    emits validated hex values.
+    """
+    preferences = logic.text_format_preferences(request)
+    return {
+        "text_format_preferences": preferences,
+        "text_format_initial_style": mark_safe(
+            text_format.initial_region_colour_css(preferences)
+        ),
+    }
+
+
+def text_format_options(request):
+    """Expose the reading-options registry (fonts, schemes, size bounds)."""
+
+    def resolve(entries):
+        return {
+            slug: {**entry, "label": force_str(entry["label"])}
+            for slug, entry in entries.items()
+        }
+
+    options = {
+        "fonts": resolve(text_format.FONTS),
+        "schemes": resolve(text_format.COLOUR_SCHEMES),
+        "sizeBounds": text_format.DEFAULT_SIZE_BOUNDS,
+        "strings": {
+            key: force_str(value) for key, value in text_format.ANNOUNCEMENTS.items()
+        },
+    }
+    return {"text_format_options": options}

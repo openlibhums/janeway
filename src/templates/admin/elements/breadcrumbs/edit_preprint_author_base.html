@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if author.version_queue %}
+  <li><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+  <li><a href="{% url 'repository_update_draft' preprint.pk author.version_queue.pk %}">{% trans "Draft update" %}</a></li>
+{% elif preprint.date_submitted %}
+  <li><a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
+  <li><a href="{% url 'repository_manager_authors' preprint.pk %}">{% trans "Authors" %}</a></li>
+{% else %}
+  <li><a href="{% url 'repository_authors' preprint.pk %}">{% trans "Submission authors" %}</a></li>
+{% endif %}
+{% if subpage %}
+  <li>
+    <a href="{% url 'repository_edit_author' preprint.pk author.pk %}">
+      {% blocktrans with author_name=author.full_name %}Edit "{{ author_name }}"{% endblocktrans %}
+    </a>
+  </li>
+{% else %}
+  <li>{% blocktrans with author_name=author.full_name %}Edit "{{ author_name }}"{% endblocktrans %}</li>
+{% endif %}

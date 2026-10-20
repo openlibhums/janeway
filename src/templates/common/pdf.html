@@ -1,0 +1,16 @@
+{% load static i18n %}
+{% get_current_language as current_language %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>PDF Proofing</title>
+    {% include "common/elements/pdf_viewer.html" with pdf_url=pdf_url|add:"?embed=True" %}
+</head>
+<body>
+    <div id="viewerContainer">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+</body>
+</html>

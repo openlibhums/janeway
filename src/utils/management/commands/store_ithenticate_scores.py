@@ -11,7 +11,11 @@ class Command(BaseCommand):
     help = "Fetches ithenticate scores for articles."
 
     def handle(self, *args, **options):
-        for journal in journal_models.Journal.objects.filter(is_remote=False):
+        for journal in journal_models.Journal.objects.filter(
+            is_remote=False,
+        ).exclude(
+            status=journal_models.Journal.PublishingStatus.TEST,
+        ):
             if ithenticate.ithenticate_is_enabled(journal):
                 print("Processing journal {0}...".format(journal.name))
                 articles = models.Article.objects.filter(

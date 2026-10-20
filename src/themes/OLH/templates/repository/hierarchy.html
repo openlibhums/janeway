@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load page_title %}
+
+{% block title %}
+  {% page_title request.repository.rou_default_name %}
+{% endblock %}
+
+{% block body %}
+  <section id="content" class="ou-container">
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>{{ request.repository.rou_default_name }}</h1>
+
+        <div class="ou-info-box">
+          {{ page_text|safe }}
+        </div>
+
+        <div class="row">
+          <div class="medium-8 large-6 columns end">
+            <div class="ou-block">
+              <ul class="ou-tree">
+                <li>
+                  <div class="ou-tree-item">
+                    <a href="{% url 'repository_list' %}"
+                       class="ou-tree-item-link">{{ repository.name }} (All {{ request.site_type.object_name_plural }})</a>
+                  </div>
+                  <ul class="ou-tree-first-list">
+                    {% include "repository/elements/hierarchy_list.html" with hierarchy=hierarchy %}
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

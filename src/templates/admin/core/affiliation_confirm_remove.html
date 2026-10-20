@@ -11,6 +11,8 @@
         {% trans "Edit Affiliation" %}
       </a>
     </li>
+  {% elif preprint and author %}
+    {% include "admin/elements/breadcrumbs/edit_preprint_author_base.html" with subpage="yes" %}
   {% elif article and author %}
     {% include "elements/breadcrumbs/edit_author_base.html" with subpage="yes" %}
   {% endif %}

@@ -2,25 +2,34 @@
 {% load static %}
 {% load hooks %}
 {% load i18n %}
+{% load alt_text %}
 {% load bootstrap4 %}
 {% load next_url %}
+{% load dates %}
+{% load settings %}
+{% load page_title %}
 
-{% block title %}{{ preprint.title }}{% endblock %}
+{% block title %}{% page_title version.display_title|striptags %}{% endblock %}
 
 {% block head %}
     {% include "common/metadata/preprint_dc.html" %}
     {% include "common/metadata/preprint_citation.html" %}
 {% endblock %}
 
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
+
 {% block body %}
     <div class="row preprint-content">
-      <div class="col m12">
+      <div class="col s12 m12">
         <div class="card">
-          <div class="card-image preprint-card">
-            <img class="orbit-image" alt="{{ preprint.title|striptags }}"
-                 src="{% if request.repository.hero_background %}{{ request.repository.hero_background.url }}{% else %}{% static "common/img/repository_background.jpg" %}{% endif %}">
-            <div class="card-title">
-              <h1 class="carousel-text-wrapper">{{ preprint.title|safe }}</h1>
+          <div class="material-banner">
+            <img class="material-banner-image"
+               alt="{% get_alt_text file_path=request.repository.best_large_image_url default=version.display_title|banner_alt %}"
+               src="{{ request.repository.best_large_image_url }}">
+            <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="preprint-banner-title">
+              <h1 id="preprint-banner-title" class="carousel-text-wrapper">{{ version.display_title|safe }}</h1>
             </div>
           </div>
         </div>
@@ -28,35 +37,41 @@
 
         <div class="col m7">
             <div itemprop="articleBody" id="pdf">
+                {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
                 <p class="preprint-text">
-                    This is a {{ request.repository.object_name }} and has not been peer reviewed.
-                    {% if preprint.doi %}
-                        The published version of this {{ request.repository.object_name }} is available: <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    This {{ type_name }} may not have been peer reviewed.
+                    {% if version.display_doi %}
+                        The published version of this {{ type_name }} is available:
+                        {% include "elements/doi_display.html" with doi=version.display_doi title=version.display_title %}
                     {% elif preprint.article %}
-                        A published version of this {{ request.repository.object_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
+                        A published version of this {{ type_name }} is available on <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>.
                     {% endif %}
-                    This is version {{ preprint.current_version.version }} of this {{ request.repository.object_name }}.
+                    This is version {{ version.version }}.
                 </p>
-                {% if preprint.current_version_file_type == 'html' %}
-                    <div class="card">
+                {% if not version.is_current %}
+                    {% include "common/repository/older_version_notice.html" %}
+                {% endif %}
+                {% if version.file_type == 'html' %}
+                    <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
-                            {{ preprint.current_version.html|safe }}
+                            {{ version.html|safe }}
                         </div>
                     </div>
-                {% elif preprint.current_version_file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                {% elif version.file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
-                            webkitallowfullscreen></iframe>
+                            webkitallowfullscreen
+                            title="{{ version.display_title|striptags }} PDF"></iframe>
                 {% else %}
                     <div class="preprint-content">
-                        {% if preprint.current_version.file %}
+                        {% if version.file %}
                             <p>This {{ request.repository.object_name }} has no
                                 visible version.</p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
                                class="waves-effect waves-light btn">
-                               <i aria-hidden="true" class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                                {{ request.repository.object_name }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a>
                         {% else %}
                             <p>This {{ request.repository.object_name }} does
@@ -91,11 +106,11 @@
                                 <div class="row" id="comment-{{ comment.pk }}">
                                     <div class="col m2">
                                         {% if comment.author.profile_image and not comment.review.anonymous %}
-                                            <img src="{{ comment.author.profile_image.url }}"
-                                                 class="responsive-img circle">
+                                            {% blocktrans with name=comment.author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}"
+                                                 class="responsive-img circle" alt="{{ profile_image_alt_text }}">
                                         {% else %}
                                             <img src="{% static "common/img/icons/users.png" %}"
-                                                 class="responsive-img circle">
+                                                 class="responsive-img circle" alt="{% trans 'A generic headshot photograph of a person' %}">
                                         {% endif %}
                                     </div>
                                     <div class="col m10">
@@ -131,12 +146,12 @@
         <div class="col m5">
             <div class="card">
                 <div class="card-content preprint-content">
-                    {% if preprint.current_version.file %}
+                    {% if version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
-                                <i aria-hidden="true" class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                                {{ request.repository.object_name }}
+                                {% include "elements/icons/link_download.html" %} 
                             </a></p>
                     {% endif %}
                     {% if preprint.supplementaryfiles %}
@@ -152,19 +167,22 @@
                     <h2>{% trans "Authors" %}</h2>
                     <div class="truncatejs">
                       <p class="authors">
-                        {% for author in preprint.authors %}
-                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}"></a>{% endif %}{% if not forloop.last %}, {% endif %}
+                        {% for author in version.authors %}
+                            {{ author.full_name }}{% if author.orcid %}&nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank"><img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>{% endif %}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                       </p>
                     </div>
                     <h2>{% trans "Abstract" %}</h2>
                     <div class="truncatejs">
-                        <p class="preprint-text">{{ preprint.abstract|safe|linebreaksbr }}</p>
+                        <p class="preprint-text">{{ version.display_abstract|safe|linebreaksbr }}</p>
                     </div>
 
                     {% if preprint.preprint_doi %}
                     <h2>DOI</h2>
                     <p><a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></p>
+                    {% elif version.get_doi %}
+                    <h5>DOI</h5>
+                    <p><a href="https://doi.org/{{ version.get_doi }}">https://doi.org/{{ version.get_doi }}</a></p>
                     {% endif %}
 
                     {% if preprint.subject.all %}
@@ -172,26 +190,36 @@
                     <p>{% include "common/repository/subject_display.html" %}</p>
                     {% endif %}
 
+                    {% with preprint.organisation_units.all as rous %}
+                    {% if rous and request.repository.has_organisation_units %}
+                    <h2>{{ request.repository.rou_default_name }}</h2>
+                    <ul>
+                        {% for rou in rous %}
+                        <li><a href="{% url 'repository_home_by_rou' rou.code %}">{{ rou.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+
                     <h2>{% trans 'Keywords' %}</h2>
                     <p>{% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
                     <h2>Dates</h2>
                     <p><strong>Published: </strong>{{ preprint.date_published }}</p>
-                    {% if preprint.preprintversion_set.count > 0 and preprint.current_version and preprint.current_version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ preprint.current_version.date_time }}</p>{% endif %}
+                    {% if preprint.preprintversion_set.count > 0 and preprint.current_version and version.date_time > preprint.date_published %}<p><strong>Last Updated: </strong>{{ version.date_time }}</p>{% endif %}
 
-                    {% if preprint.preprintversion_set.count > 1 %}
-                        <h2>Older Versions</h2>
+                    {% if preprint.public_versions.count > 1 %}
+                        <h2>{% trans "Versions" %}</h2>
                         <ul>
-                        {% for version in preprint.preprintversion_set.all %}
-                            {% if not version == preprint.current_version %}
-                                <li>
-                                    <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
-                                        <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
-                                        <span class="sr-only">{% trans 'Download' %}</span>
-                                        Version {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
-                                    </a>
-                                </li>
-                            {% endif %}
+                        {% for each in preprint.public_versions %}
+                            <li>
+                                {% if each == version %}
+                                    <span aria-current="page">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</span>
+                                {% else %}
+                                    <a href="{{ each.local_url }}">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</a>
+                                {% endif %}
+                                {% if forloop.first %}({% trans "latest" %}){% endif %}
+                            </li>
                         {% endfor %}
                         </ul>
                     {% endif %}
@@ -201,9 +229,9 @@
                     <p>{% if preprint.license.url %}<a href="{{ preprint.license.url }}" target="_blank">{% endif %}{{ preprint.license.name }}{% if preprint.license.url %}</a>{% endif %}</p>
                 {% endif %}
 
-                    {% if preprint.display_additional_fields %}
+                    {% if version.display_field_answers %}
                     <h2>Additional Metadata</h2>
-                    {% for answer in preprint.display_additional_fields %}
+                    {% for answer in version.display_field_answers %}
                     <p><strong>{{ answer.field.name }}: </strong><br/> {{ answer.answer|safe }}</p>
                     {% endfor %}
                     {% endif %}

@@ -1,0 +1,31 @@
+{% comment %}
+  Warnings shown beside author_list_editor.html.
+  Context: preprint, authors_without_affiliations as (author, can_edit) pairs,
+  author_changes (drafts).
+{% endcomment %}
+{% load i18n %}
+{% load next_url %}
+
+{% if authors_without_affiliations %}
+  <div class="callout warning" data-missing-affiliations>
+    <p><strong>{% trans "Some authors have no affiliation" %}</strong></p>
+    <ul class="no-bottom-margin">
+      {% for author, can_edit in authors_without_affiliations %}
+        <li>
+          {{ author.full_name|default:"[No name]" }}:
+          {% if can_edit %}
+            <a href="{% url_with_return 'repository_organization_search' preprint.pk author.pk %}">{% trans "add an affiliation" %}</a>
+          {% else %}
+            {% trans "they have an account, so ask them to add an affiliation to their profile, then remove and re-add them" %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% if author_changes %}
+  <div class="title-area">
+    <h2>{% trans "Author changes" %}</h2>
+  </div>
+  {% include "admin/elements/repository/author_changes.html" with changes=author_changes %}
+{% endif %}

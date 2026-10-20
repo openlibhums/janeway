@@ -1,0 +1,33 @@
+<posted_content>
+    <group_title>{{ version.preprint.repository.name }}</group_title>
+
+    <contributors>
+        {% for author in version.authors %}
+        {% if author.is_corporate or not author.last_name %}
+        <organization sequence="{% if forloop.first %}first{% else %}additional{% endif %}" contributor_role="author">{% if author.is_corporate %}{{ author.corporate_name|default:author.full_name }}{% else %}{{ author.full_name }}{% endif %}</organization>
+        {% else %}
+        <person_name sequence="{% if forloop.first %}first{% else %}additional{% endif %}" contributor_role="author">
+            {% if author.given_names %}<given_name>{{ author.given_names }}</given_name>{% endif %}
+            <surname>{{ author.last_name }}</surname>
+            {% if author.orcid_uri %}<ORCID>{{ author.orcid_uri }}</ORCID>{% endif %}
+        </person_name>
+        {% endif %}
+        {% endfor %}
+    </contributors>
+    <titles>
+        <title>{{ version.preprint.title }}</title>
+    </titles>
+    <posted_date>
+        <month>{{ version.date_time.month }}</month>
+        <day>{{ version.date_time.day }}</day>
+        <year>{{ version.date_time.year }}</year>
+    </posted_date>
+    <program xmlns="http://www.crossref.org/AccessIndicators.xsd">
+        <free_to_read start_date="{{ version.date_time|date:"Y-m-d" }}"/>
+        <license_ref>{{ version.preprint.license.url }}</license_ref>
+    </program>
+    <doi_data>
+        <doi>{{ version.get_doi }}</doi>
+        <resource>{{ version.preprint.url }}?version={{ version.version }}</resource>
+    </doi_data>
+</posted_content>

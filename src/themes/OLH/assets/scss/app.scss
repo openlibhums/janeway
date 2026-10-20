@@ -5,6 +5,17 @@
 
 @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css);
 
+// WCAG 1.4.3: Foundation's default primary (#2199e8) and secondary (#777)
+// fall just short of 4.5:1 against white, so darken them slightly. This must
+// come before Foundation, whose palette is set with !default.
+$foundation-palette: (
+  primary: #1373b3,
+  secondary: #767676,
+  success: #3adb76,
+  warning: #ffae00,
+  alert: #ec5840,
+);
+
 @import 'foundation';
 
 @import "variables";
@@ -54,7 +65,6 @@
 @include motion-ui-animations;
 
 @import 'timeline';
-@import 'toastr';
 @import 'issue';
 @import 'tabs';
 @import 'tagit';
@@ -63,6 +73,7 @@
   --primary-dark-color: #{$primary-dark-color};
   --very-dark-primary-color: #{$very-dark-primary-color};
   --primary-light-color: #{$primary-light-color};
+  --primary-on-dark-color: #{$primary-on-dark-color};
 
   --topbar-background-color: #{$topbar-background-color};
   --menu-background-color: #{$menu-background-color};
@@ -79,6 +90,22 @@
 
 a {
   color: var(--link-color);
+}
+
+a[target="_blank"] {
+  /* Long URLs such as DOIs have no spaces to wrap at. break-word, unlike
+     anywhere, doesn't shrink the table columns these links sit in;
+     max-width covers links displayed inline-block, as in article text. */
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Font Awesome icons are inline-block, which allows a line break before
+   the icon even with no space; keep it on the line of the last word.
+   Templates put no space before the icon, so the margin stands in for one. */
+a[target="_blank"] .superscript-icon {
+  display: inline;
+  margin-left: 0.15em;
 }
 
 #toc a, aside a {
@@ -107,6 +134,43 @@ html, body {
     z-index: 0;
 }
 
+.sort-control {
+  display: flex;
+  align-items: stretch;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-field,
+.sort-control .input-group-button {
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+
+.sort-control .input-group-label,
+.sort-control .input-group-button {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.sort-control .input-group-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// The shared sort-control CSS starts the select at its full width and
+// holds it at 7rem, which pushes Apply onto its own line in the 303px
+// articles sidebar. Start it from zero and let it shrink to 5.5rem.
+.input-group.sort-control select.input-group-field {
+  flex: 1 1 0;
+  min-width: 5.5rem;
+}
+
+.sort-control .input-group-button .button {
+  height: 100%;
+  margin: 0;
+}
+
 header {
   .top-bar ul.dropdown ul {
     background-color: #FFFFFF;
@@ -128,7 +192,7 @@ header {
 
     input {
       background: $very-light-gray;
-      border: 1px solid $medium-gray;
+      border: 1px solid $input-border-color;
       box-shadow: none;
     }
     .global-search {
@@ -144,6 +208,15 @@ header {
         background: $very-light-gray;
         border-right: none !important;
       }
+      .input-group-button button {
+        background: $very-light-gray;
+        border: 1px solid $input-border-color;
+        border-right: none !important;
+        color: $black;
+        cursor: pointer;
+        height: $input-font-size + $form-spacing * 1.5;
+        padding: 0 1rem;
+      }
       .input-group-field {
         border-left: none !important;
         box-shadow: none;
@@ -152,7 +225,7 @@ header {
         &:focus {
           background: $very-light-gray;
           box-shadow: none;
-          border: 1px solid $medium-gray;
+          border: 1px solid $input-border-color;
         }
       }
 
@@ -218,8 +291,20 @@ header {
 
   @include breakpoint(medium) {
     .main.top-bar {
-      height: $topbar-height;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: $topbar-height;
       background-color: var(--topbar-background-color);
+
+      .header-image-bar {
+        margin-right: auto;
+      }
+
+      .top-bar-left,
+      .top-bar-right {
+        height: auto;
+      }
     }
 
     .top-bar-image {
@@ -230,9 +315,45 @@ header {
     }
   }
 
+  // At medium widths the top bar's items don't fit on one line and wrap
+  // into extra rows; tighten them so they stay on one.
+  @include breakpoint(medium only) {
+    .main.top-bar {
+      .top-bar-left,
+      .top-bar-right {
+        padding: rem-calc(10px);
+      }
+    }
+
+    .top-bar-image {
+      max-width: 220px;
+      margin-top: 0;
+    }
+
+    #search-menu {
+      max-width: 160px;
+    }
+
+    /* Below 768px the full header only fits on one row with a smaller
+       logo and search box. */
+    @media screen and (max-width: 47.9375em) {
+      .top-bar-image,
+      #search-menu {
+        max-width: 150px;
+      }
+    }
+  }
+
   @include breakpoint(small only) {
     .main.top-bar {
       padding: rem-calc(20px) 0;
+    }
+
+    // Logos only had a size limit from medium up, so a square logo filled
+    // the header on phones.
+    .top-bar-image {
+      max-height: 60px;
+      width: auto;
     }
 
     .top-bar-left {
@@ -252,7 +373,7 @@ header {
       right: 20px;
       padding: 0;
 
-      a {
+      button {
         padding: rem-calc(10px);
       }
     }
@@ -398,6 +519,19 @@ pre {@extend blockquote; @extend p;}
   }
 }
 
+// Firefox sizes an inline-block item from its link's negative focus-ring
+// margin but not its padding, so multi-word footer links wrap mid-name.
+footer .inline-list li {
+  @include breakpoint(medium) {
+    display: inline;
+  }
+}
+
+.inline-list-bar li:not(:last-child)::after {
+  content: " | " / "";  
+  margin-left: rem-calc(10px);
+}
+
 body, main, #orbiter, #orbitsection {
   position: relative;
   z-index: 0;
@@ -407,6 +541,10 @@ main section {
   position: relative;
   padding: rem-calc(50px) 0;
 
+  @include breakpoint(small only) {
+    padding: rem-calc(20px) 0;
+  }
+
   &.no-padding {
     padding: 0;
   }
@@ -414,6 +552,15 @@ main section {
 
 #article {
   word-wrap: break-word;
+}
+
+#main_article video,
+#main_article iframe {
+  max-width: 100%;
+}
+
+#main_article video {
+  height: auto;
 }
 
 .math-formulae {
@@ -425,6 +572,10 @@ main section {
   background: var(--primary-dark-color);
 
   @extend .white-text;
+
+  a {
+    color: var(--primary-on-dark-color);
+  }
 }
 
 .gradient-primary-bg {
@@ -569,7 +720,7 @@ div.caption span.label {
       padding: rem-calc(10 20);
 
       h2 {
-        font-size: rem-calc(24);
+        font-size: rem-calc(16);
       }
 
       p {
@@ -608,15 +759,387 @@ div.caption span.label {
 
     li {
       a {
-        color: $dark-gray;
+        color: #595959;
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        height: rem-calc(44px);
+
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
+      }
+      button {
+        color: #595959;
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font: inherit;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: rem-calc(44px);
+
+        @include breakpoint(medium) {
+          padding: 0.5rem 1rem;
+        }
       }
       &:hover {
         background: $medium-gray;
       }
       i {
         margin-top: rem-calc(-5px);
+        margin-right: 0.5rem;
+        vertical-align: middle;
+      }
+
+      // Dropdown menu items should stay on single line
+      .menu.vertical li {
+        white-space: nowrap;
       }
     }
+  }
+}
+
+/* Text-format controls in the reading options bar:
+   compact, grey, symbol-led to match the existing print/cite icons. */
+.mini-bar {
+  ul.menu {
+    // Keep all controls on one line across the bar (don't wrap to the right)
+    @include breakpoint(medium) {
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    li {
+      // Hidden items (the custom-colour swatches until "Customise") must stay
+      // hidden. Foundation sets an explicit display on .menu li, which beats
+      // the UA [hidden] rule, so re-assert it here with higher specificity.
+      &[hidden] {
+        display: none;
+      }
+
+      // Drop the legacy icon nudge so icons sit on the row's middle line.
+      i {
+        margin-top: 0;
+        vertical-align: middle;
+      }
+
+      // Font / colour-scheme dropdowns sit next to a leading icon.
+      &.tf-field {
+        white-space: nowrap;
+
+        i {
+          color: #595959;
+        }
+      }
+
+      // Dropdown indicators (caret icons)
+      .fa-caret-down {
+        margin-left: 0.5rem;
+      }
+
+      // Dropdowns styled to match the grey bar (no default white chrome)
+      select {
+        color: #595959;
+        background: transparent;
+        border: none;
+        font: inherit;
+        cursor: pointer;
+        padding: 0 0.25rem;
+        max-width: rem-calc(144px);
+        vertical-align: middle;
+        height: rem-calc(44px);
+        line-height: rem-calc(44px);
+      }
+
+      // Custom colour swatches
+      input[type="color"] {
+        width: rem-calc(28px);
+        height: rem-calc(28px);
+        padding: 0;
+        margin-right: 0.25rem;
+        border: 1px solid $medium-gray;
+        background: none;
+        cursor: pointer;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  // Icon toggles (Dark mode, Italics) carry a tick badge when active
+  .tf-icon-toggle {
+    color: #595959;
+    height: rem-calc(44px);
+    line-height: rem-calc(44px);
+    padding: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+
+    .tf-icon {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .tf-tick {
+      display: none;
+      position: absolute;
+      right: rem-calc(-2px);
+      bottom: rem-calc(-2px);
+      font-size: 0.6em;
+      line-height: 1;
+      color: $primary-color;
+      background: $light-gray;
+      border-radius: 50%;
+
+      i {
+        margin: 0;
+      }
+    }
+
+    &[aria-pressed="true"] .tf-tick {
+      display: inline;
+    }
+  }
+}
+
+/* Reading Options Bar fonts */
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../../common/fonts/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../../common/fonts/opendyslexic/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* reading options bar apply user custom styles */
+.text-format-region.tf-has-font *:not([class*="fa"]) {
+  font-family: var(--tf-font) !important;
+}
+
+.text-format-region.tf-has-colour {
+  background-color: var(--tf-bg) !important;
+  color: var(--tf-fg) !important;
+  /* Ease colour-scheme changes so switching is not jarring. */
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+.text-format-region.tf-has-colour * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+  transition: background-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+.text-format-region.tf-has-colour .modal-sticky-close {
+  background-color: var(--tf-bg) !important;
+}
+
+/* Moving to/from the default is a bigger jump, so a longer transition. */
+.text-format-region.tf-default-transition,
+.text-format-region.tf-default-transition * {
+  transition: background-color 0.6s ease-out, color 0.6s ease-out;
+}
+
+.text-format-region.tf-has-colour {
+  padding: rem-calc(20px);
+}
+
+/* Handles draw-attention by inverting when custom colours are active */
+.text-format-region.tf-has-colour .draw-attention,
+.text-format-region.tf-has-colour .draw-attention * {
+  background-color: var(--tf-fg) !important;
+  color: var(--tf-bg) !important;
+}
+
+/* For when reader has turned the draw-attention highlight off */
+.text-format-region.tf-no-attention .draw-attention,
+.text-format-region.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+}
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention,
+.text-format-region.tf-has-colour.tf-no-attention .draw-attention * {
+  background-color: transparent !important;
+  color: var(--tf-fg) !important;
+}
+.text-format-region.tf-no-attention .draw-attention:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Interactive controls now share the region background, so give them a
+   foreground-coloured border to stay visually delineated. */
+.text-format-region.tf-has-colour button,
+.text-format-region.tf-has-colour .button,
+.text-format-region.tf-has-colour input,
+.text-format-region.tf-has-colour select,
+.text-format-region.tf-has-colour textarea {
+  border-color: var(--tf-fg) !important;
+}
+
+.text-format-region.tf-has-colour table,
+.text-format-region.tf-has-colour thead,
+.text-format-region.tf-has-colour tbody,
+.text-format-region.tf-has-colour tfoot,
+.text-format-region.tf-has-colour tr,
+.text-format-region.tf-has-colour th,
+.text-format-region.tf-has-colour td {
+  border-color: color-mix(in srgb, var(--tf-fg) 50%, transparent) !important;
+}
+
+.text-format-region.tf-has-colour blockquote {
+  border-color: color-mix(in srgb, var(--tf-fg) 70%, transparent) !important;
+}
+
+.text-format-region.tf-has-colour .fig-caption,
+.text-format-region.tf-has-colour .table-caption,
+.text-format-region.tf-has-colour .table-foot {
+  border: 1px solid var(--tf-fg) !important;
+}
+
+/* Scroll bars in custom colour mode use the scheme colours */
+.text-format-region.tf-has-colour ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-track {
+  background: var(--tf-bg) !important;
+}
+
+.text-format-region.tf-has-colour ::-webkit-scrollbar-thumb {
+  background: var(--tf-fg) !important;
+  border-radius: 6px;
+}
+
+.text-format-region.tf-no-italics *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+.reading-options-bar .columns {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.reading-options-landmark + section {
+  padding-top: 0;
+}
+
+.text-format-region.tf-has-colour .reading-options-bar,
+.text-format-region.tf-has-colour .reading-options-bar * {
+  background-color: $light-gray !important;
+  color: $dark-gray !important;
+}
+.text-format-region.tf-has-font .reading-options-bar *:not([class*="fa"]) {
+  font-family: $body-font-family !important;
+}
+.text-format-region.tf-no-italics .reading-options-bar *:not([class*="fa"]) {
+  font-style: normal !important;
+}
+
+// Reading-bar dropdowns are decoupled from Foundation's menu JS. 
+.mini-bar ul.menu.medium-horizontal {
+  > li {
+    position: relative; // anchor for the flyout
+  }
+
+  > li > ul.menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: rem-calc(192px);
+    flex-direction: column;
+    align-items: stretch;
+    background: #fff;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    z-index: 1000;
+  }
+
+  > li > button[aria-expanded="true"] + ul.menu {
+    display: flex;
+  }
+}
+
+// OLH keeps the Foundation hamburger (.menu-icon) on the Reading Options toggle,
+// so hide the caret meant for the other themes.
+.mini-bar .title-bar-title .tf-options-caret {
+  display: none;
+}
+
+// The Reading Options toggle is now wired by text_readability.js (not foundation)
+.mini-bar .title-bar {
+  display: none;
+}
+
+
+@media screen and (min-width: 640px) {
+  .reading-options-bar.tf-bar-hidden {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 639px) {
+  .mini-bar.sticky {
+    position: relative !important;
+    z-index: 999;
+    max-width: none !important;
+  }
+
+  .reading-options-bar {
+    height: auto !important;
+  }
+
+  .mini-bar .title-bar {
+    display: flex;
+  }
+
+  .reading-options-bar.tf-bar-hidden #options-menu {
+    display: none;
+  }
+
+  // Match clean/material: keep the bar horizontal.
+  .mini-bar ul.menu.medium-horizontal {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .mini-bar ul.menu.medium-horizontal > li > button,
+  .mini-bar ul.menu.medium-horizontal > li > a {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .mini-bar ul.menu.medium-horizontal > li > #tf-font-menu {
+    left: 0;
+    right: auto;
+  }
+  .mini-bar ul.menu.medium-horizontal > li > ul.menu li > button,
+  .mini-bar ul.menu.medium-horizontal > li > ul.menu li > a {
+    padding-left: 0.75rem;
+  }
+
+  // Hide the close button on mobile — the Reading Options toggle handles
+  .mini-bar ul.menu.medium-horizontal > li.tf-close {
+    display: none;
+  }
+
+  .a11y-bar-show-item {
+    display: none;
   }
 }
 
@@ -625,8 +1148,12 @@ div.caption span.label {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
   }
-  aside {
-
+  .side-info {
+    h2 {
+      text-transform: uppercase;
+      font-size: rem-calc(18px);
+      color: var(--primary-dark-color);
+    }
     .sticky {
       width: 100%;
     }
@@ -638,11 +1165,6 @@ div.caption span.label {
     .section {
       border-bottom: 1px solid $light-gray;
       padding: rem-calc(40px) rem-calc(40px);
-    }
-    h3 {
-      text-transform: uppercase;
-      font-size: rem-calc(18px);
-      color: var(--primary-dark-color);
     }
     ul {
       list-style-type: none;
@@ -704,6 +1226,16 @@ div.caption span.label {
   .bottom {
     background: var(--primary-light-color);
   }
+
+
+  #license {
+    max-width: 100%;
+
+    p {
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+  }
 }
 
 footer {
@@ -711,8 +1243,20 @@ footer {
     padding-top: rem-calc(20px);
     padding-bottom: rem-calc(20px);
     height: $footer-height;
+
+    // The focus style makes links inline-block, which shrink-wraps them;
+    // an SVG with no width of its own then collapses to 0px. Keep the
+    // link inline-block throughout and give the SVG a fixed width.
+    a {
+      display: inline-block;
+    }
+
+    a svg {
+      display: block;
+      width: 180px;
+    }
   }
-  p {
+  p, li {
     font-family: $header-font-family;
     font-size: rem-calc(12px);
     color: #333;
@@ -764,7 +1308,7 @@ table tr th {
 
 table tr.active td {
   background-color: var(--primary-dark-color);
-  color: var(--primary-light-color);
+  color: var(--primary-on-dark-color);
 }
 
 .orbit {
@@ -783,6 +1327,10 @@ table tr.active td {
 
 .ui-sortable-handle {
   cursor: move;
+}
+
+.static-messages {
+  margin: 1.5rem 0;
 }
 
 .bs-callout {
@@ -1078,36 +1626,6 @@ button.list-group-item-danger.active:focus {
   padding: 0 !important;
 }
 
-.dyslexia-friendly {
-    font-family: Verdana !important;
-    color: #4c4c4c;
-    background-color: #F5F5DC;
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-family: Verdana !important;
-      color: #4c4c4c;
-    }
-
-    i, em {
-        font-style: normal;
-        background-color: #FAFAC8;
-    }
-
-    .summary {
-        .top {
-            background-color: #F5F5DC;
-        }
-        .bottom {
-            background-color: #F5F5DC;
-        }
-    }
-}
-
 .pagination-block {
   margin: rem-calc(20 0);
   text-align: center;
@@ -1243,8 +1761,21 @@ button.list-group-item-danger.active:focus {
 
 .reveal {
   user-select: text;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
+.modal-sticky-close{
+    position: sticky;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 1050;
+    float: right;
+    margin-bottom: 0.2rem;
+    min-width: 24px;
+    min-height: 24px;
+}
 
 .table-foot .table-footnotes li.fn {
     list-style-type: none;
@@ -1266,9 +1797,10 @@ button.list-group-item-danger.active:focus {
 #journal-title {
     padding: 0px;
     height:100%;
+    font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
     @include breakpoint(large down){
       max-width: 550px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.5vw;
       }
@@ -1276,7 +1808,7 @@ button.list-group-item-danger.active:focus {
     @include breakpoint(medium down){
       max-width:80%; // Avoid running over the search and burger menus
       padding-top: 0.7rem;
-      h1 {
+      p {
         font-size: 100%;
       }
     }
@@ -1285,14 +1817,14 @@ button.list-group-item-danger.active:focus {
     }
     @include breakpoint(xlarge){
       max-width: 800px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.6vw;
       }
     }
     @include breakpoint(xxlarge){
       max-width: 1000px;
-      h1 {
+      p {
         padding-top: 0px;
         font-size:1.70rem;
       }
@@ -1304,7 +1836,13 @@ button.list-group-item-danger.active:focus {
   float:right;
 }
 
-.is-drilldown{overflow-y: scroll}
+.is-drilldown {
+  overflow-y: scroll;
+  .is-dropdown-submenu-parent,
+  .is-drilldown-submenu-parent {
+    position: static;
+  }
+}
 
 .homepage-element-about {
   margin-top: 30px;
@@ -1324,6 +1862,7 @@ button.list-group-item-danger.active:focus {
 
 .table-wrap {
   overflow-x: scroll;
+  padding: var(--focus-ring-size, 4px);
 }
 
 .no-margin-left {
@@ -1334,3 +1873,726 @@ button.list-group-item-danger.active:focus {
   text-decoration: underline;
 }
 
+.byline{
+  font-size: 1.11111rem;
+  font-family: "Proxima Nova", Montserrat, Helvetica, Roboto, Arial, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: inherit;
+  text-rendering: optimizeLegibility;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.profile-name{
+  font-family: "Merriweather", serif;
+  font-size: 98%;
+  font-weight: bold;
+}
+
+.section-link {
+    white-space: nowrap;
+}
+
+.section-link:not(:first-of-type) {
+    margin-left: 0.5rem;
+}
+
+:root {
+  --draw-attention: #FFEB3B;
+}
+
+.draw-attention{
+    background-color: var(--draw-attention);
+    transition: background-color 2s ease-out;
+}
+
+.back-links-list{
+  list-style: none;
+  padding-left: 0.2rem;
+  margin: 0;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li {
+  margin: 0;
+  padding-left: 0.1rem;
+  display: inline;
+  white-space: normal;
+}
+
+.back-links-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.red.req {
+  border: none;
+  color: red;
+  font-size: 100%;
+}
+
+/* Error summary callout */
+.form-errors {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #b00020;
+  border-left-width: 4px;
+  border-radius: 0.25rem;
+}
+
+.form-errors h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #b00020;
+}
+
+.form-errors dl {
+  margin-bottom: 0;
+}
+
+.form-errors dt {
+  font-weight: 700;
+}
+
+.form-errors dd {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-errors dd:last-child {
+  margin-bottom: 0;
+}
+
+.no-pad{
+  padding: 0;
+}
+
+.tags-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.tags-list li{
+  display: inline-block;
+}
+.tags-list li:not(:last-child)::after {
+  content: " ";
+}
+
+.keywords-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  white-space: normal;
+}
+.keywords-list li{
+  display: inline-block;
+}
+
+
+.superscript-icon {
+   vertical-align: super;
+   font-size: 0.7em !important; 
+}
+
+.pad-icon {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.icon-recede{
+    opacity: 70%;
+}
+
+.btn-background, .btn-background:active, .btn-background:visited {
+    margin-left: 0.5rem;
+    background-color: var(--menu-alternative-background-color);
+    color: var(--menu-foreground-color);
+    border: 1px solid var(--menu-foreground-color);
+    padding: 0 10px;
+    min-width: 7rem;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+input + div .btn-background {
+    height: 2.77778rem;
+}
+
+span + .btn-background {
+    height: auto;
+    min-height: 1.8rem;
+}
+
+/* The "View Larger Table" trigger has no adjacent input/span sibling to pick
+   up the height rules above, so its border sits flush against the text. */
+.table-expansion .btn-background {
+    padding: 0.4rem 10px;
+}
+
+.btn-background:hover {
+    color: white;
+    background-color: #1C304A;
+    border-color: #1C304A;
+    transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+}
+
+/* Banner for hero / large image */
+.olh-banner {
+  position: relative;
+  overflow: clip;
+  max-height: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+}
+.olh-banner .olh-banner-image {
+  flex-grow: 1;
+  display: block;
+  width: unset;
+  max-width: unset;
+  height: 100%;
+  max-height: 648px;
+}
+.olh-banner-heading {
+  color: #fefefe;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  /* WCAG 1.4.3: with the banner overlay, this keeps white text at 4.5:1
+     or more over any image, even a white one. */
+  background: rgba(0, 0, 0, 0.6);
+}
+.olh-banner-heading h1 {
+  font-size: 1.75rem;
+}
+.olh-banner-heading p {
+  margin: 0;
+}
+.olh-banner-heading a {
+  color: #fefefe;
+  padding-bottom: 0.3rem;
+  text-decoration: underline;
+}
+.olh-banner-heading .uppercase {
+  font-weight: 300;
+}
+/* Full-width banners should be taller on larger screens */
+@media (min-width: 640px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 432px;
+  }
+}
+@media (min-width: 1024px) {
+  .medium-12 .olh-banner,
+  .large-12 .olh-banner {
+    max-height: 540px;
+  }
+}
+/* Partial-width banners should be shorter */
+.medium-4 .olh-banner,
+.large-4 .olh-banner {
+  max-height: 216px;
+}
+.medium-6 .olh-banner,
+.medium-8 .olh-banner,
+.large-6 .olh-banner,
+.large-8 .olh-banner {
+  max-height: 288px;
+}
+
+section.invisible-landmark{
+  padding: 0;
+  margin: 0;
+}
+
+// carousel style overrides
+// Bullets are a fixed 24px (WCAG 2.5.8) so they don't grow with the text
+// size and wrap onto a second row. Padding rather than margin keeps the
+// space inside the carousel background.
+.orbit-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 0;
+
+  button {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    // Every bullet is a solid disc with a border of the same colour. The
+    // current one is a ring (transparent centre), so it is distinguishable
+    // without relying on colour contrast, and the size doesn't change.
+    box-sizing: border-box;
+    border: 7px solid $dark-gray;
+    background-color: $dark-gray;
+
+    &:hover {
+      background-color: $dark-gray;
+    }
+
+    &.is-active,
+    &.is-active:hover {
+      background-color: transparent;
+    }
+  }
+}
+
+// Let the carousel grow to fit its caption (WCAG 1.4.4, 1.4.10). Orbit sets
+// a fixed height when it loads, which clips long or enlarged captions.
+// The slides share one grid cell so they overlap during transitions.
+.orbit {
+  .orbit-container {
+    display: grid;
+    grid-template-columns: 100%;
+    height: auto !important;
+    max-height: none;
+  }
+
+  .orbit-slide {
+    grid-area: 1 / 1;
+    max-height: none !important;
+  }
+
+  // The image fills the banner and the caption overlays its bottom edge.
+  .olh-banner {
+    display: grid;
+    grid-template-columns: 100%;
+    max-height: none;
+    overflow: hidden;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+  }
+
+  .olh-banner-image {
+    align-self: stretch;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .olh-banner-heading {
+    position: relative;
+    bottom: auto;
+    align-self: end;
+  }
+
+  // On small screens the caption sits below the image.
+  @include breakpoint(small only) {
+    .olh-banner-image {
+      max-height: 200px;
+    }
+
+    .olh-banner .olh-banner-heading {
+      grid-area: 2 / 1;
+    }
+  }
+}
+
+.orbit-caption{
+  color: var(--primary-on-dark-color);
+  background-color: color-mix(in srgb, var(--primary-dark-color) 90%, transparent);
+}
+
+/*
+ * WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40)
+ * Requires at least 1:9 contrast ratio between the two focus colours. 
+ */
+:root {
+    --focus-light: #F9F9F9;
+    --focus-dark: #193146;
+    --focus-ring-size: 4px;
+}
+
+/* Prevent layout shifts */
+    /* Inline links override to prevent layout shifts without affecting typography */
+    p a,
+    span a, 
+    li a {
+        margin: calc(-1 * var(--focus-ring-size));
+        padding: var(--focus-ring-size);
+        box-sizing: border-box;
+    }
+
+    p a,
+    span a {
+      display: inline-block;
+    }
+
+  
+/* General */
+*:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* focus bounding boxes */
+a:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+    display: inline-block;
+    white-space: normal;
+}
+
+input[type="text"]:focus-visible ,
+input[type="textarea"].tinymce:focus-visible ,
+input[type="email"]:focus-visible ,
+input[type="password"]:focus-visible ,
+input[type="search"]:focus-visible ,
+input[type="number"]:focus-visible ,
+input[type="date"]:focus-visible ,
+input[type="datetime-local"]:focus-visible ,
+input[type="file"]:focus-visible ,
+input[type="submit"]:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* The carousel slide link is a full-bleed overlay, so a ring drawn
+   outside its box is clipped by the viewport on flush edges. Draw the
+   pair inset instead: a dark inner-shadow band with the light outline
+   overlapping its inner half, so both bands sit on the slide image.
+   The generic "li a" negative-margin workaround above displaces this
+   absolutely positioned link 4px off its slide, splitting the ring in
+   two, so reset it here. */
+.orbit .box-link {
+    margin: 0;
+    padding: 0;
+}
+
+.orbit .box-link:focus,
+.orbit .box-link:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: calc(-2px - var(--focus-ring-size));
+    box-shadow:
+        inset 0 0 0 var(--focus-ring-size) var(--focus-dark),
+        inset 0 0 0 calc(var(--focus-ring-size) + 4px) var(--focus-light);
+}
+
+/* The reading options bar sits directly below the main menu and would
+   otherwise paint over the bottom of a focused item's ring. */
+#main-menu a:focus-visible,
+#main-menu button:focus-visible {
+    position: relative;
+    z-index: 10;
+}
+
+/* end of WCAG 2.4.7 Focus Visible - Two-Color Focus Indicator (Technique C40) */
+
+.preprint-section {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa; /* Light grey background to separate preprints */
+    border-left: 3px solid #007bff; /* Blue left border for emphasis */
+}
+
+.preprint-list {
+    list-style-type: disc; /* Ensure preprints have bullet points */
+    padding-left: 1.5rem;  /* Proper indentation */
+    font-size: 0.9rem; /* Slightly smaller font for preprints */
+}
+
+.view-all-preprints {
+    margin-top: 0.5rem;
+    font-weight: bold;
+}
+
+.submission-type-pill {
+    display: inline-block;
+    background-color: transparent;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Organisational Unit hierarchy */
+.ou-container {
+    .ou-block {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        height: 100%;
+    }
+
+    .ou-info-box {
+        background-color: #EFF6FF;
+        border-left: 4px solid #3B82F6;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 2rem;
+    }
+
+    .ou-info-box p {
+        margin-bottom: 0;
+    }
+
+    .ou-tree {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .ou-tree ul {
+        list-style: none;
+        padding-left: 0rem;
+        margin-top: 0.25rem;
+    }
+
+    .ou-tree-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+    }
+
+    .ou-tree-first-list {
+        margin-left: 0;
+    }
+
+    .ou-tree-item.selected {
+        background-color: #DBEAFE;
+        color: #1E40AF;
+        font-weight: 500;
+    }
+
+    .ou-tree-item-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 0.25rem;
+        color: #6B7280;
+    }
+
+    .ou-tree-item-link {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ou-tree-item-count {
+        font-size: 0.875rem;
+        color: #6B7280;
+    }
+
+    .ou-selected-unit {
+        border-bottom: 1px solid #E5E7EB;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ou-selected-unit-count {
+        font-size: 0.875rem;
+        font-weight: normal;
+        color: #6B7280;
+        margin-left: 0.5rem;
+    }
+
+    .ou-preprints-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .ou-preprints-header-title {
+        flex: 1;
+    }
+
+    .ou-preprint-list {
+        border: 1px solid #E5E7EB;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .ou-preprint-item {
+        padding: 1rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .ou-preprint-item:last-child {
+        border-bottom: none;
+    }
+
+    .ou-preprint-item:hover {
+        background-color: #F9FAFB;
+    }
+
+    .ou-preprint-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .ou-preprint-meta-separator {
+        margin: 0 0.5rem;
+    }
+
+    .ou-preprint-abstract {
+        font-size: 0.9rem;
+    }
+
+    .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .flex-between .title-wrap {
+        flex-grow: 1;
+        margin-right: 1rem;
+        min-width: 0;
+    }
+
+    .flex-between .pill-wrap {
+        flex-shrink: 0;
+    }
+}
+
+/* Accessibility mode toggle */
+.top-bar-right.a11y-toggle-host {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    flex: 0 0 auto;
+}
+
+@include breakpoint(medium) {
+    .top-bar-right.a11y-toggle-host {
+        display: inline-flex !important;
+    }
+}
+
+.a11y-toggle-host .a11y-toggle-summary {
+    color: #1779ba;
+}
+
+.menu .a11y-mobile-form {
+    margin: -4px;
+    padding: 0;
+}
+
+.menu .a11y-mobile-button {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 20px 16px;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+    line-height: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Match the menu's links: no highlight on hover or focus, and the theme's
+   focus ring. */
+.menu .a11y-mobile-button:hover,
+.menu .a11y-mobile-button:focus {
+    background: transparent;
+    color: inherit;
+}
+
+.menu .a11y-mobile-button:focus-visible {
+    outline: 2px var(--focus-light) solid;
+    outline-offset: 0;
+    box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* In the mobile drilldown the items span the full width of a container
+   that clips its overflow, so a ring drawn outside them is cut off. Keep
+   them inside it and draw the ring inside the item. */
+.is-drilldown .menu li > a,
+.is-drilldown .menu .a11y-mobile-form {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.is-drilldown .menu > li:first-child > a {
+    margin-top: 0;
+}
+
+.is-drilldown .menu li > a:focus-visible {
+    display: block;
+}
+
+.is-drilldown .menu li > a:focus-visible,
+.is-drilldown .menu .a11y-mobile-button:focus-visible {
+    outline-offset: calc(-2px - var(--focus-ring-size));
+    box-shadow: inset 0 0 0 var(--focus-ring-size) var(--focus-dark);
+}
+
+/* WCAG 1.4.10: the collection card rows are nested directly in a row, so
+   their negative gutters push empty column padding past the viewport. */
+.collections-page {
+    overflow-x: clip;
+}
+
+/* WCAG 1.4.3: Foundation's subheader grey (#8a8a8a) is 3.4:1 on the page. */
+.subheader {
+  color: #707070;
+}
+
+/* WCAG 2.5.8: stacked preprint version links need 24px between centres. */
+.preprint-versions a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+.preprint-home-listing {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.preprint-home-listing::before,
+.preprint-home-listing::after {
+  content: none;
+}
+
+.preprint-home-listing > .columns {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.preprint-home-listing .callout {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.preprint-list-meta {
+  margin-bottom: 1rem;
+}
+
+.preprint-list-meta .list-inline {
+  display: inline;
+}

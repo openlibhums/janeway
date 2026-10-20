@@ -1,3 +1,7 @@
+{% comment %}
+  This template is deprecated. The large image fallback logic is now handled in model methods.
+{% endcomment %}
+
 {% if carousel_item.large_image_file.id %}
   {% url carousel_item.carousel_image_resolver 'id' carousel_item.id carousel_item.large_image_file.id %}"
 {% elif carousel_item.hero_image_url %}

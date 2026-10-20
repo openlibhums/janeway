@@ -1,0 +1,66 @@
+{% load i18n %}
+{% load uuid %}
+{% trans "Correspondence Author" as label_corr_author %}
+{% trans "Author" as label_author %}
+{% trans "Reviewer" as label_reviewer %}
+{% trans "Copyeditor" as label_copyeditor %}
+{% trans "Typesetter" as label_typesetter %}
+
+{% get_uuid4 as pid %}
+
+<div class="box">
+    <div class="title-area">
+        <h2>{% trans "Contacts" %}</h2>
+    </div>
+    <div class="content">
+        {% with author=article.correspondence_author %}
+            {% if author %}
+                {% include "admin/elements/contacts_box_person.html" with person=author role=label_corr_author %}
+            {% endif %}
+        {% endwith %}
+
+        <div data-give-me-options-{{ pid }} class="give-me-options">
+            <div class="button-group no-bottom-margin">
+                <button
+                    data-give-me
+                    class="button hollow secondary"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="options-pane-{{ pid }}">
+                    <span class="fa fa-angle-up"></span>
+                    <span class="fa fa-angle-down"></span>
+                    {% trans "Show more contacts" %}
+                </button>
+            </div>
+            <div id="options-pane-{{ pid }}" class="options-pane padding-block-1">
+                {% for author in article.authors.all %}
+                    {% if author != article.correspondence_author %}
+                        {% include "admin/elements/contacts_box_person.html" with person=author role=label_author %}
+                    {% endif %}
+                {% endfor %}
+
+                {% for assignment in article.editorassignment_set.all %}
+                    {% include "admin/elements/contacts_box_person.html" with person=assignment.editor role=assignment.get_editor_type_display %}
+                {% endfor %}
+
+                {% for assignment in article.reviewassignment_set.all %}
+                    {% include "admin/elements/contacts_box_person.html" with person=assignment.reviewer role=label_reviewer %}
+                {% endfor %}
+
+                {% for assignment in article.copyeditassignment_set.all %}
+                    {% if assignment.copyeditor %}
+                        {% include "admin/elements/contacts_box_person.html" with person=assignment.copyeditor role=label_copyeditor %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if article.productionassignment %}
+                    {% for task in article.productionassignment.typeset_tasks %}
+                        {% include "admin/elements/contacts_box_person.html" with person=task.typesetter role=label_typesetter %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "admin/elements/give_me_options_js.html" with pid=pid %}

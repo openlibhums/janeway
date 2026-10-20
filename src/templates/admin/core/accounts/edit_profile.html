@@ -1,9 +1,12 @@
 {% extends "admin/core/large_form.html" %}
 {% load i18n foundation static next_url %}
+{% load page_title %}
 
 {% block css %}
   <link type='text/css' href="{% static "common/css/jq-ui.css" %}" rel="stylesheet">
 {% endblock %}
+
+{% block title %}{% trans "Account" as account_label %}{% trans "Edit Profile" as edit_profile_label %}{% page_title account_label edit_profile_label %}{% endblock title %}
 
 {% block contextual_title %}
   {% trans "Edit Profile" %}
@@ -83,30 +86,17 @@
         You can update your password by entering your existing
         password plus your new password.
       {% endblocktrans %}</p>
+      <strong>{% trans "Password Requirements" %}</strong>
+      <ul class="no-top-margin">
+        {% include "common/elements/password_rules.html" %}
+      </ul>
+      {% include "admin/elements/forms/errors.html" with form=password_form %}
       <form method="POST">
         {% csrf_token %}
         <div class="flex wrap column-gap-2">
-          <div>
-            <label for="current_password">
-              <strong>{% trans "Current Password" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="current_password" required="true">
-          </div>
-          <div>
-            <label for="new_password_one">
-              <strong>{% trans "New Password" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="new_password_one" required="true">
-          </div>
-          <div>
-            <label for="new_password_two">
-              <strong>{% trans "Enter Password Again" %}</strong>
-              <span aria-hidden="true">*</span>
-            </label>
-            <input type="password" name="new_password_two" required="true">
-          </div>
+          {% include "admin/elements/forms/field.html" with field=password_form.old_password %}
+          {% include "admin/elements/forms/field.html" with field=password_form.new_password_one %}
+          {% include "admin/elements/forms/field.html" with field=password_form.new_password_two %}
         </div>
         <button
           type="submit"
@@ -140,6 +130,21 @@
         </div>
         {% include "admin/elements/forms/denotes_required.html" %}
       </form>
+    </section>
+    <section class="card padding-block-2 padding-inline-2">
+      <div class="title-area">
+        <h2>{% trans "Public Profile" %}</h2>
+      </div>
+      <div class="content">
+        {% if user_to_edit.enable_public_profile %}
+          <p>{% trans "Your profile page is visible to the public." %}</p>
+        {% else %}
+          <p>{% trans "Your profile page is currently visible only to you. To make it public, enable the public profile option under Profile Details and save." %}</p>
+        {% endif %}
+        <a class="button secondary" href="{% url 'core_public_profile' uuid=request.user.uuid %}">
+          {% trans "View your public profile" %}
+        </a>
+      </div>
     </section>
   </div>
 {% endblock body %}

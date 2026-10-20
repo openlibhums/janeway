@@ -20,7 +20,7 @@ def get_random_journals():
 
     sample_size = min(6, journals.count())
 
-    return random.sample(set(journals), sample_size)
+    return random.sample(list(journals), sample_size)
 
 
 def yield_homepage_element_context(request, homepage_elements):

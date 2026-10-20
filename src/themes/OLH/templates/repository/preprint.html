@@ -1,61 +1,80 @@
 {% extends "core/base.html" %}
+{% load alt_text %}
 {% load static %}
 {% load hooks %}
 {% load i18n %}
 {% load foundation %}
+{% load dates %}
+{% load page_title %}
 
-{% block title %}{{ preprint.title }}{% endblock %}
+{% block title %}{% page_title version.display_title|striptags %}{% endblock %}
+
+{% block css %}
+  {% include "common/repository/style/submission_type_pills.html" with preprint=preprint %}
+{% endblock css %}
+
+{% block reading_options_bar %}
+    {% include "common/elements/journal/reading_options_bar.html" %}
+{% endblock reading_options_bar %}
 
 {% block body %}
 
     <div class="row">
         <br/><br/>
         <div class="large-12 columns">
-            <h1>{{ preprint.title|safe }}</h1>
+            {% include "repository/elements/submission_type_pill.html" %}
+            <h1>{{ version.display_title|safe }}</h1>
+            {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
             <p>
-                This is a {{ request.repository.object_name }} and has not been
-                peer reviewed.
-                {% if preprint.doi %}
+                This {{ type_name }} may not have been peer reviewed.
+                {% if version.display_doi %}
                     The published version of this
-                    {{ request.repository.object_name }} is available:
-                    <a href="{{ preprint.doi }}">{{ preprint.doi }}</a>.
+                    {{ type_name }} is available:
+                    <a href="{{ version.display_doi }}">{{ version.display_doi }}</a>.
                 {% elif preprint.article %}
                     A published version of this
-                    {{ request.repository.object_name }} is available on
+                    {{ type_name }} is available on
                     <a href="{{ preprint.article.url }}">{{ preprint.article.journal.name }}</a>
                     .
                 {% endif %}
-                This is version {{ preprint.current_version.version }} of
-                this {{ request.repository.object_name }}.
+                This is version {{ version.version }}.
             </p>
+            {% if not version.is_current %}
+                {% include "common/repository/older_version_notice.html" %}
+            {% endif %}
         </div>
         <div class="large-8 columns">
             <h2>{% trans "Authors" %}</h2>
             <div class="truncatejs">
                 <p class="authors">
-                    {% for author in preprint.authors %}
+                    {% for author in version.authors %}
                         {{ author.full_name }}{% if author.orcid %}&nbsp;
                             <a href="https://orcid.org/{{ author.orcid }}"
                                target="_blank"><img
-                                    src="{% static 'common/img/icons/orcid.png' %}"></a>
+                                    src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>
                         {% endif %}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </p>
             </div>
-            <h2>{% trans "Abstract" %}</h2>
-            <div class="truncatejs">
-                <p>
-                    {{ preprint.abstract|safe }}
-                </p>
+            <div class="text-format-region">
+                <h2>{% trans "Abstract" %}</h2>
+                <div class="truncatejs">
+                    <p>
+                        {{ version.display_abstract|safe }}
+                    </p>
+                </div>
             </div>
             <div itemprop="articleBody" id="pdf">
-                {% if preprint.current_version_file_type == 'html' %}
-                    <h2>{% trans 'Preprint Body' %}</h2>
-                    {{ html|safe }}
-                {% elif preprint.current_version_file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id preprint.current_version.file.id %}"
+                {% if version.file_type == 'html' %}
+                    <div class="text-format-region">
+                        <h2>{% trans 'Preprint Body' %}</h2>
+                        {{ version.html|safe }}
+                    </div>
+                {% elif version.file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
-                            webkitallowfullscreen></iframe>
+                            webkitallowfullscreen
+                            title="{{ version.display_title|striptags }} PDF"></iframe>
                 {% endif %}
 
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
@@ -75,9 +94,9 @@
                           <div class="row" id="comment-{{ comment.pk }}">
                               <div class="large-2 columns">
                                   {% if comment.author.profile_image and not comment.review.anonymous %}
-                                      <img src="{{ comment.author.profile_image.url }}">
+                                      {% blocktrans with name=comment.author.full_name asvar default_alt %}{{ name }}, profile image{% endblocktrans %}{% get_alt_text file_path=comment.author.profile_image default=default_alt as profile_image_alt_text %}<img src="{{ comment.author.profile_image.url }}" alt="{{ profile_image_alt_text }}">
                                   {% else %}
-                                      <img src="{% static "common/img/icons/users.png" %}">
+                                      <img src="{% static "common/img/icons/users.png" %}" alt="{% trans 'A generic headshot photograph of a person' %}">
                                   {% endif %}
                               </div>
                               <div class="large-10 columns">
@@ -113,41 +132,75 @@
         <div class="large-3 columns">
             <div class="article-menu">
                 <small>
-                    {% if preprint.current_version.file %}
+                    {% if version.file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id preprint.current_version.file.id %}">
-                                <i aria-hidden="true"  class="fa fa-download"></i>
-                                Download {{ request.repository.object_name }}
+                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"><span
+                                    aria-hidden="true" class="fa fa-download"></span>
+                                Download {{ preprint.submission_type.name }}
                             </a>
                         </p>
                     {% endif %}
+                    {% with preprint.organisation_units.all as rous %}
+                        {% if rous and request.repository.has_organisation_units %}
+                            <h2>
+                                {{ request.repository.rou_default_name }}
+                            </h2>
+                            <ul>
+                                {% for rou in rous %}
+                                <li>
+                                    <a href="{% url 'repository_preprints_by_rou' rou.code %}">
+                                        {{ rou.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
                     <h2>{% trans "Metadata" %}</h2>
                     <ul>
-                        <li>{% trans "Published" %}: {{ preprint.date_published|date:"Y-m-d" }}</li>
-                        <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date:"Y-m-d" }}</li>
+                        <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
+                        <li>{% trans "Last Updated" %}: {{ version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
-                          {% trans "License" %}: <a href="{{ preprint.license.url }}" data-toggle="tooltip"
-                                                     title="{{ preprint.license.text }}">{{ preprint.license.name }}</a>
+                          {% trans "License" %}: 
+                          <a href="{{ preprint.license.url }}" data-toggle="tooltip"
+                                title="{{ preprint.license.text }}"
+                                target="_blank"
+                                >
+                                {{ preprint.license.name }}
+                                {% include "elements/icons/link_external.html" %} 
+                            </a>
                         {% endif %}
                         </li>
-                        <li>Subjects: {% include "common/repository/subject_display.html" %}</li>
+                        <li>{% trans "Subjects:" %} {% include "common/repository/subject_display.html" %}</li>
                         {% if preprint.keywords.all %}
-                          <li>Keywords: {% for keyword in preprint.keywords.all %}{{ keyword.word }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                            <li>{% trans "Keywords:" %} 
+                                <ul class="keywords-list">
+                                {% for keyword in preprint.keywords.all %}
+                                    <li>
+                                        {{ keyword.word }}
+                                        {% if not forloop.last %},{% endif %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </li>
                         {% endif %}
-                        {% if preprint.preprint_doi %}<li>DOI: <a href="https://doi.org/{{ preprint.preprint_doi }}">https://doi.org/{{ preprint.preprint_doi }}</a></li>{% endif %}
+                        {% if preprint.preprint_doi %}
+                            <li>{% include "elements/doi_display.html" with doi=preprint.preprint_doi title=version.display_title %}</li>
+                        {% endif %}
                     </ul>
-                    {% if preprint.preprintversion_set.count > 1 %}
+                    {% if preprint.public_versions.count > 1 %}
                     <h2>{% trans "Versions" %}</h2>
-                    <ul>
-                        {% for version in preprint.preprintversion_set.all %}
-                            <li><a href="{% url 'repository_file_download' preprint.id version.file.id %}" >
-                                <i aria-hidden="true" class="fa fa-download">&nbsp;</i>
-                                <span class="sr-only">{% trans 'Download' %}</span>
-                                {% trans 'Version' %} {{ version.version }} - {{ version.date_time|date:"Y-m-d" }}
-                            </a></li>
-                            {% empty %}
-                            <li>{% trans "This is the only version of the preprint." %}</li>
+                    <ul class="preprint-versions">
+                        {% for each in preprint.public_versions %}
+                            <li>
+                                {% if each == version %}
+                                    <span aria-current="page">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</span>
+                                {% else %}
+                                    <a href="{{ each.local_url }}">{% trans 'Version' %} {{ each.version }} - {{ each.date_time|date_human }}</a>
+                                {% endif %}
+                                {% if forloop.first %}({% trans "latest" %}){% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                     {% endif %}
@@ -159,10 +212,11 @@
                         <li>{% trans "Downloads" %}: {{ preprint.downloads.count }}</li>
                       </ul>
                     {% endif %}
-                    <a href="{% url 'repository_list' %}">
-                        <i aria-hidden="true"  class="fa fa-arrow-left"></i> 
-                        {% trans "All Preprints" %}
-                    </a>
+
+                    {% hook 'preprint_sidebar' %}
+
+                    <a href="{% url 'repository_list' %}"><i aria-hidden="true" class="fa fa-arrow-left"></i>
+                      {% trans "All submissions" %}</a>
 
                 </small>
             </div>

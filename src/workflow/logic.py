@@ -99,6 +99,11 @@ def move_to_stage(from_stage, to_stage, article):
         elif stage == submissions_models.STAGE_EDITOR_COPYEDITING:
             article.stage = submissions_models.STAGE_EDITOR_COPYEDITING
 
+        elif stage == submissions_models.STAGE_UNDER_REVIEW:
+            article.stage = submissions_models.STAGE_UNDER_REVIEW
+            article.date_accepted = None
+            article.date_declined = None
+
         elif stage == submissions_models.STAGE_UNASSIGNED:
             article.stage = submissions_models.STAGE_UNDER_REVIEW
             article.date_accepted = None
