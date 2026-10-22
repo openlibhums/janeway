@@ -306,6 +306,7 @@ BLEACH_ALLOWED_ATTRIBUTES = [
     "target",
     "checked",
     "selected",
+    "lang",
 ]
 
 BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
