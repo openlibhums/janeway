@@ -65,8 +65,11 @@ def _to_html_inline(match):
 
 
 def _add_mml_namespace_prefix(value):
-    xml = ET.fromstring(bytes(value, encoding="utf-8"))
-    return ET.tostring(xml, encoding="unicode")
+    try:
+        xml = ET.fromstring(bytes(value, encoding="utf-8"))
+        return ET.tostring(xml, encoding="unicode")
+    except ET.ParseError:
+        return value
 
 
 def _to_xml_block(match):

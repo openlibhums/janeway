@@ -1429,6 +1429,8 @@ class Article(AbstractLastModifiedModel):
         """
         The abstract without HTML tags or LaTeX delimiters.
         """
+        if not self.abstract:
+            return ""
         return striptags(
             latex_mathml.strip_latex_delimiters(
                 self.abstract,
@@ -1478,7 +1480,8 @@ class Article(AbstractLastModifiedModel):
         context = {
             "author_str": author_str,
             "year_str": year_str,
-            "safe_title": self.safe_title_html,
+            "title": self.safe_title,  # Do not use; backwards compatibility
+            "safe_title_html": self.safe_title_html,
             "stripped_title": self.stripped_title,
             "journal_str": journal_str,
             "issue_str": issue_str,
