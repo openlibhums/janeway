@@ -74,6 +74,13 @@ class TestModelUtils(TestCase):
         self.article.save()
         self.assertEqual(self.article.abstract, abstract_without_comment)
 
+    def test_janeway_bleach_field_keeps_lang(self):
+        abstract = '<p>An abstract with <span lang="de">ein Zitat</span>.</p>'
+        self.article.abstract = abstract
+        self.article.save()
+        self.article.refresh_from_db()
+        self.assertIn('<span lang="de">ein Zitat</span>', self.article.abstract)
+
     def test_copy_instance(self):
         frozen_author = helpers.create_frozen_author(self.article)
         other_article = helpers.create_article(self.journal_one)
