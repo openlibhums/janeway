@@ -2883,11 +2883,20 @@ class OrganizationManager(models.Manager):
             )
 
 
+ROR_ID_RE = re.compile(r"^0[0-9a-hjkmnp-tv-z]{6}[0-9]{2}$")
+CROCKFORD_BASE32 = "0123456789abcdefghjkmnpqrstvwxyz"
+
+
 def validate_ror_id(ror_id):
-    ror_regex = r"^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$"
-    prog = re.compile(ror_regex)
-    if not prog.match(ror_id):
-        raise ValidationError(f"{ror_id} is not a valid ROR identifier")
+    """Validate a bare ROR id: format and checksum (ISO/IEC 7064 MOD 97-10)."""
+    error = ValidationError(f"{ror_id} is not a valid ROR identifier")
+    if not ROR_ID_RE.match(ror_id):
+        raise error
+    number = 0
+    for character in ror_id[:7]:
+        number = number * 32 + CROCKFORD_BASE32.index(character)
+    if f"{98 - (number * 100) % 97:02d}" != ror_id[7:]:
+        raise error
 
 
 class Organization(models.Model):
