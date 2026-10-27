@@ -298,7 +298,11 @@ def edit_proofing_assignment(request, article_id, proofing_task_id):
         pk=article_id,
         journal=request.journal,
     )
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article=article,
+    )
 
     form = forms.AssignProofreader(instance=proofing_task)
 
@@ -405,7 +409,11 @@ def notify_proofreader(request, article_id, proofing_task_id):
         pk=article_id,
         journal=request.journal,
     )
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article=article,
+    )
     user_message_content = logic.get_notify_proofreader(request, article, proofing_task)
 
     if request.POST:
@@ -549,7 +557,11 @@ def preview_galley(request, proofing_task_id, galley_id):
     :param galley_id: Galley object PK
     :return: HttpResponse
     """
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article__journal=request.journal,
+    )
     galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
 
     article_content = ""
@@ -587,8 +599,16 @@ def request_typesetting_changes(request, article_id, proofing_task_id):
     :param proofing_task_id: ProofingTask PK
     :return: HttpResponse
     """
-    article = get_object_or_404(submission_models.Article, pk=article_id)
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    article = get_object_or_404(
+        submission_models.Article,
+        pk=article_id,
+        journal=request.journal,
+    )
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article=article,
+    )
     form = forms.AssignTypesetter()
     comments = proofing_task.review_comments()
 
@@ -656,8 +676,16 @@ def notify_typesetter_changes(request, article_id, proofing_task_id, typeset_tas
         pk=article_id,
         journal=request.journal,
     )
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
-    typeset_task = get_object_or_404(models.TypesetterProofingTask, pk=typeset_task_id)
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article=article,
+    )
+    typeset_task = get_object_or_404(
+        models.TypesetterProofingTask,
+        pk=typeset_task_id,
+        proofing_task=proofing_task,
+    )
     notification_email_content = logic.get_notify_typesetter(
         request, article, proofing_task, typeset_task
     )
@@ -751,12 +779,12 @@ def acknowledge(request, article_id, model_name, model_pk):
     :param model_pk: int, PK of model
     :return: HttpRedirect or HttpResponse
     """
-    model, model_object = logic.get_model_and_object(model_name, model_pk)
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
         journal=request.journal,
     )
+    model, model_object = logic.get_model_and_object(model_name, model_pk, article)
     text = logic.get_ack_message(request, article, model_name, model_object)
 
     if request.POST:
@@ -871,7 +899,7 @@ def new_note(request, proofing_task_id, galley_id):
             ),
             pk=proofing_task_id,
         )
-    galley = get_object_or_404(core_models.Galley, pk=galley_id)
+    galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
 
     if request.POST:
         note = request.POST.get("note")
@@ -907,9 +935,9 @@ def delete_note(request, proofing_task_id, galley_id):
     :return: HttpResponse
     """
     if request.user.is_staff:
-        get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+        proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
     else:
-        get_object_or_404(
+        proofing_task = get_object_or_404(
             models.ProofingTask,
             (
                 Q(proofreader=request.user)
@@ -920,7 +948,8 @@ def delete_note(request, proofing_task_id, galley_id):
 
     if request.POST:
         note_id = request.POST.get("note_id")
-        note = get_object_or_404(models.Note, galley__pk=galley_id, pk=note_id)
+        galley = get_object_or_404(proofing_task.galleys_for_proofing, pk=galley_id)
+        note = get_object_or_404(models.Note, galley=galley, pk=note_id)
         note.delete()
 
         return_dict = {"id": note.pk, "deleted": True}
@@ -936,7 +965,11 @@ def proofing_download(request, proofing_task_id, file_id):
     """
     Serves a galley for proofreader
     """
-    proofing_task = get_object_or_404(models.ProofingTask, pk=proofing_task_id)
+    proofing_task = get_object_or_404(
+        models.ProofingTask,
+        pk=proofing_task_id,
+        round__assignment__article__journal=request.journal,
+    )
     file = get_object_or_404(core_models.File, pk=file_id)
 
     if file in proofing_task.galley_files():

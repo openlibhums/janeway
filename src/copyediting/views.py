@@ -204,7 +204,11 @@ def notify_copyeditor_assignment(request, article_id, copyedit_id):
         pk=article_id,
         journal=request.journal,
     )
-    copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
     email_context = logic.get_copyeditor_notification_context(
         request,
         article,
@@ -266,7 +270,11 @@ def edit_assignment(request, article_id, copyedit_id):
         pk=article_id,
         journal=request.journal,
     )
-    copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
 
     if copyedit.decision:
         messages.add_message(
@@ -368,7 +376,7 @@ def copyedit_requests(request):
     return render(request, template, context)
 
 
-@copyeditor_user_required
+@copyeditor_for_copyedit_required
 def copyedit_request_decision(request, copyedit_id, decision):
     """
     Records a user's decision on whether they will do a copyedit.
@@ -539,7 +547,11 @@ def editor_review(request, article_id, copyedit_id):
         pk=article_id,
         journal=request.journal,
     )
-    copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
+    copyedit = get_object_or_404(
+        models.CopyeditAssignment,
+        pk=copyedit_id,
+        article=article,
+    )
 
     author_review_form = forms.AuthorReviewAssignmentForm(
         author=article.correspondence_author,

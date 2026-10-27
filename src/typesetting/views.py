@@ -244,6 +244,7 @@ def typesetting_upload_galley(request, article_id, assignment_id=None):
             models.TypesettingAssignment,
             pk=assignment_id,
             typesetter=request.user,
+            round__article=article,
         )
 
     try:
@@ -539,6 +540,7 @@ def typesetting_notify_typesetter(request, article_id, assignment_id):
     assignment = get_object_or_404(
         models.TypesettingAssignment,
         pk=assignment_id,
+        round__article=article,
     )
 
     if assignment.notified:
@@ -1056,6 +1058,7 @@ def typesetting_notify_proofreader(request, article_id, assignment_id):
     assignment = get_object_or_404(
         models.GalleyProofing,
         pk=assignment_id,
+        round__article=article,
         completed__isnull=True,
         notified=False,
     )
@@ -1104,6 +1107,7 @@ def typesetting_manage_proofing_assignment(request, article_id, assignment_id):
     assignment = get_object_or_404(
         models.GalleyProofing,
         pk=assignment_id,
+        round__article=article,
     )
     proofreaders = logic.get_proofreaders(
         article,

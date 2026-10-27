@@ -2399,7 +2399,12 @@ def resend_logged_email(request, article_id, log_id):
         pk=article_id,
         journal=request.journal,
     )
-    log_entry = get_object_or_404(utils_models.LogEntry, pk=log_id)
+    log_entry = get_object_or_404(
+        utils_models.LogEntry,
+        pk=log_id,
+        content_type=ContentType.objects.get_for_model(article),
+        object_id=article.pk,
+    )
     form = forms.ResendEmailForm(log_entry=log_entry)
     close = False
 
@@ -2516,7 +2521,12 @@ def delete_note(request, article_id, note_id):
     :param note_id: Note object PK
     :return: HttpResponse
     """
-    note = get_object_or_404(submission_models.Note, pk=note_id)
+    note = get_object_or_404(
+        submission_models.Note,
+        pk=note_id,
+        article__pk=article_id,
+        article__journal=request.journal,
+    )
     note.delete()
 
     return HttpResponse
@@ -2808,10 +2818,11 @@ def serve_article_xml(request, identifier_type, identifier):
         identifier,
     )
 
-    if not article_object and not article_object.is_published:
+    if not article_object or not article_object.is_published:
         raise Http404
 
     xml_galleys = article_object.galley_set.filter(
+        public=True,
         file__mime_type__in=files.XML_MIMETYPES,
     )
 
@@ -2832,6 +2843,7 @@ def serve_article_xml(request, identifier_type, identifier):
     )
 
 
+@article_stage_accepted_or_later_required
 def serve_article_ris(request, identifier_type, identifier):
     article = submission_models.Article.get_article(
         request.journal,
@@ -2851,6 +2863,7 @@ def serve_article_ris(request, identifier_type, identifier):
     return response
 
 
+@article_stage_accepted_or_later_required
 def serve_article_bib(request, identifier_type, identifier):
     article = submission_models.Article.get_article(
         request.journal,
