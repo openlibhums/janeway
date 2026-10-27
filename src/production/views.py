@@ -1046,11 +1046,15 @@ def review_typeset_task(request, article_id, typeset_id):
     :param typeset_id: TypesetTask PK
     :return: contextualised django template
     """
-    typeset_task = get_object_or_404(models.TypesetTask, pk=typeset_id)
     article = get_object_or_404(
         submission_models.Article,
         pk=article_id,
         journal=request.journal,
+    )
+    typeset_task = get_object_or_404(
+        models.TypesetTask,
+        pk=typeset_id,
+        assignment__article=article,
     )
 
     typeset_task.editor_reviewed = True

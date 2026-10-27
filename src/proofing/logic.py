@@ -238,15 +238,25 @@ def handle_typeset_decision(request, typeset_task_id, decision):
     )
 
 
-def get_model_and_object(model_name, model_pk):
+def get_model_and_object(model_name, model_pk, article):
     model = None
     if model_name == "proofing":
         model = models.ProofingTask
+        article_filter = {"round__assignment__article": article}
     elif model_name == "correction":
         model = models.TypesetterProofingTask
+        article_filter = {"proofing_task__round__assignment__article": article}
 
     if model:
-        return [model, get_object_or_404(model, pk=model_pk, acknowledged__isnull=True)]
+        return [
+            model,
+            get_object_or_404(
+                model,
+                pk=model_pk,
+                acknowledged__isnull=True,
+                **article_filter,
+            ),
+        ]
     else:
         return [None, None]
 

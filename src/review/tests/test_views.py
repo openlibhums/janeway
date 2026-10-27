@@ -25,7 +25,7 @@ from utils import setting_handler
 from utils.testing import helpers
 from utils.testing.context_managers import janeway_setting_override
 from utils.shared import clear_cache
-from review.const import ReviewerDecisions as RD
+from review.const import EditorialDecisions as ED, ReviewerDecisions as RD
 
 
 # Create your tests here.
@@ -1495,3 +1495,137 @@ class UnassignEditorTests(TestCase):
             ).exists()
         )
         self.assertEqual(len(mail.outbox), 0)
+
+
+class ReviewObjectScopingTests(TestCase):
+    """
+    Review child objects (assignments, rounds, answers and drafts) must
+    belong to the article in the URL, or the view returns a 404.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(cls.journal_one)
+        cls.article = helpers.create_article(
+            cls.journal_one,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.round = helpers.create_round(cls.article)
+        cls.review = helpers.create_review_assignment(
+            journal=cls.journal_one,
+            article=cls.article,
+            reviewer=helpers.create_peer_reviewer(cls.journal_one),
+            editor=cls.editor,
+            review_round=cls.round,
+        )
+
+        # A review on another journal's article, which the editor of
+        # journal one has no role on.
+        cls.other_article = helpers.create_article(
+            cls.journal_two,
+            stage=submission_models.STAGE_UNDER_REVIEW,
+        )
+        cls.other_round = helpers.create_round(cls.other_article)
+        cls.other_review = helpers.create_review_assignment(
+            journal=cls.journal_two,
+            article=cls.other_article,
+            reviewer=helpers.create_peer_reviewer(
+                cls.journal_two,
+                email="other_reviewer@example.com",
+            ),
+            editor=helpers.create_editor(
+                cls.journal_two,
+                email="other_editor@example.com",
+            ),
+            review_round=cls.other_round,
+            is_complete=True,
+        )
+        cls.other_draft = review_models.DecisionDraft.objects.create(
+            article=cls.other_article,
+            decision=ED.ACCEPT.value,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.editor)
+
+    def get(self, url_name, **kwargs):
+        return self.client.get(
+            reverse(url_name, kwargs=kwargs),
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def post(self, url_name, data=None, **kwargs):
+        return self.client.post(
+            reverse(url_name, kwargs=kwargs),
+            data=data or {},
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_review_views_reject_other_articles_review(self):
+        for url_name in (
+            "review_notify_reviewer",
+            "review_view_review",
+            "review_edit_review",
+            "review_delete_review",
+            "review_withdraw_review",
+            "review_reset_review",
+        ):
+            with self.subTest(url_name=url_name):
+                response = self.get(
+                    url_name,
+                    article_id=self.article.pk,
+                    review_id=self.other_review.pk,
+                )
+                self.assertEqual(response.status_code, 404)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_draft_views_reject_other_articles_draft(self):
+        response = self.get(
+            "review_edit_draft_decision",
+            article_id=self.article.pk,
+            draft_id=self.other_draft.pk,
+        )
+        self.assertEqual(response.status_code, 404)
+        response = self.post(
+            "review_manage_draft",
+            data={"accept_draft": "accept_draft"},
+            article_id=self.article.pk,
+            draft_id=self.other_draft.pk,
+        )
+        self.assertEqual(response.status_code, 404)
+        self.other_draft.refresh_from_db()
+        self.assertIsNone(self.other_draft.editor_decision)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_section_editor_cannot_accept_own_draft(self):
+        setting_handler.save_setting(
+            "general",
+            "draft_decisions",
+            self.journal_one,
+            True,
+        )
+        section_editor = helpers.create_section_editor(self.journal_one)
+        helpers.create_editor_assignment(
+            self.article,
+            section_editor,
+            assignment_type="section-editor",
+        )
+        draft = review_models.DecisionDraft.objects.create(
+            article=self.article,
+            section_editor=section_editor,
+            editor=self.editor,
+            decision=ED.ACCEPT.value,
+        )
+        self.client.force_login(section_editor)
+        response = self.post(
+            "review_manage_draft",
+            data={"accept_draft": "accept_draft"},
+            article_id=self.article.pk,
+            draft_id=draft.pk,
+        )
+        self.assertEqual(response.status_code, 403)
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.stage, submission_models.STAGE_UNDER_REVIEW)

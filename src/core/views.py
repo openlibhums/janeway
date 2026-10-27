@@ -2414,7 +2414,12 @@ def delete_note(request, article_id, note_id):
     :param note_id: Note object PK
     :return:
     """
-    note = get_object_or_404(submission_models.Note, pk=note_id)
+    note = get_object_or_404(
+        submission_models.Note,
+        pk=note_id,
+        article__pk=article_id,
+        article__journal=request.journal,
+    )
     note.delete()
 
     url = reverse("kanban_home")
