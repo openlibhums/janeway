@@ -146,6 +146,15 @@ class Press(AbstractSiteModel):
         help_text="URL to an external privacy-policy, linked from the page"
         " footer. If blank, it links to the Janeway CMS page: /site/privacy.",
     )
+    privacy_link_text = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Text for the privacy link in the page footer and on the"
+        " registration page, for example 'Privacy Notice' or 'Privacy"
+        " Statement'. If blank, the footer shows 'Privacy' and the"
+        " registration page shows 'Privacy Policy'.",
+    )
 
     password_number = models.BooleanField(
         default=False, help_text="If set, passwords must include one number."

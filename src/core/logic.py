@@ -662,6 +662,7 @@ def get_settings_to_edit(display_group, journal, user):
             "publisher_url",
             "contact_info",
             "privacy_policy_url",
+            "privacy_link_text",
             "auto_signature",
             "slack_logging",
             "slack_webhook",
