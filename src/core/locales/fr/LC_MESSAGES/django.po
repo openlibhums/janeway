@@ -3956,6 +3956,18 @@ msgstr "Renseignements sur l'article"
 msgid "Privacy Policy"
 msgstr "Politique de confidentialité"
 
+#: src/themes/OLH/templates/elements/journal_footer.html:39
+#: src/themes/OLH/templates/elements/journal_footer.html:41
+#: src/themes/OLH/templates/press/elements/press_footer.html:11
+#: src/themes/OLH/templates/press/elements/press_footer.html:13
+#: src/themes/clean/templates/elements/journal_footer.html:48
+#: src/themes/clean/templates/elements/journal_footer.html:52
+#: src/themes/clean/templates/elements/press_footer.html:13
+#: src/themes/clean/templates/elements/press_footer.html:16
+#: src/themes/material/templates/elements/journal_footer.html:39
+msgid "Privacy"
+msgstr "Confidentialité"
+
 #: src/templates/common/elements/a11y/janeway.html:1
 msgid "Janeway"
 msgstr ""

@@ -10,10 +10,10 @@
             <ul class="list-inline">
                 {% if press.privacy_policy_url %}
                     <li class="list-inline-item"><a
-                            href="{{ press.privacy_policy_url }}">{% trans "Privacy Policy" %}</a></li>
+                            href="{{ press.privacy_policy_url }}">{{ press.privacy_link_text|default:_("Privacy") }}</a></li>
                 {% else %}
                     <li class="list-inline-item"><a
-                            href="{% url 'cms_page' 'privacy' %}">{% trans "Privacy Policy" %}</a></li>
+                            href="{% url 'cms_page' 'privacy' %}">{{ press.privacy_link_text|default:_("Privacy") }}</a></li>
                 {% endif %}
                 <li class="list-inline-item"><a href="{% url 'website_sitemap' %}">{% trans "Sitemap" %}</a></li>
                 <li class="list-inline-item"><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
