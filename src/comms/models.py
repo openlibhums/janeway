@@ -154,6 +154,7 @@ class NewsItem(models.Model):
         whether the journal's press has one.
         """
         path = None
+        media_path = None
         if self.large_image_file:
             path = reverse(
                 "news_file_download",
@@ -164,15 +165,21 @@ class NewsItem(models.Model):
                 },
             )
         elif self.content_type.name == "press" and self.object.default_carousel_image:
-            path = self.object.default_carousel_image.url
+            media_path = self.object.default_carousel_image.url
         elif self.content_type.name == "journal":
             if self.object.default_large_image:
-                path = self.object.default_large_image.url
+                media_path = self.object.default_large_image.url
             elif self.object.press.default_carousel_image:
-                path = self.object.press.default_carousel_image.url
+                media_path = self.object.press.default_carousel_image.url
 
         if path:
             return self.object.site_url(path=path)
+        elif media_path:
+            # Media files are served from the root of the domain, so the
+            # URL must not gain a journal code prefix in path mode.
+            if self.content_type.name == "journal":
+                return self.object.press.site_url(path=media_path)
+            return self.object.site_url(path=media_path)
         else:
             return static(settings.HERO_IMAGE_FALLBACK)
 
