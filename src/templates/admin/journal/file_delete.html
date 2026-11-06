@@ -1,0 +1,35 @@
+{% extends "admin/elements/confirm_delete.html" %}
+
+{% load i18n %}
+
+{% block nitty_h2 %}{% trans "File" %}{% endblock nitty_h2 %}
+
+{% block nitty %}
+  <dl>
+    {% include "admin/elements/layout/key_value_above.html" with key=_("Filename") value=file.original_filename %}
+    {% include "admin/elements/layout/key_value_above.html" with key=_("Label") value=file.label %}
+    {% include "admin/elements/layout/key_value_above.html" with key=_("Owner") value=file.owner.full_name %}
+    {% include "admin/elements/layout/key_value_above.html" with key=_("Article") value=article.title %}
+  </dl>
+{% endblock nitty %}
+
+{% block gritty_form %}
+  <div class="bs-callout bs-callout-warning">
+    <p>
+      {% blocktrans %}Are you sure you want to delete "{{ thing_to_delete }}"?{% endblocktrans %}
+    </p>
+    <p>
+      {% trans "This deletes the file, its stored copy and all of its version history. Any galley that uses this file is deleted too. This cannot be undone." %}
+    </p>
+    <div class="button-group no-bottom-margin">
+      <a href="{{ return_url }}" class="button no-bottom-margin">
+        <span class="fa fa-close" aria-hidden="true"></span>
+        {% trans "No, go back" %}
+      </a>
+      <button name="yes_delete" class="button secondary hollow no-bottom-margin" type="submit">
+        <span class="fa fa-trash" aria-hidden="true"></span>
+        {% trans "Yes, delete" %}
+      </button>
+    </div>
+  </div>
+{% endblock gritty_form %}

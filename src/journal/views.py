@@ -22,6 +22,7 @@ from django.db.models import Q, Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -776,10 +777,20 @@ def replace_article_file(request, identifier_type, identifier, file_id):
     error = None
 
     if request.GET.get("delete", False):
-        file_delete(request, article_to_replace.pk, file_to_replace.pk)
-        return redirect(
-            reverse("submit_files", kwargs={"article_id": article_to_replace.id})
+        # Kept for backwards compatibility with callers (e.g. plugins) that
+        # still link here with ?delete=. Deleting now needs confirmation, so
+        # hand off to the confirmation page.
+        confirm_url = reverse(
+            "file_delete",
+            kwargs={
+                "article_id": article_to_replace.pk,
+                "file_id": file_to_replace.pk,
+            },
         )
+        return_url = reverse(
+            "submit_files", kwargs={"article_id": article_to_replace.id}
+        )
+        return redirect(f"{confirm_url}?{urlencode({'return': return_url})}")
 
     if request.POST:
         if "replacement" in request.POST and request.FILES:
@@ -929,11 +940,13 @@ def issue_file_history(request, issue_id):
 @login_required
 @file_edit_user_required
 def file_delete(request, article_id, file_id):
-    """Renders a template to delete a file.
+    """Asks for confirmation, then deletes a file.
+
+    GET renders a confirmation page; only a valid POST deletes the file.
 
     :param request: the request associated with this call
     :param article_id: the ID of the associated articled
-    :param file_id: the file ID for which to view the history
+    :param file_id: the ID of the file to delete
     :return: a redirect to the URL at the GET parameter 'return'
     """
     article_object = get_object_or_404(
@@ -943,9 +956,48 @@ def file_delete(request, article_id, file_id):
     )
     file_object = get_object_or_404(core_models.File, pk=file_id)
 
-    file_object.delete()
+    return_url = request.GET.get("return", "")
+    if not url_has_allowed_host_and_scheme(
+        return_url, allowed_hosts={request.get_host()}
+    ):
+        return_url = reverse("document_management", kwargs={"article_id": article_id})
 
-    return redirect(request.GET["return"])
+    form = core_forms.ConfirmDeleteForm()
+    if request.method == "POST":
+        form = core_forms.ConfirmDeleteForm(request.POST)
+        if form.is_valid():
+            # Log before deleting, while the file still has its pk.
+            utils_models.LogEntry.add_entry(
+                "File Deleted",
+                'File {pk} "{name}" ({uuid}) deleted from article {article} by '
+                "{user}.".format(
+                    pk=file_object.pk,
+                    name=file_object.original_filename,
+                    uuid=file_object.uuid_filename,
+                    article=article_object.pk,
+                    user=request.user.username,
+                ),
+                level="Info",
+                actor=request.user,
+                request=request,
+                target=article_object,
+            )
+            file_object.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("File deleted: %(name)s") % {"name": file_object.original_filename},
+            )
+            return redirect(return_url)
+
+    context = {
+        "article": article_object,
+        "file": file_object,
+        "form": form,
+        "return_url": return_url,
+        "thing_to_delete": file_object.original_filename,
+    }
+    return render(request, "admin/journal/file_delete.html", context)
 
 
 @file_user_required
