@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% load securitytags %}
 {% load files %}
@@ -35,6 +35,13 @@
                 </tr>
             </table>
         </div>
+            {% can_edit_file file article as can_edit_file_flag %}
+            {% if can_edit_file_flag %}
+                <div class="callout alert">
+                    <p>{% trans "Deleting this file removes it and all of its version history, including any galley that uses it. This cannot be undone." %}</p>
+                    <a class="button alert" href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i class="fa fa-trash" aria-hidden="true">&nbsp;</i>{% trans "Delete file and all its history" %}</a>
+                </div>
+            {% endif %}
             <table class="scroll">
                 <tr>
                     <th>ID</th>
@@ -42,12 +49,10 @@
                     <th>Filename</th>
                     <th>Download</th>
                     <th>Replace</th>
-                    <th>Delete</th>
                     <th>Re-instate</th>
                     {% if request.user.is_admin %}<th><span class="fa fa-cogs"> </span>Admin</th>{% endif %}
                 </tr>
 
-                {% can_edit_file file article as can_edit_file_flag %}
                 {% can_view_file file as can_view_file_flag %}
                 {% for file_history in file.history.all %}
                     {% can_view_file_history file_history article as can_view_historic_file_flag %}
@@ -59,7 +64,6 @@
                             <a href="{% url 'article_file_history_download' 'id' article.pk file_history.pk %}"><i
                                     class="fa fa-download">&nbsp;</i></a>{% endif %}</td>
                         <td></td>
-                        <td></td>
                         <td>{% if can_edit_file_flag %}
                         <a href="{% url 'file_reinstate' article.pk file.pk file_history.pk %}?return={% url 'file_history' article.pk file.pk %}%3Freturn%3D{{ request.GET.return|urlencode }}"><i class="fa fa-recycle">
                             &nbsp;</i></a>{% endif %}</td>
@@ -67,7 +71,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7">No older versions of this file</td>
+                        <td colspan="6">No older versions of this file</td>
                     </tr>
                 {% endfor %}
 
@@ -80,9 +84,6 @@
                             &nbsp;</i></a>{% endif %}</td>
                     <td>{% if can_edit_file_flag %}<a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                             class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
-                    <td>{% if can_edit_file_flag %}
-                        <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.GET.return|urlencode }}"><i class="fa fa-trash">
-                            &nbsp;</i></a>{% endif %}</td>
                     <td>Current</td>
                     {% if request.user.is_admin %}<td><a href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs"> </span></a></td>{% endif %}
                 </tr>
