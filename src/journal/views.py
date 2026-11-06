@@ -966,6 +966,22 @@ def file_delete(request, article_id, file_id):
     if request.method == "POST":
         form = core_forms.ConfirmDeleteForm(request.POST)
         if form.is_valid():
+            # Log before deleting, while the file still has its pk.
+            utils_models.LogEntry.add_entry(
+                "File Deleted",
+                'File {pk} "{name}" ({uuid}) deleted from article {article} by '
+                "{user}.".format(
+                    pk=file_object.pk,
+                    name=file_object.original_filename,
+                    uuid=file_object.uuid_filename,
+                    article=article_object.pk,
+                    user=request.user.username,
+                ),
+                level="Info",
+                actor=request.user,
+                request=request,
+                target=article_object,
+            )
             file_object.delete()
             messages.add_message(
                 request,
