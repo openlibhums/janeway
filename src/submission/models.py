@@ -11,6 +11,7 @@ from dateutil import parser as dateparser
 from itertools import chain
 import warnings
 from iso639 import Lang
+from iso639.exceptions import InvalidLanguageValue, DeprecatedLanguageValue
 
 from django.apps import apps
 from django.urls import reverse
@@ -2650,11 +2651,16 @@ class Article(AbstractLastModifiedModel):
     @property
     def iso639_1_lang_code(self):
         """Return the ISO 639-1 two-letter code for use in xml:lang."""
+        default_language = "en"
         if not self.language:
-            return "en"
+            return default_language
 
-        lang = Lang(self.language)
-        return lang.pt1 or "en"
+        try:
+            lang = Lang(self.language)
+            return lang.pt1 or default_language
+        except (InvalidLanguageValue, DeprecatedLanguageValue):
+            logger.error("Article #{self.pk} has invalid language code {self.language}")
+            return default_language
 
     def discussion_stats(self):
         """Returns thread and post counts for this article's discussions."""

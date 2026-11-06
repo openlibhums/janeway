@@ -234,3 +234,23 @@ class FieldAnswerFieldNameTests(TestCase):
         migration.populate_field_answer_field_name(apps, None)
         self.field_answer.refresh_from_db()
         self.assertEqual(self.field_answer.field_name, "Data Availability")
+
+
+class ArticleMethodTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.article_one = helpers.create_article(cls.journal_one)
+
+    def test_iso639_1_lang_code(self):
+        self.article_one.language = "spa"
+        self.assertEqual(self.article_one.iso639_1_lang_code, "es")
+
+    def test_iso639_1_lang_code_defaults_to_english_when_empty(self):
+        self.article_one.language = ""
+        self.assertEqual(self.article_one.iso639_1_lang_code, "en")
+
+    def test_iso639_1_lang_code_defaults_to_english_on_error(self):
+        self.article_one.language = "not a language code"
+        self.assertEqual(self.article_one.iso639_1_lang_code, "en")
