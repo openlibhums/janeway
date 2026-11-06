@@ -47,22 +47,20 @@
                         <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
                         <td>{% if can_view_file_flag %}
                             <a href="{% url 'article_file_download' 'id' article.pk file.pk %}"><i
-                                    class="fa fa-download">
-                                &nbsp;</i></a>{% endif %}</td>
+                                    class="fa fa-download" aria-hidden="true">&nbsp;</i><span class="show-for-sr">{% trans "Download file" %}</span></a>{% endif %}</td>
                         <td>{% if can_view_file_history_flag %}
                             <a href="{% url 'file_history' article.pk file.pk %}?return={{ request.path|urlencode }}"><i
-                                    class="fa fa-history">
-                                &nbsp;</i></a>{% endif %}
+                                    class="fa fa-history" aria-hidden="true">&nbsp;</i><span class="show-for-sr">{% trans "View file history" %}</span></a>{% endif %}
                         </td>
                         <td>{% if can_edit_file_flag %}
                             <a href="{% url 'article_file_replace' 'id' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
-                                    class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
+                                    class="fa fa-cloud-upload" aria-hidden="true">&nbsp;</i><span class="show-for-sr">{% trans "Replace file" %}</span></a>{% endif %}</td>
                         <td>{% if can_edit_file_flag %}
                             <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
                                     class="fa fa-trash" aria-hidden="true">&nbsp;</i><span class="show-for-sr">{% trans "Delete file" %}</span></a>{% endif %}</td>
                         {% if request.user.is_admin %}
                         <td>
-                            <a target="_blank" href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit</a>
+                            <a target="_blank" href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs" aria-hidden="true">&nbsp;</span>Edit</a>
                         </td>
                         {% endif %}
                     </tr>
@@ -83,7 +81,7 @@
     <div class="large-12 columns">
         <form method="POST">
             {% csrf_token %}
-            <a class="button success float-right" href="{{ return_url }}"><i class="fa fa-check">&nbsp;</i>Return
+            <a class="button success float-right" href="{{ return_url }}"><i class="fa fa-check" aria-hidden="true">&nbsp;</i>Return
             </a>
         </form>
     </div>
@@ -92,7 +90,7 @@
          data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
-                <h4><i class="fa fa-upload">&nbsp;</i>Upload File</h4>
+                <h4><i class="fa fa-upload" aria-hidden="true">&nbsp;</i>Upload File</h4>
             </div>
         </div>
         <div class="card-section">
