@@ -134,7 +134,11 @@ class CronTaskInline(admin.TabularInline):
 class IdentifierInline(admin.TabularInline):
     model = identifier_models.Identifier
     extra = 0
-    raw_id_fields = ("article",)
+    raw_id_fields = (
+        "article",
+        "preprint_version",
+        "review",
+    )
 
 
 class NoteInline(admin.TabularInline):
