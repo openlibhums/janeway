@@ -22,7 +22,7 @@ from django.db.models import Q, Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -777,10 +777,20 @@ def replace_article_file(request, identifier_type, identifier, file_id):
     error = None
 
     if request.GET.get("delete", False):
-        file_delete(request, article_to_replace.pk, file_to_replace.pk)
-        return redirect(
-            reverse("submit_files", kwargs={"article_id": article_to_replace.id})
+        # Kept for backwards compatibility with callers (e.g. plugins) that
+        # still link here with ?delete=. Deleting now needs confirmation, so
+        # hand off to the confirmation page.
+        confirm_url = reverse(
+            "file_delete",
+            kwargs={
+                "article_id": article_to_replace.pk,
+                "file_id": file_to_replace.pk,
+            },
         )
+        return_url = reverse(
+            "submit_files", kwargs={"article_id": article_to_replace.id}
+        )
+        return redirect(f"{confirm_url}?{urlencode({'return': return_url})}")
 
     if request.POST:
         if "replacement" in request.POST and request.FILES:
