@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% load securitytags %}
 {% load files %}
@@ -18,18 +18,18 @@
             <table id="files" class="small files">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Label</th>
-                    <th>Filename</th>
-                    <th>Type</th>
-                    <th>Uploaded</th>
-                    <th>Modified</th>
-                    <th>Download</th>
-                    <th>History</th>
-                    <th>Replace</th>
-                    <th>Delete</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Label</th>
+                    <th scope="col">Filename</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Uploaded</th>
+                    <th scope="col">Modified</th>
+                    <th scope="col">Download</th>
+                    <th scope="col">History</th>
+                    <th scope="col">Replace</th>
+                    <th scope="col">Delete</th>
                     {% if request.user.is_admin %}
-                    <th>Admin</th>
+                    <th scope="col">Admin</th>
                     {% endif %}
                 </tr>
                 </thead>
@@ -41,7 +41,7 @@
                     <tr>
                         <td>{{ file.pk }}</td>
                         <td class="wrap-long-text">{% if not file.label %}No Label{% endif %}{{ file.label }}</td>
-                        <td class="wrap-long-text">{{ file }}</td>
+                        <th scope="row" class="wrap-long-text">{{ file }}</th>
                         <td>{% file_type article file %}</td>
                         <td>{{ file.date_uploaded|date:"Y-m-d G:i" }}</td>
                         <td>{{ file.last_modified|date:"Y-m-d G:i" }}</td>
@@ -59,8 +59,7 @@
                                     class="fa fa-cloud-upload">&nbsp;</i></a>{% endif %}</td>
                         <td>{% if can_edit_file_flag %}
                             <a href="{% url 'file_delete' article.pk file.pk %}?return={{ request.path|urlencode }}%3Freturn%3D{{ request.GET.return|urlencode }}"><i
-                                    class="fa fa-trash">
-                                &nbsp;</i></a>{% endif %}</td>
+                                    class="fa fa-trash" aria-hidden="true">&nbsp;</i><span class="show-for-sr">{% trans "Delete file" %}</span></a>{% endif %}</td>
                         {% if request.user.is_admin %}
                         <td>
                             <a target="_blank" href="{% url 'admin:core_file_change' file.pk %}"><span class="fa fa-cogs">&nbsp;</span>Edit</a>
