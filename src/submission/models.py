@@ -2659,7 +2659,9 @@ class Article(AbstractLastModifiedModel):
             lang = Lang(self.language)
             return lang.pt1 or default_language
         except (InvalidLanguageValue, DeprecatedLanguageValue):
-            logger.error("Article #{self.pk} has invalid language code {self.language}")
+            logger.error(
+                f"Article #{self.pk} has invalid language code {self.language}"
+            )
             return default_language
 
     def discussion_stats(self):
