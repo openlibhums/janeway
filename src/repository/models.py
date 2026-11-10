@@ -699,6 +699,17 @@ class RepositoryFieldAnswer(models.Model):
 
 
 class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
+    # Pinned rather than left to the database default, which on at least one
+    # deployment was "simple" and so did no stemming: "literacy" would not
+    # match "literacies". It must also match the config in the search
+    # indexes, or the planner ignores them.
+    SEARCH_CONFIG = "english"
+
+    # Names are not English prose and must not be stemmed: "english" would
+    # reduce Waters to water. Pinning it also makes the expression
+    # immutable, and so indexable.
+    AUTHOR_SEARCH_CONFIG = "simple"
+
     SORT_KEYS = {
         "-title",
         "title",
@@ -793,32 +804,22 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         )
         if site:
             queryset = queryset.filter(repository=site)
-        lookups, annotations = self.build_postgres_lookups(search_term, search_filters)
+        condition, annotations = self.build_postgres_lookups(
+            search_term,
+            search_filters,
+        )
         if annotations:
             queryset = queryset.annotate(**annotations)
-        if lookups:
-            queryset = queryset.filter(**lookups)
-        if search_filters.get("full_text"):
-            queryset = queryset.filter(
-                preprintversion__pk__in=self._latest_version_subq()
-            )
+        if condition:
+            queryset = queryset.filter(condition)
 
+        # A plain queryset rather than a raw one. Matching is entirely pk
+        # lookups against subqueries, which cannot duplicate rows, so no
+        # DISTINCT ON or raw wrapper is needed. The paginator can then use
+        # LIMIT instead of fetching every match, and prefetch_related works.
         if not sort or sort not in self.SORT_KEYS:
-            sort = "-relevance"
-
-        queryset = queryset.order_by("id").distinct("id")
-
-        inner_sql = self.stringify_queryset(queryset)
-
-        if "relevance" in sort:
-            return self.model.objects.raw(
-                f"SELECT * from ({inner_sql}) AS search ORDER BY relevance DESC"
-            )
-        else:
-            order_by_sql = self.build_order_by_sql(sort)
-            return self.model.objects.raw(
-                f"SELECT * from ({inner_sql}) AS search {order_by_sql}"
-            )
+            return queryset.order_by("-relevance", "-date_published")
+        return queryset.order_by(sort)
 
     def _latest_version_subq(self):
         return Subquery(
@@ -839,52 +840,116 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         return "ORDER BY %s" % ", ".join(order_strings)
 
     def build_postgres_lookups(self, search_term, search_filters):
-        lookups = {}
+        """Returns a Q of match conditions and the annotations they need.
+
+        Each field is matched with its own pk subquery rather than folded
+        into one search vector. A vector concatenated across a join is
+        recomputed for every joined row, and once any branch is a subquery
+        the planner abandons index scans for the whole expression: on a
+        repository of 26,000 records, searching title, abstract and authors
+        together took over sixteen seconds where each part alone took under
+        two. The title, abstract and author expressions match the GIN
+        indexes in migration 0065 exactly, config included, so the planner
+        can use them.
+
+        Relevance ranks on the title and abstract. A record found only
+        through a joined field keeps the baseline rank, so it sorts below a
+        title or abstract hit rather than being discarded.
+        """
+        query = SearchQuery(search_term, config=self.SEARCH_CONFIG)
         annotations = {"relevance": models.Value(1.0, models.FloatField())}
-        vectors = []
+        condition = Q()
+
+        local_vectors = []
         if search_filters.get("title"):
-            vectors.append(SearchVector("title", weight="A"))
-        if search_filters.get("keywords"):
-            vectors.append(SearchVector("keywords__word", weight="B"))
-        if search_filters.get("authors"):
-            vectors.append(SearchVector("frozenauthor__last_name", weight="B"))
-            vectors.append(SearchVector("frozenauthor__first_name", weight="B"))
+            title_vector = SearchVector("title", weight="A", config=self.SEARCH_CONFIG)
+            local_vectors.append(title_vector)
+            condition |= Q(
+                pk__in=self.get_queryset()
+                .annotate(title_vector=title_vector)
+                .filter(title_vector=query)
+                .values("pk")
+            )
         if search_filters.get("abstract"):
-            vectors.append(SearchVector("abstract", weight="C"))
+            abstract_vector = SearchVector(
+                "abstract",
+                weight="C",
+                config=self.SEARCH_CONFIG,
+            )
+            local_vectors.append(abstract_vector)
+            condition |= Q(
+                pk__in=self.get_queryset()
+                .annotate(abstract_vector=abstract_vector)
+                .filter(abstract_vector=query)
+                .values("pk")
+            )
+        if local_vectors:
+            # Ranking only, evaluated for rows that already matched.
+            vector = local_vectors[0]
+            for extra in local_vectors[1:]:
+                vector += extra
+            annotations["relevance"] = SearchRank(vector, query)
+
+        if search_filters.get("authors"):
+            condition |= Q(
+                pk__in=submission_models.FrozenAuthor.objects.filter(
+                    preprint__isnull=False,
+                )
+                .annotate(
+                    author_vector=SearchVector(
+                        "last_name",
+                        "first_name",
+                        config=self.AUTHOR_SEARCH_CONFIG,
+                    )
+                )
+                .filter(
+                    author_vector=SearchQuery(
+                        search_term,
+                        config=self.AUTHOR_SEARCH_CONFIG,
+                    )
+                )
+                .values("preprint_id")
+            )
+
+        if search_filters.get("keywords"):
+            condition |= Q(
+                pk__in=KeywordPreprint.objects.annotate(
+                    keyword_vector=SearchVector("keyword__word"),
+                )
+                .filter(keyword_vector=query)
+                .values("preprint_id")
+            )
+
         if search_filters.get("full_text"):
             FileTextModel = swapper.load_model("core", "FileText")
             field_type = FileTextModel._meta.get_field("contents")
+            # Only each preprint's latest version, as before.
+            versions = PreprintVersion.objects.filter(
+                pk=Subquery(
+                    PreprintVersion.objects.filter(preprint=OuterRef("preprint"))
+                    .order_by("-version")
+                    .values("pk")[:1]
+                )
+            )
             if isinstance(field_type, SearchVectorField):
-                vectors.append(
-                    model_utils.SearchVector(
-                        "preprintversion__file__text__contents",
-                        weight="D",
-                    )
-                )
+                versions = versions.filter(file__text__contents=query)
             else:
-                vectors.append(
-                    SearchVector(
-                        "peprintversion_set__submission_file__text__contents",
-                        weight="D",
-                    )
-                )
-        if vectors:
-            vector = vectors[0]
-            for v in vectors[1:]:
-                vector += v
-            query = SearchQuery(search_term)
-            annotations["search_vector"] = vector
-            annotations["relevance"] = SearchRank(vector, query)
-            lookups["search_vector"] = query
+                versions = versions.annotate(
+                    text_vector=SearchVector("file__text__contents"),
+                ).filter(text_vector=query)
+            condition |= Q(pk__in=versions.values("preprint_id"))
 
         if search_filters.get("ORCID"):
             # An author's ORCID is their own if set, otherwise their account's.
-            lookups["pk__in"] = submission_models.FrozenAuthor.objects.filter(
-                Q(frozen_orcid=search_term)
-                | Q(frozen_orcid="", author__orcid=search_term),
-                preprint__isnull=False,
-            ).values("preprint_id")
-        return lookups, annotations
+            condition |= Q(
+                pk__in=submission_models.FrozenAuthor.objects.filter(
+                    Q(frozen_orcid=search_term)
+                    | Q(frozen_orcid="", author__orcid=search_term),
+                    preprint__isnull=False,
+                ).values("preprint_id")
+            )
+
+        return condition, annotations
 
     @staticmethod
     def stringify_queryset(queryset):
