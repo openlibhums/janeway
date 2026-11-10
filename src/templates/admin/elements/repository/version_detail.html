@@ -53,8 +53,8 @@
 
                     <p><strong>Published DOI{% if version.published_doi_changed %} (changed){% endif %}</strong></p>
                     <p>{% if version.published_doi_changed %}{{ version.published_doi|default:"Cleared" }}{% else %}Unchanged{% endif %}</p>
-                    <p><strong>File{% if version.file_changed %} (changed){% endif %}</strong></p>
                     {% if version.file_changed %}
+                    <p><strong>File (changed)</strong></p>
                     <p><a href="{% url 'repository_download_file' version.preprint.id version.file.pk %}">{% trans "Download" %} {% include "elements/icons/link_download.html" %}</a></p>
                     {% if version.file.is_pdf %}
                     <p>
@@ -65,6 +65,7 @@
                     </p>
                     {% endif %}
                     {% else %}
+                    <p><strong>File</strong></p>
                     <p>Unchanged</p>
                     {% endif %}
                 </div>
