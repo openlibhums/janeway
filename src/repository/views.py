@@ -8,7 +8,7 @@ from dateutil import tz
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.query import RawQuerySet
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -180,16 +180,33 @@ def repository_dashboard(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = models.Preprint.objects.filter(
-        owner=request.user,
-        date_submitted__isnull=False,
-        repository=request.repository,
+    preprints = (
+        models.Preprint.objects.filter(
+            owner=request.user,
+            date_submitted__isnull=False,
+            repository=request.repository,
+        )
+        .select_related("submission_type")
+        .annotate(
+            view_count=Count(
+                "preprintaccess",
+                filter=Q(preprintaccess__file__isnull=True),
+                distinct=True,
+            ),
+            download_count=Count(
+                "preprintaccess",
+                filter=Q(preprintaccess__file__isnull=False),
+                distinct=True,
+            ),
+            comment_count=Count("comment", distinct=True),
+        )
+        .order_by("-date_submitted")
     )
     incomplete_preprints = models.Preprint.objects.filter(
         owner=request.user,
         date_submitted__isnull=True,
         repository=request.repository,
-    )
+    ).order_by("-date_started")
 
     if request.POST and "delete" in request.POST:
         preprint_id = request.POST.get("delete")
@@ -223,8 +240,14 @@ def repository_dashboard(request):
 
     template = "admin/repository/dashboard.html"
     context = {
-        "preprints": preprints,
-        "incomplete_preprints": incomplete_preprints,
+        "preprints": repository_logic.paginate(
+            preprints,
+            request.GET.get("page", 1),
+        ),
+        "incomplete_preprints": repository_logic.paginate(
+            incomplete_preprints,
+            request.GET.get("incomplete_page", 1),
+        ),
     }
 
     return render(request, template, context)

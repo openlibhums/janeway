@@ -21,6 +21,7 @@ from django.db.models import (
     Count,
 )
 from django.db.models.functions import Concat
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 from production.logic import save_galley
 from core import models as core_models, files
@@ -1557,3 +1558,18 @@ def is_pdf_upload(request):
         files.check_in_memory_mime(in_memory_file=request.FILES.get("file"))
         == "application/pdf"
     )
+
+
+def paginate(queryset, page, per_page=15):
+    """Returns a single page of queryset, tolerating a bad page number.
+
+    Repository listings are linked to from templates and external sites, so an
+    out-of-range or non-numeric page must not raise.
+    """
+    paginator = Paginator(queryset, per_page)
+    try:
+        return paginator.page(page)
+    except PageNotAnInteger:
+        return paginator.page(1)
+    except EmptyPage:
+        return paginator.page(paginator.num_pages)

@@ -5,6 +5,8 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.test import Client, TestCase, override_settings
 from django.core.exceptions import ValidationError
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
@@ -1589,3 +1591,89 @@ class AffiliationDateTests(TestCase):
     def test_open_ended_affiliation_is_allowed(self):
         affiliation = self.build(timezone.datetime(2026, 1, 1).date(), None)
         affiliation.full_clean(exclude=["organization"])
+
+
+class RepositoryDashboardQueryTests(TestCase):
+    """The dashboard must not issue queries proportional to the row count.
+
+    The live failure was a gunicorn worker timeout (Sentry OLH-JANEWAY-HCM),
+    aborted mid-render resolving submission_type per row. The OAI import
+    assigns a single owner to every record, so one account can own the whole
+    corpus.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.server_name = "dashrepo.test.com"
+        cls.manager = helpers.create_user("dash_manager@janeway.systems")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.owner = helpers.create_user("dash_owner@janeway.systems")
+        cls.owner.is_active = True
+        cls.owner.save()
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Journal Article",
+            name_plural="Journal Articles",
+            slug="dash-journal-article",
+        )
+        for number in range(20):
+            rm.Preprint.objects.create(
+                repository=cls.repository,
+                owner=cls.owner,
+                submission_type=cls.submission_type,
+                stage=rm.STAGE_PREPRINT_REVIEW,
+                title="Preprint {}".format(number),
+                abstract="",
+                comments_editor="",
+                date_submitted=timezone.now(),
+            )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_dashboard_query_count_is_independent_of_row_count(self):
+        self.client.force_login(self.owner)
+
+        def count_queries():
+            with CaptureQueriesContext(connection) as queries:
+                response = self.client.get(
+                    reverse("repository_dashboard"),
+                    SERVER_NAME=self.server_name,
+                )
+            self.assertEqual(response.status_code, 200)
+            return len(queries)
+
+        # Warm the session and settings caches so the baseline measures only
+        # the per-row cost, not first-request overhead.
+        count_queries()
+        baseline = count_queries()
+        for number in range(20, 60):
+            rm.Preprint.objects.create(
+                repository=self.repository,
+                owner=self.owner,
+                submission_type=self.submission_type,
+                stage=rm.STAGE_PREPRINT_REVIEW,
+                title="Extra preprint {}".format(number),
+                abstract="",
+                comments_editor="",
+                date_submitted=timezone.now(),
+            )
+        self.assertEqual(baseline, count_queries())
+
+    @override_settings(URL_CONFIG="domain")
+    def test_dashboard_paginates(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(
+            reverse("repository_dashboard"),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["preprints"]), 15)
