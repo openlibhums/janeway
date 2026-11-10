@@ -15,6 +15,9 @@ from core import workflow
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class PreSubmissionStartForm(forms.Form):
@@ -205,7 +208,22 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             self.fields[
                 "license"
             ].queryset = self.request.repository.active_licenses.all()
-        self.fields["license"].required = True
+
+        # Requiring a licence when the repository has configured none leaves
+        # the author with a mandatory field they cannot satisfy, which blocks
+        # submission entirely.
+        licences_available = self.fields["license"].queryset.exists()
+        self.fields["license"].required = licences_available
+        if not licences_available:
+            self.fields["license"].help_text = _(
+                "No licences have been configured for this repository. "
+                "Please contact the repository team."
+            )
+            logger.warning(
+                "Repository %s has no active licences, so the submission "
+                "licence field cannot be completed.",
+                self.request.repository,
+            )
 
         if elements:
             for element in elements:
