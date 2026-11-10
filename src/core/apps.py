@@ -16,6 +16,9 @@ class CoreConfig(AppConfig):
         from core import upgrade  # register upgrade signals
         from core import signals  # register login signals
         from core.model_utils import SearchLookup
+        from utils.language import register_missing_language_info
+
+        register_missing_language_info()
 
         models.CharField.register_lookup(SearchLookup)
         models.TextField.register_lookup(SearchLookup)

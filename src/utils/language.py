@@ -35,3 +35,26 @@ def find_language_or_its_variant(requested_language, available_languages):
         return sorted(base_matches)[0]
 
     return None
+
+
+def register_missing_language_info():
+    """
+    Adds a Django LANG_INFO entry for each of settings.LANGUAGES that lacks one.
+
+    Django's get_language_info falls back to the base language for a code it
+    does not know, so en-us is reported with the code "en" and the language
+    switchers list English twice (#5672). Existing entries are left alone.
+    """
+    from django.conf import settings
+    from django.conf.locale import LANG_INFO
+
+    for code, name in settings.LANGUAGES:
+        code = code.lower()
+        if code in LANG_INFO:
+            continue
+        LANG_INFO[code] = {
+            "bidi": code.split("-")[0] in settings.LANGUAGES_BIDI,
+            "code": code,
+            "name": str(name),
+            "name_local": str(name),
+        }
