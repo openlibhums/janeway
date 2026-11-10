@@ -188,6 +188,15 @@ class Repository(model_utils.AbstractSiteModel):
             "authors to be PDF files."
         ),
     )
+    submission_file_required = models.BooleanField(
+        default=True,
+        verbose_name=_("Submission File Required"),
+        help_text=_(
+            "If set to True, authors must upload a file before they can "
+            "complete a submission. Turn this off for repositories that "
+            "accept metadata-only records."
+        ),
+    )
     about = model_utils.JanewayBleachField(blank=True, null=True)
     start = model_utils.JanewayBleachField(
         blank=True,
@@ -897,6 +906,16 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    peer_reviewed = models.BooleanField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name=_("Peer Reviewed"),
+        help_text=_(
+            "Whether this item has been peer reviewed. Leave unset if it is "
+            "not known, and no peer review status will be displayed."
+        ),
+    )
     owner = models.ForeignKey(
         "core.Account",
         null=True,
@@ -1217,6 +1236,20 @@ class Preprint(models.Model):
             return True
         return False
 
+    @property
+    def is_peer_reviewed(self):
+        """Returns True, False or None for this item's peer review status.
+
+        Falls back to the submission type's default so a bulk import can set a
+        sensible status per type. None means unknown, and callers should say
+        nothing at all rather than assert either way.
+        """
+        if self.peer_reviewed is not None:
+            return self.peer_reviewed
+        if self.submission_type:
+            return self.submission_type.default_peer_reviewed
+        return None
+
     def current_version_file_type(self):
         if self.current_version is None:
             return None
@@ -1322,6 +1355,16 @@ class RepositorySubmissionType(models.Model):
     name = models.CharField(max_length=100)
     name_plural = models.CharField(max_length=100)
     slug = models.SlugField(max_length=255, unique=True)
+    default_peer_reviewed = models.BooleanField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name=_("Default Peer Review Status"),
+        help_text=_(
+            "Applied to items of this type that do not set their own peer "
+            "review status. A status set on the item itself always wins."
+        ),
+    )
     pill_colour = models.CharField(
         max_length=7,
         default="#1e40af",

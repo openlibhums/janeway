@@ -763,7 +763,10 @@ def repository_files(request, preprint_id):
                 )
 
         if "complete" in request.POST:
-            if preprint.submission_file:
+            if (
+                preprint.submission_file
+                or not request.repository.submission_file_required
+            ):
                 return redirect(
                     reverse(
                         "repository_review",

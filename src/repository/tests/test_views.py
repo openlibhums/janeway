@@ -1677,3 +1677,186 @@ class RepositoryDashboardQueryTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["preprints"]), 15)
+
+
+class PeerReviewStatusTests(TestCase):
+    """Peer review status is tri-state.
+
+    An institutional repository holds published, reviewed outputs, so an
+    unconditional statement was wrong for every record. When the status is
+    unknown the page keeps the cautious "may not have been" wording.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.server_name = "peerrepo.test.com"
+        cls.manager = helpers.create_user("peer_manager@janeway.systems")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.author = helpers.create_user("peer_author@janeway.systems")
+        cls.submission_type = rm.RepositorySubmissionType.objects.create(
+            repository=cls.repository,
+            name="Journal Article",
+            name_plural="Journal Articles",
+            slug="peer-journal-article",
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.author,
+            cls.subject,
+        )
+        cls.preprint.submission_type = cls.submission_type
+        cls.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now()
+        cls.preprint.save()
+        rm.PreprintVersion.objects.create(
+            preprint=cls.preprint,
+            version=1,
+            date_time=timezone.now(),
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+
+    def test_item_value_wins_over_submission_type_default(self):
+        self.preprint.peer_reviewed = False
+        self.submission_type.default_peer_reviewed = True
+        self.submission_type.save()
+        self.assertIs(self.preprint.is_peer_reviewed, False)
+
+    def test_falls_back_to_submission_type_default(self):
+        self.preprint.peer_reviewed = None
+        self.preprint.save()
+        self.submission_type.default_peer_reviewed = True
+        self.submission_type.save()
+        self.preprint.refresh_from_db()
+        self.assertIs(self.preprint.is_peer_reviewed, True)
+
+    def test_unknown_when_neither_is_set(self):
+        self.preprint.peer_reviewed = None
+        self.preprint.save()
+        self.submission_type.default_peer_reviewed = None
+        self.submission_type.save()
+        self.preprint.refresh_from_db()
+        self.assertIsNone(self.preprint.is_peer_reviewed)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_page_is_cautious_when_status_is_unknown(self):
+        self.preprint.peer_reviewed = None
+        self.preprint.save()
+        self.submission_type.default_peer_reviewed = None
+        self.submission_type.save()
+        response = self.client.get(
+            reverse(
+                "repository_preprint",
+                kwargs={"preprint_id": self.preprint.pk},
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "may not have been peer reviewed")
+        self.assertNotContains(response, "has been peer reviewed")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_page_states_reviewed_and_not_reviewed(self):
+        for value, expected in (
+            (True, "has been peer reviewed"),
+            (False, "has not been peer reviewed"),
+        ):
+            with self.subTest(peer_reviewed=value):
+                self.preprint.peer_reviewed = value
+                self.preprint.save()
+                response = self.client.get(
+                    reverse(
+                        "repository_preprint",
+                        kwargs={"preprint_id": self.preprint.pk},
+                    ),
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, expected)
+
+
+class SubmissionFileRequiredTests(TestCase):
+    """Repositories holding metadata-only records must not demand a file.
+
+    An institutional repository often has only a citation and a link to the
+    version of record, so the deposit workflow cannot hard require an upload.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.server_name = "filerepo.test.com"
+        cls.manager = helpers.create_user("file_manager@janeway.systems")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.author = helpers.create_user("file_author@janeway.systems")
+        cls.author.is_active = True
+        cls.author.save()
+        cls.draft = rm.Preprint.objects.create(
+            repository=cls.repository,
+            owner=cls.author,
+            stage=rm.STAGE_PREPRINT_UNSUBMITTED,
+            title="A metadata only record",
+            abstract="",
+            comments_editor="",
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client.force_login(self.author)
+
+    def complete_files_step(self):
+        return self.client.post(
+            reverse(
+                "repository_files",
+                kwargs={"preprint_id": self.draft.pk},
+            ),
+            data={"complete": ""},
+            SERVER_NAME=self.server_name,
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_file_required_by_default(self):
+        self.assertTrue(self.repository.submission_file_required)
+        response = self.complete_files_step()
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_step_completes_without_file_when_not_required(self):
+        self.repository.submission_file_required = False
+        self.repository.save()
+        response = self.complete_files_step()
+        self.assertRedirects(
+            response,
+            reverse(
+                "repository_review",
+                kwargs={"preprint_id": self.draft.pk},
+            ),
+            fetch_redirect_response=False,
+        )
+
+    def test_file_type_is_none_without_a_version(self):
+        """current_version_file_type dereferenced the file with no guard."""
+        self.assertIsNone(self.draft.current_version)
+        self.assertIsNone(self.draft.current_version_file_type())
+
+    def test_file_type_is_none_for_a_version_without_a_file(self):
+        rm.PreprintVersion.objects.create(
+            preprint=self.draft,
+            version=1,
+            date_time=timezone.now(),
+        )
+        self.assertIsNone(self.draft.current_version_file_type())

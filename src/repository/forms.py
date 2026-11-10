@@ -168,12 +168,14 @@ class PreprintInfo(utils_forms.KeywordModelForm):
             "comments_editor",
             "subject",
             "doi",
+            "peer_reviewed",
         )
         widgets = {
             "title": forms.TextInput(attrs={"placeholder": _("Title")}),
             "abstract": forms.Textarea(
                 attrs={"placeholder": _("Enter your article's abstract here")}
             ),
+            "peer_reviewed": forms.NullBooleanSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -691,6 +693,7 @@ class RepositorySubmission(RepositoryBase):
             "start",
             "file_upload_help",
             "submission_agreement",
+            "submission_file_required",
             "limit_upload_to_pdf",
             "require_pdf_help",
             "additional_version_help",
@@ -1051,6 +1054,7 @@ class RepositorySubmissionTypeForm(forms.ModelForm):
             "name",
             "name_plural",
             "slug",
+            "default_peer_reviewed",
             "pill_colour",
         ]
         help_texts = {

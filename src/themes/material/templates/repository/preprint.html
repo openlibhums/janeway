@@ -39,7 +39,13 @@
             <div itemprop="articleBody" id="pdf">
                 {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
                 <p class="preprint-text">
-                    This {{ type_name }} may not have been peer reviewed.
+                    {% if preprint.is_peer_reviewed is True %}
+                        This {{ type_name }} has been peer reviewed.
+                    {% elif preprint.is_peer_reviewed is False %}
+                        This {{ type_name }} has not been peer reviewed.
+                    {% else %}
+                        This {{ type_name }} may not have been peer reviewed.
+                    {% endif %}
                     {% if version.display_doi %}
                         The published version of this {{ type_name }} is available:
                         {% include "elements/doi_display.html" with doi=version.display_doi title=version.display_title %}

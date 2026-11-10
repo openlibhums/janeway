@@ -26,7 +26,13 @@
             <h1>{{ version.display_title|safe }}</h1>
             {% firstof preprint.submission_type.name request.repository.object_name as type_name %}
             <p>
-                This {{ type_name }} may not have been peer reviewed.
+                {% if preprint.is_peer_reviewed is True %}
+                    This {{ type_name }} has been peer reviewed.
+                {% elif preprint.is_peer_reviewed is False %}
+                    This {{ type_name }} has not been peer reviewed.
+                {% else %}
+                    This {{ type_name }} may not have been peer reviewed.
+                {% endif %}
                 {% if version.display_doi %}
                     The published version of this
                     {{ type_name }} is available:
