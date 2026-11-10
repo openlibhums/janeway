@@ -16,6 +16,7 @@ from django.utils import timezone
 
 from rest_framework.test import APIClient
 
+from api import serializers as api_serializers
 from identifiers import forms as identifier_forms
 from identifiers import models as identifier_models
 from repository import models as repository_models
@@ -522,3 +523,122 @@ class TestPreprintFilesScoping(TestCase):
         }
         self.assertNotIn(self.preprint_other.pk, preprint_ids)
         self.api_client.force_authenticate(user=None)
+
+
+MULTILINGUAL_API_DOMAIN = "preprint-api-multilingual.domain.com"
+MONOLINGUAL_API_DOMAIN = "preprint-api-monolingual.domain.com"
+
+
+class TestPreprintMultilingualAPI(TestCase):
+    """
+    Regression tests for multilingual title/abstract support in the preprint
+    API serializers (#3375). The repository uses django-modeltranslation, so
+    the serializers expose and accept a {language_code: value} map alongside
+    the primary title/abstract.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.author = helpers.create_user("preprint.api.multilingual@test.com")
+
+        cls.repo, cls.subject = helpers.create_repository(
+            cls.press, [], [], domain=MULTILINGUAL_API_DOMAIN
+        )
+        cls.repo.languages = ["en", "es"]
+        cls.repo.default_language = "en"
+        cls.repo.save()
+
+        cls.mono_repo, cls.mono_subject = helpers.create_repository(
+            cls.press, [], [], domain=MONOLINGUAL_API_DOMAIN
+        )
+        cls.mono_repo.languages = ["en"]
+        cls.mono_repo.save()
+
+        cls.preprint = helpers.create_preprint(
+            cls.repo, cls.author, cls.subject, title="English Title"
+        )
+        cls.preprint.title_en = "English Title"
+        cls.preprint.title_es = "Título en español"
+        cls.preprint.abstract_en = "English abstract"
+        cls.preprint.abstract_es = "Resumen en español"
+        cls.preprint.save()
+
+        cls.mono_preprint = helpers.create_preprint(
+            cls.mono_repo, cls.author, cls.mono_subject, title="Mono Title"
+        )
+
+    def test_read_serializer_exposes_translations_for_active_languages(self):
+        """The read serializer returns one entry per repository language."""
+        data = api_serializers.PreprintSerializer(self.preprint).data
+        self.assertEqual(
+            data["title_translations"],
+            {"en": "English Title", "es": "Título en español"},
+        )
+        self.assertEqual(
+            data["abstract_translations"],
+            {"en": "English abstract", "es": "Resumen en español"},
+        )
+
+    def test_read_serializer_single_language_repository(self):
+        """A single-language repository exposes a single translation entry."""
+        data = api_serializers.PreprintSerializer(self.mono_preprint).data
+        self.assertEqual(
+            data["title_translations"],
+            {"en": "Mono Title"},
+        )
+
+    def test_update_serializer_applies_translations(self):
+        """Updating via the create/update serializer writes per-language fields."""
+        validated_data = {
+            "title": "Updated English",
+            "abstract": "Updated English abstract",
+            "title_translations": {
+                "en": "Updated English",
+                "es": "Actualizado en español",
+            },
+            "abstract_translations": {"es": "Resumen actualizado"},
+            "owner": self.author,
+            "repository": self.repo,
+            "stage": repository_models.STAGE_PREPRINT_REVIEW,
+            "license": None,
+            "date_submitted": self.preprint.date_submitted,
+            "date_accepted": None,
+            "date_published": None,
+            "doi": None,
+            "preprint_doi": None,
+            "comments_editor": "",
+            "authors": [],
+            "keywords": [],
+            "subject": [],
+            "repositoryfieldanswer_set": [],
+            "preprintsupplementaryfile_set": [],
+        }
+        serializer = api_serializers.PreprintCreateSerializer()
+        result = serializer.update(self.preprint, validated_data)
+        result.refresh_from_db()
+
+        self.assertEqual(result.title_en, "Updated English")
+        self.assertEqual(result.title_es, "Actualizado en español")
+        self.assertEqual(result.abstract_es, "Resumen actualizado")
+
+    def test_version_queue_create_applies_translations(self):
+        """Creating a version queue entry writes per-language fields."""
+        serializer = api_serializers.VersionQueueCreateSerializer()
+        version_queue = serializer.create(
+            {
+                "preprint": self.preprint,
+                "update_type": "correction",
+                "title": "Version English",
+                "abstract": "Version English abstract",
+                "title_translations": {
+                    "en": "Version English",
+                    "es": "Versión en español",
+                },
+                "abstract_translations": {"es": "Resumen de la versión"},
+            }
+        )
+        version_queue.refresh_from_db()
+
+        self.assertEqual(version_queue.title_es, "Versión en español")
+        self.assertEqual(version_queue.abstract_es, "Resumen de la versión")
