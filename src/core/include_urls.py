@@ -444,6 +444,11 @@ urlpatterns = [
         partial_views.journal_image_remove,
         name="journal_image_remove",
     ),
+    re_path(
+        r"^manager/account/(?P<account_id>\d+)/request_orcid/$",
+        core_views.request_orcid,
+        name="request_orcid",
+    ),
 ]
 
 # Journal homepage block loading
