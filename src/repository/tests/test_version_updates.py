@@ -392,3 +392,22 @@ class TestUpdateViews(VersionUpdateTestBase):
         self.assertEqual(
             self.names(response.context["author_changes"].added), ["Coral B Author"]
         )
+
+    def test_moderator_detail_flags_a_new_file(self):
+        self.client.force_login(self.manager)
+        update = self.submit(self.start())
+        url = reverse("repository_version_detail", args=[update.pk])
+        self.assertFalse(update.file_changed)
+        self.assertNotContains(self.get(url), "File (changed)")
+        update.decline()
+
+        update = self.start("version")
+        update.file = rm.PreprintFile.objects.create(
+            preprint=self.preprint,
+            original_filename="new.pdf",
+        )
+        update.save()
+        update = self.submit(update)
+        url = reverse("repository_version_detail", args=[update.pk])
+        self.assertTrue(update.file_changed)
+        self.assertContains(self.get(url), "File (changed)")
