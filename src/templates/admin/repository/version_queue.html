@@ -8,8 +8,7 @@
 {% block title-sub %}There are {{ version_queue|length }} version requests for review.{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name }} Manager</a></li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
     <li>Version Moderation</li>
 {% endblock %}
 
