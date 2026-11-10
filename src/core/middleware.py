@@ -268,11 +268,20 @@ class TimezoneMiddleware(BaseMiddleware):
             tzname = None
             request.timezone = None
 
+        # timezone.activate sets thread local state that outlives the request,
+        # so a request without its own timezone must clear whatever the
+        # previous request on this thread left behind. Otherwise an anonymous
+        # visitor sees dates rendered in the last signed in user's timezone.
+        if tzname is None:
+            timezone.deactivate()
+            return
+
         try:
-            if tzname is not None:
-                tzinfo = pytz.timezone(tzname)
-                request.timezone = tzinfo
-                timezone.activate(tzinfo)
-                logger.debug("Activated timezone %s" % tzname)
+            tzinfo = pytz.timezone(tzname)
+            request.timezone = tzinfo
+            timezone.activate(tzinfo)
+            logger.debug("Activated timezone %s" % tzname)
         except Exception as e:
+            request.timezone = None
+            timezone.deactivate()
             logger.warning("Failed to activate timezone %s: %s" % (tzname, e))

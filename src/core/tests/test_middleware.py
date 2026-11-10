@@ -2,12 +2,14 @@
 Unit tests for janeway core middleware
 """
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import redirect
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.urls.base import clear_script_prefix
+from django.utils import timezone
 from django.core.management import call_command
 
 from core.middleware import SiteSettingsMiddleware, TimezoneMiddleware, BaseMiddleware
@@ -170,6 +172,34 @@ class TestTimezoneMiddleware(TestCase):
         request.user = user
         response = self.middleware.process_request(request)
         self.assertEqual(request.timezone.zone, user.preferred_timezone)
+
+    @override_settings(URL_CONFIG="path")
+    def test_timezone_does_not_leak_to_the_next_request(self):
+        """timezone.activate is thread local and outlives the request.
+
+        Without an explicit deactivate an anonymous visitor is served dates in
+        the timezone of whichever signed in user the thread last handled.
+        """
+        user = Account.objects.get(email="regularuser@timezone.com")
+        user.preferred_timezone = "Europe/Madrid"
+        user.save()
+
+        first = self.request_factory.get("/test/", SERVER_NAME="press.org")
+        first.session = {}
+        first.user = user
+        self.middleware.process_request(first)
+        self.assertEqual(timezone.get_current_timezone_name(), "Europe/Madrid")
+
+        second = self.request_factory.get("/test/", SERVER_NAME="press.org")
+        second.session = {}
+        second.user = AnonymousUser()
+        self.middleware.process_request(second)
+
+        self.assertIsNone(second.timezone)
+        self.assertEqual(
+            timezone.get_current_timezone_name(),
+            settings.TIME_ZONE,
+        )
 
     def test_browser_timezone_case(self):
         user = AnonymousUser()
