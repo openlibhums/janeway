@@ -1333,6 +1333,17 @@ class OrcidAffiliationForm(forms.ModelForm):
                 tzinfo=tzinfo,
             )
 
+        # ORCID data is not ours to correct, so an end date that precedes the
+        # start is dropped rather than failing the whole affiliation import.
+        if data.get("start") and data.get("end") and data["end"] < data["start"]:
+            logger.warning(
+                "Discarding ORCID affiliation end date %s, which precedes "
+                "start date %s.",
+                data["end"],
+                data["start"],
+            )
+            del data["end"]
+
         super().__init__(data=data, *args, **kwargs)
         if journal:
             if not journal.get_setting("metadata", "author_job_title"):

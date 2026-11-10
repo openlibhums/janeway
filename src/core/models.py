@@ -3164,6 +3164,18 @@ class ControlledAffiliation(models.Model):
         ]
         ordering = ["-is_primary", "-pk"]
 
+    def clean(self):
+        """Rejects an affiliation that ends before it starts.
+
+        Deliberately no comparison against today, so a fixed term post with a
+        future end date, or one due to start next month, both remain valid.
+        """
+        super().clean()
+        if self.start and self.end and self.end < self.start:
+            raise ValidationError(
+                {"end": "The end date cannot be before the start date."}
+            )
+
     @property
     def journal(self):
         if self.frozen_author and self.frozen_author.article:
