@@ -319,23 +319,28 @@ def redirect_old_subject(request, subject_id):
 def repository_list(request):
     form = forms.PreprintFilterForm(repository=request.repository)
 
-    preprints = (
-        models.Preprint.objects.filter(
-            date_published__lte=timezone.now(),
-            repository=request.repository,
-        )
-        .select_related("submission_type")
-        .prefetch_related("organisation_units")
+    # select_related is applied once the queryset is final, below, so the join
+    # runs against the page rather than against everything search considers.
+    preprints = models.Preprint.objects.filter(
+        date_published__lte=timezone.now(),
+        repository=request.repository,
     )
 
     if request.GET:
         form = forms.PreprintFilterForm(request.GET, repository=request.repository)
+
+    subject = None
+    submission_type = None
+    search_filters = {}
+    search_term = ""
+    sort = ""
+    searched = False
+
     if form.is_valid():
         subject = form.cleaned_data.get("subject")
         submission_type = form.cleaned_data.get("submission_type")
         search_term = form.cleaned_data.get("search_term", "").strip()
         sort = form.cleaned_data.get("sort", "")
-        search_filters = None
 
         if search_term:
             search_filters = form.search_filters()
@@ -346,7 +351,8 @@ def repository_list(request):
         if submission_type:
             preprints = preprints.filter(submission_type=submission_type)
 
-        if search_filters:
+        if search_term and any(search_filters.values()):
+            searched = True
             preprints = models.Preprint.objects.search(
                 search_term,
                 search_filters,
@@ -356,11 +362,17 @@ def repository_list(request):
             )
 
     if isinstance(preprints, RawQuerySet):
-        # RawQuerySets (used for postgres relevance sort) don't support .order_by() or pagination
-        preprints_list = list(preprints)
-        paginator = Paginator(preprints_list, 15)
+        # RawQuerySets (used for postgres relevance sort) don't support
+        # .order_by() or pagination, and are already ordered.
+        paginator = Paginator(list(preprints), 15)
     else:
-        preprints = preprints.order_by("-date_published")
+        preprints = preprints.select_related("submission_type").prefetch_related(
+            "organisation_units",
+        )
+        if not searched:
+            # Search has already applied its own ordering, by relevance when
+            # the reader did not choose one.
+            preprints = preprints.order_by(sort or "-date_published")
         paginator = Paginator(preprints, 15)
     page = request.GET.get("page", 1)
 
@@ -377,10 +389,9 @@ def repository_list(request):
         {
             "preprints": preprints,
             "form": form,
-            "subject": form.cleaned_data.get("subject") if form.is_valid() else None,
-            "submission_type": form.cleaned_data.get("submission_type")
-            if form.is_valid()
-            else None,
+            "subject": subject,
+            "submission_type": submission_type,
+            "search_term": search_term,
         },
     )
 

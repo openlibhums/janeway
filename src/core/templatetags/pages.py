@@ -7,6 +7,24 @@ from django import template
 register = template.Library()
 
 
+@register.simple_tag(takes_context=True)
+def page_query(context, **kwargs):
+    """Returns the current query string with kwargs replaced.
+
+    Pagination links that hardcode ?page=n discard whatever search, filter and
+    sort the reader already applied, sending them back to an unfiltered list.
+    """
+    request = context.get("request")
+    query = request.GET.copy() if request else {}
+    for key, value in kwargs.items():
+        if value in (None, ""):
+            query.pop(key, None)
+        else:
+            query[key] = value
+    encoded = query.urlencode() if hasattr(query, "urlencode") else ""
+    return "?{}".format(encoded) if encoded else "?"
+
+
 @register.filter()
 def slice_pages(current_page, slice_size=2):
     """Given a page and a slice size returns a slice of pages

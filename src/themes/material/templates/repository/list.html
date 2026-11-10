@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load pages %}
 {% load page_title %}
+{% load materializecss %}
 
 {% block title %}
     {% if rou %}
@@ -33,27 +34,29 @@
                     {% endif %}
                 </p>
                 {% include "repository/elements/preprint_listing.html" with preprints=preprints %}
+                {% if preprints.paginator.num_pages > 1 %}
                 <div class="pagination-block">
                     <ul class="pagination">
                         {% if preprints.has_previous %}
-                            <li class="waves-effect"><a href="?page={{ preprints.previous_page_number }}">
+                            <li class="waves-effect"><a href="{% page_query page=preprints.previous_page_number %}">
                             {% include "elements/icons/page_previous.html" %}
                         </a>
                             &nbsp;</li>{% endif %}
                         {{ preprints.page.page_range }}
                         {% for page in preprints|slice_pages:3 %}
                             <li class="waves-effect {% if preprints.number == page.number %}active{% endif %}"><a
-                                    href="?page={{ page.number }}">{{ page.number }}</a>&nbsp;
+                                    href="{% page_query page=page.number %}">{{ page.number }}</a>&nbsp;
                             </li>
                         {% endfor %}
                         {% if preprints.has_next %}
-                            <li class="waves-effect"><a href="?page={{ preprints.next_page_number }}">
+                            <li class="waves-effect"><a href="{% page_query page=preprints.next_page_number %}">
                             {% include "elements/icons/page_next.html" %}
                         </a>
                             </li>
                         {% endif %}
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </section>
         <section aria-label="{% trans 'Search' %}">
@@ -61,8 +64,7 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="input-group">
-                            <form class="form-horizontal" method="POST" action="{% url 'repository_search' %}">
-                                {% csrf_token %}
+                            <form class="form-horizontal" method="get" action="{% url 'repository_list' %}">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <label for="search_input" class="sr-only">
@@ -70,25 +72,28 @@
                                         </label>
                                         <input id="search_input" class="input-group-field" type="search" name="search_term"
                                             placeholder='{% trans 'Search preprints' %}'
-                                            {% if search_term %}value="{{ search_term }}"{% endif %}>
+                                            value="{{ form.search_term.value|default_if_none:'' }}">
                                         <button class="btn input-go-button">
                                             <i aria-hidden="true" class="fa fa-search"></i>
                                             <span class="sr-only">{% trans 'Search' %}</span>
                                         </button>
-                                    </div>                                    
-                                    <p>
-                                        <small>{% trans "You can search by:" %}</small>
-                                    </p>
-                                    <small>
-                                        <ul>
-                                            <li>{% trans "Title" %}</li>
-                                            <li>{% trans "Keywords" %}</li>
-                                            <li>{% trans "Author Name" %}</li>
-                                            <li>{% trans "Author Affiliation" %}</li>
-                                        </ul>
-                                    </small>
+                                    </div>
+
+                                    <fieldset>
+                                        <legend><small>{% trans "Search in" %}:</small></legend>
+                                        <p><label>{{ form.title }} {% trans "Title" %}</label></p>
+                                        <p><label>{{ form.abstract }} {% trans "Abstract" %}</label></p>
+                                        <p><label>{{ form.authors }} {% trans "Authors" %}</label></p>
+                                        <p><label>{{ form.keywords }} {% trans "Keywords" %}</label></p>
+                                        <p><label>{{ form.full_text }} {% trans "Full Text" %}</label></p>
+                                        <p><label>{{ form.orcid }} {% trans "ORCID" %}</label></p>
+                                    </fieldset>
+
+                                    {{ form.subject|materializecss }}
+                                    {{ form.submission_type|materializecss }}
+                                    {{ form.sort|materializecss }}
                                 </div>
-                                <input type="submit" style="visibility: hidden;"/>
+                                <button type="submit" class="btn">{% trans "Apply" %}</button>
                             </form>
                         </div>
                     </div>

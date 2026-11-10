@@ -4,6 +4,8 @@
 {% load i18n %}
 {% load truncate %}
 {% load page_title %}
+{% load pages %}
+{% load foundation %}
 
 {% block css %}
   {% include "common/repository/style/submission_type_pills.html" %}
@@ -81,22 +83,28 @@
                     </div>
                     <hr />
                 </div>
+            {% empty %}
+                <div class="box">
+                    <p>{% trans 'No results found.' %}</p>
+                </div>
             {% endfor %}
+            {% if preprints.paginator.num_pages > 1 %}
             <div class="pagination-block">
                 <ul class="pagination">
                     {% if preprints.has_previous %}
-                        <li class="arrow"><a href="?page={{ preprints.previous_page_number }}">&laquo;</a></li>
+                        <li class="arrow"><a href="{% page_query page=preprints.previous_page_number %}">&laquo;</a></li>
                     {% endif %}
                     {% for page in preprints.paginator.page_range %}
                         <li class="{% if preprints.number == page %}current{% endif %}">
-                            <a href="?page={{ page }}">{{ page }}</a>
+                            <a href="{% page_query page=page %}">{{ page }}</a>
                         </li>
                     {% endfor %}
                     {% if preprints.has_next %}
-                        <li class="arrow"><a href="?page={{ preprints.next_page_number }}">&raquo;</a></li>
+                        <li class="arrow"><a href="{% page_query page=preprints.next_page_number %}">&raquo;</a></li>
                     {% endif %}
                 </ul>
             </div>
+            {% endif %}
         </div>
         <aside class="large-4 columns" data-sticky-container>
           <div class="sticky" data-sticky data-margin-top="0" data-anchor="content">
@@ -132,11 +140,9 @@
                             </div>
                         </fieldset>
 
-                      {{ form.subject.label_tag }}
-                      {{ form.subject }}
-
-                      {{ form.submission_type.label_tag }}
-                      {{ form.submission_type }}
+                      {{ form.subject|foundation }}
+                      {{ form.submission_type|foundation }}
+                      {{ form.sort|foundation }}
 
                       <button type="submit" class="button small expanded">
                           {% trans "Apply Filters" %}

@@ -929,16 +929,40 @@ class RecommendationForm(forms.ModelForm):
 
 
 class PreprintFilterForm(forms.Form):
+    SEARCH_FIELDS = (
+        "title",
+        "abstract",
+        "authors",
+        "keywords",
+        "full_text",
+        "orcid",
+    )
+    DEFAULT_SEARCH_FIELDS = ("title", "abstract", "authors")
+    SORT_CHOICES = (
+        ("", _("Default")),
+        ("-date_published", _("Newest first")),
+        ("date_published", _("Oldest first")),
+        ("title", _("Title (A-Z)")),
+        ("-title", _("Title (Z-A)")),
+    )
+
     search_term = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={"placeholder": "Search..."}),
+    )
+    # No CSS classes on these widgets. Three themes render this form and each
+    # has its own form library, so a class from one is meaningless in the
+    # others. The templates apply their own styling.
+    sort = forms.ChoiceField(
+        required=False,
+        choices=SORT_CHOICES,
+        label="Sort by",
     )
     subject = forms.ModelChoiceField(
         queryset=models.Subject.objects.none(),
         required=False,
         label="Subject",
         empty_label="— All Subjects —",
-        widget=forms.Select(attrs={"class": "full-width"}),
     )
 
     submission_type = forms.ModelChoiceField(
@@ -946,7 +970,6 @@ class PreprintFilterForm(forms.Form):
         required=False,
         label="Submission Type",
         empty_label="— All Types —",
-        widget=forms.Select(attrs={"class": "full-width"}),
     )
 
     title = forms.BooleanField(required=False, initial=True)
@@ -958,6 +981,8 @@ class PreprintFilterForm(forms.Form):
 
     def __init__(self, *args, repository=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.is_bound:
+            self.apply_default_search_fields()
         if repository:
             self.fields["subject"].queryset = models.Subject.objects.filter(
                 repository=repository,
@@ -968,6 +993,25 @@ class PreprintFilterForm(forms.Form):
             ].queryset = models.RepositorySubmissionType.objects.filter(
                 repository=repository,
             )
+
+    def apply_default_search_fields(self):
+        """Restores the default search fields when a term was given without any.
+
+        ``initial`` only applies to unbound forms, so a search submitted from a
+        plain search box arrives with every field flag absent, which cleans to
+        False. That would search no fields at all and match nothing.
+
+        Applied to the submitted data rather than in clean() so that the
+        checkboxes render ticked and the reader can see what was searched.
+        """
+        if not self.data.get("search_term"):
+            return
+        if any(self.data.get(field) for field in self.SEARCH_FIELDS):
+            return
+        data = self.data.copy()
+        for field in self.DEFAULT_SEARCH_FIELDS:
+            data[field] = "on"
+        self.data = data
 
     def search_filters(self):
         if not self.is_valid():

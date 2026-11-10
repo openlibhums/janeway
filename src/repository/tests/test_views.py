@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
 from django.test import Client, TestCase, override_settings
+from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core import mail
@@ -1368,3 +1369,223 @@ class ClarityRepositoryLogoTests(TestCase):
         response = self.get_home()
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, reverse("press_cover_download"))
+
+
+class RepositoryListFilterTests(TestCase):
+    """Covers the filter, sort and pagination paths of repository_list.
+
+    Every one of these query strings raised UnboundLocalError before, because
+    search_filters was only bound when a search term was present but was read
+    unconditionally. They are driven through the real URL because that is the
+    only place the bug shows up.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.server_name = "filterrepo.test.com"
+        cls.manager = helpers.create_user("filter_manager@janeway.systems")
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press,
+            [cls.manager],
+            [],
+            domain=cls.server_name,
+        )
+        install.load_settings(cls.repository)
+        cls.author = helpers.create_user(
+            "filter_author@janeway.systems",
+            first_name="Wilhelmina",
+            last_name="Searchable",
+        )
+        cls.preprint = helpers.create_preprint(
+            cls.repository,
+            cls.author,
+            cls.subject,
+            title="Domesticating the ancient house",
+            abstract="A study of the archaeology of a false analogy.",
+        )
+        cls.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        cls.preprint.date_published = timezone.now()
+        cls.preprint.save()
+
+    def setUp(self):
+        clear_script_prefix()
+
+    @override_settings(URL_CONFIG="domain")
+    def test_list_query_strings_do_not_error(self):
+        for query in (
+            "",
+            "?page=1",
+            "?subject={}".format(self.subject.pk),
+            "?sort=title",
+            "?sort=-date_published",
+        ):
+            with self.subTest(query=query):
+                response = self.client.get(
+                    "{}{}".format(reverse("repository_list"), query),
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_old_subject_url_redirects_and_resolves(self):
+        response = self.client.get(
+            reverse(
+                "repository_list_subject",
+                kwargs={"subject_id": self.subject.pk},
+            ),
+            SERVER_NAME=self.server_name,
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_search_finds_preprint_by_title_and_abstract(self):
+        """A search box submits only search_term, with no field flags set.
+
+        initial=True does not apply to bound forms, so without the form's
+        clean() restoring the defaults every search matched nothing.
+        """
+        for term in ("Domesticating", "analogy"):
+            with self.subTest(term=term):
+                response = self.client.get(
+                    "{}?search_term={}".format(reverse("repository_list"), term),
+                    SERVER_NAME=self.server_name,
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, self.preprint.title)
+
+    @override_settings(URL_CONFIG="domain")
+    def test_no_results_shows_an_empty_state_and_no_paginator(self):
+        """Two testers reported a page 1 button sitting above zero results."""
+        response = self.client.get(
+            "{}?search_term=zzzznotathing".format(reverse("repository_list")),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["preprints"].paginator.count, 0)
+        self.assertContains(response, "No results found")
+        self.assertNotContains(response, "page=1")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_pagination_links_keep_the_active_filters(self):
+        """Bare ?page=n links drop the reader's search, filter and sort."""
+        response = self.client.get(
+            "{}?search_term=Domesticating&sort=title".format(
+                reverse("repository_list"),
+            ),
+            SERVER_NAME=self.server_name,
+        )
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        for fragment in ("search_term=Domesticating", "sort=title"):
+            self.assertIn(fragment, content)
+
+    def test_search_matches_each_field_independently(self):
+        """Joined fields are matched by subquery, not folded into the vector.
+
+        Concatenating a search vector across a join made Postgres recompute the
+        title and abstract vectors for every joined row.
+        """
+        cases = (
+            ("Domesticating", {"title": True}),
+            ("analogy", {"abstract": True}),
+            ("Searchable", {"authors": True}),
+        )
+        base = {
+            "title": False,
+            "abstract": False,
+            "authors": False,
+            "keywords": False,
+            "full_text": False,
+            "ORCID": False,
+        }
+        for term, overrides in cases:
+            with self.subTest(term=term, fields=sorted(overrides)):
+                filters = dict(base)
+                filters.update(overrides)
+                results = rm.Preprint.objects.search(
+                    term,
+                    filters,
+                    site=self.repository,
+                )
+                self.assertIn(self.preprint.pk, [item.pk for item in results])
+
+    def test_search_does_not_match_a_field_that_is_switched_off(self):
+        filters = {
+            "title": True,
+            "abstract": False,
+            "authors": False,
+            "keywords": False,
+            "full_text": False,
+            "ORCID": False,
+        }
+        results = rm.Preprint.objects.search(
+            "Searchable",
+            filters,
+            site=self.repository,
+        )
+        self.assertEqual([item.pk for item in results], [])
+
+    def test_search_filters_default_to_title_abstract_and_authors(self):
+        form = forms.PreprintFilterForm(
+            QueryDict("search_term=anything"),
+            repository=self.repository,
+        )
+        self.assertTrue(form.is_valid())
+        filters = form.search_filters()
+        self.assertTrue(filters["title"])
+        self.assertTrue(filters["abstract"])
+        self.assertTrue(filters["authors"])
+        self.assertFalse(filters["keywords"])
+
+    def test_explicit_filters_are_not_overridden(self):
+        form = forms.PreprintFilterForm(
+            QueryDict("search_term=anything&keywords=on"),
+            repository=self.repository,
+        )
+        self.assertTrue(form.is_valid())
+        filters = form.search_filters()
+        self.assertTrue(filters["keywords"])
+        self.assertFalse(filters["title"])
+
+
+class AffiliationDateTests(TestCase):
+    """An affiliation must not end before it starts.
+
+    No comparison against today, so a fixed term post with a future end date
+    and one due to start next month both remain valid.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.account = helpers.create_user("affiliation@janeway.systems")
+        cls.organization = cm.Organization.objects.create()
+
+    def build(self, start, end):
+        return cm.ControlledAffiliation(
+            account=self.account,
+            organization=self.organization,
+            start=start,
+            end=end,
+        )
+
+    def test_end_before_start_is_rejected(self):
+        affiliation = self.build(
+            timezone.datetime(2045, 1, 1).date(),
+            timezone.datetime(2026, 1, 1).date(),
+        )
+        with self.assertRaises(ValidationError):
+            affiliation.full_clean(exclude=["organization"])
+
+    def test_fixed_term_with_a_future_end_is_allowed(self):
+        affiliation = self.build(
+            timezone.datetime(2026, 1, 1).date(),
+            timezone.datetime(2029, 12, 31).date(),
+        )
+        affiliation.full_clean(exclude=["organization"])
+
+    def test_open_ended_affiliation_is_allowed(self):
+        affiliation = self.build(timezone.datetime(2026, 1, 1).date(), None)
+        affiliation.full_clean(exclude=["organization"])
