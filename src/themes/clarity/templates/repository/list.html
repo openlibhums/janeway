@@ -90,6 +90,7 @@
               </div>
             </div>
 
+            {% if form %}
             <fieldset class="mb-3">
               <legend class="h6">{% trans 'Search in' %}</legend>
               {% bootstrap_field form.title bound_css_class='' %}
@@ -103,6 +104,7 @@
             {% bootstrap_field form.subject bound_css_class='' %}
             {% bootstrap_field form.submission_type bound_css_class='' %}
             {% bootstrap_field form.sort bound_css_class='' %}
+            {% endif %}
 
             <button type="submit" class="btn btn-primary btn-block">
               {% trans 'Apply' %}

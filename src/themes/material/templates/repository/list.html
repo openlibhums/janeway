@@ -79,6 +79,7 @@
                                         </button>
                                     </div>
 
+                                    {% if form %}
                                     <fieldset>
                                         <legend><small>{% trans "Search in" %}:</small></legend>
                                         <p><label>{{ form.title }} {% trans "Title" %}</label></p>
@@ -92,6 +93,7 @@
                                     {{ form.subject|materializecss }}
                                     {{ form.submission_type|materializecss }}
                                     {{ form.sort|materializecss }}
+                                    {% endif %}
                                 </div>
                                 <button type="submit" class="btn">{% trans "Apply" %}</button>
                             </form>
