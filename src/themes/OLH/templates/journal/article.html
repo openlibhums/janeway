@@ -410,6 +410,11 @@
                             <p>This article is linked to a {{ article.preprint.repository.object_name }} in {{ article.preprint.repository.name }}.</p>
                             <p><a href="{{ article.preprint.url }}">{{ article.preprint.title }}</a></p>
                         </div>
+                        {% elif article.preprint and article.is_published and journal_settings.general.uses_isolinear_plugin %}
+                        <div class="section hide-for-small-only">
+                            <h2>{% trans "Preprint Versions" %}</h2>
+                            {% hook 'preprint_version_downloads' %}
+                        </div>
                         {% endif %}
 
                         {% if galleys %}
