@@ -77,6 +77,19 @@
                             {{ form.comments_editor|foundation }}
                         </div>
 
+                        {% if details_form %}
+                        <div class="large-12 columns" data-publication-details>
+                            <fieldset class="fieldset">
+                                <legend>{% trans "Publication details" %}</legend>
+                                <p><small>{% blocktrans trimmed %}
+                                    Where and when the work was (or will be) published. Fill in what you
+                                    know: the acceptance date and journal matter most for REF.
+                                {% endblocktrans %}</small></p>
+                                {{ details_form|foundation }}
+                            </fieldset>
+                        </div>
+                        {% endif %}
+
                         <div class="large-12 columns">
                             <div class="row">
                                 <div class="large-12 columns">

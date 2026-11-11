@@ -76,6 +76,7 @@
             {% endif %}
             {% include "admin/repository/elements/update_additional_files.html" %}
             {% include "admin/repository/elements/funding_editor.html" %}
+            {% if request.repository.is_institutional %}{% include "admin/repository/elements/publication_details_editor.html" %}{% endif %}
             {% include "admin/repository/elements/author_list_editor.html" %}
             <div class="button-group padding-block-2">
                 <button name="submit_update" class="success button" form="update-details">

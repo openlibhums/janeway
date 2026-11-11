@@ -1,0 +1,29 @@
+{% load i18n foundation %}
+{# A record's or an update's publication details. htmx swaps this whole block. #}
+<div id="publication-details" class="padding-block-end-2" data-publication-details>
+  <div class="title-area">
+    <h2>{% trans "Publication details" %}</h2>
+  </div>
+  {% if details_saved %}<div class="callout success small" role="status">{% trans "Saved." %}</div>{% endif %}
+  <details{% if details_form.errors %} open{% endif %}>
+    <summary>{% trans "Edit publication details" %}</summary>
+    <form method="post" action="{{ details_url }}"
+          hx-post="{{ details_url }}" hx-target="#publication-details" hx-swap="outerHTML">
+      {% csrf_token %}
+      {{ details_form|foundation }}
+      <button type="submit" class="button">{% trans "Save publication details" %}</button>
+    </form>
+  </details>
+  {% with details=details_form.instance %}
+    {% if details.pk %}
+      <dl class="publication-details-summary">
+        {% if details.venue_line %}<dt>{% trans "Published in" %}</dt><dd>{{ details.venue_line }}</dd>{% endif %}
+        {% if details.publication_status %}<dt>{% trans "Status" %}</dt><dd>{{ details.get_publication_status_display }}</dd>{% endif %}
+        {% if details.accepted_date %}<dt>{% trans "Accepted" %}</dt><dd>{{ details.accepted_date|date:"j F Y" }}</dd>{% endif %}
+        {% if details.published_date %}<dt>{% trans "Published" %}</dt><dd>{{ details.published_date|date:"j F Y" }}</dd>{% endif %}
+      </dl>
+    {% else %}
+      <p><em>{% trans "None yet." %}</em></p>
+    {% endif %}
+  {% endwith %}
+</div>

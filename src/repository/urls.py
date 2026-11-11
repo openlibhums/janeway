@@ -36,6 +36,16 @@ urlpatterns = [
         name="repository_update_funding",
     ),
     re_path(
+        r"^dashboard/(?P<preprint_id>\d+)/update/(?P<update_id>\d+)/publication-details/$",
+        author_views.repository_update_publication_details,
+        name="repository_update_publication_details",
+    ),
+    re_path(
+        r"^manager/(?P<preprint_id>\d+)/publication-details/$",
+        author_views.repository_preprint_publication_details,
+        name="repository_preprint_publication_details",
+    ),
+    re_path(
         r"^submit/(?P<preprint_id>\d+)/funding/$",
         author_views.repository_preprint_funding,
         name="repository_preprint_funding",

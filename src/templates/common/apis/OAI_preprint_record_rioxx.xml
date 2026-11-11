@@ -29,6 +29,11 @@
       <dc:identifier>{{ article.url }}</dc:identifier>
       {% endif %}
       <dc:language>{{ article.rioxx_language }}</dc:language>
+      {% with details=article.publication_details %}{% if details.issn or details.isbn %}
+      <dc:source>{{ details.issn|default:details.isbn }}</dc:source>
+      {% endif %}{% if details.accepted_date %}
+      <dcterms:dateAccepted>{{ details.accepted_date|date:"Y-m-d" }}</dcterms:dateAccepted>
+      {% endif %}{% endwith %}
       {% with publisher=article.rioxx_publisher %}{% if publisher %}
       <dc:publisher>{{ publisher }}</dc:publisher>
       {% endif %}{% endwith %}
@@ -48,8 +53,12 @@
       {% for funder in article.funding %}
       <rioxxterms:grant funder_name="{{ funder.name }}"{% if funder.fundref_id %} funder_id="{{ funder.fundref_id }}"{% endif %}>{{ funder.funding_id|default:"" }}</rioxxterms:grant>
       {% endfor %}
-      {% if article.date_published %}
+      {% if article.publication_details.published_date %}
+      <rioxxterms:publication_date>{{ article.publication_details.published_date|date:"Y-m-d" }}</rioxxterms:publication_date>
+      {% elif article.date_published %}
       <rioxxterms:publication_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:publication_date>
+      {% endif %}
+      {% if article.date_published %}
       <rioxxterms:record_public_release_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:record_public_release_date>
       {% endif %}
       <rioxxterms:type>{{ article.coar_type }}</rioxxterms:type>

@@ -452,6 +452,7 @@
         <div class="box">
             <div class="content">
                 {% include "admin/repository/elements/funding_editor.html" %}
+                {% if request.repository.is_institutional %}{% include "admin/repository/elements/publication_details_editor.html" %}{% endif %}
             </div>
         </div>
         {% if request.repository.is_institutional and request.repository.request_copy %}

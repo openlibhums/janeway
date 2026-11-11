@@ -1240,6 +1240,11 @@ class Preprint(models.Model):
         return self.funding_entries.order_by("pk")
 
     @property
+    def publication_details(self):
+        """The record's current publication details, or None."""
+        return self.publication_details_set.first()
+
+    @property
     def supplementaryfiles(self):
         return PreprintSupplementaryFile.objects.filter(
             preprint=self,
@@ -1303,6 +1308,8 @@ class Preprint(models.Model):
             answer.copy(preprint=None, preprint_version=version)
         for funding in self.funding:
             funding.copy(preprint_version=version)
+        if self.publication_details:
+            self.publication_details.copy(preprint_version=version)
         for supplementary in self.supplementaryfiles:
             # Uploaded files are shared with the snapshot, not copied.
             supplementary.pk = None
@@ -1357,12 +1364,13 @@ class Preprint(models.Model):
 
     @property
     def rioxx_language(self):
-        """The Language field's answer (the OAI importer fills it), or en."""
-        return self.field_answer("Language") or "en"
+        details = self.publication_details
+        return (details.language if details else "") or "en"
 
     @property
     def rioxx_publisher(self):
-        return self.field_answer("Publisher")
+        details = self.publication_details
+        return details.publisher if details else ""
 
     def field_answer(self, name):
         """The answer to the repository field called ``name``, or ""."""
@@ -2051,6 +2059,194 @@ class PreprintSupplementaryFile(models.Model):
         )
 
 
+class PublicationDetails(models.Model):
+    """
+    Where and when an institutional repository's record was published, for
+    REF and funders: dates, status, open access type and the venue.
+
+    Like authors and funding, the record has its current details (preprint);
+    a superseded version keeps a snapshot (preprint_version) and an update
+    edits a draft copy (version_queue). Each has at most one.
+    """
+
+    STATUS_CHOICES = (
+        ("published", _("Published")),
+        ("published_online", _("Published online")),
+        ("in_press", _("In press")),
+        ("submitted", _("Submitted")),
+        ("unpublished", _("Unpublished")),
+    )
+    OA_CHOICES = (
+        ("green", _("Green")),
+        ("gold", _("Gold")),
+        ("diamond", _("Diamond")),
+    )
+    # The fields an update can change and a version snapshots.
+    DETAIL_FIELDS = (
+        "accepted_date",
+        "first_online_date",
+        "publication_date",
+        "completion_date",
+        "submitted_date",
+        "publication_status",
+        "oa_type",
+        "venue_title",
+        "issn",
+        "isbn",
+        "publisher",
+        "volume",
+        "issue",
+        "pages",
+        "language",
+        "editors",
+        "citation",
+    )
+
+    preprint = models.ForeignKey(
+        Preprint,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="publication_details_set",
+    )
+    preprint_version = models.ForeignKey(
+        "PreprintVersion",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="publication_details_snapshot",
+    )
+    version_queue = models.ForeignKey(
+        "VersionQueue",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="publication_details_set",
+    )
+    accepted_date = models.DateField(
+        blank=True, null=True, verbose_name=_("Accepted by the journal or publisher")
+    )
+    first_online_date = models.DateField(
+        blank=True, null=True, verbose_name=_("First published online")
+    )
+    publication_date = models.DateField(
+        blank=True, null=True, verbose_name=_("Final publication")
+    )
+    completion_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name=_("Completed"),
+        help_text=_("For theses, reports and other unpublished work."),
+    )
+    submitted_date = models.DateField(
+        blank=True, null=True, verbose_name=_("Submitted to the journal or publisher")
+    )
+    publication_status = models.CharField(
+        max_length=20, blank=True, choices=STATUS_CHOICES
+    )
+    oa_type = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=OA_CHOICES,
+        verbose_name=_("Open access type"),
+    )
+    venue_title = models.CharField(
+        max_length=500, blank=True, verbose_name=_("Journal or book title")
+    )
+    issn = models.CharField(max_length=100, blank=True, verbose_name="ISSN")
+    isbn = models.CharField(max_length=100, blank=True, verbose_name="ISBN")
+    publisher = models.CharField(max_length=500, blank=True)
+    volume = models.CharField(max_length=50, blank=True)
+    issue = models.CharField(max_length=50, blank=True)
+    pages = models.CharField(max_length=50, blank=True)
+    language = models.CharField(
+        max_length=50, blank=True, help_text=_("e.g. en, or English.")
+    )
+    editors = models.TextField(blank=True, help_text=_("One per line."))
+    citation = models.TextField(
+        blank=True, help_text=_("A formatted reference to the published work.")
+    )
+
+    class Meta:
+        verbose_name_plural = "publication details"
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        preprint__isnull=False,
+                        preprint_version__isnull=True,
+                        version_queue__isnull=True,
+                    )
+                    | Q(
+                        preprint__isnull=True,
+                        preprint_version__isnull=False,
+                        version_queue__isnull=True,
+                    )
+                    | Q(
+                        preprint__isnull=True,
+                        preprint_version__isnull=True,
+                        version_queue__isnull=False,
+                    )
+                ),
+                name="publication_details_one_owner",
+            ),
+            models.UniqueConstraint(
+                fields=["preprint"],
+                condition=Q(preprint__isnull=False),
+                name="publication_details_one_per_preprint",
+            ),
+            models.UniqueConstraint(
+                fields=["preprint_version"],
+                condition=Q(preprint_version__isnull=False),
+                name="publication_details_one_per_version",
+            ),
+            models.UniqueConstraint(
+                fields=["version_queue"],
+                condition=Q(version_queue__isnull=False),
+                name="publication_details_one_per_update",
+            ),
+        ]
+
+    def __str__(self):
+        return self.venue_title or "Publication details {}".format(self.pk)
+
+    def values(self):
+        return {name: getattr(self, name) for name in self.DETAIL_FIELDS}
+
+    def copy(self, **owner):
+        """A saved copy with another owner, e.g. a version's snapshot."""
+        copy = PublicationDetails(
+            preprint=None, preprint_version=None, version_queue=None, **self.values()
+        )
+        for key, value in owner.items():
+            setattr(copy, key, value)
+        copy.save()
+        return copy
+
+    @property
+    def is_empty(self):
+        return not any(self.values().values())
+
+    @property
+    def venue_line(self):
+        """e.g. "Proceedings B, 291(2014), 1-12"."""
+        parts = [self.venue_title]
+        number = self.volume
+        if self.issue:
+            number = (
+                "{}({})".format(number, self.issue)
+                if number
+                else "({})".format(self.issue)
+            )
+        parts += [number, self.pages]
+        return ", ".join(part for part in parts if part)
+
+    @property
+    def published_date(self):
+        """The date the work itself was published: final, else first online."""
+        return self.publication_date or self.first_online_date
+
+
 class CopyRequest(models.Model):
     """A reader's request for a copy of a locked file, and the answer."""
 
@@ -2337,6 +2533,14 @@ class PreprintVersion(models.Model):
         elif self.file.mime_type in files.PDF_MIMETYPES:
             return "pdf"
         return None
+
+    @property
+    def publication_details(self):
+        """This version's publication details: its snapshot once superseded,
+        otherwise the record's."""
+        if self.metadata_frozen:
+            return self.publication_details_snapshot.first()
+        return self.preprint.publication_details
 
     @property
     def funding(self):
@@ -2750,6 +2954,7 @@ class VersionQueue(models.Model):
         "field_answers": _("additional information"),
         "supplementary_files": _("additional files"),
         "funding": _("funding"),
+        "publication_details": _("publication details"),
     }
     UPDATE_SECTIONS = tuple(SECTION_LABELS)
 
@@ -2832,6 +3037,35 @@ class VersionQueue(models.Model):
     @property
     def funding_changed(self):
         return "funding" in self.changed_sections
+
+    @property
+    def publication_details_changed(self):
+        return "publication_details" in self.changed_sections
+
+    @property
+    def publication_details(self):
+        """This update's publication details, or None."""
+        return self.publication_details_set.first()
+
+    def publication_details_changes(self):
+        """(field label, current, proposed) for each changed field."""
+        current = self.preprint.publication_details
+        proposed = self.publication_details
+        changes = []
+        for name in PublicationDetails.DETAIL_FIELDS:
+            field = PublicationDetails._meta.get_field(name)
+            old = getattr(current, name) if current else None
+            new = getattr(proposed, name) if proposed else None
+            if (old or None) != (new or None):
+                display = dict(field.choices) if field.choices else {}
+                changes.append(
+                    (
+                        field.verbose_name,
+                        display.get(old, old) or "",
+                        display.get(new, new) or "",
+                    )
+                )
+        return changes
 
     @property
     def funding(self):
@@ -2976,6 +3210,11 @@ class VersionQueue(models.Model):
             if update.funding_changed:
                 preprint.funding_entries.all().delete()
                 update.funding_entries.update(version_queue=None, preprint=preprint)
+            if update.publication_details_changed:
+                preprint.publication_details_set.all().delete()
+                update.publication_details_set.update(
+                    version_queue=None, preprint=preprint
+                )
             if update.field_answers_changed:
                 preprint.repositoryfieldanswer_set.all().delete()
                 update.repositoryfieldanswer_set.update(

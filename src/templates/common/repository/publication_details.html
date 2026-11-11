@@ -1,0 +1,11 @@
+{% load i18n %}
+{# A version's publication details on a public page. Needs: details. #}
+<ul class="no-bullet publication-details">
+  {% if details.venue_line %}<li>{% trans "Published in" %} {{ details.venue_line }}</li>{% endif %}
+  {% if details.publisher %}<li>{% trans "Publisher" %}: {{ details.publisher }}</li>{% endif %}
+  {% if details.publication_status %}<li>{% trans "Status" %}: {{ details.get_publication_status_display }}</li>{% endif %}
+  {% if details.accepted_date %}<li>{% trans "Accepted" %}: {{ details.accepted_date|date:"j F Y" }}</li>{% endif %}
+  {% if details.published_date %}<li>{% trans "Published" %}: {{ details.published_date|date:"j F Y" }}</li>{% endif %}
+  {% if details.issn %}<li>ISSN {{ details.issn }}</li>{% endif %}
+  {% if details.isbn %}<li>ISBN {{ details.isbn }}</li>{% endif %}
+</ul>

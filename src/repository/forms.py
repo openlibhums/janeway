@@ -1454,3 +1454,34 @@ class PreprintFundingForm(forms.ModelForm):
             "funding_statement": _("Optional."),
         }
         widgets = {"funding_statement": forms.Textarea(attrs={"rows": 3})}
+
+
+class PublicationDetailsForm(forms.ModelForm):
+    """Where and when an institutional repository's record was published."""
+
+    class Meta:
+        model = models.PublicationDetails
+        fields = models.PublicationDetails.DETAIL_FIELDS
+        widgets = {
+            name: forms.DateInput(attrs={"type": "date"})
+            for name in (
+                "accepted_date",
+                "first_online_date",
+                "publication_date",
+                "completion_date",
+                "submitted_date",
+            )
+        } | {
+            "editors": forms.Textarea(attrs={"rows": 3}),
+            "citation": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def save_for(self, **owner):
+        """Save against an owner (preprint=…, version_queue=…), unless it's
+        new and empty."""
+        details = self.save(commit=False)
+        for key, value in owner.items():
+            setattr(details, key, value)
+        if details.pk or not details.is_empty:
+            details.save()
+        return details

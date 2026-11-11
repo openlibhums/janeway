@@ -397,6 +397,16 @@ def repository_update_draft(request, preprint_id, update_id):
         }
     )
     context.update(additional_files_context(preprint, draft))
+    if request.repository.is_institutional:
+        context.update(
+            publication_details_context(
+                {"version_queue": draft},
+                reverse(
+                    "repository_update_publication_details",
+                    kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+                ),
+            )
+        )
     context.update(
         funding_editor_context(
             {"version_queue": draft},
@@ -1034,5 +1044,87 @@ def repository_update_funding(request, preprint_id, update_id):
         {"preprint": preprint, "draft": draft},
         {"version_queue": draft},
         editor_url,
+        back_url,
+    )
+
+
+def publication_details_editor(request, template_context, owner, editor_url, back_url):
+    """Edit the publication details of one owner (a record, or an update's
+    draft), as a block htmx swaps in place."""
+    details = models.PublicationDetails.objects.filter(**owner).first()
+    form = forms.PublicationDetailsForm(instance=details, prefix="pub")
+    saved = False
+    if request.method == "POST":
+        form = forms.PublicationDetailsForm(
+            request.POST, instance=details, prefix="pub"
+        )
+        if form.is_valid():
+            form.save_for(**owner)
+            saved = True
+            if not request.headers.get("HX-Request"):
+                return redirect(back_url + "#publication-details")
+    context = dict(template_context)
+    context.update(
+        {
+            "details_form": form,
+            "details_url": editor_url,
+            "details_saved": saved,
+        }
+    )
+    return render(
+        request, "admin/repository/elements/publication_details_editor.html", context
+    )
+
+
+def publication_details_context(owner, editor_url):
+    details = models.PublicationDetails.objects.filter(**owner).first()
+    return {
+        "details_form": forms.PublicationDetailsForm(instance=details, prefix="pub"),
+        "details_url": editor_url,
+        "details_saved": False,
+    }
+
+
+@is_repository_moderator
+@transaction.atomic
+def repository_preprint_publication_details(request, preprint_id):
+    """A record's publication details, for its moderators. Authors give them
+    when submitting, and change them through an update."""
+    if not request.repository.is_institutional:
+        raise Http404
+    preprint = get_object_or_404(
+        models.Preprint, pk=preprint_id, repository=request.repository
+    )
+    url = reverse(
+        "repository_preprint_publication_details", kwargs={"preprint_id": preprint.pk}
+    )
+    back_url = reverse(
+        "repository_manager_article", kwargs={"preprint_id": preprint.pk}
+    )
+    return publication_details_editor(
+        request, {"preprint": preprint}, {"preprint": preprint}, url, back_url
+    )
+
+
+@preprint_editor_or_author_required
+@transaction.atomic
+def repository_update_publication_details(request, preprint_id, update_id):
+    """A draft update's publication details."""
+    if not request.repository.is_institutional:
+        raise Http404
+    preprint, draft = get_draft_update(request, preprint_id, update_id)
+    url = reverse(
+        "repository_update_publication_details",
+        kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+    )
+    back_url = reverse(
+        "repository_update_draft",
+        kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+    )
+    return publication_details_editor(
+        request,
+        {"preprint": preprint, "draft": draft},
+        {"version_queue": draft},
+        url,
         back_url,
     )

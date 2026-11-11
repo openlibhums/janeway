@@ -667,6 +667,13 @@ def repository_info(request, preprint_id=None):
         request=request,
         submission_type_slug=submission_type.slug,
     )
+    # Institutional repositories also ask where and when it was published.
+    details_form = None
+    if request.repository.is_institutional:
+        details_form = forms.PublicationDetailsForm(
+            instance=preprint.publication_details if preprint else None,
+            prefix="pub",
+        )
 
     if request.POST:
         form = forms.PreprintInfo(
@@ -675,14 +682,22 @@ def repository_info(request, preprint_id=None):
             request=request,
             submission_type_slug=submission_type.slug,
         )
+        if details_form is not None:
+            details_form = forms.PublicationDetailsForm(
+                request.POST,
+                instance=preprint.publication_details if preprint else None,
+                prefix="pub",
+            )
 
-        if form.is_valid():
+        if form.is_valid() and (details_form is None or details_form.is_valid()):
             preprint = form.save(commit=False)
             preprint.submission_type = submission_type
             if organisation_unit:
                 preprint.organisation_units.add(organisation_unit)
 
             preprint.save()
+            if details_form is not None:
+                details_form.save_for(preprint=preprint)
 
             return redirect(
                 reverse(
@@ -694,6 +709,7 @@ def repository_info(request, preprint_id=None):
     template = "admin/repository/submit/info.html"
     context = {
         "form": form,
+        "details_form": details_form,
         "preprint": preprint,
         "additional_fields": request.repository.type_additional_submission_fields(
             submission_type_slug=submission_type.slug,
@@ -1071,9 +1087,23 @@ def repository_manager_article(request, preprint_id):
             )
 
     template = "admin/repository/article.html"
-    from repository.author_views import funding_editor_context
+    from repository.author_views import (
+        funding_editor_context,
+        publication_details_context,
+    )
 
     context = {
+        **(
+            publication_details_context(
+                {"preprint": preprint},
+                reverse(
+                    "repository_preprint_publication_details",
+                    kwargs={"preprint_id": preprint.pk},
+                ),
+            )
+            if request.repository.is_institutional
+            else {}
+        ),
         **funding_editor_context(
             {"preprint": preprint},
             reverse("repository_preprint_funding", kwargs={"preprint_id": preprint.pk}),
@@ -1761,6 +1791,11 @@ def version_detail(request, update_id):
             ),
             "funding_changes": (
                 version.funding_changes() if version.funding_changed else None
+            ),
+            "details_changes": (
+                version.publication_details_changes()
+                if version.publication_details_changed
+                else None
             ),
             "supplementary_changes": (
                 version.supplementary_file_changes()

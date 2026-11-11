@@ -171,6 +171,12 @@
                         {% include "common/repository/supplementary_files_list.html" with files=supplementary_files %}
                     {% endif %}
                     {% endwith %}
+                    {% if request.repository.is_institutional %}{% with version.publication_details as details %}
+                    {% if details and not details.is_empty %}
+                        <h2>{% trans "Publication details" %}</h2>
+                        {% include "common/repository/publication_details.html" with details=details %}
+                    {% endif %}
+                    {% endwith %}{% endif %}
                     {% with version.funding as funding %}
                     {% if funding %}
                         <h2>{% trans "Funding" %}</h2>
