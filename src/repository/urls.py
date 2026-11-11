@@ -207,6 +207,31 @@ urlpatterns = [
         name="repository_download_file",
     ),
     re_path(
+        r"^object/(?P<preprint_id>\d+)/file/(?P<file_id>\d+)/request-copy/$",
+        views.repository_request_copy,
+        name="repository_request_copy",
+    ),
+    re_path(
+        r"^request-copy/(?P<token>[0-9a-f-]{36})/$",
+        views.repository_copy_request_decide,
+        name="repository_copy_request_decide",
+    ),
+    re_path(
+        r"^request-copy/download/(?P<token>[0-9a-f-]{36})/$",
+        views.repository_copy_request_download,
+        name="repository_copy_request_download",
+    ),
+    re_path(
+        r"^manager/copy-requests/$",
+        views.repository_copy_requests,
+        name="repository_copy_requests",
+    ),
+    re_path(
+        r"^manager/(?P<preprint_id>\d+)/copy-request-author/$",
+        views.repository_copy_request_author,
+        name="repository_copy_request_author",
+    ),
+    re_path(
         r"^manager/(?P<preprint_id>\d+)/file/(?P<file_id>\d+)/access/$",
         views.repository_file_access,
         name="repository_file_access",

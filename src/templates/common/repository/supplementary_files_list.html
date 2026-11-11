@@ -7,6 +7,9 @@
         <span aria-hidden="true" class="fa fa-lock"></span>
         {{ link.label }}
         <small>({{ link.file.access_label }})</small>
+        {% if link.file.copy_can_be_requested %}
+          <a href="{% url 'repository_request_copy' link.file.preprint_id link.file_id %}">{% trans "Request a copy" %}</a>
+        {% endif %}
       {% else %}
         <a href="{{ link.href }}">{{ link.label }}</a>
         {% if link.is_upload and link.file.document_version %}<small>({{ link.file.get_document_version_display }})</small>{% endif %}

@@ -77,6 +77,12 @@
                         <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
                         <a href="{% url 'version_queue' %}" class="box-link"></a>
                     </div>
+                    {% if request.repository.is_institutional and request.repository.request_copy %}
+                    <div class="summary">
+                        <span class="title">Requests for a Copy</span>
+                        <a href="{% url 'repository_copy_requests' %}" class="box-link"></a>
+                    </div>
+                    {% endif %}
                     {% if request.repository.enable_comments %}
                     <div class="summary">
                         <span class="title">{{ comments_awaiting_moderation.count }} Comments Awaiting Moderation</span>

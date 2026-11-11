@@ -449,6 +449,33 @@
                 </table>
             </div>
         </div>
+        {% if request.repository.is_institutional and request.repository.request_copy %}
+        <div class="box" id="copy_requests">
+            <div class="title-area">
+                <h2>{% trans "Request a copy" %}</h2>
+                <a href="{% url 'repository_copy_requests' %}" class="button">{% trans "All requests" %}</a>
+            </div>
+            <div class="content">
+                <p><small>{% blocktrans trimmed %}
+                    Readers can ask for a copy of a locked author's accepted manuscript.
+                    Choose who is asked; their email isn't shown to readers.
+                {% endblocktrans %}</small></p>
+                <form method="post" action="{% url 'repository_copy_request_author' preprint.pk %}">
+                    {% csrf_token %}
+                    <label for="copy_request_author">{% trans "Author asked for copies" %}</label>
+                    <select name="copy_request_author" id="copy_request_author">
+                        <option value="">{% trans "The owner" %}{% if preprint.owner %} ({{ preprint.owner.email }}){% endif %}</option>
+                        {% for author in preprint.frozen_authors %}
+                            <option value="{{ author.pk }}"{% if author.pk == preprint.copy_request_author_id %} selected{% endif %}{% if not author.email %} disabled{% endif %}>
+                                {{ author.full_name }}{% if author.email %} ({{ author.email }}){% else %} ({% trans "no email" %}){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="small button">{% trans "Save" %}</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
         <div class="box">
             <div class="title-area">
                 <h2>Supplementary Files</h2>

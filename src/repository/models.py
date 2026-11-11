@@ -209,6 +209,16 @@ class Repository(model_utils.AbstractSiteModel):
             "authors to be PDF files."
         ),
     )
+    request_copy = models.BooleanField(
+        default=False,
+        verbose_name=_("Request a copy"),
+        help_text=_(
+            "On an institutional repository, let readers ask for a copy of an "
+            "embargoed or restricted author's accepted manuscript. The request "
+            "goes to the author the record's manager chooses, who can agree "
+            "or decline."
+        ),
+    )
     submission_file_required = models.BooleanField(
         default=True,
         verbose_name=_("Submission File Required"),
@@ -1000,6 +1010,15 @@ class Preprint(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    copy_request_author = models.ForeignKey(
+        "submission.FrozenAuthor",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="The author asked when a reader requests a copy of a locked "
+        "file. The owner is asked if this is empty.",
+    )
     peer_reviewed = models.BooleanField(
         null=True,
         blank=True,
@@ -1254,6 +1273,16 @@ class Preprint(models.Model):
             preprint=self,
             defaults={"order": self.next_supp_file_order()},
         )
+
+    def copy_request_recipient(self):
+        """(name, email) of the person asked for copies: the chosen author if
+        they're still on the author list and have an email, else the owner."""
+        author = self.copy_request_author
+        if author is not None and author.preprint_id == self.pk and author.email:
+            return author.full_name(), author.email
+        if self.owner:
+            return self.owner.full_name(), self.owner.email
+        return "", ""
 
     def serves_file(self, file):
         """Whether a file belongs on this preprint's public pages: a public
@@ -1625,6 +1654,17 @@ class PreprintFile(models.Model):
             }
         )
 
+    def copy_can_be_requested(self):
+        """Whether readers can ask for a copy: a locked author's accepted
+        manuscript, on an institutional repository with request a copy on."""
+        repository = self.preprint.repository
+        return bool(
+            repository.is_institutional
+            and repository.request_copy
+            and self.is_locked()
+            and self.document_version == self.VERSION_ACCEPTED
+        )
+
     def can_be_downloaded_by(self, user):
         """Whether a user can have the file, locked or not. Locked files are
         for staff, the repository's managers and moderators, and the
@@ -1783,6 +1823,91 @@ class PreprintSupplementaryFile(models.Model):
             "repository_file_download",
             kwargs={"preprint_id": preprint_id, "file_id": self.file_id},
         )
+
+
+class CopyRequest(models.Model):
+    """A reader's request for a copy of a locked file, and the answer."""
+
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_DECLINED = "declined"
+    STATUS_EXPIRED = "expired"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, _("Waiting for an answer")),
+        (STATUS_APPROVED, _("Approved")),
+        (STATUS_DECLINED, _("Declined")),
+        (STATUS_EXPIRED, _("Expired without an answer")),
+    )
+    # Unanswered requests expire; an approved copy can be downloaded for a while.
+    ANSWER_DAYS = 30
+    DOWNLOAD_DAYS = 7
+
+    preprint = models.ForeignKey(Preprint, on_delete=models.CASCADE)
+    file = models.ForeignKey(PreprintFile, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, verbose_name=_("Your name"))
+    email = models.EmailField(verbose_name=_("Your email address"))
+    reason = models.TextField(
+        verbose_name=_("Why you'd like a copy"),
+        help_text=_("Shown to the author."),
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    asked_name = models.CharField(max_length=300, blank=True)
+    asked_email = models.EmailField(
+        blank=True, help_text="Who was asked. Never shown to the requester."
+    )
+    created = models.DateTimeField(default=timezone.now)
+    decided = models.DateTimeField(blank=True, null=True)
+    decided_by = models.ForeignKey(
+        "core.Account",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="The manager who answered, if the author didn't.",
+    )
+    download_token = models.UUIDField(blank=True, null=True, unique=True)
+    download_until = models.DateTimeField(blank=True, null=True)
+    downloads = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("-created",)
+
+    def __str__(self):
+        return "{} ({})".format(self.email, self.get_status_display())
+
+    @property
+    def answer_by(self):
+        return self.created + timezone.timedelta(days=self.ANSWER_DAYS)
+
+    @property
+    def is_open(self):
+        """Waiting for an answer, and not yet past its time."""
+        return self.status == self.STATUS_PENDING and timezone.now() < self.answer_by
+
+    @property
+    def can_download(self):
+        return bool(
+            self.status == self.STATUS_APPROVED
+            and self.download_until
+            and timezone.now() < self.download_until
+        )
+
+    def approve(self, by=None):
+        self.status = self.STATUS_APPROVED
+        self.decided = timezone.now()
+        self.decided_by = by
+        self.download_token = uuid.uuid4()
+        self.download_until = self.decided + timezone.timedelta(days=self.DOWNLOAD_DAYS)
+        self.save()
+
+    def decline(self, by=None):
+        self.status = self.STATUS_DECLINED
+        self.decided = timezone.now()
+        self.decided_by = by
+        self.save()
 
 
 class PreprintAccess(models.Model):

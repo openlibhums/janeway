@@ -5,4 +5,7 @@
   {% blocktrans trimmed with access=file.access_label %}
     The file is not available to download: {{ access }}.
   {% endblocktrans %}
+  {% if file.copy_can_be_requested %}
+    <a href="{% url 'repository_request_copy' file.preprint_id file.pk %}">{% trans "Request a copy from the author" %}</a>
+  {% endif %}
 </p>

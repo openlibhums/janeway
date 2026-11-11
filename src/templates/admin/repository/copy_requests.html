@@ -1,0 +1,64 @@
+{% extends "admin/core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Requests for a copy" %}{% endblock %}
+{% block title-section %}{% trans "Requests for a copy" %}{% endblock %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+  <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
+  <li>{% trans "Requests for a copy" %}</li>
+{% endblock %}
+
+{% block body %}
+<div class="box">
+  <div class="content">
+    {% if not request.repository.request_copy %}
+      <p>{% trans "Request a copy is turned off for this repository, so readers can't make new requests." %}</p>
+    {% endif %}
+    <table class="table small scroll">
+      <thead>
+        <tr>
+          <th>{% trans "Asked" %}</th>
+          <th>{{ request.repository.object_name|capfirst }}</th>
+          <th>{% trans "From" %}</th>
+          <th>{% trans "Reason" %}</th>
+          <th>{% trans "Asked of" %}</th>
+          <th>{% trans "Answer" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for copy_request in copy_requests %}
+        <tr>
+          <td>{{ copy_request.created|date:"Y-m-d" }}</td>
+          <td>
+            <a href="{% url 'repository_manager_article' copy_request.preprint.pk %}">{{ copy_request.preprint.title|striptags|truncatechars:60 }}</a>
+            <br><small>{{ copy_request.file.original_filename }}</small>
+          </td>
+          <td>{{ copy_request.name }}<br><small>{{ copy_request.email }}</small></td>
+          <td>{{ copy_request.reason|truncatechars:200 }}</td>
+          <td>{{ copy_request.asked_name }}<br><small>{{ copy_request.asked_email|default:_("nobody: no email") }}</small></td>
+          <td>
+            {% if copy_request.is_open %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="copy_request" value="{{ copy_request.pk }}">
+                <button type="submit" name="approve" class="tiny success button">{% trans "Send a copy" %}</button>
+                <button type="submit" name="decline" class="tiny secondary button">{% trans "Decline" %}</button>
+              </form>
+              <small>{% blocktrans with date=copy_request.answer_by|date:"j F Y" %}Expires {{ date }}{% endblocktrans %}</small>
+            {% else %}
+              {{ copy_request.get_status_display }}{% if copy_request.decided %}, {{ copy_request.decided|date:"Y-m-d" }}{% endif %}
+              {% if copy_request.decided %}<br><small>{% if copy_request.decided_by %}{% blocktrans with name=copy_request.decided_by.full_name %}by {{ name }}{% endblocktrans %}{% else %}{% trans "by the author" %}{% endif %}</small>{% endif %}
+              {% if copy_request.status == "approved" %}<br><small>{% blocktrans count counter=copy_request.downloads %}{{ counter }} download{% plural %}{{ counter }} downloads{% endblocktrans %}</small>{% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">{% trans "No requests yet." %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

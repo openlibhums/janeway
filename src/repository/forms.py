@@ -774,6 +774,7 @@ class RepositorySubmission(RepositoryBase):
             "file_upload_help",
             "submission_agreement",
             "submission_file_required",
+            "request_copy",
             "limit_upload_to_pdf",
             "require_pdf_help",
             "additional_version_help",
@@ -1168,3 +1169,35 @@ class PreprintFileAccessForm(forms.ModelForm):
             # Only an embargo has an end date.
             cleaned_data["embargo_until"] = None
         return cleaned_data
+
+
+class CopyRequestForm(utils_forms.CaptchaForm, forms.ModelForm):
+    class Meta:
+        model = models.CopyRequest
+        fields = ("name", "email", "reason")
+        widgets = {"reason": forms.Textarea(attrs={"rows": 4})}
+
+
+class CopyRequestAuthorForm(forms.ModelForm):
+    """Which of the record's authors is asked when readers request a copy."""
+
+    class Meta:
+        model = models.Preprint
+        fields = ("copy_request_author",)
+        labels = {"copy_request_author": _("Author asked for copies")}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        field = self.fields["copy_request_author"]
+        field.queryset = self.instance.frozen_authors()
+        field.label_from_instance = lambda author: "{}{}".format(
+            author.full_name(),
+            " ({})".format(author.email) if author.email else " (no email)",
+        )
+        field.empty_label = _("The owner")
+
+    def clean_copy_request_author(self):
+        author = self.cleaned_data.get("copy_request_author")
+        if author is not None and not author.email:
+            raise forms.ValidationError(_("This author has no email address."))
+        return author
