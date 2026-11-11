@@ -1,0 +1,123 @@
+{% load i18n foundation %}
+{# A draft update's additional files. htmx swaps this whole block after each change. #}
+{% url 'repository_update_additional_files' preprint.pk draft.pk as files_url %}
+<div id="additional-files" class="padding-block-end-2" data-draft-supplementary>
+  <div class="title-area">
+    <h2>{{ request.repository.files_label }}</h2>
+  </div>
+  <p>
+    {% blocktrans trimmed with object=request.repository.object_name %}
+      Files and links that go with your {{ object }}, such as data, appendices
+      or another version. Changes here are part of this update: nothing
+      changes on the record until a moderator approves it.
+    {% endblocktrans %}
+  </p>
+
+  {% if rows or removed %}
+    <ul class="no-bullet additional-files-list">
+      {% for entry, status, edit_form in rows %}
+        <li class="callout{% if status == 'new' %} success{% elif status == 'changed' %} warning{% endif %}" data-entry="{{ entry.pk }}">
+          <div class="row collapse">
+            <div class="small-8 columns">
+              <strong>{{ entry.label }}</strong>
+              {% if status == "new" %}<span class="label success">{% trans "New" %}</span>{% elif status == "changed" %}<span class="label warning">{% trans "Changed" %}</span>{% endif %}
+              <br>
+              <small>
+                {% if entry.is_upload %}
+                  <span class="fa fa-file" aria-hidden="true"></span> {{ entry.file.original_filename }}
+                  &middot; {{ entry.effective_access_label }}
+                  {% if entry.effective_document_version_label %}&middot; {{ entry.effective_document_version_label }}{% endif %}
+                {% else %}
+                  <span class="fa fa-link" aria-hidden="true"></span> {{ entry.url }}
+                {% endif %}
+              </small>
+            </div>
+            <div class="small-4 columns text-right">
+              <form method="post" action="{{ files_url }}"
+                    hx-post="{{ files_url }}" hx-target="#additional-files" hx-swap="outerHTML"
+                    hx-confirm="{% blocktrans with label=entry.label %}Remove “{{ label }}” from this update?{% endblocktrans %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="entry" value="{{ entry.pk }}">
+                <button type="submit" class="tiny alert hollow button">{% trans "Remove" %}<span class="show-for-sr"> {{ entry.label }}</span></button>
+              </form>
+            </div>
+          </div>
+          <details{% if edit_form.errors %} open{% endif %}>
+            <summary>{% trans "Edit" %}<span class="show-for-sr"> {{ entry.label }}</span></summary>
+            <form method="post" action="{{ files_url }}" enctype="multipart/form-data"
+                  hx-post="{{ files_url }}" hx-target="#additional-files" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="edit">
+              <input type="hidden" name="entry" value="{{ entry.pk }}">
+              {{ edit_form|foundation }}
+              <button type="submit" class="small button">{% trans "Save changes" %}</button>
+            </form>
+          </details>
+        </li>
+      {% endfor %}
+      {% for entry in removed %}
+        <li class="callout secondary" data-removed="{{ entry.pk }}">
+          <div class="row collapse">
+            <div class="small-8 columns">
+              <del>{{ entry.label }}</del> <span class="label secondary">{% trans "Removed" %}</span>
+            </div>
+            <div class="small-4 columns text-right">
+              <form method="post" action="{{ files_url }}"
+                    hx-post="{{ files_url }}" hx-target="#additional-files" hx-swap="outerHTML">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="restore">
+                <input type="hidden" name="entry" value="{{ entry.pk }}">
+                <button type="submit" class="tiny secondary button">{% trans "Undo" %}<span class="show-for-sr"> {% trans "removing" %} {{ entry.label }}</span></button>
+              </form>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p><em>{% trans "None yet." %}</em></p>
+  {% endif %}
+
+  <div class="row">
+    <div class="medium-6 columns">
+      <details{% if open_panel == "upload" %} open{% endif %} data-add-upload>
+        <summary class="button hollow expanded"><span class="fa fa-upload" aria-hidden="true"></span> {% trans "Upload a file" %}</summary>
+        <form method="post" action="{{ files_url }}" enctype="multipart/form-data"
+              hx-post="{{ files_url }}" hx-target="#additional-files" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="upload">
+          {{ upload_form|foundation }}
+          <button type="submit" class="button">{% trans "Add file" %}</button>
+        </form>
+      </details>
+    </div>
+    <div class="medium-6 columns">
+      <details{% if open_panel == "link" %} open{% endif %} data-add-link>
+        <summary class="button hollow expanded"><span class="fa fa-link" aria-hidden="true"></span> {% trans "Add a link" %}</summary>
+        <form method="post" action="{{ files_url }}"
+              hx-post="{{ files_url }}" hx-target="#additional-files" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="link">
+          {{ link_form|foundation }}
+          <button type="submit" class="button">{% trans "Add link" %}</button>
+        </form>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    // The embargo date only matters for an embargo.
+    (function () {
+      document.querySelectorAll("#additional-files [data-access-select]").forEach(function (select) {
+        var form = select.closest("form");
+        var date = form && form.querySelector("[data-embargo-date]");
+        if (!date) return;
+        var wrapper = date.closest(".row") || date;
+        function sync() { wrapper.hidden = select.value !== "embargoed"; }
+        select.addEventListener("change", sync);
+        sync();
+      });
+    })();
+  </script>
+</div>

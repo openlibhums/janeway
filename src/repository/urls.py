@@ -25,6 +25,11 @@ urlpatterns = [
         author_views.repository_update_draft,
         name="repository_update_draft",
     ),
+    re_path(
+        r"^dashboard/(?P<preprint_id>\d+)/update/(?P<update_id>\d+)/additional-files/$",
+        author_views.repository_update_additional_files,
+        name="repository_update_additional_files",
+    ),
     re_path(r"^about/$", views.repository_about, name="repository_about"),
     re_path(r"^search/$", views.repository_search, name="repository_search"),
     re_path(

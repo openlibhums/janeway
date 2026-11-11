@@ -1911,6 +1911,16 @@ class PreprintSupplementaryFile(models.Model):
         max_length=200, verbose_name=_("Label"), default="Supplementary File"
     )
     order = models.PositiveIntegerField(default=0)
+    # On an update's list, an uploaded file is shared with the live record
+    # until approval, so access changes are proposed here and applied to the
+    # file when the update is approved. Blank means no change.
+    proposed_access = models.CharField(
+        max_length=20, blank=True, choices=PreprintFile.ACCESS_CHOICES
+    )
+    proposed_embargo_until = models.DateField(blank=True, null=True)
+    proposed_document_version = models.CharField(
+        max_length=20, blank=True, choices=PreprintFile.DOCUMENT_VERSION_CHOICES
+    )
 
     class Meta:
         ordering = ("order",)
@@ -1951,6 +1961,67 @@ class PreprintSupplementaryFile(models.Model):
     @property
     def is_upload(self):
         return self.file_id is not None
+
+    @property
+    def has_proposal(self):
+        return bool(self.proposed_access or self.proposed_document_version)
+
+    @property
+    def effective_access(self):
+        return self.proposed_access or (self.file.access if self.file else "")
+
+    @property
+    def effective_embargo_until(self):
+        if self.proposed_access:
+            return self.proposed_embargo_until
+        return self.file.embargo_until if self.file else None
+
+    @property
+    def effective_document_version(self):
+        return self.proposed_document_version or (
+            self.file.document_version if self.file else ""
+        )
+
+    @property
+    def effective_document_version_label(self):
+        return dict(PreprintFile.DOCUMENT_VERSION_CHOICES).get(
+            self.effective_document_version, ""
+        )
+
+    @property
+    def effective_access_label(self):
+        """How the access reads, with any proposed change applied."""
+        if not self.file:
+            return ""
+        preview = PreprintFile(
+            access=self.effective_access, embargo_until=self.effective_embargo_until
+        )
+        return preview.access_label or _("Open")
+
+    def apply_proposal(self):
+        """Apply a proposed access change to the file (on approval)."""
+        if not (self.file and self.has_proposal):
+            return
+        if self.proposed_access:
+            self.file.access = self.proposed_access
+            self.file.embargo_until = (
+                self.proposed_embargo_until
+                if self.proposed_access == PreprintFile.ACCESS_EMBARGOED
+                else None
+            )
+        if self.proposed_document_version:
+            self.file.document_version = self.proposed_document_version
+        self.file.save(update_fields=["access", "embargo_until", "document_version"])
+        self.proposed_access = ""
+        self.proposed_embargo_until = None
+        self.proposed_document_version = ""
+        self.save(
+            update_fields=[
+                "proposed_access",
+                "proposed_embargo_until",
+                "proposed_document_version",
+            ]
+        )
 
     @property
     def is_locked(self):
@@ -2848,6 +2919,8 @@ class VersionQueue(models.Model):
             if update.supplementary_files_changed:
                 # The outgoing version kept a copy of the old list above.
                 PreprintSupplementaryFile.objects.filter(preprint=preprint).delete()
+                for entry in update.supplementary_entries.select_related("file"):
+                    entry.apply_proposal()
                 update.supplementary_entries.update(
                     version_queue=None, preprint=preprint
                 )
@@ -2855,7 +2928,14 @@ class VersionQueue(models.Model):
             # Metadata corrections keep the current file.
             takes_file = update.update_type != "metadata_correction"
             new_file = update.file if update.file and takes_file else this_file
-            if new_file is not None and current_version is not None:
+            # An update's own file was given the old file's lock when it was
+            # uploaded, and the author may have changed it since; others keep
+            # their access.
+            if (
+                new_file is not None
+                and current_version is not None
+                and new_file != update.file
+            ):
                 new_file.inherit_lock_from(current_version.file)
             PreprintVersion.objects.create(
                 preprint=preprint,

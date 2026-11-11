@@ -47,6 +47,19 @@
                                 {% trans "Uploaded for this update" %}: <strong>{{ draft.file.original_filename }}</strong>
                             </p>
                         </div>
+                        {% if file_access_form %}
+                            <h3>{% trans "Who can download the new file" %}</h3>
+                            <p><small>{% blocktrans trimmed %}
+                                It starts with the current file's access. If the publisher sets an
+                                embargo, give its end date; the moderator checks this.
+                            {% endblocktrans %}</small></p>
+                            <form method="POST" data-file-access>
+                                {% csrf_token %}
+                                {% include "admin/elements/forms/errors.html" with form=file_access_form %}
+                                {{ file_access_form|foundation }}
+                                <button name="save_file_access" class="button">{% trans "Save access" %}</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                         <p>{% trans "Upload the file for this update. It is saved with the draft straight away." %}</p>
                     {% endif %}
@@ -61,43 +74,7 @@
                     </form>
                 </div>
             {% endif %}
-            <div class="padding-block-end-2" data-draft-supplementary>
-                <div class="title-area">
-                    <h2>{{ request.repository.files_label }}</h2>
-                </div>
-                <p>{% blocktrans with files=request.repository.files_label|lower %}The {{ files }} this update gives the record. Add or remove them here; approving the update replaces the record's list.{% endblocktrans %}</p>
-                <table class="table small">
-                    {% for entry in draft.supplementary_files %}
-                        <tr>
-                            <td>{{ entry.label }}</td>
-                            <td>
-                                {% if entry.is_upload %}
-                                    {{ entry.file.original_filename }}
-                                    <br><small>{{ entry.file.access_label|default:_("Open") }}{% if entry.file.document_version %}, {{ entry.file.get_document_version_display }}{% endif %}</small>
-                                {% else %}
-                                    {{ entry.url }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <button name="remove_supplementary" value="{{ entry.pk }}" class="tiny alert button">{% trans "Remove" %}</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr><td>{% trans "None" %}</td></tr>
-                    {% endfor %}
-                </table>
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% include "admin/elements/forms/errors.html" with form=supplementary_form %}
-                    {{ supplementary_form|foundation }}
-                    <button name="add_supplementary" class="button">
-                        <span class="fa fa-plus"></span> {% trans "Add" %} {{ request.repository.file_label }}
-                    </button>
-                </form>
-            </div>
+            {% include "admin/repository/elements/update_additional_files.html" %}
             {% include "admin/repository/elements/author_list_editor.html" %}
             <div class="button-group padding-block-2">
                 <button name="submit_update" class="success button" form="update-details">
@@ -129,6 +106,7 @@
 {% endblock %}
 
 {% block js %}
+{% include "admin/core/partials/htmx.html" %}
     {{ block.super }}
     <script>
         // Other actions on this page reload it, so warn before unsaved

@@ -333,10 +333,13 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
         )
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
         self.allow_upload = self.preprint.repository.is_institutional
-        if not self.instance.pk:
-            self.fields["label"].initial = str(
-                self.preprint.repository.file_label
-            ).capitalize()
+        # Blank labels are filled in from the file name or the link, so the
+        # record never lists entries called "Additional file".
+        self.fields["label"].required = False
+        self.fields["label"].initial = ""
+        self.fields["label"].help_text = _(
+            "How it's listed on the record. The file name or link if left blank."
+        )
         if self.allow_upload:
             self.fields["url"].required = False
             self.fields["url"].label = _("Link")
@@ -360,6 +363,8 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
                 )
             if not url and not upload:
                 raise forms.ValidationError(_("Give a link or upload a file."))
+        if not cleaned_data.get("label"):
+            cleaned_data["label"] = (upload.name if upload else (url or ""))[:200]
         access = cleaned_data.get("access")
         if access == models.PreprintFile.ACCESS_EMBARGOED and not cleaned_data.get(
             "embargo_until"
@@ -1238,3 +1243,190 @@ class CopyRequestAuthorForm(forms.ModelForm):
         if author is not None and not author.email:
             raise forms.ValidationError(_("This author has no email address."))
         return author
+
+
+ACCESS_HELP = _(
+    "Embargoed files open to everyone on the end date; restricted files "
+    "stay with the repository team."
+)
+
+
+class AccessFieldsMixin:
+    """Access, embargo end and document version for an uploaded file."""
+
+    def add_access_fields(
+        self, initial_access="", initial_until=None, initial_version=""
+    ):
+        self.fields["document_version"] = forms.ChoiceField(
+            required=False,
+            label=_("What is this file?"),
+            choices=(("", _("Not given")),)
+            + models.PreprintFile.DOCUMENT_VERSION_CHOICES,
+            initial=initial_version,
+        )
+        self.fields["access"] = forms.ChoiceField(
+            label=_("Who can download it"),
+            choices=models.PreprintFile.ACCESS_CHOICES,
+            initial=initial_access or models.PreprintFile.ACCESS_OPEN,
+            help_text=ACCESS_HELP,
+            widget=forms.Select(attrs={"data-access-select": ""}),
+        )
+        self.fields["embargo_until"] = forms.DateField(
+            required=False,
+            label=_("Embargo end"),
+            initial=initial_until,
+            widget=forms.DateInput(attrs={"type": "date", "data-embargo-date": ""}),
+        )
+
+    def clean_access_fields(self, cleaned_data):
+        if cleaned_data.get("access") == models.PreprintFile.ACCESS_EMBARGOED:
+            if not cleaned_data.get("embargo_until"):
+                self.add_error("embargo_until", _("Give the date the embargo ends."))
+        else:
+            cleaned_data["embargo_until"] = None
+        return cleaned_data
+
+
+def save_uploaded_file(preprint, upload, cleaned_data):
+    preprint_file = models.PreprintFile(
+        preprint=preprint,
+        file=upload,
+        original_filename=upload.name,
+        document_version=cleaned_data.get("document_version") or "",
+        access=cleaned_data.get("access") or models.PreprintFile.ACCESS_OPEN,
+        embargo_until=cleaned_data.get("embargo_until"),
+    )
+    preprint_file.save()
+    preprint_file.mime_type = preprint_file.get_file_mime_type()
+    preprint_file.size = preprint_file.file.size
+    preprint_file.save(update_fields=["mime_type", "size"])
+    return preprint_file
+
+
+def next_draft_order(update):
+    last = update.supplementary_entries.order_by("-order").first()
+    return (last.order + 1) if last else 0
+
+
+class AdditionalUploadForm(AccessFieldsMixin, forms.Form):
+    """Upload a file to a draft update's additional files."""
+
+    upload = forms.FileField(label=_("File"))
+    label = forms.CharField(
+        required=False,
+        max_length=200,
+        label=_("Label"),
+        help_text=_("How it's listed on the record. The file name if left blank."),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_access_fields()
+
+    def clean(self):
+        return self.clean_access_fields(super().clean())
+
+    def save(self, preprint, update):
+        upload = self.cleaned_data["upload"]
+        preprint_file = save_uploaded_file(preprint, upload, self.cleaned_data)
+        return models.PreprintSupplementaryFile.objects.create(
+            version_queue=update,
+            file=preprint_file,
+            label=self.cleaned_data.get("label") or upload.name,
+            order=next_draft_order(update),
+        )
+
+
+class AdditionalLinkForm(forms.Form):
+    """Add a link to a draft update's additional files."""
+
+    url = forms.URLField(label=_("Link"))
+    label = forms.CharField(
+        required=False,
+        max_length=200,
+        label=_("Label"),
+        help_text=_("How it's listed on the record. The link if left blank."),
+    )
+
+    def save(self, preprint, update):
+        url = self.cleaned_data["url"]
+        return models.PreprintSupplementaryFile.objects.create(
+            version_queue=update,
+            url=url,
+            label=self.cleaned_data.get("label") or url[:200],
+            order=next_draft_order(update),
+        )
+
+
+class AdditionalEditForm(AccessFieldsMixin, forms.Form):
+    """Change an entry on a draft update's list: its label, and for an
+    upload, what it is, who can download it, or the file itself."""
+
+    label = forms.CharField(max_length=200, label=_("Label"))
+
+    def __init__(self, *args, entry=None, **kwargs):
+        self.entry = entry
+        super().__init__(*args, **kwargs)
+        self.fields["label"].initial = entry.label
+        if entry.is_upload:
+            self.fields["replace"] = forms.FileField(
+                required=False, label=_("Replace the file")
+            )
+            self.add_access_fields(
+                entry.effective_access,
+                entry.effective_embargo_until,
+                entry.effective_document_version,
+            )
+        else:
+            self.fields["url"] = forms.URLField(label=_("Link"), initial=entry.url)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.entry.is_upload:
+            cleaned_data = self.clean_access_fields(cleaned_data)
+        return cleaned_data
+
+    def save(self, preprint, update):
+        from repository import logic
+
+        entry = self.entry
+        entry.label = self.cleaned_data["label"]
+        if not entry.is_upload:
+            entry.url = self.cleaned_data["url"]
+            entry.save()
+            return entry
+        replace = self.cleaned_data.get("replace")
+        access = self.cleaned_data.get("access")
+        until = self.cleaned_data.get("embargo_until")
+        version = self.cleaned_data.get("document_version") or ""
+        if replace:
+            old = entry.file
+            entry.file = save_uploaded_file(preprint, replace, self.cleaned_data)
+            entry.proposed_access = ""
+            entry.proposed_embargo_until = None
+            entry.proposed_document_version = ""
+            entry.save()
+            logic.delete_unused_draft_file(old)
+            return entry
+        preprint_file = entry.file
+        if not logic.file_used_outside_draft(update, preprint_file):
+            # Only this draft uses the file: change it directly.
+            preprint_file.access = access
+            preprint_file.embargo_until = until
+            preprint_file.document_version = version
+            preprint_file.save(
+                update_fields=["access", "embargo_until", "document_version"]
+            )
+        else:
+            # Shared with the live record until approval: propose the change.
+            same_access = (access, until) == (
+                preprint_file.access,
+                preprint_file.embargo_until,
+            )
+            entry.proposed_access = "" if same_access else access
+            entry.proposed_embargo_until = None if same_access else until
+            entry.proposed_document_version = (
+                "" if version == preprint_file.document_version else version
+            )
+        entry.save()
+        return entry

@@ -919,7 +919,14 @@ def section_checksums(title, abstract, doi, authors, answers, supplementary_file
         ),
         "supplementary_files": _checksum(
             [
-                (entry.label, entry.url, entry.file_id or 0)
+                (
+                    entry.label,
+                    entry.url,
+                    entry.file_id or 0,
+                    entry.proposed_access,
+                    str(entry.proposed_embargo_until or ""),
+                    entry.proposed_document_version,
+                )
                 for entry in sorted(supplementary_files, key=lambda e: (e.order, e.pk))
             ]
         ),
@@ -1595,3 +1602,63 @@ def paginate(queryset, page, per_page=15):
         return paginator.page(1)
     except EmptyPage:
         return paginator.page(paginator.num_pages)
+
+
+def draft_supplementary_rows(update):
+    """
+    The draft update's additional files, each marked against the live
+    record: "new", "changed" or "same", plus the live entries the draft
+    has removed (so the author can see and undo it).
+    :return: (rows, removed) where rows are (entry, status)
+    """
+    live = list(update.preprint.supplementaryfiles.select_related("file"))
+    drafts = list(update.supplementary_files)
+
+    def match(entry, candidates):
+        for candidate in candidates:
+            if entry.file_id and candidate.file_id == entry.file_id:
+                return candidate
+            if (
+                not entry.file_id
+                and not candidate.file_id
+                and candidate.url == entry.url
+            ):
+                return candidate
+        return None
+
+    rows = []
+    matched = set()
+    for entry in drafts:
+        source = match(entry, live)
+        if source is None:
+            rows.append((entry, "new"))
+            continue
+        matched.add(source.pk)
+        changed = entry.label != source.label or entry.has_proposal
+        rows.append((entry, "changed" if changed else "same"))
+    removed = [entry for entry in live if entry.pk not in matched]
+    return rows, removed
+
+
+def restore_supplementary_entry(update, live_entry):
+    """Put a live entry the draft removed back on the draft's list."""
+    last = update.supplementary_entries.order_by("-order").first()
+    live_entry.pk = None
+    live_entry.preprint = None
+    live_entry.version_queue = update
+    live_entry.order = (last.order + 1) if last else 0
+    live_entry.save()
+    return live_entry
+
+
+def file_used_outside_draft(update, preprint_file):
+    """Whether anything but this draft's list uses a file (the live record,
+    a version, another update), so the draft must not change it directly."""
+    return (
+        models.PreprintSupplementaryFile.objects.filter(file=preprint_file)
+        .exclude(version_queue=update)
+        .exists()
+        or models.PreprintVersion.objects.filter(file=preprint_file).exists()
+        or models.VersionQueue.objects.filter(file=preprint_file).exists()
+        or models.Preprint.objects.filter(submission_file=preprint_file).exists()
+    )

@@ -249,7 +249,11 @@
                 <div class="title-area">
                     <h2>{{ request.repository.files_label }}</h2>
                     {% if preprint.date_published %}
-                        <p><small>{% blocktrans with files=request.repository.files_label|lower %}To change the {{ files }}, start an update below.{% endblocktrans %}</small></p>
+                        <form method="POST" action="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}" class="inline-block">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="additional_files">
+                            <button class="button" data-edit-additional-files>{% trans "Edit" %} {{ request.repository.files_label|lower }}</button>
+                        </form>
                     {% else %}
                     <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">{% trans "Manage" %} {{ request.repository.files_label|lower }}</a>
                     {% endif %}
@@ -328,9 +332,9 @@
                 <form method="POST">
                     {% csrf_token %}
                     <ol>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'correction' %}">{% trans "Correction" %}</button> - {% trans "A small update. You can update the file and metadata." %}</li>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'version' %}">{% trans "New Version" %}</button> - {% trans "A large update. You can update the file and metadata." %}</li>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">{% trans "Metadata Correction" %}</button> - {% trans "You can only change the metadata." %}</li>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'correction' %}">{% trans "Correction" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}A small update. You can change the file, the details and the {{ files }}.{% endblocktrans %}</li>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'version' %}">{% trans "New Version" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}A large update. You can change the file, the details and the {{ files }}.{% endblocktrans %}</li>
+                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">{% trans "Metadata Correction" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}You can change the details and the {{ files }}, but not the file.{% endblocktrans %}</li>
                     </ol>
                 </form>
             {% endif %}

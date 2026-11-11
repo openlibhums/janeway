@@ -227,6 +227,27 @@ def repository_submit_update(request, preprint_id, action):
         repository=request.repository,
         owner=request.user,
     )
+    if request.POST.get("section") == "additional_files":
+        # "Edit additional files": go to the files on the open draft, as
+        # whatever type it is (changing its type could drop its file), or
+        # start a metadata correction, which can change them.
+        draft = repository_logic.open_update(preprint)
+        if draft is None or not draft.is_draft:
+            draft, error = repository_logic.start_update(preprint, action)
+            if error:
+                messages.add_message(request, messages.WARNING, error)
+                return redirect(
+                    reverse(
+                        "repository_author_article", kwargs={"preprint_id": preprint.pk}
+                    )
+                )
+        return redirect(
+            reverse(
+                "repository_update_draft",
+                kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+            )
+            + "#additional-files"
+        )
     draft, error = repository_logic.start_update(preprint, action)
     if error:
         messages.add_message(request, messages.WARNING, error)
@@ -268,32 +289,16 @@ def repository_update_draft(request, preprint_id, update_id):
         prefix="fields",
     )
     new_author_form = submission_forms.EditFrozenAuthor()
-    supplementary_form = forms.PreprintSupplementaryFileForm(
-        preprint=preprint, version_queue=draft
-    )
+    # On institutional repositories the author says who can download the
+    # update's new file, as they do when submitting.
+    file_access_form = None
+    if request.repository.is_institutional and draft.file:
+        file_access_form = forms.PreprintFileAccessForm(
+            instance=draft.file, prefix="file_access"
+        )
 
     if request.method == "POST":
-        if "add_supplementary" in request.POST:
-            supplementary_form = forms.PreprintSupplementaryFileForm(
-                request.POST, request.FILES, preprint=preprint, version_queue=draft
-            )
-            if supplementary_form.is_valid():
-                supplementary_form.save()
-                messages.add_message(request, messages.SUCCESS, _("Added."))
-                return redirect(this_url)
-        elif "remove_supplementary" in request.POST:
-            entry = get_object_or_404(
-                models.PreprintSupplementaryFile,
-                pk=request.POST.get("remove_supplementary"),
-                version_queue=draft,
-            )
-            uploaded = entry.file
-            entry.delete()
-            if uploaded:
-                repository_logic.delete_unused_draft_file(uploaded)
-            messages.add_message(request, messages.SUCCESS, _("Removed."))
-            return redirect(this_url)
-        elif "discard_draft" in request.POST:
+        if "discard_draft" in request.POST:
             repository_logic.discard_update(draft)
             messages.add_message(request, messages.INFO, _("Draft update discarded."))
             return redirect(article_url)
@@ -316,9 +321,22 @@ def repository_update_draft(request, preprint_id, update_id):
                 replaced = draft.file
                 draft.file = file_form.save()
                 draft.save()
+                # It starts with the current file's lock, which the author
+                # can see and change before submitting.
+                current = preprint.current_version
+                draft.file.inherit_lock_from(current.file if current else None)
                 if replaced:
                     repository_logic.delete_unused_draft_file(replaced)
                 messages.add_message(request, messages.SUCCESS, _("File uploaded."))
+                return redirect(this_url)
+        elif "save_file_access" in request.POST and file_access_form is not None:
+            file_access_form = forms.PreprintFileAccessForm(
+                request.POST, instance=draft.file, prefix="file_access"
+            )
+            if file_access_form.is_valid():
+                draft_file = file_access_form.save(commit=False)
+                draft_file.save(update_fields=file_access_form.Meta.fields)
+                messages.add_message(request, messages.SUCCESS, _("File access saved."))
                 return redirect(this_url)
         elif "save_draft" in request.POST or "submit_update" in request.POST:
             version_form = forms.VersionForm(
@@ -369,9 +387,10 @@ def repository_update_draft(request, preprint_id, update_id):
             "version_form": version_form,
             "file_form": file_form,
             "field_form": field_form,
-            "supplementary_form": supplementary_form,
+            "file_access_form": file_access_form,
         }
     )
+    context.update(additional_files_context(preprint, draft))
     return render(request, "admin/repository/update_draft.html", context)
 
 
@@ -754,3 +773,118 @@ def repository_affiliation_update_from_orcid(
         new_affils=new_affils,
     )
     return render(request, "admin/core/affiliation_update_from_orcid.html", context)
+
+
+@preprint_editor_or_author_required
+@transaction.atomic
+def repository_update_additional_files(request, preprint_id, update_id):
+    """
+    A draft update's additional files, as a part of the draft page that
+    htmx swaps in place: adding, changing or removing a file never reloads
+    the page, so the author's unsaved details are kept.
+    """
+    preprint, draft = get_draft_update(request, preprint_id, update_id)
+    upload_form = forms.AdditionalUploadForm(prefix="upload")
+    link_form = forms.AdditionalLinkForm(prefix="link")
+    edit_forms = {}
+    open_panel = ""
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "upload":
+            upload_form = forms.AdditionalUploadForm(
+                request.POST, request.FILES, prefix="upload"
+            )
+            open_panel = "upload"
+            if upload_form.is_valid():
+                upload_form.save(preprint, draft)
+                upload_form = forms.AdditionalUploadForm(prefix="upload")
+                open_panel = ""
+        elif action == "link":
+            link_form = forms.AdditionalLinkForm(request.POST, prefix="link")
+            open_panel = "link"
+            if link_form.is_valid():
+                link_form.save(preprint, draft)
+                link_form = forms.AdditionalLinkForm(prefix="link")
+                open_panel = ""
+        elif action == "edit":
+            entry = get_object_or_404(
+                models.PreprintSupplementaryFile,
+                pk=request.POST.get("entry"),
+                version_queue=draft,
+            )
+            form = forms.AdditionalEditForm(
+                request.POST,
+                request.FILES,
+                entry=entry,
+                prefix="edit-{}".format(entry.pk),
+            )
+            if form.is_valid():
+                form.save(preprint, draft)
+            else:
+                edit_forms[entry.pk] = form
+        elif action == "remove":
+            entry = get_object_or_404(
+                models.PreprintSupplementaryFile,
+                pk=request.POST.get("entry"),
+                version_queue=draft,
+            )
+            uploaded = entry.file
+            entry.delete()
+            if uploaded:
+                repository_logic.delete_unused_draft_file(uploaded)
+        elif action == "restore":
+            live_entry = get_object_or_404(
+                models.PreprintSupplementaryFile,
+                pk=request.POST.get("entry"),
+                preprint=preprint,
+            )
+            repository_logic.restore_supplementary_entry(draft, live_entry)
+        if not request.headers.get("HX-Request"):
+            return redirect(
+                reverse(
+                    "repository_update_draft",
+                    kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+                )
+                + "#additional-files"
+            )
+
+    return render(
+        request,
+        "admin/repository/elements/update_additional_files.html",
+        additional_files_context(
+            preprint,
+            draft,
+            upload_form=upload_form,
+            link_form=link_form,
+            edit_forms=edit_forms,
+            open_panel=open_panel,
+        ),
+    )
+
+
+def additional_files_context(
+    preprint, draft, upload_form=None, link_form=None, edit_forms=None, open_panel=""
+):
+    """What the draft's additional files block needs to render."""
+    edit_forms = edit_forms or {}
+    rows, removed = repository_logic.draft_supplementary_rows(draft)
+    return {
+        "preprint": preprint,
+        "draft": draft,
+        "rows": [
+            (
+                entry,
+                status,
+                edit_forms.get(entry.pk)
+                or forms.AdditionalEditForm(
+                    entry=entry, prefix="edit-{}".format(entry.pk)
+                ),
+            )
+            for entry, status in rows
+        ],
+        "removed": removed,
+        "upload_form": upload_form or forms.AdditionalUploadForm(prefix="upload"),
+        "link_form": link_form or forms.AdditionalLinkForm(prefix="link"),
+        "open_panel": open_panel,
+    }

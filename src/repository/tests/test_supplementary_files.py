@@ -297,10 +297,22 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
         self.link = rm.PreprintSupplementaryFile.objects.create(
             preprint=self.preprint, url="https://zenodo.org/records/1", label="Old data"
         )
+        self.shared = rm.PreprintFile.objects.create(
+            preprint=self.preprint, original_filename="counts.csv", mime_type="text/csv"
+        )
+        self.upload_entry = rm.PreprintSupplementaryFile.objects.create(
+            preprint=self.preprint, file=self.shared, label="Counts", order=1
+        )
 
     def draft_url(self, update):
         return reverse(
             "repository_update_draft",
+            kwargs={"preprint_id": self.preprint.pk, "update_id": update.pk},
+        )
+
+    def files_url(self, update):
+        return reverse(
+            "repository_update_additional_files",
             kwargs={"preprint_id": self.preprint.pk, "update_id": update.pk},
         )
 
@@ -309,72 +321,181 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
         self.assertIsNone(error)
         return update
 
-    def post_draft(self, update, data):
+    def act(self, update, data, htmx=True):
         self.client.force_login(self.owner)
+        headers = {"HTTP_HX_REQUEST": "true"} if htmx else {}
         return self.client.post(
-            self.draft_url(update), data, SERVER_NAME=self.repository.domain
+            self.files_url(update), data, SERVER_NAME=self.repository.domain, **headers
         )
+
+    def draft_entry(self, update, label):
+        return update.supplementary_files.get(label=label)
 
     def test_an_update_starts_with_a_copy_of_the_list(self):
         update = self.start()
-        self.assertEqual([e.label for e in update.supplementary_files], ["Old data"])
-        self.assertEqual(self.preprint.supplementaryfiles.count(), 1)
+        self.assertEqual(
+            [e.label for e in update.supplementary_files], ["Old data", "Counts"]
+        )
 
-    def test_an_author_replaces_the_files_and_approval_applies_it(self):
+    def test_changes_happen_in_place_and_are_marked(self):
         update = self.start()
-        copy = update.supplementary_files.get()
-        self.post_draft(update, {"remove_supplementary": copy.pk})
-        self.post_draft(
+        response = self.act(
+            update,
+            {"action": "link", "link-url": "https://github.com/x/y", "link-label": ""},
+        )
+        # Only the block comes back (htmx swaps it), so the draft's unsaved
+        # details are untouched.
+        self.assertNotContains(response, "<html")
+        self.assertContains(response, 'id="additional-files"')
+        self.assertContains(
+            response, "https://github.com/x/y"
+        )  # the label defaults to it
+        self.assertContains(response, "New")
+
+        old = self.draft_entry(update, "Old data")
+        response = self.act(update, {"action": "remove", "entry": old.pk})
+        self.assertContains(response, "<del>Old data</del>")
+        self.assertContains(response, "Undo")
+
+        response = self.act(update, {"action": "restore", "entry": self.link.pk})
+        self.assertNotContains(response, "<del>Old data</del>")
+        self.assertEqual(update.supplementary_files.filter(label="Old data").count(), 1)
+
+    def test_without_javascript_it_goes_back_to_the_draft(self):
+        update = self.start()
+        response = self.act(
             update,
             {
-                "add_supplementary": "",
-                "label": "Accepted manuscript",
-                "document_version": "accepted",
-                "access": "embargoed",
-                "embargo_until": "2027-01-01",
-                "upload": upload("aam.pdf", PDF, "application/pdf"),
+                "action": "link",
+                "link-url": "https://github.com/x/y",
+                "link-label": "Code",
+            },
+            htmx=False,
+        )
+        self.assertRedirects(
+            response,
+            self.draft_url(update) + "#additional-files",
+            fetch_redirect_response=False,
+        )
+
+    def test_uploads_get_their_file_name_as_label_and_their_access(self):
+        update = self.start()
+        self.act(
+            update,
+            {
+                "action": "upload",
+                "upload-upload": upload("questionnaire.pdf", PDF, "application/pdf"),
+                "upload-label": "",
+                "upload-document_version": "accepted",
+                "upload-access": "embargoed",
+                "upload-embargo_until": "2027-03-01",
             },
         )
-        # Nothing changes on the record until it's approved.
+        entry = self.draft_entry(update, "questionnaire.pdf")
+        self.assertEqual(entry.file.access, "embargoed")
+        self.assertEqual(entry.file.document_version, "accepted")
+
+    def test_an_embargo_needs_an_end_date(self):
+        update = self.start()
+        response = self.act(
+            update,
+            {
+                "action": "upload",
+                "upload-upload": upload(),
+                "upload-access": "embargoed",
+                "upload-embargo_until": "",
+            },
+        )
+        self.assertContains(response, "Give the date the embargo ends.")
+        self.assertEqual(update.supplementary_files.count(), 2)
+
+    def test_editing_a_shared_files_access_waits_for_approval(self):
+        update = self.start()
+        entry = self.draft_entry(update, "Counts")
+        prefix = "edit-{}".format(entry.pk)
+        response = self.act(
+            update,
+            {
+                "action": "edit",
+                "entry": entry.pk,
+                prefix + "-label": "Trial counts",
+                prefix + "-document_version": "other",
+                prefix + "-access": "embargoed",
+                prefix + "-embargo_until": "2027-01-01",
+            },
+        )
+        self.assertContains(response, "Changed")
+        self.shared.refresh_from_db()
         self.assertEqual(
-            [e.label for e in self.preprint.supplementaryfiles], ["Old data"]
-        )
-        page = self.client.get(
-            self.draft_url(update), SERVER_NAME=self.repository.domain
-        )
-        self.assertContains(page, "aam.pdf")
+            self.shared.access, "open"
+        )  # the live record's file is untouched
+        entry.refresh_from_db()
+        self.assertEqual(entry.proposed_access, "embargoed")
 
         self.assertIsNone(self.logic.submit_update(update))
         update.refresh_from_db()
         self.assertTrue(update.supplementary_files_changed)
-        removed, added = update.supplementary_file_changes()
-        self.assertEqual([e.label for e in removed], ["Old data"])
-        self.assertEqual([e.label for e in added], ["Accepted manuscript"])
+        self.assertTrue(update.approve())
+        self.shared.refresh_from_db()
+        self.assertEqual(self.shared.access, "embargoed")
+        self.assertEqual(self.shared.embargo_until.isoformat(), "2027-01-01")
+        self.assertEqual(
+            list(self.preprint.supplementaryfiles.values_list("label", flat=True)),
+            ["Old data", "Trial counts"],
+        )
 
+    def test_replacing_a_file(self):
+        update = self.start()
+        entry = self.draft_entry(update, "Counts")
+        prefix = "edit-{}".format(entry.pk)
+        self.act(
+            update,
+            {
+                "action": "edit",
+                "entry": entry.pk,
+                prefix + "-label": "Counts",
+                prefix + "-replace": upload("counts-v2.csv"),
+                prefix + "-access": "open",
+            },
+        )
+        entry.refresh_from_db()
+        self.assertEqual(entry.file.original_filename, "counts-v2.csv")
+        self.assertTrue(rm.PreprintFile.objects.filter(pk=self.shared.pk).exists())
+
+    def test_approval_replaces_the_list_and_the_old_version_keeps_it(self):
+        update = self.start()
+        self.act(
+            update,
+            {"action": "remove", "entry": self.draft_entry(update, "Old data").pk},
+        )
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
         first = self.preprint.current_version
         self.assertTrue(update.approve())
-        entries = list(self.preprint.supplementaryfiles)
-        self.assertEqual([e.label for e in entries], ["Accepted manuscript"])
-        self.assertTrue(entries[0].file.is_locked())
+        self.assertEqual(
+            list(self.preprint.supplementaryfiles.values_list("label", flat=True)),
+            ["Counts"],
+        )
         first.refresh_from_db()
-        self.assertEqual([e.label for e in first.supplementary_files], ["Old data"])
+        self.assertEqual(
+            [e.label for e in first.supplementary_files], ["Old data", "Counts"]
+        )
 
     def test_an_update_that_leaves_the_files_doesnt_change_them(self):
         update = self.start()
         self.assertIsNone(self.logic.submit_update(update))
         update.refresh_from_db()
         self.assertFalse(update.supplementary_files_changed)
-        self.assertTrue(update.approve())
-        self.assertEqual(
-            list(self.preprint.supplementaryfiles.values_list("pk", flat=True)),
-            [self.link.pk],
-        )
 
     def test_the_moderator_sees_the_change(self):
         update = self.start()
-        self.post_draft(
+        self.act(
             update,
-            {"add_supplementary": "", "label": "Code", "url": "https://github.com/x/y"},
+            {
+                "action": "link",
+                "link-url": "https://github.com/x/y",
+                "link-label": "Code",
+            },
         )
         self.logic.submit_update(update)
         self.client.force_login(self.manager)
@@ -387,20 +508,18 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
 
     def test_discarding_deletes_files_only_the_draft_used(self):
         update = self.start()
-        self.post_draft(
+        self.act(
             update,
             {
-                "add_supplementary": "",
-                "label": "Draft data",
-                "upload": upload("draft.csv"),
+                "action": "upload",
+                "upload-upload": upload("draft.csv"),
+                "upload-access": "open",
             },
         )
-        uploaded = update.supplementary_files.get(label="Draft data").file
+        uploaded = self.draft_entry(update, "draft.csv").file
         self.logic.discard_update(update)
         self.assertFalse(rm.PreprintFile.objects.filter(pk=uploaded.pk).exists())
-        self.assertTrue(
-            rm.PreprintSupplementaryFile.objects.filter(pk=self.link.pk).exists()
-        )
+        self.assertTrue(rm.PreprintFile.objects.filter(pk=self.shared.pk).exists())
 
     def test_a_draft_started_before_this_existed_leaves_the_files(self):
         update = self.start()
@@ -411,3 +530,67 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
         self.assertIsNone(self.logic.submit_update(update))
         update.refresh_from_db()
         self.assertFalse(update.supplementary_files_changed)
+
+    def test_the_edit_button_starts_an_update_at_the_files(self):
+        self.client.force_login(self.owner)
+        page = self.client.get(
+            reverse("repository_author_article", args=[self.preprint.pk]),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertContains(page, "data-edit-additional-files")
+        response = self.client.post(
+            reverse(
+                "repository_submit_update",
+                args=[self.preprint.pk, "metadata_correction"],
+            ),
+            {"section": "additional_files"},
+            SERVER_NAME=self.repository.domain,
+        )
+        update = rm.VersionQueue.objects.get(preprint=self.preprint)
+        self.assertRedirects(
+            response,
+            self.draft_url(update) + "#additional-files",
+            fetch_redirect_response=False,
+        )
+
+    def test_the_edit_button_keeps_an_open_drafts_type(self):
+        update, _error = self.logic.start_update(self.preprint, "version")
+        self.client.force_login(self.owner)
+        self.client.post(
+            reverse(
+                "repository_submit_update",
+                args=[self.preprint.pk, "metadata_correction"],
+            ),
+            {"section": "additional_files"},
+            SERVER_NAME=self.repository.domain,
+        )
+        update.refresh_from_db()
+        self.assertEqual(update.update_type, "version")
+
+    def test_a_new_file_in_an_update_starts_with_the_old_files_lock(self):
+        self.lock(self.main_file)
+        update, _error = self.logic.start_update(self.preprint, "correction")
+        self.client.force_login(self.owner)
+        self.client.post(
+            self.draft_url(update),
+            {"upload_file": "", "file": upload("v2.pdf", PDF, "application/pdf")},
+            SERVER_NAME=self.repository.domain,
+        )
+        update.refresh_from_db()
+        self.assertTrue(update.file.is_locked())
+        page = self.client.get(
+            self.draft_url(update), SERVER_NAME=self.repository.domain
+        )
+        self.assertContains(page, "data-file-access")
+        # The author opens it; approval keeps their choice.
+        self.client.post(
+            self.draft_url(update),
+            {"save_file_access": "", "file_access-access": "open"},
+            SERVER_NAME=self.repository.domain,
+        )
+        update.file.refresh_from_db()
+        self.assertFalse(update.file.is_locked())
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
+        self.assertTrue(update.approve())
+        self.assertFalse(self.preprint.current_version.file.is_locked())
