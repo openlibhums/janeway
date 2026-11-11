@@ -39,7 +39,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="action" value="remove">
                 <input type="hidden" name="entry" value="{{ entry.pk }}">
-                <button type="submit" class="tiny alert hollow button">{% trans "Remove" %}<span class="show-for-sr"> {{ entry.label }}</span></button>
+                <button type="submit" class="tiny alert button">{% trans "Remove" %}<span class="show-for-sr"> {{ entry.label }}</span></button>
               </form>
             </div>
           </div>
