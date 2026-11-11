@@ -41,7 +41,7 @@
                             <td>{{ version.preprint.title|safe }} {% if version.preprint in duplicates %}<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" tabindex="1" title="This {{ request.repository.object_name }} has multiple requests in queue."><i class="fa fa-info-circle"></i></span>{% endif %}</td>
                             <td>{{ version.preprint.owner }}</td>
                             <td>{{ version.date_submitted }}</td>
-                            <td>{{ version.get_update_type_display }}{% if version.authors_changed %}<br><small>{% trans "Changes authors" %}</small>{% endif %}{% if version.field_answers_changed %}<br><small>{% trans "Changes additional information" %}</small>{% endif %}</td>
+                            <td>{{ version.get_update_type_display }}{% if version.authors_changed %}<br><small>{% trans "Changes authors" %}</small>{% endif %}{% if version.field_answers_changed %}<br><small>{% trans "Changes additional information" %}</small>{% endif %}{% if version.supplementary_files_changed %}<br><small>{% trans "Changes" %} {{ request.repository.files_label|lower }}</small>{% endif %}</td>
                             <td><button type="button" class="button clear no-bottom-margin" hx-get="{% url 'repository_version_detail' version.pk %}" hx-target="#version-details" hx-swap="innerHTML">View Detail</button></td>
                             <td><button class="button success" name="approve" value="{{ version.pk }}"><i class="fa fa-check"> </i></button></td>
                             <td><a href="#" class="button alert" data-open="decline-{{ version.pk }}"> <span class="fa fa-times-circle"></span> </a></td>
