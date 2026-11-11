@@ -803,6 +803,7 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         if search_filters.get("full_text"):
             querysets.append(
                 self.get_queryset().filter(
+                    PreprintFile.open_q("preprintversion__file__"),
                     preprintversion__preprintfile__file__text__contents__search=search_term,
                     preprintversion__id__in=self._latest_version_subq(),
                 )
@@ -954,6 +955,8 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
                     .values("pk")[:1]
                 )
             )
+            # A locked file's text isn't searched until the file opens.
+            versions = versions.filter(PreprintFile.open_q("file__"))
             if isinstance(field_type, SearchVectorField):
                 versions = versions.filter(file__text__contents=query)
             else:
@@ -1495,9 +1498,50 @@ class KeywordPreprint(models.Model):
 
 
 class PreprintFile(models.Model):
+    ACCESS_OPEN = "open"
+    ACCESS_EMBARGOED = "embargoed"
+    ACCESS_RESTRICTED = "restricted"
+    ACCESS_CHOICES = (
+        (ACCESS_OPEN, _("Open")),
+        (ACCESS_EMBARGOED, _("Embargoed until a date")),
+        (ACCESS_RESTRICTED, _("Restricted to repository staff")),
+    )
+
+    VERSION_SUBMITTED = "submitted"
+    VERSION_ACCEPTED = "accepted"
+    VERSION_PUBLISHED = "published"
+    VERSION_OTHER = "other"
+    DOCUMENT_VERSION_CHOICES = (
+        (VERSION_SUBMITTED, _("Submitted version")),
+        (VERSION_ACCEPTED, _("Author's accepted manuscript")),
+        (VERSION_PUBLISHED, _("Published version of record")),
+        (VERSION_OTHER, _("Other")),
+    )
+
     preprint = models.ForeignKey(
         Preprint,
         on_delete=models.CASCADE,
+    )
+    access = models.CharField(
+        max_length=20,
+        choices=ACCESS_CHOICES,
+        default=ACCESS_OPEN,
+        help_text=_(
+            "Who can download the file. An embargoed file opens to everyone "
+            "on its embargo end date; a restricted one never does."
+        ),
+    )
+    embargo_until = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name=_("Embargo end"),
+        help_text=_("The file opens to everyone on this date."),
+    )
+    document_version = models.CharField(
+        max_length=20,
+        choices=DOCUMENT_VERSION_CHOICES,
+        blank=True,
+        verbose_name=_("Document version"),
     )
     file = models.FileField(
         upload_to=preprint_file_upload,
@@ -1536,6 +1580,58 @@ class PreprintFile(models.Model):
     @property
     def is_pdf(self):
         return self.mime_type in files.PDF_MIMETYPES
+
+    def is_locked(self, on=None):
+        """Whether the public can't have this file on a date (today by
+        default): it's restricted, or embargoed and the embargo hasn't
+        ended. An embargo without an end date stays locked."""
+        if self.access == self.ACCESS_RESTRICTED:
+            return True
+        if self.access == self.ACCESS_EMBARGOED:
+            on = on or timezone.localdate()
+            return self.embargo_until is None or self.embargo_until > on
+        return False
+
+    @classmethod
+    def open_q(cls, prefix=""):
+        """A Q matching files the public can have today, for querysets.
+        ``prefix`` is the path to the file, e.g. "file__"."""
+        return Q(**{prefix + "access": cls.ACCESS_OPEN}) | Q(
+            **{
+                prefix + "access": cls.ACCESS_EMBARGOED,
+                prefix + "embargo_until__lte": timezone.localdate(),
+            }
+        )
+
+    def can_be_downloaded_by(self, user):
+        """Whether a user can have the file, locked or not. Locked files are
+        for staff, the repository's managers and moderators, and the
+        preprint's owner."""
+        if not self.is_locked():
+            return True
+        if not user or not user.is_authenticated:
+            return False
+        return bool(
+            user.is_staff
+            or user == self.preprint.owner
+            or user.is_repository_moderator(self.preprint.repository)
+        )
+
+    @property
+    def access_label(self):
+        """How the file's access reads to the public, e.g. "Embargoed until
+        1 January 2027", or "" for an open file."""
+        if not self.is_locked():
+            return ""
+        if self.access == self.ACCESS_EMBARGOED and self.embargo_until:
+            from django.utils.formats import date_format
+
+            return _("Embargoed until %(date)s") % {
+                "date": date_format(self.embargo_until, "j F Y")
+            }
+        if self.access == self.ACCESS_EMBARGOED:
+            return _("Embargoed")
+        return _("Restricted to repository staff")
 
     def path_parts(self):
         path = os.path.dirname(os.path.abspath(self.file.path))
@@ -1763,6 +1859,25 @@ class PreprintVersion(models.Model):
         return None
 
     @property
+    def public_file(self):
+        """The version's file if the public can have it today, else None.
+        Public pages use this, never ``file``."""
+        if self.file and not self.file.is_locked():
+            return self.file
+        return None
+
+    @property
+    def public_file_type(self):
+        return self.file_type if self.public_file else None
+
+    @property
+    def locked_file(self):
+        """The version's file if it's embargoed or restricted, else None."""
+        if self.file and self.file.is_locked():
+            return self.file
+        return None
+
+    @property
     def local_url(self):
         if self.is_current:
             return self.preprint.local_url
@@ -1776,7 +1891,7 @@ class PreprintVersion(models.Model):
         Render the file associated with this version as HTML, if possible.
         Supports: PDF, HTML, images, plain text.
         """
-        if not self.file or not self.file.file:
+        if not self.file or not self.file.file or self.file.is_locked():
             return ""
 
         file_path = self.file.file.path
@@ -1951,6 +2066,8 @@ class PreprintVersion(models.Model):
             return format_html("<p>Error rendering Excel file: {}</p>", str(e))
 
     def html(self):
+        if self.file.is_locked():
+            return ""
         if self.file.mime_type in files.HTML_MIMETYPES:
             return self.file.contents()
         else:
@@ -2607,9 +2724,12 @@ def add_email_setting_defaults(sender, instance, **kwargs):
 
 
 @receiver(models.signals.post_save, sender=PreprintFile)
-def update_preprint_file_index(sender, instance, created, **kwargs):
+def update_preprint_file_index(sender, instance, created, update_fields=None, **kwargs):
     """Updates file indexes in the DB"""
     if not instance.pk or not instance.file:
+        return
+    if update_fields is not None and "file" not in update_fields:
+        # Only other fields changed (its access, say): the text is the same.
         return
 
     instance.index_full_text()

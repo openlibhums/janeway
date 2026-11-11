@@ -207,6 +207,11 @@ urlpatterns = [
         name="repository_download_file",
     ),
     re_path(
+        r"^manager/(?P<preprint_id>\d+)/file/(?P<file_id>\d+)/access/$",
+        views.repository_file_access,
+        name="repository_file_access",
+    ),
+    re_path(
         r"^manager/(?P<preprint_id>\d+)/notification/$",
         views.repository_notification,
         name="repository_notification",

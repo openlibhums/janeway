@@ -393,6 +393,7 @@
                         <th>Type</th>
                         <th>Size</th>
                         <th>Uploaded</th>
+                        {% if request.repository.is_institutional %}<th>Access</th>{% endif %}
                         <th>Download</th>
                         <th>Preview</th>
                         <th>Delete</th>
@@ -406,6 +407,15 @@
                                 <td>{{ file.mime_type }}</td>
                                 <td>{{ file.size|filesizeformat }}</td>
                                 <td>{{ file.uploaded|date:"Y-m-d G:i" }}</td>
+                                {% if request.repository.is_institutional %}
+                                <td>
+                                    {{ file.access_label|default:_("Open") }}
+                                    {% if file.document_version %}<br><small>{{ file.get_document_version_display }}</small>{% endif %}
+                                    <br><a href="{% url 'repository_file_access' preprint.pk file.pk %}">
+                                        {% trans "Change" %}<span class="sr-only"> {% trans "access for" %} {{ file.original_filename }}</span>
+                                    </a>
+                                </td>
+                                {% endif %}
                                 <td><a href="{% url 'repository_download_file' preprint.pk file.pk %}">
                                         {% trans "Download" %}<span class="sr-only"> {{ file.original_filename }}</span>
                                         {% include "elements/icons/link_download.html" %}

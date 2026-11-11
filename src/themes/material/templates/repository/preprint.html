@@ -57,24 +57,26 @@
                 {% if not version.is_current %}
                     {% include "common/repository/older_version_notice.html" %}
                 {% endif %}
-                {% if version.file_type == 'html' %}
+                {% if version.public_file_type == 'html' %}
                     <div class="card text-format-region">
                         <div class="card-content">
                             <span class="card-title">Preprint Body</span>
                             {{ version.html|safe }}
                         </div>
                     </div>
-                {% elif version.file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
+                {% elif version.public_file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.public_file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen
                             title="{{ version.display_title|striptags }} PDF"></iframe>
                 {% else %}
                     <div class="preprint-content">
-                        {% if version.file %}
+                        {% if version.locked_file %}
+                            {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
+                        {% elif version.public_file %}
                             <p>This {{ request.repository.object_name }} has no
                                 visible version.</p>
-                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
+                            <a href="{% url 'repository_file_download' preprint.id version.public_file.id %}"
                                class="waves-effect waves-light btn">
                                 {{ request.repository.object_name }}
                                 {% include "elements/icons/link_download.html" %} 
@@ -152,10 +154,13 @@
         <div class="col m5">
             <div class="card">
                 <div class="card-content preprint-content">
-                    {% if version.file %}
+                    {% if version.locked_file %}
+                        <h2>{% trans "Downloads" %}</h2>
+                        {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
+                    {% elif version.public_file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                            <a href="{% url 'repository_file_download' preprint.id version.public_file.id %}">
                                 {{ request.repository.object_name }}
                                 {% include "elements/icons/link_download.html" %} 
                             </a></p>

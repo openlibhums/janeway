@@ -551,6 +551,14 @@ def repository_file_download(request, preprint_id, file_id):
     )
 
     if file in preprint.version_files():
+        if file.is_locked():
+            # Embargoed or restricted: only for the people who look after
+            # the preprint, and their downloads aren't counted.
+            if not file.can_be_downloaded_by(request.user):
+                raise PermissionDenied(
+                    "This file is {}.".format(str(file.access_label).lower())
+                )
+            return files.serve_any_file(request, file, path_parts=(file.path_parts(),))
         if not request.GET.get("embed"):
             # When the file is embedded we do not count this as a Download.
             repository_logic.store_preprint_access(
@@ -1112,6 +1120,59 @@ def repository_edit_metadata(request, preprint_id):
         ),
     }
 
+    return render(request, template, context)
+
+
+@is_article_preprint_editor
+def repository_file_access(request, preprint_id, file_id):
+    """
+    Sets who can download one of a preprint's files: open, embargoed until
+    a date, or restricted to repository staff, and its document version.
+    """
+    preprint = get_object_or_404(
+        models.Preprint,
+        pk=preprint_id,
+        repository=request.repository,
+    )
+    preprint_file = get_object_or_404(
+        models.PreprintFile,
+        pk=file_id,
+        preprint=preprint,
+    )
+    form = forms.PreprintFileAccessForm(instance=preprint_file)
+    if request.POST:
+        form = forms.PreprintFileAccessForm(request.POST, instance=preprint_file)
+        if form.is_valid():
+            preprint_file = form.save(commit=False)
+            preprint_file.save(update_fields=form.Meta.fields)
+            label = preprint_file.access_label or _("Open")
+            utils_models.LogEntry.add_entry(
+                "File Access",
+                "Access for {}: {}".format(preprint_file.original_filename, label),
+                "Info",
+                request.user,
+                request,
+                preprint,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Access for %(file)s saved: %(access)s.")
+                % {"file": preprint_file.original_filename, "access": label},
+            )
+            return redirect(
+                reverse(
+                    "repository_manager_article",
+                    kwargs={"preprint_id": preprint.pk},
+                )
+                + "#preprint_files"
+            )
+    template = "admin/repository/file_access.html"
+    context = {
+        "preprint": preprint,
+        "preprint_file": preprint_file,
+        "form": form,
+    }
     return render(request, template, context)
 
 

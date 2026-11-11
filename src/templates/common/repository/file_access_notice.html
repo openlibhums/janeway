@@ -1,0 +1,8 @@
+{% load i18n %}
+{# The notice a public page shows in place of a locked file. Needs: file. #}
+<p class="file-access-notice">
+  <span aria-hidden="true" class="fa fa-lock"></span>
+  {% blocktrans trimmed with access=file.access_label %}
+    The file is not available to download: {{ access }}.
+  {% endblocktrans %}
+</p>

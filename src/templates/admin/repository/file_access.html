@@ -1,0 +1,58 @@
+{% extends "admin/core/base.html" %}
+{% load i18n foundation %}
+
+{% block title %}{% trans "File access" %}: {{ preprint_file.original_filename }}{% endblock %}
+{% block title-section %}{% trans "File access" %}{% endblock %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+  <li>
+    <a href="{% url 'preprints_manager' %}">
+      {{ request.repository.object_name|capfirst }} Manager
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'repository_manager_article' preprint.pk %}">
+      {{ preprint.title|truncatechars:60 }}
+    </a>
+  </li>
+  <li>{% trans "File access" %}</li>
+{% endblock %}
+
+{% block body %}
+  <div class="box">
+    <div class="title-area">
+      <h2>{{ preprint_file.original_filename }}</h2>
+    </div>
+    <div class="content">
+      <div class="row expanded">
+        <div class="medium-5 columns">
+          {% include "admin/elements/forms/errors.html" with form=form %}
+          <form method="post">
+            {% csrf_token %}
+            {{ form|foundation }}
+            <button type="submit" class="button success">{% trans "Save" %}</button>
+            <a href="{% url 'repository_manager_article' preprint.pk %}#preprint_files"
+               class="button secondary">{% trans "Cancel" %}</a>
+          </form>
+        </div>
+        <div class="medium-4 columns end">
+          <p>
+            {% blocktrans trimmed %}
+              An embargoed or restricted file can't be downloaded, viewed or
+              searched by the public. Its record still shows, saying the file
+              is embargoed (until when) or restricted.
+            {% endblocktrans %}
+          </p>
+          <p>
+            {% blocktrans trimmed %}
+              An embargo ends by itself on its end date. Staff, this
+              repository's managers and moderators, and the record's owner
+              can always download the file.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

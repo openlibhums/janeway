@@ -64,18 +64,20 @@
           {% include "common/repository/older_version_notice.html" %}
         {% endif %}
 
-        {% if version.file_type == 'html' %}
+        {% if version.public_file_type == 'html' %}
           <div itemprop="articleBody" id="main_article">
             {{ version.html|safe }}
           </div>
-        {% elif version.file_type == 'pdf' %}
-          <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
+        {% elif version.public_file_type == 'pdf' %}
+          <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.public_file.id %}"
                   width="100%" style="min-height: 900px; border: none;" allowfullscreen
                   title="{{ version.display_title|striptags }} PDF"></iframe>
         {% else %}
-          {% if version.file %}
+          {% if version.locked_file %}
+            {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
+          {% elif version.public_file %}
             <p>{% trans 'This' %} {{ request.repository.object_name }} {% trans 'has no visible version.' %}</p>
-            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"
+            <a href="{% url 'repository_file_download' preprint.id version.public_file.id %}"
                class="btn btn-primary">
               {{ request.repository.object_name }}
               {% include "elements/icons/link_download.html" %}
@@ -145,11 +147,14 @@
         <div class="card-body">
           <section aria-label="{% trans 'Preprint Information' %}">
 
-            {% if version.file %}
+            {% if version.locked_file %}
+              <h2>{% trans 'Downloads' %}</h2>
+              {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
+            {% elif version.public_file %}
               <h2>{% trans 'Downloads' %}</h2>
               <ul class="no-bullet-list">
                 <li>
-                  <a href="{% url 'repository_file_download' preprint.id version.file.id %}">
+                  <a href="{% url 'repository_file_download' preprint.id version.public_file.id %}">
                     {{ request.repository.object_name|capfirst }}
                     {% include "elements/icons/link_download.html" %}
                   </a>

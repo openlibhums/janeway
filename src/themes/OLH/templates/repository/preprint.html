@@ -71,16 +71,18 @@
                 </div>
             </div>
             <div itemprop="articleBody" id="pdf">
-                {% if version.file_type == 'html' %}
+                {% if version.public_file_type == 'html' %}
                     <div class="text-format-region">
                         <h2>{% trans 'Preprint Body' %}</h2>
                         {{ version.html|safe }}
                     </div>
-                {% elif version.file_type == 'pdf' %}
-                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.file.id %}"
+                {% elif version.public_file_type == 'pdf' %}
+                    <iframe src="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_file_download' preprint.id version.public_file.id %}"
                             width="100%" height="100%" style="min-height: 900px;" allowfullscreen
                             webkitallowfullscreen
                             title="{{ version.display_title|striptags }} PDF"></iframe>
+                {% elif version.locked_file %}
+                    {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
                 {% endif %}
 
                 {% if request.repository.enable_comments or request.repository.enable_invited_comments %}
@@ -138,14 +140,17 @@
         <div class="large-3 columns">
             <div class="article-menu">
                 <small>
-                    {% if version.file %}
+                    {% if version.public_file %}
                         <h2>{% trans "Downloads" %}</h2>
                         <p>
-                            <a href="{% url 'repository_file_download' preprint.id version.file.id %}"><span
+                            <a href="{% url 'repository_file_download' preprint.id version.public_file.id %}"><span
                                     aria-hidden="true" class="fa fa-download"></span>
                                 Download {{ preprint.submission_type.name }}
                             </a>
                         </p>
+                    {% elif version.locked_file %}
+                        <h2>{% trans "Downloads" %}</h2>
+                        {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
                     {% endif %}
                     {% with preprint.organisation_units.all as rous %}
                         {% if rous and request.repository.has_organisation_units %}

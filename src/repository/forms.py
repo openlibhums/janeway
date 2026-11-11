@@ -1068,3 +1068,24 @@ class RepositorySubmissionTypeForm(forms.ModelForm):
         widgets = {
             "pill_colour": forms.TextInput(attrs={"placeholder": "#1e40af"}),
         }
+
+
+class PreprintFileAccessForm(forms.ModelForm):
+    class Meta:
+        model = models.PreprintFile
+        fields = ("access", "embargo_until", "document_version")
+        widgets = {"embargo_until": forms.DateInput(attrs={"type": "date"})}
+
+    def clean(self):
+        cleaned_data = super().clean()
+        access = cleaned_data.get("access")
+        if access == models.PreprintFile.ACCESS_EMBARGOED:
+            if not cleaned_data.get("embargo_until"):
+                self.add_error(
+                    "embargo_until",
+                    _("Give the date the embargo ends."),
+                )
+        else:
+            # Only an embargo has an end date.
+            cleaned_data["embargo_until"] = None
+        return cleaned_data
