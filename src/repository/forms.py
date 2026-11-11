@@ -325,7 +325,12 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
-        self.can_set_access = kwargs.pop("can_set_access", False)
+        # Adding to a draft update's list rather than the preprint's. A
+        # moderator checks the update, so its author can set access.
+        self.version_queue = kwargs.pop("version_queue", None)
+        self.can_set_access = kwargs.pop("can_set_access", False) or bool(
+            self.version_queue
+        )
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
         self.allow_upload = self.preprint.repository.is_institutional
         if not self.instance.pk:
@@ -364,17 +369,16 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
 
     def save(self, commit=True):
         link = super(PreprintSupplementaryFileForm, self).save(commit=False)
-        link.preprint = self.preprint
+        if self.version_queue is not None:
+            link.preprint = None
+            link.version_queue = self.version_queue
+            last = self.version_queue.supplementary_entries.order_by("-order").first()
+            link.order = (last.order + 1) if last else 0
+        else:
+            link.preprint = self.preprint
         upload = self.cleaned_data.get("upload")
-        self.held_for_review = False
         if upload:
             access = self.cleaned_data.get("access") or models.PreprintFile.ACCESS_OPEN
-            if not self.can_set_access and self.preprint.date_published:
-                # An author adding a file to a published record: it stays
-                # with the repository team until a moderator opens it, as
-                # nobody checks it otherwise (it could be a publisher's PDF).
-                access = models.PreprintFile.ACCESS_RESTRICTED
-                self.held_for_review = True
             preprint_file = models.PreprintFile(
                 preprint=self.preprint,
                 file=upload,
@@ -393,7 +397,8 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
             preprint_file.save(update_fields=["mime_type", "size"])
             link.file = preprint_file
             link.url = ""
-            link.order = self.preprint.next_supp_file_order()
+            if self.version_queue is None:
+                link.order = self.preprint.next_supp_file_order()
         if commit:
             link.save()
 

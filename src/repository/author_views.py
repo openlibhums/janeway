@@ -268,9 +268,32 @@ def repository_update_draft(request, preprint_id, update_id):
         prefix="fields",
     )
     new_author_form = submission_forms.EditFrozenAuthor()
+    supplementary_form = forms.PreprintSupplementaryFileForm(
+        preprint=preprint, version_queue=draft
+    )
 
     if request.method == "POST":
-        if "discard_draft" in request.POST:
+        if "add_supplementary" in request.POST:
+            supplementary_form = forms.PreprintSupplementaryFileForm(
+                request.POST, request.FILES, preprint=preprint, version_queue=draft
+            )
+            if supplementary_form.is_valid():
+                supplementary_form.save()
+                messages.add_message(request, messages.SUCCESS, _("Added."))
+                return redirect(this_url)
+        elif "remove_supplementary" in request.POST:
+            entry = get_object_or_404(
+                models.PreprintSupplementaryFile,
+                pk=request.POST.get("remove_supplementary"),
+                version_queue=draft,
+            )
+            uploaded = entry.file
+            entry.delete()
+            if uploaded:
+                repository_logic.delete_unused_draft_file(uploaded)
+            messages.add_message(request, messages.SUCCESS, _("Removed."))
+            return redirect(this_url)
+        elif "discard_draft" in request.POST:
             repository_logic.discard_update(draft)
             messages.add_message(request, messages.INFO, _("Draft update discarded."))
             return redirect(article_url)
@@ -346,6 +369,7 @@ def repository_update_draft(request, preprint_id, update_id):
             "version_form": version_form,
             "file_form": file_form,
             "field_form": field_form,
+            "supplementary_form": supplementary_form,
         }
     )
     return render(request, "admin/repository/update_draft.html", context)

@@ -5,6 +5,7 @@ from freezegun import freeze_time
 
 from api import serializers as api_serializers
 from repository import forms, models as rm
+from submission import models as sm
 from repository.tests.test_file_access import MARKER, PDF, FileAccessTestBase
 
 DATA = b"site,count\nBloomsbury,12\n"
@@ -250,13 +251,19 @@ class SupplementaryFileTests(FileAccessTestBase):
                 )
                 self.assertNotIn(locked.href, content)
 
-    def test_an_authors_upload_to_a_published_record_waits_for_a_moderator(self):
+    def test_authors_change_a_published_records_files_through_an_update(self):
         response = self.add(
             self.owner, {"label": "Publisher PDF"}, {"upload": upload()}
         )
-        entry = self.preprint.supplementaryfiles.get()
-        self.assertEqual(entry.file.access, rm.PreprintFile.ACCESS_RESTRICTED)
-        self.assertEqual(self.get(entry.href).status_code, 403)
+        self.assertRedirects(
+            response,
+            reverse("repository_author_article", args=[self.preprint.pk]),
+            fetch_redirect_response=False,
+        )
+        self.assertFalse(self.preprint.supplementaryfiles.exists())
+        # Moderators still edit them directly.
+        self.add(self.manager, {"label": "Data", "url": "https://zenodo.org/records/1"})
+        self.assertTrue(self.preprint.supplementaryfiles.exists())
 
     def test_called_additional_files_on_institutional_repositories(self):
         self.add_upload()
@@ -266,3 +273,141 @@ class SupplementaryFileTests(FileAccessTestBase):
         response = self.get(self.preprint.local_url)
         self.assertContains(response, "Supplementary files")
         self.assertNotContains(response, "Additional files")
+
+
+@freeze_time("2026-11-11 12:00:00")
+class UpdateSupplementaryFileTests(FileAccessTestBase):
+    """Additional files go through updates, as authors do."""
+
+    def setUp(self):
+        super().setUp()
+        from repository import logic as repository_logic
+
+        self.logic = repository_logic
+        self.preprint, self.main_file = self.published_preprint(
+            PDF, "paper.pdf", "application/pdf"
+        )
+        sm.FrozenAuthor.objects.create(
+            preprint=self.preprint,
+            first_name="Ada",
+            last_name="Author",
+            order=0,
+            frozen_email="ada@author.example",
+        )
+        self.link = rm.PreprintSupplementaryFile.objects.create(
+            preprint=self.preprint, url="https://zenodo.org/records/1", label="Old data"
+        )
+
+    def draft_url(self, update):
+        return reverse(
+            "repository_update_draft",
+            kwargs={"preprint_id": self.preprint.pk, "update_id": update.pk},
+        )
+
+    def start(self):
+        update, error = self.logic.start_update(self.preprint, "metadata_correction")
+        self.assertIsNone(error)
+        return update
+
+    def post_draft(self, update, data):
+        self.client.force_login(self.owner)
+        return self.client.post(
+            self.draft_url(update), data, SERVER_NAME=self.repository.domain
+        )
+
+    def test_an_update_starts_with_a_copy_of_the_list(self):
+        update = self.start()
+        self.assertEqual([e.label for e in update.supplementary_files], ["Old data"])
+        self.assertEqual(self.preprint.supplementaryfiles.count(), 1)
+
+    def test_an_author_replaces_the_files_and_approval_applies_it(self):
+        update = self.start()
+        copy = update.supplementary_files.get()
+        self.post_draft(update, {"remove_supplementary": copy.pk})
+        self.post_draft(
+            update,
+            {
+                "add_supplementary": "",
+                "label": "Accepted manuscript",
+                "document_version": "accepted",
+                "access": "embargoed",
+                "embargo_until": "2027-01-01",
+                "upload": upload("aam.pdf", PDF, "application/pdf"),
+            },
+        )
+        # Nothing changes on the record until it's approved.
+        self.assertEqual(
+            [e.label for e in self.preprint.supplementaryfiles], ["Old data"]
+        )
+        page = self.client.get(
+            self.draft_url(update), SERVER_NAME=self.repository.domain
+        )
+        self.assertContains(page, "aam.pdf")
+
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
+        self.assertTrue(update.supplementary_files_changed)
+        removed, added = update.supplementary_file_changes()
+        self.assertEqual([e.label for e in removed], ["Old data"])
+        self.assertEqual([e.label for e in added], ["Accepted manuscript"])
+
+        first = self.preprint.current_version
+        self.assertTrue(update.approve())
+        entries = list(self.preprint.supplementaryfiles)
+        self.assertEqual([e.label for e in entries], ["Accepted manuscript"])
+        self.assertTrue(entries[0].file.is_locked())
+        first.refresh_from_db()
+        self.assertEqual([e.label for e in first.supplementary_files], ["Old data"])
+
+    def test_an_update_that_leaves_the_files_doesnt_change_them(self):
+        update = self.start()
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
+        self.assertFalse(update.supplementary_files_changed)
+        self.assertTrue(update.approve())
+        self.assertEqual(
+            list(self.preprint.supplementaryfiles.values_list("pk", flat=True)),
+            [self.link.pk],
+        )
+
+    def test_the_moderator_sees_the_change(self):
+        update = self.start()
+        self.post_draft(
+            update,
+            {"add_supplementary": "", "label": "Code", "url": "https://github.com/x/y"},
+        )
+        self.logic.submit_update(update)
+        self.client.force_login(self.manager)
+        response = self.client.get(
+            reverse("repository_version_detail", kwargs={"update_id": update.pk}),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertContains(response, "data-supplementary-changes")
+        self.assertContains(response, "https://github.com/x/y")
+
+    def test_discarding_deletes_files_only_the_draft_used(self):
+        update = self.start()
+        self.post_draft(
+            update,
+            {
+                "add_supplementary": "",
+                "label": "Draft data",
+                "upload": upload("draft.csv"),
+            },
+        )
+        uploaded = update.supplementary_files.get(label="Draft data").file
+        self.logic.discard_update(update)
+        self.assertFalse(rm.PreprintFile.objects.filter(pk=uploaded.pk).exists())
+        self.assertTrue(
+            rm.PreprintSupplementaryFile.objects.filter(pk=self.link.pk).exists()
+        )
+
+    def test_a_draft_started_before_this_existed_leaves_the_files(self):
+        update = self.start()
+        started = dict(update.started_from)
+        started.pop("supplementary_files")
+        rm.VersionQueue.objects.filter(pk=update.pk).update(started_from=started)
+        update.refresh_from_db()
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
+        self.assertFalse(update.supplementary_files_changed)

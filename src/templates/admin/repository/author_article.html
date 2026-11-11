@@ -248,7 +248,11 @@
                 </div>
                 <div class="title-area">
                     <h2>{{ request.repository.files_label }}</h2>
+                    {% if preprint.date_published %}
+                        <p><small>{% blocktrans with files=request.repository.files_label|lower %}To change the {{ files }}, start an update below.{% endblocktrans %}</small></p>
+                    {% else %}
                     <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">{% trans "Manage" %} {{ request.repository.files_label|lower }}</a>
+                    {% endif %}
                 </div>
                 <div class="content">
                     <ul>

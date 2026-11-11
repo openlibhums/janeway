@@ -110,6 +110,35 @@
                 </div>
             </div>
             {% endif %}
+            {% if supplementary_changes %}
+            <div class="large-12 columns" data-supplementary-changes>
+                <div class="title-area">
+                    <h2>{{ request.repository.files_label }}: Changes</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr><th>{% trans "Change" %}</th><th>{% trans "Label" %}</th><th>{% trans "Link or file" %}</th></tr>
+                        {% for entry in supplementary_changes.0 %}
+                            <tr><td>{% trans "Removed" %}</td><td>{{ entry.label }}</td><td>{% if entry.is_upload %}{{ entry.file.original_filename }}{% else %}{{ entry.url }}{% endif %}</td></tr>
+                        {% endfor %}
+                        {% for entry in supplementary_changes.1 %}
+                            <tr>
+                                <td>{% trans "Added" %}</td>
+                                <td>{{ entry.label }}</td>
+                                <td>
+                                    {% if entry.is_upload %}
+                                        <a href="{% url 'repository_download_file' version.preprint.pk entry.file_id %}">{{ entry.file.original_filename }}</a>
+                                        <br><small>{{ entry.file.access_label|default:_("Open") }}{% if entry.file.document_version %}, {{ entry.file.get_document_version_display }}{% endif %}</small>
+                                    {% else %}
+                                        {{ entry.url }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
             <div class="large-12 columns">
                 <div class="title-area">
                     <h2>Decision</h2>

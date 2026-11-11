@@ -1890,6 +1890,14 @@ class PreprintSupplementaryFile(models.Model):
         related_name="supplementary_file_snapshots",
         help_text="Set when this is part of a superseded version's snapshot.",
     )
+    version_queue = models.ForeignKey(
+        "VersionQueue",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="supplementary_entries",
+        help_text="Set when this is on the list of an update.",
+    )
     url = models.URLField(blank=True)
     file = models.ForeignKey(
         PreprintFile,
@@ -1918,9 +1926,22 @@ class PreprintSupplementaryFile(models.Model):
                 name="supplementary_file_link_or_upload",
             ),
             models.CheckConstraint(
-                check=(Q(preprint__isnull=False) & Q(preprint_version__isnull=True))
-                | (Q(preprint__isnull=True) & Q(preprint_version__isnull=False)),
-                name="supplementary_file_preprint_or_version",
+                check=(
+                    Q(preprint__isnull=False)
+                    & Q(preprint_version__isnull=True)
+                    & Q(version_queue__isnull=True)
+                )
+                | (
+                    Q(preprint__isnull=True)
+                    & Q(preprint_version__isnull=False)
+                    & Q(version_queue__isnull=True)
+                )
+                | (
+                    Q(preprint__isnull=True)
+                    & Q(preprint_version__isnull=True)
+                    & Q(version_queue__isnull=False)
+                ),
+                name="supplementary_file_one_owner",
             ),
         ]
 
@@ -1940,7 +1961,12 @@ class PreprintSupplementaryFile(models.Model):
         """Where the entry points: its link, or its file's public download."""
         if not self.file_id:
             return self.url
-        preprint_id = self.preprint_id or self.preprint_version.preprint_id
+        if self.preprint_id:
+            preprint_id = self.preprint_id
+        elif self.preprint_version_id:
+            preprint_id = self.preprint_version.preprint_id
+        else:
+            preprint_id = self.version_queue.preprint_id
         return reverse(
             "repository_file_download",
             kwargs={"preprint_id": preprint_id, "file_id": self.file_id},
@@ -2636,6 +2662,7 @@ class VersionQueue(models.Model):
         "file": _("file"),
         "authors": _("authors"),
         "field_answers": _("additional information"),
+        "supplementary_files": _("additional files"),
     }
     UPDATE_SECTIONS = tuple(SECTION_LABELS)
 
@@ -2712,6 +2739,31 @@ class VersionQueue(models.Model):
         return "field_answers" in self.changed_sections
 
     @property
+    def supplementary_files_changed(self):
+        return "supplementary_files" in self.changed_sections
+
+    @property
+    def supplementary_files(self):
+        """This update's complete list of additional files."""
+        return self.supplementary_entries.select_related("file").order_by("order", "pk")
+
+    def supplementary_file_changes(self):
+        """(removed, added) entries, compared with the preprint's current list
+        by label and link or file."""
+
+        def key(entry):
+            return (entry.label, entry.url, entry.file_id)
+
+        current = list(self.preprint.supplementaryfiles.select_related("file"))
+        proposed = list(self.supplementary_files)
+        current_keys = {key(e) for e in current}
+        proposed_keys = {key(e) for e in proposed}
+        return (
+            [e for e in current if key(e) not in proposed_keys],
+            [e for e in proposed if key(e) not in current_keys],
+        )
+
+    @property
     def authors(self):
         """This update's complete author list."""
         return self.frozenauthor_set.select_related("author").order_by("order", "pk")
@@ -2752,7 +2804,8 @@ class VersionQueue(models.Model):
         return [
             section
             for section, checksum in current.items()
-            if checksum != self.started_from.get(section)
+            if section in self.started_from
+            and checksum != self.started_from.get(section)
         ]
 
     def approve(self):
@@ -2791,6 +2844,12 @@ class VersionQueue(models.Model):
                 update.repositoryfieldanswer_set.update(
                     version_queue=None,
                     preprint=preprint,
+                )
+            if update.supplementary_files_changed:
+                # The outgoing version kept a copy of the old list above.
+                PreprintSupplementaryFile.objects.filter(preprint=preprint).delete()
+                update.supplementary_entries.update(
+                    version_queue=None, preprint=preprint
                 )
 
             # Metadata corrections keep the current file.

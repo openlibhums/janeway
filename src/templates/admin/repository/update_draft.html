@@ -61,6 +61,43 @@
                     </form>
                 </div>
             {% endif %}
+            <div class="padding-block-end-2" data-draft-supplementary>
+                <div class="title-area">
+                    <h2>{{ request.repository.files_label }}</h2>
+                </div>
+                <p>{% blocktrans with files=request.repository.files_label|lower %}The {{ files }} this update gives the record. Add or remove them here; approving the update replaces the record's list.{% endblocktrans %}</p>
+                <table class="table small">
+                    {% for entry in draft.supplementary_files %}
+                        <tr>
+                            <td>{{ entry.label }}</td>
+                            <td>
+                                {% if entry.is_upload %}
+                                    {{ entry.file.original_filename }}
+                                    <br><small>{{ entry.file.access_label|default:_("Open") }}{% if entry.file.document_version %}, {{ entry.file.get_document_version_display }}{% endif %}</small>
+                                {% else %}
+                                    {{ entry.url }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <button name="remove_supplementary" value="{{ entry.pk }}" class="tiny alert button">{% trans "Remove" %}</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td>{% trans "None" %}</td></tr>
+                    {% endfor %}
+                </table>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include "admin/elements/forms/errors.html" with form=supplementary_form %}
+                    {{ supplementary_form|foundation }}
+                    <button name="add_supplementary" class="button">
+                        <span class="fa fa-plus"></span> {% trans "Add" %} {{ request.repository.file_label }}
+                    </button>
+                </form>
+            </div>
             {% include "admin/repository/elements/author_list_editor.html" %}
             <div class="button-group padding-block-2">
                 <button name="submit_update" class="success button" form="update-details">

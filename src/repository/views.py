@@ -1753,6 +1753,11 @@ def version_detail(request, update_id):
             "field_changes": (
                 version.field_answer_changes() if version.field_answers_changed else []
             ),
+            "supplementary_changes": (
+                version.supplementary_file_changes()
+                if version.supplementary_files_changed
+                else None
+            ),
             "changed_since_started": [
                 version.SECTION_LABELS[section]
                 for section in version.sections_changed_since_started()
@@ -1959,6 +1964,30 @@ def repository_order_fields(request):
     return HttpResponse("Ok")
 
 
+def additional_files_need_update(request, preprint):
+    """On a published record, authors change additional files through an
+    update, which a moderator checks; moderators edit them directly. Returns
+    a redirect for an author, or None."""
+    if (
+        preprint.date_published
+        and not request.user.is_staff
+        and not request.user.is_repository_moderator(request.repository)
+    ):
+        messages.add_message(
+            request,
+            messages.INFO,
+            _(
+                "To change the %(files)s of a published record, start an update: "
+                "a moderator checks it before it goes live."
+            )
+            % {"files": request.repository.files_label.lower()},
+        )
+        return redirect(
+            reverse("repository_author_article", kwargs={"preprint_id": preprint.pk})
+        )
+    return None
+
+
 @preprint_editor_or_author_required
 def manage_supplementary_files(request, preprint_id):
     preprint = get_object_or_404(
@@ -1966,6 +1995,9 @@ def manage_supplementary_files(request, preprint_id):
         pk=preprint_id,
         repository=request.repository,
     )
+    blocked = additional_files_need_update(request, preprint)
+    if blocked:
+        return blocked
     form = forms.PreprintSupplementaryFileForm(
         preprint=preprint,
         can_set_access=request.user.is_repository_moderator(request.repository),
@@ -1991,6 +2023,9 @@ def new_supplementary_file(request, preprint_id):
         pk=preprint_id,
         repository=request.repository,
     )
+    blocked = additional_files_need_update(request, preprint)
+    if blocked:
+        return blocked
     if "form" in request.POST:
         form = forms.PreprintSupplementaryFileForm(
             request.POST,
@@ -2007,24 +2042,6 @@ def new_supplementary_file(request, preprint_id):
                 messages.SUCCESS,
                 _("Added."),
             )
-            if getattr(form, "held_for_review", False):
-                messages.add_message(
-                    request,
-                    messages.INFO,
-                    _(
-                        "The file is visible to the repository team only until "
-                        "a moderator checks it and opens it."
-                    ),
-                )
-                utils_models.LogEntry.add_entry(
-                    "File Access",
-                    "{} added a file to the published record; "
-                    "held for a moderator to open.".format(request.user.full_name()),
-                    "Info",
-                    request.user,
-                    request,
-                    preprint,
-                )
         else:
             messages.add_message(
                 request,
@@ -2053,6 +2070,9 @@ def order_supplementary_files(request, preprint_id):
         pk=preprint_id,
         repository=request.repository,
     )
+    blocked = additional_files_need_update(request, preprint)
+    if blocked:
+        return blocked
     if "contact[]" in request.POST:
         ids = [int(_id) for _id in request.POST.getlist("contact[]")]
 
@@ -2071,6 +2091,9 @@ def delete_supplementary_file(request, preprint_id):
         pk=preprint_id,
         repository=request.repository,
     )
+    blocked = additional_files_need_update(request, preprint)
+    if blocked:
+        return blocked
     try:
         id_to_delete = int(request.POST.get("delete", 0))
     except ValueError:

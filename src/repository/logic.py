@@ -900,7 +900,7 @@ def _stored_author_details(frozen_author):
     ]
 
 
-def section_checksums(title, abstract, doi, authors, answers):
+def section_checksums(title, abstract, doi, authors, answers, supplementary_files=()):
     """
     A checksum of each section of metadata an update can change, to tell
     which sections an author changed and which have changed since.
@@ -917,6 +917,12 @@ def section_checksums(title, abstract, doi, authors, answers):
                 for answer in answers
             )
         ),
+        "supplementary_files": _checksum(
+            [
+                (entry.label, entry.url, entry.file_id or 0)
+                for entry in sorted(supplementary_files, key=lambda e: (e.order, e.pk))
+            ]
+        ),
     }
 
 
@@ -927,6 +933,7 @@ def preprint_checksums(preprint):
         preprint.doi,
         preprint.frozen_authors(),
         preprint.repositoryfieldanswer_set.all(),
+        preprint.supplementaryfiles,
     )
 
 
@@ -937,6 +944,7 @@ def update_checksums(update):
         update.published_doi,
         update.authors,
         update.repositoryfieldanswer_set.all(),
+        update.supplementary_entries.all(),
     )
 
 
@@ -1395,6 +1403,12 @@ def start_update(preprint, update_type, resume=True):
             frozen_author.copy(preprint=None, version_queue=update)
         for answer in preprint.repositoryfieldanswer_set.all():
             answer.copy(preprint=None, version_queue=update)
+        for entry in preprint.supplementaryfiles:
+            # Uploaded files are shared with the copy, not duplicated.
+            entry.pk = None
+            entry.preprint = None
+            entry.version_queue = update
+            entry.save()
         return update, None
 
 
@@ -1462,8 +1476,12 @@ def submit_update(update):
         update.changed_sections = [
             section
             for section in models.VersionQueue.UPDATE_SECTIONS
-            if checksums.get(section, update.started_from.get(section))
-            != update.started_from.get(section)
+            if (
+                # A draft started before a section existed doesn't change it.
+                section in update.started_from
+                and checksums.get(section, update.started_from.get(section))
+                != update.started_from.get(section)
+            )
             or (section == "file" and update.file)
         ]
         update.is_draft = False
@@ -1485,9 +1503,12 @@ def discard_update(update):
         if update is None:
             return False
         file = update.file
+        uploads = [
+            entry.file for entry in update.supplementary_entries.all() if entry.file
+        ]
         update.delete()
-        if file:
-            delete_unused_draft_file(file)
+        for unused in ([file] if file else []) + uploads:
+            delete_unused_draft_file(unused)
     return True
 
 
@@ -1526,6 +1547,7 @@ def delete_unused_draft_file(preprint_file):
         models.PreprintVersion.objects.filter(file=preprint_file).exists()
         or models.VersionQueue.objects.filter(file=preprint_file).exists()
         or models.Preprint.objects.filter(submission_file=preprint_file).exists()
+        or models.PreprintSupplementaryFile.objects.filter(file=preprint_file).exists()
     )
     if not in_use:
         preprint_file.delete()
