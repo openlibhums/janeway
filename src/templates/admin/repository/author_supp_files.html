@@ -10,7 +10,7 @@
 {% block breadcrumbs %}
     <li><a href="{% url 'repository_dashboard' %}">{{ request.repository.object_name }} Dashboard</a></li>
     <li><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></li>
-    <li>Manage Supplementary Files</li>
+    <li>{% trans "Manage" %} {{ request.repository.files_label|lower }}</li>
 {% endblock %}
 
 {% block body %}

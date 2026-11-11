@@ -167,7 +167,7 @@
                     {% endif %}
                     {% with version.supplementary_files as supplementary_files %}
                     {% if supplementary_files %}
-                        <h2>{% trans "Supplementary Files" %}</h2>
+                        <h2>{{ request.repository.files_label }}</h2>
                         {% include "common/repository/supplementary_files_list.html" with files=supplementary_files %}
                     {% endif %}
                     {% endwith %}

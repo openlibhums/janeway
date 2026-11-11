@@ -1,0 +1,29 @@
+{% load i18n %}
+<h1>{% trans "A request for a copy" %}</h1>
+<p>{% if preprint %}<a href="{{ preprint.local_url }}">{{ copy_request.preprint_title|striptags }}</a>{% else %}{{ copy_request.preprint_title|striptags }}{% endif %}<br>
+  {{ copy_request.file_name }}{% if copy_request.file %}: {{ copy_request.file.access_label }}{% endif %}.</p>
+<dl>
+  <dt>{% trans "From" %}</dt>
+  <dd>{{ copy_request.name }} ({{ copy_request.email }})</dd>
+  <dt>{% trans "Asked on" %}</dt>
+  <dd>{{ copy_request.created|date:"j F Y" }}</dd>
+  <dt>{% trans "Why they'd like a copy" %}</dt>
+  <dd>{{ copy_request.reason|linebreaksbr }}</dd>
+</dl>
+{% if copy_request.is_open %}
+  <p>
+    {% blocktrans trimmed %}
+      If you agree, the reader gets a link to download this file for their
+      own use, which works for 7 days. Your answer is kept as the record of
+      your permission. Your email address isn't shown to them.
+    {% endblocktrans %}
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="approve" class="button success btn btn-success">{% trans "Send them a copy" %}</button>
+    <button type="submit" name="decline" class="button secondary btn btn-secondary">{% trans "Decline" %}</button>
+  </form>
+{% else %}
+  <p><strong>{{ copy_request.current_status_display }}</strong>{% if copy_request.decided %}, {{ copy_request.decided|date:"j F Y" }}{% endif %}.
+    {% if copy_request.current_status == "expired" %}{% trans "It's too late to answer this request." %}{% endif %}</p>
+{% endif %}

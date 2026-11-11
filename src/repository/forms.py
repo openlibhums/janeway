@@ -328,6 +328,10 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
         self.can_set_access = kwargs.pop("can_set_access", False)
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
         self.allow_upload = self.preprint.repository.is_institutional
+        if not self.instance.pk:
+            self.fields["label"].initial = str(
+                self.preprint.repository.file_label
+            ).capitalize()
         if self.allow_upload:
             self.fields["url"].required = False
             self.fields["url"].label = _("Link")

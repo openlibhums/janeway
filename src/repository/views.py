@@ -788,9 +788,7 @@ def repository_files(request, preprint_id):
                 preprint_supplementary, created = preprint.add_supplementary_file(
                     supplementary
                 )
-                messages.add_message(
-                    request, messages.INFO, "Supplementary file saved."
-                )
+                messages.add_message(request, messages.INFO, _("Saved."))
 
         if "complete" in request.POST:
             if (
@@ -1231,7 +1229,7 @@ def repository_request_copy(request, preprint_id, file_id):
                 ),
             )
             return redirect(preprint.local_url)
-    template = "common/repository/request_copy.html"
+    template = "repository/request_copy.html"
     context = {"preprint": preprint, "preprint_file": preprint_file, "form": form}
     return render(request, template, context)
 
@@ -1260,7 +1258,7 @@ def repository_copy_request_decide(request, token):
                     else _("Thank you. The reader has been told."),
                 )
             return redirect(request.path)
-    template = "common/repository/copy_request_decide.html"
+    template = "repository/copy_request_decide.html"
     context = {"copy_request": copy_request, "preprint": copy_request.preprint}
     return render(request, template, context)
 
@@ -2007,7 +2005,7 @@ def new_supplementary_file(request, preprint_id):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                "New Supplementary File Created",
+                _("Added."),
             )
             if getattr(form, "held_for_review", False):
                 messages.add_message(
@@ -2020,7 +2018,7 @@ def new_supplementary_file(request, preprint_id):
                 )
                 utils_models.LogEntry.add_entry(
                     "File Access",
-                    "{} added a supplementary file to the published record; "
+                    "{} added a file to the published record; "
                     "held for a moderator to open.".format(request.user.full_name()),
                     "Info",
                     request.user,
@@ -2098,7 +2096,7 @@ def delete_supplementary_file(request, preprint_id):
     messages.add_message(
         request,
         messages.SUCCESS,
-        "Supplementary file deleted",
+        _("Deleted."),
     )
     return redirect(
         reverse(

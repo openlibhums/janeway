@@ -5,7 +5,7 @@
     <div class="row expanded">
         <div class="large-8 medium-12 columns">
             <div class="title-area">
-                <h2>Current Supplementary Files</h2>
+                <h2>{{ request.repository.files_label }}</h2>
             </div>
             <div class="content">
                 <p>
@@ -48,7 +48,7 @@
         </div>
         <div class="large-4 medium-12 columns">
             <div class="title-area">
-                <h2>Add New File</h2>
+                <h2>{% trans 'Add' %} {{ request.repository.file_label }}</h2>
             </div>
             <div class="content">
                 {% include "admin/elements/forms/errors.html" %}
@@ -58,7 +58,7 @@
                     <div class="row">
                         <div class="large-12 columns">
                             <button type="submit" name="form"
-                                    class="button">{% trans 'Add New Supplementary File' %}</button>
+                                    class="button">{% trans 'Add' %} {{ request.repository.file_label }}</button>
                         </div>
                     </div>
 

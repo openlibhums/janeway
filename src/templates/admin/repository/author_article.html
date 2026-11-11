@@ -247,15 +247,15 @@
                     </table>
                 </div>
                 <div class="title-area">
-                    <h2>Supplementary Files</h2>
-                    <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">Manage Supplementary Files</a>
+                    <h2>{{ request.repository.files_label }}</h2>
+                    <a href="{% url 'repository_manage_supplementary_files' preprint.pk %}" class="button">{% trans "Manage" %} {{ request.repository.files_label|lower }}</a>
                 </div>
                 <div class="content">
                     <ul>
                     {% for link in preprint.supplementaryfiles %}
                         <li><a href="{% if link.is_upload %}{% url 'repository_download_file' preprint.pk link.file_id %}{% else %}{{ link.url }}{% endif %}">{{ link.label }}</a>{% if link.is_upload %} <small>({{ link.file.original_filename }}{% if link.file.document_version %}, {{ link.file.get_document_version_display }}{% endif %}{% if link.is_locked %}, {{ link.file.access_label }}{% endif %})</small>{% endif %}</li>
                     {% empty %}
-                        <li>No Supplementary File</li>
+                        <li>{% trans "None" %}</li>
                     {% endfor %}
                     </ul>
                 </div>

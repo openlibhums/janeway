@@ -40,11 +40,11 @@
                     <button class="button"><span class="fa fa-cloud-upload"> </span> Upload File</button>
                 </form>
                 <div class="title-area">
-                    <h2>{% trans 'Supplementary files' %}</h2>
+                    <h2>{{ request.repository.files_label }}</h2>
                 </div>
                 <div class="content">
                     <p>{% if request.repository.is_institutional %}{% trans 'Optional: other files to go with the main one, uploaded or linked.' %}{% else %}{% trans 'Optional links to externally hosted supplementary files.' %}{% endif %}</p>
-                    <a href="#" data-open="newsupplementaryfile" class="button" aria-controls="new-supplementary-file" aria-haspopup="true" tabindex="0">{% trans 'Add New Supplementary File' %}</a>
+                    <a href="#" data-open="newsupplementaryfile" class="button" aria-controls="new-supplementary-file" aria-haspopup="true" tabindex="0">{% trans 'Add' %} {{ request.repository.file_label }}</a>
                 </div>
             </div>
             <div class="large-6 columns">
@@ -88,14 +88,14 @@
                     {% endif %}
                 </div>
                 <div class="title-area">
-                    <h2>Supplementary File</h2>
+                    <h2>{{ request.repository.files_label }}</h2>
                 </div>
                 <div class="content">
                     <ul>
                     {% for link in preprint.supplementaryfiles %}
                         <li><a href="{% if link.is_upload %}{% url 'repository_download_file' preprint.pk link.file_id %}{% else %}{{ link.url }}{% endif %}">{{ link.label }}</a>{% if link.is_upload %} <small>({{ link.file.original_filename }}{% if link.file.document_version %}, {{ link.file.get_document_version_display }}{% endif %}{% if link.is_locked %}, {{ link.file.access_label }}{% endif %})</small>{% endif %}</li>
                     {% empty %}
-                        <li>No Supplementary File</li>
+                        <li>{% trans 'None' %}</li>
                     {% endfor %}
                     </ul>
                 </div>
@@ -109,14 +109,14 @@
     <div class="reveal small" id="newsupplementaryfile" data-reveal data-animation-in="slide-in-up" data-animation-out="slide-out-down">
         <div class="card">
             <div class="card-divider">
-                <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add New Supplementary File' %}</h4>
+                <h4><i class="fa fa-plus">&nbsp;</i>{% trans 'Add' %} {{ request.repository.file_label }}</h4>
             </div>
             <div class="card-section">
                 {% include "admin/elements/forms/errors.html" %}
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ supplementary|foundation }}
-                    <button type="submit" name="form" class="button">{% trans 'Add New Supplementary File' %}</button>
+                    <button type="submit" name="form" class="button">{% trans 'Add' %} {{ request.repository.file_label }}</button>
                 </form>
             </div>
         </div>

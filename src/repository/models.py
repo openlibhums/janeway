@@ -465,6 +465,21 @@ class Repository(model_utils.AbstractSiteModel):
         """Whether institutional repository features are turned on."""
         return self.repository_type == self.TYPE_INSTITUTIONAL
 
+    @property
+    def files_label(self):
+        """What the list of files beside the main one is called: additional
+        files on institutional repositories (uploads and links), supplementary
+        files on preprint servers (links)."""
+        return (
+            _("Additional files") if self.is_institutional else _("Supplementary files")
+        )
+
+    @property
+    def file_label(self):
+        return (
+            _("additional file") if self.is_institutional else _("supplementary file")
+        )
+
     def moderating_accounts(self):
         """The accounts that moderate this repository: managers and moderators."""
         return core_models.Account.objects.filter(

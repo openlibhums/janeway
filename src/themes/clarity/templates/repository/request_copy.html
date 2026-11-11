@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Request a copy" %}: {{ preprint.title|striptags }}{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-8">
+      {% include "common/repository/request_copy_body.html" %}
+    </div>
+  </div>
+{% endblock %}

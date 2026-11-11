@@ -257,3 +257,12 @@ class SupplementaryFileTests(FileAccessTestBase):
         entry = self.preprint.supplementaryfiles.get()
         self.assertEqual(entry.file.access, rm.PreprintFile.ACCESS_RESTRICTED)
         self.assertEqual(self.get(entry.href).status_code, 403)
+
+    def test_called_additional_files_on_institutional_repositories(self):
+        self.add_upload()
+        self.assertContains(self.get(self.preprint.local_url), "Additional files")
+        self.repository.repository_type = rm.Repository.TYPE_PREPRINT_SERVER
+        self.repository.save()
+        response = self.get(self.preprint.local_url)
+        self.assertContains(response, "Supplementary files")
+        self.assertNotContains(response, "Additional files")

@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "A request for a copy" %}{% endblock %}
+
+{% block navbar %}
+    {% include "repository/nav.html" %}
+{% endblock navbar %}
+
+{% block body %}
+    <section id="content">
+        <div class="row column">
+            <div class="large-8 columns">
+                {% include "common/repository/copy_request_decide_body.html" %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "A request for a copy" %}{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-8">
+      {% include "common/repository/copy_request_decide_body.html" %}
+    </div>
+  </div>
+{% endblock %}

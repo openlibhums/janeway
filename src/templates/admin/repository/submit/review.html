@@ -93,9 +93,9 @@
         </div>
 
         <div class="title-area">
-          <h2>Supplementary Files</h2>
+          <h2>{{ request.repository.files_label }}</h2>
           <a href="{% url 'repository_files' preprint.pk %}" class="button">
-            Edit Supplementary Files
+            {% trans "Edit" %} {{ request.repository.files_label|lower }}
           </a>
         </div>
         <div class="content">
@@ -119,7 +119,7 @@
             </tr>
             {% empty %}
             <tr>
-              <td colspan="2">No supplementary files supplied</td>
+              <td colspan="2">{% trans "None" %}</td>
             </tr>
             {% endfor %}
           </table>
