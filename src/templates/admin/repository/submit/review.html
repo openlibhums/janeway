@@ -80,7 +80,8 @@
             </tr>
             {% if preprint.submission_file %}
               <tr>
-                <td>{{ preprint.submission_file.original_filename }}</td>
+                <td>{{ preprint.submission_file.original_filename }}{% if request.repository.is_institutional %}
+                  <br><small>{{ preprint.submission_file.access_label|default:_("Open") }}{% if preprint.submission_file.document_version %}, {{ preprint.submission_file.get_document_version_display }}{% endif %}</small>{% endif %}</td>
                 <td>{{ preprint.submission_file.file.size|filesizeformat }}</td>
               </tr>
             {% else %}

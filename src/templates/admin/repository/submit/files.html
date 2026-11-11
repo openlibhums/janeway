@@ -71,6 +71,21 @@
                             </tr>
                         {% endif %}
                     </table>
+                    {% if access_form %}
+                        <h3>{% trans "Access to this file" %}</h3>
+                        <p><small>{% blocktrans trimmed %}
+                            If the publisher sets an embargo on your accepted manuscript,
+                            give its end date: the record goes online, but the file only
+                            opens on that date. The repository team checks this before
+                            publishing.
+                        {% endblocktrans %}</small></p>
+                        {% include "admin/elements/forms/errors.html" with form=access_form %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ access_form|foundation }}
+                            <button name="file_access" class="button">{% trans 'Save access' %}</button>
+                        </form>
+                    {% endif %}
                 </div>
                 <div class="title-area">
                     <h2>Supplementary File</h2>

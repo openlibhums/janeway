@@ -725,8 +725,26 @@ def repository_files(request, preprint_id):
     supplementary = forms.PreprintSupplementaryFileForm(
         preprint=preprint,
     )
+    # On institutional repositories, depositors say what the file is and
+    # whether it's under embargo (a publisher's embargo on an accepted
+    # manuscript, say). Moderators can change it before publishing.
+    access_form = None
+    if request.repository.is_institutional and preprint.submission_file:
+        access_form = forms.PreprintFileAccessForm(instance=preprint.submission_file)
 
     if request.POST:
+        if "file_access" in request.POST and access_form is not None:
+            access_form = forms.PreprintFileAccessForm(
+                request.POST, instance=preprint.submission_file
+            )
+            if access_form.is_valid():
+                submission_file = access_form.save(commit=False)
+                submission_file.save(update_fields=access_form.Meta.fields)
+                messages.add_message(request, messages.INFO, "File access saved.")
+                return redirect(
+                    reverse("repository_files", kwargs={"preprint_id": preprint.pk})
+                )
+
         if "file" in request.FILES:
             form = forms.FileForm(request.POST, request.FILES, preprint=preprint)
             uploaded_file = request.FILES.get("file")
@@ -795,6 +813,7 @@ def repository_files(request, preprint_id):
         "preprint": preprint,
         "form": form,
         "supplementary": supplementary,
+        "access_form": access_form,
     }
 
     return render(request, template, context)

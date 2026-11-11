@@ -329,3 +329,51 @@ class FileAccessFormTests(FileAccessTestBase):
         self.repository.save()
         response = self.get(manager_url, user=self.manager)
         self.assertNotContains(response, self.url)
+
+
+@freeze_time("2026-11-11 12:00:00")
+class SubmissionAccessTests(FileAccessTestBase):
+    def setUp(self):
+        super().setUp()
+        self.draft = rm.Preprint.objects.create(
+            repository=self.repository, owner=self.owner, title="A draft"
+        )
+        self.draft_file = rm.PreprintFile(
+            preprint=self.draft,
+            original_filename="aam.pdf",
+            mime_type="application/pdf",
+        )
+        self.draft_file.file.save("aam.pdf", ContentFile(PDF), save=False)
+        with mock.patch.object(rm.PreprintFile, "index_full_text"):
+            self.draft_file.save()
+        self.draft.submission_file = self.draft_file
+        self.draft.save()
+        self.url = reverse("repository_files", kwargs={"preprint_id": self.draft.pk})
+
+    def test_a_depositor_embargoes_their_accepted_manuscript(self):
+        self.client.force_login(self.owner)
+        page = self.client.get(self.url, SERVER_NAME=self.repository.domain)
+        self.assertContains(page, 'name="file_access"')
+        self.client.post(
+            self.url,
+            {
+                "file_access": "",
+                "access": "embargoed",
+                "embargo_until": "2027-06-01",
+                "document_version": "accepted",
+            },
+            SERVER_NAME=self.repository.domain,
+        )
+        self.draft_file.refresh_from_db()
+        self.assertEqual(self.draft_file.access, "embargoed")
+        self.assertEqual(self.draft_file.embargo_until, datetime.date(2027, 6, 1))
+        self.assertEqual(self.draft_file.document_version, "accepted")
+        self.draft.refresh_from_db()
+        self.assertEqual(self.draft.submission_file, self.draft_file)
+
+    def test_preprint_servers_dont_ask(self):
+        self.repository.repository_type = rm.Repository.TYPE_PREPRINT_SERVER
+        self.repository.save()
+        self.client.force_login(self.owner)
+        page = self.client.get(self.url, SERVER_NAME=self.repository.domain)
+        self.assertNotContains(page, 'name="file_access"')

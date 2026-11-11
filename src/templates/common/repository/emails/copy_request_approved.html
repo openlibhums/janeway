@@ -1,5 +1,0 @@
-<p>Dear {{ copy_request.name }},</p>
-<p>The author has agreed to send you a copy of <strong>{{ preprint.title|striptags }}</strong>
-for your own use. You can download it here until {{ copy_request.download_until|date:"j F Y" }}:<br>
-<a href="{{ download_url }}">{{ download_url }}</a></p>
-<p>{{ repository.name }}</p>

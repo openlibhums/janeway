@@ -1,5 +1,0 @@
-<p>Dear {{ copy_request.name }},</p>
-<p>We're sorry: the author hasn't answered your request for a copy of
-<strong>{{ preprint.title|striptags }}</strong>, so it has expired.{% if copy_request.file.embargo_until %}
-It will be openly available from {{ copy_request.file.embargo_until|date:"j F Y" }}.{% endif %}</p>
-<p>{{ repository.name }}</p>

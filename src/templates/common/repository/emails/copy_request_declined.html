@@ -1,5 +1,0 @@
-<p>Dear {{ copy_request.name }},</p>
-<p>We're sorry: a copy of <strong>{{ preprint.title|striptags }}</strong> can't be
-sent to you at the moment.{% if copy_request.file.embargo_until %} It will be openly
-available from {{ copy_request.file.embargo_until|date:"j F Y" }}.{% endif %}</p>
-<p>{{ repository.name }}</p>
