@@ -462,7 +462,7 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
         self.assertEqual(entry.file.original_filename, "counts-v2.csv")
         self.assertTrue(rm.PreprintFile.objects.filter(pk=self.shared.pk).exists())
 
-    def test_approval_replaces_the_list_and_the_old_version_keeps_it(self):
+    def test_a_files_only_update_changes_the_list_without_a_new_version(self):
         update = self.start()
         self.act(
             update,
@@ -470,16 +470,55 @@ class UpdateSupplementaryFileTests(FileAccessTestBase):
         )
         self.assertIsNone(self.logic.submit_update(update))
         update.refresh_from_db()
-        first = self.preprint.current_version
+        self.assertTrue(update.changes_only_additional_files)
+        versions = self.preprint.preprintversion_set.count()
         self.assertTrue(update.approve())
+        self.assertEqual(self.preprint.preprintversion_set.count(), versions)
         self.assertEqual(
             list(self.preprint.supplementaryfiles.values_list("label", flat=True)),
             ["Counts"],
         )
+        update.refresh_from_db()
+        self.assertTrue(update.approved)
+
+    def test_an_update_that_also_changes_details_makes_a_version(self):
+        update = self.start()
+        self.act(
+            update,
+            {"action": "remove", "entry": self.draft_entry(update, "Old data").pk},
+        )
+        rm.VersionQueue.objects.filter(pk=update.pk).update(
+            published_doi="https://doi.org/10.1234/new"
+        )
+        update.refresh_from_db()
+        self.assertIsNone(self.logic.submit_update(update))
+        update.refresh_from_db()
+        self.assertFalse(update.changes_only_additional_files)
+        first = self.preprint.current_version
+        self.assertTrue(update.approve())
+        self.assertEqual(self.preprint.current_version.version, first.version + 1)
         first.refresh_from_db()
         self.assertEqual(
             [e.label for e in first.supplementary_files], ["Old data", "Counts"]
         )
+
+    def test_the_moderator_is_told_a_files_only_update_makes_no_version(self):
+        update = self.start()
+        self.act(
+            update,
+            {
+                "action": "link",
+                "link-url": "https://github.com/x/y",
+                "link-label": "Code",
+            },
+        )
+        self.logic.submit_update(update)
+        self.client.force_login(self.manager)
+        response = self.client.get(
+            reverse("repository_version_detail", kwargs={"update_id": update.pk}),
+            SERVER_NAME=self.repository.domain,
+        )
+        self.assertContains(response, "data-files-only")
 
     def test_an_update_that_leaves_the_files_doesnt_change_them(self):
         update = self.start()

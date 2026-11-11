@@ -2818,6 +2818,15 @@ class VersionQueue(models.Model):
         """This update's complete list of additional files."""
         return self.supplementary_entries.select_related("file").order_by("order", "pk")
 
+    @property
+    def changes_only_additional_files(self):
+        """An update that only changes the additional files doesn't make a
+        new version: the list changes on the current one."""
+        takes_file = self.update_type != "metadata_correction"
+        return set(self.changed_sections) == {"supplementary_files"} and not (
+            self.file_id and takes_file
+        )
+
     def supplementary_file_changes(self):
         """(removed, added) entries, compared with the preprint's current list
         by label and link or file."""
@@ -2891,6 +2900,20 @@ class VersionQueue(models.Model):
             if update.date_decision or update.is_draft:
                 return False
             preprint = Preprint.objects.select_for_update().get(pk=update.preprint_id)
+
+            if update.changes_only_additional_files:
+                # No new version: the current one's list is replaced.
+                PreprintSupplementaryFile.objects.filter(preprint=preprint).delete()
+                for entry in update.supplementary_entries.select_related("file"):
+                    entry.apply_proposal()
+                update.supplementary_entries.update(
+                    version_queue=None, preprint=preprint
+                )
+                update.date_decision = timezone.now()
+                update.approved = True
+                update.save()
+                self.refresh_from_db()
+                return True
 
             current_version = preprint.current_version
             if current_version is not None:

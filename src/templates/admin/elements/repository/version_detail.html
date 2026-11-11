@@ -11,6 +11,11 @@
         </button>
         <div class="row expanded">
             <p>The current and updated metadata are displayed below. This has been marked as a <strong>{{ version.get_update_type_display }}</strong>. Approving replaces each changed section with the update's version.</p>
+            {% if version.changes_only_additional_files %}
+                <div class="callout secondary" data-files-only>
+                    <p>{% blocktrans with files=request.repository.files_label|lower %}This update only changes the {{ files }}, so approving it doesn't create a new version.{% endblocktrans %}</p>
+                </div>
+            {% endif %}
             {% if changed_since_started %}
                 <div class="callout warning" data-changed-since-started>
                     <p>This {{ request.repository.object_name }} has changed since the update was started, for example by a moderator: {{ changed_since_started|join:", " }}. Approving keeps those changes unless the update also changes the same section, so check the sections marked changed below.</p>

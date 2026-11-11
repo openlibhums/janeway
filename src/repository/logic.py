@@ -234,7 +234,9 @@ def approve_pending_update(request):
         messages.add_message(
             request,
             messages.INFO,
-            "New version created.",
+            _("Additional files updated.")
+            if pending_update.changes_only_additional_files
+            else _("New version created."),
         )
         kwargs = {
             "pending_update": pending_update,
