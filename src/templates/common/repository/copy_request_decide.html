@@ -6,8 +6,8 @@
 {% block body %}
 <section class="request-copy">
   <h1>{% trans "A request for a copy" %}</h1>
-  <p><a href="{{ preprint.local_url }}">{{ preprint.title|safe }}</a><br>
-    {{ copy_request.file.original_filename }}: {{ copy_request.file.access_label }}.</p>
+  <p>{% if preprint %}<a href="{{ preprint.local_url }}">{{ copy_request.preprint_title|striptags }}</a>{% else %}{{ copy_request.preprint_title|striptags }}{% endif %}<br>
+    {{ copy_request.file_name }}{% if copy_request.file %}: {{ copy_request.file.access_label }}{% endif %}.</p>
   <dl>
     <dt>{% trans "From" %}</dt>
     <dd>{{ copy_request.name }} ({{ copy_request.email }})</dd>

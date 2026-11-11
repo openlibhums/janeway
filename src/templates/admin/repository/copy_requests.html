@@ -32,8 +32,12 @@
         <tr>
           <td>{{ copy_request.created|date:"Y-m-d" }}</td>
           <td>
-            <a href="{% url 'repository_manager_article' copy_request.preprint.pk %}">{{ copy_request.preprint.title|striptags|truncatechars:60 }}</a>
-            <br><small>{{ copy_request.file.original_filename }}</small>
+            {% if copy_request.preprint %}
+              <a href="{% url 'repository_manager_article' copy_request.preprint.pk %}">{{ copy_request.preprint_title|striptags|truncatechars:60 }}</a>
+            {% else %}
+              {{ copy_request.preprint_title|striptags|truncatechars:60 }} <small>({% trans "deleted" %})</small>
+            {% endif %}
+            <br><small>{{ copy_request.file_name }}{% if not copy_request.file %} ({% trans "file deleted" %}){% endif %}</small>
           </td>
           <td>{{ copy_request.name }}<br><small>{{ copy_request.email }}</small></td>
           <td>{{ copy_request.reason|truncatechars:200 }}</td>
@@ -43,13 +47,16 @@
               <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="copy_request" value="{{ copy_request.pk }}">
+                <label for="note-{{ copy_request.pk }}"><small>{% trans "Answering for the author: how did they give or refuse permission?" %}</small></label>
+                <textarea id="note-{{ copy_request.pk }}" name="decision_note" rows="2" required
+                          placeholder="{% trans 'e.g. Agreed by email to the repository team, 12 November' %}"></textarea>
                 <button type="submit" name="approve" class="tiny success button">{% trans "Send a copy" %}</button>
                 <button type="submit" name="decline" class="tiny secondary button">{% trans "Decline" %}</button>
               </form>
               <small>{% blocktrans with date=copy_request.answer_by|date:"j F Y" %}Expires {{ date }}{% endblocktrans %}</small>
             {% else %}
               {{ copy_request.current_status_display }}{% if copy_request.decided %}, {{ copy_request.decided|date:"Y-m-d" }}{% endif %}
-              {% if copy_request.decided %}<br><small>{% if copy_request.decided_by %}{% blocktrans with name=copy_request.decided_by.full_name %}by {{ name }}{% endblocktrans %}{% else %}{% trans "by the author" %}{% endif %}</small>{% endif %}
+              {% if copy_request.decided %}<br><small>{% if copy_request.decided_by %}{% blocktrans with name=copy_request.decided_by.full_name %}by {{ name }} for the author{% endblocktrans %}: {{ copy_request.decision_note }}{% else %}{% trans "by the author" %}{% endif %}</small>{% endif %}
               {% if copy_request.status == "approved" %}<br><small>{% blocktrans count counter=copy_request.downloads %}{{ counter }} download{% plural %}{{ counter }} downloads{% endblocktrans %}</small>{% endif %}
             {% endif %}
           </td>

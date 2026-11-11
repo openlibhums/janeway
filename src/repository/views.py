@@ -762,6 +762,8 @@ def repository_files(request, preprint_id):
             # Check if the form is valid
             if form.is_valid():
                 file = form.save()
+                # A replacement keeps the access the depositor gave the old one.
+                file.inherit_lock_from(preprint.submission_file)
                 preprint.submission_file = file
                 preprint.submission_file.original_filename = request.FILES["file"].name
                 preprint.submission_file.save()
@@ -1150,6 +1152,8 @@ def repository_file_access(request, preprint_id, file_id):
     Sets who can download one of a preprint's files: open, embargoed until
     a date, or restricted to repository staff, and its document version.
     """
+    if not request.repository.is_institutional:
+        raise Http404
     preprint = get_object_or_404(
         models.Preprint,
         pk=preprint_id,
@@ -1238,19 +1242,23 @@ def repository_copy_request_decide(request, token):
     copy_request = get_object_or_404(
         models.CopyRequest.objects.select_related("preprint", "file"),
         token=token,
-        preprint__repository=request.repository,
+        repository=request.repository,
     )
     if request.POST and copy_request.is_open:
         approve = "approve" in request.POST
         if approve or "decline" in request.POST:
-            copy_requests.decide(request, copy_request, approve)
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _("Thank you. The reader has been sent the file.")
-                if approve
-                else _("Thank you. The reader has been told."),
-            )
+            try:
+                copy_requests.decide(request, copy_request, approve)
+            except copy_requests.CannotDecide as error:
+                messages.add_message(request, messages.WARNING, str(error))
+            else:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _("Thank you. The reader has been sent the file.")
+                    if approve
+                    else _("Thank you. The reader has been told."),
+                )
             return redirect(request.path)
     template = "common/repository/copy_request_decide.html"
     context = {"copy_request": copy_request, "preprint": copy_request.preprint}
@@ -1258,18 +1266,23 @@ def repository_copy_request_decide(request, token):
 
 
 def repository_copy_request_download(request, token):
-    """An approved reader downloads their copy, while the link lasts."""
+    """An approved reader downloads their copy, while the link lasts, and
+    only while the file is still an author's accepted manuscript."""
     copy_request = get_object_or_404(
         models.CopyRequest.objects.select_related("file"),
         download_token=token,
-        preprint__repository=request.repository,
+        repository=request.repository,
     )
-    if not copy_request.can_download:
+    preprint_file = copy_request.file
+    if (
+        not copy_request.can_download
+        or preprint_file is None
+        or preprint_file.document_version != models.PreprintFile.VERSION_ACCEPTED
+    ):
         raise Http404
     models.CopyRequest.objects.filter(pk=copy_request.pk).update(
         downloads=F("downloads") + 1
     )
-    preprint_file = copy_request.file
     return files.serve_any_file(
         request, preprint_file, path_parts=(preprint_file.path_parts(),)
     )
@@ -1278,23 +1291,31 @@ def repository_copy_request_download(request, token):
 @is_repository_moderator
 def repository_copy_requests(request):
     """Every request for a copy, and its answer. Moderators can answer for
-    an author."""
+    an author, saying how the author gave or refused permission."""
+    if not request.repository.is_institutional:
+        raise Http404
     if request.POST:
         copy_request = get_object_or_404(
             models.CopyRequest,
             pk=request.POST.get("copy_request"),
-            preprint__repository=request.repository,
+            repository=request.repository,
         )
-        if copy_request.is_open and (
-            "approve" in request.POST or "decline" in request.POST
-        ):
-            copy_requests.decide(
-                request, copy_request, "approve" in request.POST, by=request.user
-            )
-            messages.add_message(request, messages.SUCCESS, _("Answer recorded."))
+        if "approve" in request.POST or "decline" in request.POST:
+            try:
+                copy_requests.decide(
+                    request,
+                    copy_request,
+                    "approve" in request.POST,
+                    by=request.user,
+                    note=request.POST.get("decision_note", ""),
+                )
+            except copy_requests.CannotDecide as error:
+                messages.add_message(request, messages.WARNING, str(error))
+            else:
+                messages.add_message(request, messages.SUCCESS, _("Answer recorded."))
         return redirect(reverse("repository_copy_requests"))
     requests_list = models.CopyRequest.objects.filter(
-        preprint__repository=request.repository
+        repository=request.repository
     ).select_related("preprint", "file", "decided_by")
     template = "admin/repository/copy_requests.html"
     context = {"copy_requests": requests_list}
@@ -1304,6 +1325,8 @@ def repository_copy_requests(request):
 @is_article_preprint_editor
 def repository_copy_request_author(request, preprint_id):
     """Choose which author is asked when readers request a copy."""
+    if not request.repository.is_institutional:
+        raise Http404
     preprint = get_object_or_404(
         models.Preprint, pk=preprint_id, repository=request.repository
     )
@@ -1986,6 +2009,24 @@ def new_supplementary_file(request, preprint_id):
                 messages.SUCCESS,
                 "New Supplementary File Created",
             )
+            if getattr(form, "held_for_review", False):
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    _(
+                        "The file is visible to the repository team only until "
+                        "a moderator checks it and opens it."
+                    ),
+                )
+                utils_models.LogEntry.add_entry(
+                    "File Access",
+                    "{} added a supplementary file to the published record; "
+                    "held for a moderator to open.".format(request.user.full_name()),
+                    "Info",
+                    request.user,
+                    request,
+                    preprint,
+                )
         else:
             messages.add_message(
                 request,

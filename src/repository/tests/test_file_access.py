@@ -11,6 +11,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from repository import models as rm
+from submission import models as sm
 from utils import models as utils_models
 from utils.testing import helpers
 
@@ -377,3 +378,63 @@ class SubmissionAccessTests(FileAccessTestBase):
         self.client.force_login(self.owner)
         page = self.client.get(self.url, SERVER_NAME=self.repository.domain)
         self.assertNotContains(page, 'name="file_access"')
+
+
+@freeze_time("2026-11-11 12:00:00")
+class ReviewFixTests(FileAccessTestBase):
+    """Fixes from the review of embargoes."""
+
+    def setUp(self):
+        super().setUp()
+        self.preprint, self.file = self.published_preprint(
+            PDF, "paper.pdf", "application/pdf"
+        )
+
+    def test_a_new_version_keeps_the_embargo(self):
+        self.lock(self.file)
+        replacement = rm.PreprintFile.objects.create(
+            preprint=self.preprint,
+            original_filename="v2.pdf",
+            mime_type="application/pdf",
+        )
+        self.preprint.make_new_version(replacement)
+        replacement.refresh_from_db()
+        self.assertTrue(replacement.is_locked())
+        self.assertEqual(replacement.embargo_until, self.file.embargo_until)
+
+    def test_a_new_version_given_its_own_access_keeps_it(self):
+        self.lock(self.file)
+        replacement = rm.PreprintFile.objects.create(
+            preprint=self.preprint,
+            original_filename="v2.pdf",
+            mime_type="application/pdf",
+            access=rm.PreprintFile.ACCESS_RESTRICTED,
+        )
+        self.preprint.make_new_version(replacement)
+        replacement.refresh_from_db()
+        self.assertEqual(replacement.access, rm.PreprintFile.ACCESS_RESTRICTED)
+
+    def test_the_public_api_hides_author_emails(self):
+        sm.FrozenAuthor.objects.create(
+            preprint=self.preprint,
+            first_name="Ada",
+            last_name="Author",
+            frozen_email="ada@author.example",
+            order=0,
+        )
+        sm.FrozenAuthor.objects.create(
+            preprint=self.preprint,
+            first_name="Pat",
+            last_name="Public",
+            frozen_email="pat@public.example",
+            order=1,
+            display_email=True,
+        )
+        response = self.get("/api/published_preprints/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "ada@author.example")
+        self.assertContains(response, "pat@public.example")
+        self.assertContains(
+            self.get("/api/published_preprints/", user=self.manager),
+            "ada@author.example",
+        )

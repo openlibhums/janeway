@@ -4,6 +4,15 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def drop_blank_links(apps, schema_editor):
+    """A link with no URL points nowhere, and the new constraint (a link or
+    an upload) would refuse it."""
+    PreprintSupplementaryFile = apps.get_model(
+        "repository", "PreprintSupplementaryFile"
+    )
+    PreprintSupplementaryFile.objects.filter(url="").delete()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("repository", "0067_preprint_file_access"),
@@ -53,6 +62,7 @@ class Migration(migrations.Migration):
             name="url",
             field=models.URLField(blank=True),
         ),
+        migrations.RunPython(drop_blank_links, migrations.RunPython.noop),
         migrations.AddConstraint(
             model_name="preprintsupplementaryfile",
             constraint=models.UniqueConstraint(

@@ -362,8 +362,15 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
         link = super(PreprintSupplementaryFileForm, self).save(commit=False)
         link.preprint = self.preprint
         upload = self.cleaned_data.get("upload")
+        self.held_for_review = False
         if upload:
             access = self.cleaned_data.get("access") or models.PreprintFile.ACCESS_OPEN
+            if not self.can_set_access and self.preprint.date_published:
+                # An author adding a file to a published record: it stays
+                # with the repository team until a moderator opens it, as
+                # nobody checks it otherwise (it could be a publisher's PDF).
+                access = models.PreprintFile.ACCESS_RESTRICTED
+                self.held_for_review = True
             preprint_file = models.PreprintFile(
                 preprint=self.preprint,
                 file=upload,
@@ -700,6 +707,16 @@ class UpdateFieldAnswersForm(forms.Form):
 
 
 class RepositoryBase(forms.ModelForm):
+    # Settings for institutional repository features, hidden on preprint
+    # servers.
+    INSTITUTIONAL_FIELDS = (
+        "request_copy",
+        "copy_request_to_author",
+        "copy_request_approved",
+        "copy_request_declined",
+        "copy_request_expired",
+    )
+
     class Meta:
         model = models.Repository
         fields = "__all__"
@@ -707,6 +724,9 @@ class RepositoryBase(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.press = kwargs.pop("press")
         super(RepositoryBase, self).__init__(*args, **kwargs)
+        if not (self.instance and self.instance.pk and self.instance.is_institutional):
+            for name in self.INSTITUTIONAL_FIELDS:
+                self.fields.pop(name, None)
 
 
 class RepositoryInitial(RepositoryBase):

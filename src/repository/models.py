@@ -842,8 +842,9 @@ class PreprintSearchManager(model_utils.BaseSearchManagerMixin):
         if search_filters.get("full_text"):
             querysets.append(
                 self.get_queryset().filter(
+                    # The latest version's own file, and only while it's open.
                     PreprintFile.open_q("preprintversion__file__"),
-                    preprintversion__preprintfile__file__text__contents__search=search_term,
+                    preprintversion__file__text__contents__search=search_term,
                     preprintversion__id__in=self._latest_version_subq(),
                 )
             )
@@ -1410,8 +1411,11 @@ class Preprint(models.Model):
     @transaction.atomic
     def make_new_version(self, file):
         preprint = Preprint.objects.select_for_update().get(pk=self.pk)
-        if preprint.current_version is not None:
-            preprint.snapshot_to_version(preprint.current_version)
+        current = preprint.current_version
+        if current is not None:
+            preprint.snapshot_to_version(current)
+            if file is not None:
+                file.inherit_lock_from(current.file)
         PreprintVersion.objects.create(
             preprint=preprint,
             file=file,
@@ -1738,15 +1742,34 @@ class PreprintFile(models.Model):
     def jav_version(self):
         return self.JAV_VERSIONS.get(self.document_version, "NA")
 
+    def inherit_lock_from(self, previous):
+        """A file replacing a locked one keeps its lock: a corrected copy of
+        an embargoed manuscript mustn't become public by being uploaded.
+        Only a file still at the default (open) inherits; one given its own
+        access keeps it. True if it changed."""
+        if (
+            previous is None
+            or previous.pk == self.pk
+            or not previous.is_locked()
+            or self.access != self.ACCESS_OPEN
+        ):
+            return False
+        self.access = previous.access
+        self.embargo_until = previous.embargo_until
+        self.save(update_fields=["access", "embargo_until"])
+        return True
+
     def copy_can_be_requested(self):
         """Whether readers can ask for a copy: a locked author's accepted
-        manuscript, on an institutional repository with request a copy on."""
+        manuscript, on an institutional repository with request a copy on,
+        with someone to ask."""
         repository = self.preprint.repository
         return bool(
             repository.is_institutional
             and repository.request_copy
             and self.is_locked()
             and self.document_version == self.VERSION_ACCEPTED
+            and self.preprint.copy_request_recipient()[1]
         )
 
     def can_be_downloaded_by(self, user):
@@ -1926,8 +1949,17 @@ class CopyRequest(models.Model):
     ANSWER_DAYS = 30
     DOWNLOAD_DAYS = 7
 
-    preprint = models.ForeignKey(Preprint, on_delete=models.CASCADE)
-    file = models.ForeignKey(PreprintFile, on_delete=models.CASCADE)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    # The request is the record of permission, so it outlives the file or
+    # record it was about: they're kept by name.
+    preprint = models.ForeignKey(
+        Preprint, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    file = models.ForeignKey(
+        PreprintFile, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    preprint_title = models.TextField(blank=True)
+    file_name = models.TextField(blank=True)
     name = models.CharField(max_length=200, verbose_name=_("Your name"))
     email = models.EmailField(verbose_name=_("Your email address"))
     reason = models.TextField(
@@ -1951,6 +1983,11 @@ class CopyRequest(models.Model):
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="The manager who answered, if the author didn't.",
+    )
+    decision_note = models.TextField(
+        blank=True,
+        help_text="When a manager answers for the author: how the author "
+        "gave (or refused) permission.",
     )
     download_token = models.UUIDField(blank=True, null=True, unique=True)
     download_until = models.DateTimeField(blank=True, null=True)
@@ -1991,19 +2028,34 @@ class CopyRequest(models.Model):
             and timezone.now() < self.download_until
         )
 
-    def approve(self, by=None):
-        self.status = self.STATUS_APPROVED
-        self.decided = timezone.now()
-        self.decided_by = by
-        self.download_token = uuid.uuid4()
-        self.download_until = self.decided + timezone.timedelta(days=self.DOWNLOAD_DAYS)
-        self.save()
+    def _decide(self, **fields):
+        """Record the answer only if the request is still open, in one
+        UPDATE, so two answers at once can't both win. True if it did."""
+        now = timezone.now()
+        fields["decided"] = now
+        updated = CopyRequest.objects.filter(
+            pk=self.pk,
+            status=self.STATUS_PENDING,
+            created__gt=now - timezone.timedelta(days=self.ANSWER_DAYS),
+        ).update(**fields)
+        if updated:
+            self.refresh_from_db()
+        return bool(updated)
 
-    def decline(self, by=None):
-        self.status = self.STATUS_DECLINED
-        self.decided = timezone.now()
-        self.decided_by = by
-        self.save()
+    def approve(self, by=None, note=""):
+        now = timezone.now()
+        return self._decide(
+            status=self.STATUS_APPROVED,
+            decided_by=by,
+            decision_note=note,
+            download_token=uuid.uuid4(),
+            download_until=now + timezone.timedelta(days=self.DOWNLOAD_DAYS),
+        )
+
+    def decline(self, by=None, note=""):
+        return self._decide(
+            status=self.STATUS_DECLINED, decided_by=by, decision_note=note
+        )
 
 
 class PreprintAccess(models.Model):
@@ -2728,9 +2780,12 @@ class VersionQueue(models.Model):
 
             # Metadata corrections keep the current file.
             takes_file = update.update_type != "metadata_correction"
+            new_file = update.file if update.file and takes_file else this_file
+            if new_file is not None and current_version is not None:
+                new_file.inherit_lock_from(current_version.file)
             PreprintVersion.objects.create(
                 preprint=preprint,
-                file=update.file if update.file and takes_file else this_file,
+                file=new_file,
                 version=preprint.next_version_number(),
                 moderated_version=update,
                 published_doi=preprint.doi,

@@ -119,3 +119,14 @@ class RioxxTests(FileAccessTestBase):
         root = ET.fromstring(response.content)
         titles = [t.text for t in root.findall(".//rioxx:rioxx/dc:title", NS)]
         self.assertIn(self.preprint.title, titles)
+
+    def test_an_embargo_without_an_end_isnt_free_to_read(self):
+        self.lock(self.file, until=None)
+        rioxx = self.record()
+        self.assertIsNone(rioxx.find("ali:free_to_read", NS))
+        self.assertNotIn(self.file.download_url(), rioxx.find("dc:identifier", NS).text)
+
+    def test_an_embargoed_files_url_isnt_published(self):
+        self.lock(self.file, until="2027-01-01")
+        rioxx = self.record()
+        self.assertNotIn(self.file.download_url(), rioxx.find("dc:identifier", NS).text)

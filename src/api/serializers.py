@@ -341,6 +341,38 @@ class PreprintAuthorSerializer(serializers.Serializer):
         allow_blank=True,
         allow_null=True,
     )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["orcid"] = data["orcid"] or None
+        if not self.can_see_email(instance):
+            # Readers mustn't learn authors' addresses (request a copy keeps
+            # them hidden), unless the author chose to show theirs.
+            data.pop("email", None)
+        return data
+
+    def can_see_email(self, instance):
+        if getattr(instance, "display_email", False):
+            return True
+        request = self.context.get("request")
+        if request is None:
+            # Serialised in code, not for someone through the API.
+            return True
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return False
+        if user.is_staff:
+            return True
+        preprint = getattr(instance, "preprint", None)
+        if preprint is None and getattr(instance, "preprint_version", None):
+            preprint = instance.preprint_version.preprint
+        if preprint is None:
+            # An update's author list: only its owner and moderators reach it.
+            return True
+        return user == preprint.owner or user.is_repository_moderator(
+            preprint.repository
+        )
+
     first_name = serializers.CharField(
         max_length=300,
         required=False,
@@ -412,11 +444,6 @@ class PreprintAuthorSerializer(serializers.Serializer):
         if not match:
             raise serializers.ValidationError(f"{value} is not a valid ORCID")
         return match.group(0)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["orcid"] = data["orcid"] or None
-        return data
 
 
 def author_rows(validated_authors):

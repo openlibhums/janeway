@@ -9,8 +9,11 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.rioxx.net/schema/v3.0/rioxx/ https://www.rioxx.net/schema/v3.0/rioxx/rioxx.xsd">
     {% with file=article.current_version.file %}
-      {% if file and file.access != "restricted" %}
-      <ali:free_to_read{% if file.access == "embargoed" and file.embargo_until %} start_date="{{ file.embargo_until|date:"Y-m-d" }}"{% endif %}/>
+      {# Free to read now, or from a known embargo end. A restricted file, or an embargo with no end, isn't. #}
+      {% if file and file.access == "embargoed" and file.embargo_until %}
+      <ali:free_to_read start_date="{{ file.embargo_until|date:"Y-m-d" }}"/>
+      {% elif file and not file.is_locked %}
+      <ali:free_to_read/>
       {% endif %}
       {% if article.license %}
       <ali:license_ref start_date="{% if file.access == "embargoed" and file.embargo_until %}{{ file.embargo_until|date:"Y-m-d" }}{% else %}{{ article.date_published|date:"Y-m-d" }}{% endif %}">{{ article.license.url }}</ali:license_ref>
@@ -18,7 +21,8 @@
       {% if article.abstract %}
       <dc:description>{{ article.abstract|striptags }}</dc:description>
       {% endif %}
-      {% if file and file.access != "restricted" %}
+      {# A locked file's URL is never published; the record page stands in. #}
+      {% if file and not file.is_locked %}
       <dc:format>{{ file.mime_type }}</dc:format>
       <dc:identifier>{{ article.repository.site_url }}{{ file.download_url }}</dc:identifier>
       {% else %}

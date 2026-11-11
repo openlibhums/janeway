@@ -223,14 +223,27 @@ class RequestCopyTests(RequestCopyTestBase):
         list_url = reverse("repository_copy_requests")
         page = self.get(list_url, user=self.manager)
         self.assertContains(page, REQUEST["email"])
+        # Without saying how the author agreed, nothing is recorded.
         self.post(
             list_url,
             {"copy_request": copy_request.pk, "approve": ""},
             user=self.manager,
         )
         copy_request.refresh_from_db()
+        self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_PENDING)
+        self.post(
+            list_url,
+            {
+                "copy_request": copy_request.pk,
+                "approve": "",
+                "decision_note": "Agreed by email, 12 November",
+            },
+            user=self.manager,
+        )
+        copy_request.refresh_from_db()
         self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_APPROVED)
         self.assertEqual(copy_request.decided_by, self.manager)
+        self.assertEqual(copy_request.decision_note, "Agreed by email, 12 November")
 
     def test_readers_cannot_see_the_list(self):
         response = self.get(reverse("repository_copy_requests"), user=self.reader)
@@ -325,4 +338,105 @@ class CopyRequestEmailTests(RequestCopyTestBase):
         self.ask()
         self.assertIn(
             "has asked for a copy of your accepted manuscript", mail.outbox[-1].body
+        )
+
+
+@freeze_time("2026-11-11 12:00:00")
+@override_settings(
+    CAPTCHA_TYPE="", EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+)
+class CopyRequestReviewFixTests(RequestCopyTestBase):
+    """Fixes from the review of request a copy."""
+
+    def test_a_logged_in_authors_address_isnt_in_the_readers_email(self):
+        author_account = self.owner  # the owner is asked; they're logged in
+        author_account.first_name, author_account.last_name = "Olive", "Owner"
+        author_account.save()
+        self.ask()
+        copy_request = rm.CopyRequest.objects.get()
+        self.post(self.decide_url(copy_request), {"approve": ""}, user=author_account)
+        reader_email = mail.outbox[-1]
+        self.assertEqual(reader_email.to, [REQUEST["email"]])
+        self.assertNotIn(author_account.email, reader_email.reply_to)
+        self.assertNotIn(author_account.email, str(reader_email.message()))
+        self.assertNotIn(author_account.full_name(), reader_email.from_email)
+
+    def test_answers_can_only_be_given_once_even_at_the_same_moment(self):
+        self.ask()
+        first = rm.CopyRequest.objects.get()
+        second = rm.CopyRequest.objects.get()
+        self.assertTrue(first.approve())
+        self.assertFalse(second.approve())
+        self.assertFalse(second.decline())
+        first.refresh_from_db()
+        self.assertEqual(first.status, rm.CopyRequest.STATUS_APPROVED)
+
+    def test_the_record_survives_the_file_being_deleted(self):
+        self.ask()
+        copy_request = rm.CopyRequest.objects.get()
+        self.post(self.decide_url(copy_request), {"approve": ""})
+        rm.PreprintFile.objects.filter(pk=self.file.pk).delete()
+        copy_request.refresh_from_db()
+        self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_APPROVED)
+        self.assertEqual(copy_request.file_name, "aam.pdf")
+        self.assertEqual(copy_request.preprint_title, self.preprint.title)
+        self.assertIsNone(copy_request.file)
+        self.assertEqual(self.get(self.download_url(copy_request)).status_code, 404)
+        self.assertContains(
+            self.get(reverse("repository_copy_requests"), user=self.manager),
+            "file deleted",
+        )
+
+    def test_only_an_accepted_manuscript_is_ever_sent(self):
+        self.ask()
+        copy_request = rm.CopyRequest.objects.get()
+        self.file.document_version = rm.PreprintFile.VERSION_PUBLISHED
+        self.file.save(update_fields=["document_version"])
+        self.post(self.decide_url(copy_request), {"approve": ""})
+        copy_request.refresh_from_db()
+        self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_PENDING)
+
+        self.file.document_version = rm.PreprintFile.VERSION_ACCEPTED
+        self.file.save(update_fields=["document_version"])
+        self.post(self.decide_url(copy_request), {"approve": ""})
+        copy_request.refresh_from_db()
+        self.file.document_version = rm.PreprintFile.VERSION_PUBLISHED
+        self.file.save(update_fields=["document_version"])
+        self.assertEqual(self.get(self.download_url(copy_request)).status_code, 404)
+
+    def test_no_request_without_someone_to_ask(self):
+        self.owner.email = ""
+        type(self.owner).objects.filter(pk=self.owner.pk).update(email="")
+        self.assertEqual(self.get(self.request_url).status_code, 404)
+
+    def test_a_failed_expiry_email_doesnt_stop_the_rest(self):
+        self.ask()
+        self.ask()
+        from unittest import mock
+        from repository import copy_requests
+
+        with freeze_time("2026-12-12 12:00:00"):
+            with mock.patch.object(
+                copy_requests, "send", side_effect=RuntimeError("SMTP down")
+            ):
+                call_command("execute_cron_tasks", stdout=StringIO())
+        self.assertEqual(
+            rm.CopyRequest.objects.filter(status=rm.CopyRequest.STATUS_EXPIRED).count(),
+            2,
+        )
+
+    def test_preprint_servers_dont_get_the_setting_or_pages(self):
+        from repository import forms as repository_forms
+
+        self.repository.repository_type = rm.Repository.TYPE_PREPRINT_SERVER
+        self.repository.save()
+        form = repository_forms.RepositorySubmission(
+            instance=self.repository, press=self.press
+        )
+        self.assertNotIn("request_copy", form.fields)
+        self.assertEqual(
+            self.get(
+                reverse("repository_copy_requests"), user=self.manager
+            ).status_code,
+            404,
         )

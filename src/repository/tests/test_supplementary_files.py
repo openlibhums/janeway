@@ -83,7 +83,9 @@ class SupplementaryFileTests(FileAccessTestBase):
         self.assertEqual(entry.file.document_version, "accepted")
         self.assertTrue(entry.is_locked)
 
-    def test_an_authors_upload_is_open(self):
+    def test_an_authors_upload_before_publication_is_open(self):
+        self.preprint.date_published = None
+        self.preprint.save()
         self.add(
             self.owner,
             {"label": "Data", "access": "restricted"},
@@ -247,3 +249,11 @@ class SupplementaryFileTests(FileAccessTestBase):
                     self.download_url(self.preprint, self.main_file), content
                 )
                 self.assertNotIn(locked.href, content)
+
+    def test_an_authors_upload_to_a_published_record_waits_for_a_moderator(self):
+        response = self.add(
+            self.owner, {"label": "Publisher PDF"}, {"upload": upload()}
+        )
+        entry = self.preprint.supplementaryfiles.get()
+        self.assertEqual(entry.file.access, rm.PreprintFile.ACCESS_RESTRICTED)
+        self.assertEqual(self.get(entry.href).status_code, 403)
