@@ -1860,3 +1860,60 @@ class SubmissionFileRequiredTests(TestCase):
             date_time=timezone.now(),
         )
         self.assertIsNone(self.draft.current_version_file_type())
+
+
+class RepositoryTypeTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.staff = helpers.create_user("staff@janeway.systems")
+        cls.staff.is_active = True
+        cls.staff.is_staff = True
+        cls.staff.is_admin = True
+        cls.staff.save()
+        cls.repository, cls.subject = helpers.create_repository(
+            cls.press, [cls.staff], [], domain="repo.test.com"
+        )
+
+    def setUp(self):
+        clear_script_prefix()
+        self.client.force_login(self.staff)
+
+    def wizard_url(self):
+        return reverse(
+            "repository_wizard_with_id",
+            kwargs={"short_name": self.repository.short_name, "step": "1"},
+        )
+
+    def test_a_repository_is_a_preprint_server_by_default(self):
+        self.assertEqual(
+            self.repository.repository_type, rm.Repository.TYPE_PREPRINT_SERVER
+        )
+        self.assertFalse(self.repository.is_institutional)
+
+    def test_institutional_repository(self):
+        self.repository.repository_type = rm.Repository.TYPE_INSTITUTIONAL
+        self.assertTrue(self.repository.is_institutional)
+
+    def test_the_wizard_offers_the_type_as_a_dropdown(self):
+        response = self.client.get(self.wizard_url(), SERVER_NAME="localhost")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<select name="repository_type"')
+        self.assertContains(response, 'value="institutional"')
+        self.assertContains(response, "Institutional repository")
+
+    def test_the_wizard_saves_the_type(self):
+        data = {
+            "name": self.repository.name,
+            "short_name": self.repository.short_name,
+            "domain": self.repository.domain,
+            "object_name": self.repository.object_name,
+            "object_name_plural": self.repository.object_name_plural,
+            "repository_type": rm.Repository.TYPE_INSTITUTIONAL,
+            "theme": self.repository.theme,
+            "publisher": self.repository.publisher or "Birkbeck",
+        }
+        response = self.client.post(self.wizard_url(), data, SERVER_NAME="localhost")
+        self.assertEqual(response.status_code, 302)
+        self.repository.refresh_from_db()
+        self.assertTrue(self.repository.is_institutional)

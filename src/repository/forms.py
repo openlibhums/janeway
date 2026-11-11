@@ -639,6 +639,7 @@ class RepositoryInitial(RepositoryBase):
             "domain",
             "object_name",
             "object_name_plural",
+            "repository_type",
             "theme",
             "display_public_metrics",
             "publisher",

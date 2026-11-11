@@ -116,6 +116,13 @@ def repo_media_upload(instance, filename):
 class Repository(model_utils.AbstractSiteModel):
     AUTH_SUCCESS_URL = "repository_dashboard"
 
+    TYPE_PREPRINT_SERVER = "preprint_server"
+    TYPE_INSTITUTIONAL = "institutional"
+    TYPE_CHOICES = (
+        (TYPE_PREPRINT_SERVER, _("Preprint server")),
+        (TYPE_INSTITUTIONAL, _("Institutional repository")),
+    )
+
     press = models.ForeignKey(
         "press.Press",
         null=True,
@@ -132,6 +139,17 @@ class Repository(model_utils.AbstractSiteModel):
     object_name_plural = models.CharField(
         max_length=255,
         help_text="eg. preprints or articles",
+    )
+    repository_type = models.CharField(
+        max_length=30,
+        choices=TYPE_CHOICES,
+        default=TYPE_PREPRINT_SERVER,
+        verbose_name=_("Repository type"),
+        help_text=_(
+            "An institutional repository holds an institution's research "
+            "outputs, and turns on the features it needs, such as embargoes "
+            "and publication details. A preprint server doesn't show them."
+        ),
     )
     managers = models.ManyToManyField(
         "core.Account",
@@ -402,6 +420,11 @@ class Repository(model_utils.AbstractSiteModel):
 
     class Meta:
         verbose_name_plural = "repositories"
+
+    @property
+    def is_institutional(self):
+        """Whether institutional repository features are turned on."""
+        return self.repository_type == self.TYPE_INSTITUTIONAL
 
     def moderating_accounts(self):
         """The accounts that moderate this repository: managers and moderators."""
