@@ -5,6 +5,11 @@
     {% trans 'Add Authors to' %} {{ preprint.title }}
 {% endblock %}
 
+{% block js %}
+    {{ block.super }}
+    {% include "admin/core/partials/htmx.html" %}
+{% endblock %}
+
 {% block breadcrumbs %}
 {% include "admin/elements/breadcrumbs/repository_submission.html" with authors=True %}
 {% endblock %}
@@ -14,6 +19,7 @@
     <div class="row expanded">
         <div class="large-6 columns">
             {% include "admin/repository/elements/author_list_editor.html" %}
+            {% include "admin/repository/elements/funding_editor.html" %}
             <div class="padding-block-2">
                 <p>{% trans 'Once you have added all of your authors you can complete this stage.' %}</p>
                 <form method="POST" class="no-bottom-margin text-right">

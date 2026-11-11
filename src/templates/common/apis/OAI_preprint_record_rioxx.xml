@@ -45,6 +45,9 @@
       {% for author in article.frozen_authors %}
       <rioxxterms:author{% if author.orcid_uri %} id="{{ author.orcid_uri }}"{% endif %}{% if forloop.first %} first-named-author="true"{% endif %}>{{ author.dc_name_string }}</rioxxterms:author>
       {% endfor %}
+      {% for funder in article.funding %}
+      <rioxxterms:grant funder_name="{{ funder.name }}"{% if funder.fundref_id %} funder_id="{{ funder.fundref_id }}"{% endif %}>{{ funder.funding_id|default:"" }}</rioxxterms:grant>
+      {% endfor %}
       {% if article.date_published %}
       <rioxxterms:publication_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:publication_date>
       <rioxxterms:record_public_release_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:record_public_release_date>

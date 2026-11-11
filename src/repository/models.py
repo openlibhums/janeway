@@ -1235,6 +1235,11 @@ class Preprint(models.Model):
             return "[Untitled]"
 
     @property
+    def funding(self):
+        """The record's current funders and grants."""
+        return self.funding_entries.order_by("pk")
+
+    @property
     def supplementaryfiles(self):
         return PreprintSupplementaryFile.objects.filter(
             preprint=self,
@@ -1296,6 +1301,8 @@ class Preprint(models.Model):
             )
         for answer in self.repositoryfieldanswer_set.all():
             answer.copy(preprint=None, preprint_version=version)
+        for funding in self.funding:
+            funding.copy(preprint_version=version)
         for supplementary in self.supplementaryfiles:
             # Uploaded files are shared with the snapshot, not copied.
             supplementary.pk = None
@@ -2332,6 +2339,14 @@ class PreprintVersion(models.Model):
         return None
 
     @property
+    def funding(self):
+        """This version's funding: its snapshot once superseded, otherwise
+        the record's."""
+        if self.metadata_frozen:
+            return self.funding_snapshot.order_by("pk")
+        return self.preprint.funding
+
+    @property
     def supplementary_files(self):
         """This version's supplementary files: its snapshot once superseded,
         otherwise the preprint's list."""
@@ -2734,6 +2749,7 @@ class VersionQueue(models.Model):
         "authors": _("authors"),
         "field_answers": _("additional information"),
         "supplementary_files": _("additional files"),
+        "funding": _("funding"),
     }
     UPDATE_SECTIONS = tuple(SECTION_LABELS)
 
@@ -2812,6 +2828,30 @@ class VersionQueue(models.Model):
     @property
     def supplementary_files_changed(self):
         return "supplementary_files" in self.changed_sections
+
+    @property
+    def funding_changed(self):
+        return "funding" in self.changed_sections
+
+    @property
+    def funding(self):
+        """This update's complete funding list."""
+        return self.funding_entries.order_by("pk")
+
+    def funding_changes(self):
+        """(removed, added) funding entries compared with the record's."""
+
+        def key(entry):
+            return (entry.name, entry.fundref_id or "", entry.funding_id or "")
+
+        current = list(self.preprint.funding)
+        proposed = list(self.funding)
+        current_keys = {key(e) for e in current}
+        proposed_keys = {key(e) for e in proposed}
+        return (
+            [e for e in current if key(e) not in proposed_keys],
+            [e for e in proposed if key(e) not in current_keys],
+        )
 
     @property
     def supplementary_files(self):
@@ -2933,6 +2973,9 @@ class VersionQueue(models.Model):
             if update.authors_changed:
                 preprint.frozen_authors().delete()
                 update.frozenauthor_set.update(version_queue=None, preprint=preprint)
+            if update.funding_changed:
+                preprint.funding_entries.all().delete()
+                update.funding_entries.update(version_queue=None, preprint=preprint)
             if update.field_answers_changed:
                 preprint.repositoryfieldanswer_set.all().delete()
                 update.repositoryfieldanswer_set.update(

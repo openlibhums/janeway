@@ -532,12 +532,26 @@ class PreprintSerializer(serializers.ModelSerializer):
             "subject",
             "versions",
             "supplementary_files",
+            "funding",
             "additional_field_answers",
             "owner",
         )
         depth = 2
 
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    funding = serializers.SerializerMethodField()
+
+    def get_funding(self, obj):
+        return [
+            {
+                "funder": entry.name,
+                "funder_id": entry.fundref_id or None,
+                "grant": entry.funding_id or None,
+                "statement": entry.funding_statement or None,
+            }
+            for entry in obj.funding
+        ]
+
     authors = PreprintAuthorSerializer(
         source="frozen_authors",
         many=True,

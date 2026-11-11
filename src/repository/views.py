@@ -1071,7 +1071,13 @@ def repository_manager_article(request, preprint_id):
             )
 
     template = "admin/repository/article.html"
+    from repository.author_views import funding_editor_context
+
     context = {
+        **funding_editor_context(
+            {"preprint": preprint},
+            reverse("repository_preprint_funding", kwargs={"preprint_id": preprint.pk}),
+        ),
         "preprint": preprint,
         "subjects": models.Subject.objects.filter(enabled=True),
         "file_form": file_form,
@@ -1752,6 +1758,9 @@ def version_detail(request, update_id):
             ),
             "field_changes": (
                 version.field_answer_changes() if version.field_answers_changed else []
+            ),
+            "funding_changes": (
+                version.funding_changes() if version.funding_changed else None
             ),
             "supplementary_changes": (
                 version.supplementary_file_changes()

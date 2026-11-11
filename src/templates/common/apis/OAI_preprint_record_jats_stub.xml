@@ -97,6 +97,16 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 {% endfor %}
             </kwd-group>
             {% endif %}
+            {% if article.funding %}
+            <funding-group>
+                {% for funder in article.funding %}
+                <award-group>
+                    <funding-source>{{ funder.name }}</funding-source>
+                    {% if funder.funding_id %}<award-id>{{ funder.funding_id }}</award-id>{% endif %}
+                </award-group>
+                {% endfor %}
+            </funding-group>
+            {% endif %}
             {% for f in article.supplementaryfiles.all %}{% if not f.is_locked %}
                 <supplementary-material xlink:href="{% if f.is_upload %}{{ article.repository.site_url }}{% url 'repository_file_download' article.pk f.file_id %}{% else %}{{ f.url }}{% endif %}">
                     <caption>

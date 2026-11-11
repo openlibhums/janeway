@@ -115,6 +115,20 @@
                 </div>
             </div>
             {% endif %}
+            {% if funding_changes %}
+            <div class="large-12 columns" data-funding-changes>
+                <div class="title-area">
+                    <h2>{% trans "Funding: Changes" %}</h2>
+                </div>
+                <div class="content">
+                    <table class="small">
+                        <tr><th>{% trans "Change" %}</th><th>{% trans "Funder" %}</th><th>{% trans "Grant" %}</th></tr>
+                        {% for entry in funding_changes.0 %}<tr><td>{% trans "Removed" %}</td><td>{{ entry.name }}</td><td>{{ entry.funding_id|default:"" }}</td></tr>{% endfor %}
+                        {% for entry in funding_changes.1 %}<tr><td>{% trans "Added" %}</td><td>{{ entry.name }}</td><td>{{ entry.funding_id|default:"" }}</td></tr>{% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
             {% if supplementary_changes %}
             <div class="large-12 columns" data-supplementary-changes>
                 <div class="title-area">

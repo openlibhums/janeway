@@ -449,6 +449,11 @@
                 </table>
             </div>
         </div>
+        <div class="box">
+            <div class="content">
+                {% include "admin/repository/elements/funding_editor.html" %}
+            </div>
+        </div>
         {% if request.repository.is_institutional and request.repository.request_copy %}
         <div class="box" id="copy_requests">
             <div class="title-area">
@@ -507,4 +512,5 @@
         {% include "admin/elements/open_modal.html" with target=modal %}
     {% endif %}
     <script src="{% static "common/js/confirm.js" %}"></script>
+    {% include "admin/core/partials/htmx.html" %}
 {% endblock %}

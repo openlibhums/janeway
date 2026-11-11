@@ -1430,3 +1430,27 @@ class AdditionalEditForm(AccessFieldsMixin, forms.Form):
             )
         entry.save()
         return entry
+
+
+class PreprintFundingForm(forms.ModelForm):
+    """A funder and grant on a record or an update's draft."""
+
+    class Meta:
+        model = submission_models.ArticleFunding
+        fields = ("name", "funding_id", "fundref_id", "funding_statement")
+        labels = {
+            "name": _("Funder"),
+            "funding_id": _("Grant number"),
+            "fundref_id": _("Funder ID"),
+            "funding_statement": _("Funding statement"),
+        }
+        help_texts = {
+            "name": _("For example UK Research and Innovation."),
+            "funding_id": _("Optional."),
+            "fundref_id": _(
+                "Optional: the funder's Crossref Funder ID or ROR ID, as a link, "
+                "e.g. https://doi.org/10.13039/100014013."
+            ),
+            "funding_statement": _("Optional."),
+        }
+        widgets = {"funding_statement": forms.Textarea(attrs={"rows": 3})}

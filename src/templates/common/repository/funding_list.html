@@ -1,0 +1,9 @@
+{% load i18n %}
+{# A version's funders on a public page. Needs: funding; optional ul_class. #}
+<ul{% if ul_class %} class="{{ ul_class }}"{% endif %}>
+  {% for entry in funding %}
+    <li>
+      {% if entry.fundref_id %}<a href="{{ entry.fundref_id }}">{{ entry.name }}</a>{% else %}{{ entry.name }}{% endif %}{% if entry.funding_id %}, {% trans "grant" %} {{ entry.funding_id }}{% endif %}
+    </li>
+  {% endfor %}
+</ul>

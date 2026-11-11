@@ -158,6 +158,12 @@
                         {% include "common/repository/supplementary_files_list.html" with files=supplementary_files %}
                     {% endif %}
                     {% endwith %}
+                    {% with version.funding as funding %}
+                    {% if funding %}
+                        <h2>{% trans "Funding" %}</h2>
+                        {% include "common/repository/funding_list.html" with funding=funding %}
+                    {% endif %}
+                    {% endwith %}
                     {% with preprint.organisation_units.all as rous %}
                         {% if rous and request.repository.has_organisation_units %}
                             <h2>

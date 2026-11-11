@@ -1,0 +1,54 @@
+{% load i18n foundation %}
+{# A record's or an update's funders and grants. htmx swaps this whole block. #}
+<div id="funding-editor" class="padding-block-end-2" data-funding-editor>
+  <div class="title-area">
+    <h2>{% trans "Funding" %}</h2>
+  </div>
+  <p>{% blocktrans trimmed with object=request.repository.object_name %}Who funded the work in this {{ object }}, and the grant numbers. Leave it empty if there was no specific funding.{% endblocktrans %}</p>
+  {% if funding_rows %}
+    <ul class="no-bullet">
+      {% for entry, edit_form in funding_rows %}
+        <li class="callout" data-funding="{{ entry.pk }}">
+          <div class="row collapse">
+            <div class="small-8 columns">
+              <strong>{{ entry.name }}</strong>
+              {% if entry.funding_id %}<br><small>{% trans "Grant" %} {{ entry.funding_id }}</small>{% endif %}
+              {% if entry.fundref_id %}<br><small>{{ entry.fundref_id }}</small>{% endif %}
+            </div>
+            <div class="small-4 columns text-right">
+              <form method="post" action="{{ funding_url }}"
+                    hx-post="{{ funding_url }}" hx-target="#funding-editor" hx-swap="outerHTML"
+                    hx-confirm="{% blocktrans with name=entry.name %}Remove {{ name }}?{% endblocktrans %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="entry" value="{{ entry.pk }}">
+                <button type="submit" class="tiny alert button">{% trans "Remove" %}<span class="show-for-sr"> {{ entry.name }}</span></button>
+              </form>
+            </div>
+          </div>
+          <details{% if edit_form.errors %} open{% endif %}>
+            <summary>{% trans "Edit" %}<span class="show-for-sr"> {{ entry.name }}</span></summary>
+            <form method="post" action="{{ funding_url }}"
+                  hx-post="{{ funding_url }}" hx-target="#funding-editor" hx-swap="outerHTML">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="edit">
+              <input type="hidden" name="entry" value="{{ entry.pk }}">
+              {{ edit_form|foundation }}
+              <button type="submit" class="small button">{% trans "Save changes" %}</button>
+            </form>
+          </details>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <details{% if funding_open_add %} open{% endif %} data-add-funding>
+    <summary class="button hollow"><span class="fa fa-plus" aria-hidden="true"></span> {% trans "Add a funder" %}</summary>
+    <form method="post" action="{{ funding_url }}"
+          hx-post="{{ funding_url }}" hx-target="#funding-editor" hx-swap="outerHTML">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add">
+      {{ funding_add_form|foundation }}
+      <button type="submit" class="button">{% trans "Add funder" %}</button>
+    </form>
+  </details>
+</div>

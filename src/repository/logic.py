@@ -902,7 +902,9 @@ def _stored_author_details(frozen_author):
     ]
 
 
-def section_checksums(title, abstract, doi, authors, answers, supplementary_files=()):
+def section_checksums(
+    title, abstract, doi, authors, answers, supplementary_files=(), funding=()
+):
     """
     A checksum of each section of metadata an update can change, to tell
     which sections an author changed and which have changed since.
@@ -932,6 +934,17 @@ def section_checksums(title, abstract, doi, authors, answers, supplementary_file
                 for entry in sorted(supplementary_files, key=lambda e: (e.order, e.pk))
             ]
         ),
+        "funding": _checksum(
+            sorted(
+                (
+                    entry.name,
+                    entry.fundref_id or "",
+                    entry.funding_id or "",
+                    entry.funding_statement or "",
+                )
+                for entry in funding
+            )
+        ),
     }
 
 
@@ -943,6 +956,7 @@ def preprint_checksums(preprint):
         preprint.frozen_authors(),
         preprint.repositoryfieldanswer_set.all(),
         preprint.supplementaryfiles,
+        preprint.funding,
     )
 
 
@@ -954,6 +968,7 @@ def update_checksums(update):
         update.authors,
         update.repositoryfieldanswer_set.all(),
         update.supplementary_entries.all(),
+        update.funding_entries.all(),
     )
 
 
@@ -1412,6 +1427,8 @@ def start_update(preprint, update_type, resume=True):
             frozen_author.copy(preprint=None, version_queue=update)
         for answer in preprint.repositoryfieldanswer_set.all():
             answer.copy(preprint=None, version_queue=update)
+        for funding in preprint.funding:
+            funding.copy(version_queue=update)
         for entry in preprint.supplementaryfiles:
             # Uploaded files are shared with the copy, not duplicated.
             entry.pk = None

@@ -163,6 +163,12 @@ def repository_authors(request, preprint_id):
             return redirect(this_url)
 
     context = author_list_context(request, author_list, new_author_form, this_url)
+    context.update(
+        funding_editor_context(
+            {"preprint": preprint},
+            reverse("repository_preprint_funding", kwargs={"preprint_id": preprint.pk}),
+        )
+    )
     return render(request, "admin/repository/submit/authors.html", context)
 
 
@@ -391,6 +397,15 @@ def repository_update_draft(request, preprint_id, update_id):
         }
     )
     context.update(additional_files_context(preprint, draft))
+    context.update(
+        funding_editor_context(
+            {"version_queue": draft},
+            reverse(
+                "repository_update_funding",
+                kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+            ),
+        )
+    )
     return render(request, "admin/repository/update_draft.html", context)
 
 
@@ -888,3 +903,136 @@ def additional_files_context(
         "link_form": link_form or forms.AdditionalLinkForm(prefix="link"),
         "open_panel": open_panel,
     }
+
+
+def funding_editor(request, template_context, owner, editor_url, back_url):
+    """
+    Add, edit and remove funding entries of one owner (a record, or an
+    update's draft), as a block htmx swaps in place.
+    :param owner: the ArticleFunding owner, e.g. {"preprint": preprint}
+    """
+    from submission import models as submission_models
+
+    entries = submission_models.ArticleFunding.objects.filter(**owner)
+    add_form = forms.PreprintFundingForm(prefix="funding-add")
+    edit_forms = {}
+    open_add = False
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "add":
+            add_form = forms.PreprintFundingForm(request.POST, prefix="funding-add")
+            open_add = True
+            if add_form.is_valid():
+                entry = add_form.save(commit=False)
+                for key, value in owner.items():
+                    setattr(entry, key, value)
+                entry.save()
+                add_form = forms.PreprintFundingForm(prefix="funding-add")
+                open_add = False
+        elif action in ("edit", "remove"):
+            entry = get_object_or_404(entries, pk=request.POST.get("entry"))
+            if action == "remove":
+                entry.delete()
+            else:
+                form = forms.PreprintFundingForm(
+                    request.POST, instance=entry, prefix="funding-{}".format(entry.pk)
+                )
+                if form.is_valid():
+                    form.save()
+                else:
+                    edit_forms[entry.pk] = form
+        if not request.headers.get("HX-Request"):
+            return redirect(back_url + "#funding-editor")
+    rows = [
+        (
+            entry,
+            edit_forms.get(entry.pk)
+            or forms.PreprintFundingForm(
+                instance=entry, prefix="funding-{}".format(entry.pk)
+            ),
+        )
+        for entry in entries.order_by("pk")
+    ]
+    context = dict(template_context)
+    context.update(
+        {
+            "funding_rows": rows,
+            "funding_add_form": add_form,
+            "funding_open_add": open_add,
+            "funding_url": editor_url,
+        }
+    )
+    return render(request, "admin/repository/elements/funding_editor.html", context)
+
+
+def funding_editor_context(owner, editor_url):
+    """What the funding block needs when a page renders it first."""
+    from submission import models as submission_models
+
+    return {
+        "funding_rows": [
+            (
+                entry,
+                forms.PreprintFundingForm(
+                    instance=entry, prefix="funding-{}".format(entry.pk)
+                ),
+            )
+            for entry in submission_models.ArticleFunding.objects.filter(
+                **owner
+            ).order_by("pk")
+        ],
+        "funding_add_form": forms.PreprintFundingForm(prefix="funding-add"),
+        "funding_open_add": False,
+        "funding_url": editor_url,
+    }
+
+
+@login_required
+@transaction.atomic
+def repository_preprint_funding(request, preprint_id):
+    """A record's funding: its owner while it's unsubmitted, and its
+    moderators at any time. After submission, owners change funding through
+    an update."""
+    preprint = get_object_or_404(
+        models.Preprint, pk=preprint_id, repository=request.repository
+    )
+    moderator = request.user.is_staff or request.user.is_repository_moderator(
+        request.repository
+    )
+    if not moderator and not (
+        preprint.owner == request.user and preprint.date_submitted is None
+    ):
+        raise Http404
+    editor_url = reverse(
+        "repository_preprint_funding", kwargs={"preprint_id": preprint.pk}
+    )
+    back_url = (
+        reverse("repository_manager_article", kwargs={"preprint_id": preprint.pk})
+        if moderator and preprint.date_submitted
+        else reverse("repository_authors", kwargs={"preprint_id": preprint.pk})
+    )
+    return funding_editor(
+        request, {"preprint": preprint}, {"preprint": preprint}, editor_url, back_url
+    )
+
+
+@preprint_editor_or_author_required
+@transaction.atomic
+def repository_update_funding(request, preprint_id, update_id):
+    """A draft update's funding."""
+    preprint, draft = get_draft_update(request, preprint_id, update_id)
+    editor_url = reverse(
+        "repository_update_funding",
+        kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+    )
+    back_url = reverse(
+        "repository_update_draft",
+        kwargs={"preprint_id": preprint.pk, "update_id": draft.pk},
+    )
+    return funding_editor(
+        request,
+        {"preprint": preprint, "draft": draft},
+        {"version_queue": draft},
+        editor_url,
+        back_url,
+    )

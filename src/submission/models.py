@@ -680,13 +680,70 @@ PLUGIN_WORKFLOW_STAGES = []
 
 
 class ArticleFunding(models.Model):
+    """
+    A funder, and grant, of a journal article or a repository record. Like
+    FrozenAuthor, a record's funding is its current list (preprint); a
+    superseded version keeps a snapshot (preprint_version), and an update
+    edits a draft copy (version_queue). Each entry belongs to one of them.
+    """
+
     class Meta:
         ordering = ("name",)
+        constraints = [
+            models.CheckConstraint(
+                # At most one owner: existing journal rows without an
+                # article are left as they are.
+                check=(
+                    models.Q(
+                        preprint__isnull=True,
+                        preprint_version__isnull=True,
+                        version_queue__isnull=True,
+                    )
+                    | models.Q(
+                        article__isnull=True,
+                        preprint_version__isnull=True,
+                        version_queue__isnull=True,
+                    )
+                    | models.Q(
+                        article__isnull=True,
+                        preprint__isnull=True,
+                        version_queue__isnull=True,
+                    )
+                    | models.Q(
+                        article__isnull=True,
+                        preprint__isnull=True,
+                        preprint_version__isnull=True,
+                    )
+                ),
+                name="funding_one_owner",
+            ),
+        ]
 
     article = models.ForeignKey(
         "submission.Article",
         on_delete=models.CASCADE,
         null=True,
+    )
+    preprint = models.ForeignKey(
+        "repository.Preprint",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="funding_entries",
+    )
+    preprint_version = models.ForeignKey(
+        "repository.PreprintVersion",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="funding_snapshot",
+    )
+    version_queue = models.ForeignKey(
+        "repository.VersionQueue",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="funding_entries",
     )
     name = models.CharField(
         max_length=500,
@@ -714,6 +771,23 @@ class ArticleFunding(models.Model):
 
     def __str__(self):
         return f"Article funding entry {self.pk}: {self.name}"
+
+    def copy(self, **owner):
+        """A saved copy with another owner, e.g. a version's snapshot."""
+        copy = ArticleFunding(
+            name=self.name,
+            fundref_id=self.fundref_id,
+            funding_id=self.funding_id,
+            funding_statement=self.funding_statement,
+            article=None,
+            preprint=None,
+            preprint_version=None,
+            version_queue=None,
+        )
+        for key, value in owner.items():
+            setattr(copy, key, value)
+        copy.save()
+        return copy
 
 
 class ArticleStageLog(models.Model):
