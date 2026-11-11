@@ -22,5 +22,7 @@ class Command(BaseCommand):
         call_command("send_digest_emails")
         call_command("send_reminders")
         call_command("poll_crossref")
+        # Requests for a copy nobody answered in time: tell the readers.
+        call_command("expire_copy_requests")
         call_command("clearsessions")
         models.CronTask.run_tasks()

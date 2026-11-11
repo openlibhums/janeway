@@ -48,7 +48,7 @@
               </form>
               <small>{% blocktrans with date=copy_request.answer_by|date:"j F Y" %}Expires {{ date }}{% endblocktrans %}</small>
             {% else %}
-              {{ copy_request.get_status_display }}{% if copy_request.decided %}, {{ copy_request.decided|date:"Y-m-d" }}{% endif %}
+              {{ copy_request.current_status_display }}{% if copy_request.decided %}, {{ copy_request.decided|date:"Y-m-d" }}{% endif %}
               {% if copy_request.decided %}<br><small>{% if copy_request.decided_by %}{% blocktrans with name=copy_request.decided_by.full_name %}by {{ name }}{% endblocktrans %}{% else %}{% trans "by the author" %}{% endif %}</small>{% endif %}
               {% if copy_request.status == "approved" %}<br><small>{% blocktrans count counter=copy_request.downloads %}{{ counter }} download{% plural %}{{ counter }} downloads{% endblocktrans %}</small>{% endif %}
             {% endif %}

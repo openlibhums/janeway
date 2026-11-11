@@ -30,8 +30,8 @@
       <button type="submit" name="decline" class="button secondary btn btn-secondary">{% trans "Decline" %}</button>
     </form>
   {% else %}
-    <p><strong>{{ copy_request.get_status_display }}</strong>{% if copy_request.decided %}, {{ copy_request.decided|date:"j F Y" }}{% endif %}.
-      {% if copy_request.status == "pending" %}{% trans "It's too late to answer this request." %}{% endif %}</p>
+    <p><strong>{{ copy_request.current_status_display }}</strong>{% if copy_request.decided %}, {{ copy_request.decided|date:"j F Y" }}{% endif %}.
+      {% if copy_request.current_status == "expired" %}{% trans "It's too late to answer this request." %}{% endif %}</p>
   {% endif %}
 </section>
 {% endblock %}

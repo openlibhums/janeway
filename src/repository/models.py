@@ -1888,6 +1888,18 @@ class CopyRequest(models.Model):
         return self.status == self.STATUS_PENDING and timezone.now() < self.answer_by
 
     @property
+    def current_status(self):
+        """The status, counting a request past its time as expired even
+        before the half-hourly cron task has marked it."""
+        if self.status == self.STATUS_PENDING and not self.is_open:
+            return self.STATUS_EXPIRED
+        return self.status
+
+    @property
+    def current_status_display(self):
+        return dict(self.STATUS_CHOICES)[self.current_status]
+
+    @property
     def can_download(self):
         return bool(
             self.status == self.STATUS_APPROVED

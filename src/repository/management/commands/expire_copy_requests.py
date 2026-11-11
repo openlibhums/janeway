@@ -9,7 +9,7 @@ from repository import copy_requests, models
 class Command(BaseCommand):
     help = (
         "Expire requests for a copy that haven't been answered within {} days, "
-        "and tell the readers. Run it daily from cron.".format(
+        "and tell the readers. Janeway's execute_cron_tasks runs it.".format(
             models.CopyRequest.ANSWER_DAYS
         )
     )

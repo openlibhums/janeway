@@ -242,8 +242,10 @@ class RequestCopyTests(FileAccessTestBase):
             copy_request.refresh_from_db()
             self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_PENDING)
 
+            self.assertEqual(copy_request.current_status, rm.CopyRequest.STATUS_EXPIRED)
             mail.outbox = []
-            call_command("expire_copy_requests", stdout=StringIO())
+            # Janeway's half-hourly cron task runs the expiry.
+            call_command("execute_cron_tasks", stdout=StringIO())
             copy_request.refresh_from_db()
             self.assertEqual(copy_request.status, rm.CopyRequest.STATUS_EXPIRED)
             self.assertEqual(
