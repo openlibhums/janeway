@@ -242,7 +242,17 @@ class PreprintSupplementaryFileSerializer(serializers.ModelSerializer):
         fields = (
             "url",
             "label",
+            "download_url",
         )
+
+    download_url = serializers.SerializerMethodField()
+
+    def get_download_url(self, obj):
+        """An uploaded file's public download, unless it's locked."""
+        if not obj.is_upload or obj.is_locked:
+            return None
+        preprint = obj.preprint or obj.preprint_version.preprint
+        return preprint.repository.site_url(path=obj.href)
 
 
 class IssueSerializer(serializers.HyperlinkedModelSerializer):
@@ -755,7 +765,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
                     },
                 )
                 urls.append(url)
-        for supp_file in instance.preprintsupplementaryfile_set.all():
+        # Only links come through the API; uploaded files are left alone.
+        for supp_file in instance.preprintsupplementaryfile_set.filter(
+            file__isnull=True
+        ):
             if supp_file.url not in urls:
                 supp_file.delete()
 

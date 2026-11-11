@@ -84,7 +84,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             {% endif %}
             <self-uri content-type="text/html" xlink:href="{{ article.url }}"/>
             {% if article.current_version.file %}
-            <self-uri content-type="{{ article.current_version_file_type }}" xlink:href="{{ article.repository.site_url }}{{ article.current_version.file.download_url }}"/>
+            {% if article.current_version.public_file %}<self-uri content-type="{{ article.current_version_file_type }}" xlink:href="{{ article.repository.site_url }}{{ article.current_version.file.download_url }}"/>{% endif %}
             {% endif %}
             {% if article.abstract %}
             <abstract>{{ article.abstract }}</abstract>
@@ -97,13 +97,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 {% endfor %}
             </kwd-group>
             {% endif %}
-            {% for f in article.supplementaryfiles.all %}
-                <supplementary-material xlink:href="{{ f.url }}">
+            {% for f in article.supplementaryfiles.all %}{% if not f.is_locked %}
+                <supplementary-material xlink:href="{% if f.is_upload %}{{ article.repository.site_url }}{% url 'repository_file_download' article.pk f.file_id %}{% else %}{{ f.url }}{% endif %}">
                     <caption>
                         {{ f.label }}
                     </caption>
                 </supplementary-material>
-            {% endfor %}
+            {% endif %}{% endfor %}
             {% if article.preprintversion_set.exists %}
             <pub-history>
                 {% for v in article.preprintversion_set.all %}
@@ -113,9 +113,9 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                             <day>{{ v.date_time|date:"d" }}</day>
                             <month>{{ v.date_time|date:"m" }}</month>
                             <year>{{ v.date_time|date:"Y" }}</year>
-                        </string-date>(version {{ v.version}})<self-uri
+                        </string-date>(version {{ v.version}}){% if v.public_file %}<self-uri
                           content-type="{{ v.file.mime_type }}"
-                          xlink:href="{{ article.repository.site_url }}{{ v.file.download_url }}"/>
+                          xlink:href="{{ article.repository.site_url }}{{ v.file.download_url }}"/>{% endif %}
                     </event-desc>
                 </event>
                 {% endfor %}

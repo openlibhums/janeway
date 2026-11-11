@@ -1,0 +1,16 @@
+{% load i18n %}
+{# A version's supplementary files on a public page. Needs: files; optional ul_class. #}
+<ul{% if ul_class %} class="{{ ul_class }}"{% endif %}>
+  {% for link in files %}
+    <li>
+      {% if link.is_locked %}
+        <span aria-hidden="true" class="fa fa-lock"></span>
+        {{ link.label }}
+        <small>({{ link.file.access_label }})</small>
+      {% else %}
+        <a href="{{ link.href }}">{{ link.label }}</a>
+        {% if link.is_upload and link.file.document_version %}<small>({{ link.file.get_document_version_display }})</small>{% endif %}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

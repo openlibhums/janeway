@@ -17,7 +17,7 @@
                     <thead>
                     <tr>
                         <th>Label</th>
-                        <th>URL</th>
+                        <th>{% if request.repository.is_institutional %}Link or file{% else %}URL{% endif %}</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
@@ -25,7 +25,15 @@
                     {% for file in supplementary_files %}
                         <tr id="contact-{{ file.pk }}">
                             <td><i class="fa fa-sort"></i> {{ file.label }}</td>
-                            <td>{{ file.url }}</td>
+                            <td>
+                                {% if file.is_upload %}
+                                    <a href="{% url 'repository_download_file' preprint.pk file.file_id %}">{{ file.file.original_filename }}</a>
+                                    {% if file.file.document_version %}<br><small>{{ file.file.get_document_version_display }}</small>{% endif %}
+                                    <br><small>{{ file.file.access_label|default:"Open" }}</small>
+                                {% else %}
+                                    {{ file.url }}
+                                {% endif %}
+                            </td>
                             <td>
                                 <form method="POST"
                                       action="{% url 'repository_delete_supplementary_files' preprint.pk %}">{% csrf_token %}
@@ -44,7 +52,7 @@
             </div>
             <div class="content">
                 {% include "admin/elements/forms/errors.html" %}
-                <form method="POST" action="{% url 'repository_new_supplementary_files' preprint.pk %}">
+                <form method="POST" action="{% url 'repository_new_supplementary_files' preprint.pk %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form|foundation }}
                     <div class="row">

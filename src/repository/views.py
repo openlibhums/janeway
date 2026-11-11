@@ -550,7 +550,7 @@ def repository_file_download(request, preprint_id, file_id):
         pk=file_id,
     )
 
-    if file in preprint.version_files():
+    if preprint.serves_file(file):
         if file.is_locked():
             # Embargoed or restricted: only for the people who look after
             # the preprint, and their downloads aren't counted.
@@ -726,7 +726,7 @@ def repository_files(request, preprint_id):
     )
 
     if request.POST:
-        if request.FILES:
+        if "file" in request.FILES:
             form = forms.FileForm(request.POST, request.FILES, preprint=preprint)
             uploaded_file = request.FILES.get("file")
 
@@ -757,9 +757,10 @@ def repository_files(request, preprint_id):
                     )
                 )
 
-        if "label" and "url" in request.POST:
+        if "form" in request.POST:
             supplementary = forms.PreprintSupplementaryFileForm(
                 request.POST,
+                request.FILES,
                 preprint=preprint,
             )
             if supplementary.is_valid():
@@ -767,7 +768,7 @@ def repository_files(request, preprint_id):
                     supplementary
                 )
                 messages.add_message(
-                    request, messages.INFO, "Supplementary file link saved."
+                    request, messages.INFO, "Supplementary file saved."
                 )
 
         if "complete" in request.POST:
@@ -1795,6 +1796,7 @@ def manage_supplementary_files(request, preprint_id):
     )
     form = forms.PreprintSupplementaryFileForm(
         preprint=preprint,
+        can_set_access=request.user.is_repository_moderator(request.repository),
     )
     template = "admin/repository/manage_supp_files.html"
     if preprint.owner == request.user and not request.user.is_repository_moderator(
@@ -1820,7 +1822,9 @@ def new_supplementary_file(request, preprint_id):
     if "form" in request.POST:
         form = forms.PreprintSupplementaryFileForm(
             request.POST,
+            request.FILES,
             preprint=preprint,
+            can_set_access=request.user.is_repository_moderator(request.repository),
         )
         if form.is_valid():
             preprint.add_supplementary_file(
@@ -1889,7 +1893,16 @@ def delete_supplementary_file(request, preprint_id):
         pk=id_to_delete,
         preprint=preprint,
     )
+    uploaded = file_to_delete.file
     file_to_delete.delete()
+    if (
+        uploaded
+        and not uploaded.supplementary_entries.exists()
+        and not models.PreprintVersion.objects.filter(file=uploaded).exists()
+        and preprint.submission_file_id != uploaded.pk
+    ):
+        # Not in an older version's snapshot or used as a main file.
+        uploaded.delete()
     messages.add_message(
         request,
         messages.SUCCESS,

@@ -28,7 +28,7 @@
       {% if article.preprint_doi %}
       <dc:identifier>{{ article.preprint_doi }}</dc:identifier>
       {% endif %}
-      {% if article.current_version.file %}
+      {% if article.current_version.public_file %}
       <dc:identifier>{{ article.repository.site_url }}{{ article.current_version.file.download_url }}</dc:identifier>
       {% endif %}
       <dc:identifier>{{ article.id }}</dc:identifier>

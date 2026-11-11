@@ -165,16 +165,12 @@
                                 {% include "elements/icons/link_download.html" %} 
                             </a></p>
                     {% endif %}
-                    {% if preprint.supplementaryfiles %}
+                    {% with version.supplementary_files as supplementary_files %}
+                    {% if supplementary_files %}
                         <h2>{% trans "Supplementary Files" %}</h2>
-                        <ul>
-                        {% for link in preprint.supplementaryfiles %}
-                            <li><a href="{{ link.url }}">{{ link.label }}</a></li>
-                        {% empty %}
-                            <li>No Supplementary File</li>
-                        {% endfor %}
-                        </ul>
+                        {% include "common/repository/supplementary_files_list.html" with files=supplementary_files %}
                     {% endif %}
+                    {% endwith %}
                     <h2>{% trans "Authors" %}</h2>
                     <div class="truncatejs">
                       <p class="authors">

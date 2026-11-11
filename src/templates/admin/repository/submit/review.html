@@ -107,9 +107,13 @@
             <tr>
               <td>{{ supp_file.label }}</td>
               <td>
+                {% if supp_file.is_upload %}
+                  {{ supp_file.file.original_filename }}{% if supp_file.file.document_version %} ({{ supp_file.file.get_document_version_display }}){% endif %}
+                {% else %}
                 <a href="{{ supp_file.url }}" target="_blank">
                   {{ supp_file.url }} <span class="show-for-sr">(external link, opens in new tab)</span>
                 </a>
+                {% endif %}
               </td>
             </tr>
             {% empty %}

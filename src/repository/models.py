@@ -46,6 +46,9 @@ from utils.function_cache import cache, site_cache
 from submission import models as submission_models
 from events import logic as event_logic
 from identifiers import models as identifier_models
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 STAGE_PREPRINT_UNSUBMITTED = "preprint_unsubmitted"
@@ -1232,16 +1235,35 @@ class Preprint(models.Model):
             )
         for answer in self.repositoryfieldanswer_set.all():
             answer.copy(preprint=None, preprint_version=version)
+        for supplementary in self.supplementaryfiles:
+            # Uploaded files are shared with the snapshot, not copied.
+            supplementary.pk = None
+            supplementary.preprint = None
+            supplementary.preprint_version = version
+            supplementary.save()
         version.metadata_frozen = True
         version.save()
 
     def add_supplementary_file(self, supplementary):
+        """Add a link or upload from a PreprintSupplementaryFileForm."""
+        if supplementary.cleaned_data.get("upload"):
+            return supplementary.save(), True
         return PreprintSupplementaryFile.objects.get_or_create(
             label=supplementary.cleaned_data["label"],
             url=supplementary.cleaned_data["url"],
             preprint=self,
             defaults={"order": self.next_supp_file_order()},
         )
+
+    def serves_file(self, file):
+        """Whether a file belongs on this preprint's public pages: a public
+        version's main file, or one of its supplementary uploads."""
+        if file in self.version_files():
+            return True
+        return PreprintSupplementaryFile.objects.filter(
+            Q(preprint=self) | Q(preprint_version__preprint=self),
+            file=file,
+        ).exists()
 
     def next_supp_file_order(self):
         orderings = [supp_file.order for supp_file in self.supplementaryfiles]
@@ -1682,11 +1704,39 @@ class PreprintFile(models.Model):
 
 
 class PreprintSupplementaryFile(models.Model):
+    """
+    A file alongside a preprint's main file: a link to one hosted elsewhere,
+    or (on institutional repositories) an uploaded file with its own
+    document version and access.
+
+    Like authors, the preprint's list (``preprint``) is the current
+    version's; a version that is superseded keeps a snapshot of it
+    (``preprint_version``).
+    """
+
     preprint = models.ForeignKey(
         Preprint,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
     )
-    url = models.URLField()
+    preprint_version = models.ForeignKey(
+        "PreprintVersion",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="supplementary_file_snapshots",
+        help_text="Set when this is part of a superseded version's snapshot.",
+    )
+    url = models.URLField(blank=True)
+    file = models.ForeignKey(
+        PreprintFile,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="supplementary_entries",
+        help_text="An uploaded file, instead of a link.",
+    )
     label = models.CharField(
         max_length=200, verbose_name=_("Label"), default="Supplementary File"
     )
@@ -1694,7 +1744,45 @@ class PreprintSupplementaryFile(models.Model):
 
     class Meta:
         ordering = ("order",)
-        unique_together = ("url", "preprint")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["url", "preprint"],
+                condition=~Q(url=""),
+                name="supplementary_file_unique_url",
+            ),
+            models.CheckConstraint(
+                check=(Q(file__isnull=True) & ~Q(url=""))
+                | (Q(file__isnull=False) & Q(url="")),
+                name="supplementary_file_link_or_upload",
+            ),
+            models.CheckConstraint(
+                check=(Q(preprint__isnull=False) & Q(preprint_version__isnull=True))
+                | (Q(preprint__isnull=True) & Q(preprint_version__isnull=False)),
+                name="supplementary_file_preprint_or_version",
+            ),
+        ]
+
+    def __str__(self):
+        return self.label
+
+    @property
+    def is_upload(self):
+        return self.file_id is not None
+
+    @property
+    def is_locked(self):
+        return bool(self.file and self.file.is_locked())
+
+    @property
+    def href(self):
+        """Where the entry points: its link, or its file's public download."""
+        if not self.file_id:
+            return self.url
+        preprint_id = self.preprint_id or self.preprint_version.preprint_id
+        return reverse(
+            "repository_file_download",
+            kwargs={"preprint_id": preprint_id, "file_id": self.file_id},
+        )
 
 
 class PreprintAccess(models.Model):
@@ -1857,6 +1945,14 @@ class PreprintVersion(models.Model):
         elif self.file.mime_type in files.PDF_MIMETYPES:
             return "pdf"
         return None
+
+    @property
+    def supplementary_files(self):
+        """This version's supplementary files: its snapshot once superseded,
+        otherwise the preprint's list."""
+        if self.metadata_frozen:
+            return self.supplementary_file_snapshots.select_related("file")
+        return self.preprint.supplementaryfiles.select_related("file")
 
     @property
     def public_file(self):
@@ -2105,7 +2201,7 @@ class PreprintVersion(models.Model):
             return None
 
     def public_download_url(self):
-        if self.preprint and self.file:
+        if self.preprint and self.public_file:
             path = reverse(
                 "repository_file_download",
                 kwargs={
@@ -2732,7 +2828,16 @@ def update_preprint_file_index(sender, instance, created, update_fields=None, **
         # Only other fields changed (its access, say): the text is the same.
         return
 
-    instance.index_full_text()
+    try:
+        instance.index_full_text()
+    except Exception:
+        # Indexing is only for search: a file the parser can't read (a
+        # damaged PDF, say) is still saved, just not searchable.
+        logger.warning(
+            "Preprint file %s was saved but its text couldn't be indexed.",
+            instance.pk,
+            exc_info=True,
+        )
 
 
 @receiver(models.signals.post_delete, sender=PreprintVersion)

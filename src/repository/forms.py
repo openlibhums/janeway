@@ -289,6 +289,33 @@ class PreprintInfo(utils_forms.KeywordModelForm):
 
 
 class PreprintSupplementaryFileForm(forms.ModelForm):
+    """
+    Adds a supplementary file: a link, or, on institutional repositories, an
+    uploaded file with its document version. Moderators can also set an
+    uploaded file's access.
+    """
+
+    upload = forms.FileField(
+        required=False,
+        label=_("Or upload a file"),
+    )
+    document_version = forms.ChoiceField(
+        required=False,
+        label=_("Document version"),
+        choices=(("", "---------"),) + models.PreprintFile.DOCUMENT_VERSION_CHOICES,
+    )
+    access = forms.ChoiceField(
+        required=False,
+        label=_("Access"),
+        choices=models.PreprintFile.ACCESS_CHOICES,
+        initial=models.PreprintFile.ACCESS_OPEN,
+    )
+    embargo_until = forms.DateField(
+        required=False,
+        label=_("Embargo end"),
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+
     class Meta:
         model = models.PreprintSupplementaryFile
         fields = (
@@ -298,12 +325,64 @@ class PreprintSupplementaryFileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.preprint = kwargs.pop("preprint")
+        self.can_set_access = kwargs.pop("can_set_access", False)
         super(PreprintSupplementaryFileForm, self).__init__(*args, **kwargs)
+        self.allow_upload = self.preprint.repository.is_institutional
+        if self.allow_upload:
+            self.fields["url"].required = False
+            self.fields["url"].label = _("Link")
+        else:
+            # Links only, as before uploads existed.
+            self.fields["url"].required = True
+            for name in ("upload", "document_version", "access", "embargo_until"):
+                del self.fields[name]
+        if not (self.allow_upload and self.can_set_access):
+            self.fields.pop("access", None)
+            self.fields.pop("embargo_until", None)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        url = cleaned_data.get("url")
+        upload = cleaned_data.get("upload")
+        if self.allow_upload:
+            if url and upload:
+                raise forms.ValidationError(
+                    _("Give a link or upload a file, not both.")
+                )
+            if not url and not upload:
+                raise forms.ValidationError(_("Give a link or upload a file."))
+        access = cleaned_data.get("access")
+        if access == models.PreprintFile.ACCESS_EMBARGOED and not cleaned_data.get(
+            "embargo_until"
+        ):
+            self.add_error("embargo_until", _("Give the date the embargo ends."))
+        return cleaned_data
 
     def save(self, commit=True):
         link = super(PreprintSupplementaryFileForm, self).save(commit=False)
         link.preprint = self.preprint
-
+        upload = self.cleaned_data.get("upload")
+        if upload:
+            access = self.cleaned_data.get("access") or models.PreprintFile.ACCESS_OPEN
+            preprint_file = models.PreprintFile(
+                preprint=self.preprint,
+                file=upload,
+                original_filename=upload.name,
+                document_version=self.cleaned_data.get("document_version") or "",
+                access=access,
+                embargo_until=(
+                    self.cleaned_data.get("embargo_until")
+                    if access == models.PreprintFile.ACCESS_EMBARGOED
+                    else None
+                ),
+            )
+            preprint_file.save()
+            preprint_file.mime_type = preprint_file.get_file_mime_type()
+            preprint_file.size = preprint_file.file.size
+            preprint_file.save(update_fields=["mime_type", "size"])
+            link.file = preprint_file
+            link.url = ""
+            link.order = self.preprint.next_supp_file_order()
         if commit:
             link.save()
 

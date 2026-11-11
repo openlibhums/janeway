@@ -152,6 +152,12 @@
                         <h2>{% trans "Downloads" %}</h2>
                         {% include "common/repository/file_access_notice.html" with file=version.locked_file %}
                     {% endif %}
+                    {% with version.supplementary_files as supplementary_files %}
+                    {% if supplementary_files %}
+                        <h2>{% trans "Supplementary Files" %}</h2>
+                        {% include "common/repository/supplementary_files_list.html" with files=supplementary_files %}
+                    {% endif %}
+                    {% endwith %}
                     {% with preprint.organisation_units.all as rous %}
                         {% if rous and request.repository.has_organisation_units %}
                             <h2>
