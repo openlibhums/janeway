@@ -440,3 +440,23 @@ class CopyRequestReviewFixTests(RequestCopyTestBase):
             ).status_code,
             404,
         )
+
+    def test_links_stand_on_their_own_line_in_the_plain_text_email(self):
+        from repository import copy_requests
+
+        # Saved through the field's sanitiser, as the settings form would.
+        self.repository.copy_request_approved = copy_requests.default_emails()[
+            "copy_request_approved"
+        ]
+        self.repository.save()
+        self.ask()
+        copy_request = rm.CopyRequest.objects.get()
+        self.post(self.decide_url(copy_request), {"approve": ""})
+        copy_request.refresh_from_db()
+        plain_lines = [line.strip() for line in mail.outbox[-1].body.splitlines()]
+        self.assertIn(
+            "http://{}{}".format(
+                self.repository.domain, self.download_url(copy_request)
+            ),
+            plain_lines,
+        )
