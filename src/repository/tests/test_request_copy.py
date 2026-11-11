@@ -24,7 +24,7 @@ REQUEST = {
 @override_settings(
     CAPTCHA_TYPE="", EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
 )
-class RequestCopyTests(FileAccessTestBase):
+class RequestCopyTestBase(FileAccessTestBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -77,6 +77,12 @@ class RequestCopyTests(FileAccessTestBase):
             kwargs={"token": copy_request.download_token},
         )
 
+
+@freeze_time("2026-11-11 12:00:00")
+@override_settings(
+    CAPTCHA_TYPE="", EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+)
+class RequestCopyTests(RequestCopyTestBase):
     # When it's offered
 
     def test_offered_for_a_locked_accepted_manuscript(self):
@@ -290,3 +296,33 @@ class RequestCopyTests(FileAccessTestBase):
         self.post(url, {"copy_request_author": stranger.pk}, user=self.manager)
         self.preprint.refresh_from_db()
         self.assertIsNone(self.preprint.copy_request_author)
+
+
+@freeze_time("2026-11-11 12:00:00")
+@override_settings(
+    CAPTCHA_TYPE="", EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+)
+class CopyRequestEmailTests(RequestCopyTestBase):
+    """The emails are repository settings that managers can edit."""
+
+    def test_a_repositorys_own_wording_is_used(self):
+        self.repository.copy_request_to_author = (
+            '<p>Hello {{ copy_request.asked_name|default:"there" }}: '
+            "{{ copy_request.name }} wants {{ preprint.title }}. Answer: {{ decide_url }}</p>"
+        )
+        self.repository.save()
+        self.repository.refresh_from_db()
+        self.assertIn("{{ decide_url }}", self.repository.copy_request_to_author)
+        self.ask()
+        copy_request = rm.CopyRequest.objects.get()
+        body = mail.outbox[-1].body
+        self.assertIn("Rosa Reader wants", body)
+        self.assertIn(self.decide_url(copy_request), body)
+
+    def test_the_default_is_used_when_a_repository_has_none(self):
+        self.repository.copy_request_to_author = ""
+        self.repository.save()
+        self.ask()
+        self.assertIn(
+            "has asked for a copy of your accepted manuscript", mail.outbox[-1].body
+        )

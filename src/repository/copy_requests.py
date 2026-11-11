@@ -7,7 +7,13 @@ The author's address is never shown to the reader. The author's answer,
 with when and by whom it was given, is kept as the record of permission.
 """
 
-from django.template.loader import render_to_string
+import codecs
+import json
+import os
+from functools import lru_cache
+
+from django.conf import settings
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils import timezone
 
@@ -36,18 +42,31 @@ def download_url(copy_request):
     )
 
 
-def send(request, copy_request, template, to, subject):
-    body = render_to_string(
-        template,
-        {
-            "copy_request": copy_request,
-            "preprint": copy_request.preprint,
-            "repository": copy_request.preprint.repository,
-            "decide_url": decide_url(copy_request),
-            "download_url": (
-                download_url(copy_request) if copy_request.download_token else ""
-            ),
-        },
+@lru_cache(maxsize=1)
+def default_emails():
+    path = os.path.join(settings.BASE_DIR, "utils/install/repository_settings.json")
+    with codecs.open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle)[0]
+
+
+def send(request, copy_request, setting, to, subject):
+    """Email ``to`` with the repository's ``setting`` email (its default if
+    the repository hasn't one)."""
+    repository = copy_request.preprint.repository
+    text = getattr(repository, setting, None) or default_emails()[setting]
+    body = Template(text).render(
+        Context(
+            {
+                "copy_request": copy_request,
+                "preprint": copy_request.preprint,
+                "repository": repository,
+                "request": request,
+                "decide_url": decide_url(copy_request),
+                "download_url": (
+                    download_url(copy_request) if copy_request.download_token else ""
+                ),
+            }
+        )
     )
     notify_helpers.send_email_with_body_from_user(
         request,
@@ -98,7 +117,7 @@ def create(request, preprint_file, form):
         send(
             request,
             copy_request,
-            "common/repository/emails/copy_request_to_author.html",
+            "copy_request_to_author",
             copy_request.asked_email,
             "A request for a copy of {}".format(preprint.title),
         )
@@ -110,11 +129,11 @@ def decide(request, copy_request, approve, by=None):
     answered, or None when it's the author, through their link."""
     if approve:
         copy_request.approve(by=by)
-        template = "common/repository/emails/copy_request_approved.html"
+        setting = "copy_request_approved"
         subject = "Your copy of {}".format(copy_request.preprint.title)
     else:
         copy_request.decline(by=by)
-        template = "common/repository/emails/copy_request_declined.html"
+        setting = "copy_request_declined"
         subject = "Your request for a copy of {}".format(copy_request.preprint.title)
     who = by.full_name() if by else "the author ({})".format(copy_request.asked_email)
     log(
@@ -127,7 +146,7 @@ def decide(request, copy_request, approve, by=None):
         ),
         actor=by,
     )
-    send(request, copy_request, template, copy_request.email, subject)
+    send(request, copy_request, setting, copy_request.email, subject)
 
 
 def expire(request, now=None):
@@ -154,7 +173,7 @@ def expire(request, now=None):
         send(
             request,
             copy_request,
-            "common/repository/emails/copy_request_expired.html",
+            "copy_request_expired",
             copy_request.email,
             "Your request for a copy of {}".format(copy_request.preprint.title),
         )

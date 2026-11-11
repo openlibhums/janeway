@@ -263,6 +263,32 @@ class Repository(model_utils.AbstractSiteModel):
     decline = model_utils.JanewayBleachField(blank=True, null=True)
     accept_version = model_utils.JanewayBleachField(blank=True, null=True)
     decline_version = model_utils.JanewayBleachField(blank=True, null=True)
+    copy_request_to_author = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        verbose_name=_("Request a copy: to the author"),
+        help_text=_(
+            "Sent to the author when a reader asks for a copy. Must include "
+            "{{ decide_url }}, the link to answer."
+        ),
+    )
+    copy_request_approved = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        verbose_name=_("Request a copy: approved"),
+        help_text=_("Sent to the reader. Must include {{ download_url }}."),
+    )
+    copy_request_declined = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        verbose_name=_("Request a copy: declined"),
+    )
+    copy_request_expired = model_utils.JanewayBleachField(
+        blank=True,
+        null=True,
+        verbose_name=_("Request a copy: expired"),
+        help_text=_("Sent to the reader when the author hasn't answered in 30 days."),
+    )
     enable_comments = models.BooleanField(
         default=True,
         help_text="Enabling this will turn on the comment feature.",

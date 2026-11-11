@@ -830,11 +830,19 @@ class RepositoryEmails(RepositoryBase):
             "manager_review_status_change",
             "reviewer_review_status_change",
             "new_version_submitted",
+            "copy_request_to_author",
+            "copy_request_approved",
+            "copy_request_declined",
+            "copy_request_expired",
         )
 
         widgets = {
             "submission": TinyMCE,
             "publication": TinyMCE,
+            "copy_request_to_author": TinyMCE,
+            "copy_request_approved": TinyMCE,
+            "copy_request_declined": TinyMCE,
+            "copy_request_expired": TinyMCE,
             "decline": TinyMCE,
             "accept_version": TinyMCE,
             "decline_version": TinyMCE,
