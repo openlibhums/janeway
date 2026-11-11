@@ -6,6 +6,8 @@
             {% include "apis/OAI_preprint_record_jats_stub.xml" with article=article %}
         {% elif metadataPrefix == 'oai_dc' %}
             {% include "apis/OAI_preprint_record.xml" with article=article %}
+        {% elif metadataPrefix == 'rioxx' and request.repository.is_institutional %}
+            {% include "apis/OAI_preprint_record_rioxx.xml" with article=article %}
         {% endif %}
     {% else %}
         {% if metadataPrefix == 'jats' %}

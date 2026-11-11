@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.views.generic.base import TemplateView
 
 from api.oai import exceptions
-from api.oai.base import OAIPagedModelView, metadata_formats
+from api.oai.base import OAIPagedModelView, metadata_formats, rioxx_format
 from identifiers.models import Identifier
 from submission import models as submission_models
 from repository import models as repo_models
@@ -193,7 +193,11 @@ class OAIListMetadataFormats(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["metadata_formats"] = metadata_formats
+        formats = list(metadata_formats)
+        repository = getattr(self.request, "repository", None)
+        if repository is not None and repository.is_institutional:
+            formats.append(rioxx_format)
+        context["metadata_formats"] = formats
         context["verb"] = self.request.GET.get("verb")
         context["metadataPrefix"] = self.request.GET.get(
             "metadataPrefix", DEFAULT_METADATA_PREFIX

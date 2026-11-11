@@ -1,0 +1,53 @@
+<record>
+    {% include "apis/OAI_preprint_record_header.xml" with article=article %}
+    <metadata>
+  <rioxx xmlns="http://www.rioxx.net/schema/v3.0/rioxx/"
+      xmlns:ali="http://ali.niso.org/2014/ali/1.0"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xmlns:rioxxterms="http://www.rioxx.net/schema/v3.0/rioxxterms/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.rioxx.net/schema/v3.0/rioxx/ https://www.rioxx.net/schema/v3.0/rioxx/rioxx.xsd">
+    {% with file=article.current_version.file %}
+      {% if file and file.access != "restricted" %}
+      <ali:free_to_read{% if file.access == "embargoed" and file.embargo_until %} start_date="{{ file.embargo_until|date:"Y-m-d" }}"{% endif %}/>
+      {% endif %}
+      {% if article.license %}
+      <ali:license_ref start_date="{% if file.access == "embargoed" and file.embargo_until %}{{ file.embargo_until|date:"Y-m-d" }}{% else %}{{ article.date_published|date:"Y-m-d" }}{% endif %}">{{ article.license.url }}</ali:license_ref>
+      {% endif %}
+      {% if article.abstract %}
+      <dc:description>{{ article.abstract|striptags }}</dc:description>
+      {% endif %}
+      {% if file and file.access != "restricted" %}
+      <dc:format>{{ file.mime_type }}</dc:format>
+      <dc:identifier>{{ article.repository.site_url }}{{ file.download_url }}</dc:identifier>
+      {% else %}
+      <dc:identifier>{{ article.url }}</dc:identifier>
+      {% endif %}
+      <dc:language>{{ article.rioxx_language }}</dc:language>
+      {% with publisher=article.rioxx_publisher %}{% if publisher %}
+      <dc:publisher>{{ publisher }}</dc:publisher>
+      {% endif %}{% endwith %}
+      {% if article.doi %}
+      <dc:relation>https://doi.org/{{ article.doi }}</dc:relation>
+      {% endif %}
+      {% for s in article.subject.all %}
+      <dc:subject>{{ s.name }}</dc:subject>
+      {% endfor %}
+      {% for k in article.keywords.all %}
+      <dc:subject>{{ k.word }}</dc:subject>
+      {% endfor %}
+      <dc:title>{{ article.title|striptags }}</dc:title>
+      {% for author in article.frozen_authors %}
+      <rioxxterms:author{% if author.orcid_uri %} id="{{ author.orcid_uri }}"{% endif %}{% if forloop.first %} first-named-author="true"{% endif %}>{{ author.dc_name_string }}</rioxxterms:author>
+      {% endfor %}
+      {% if article.date_published %}
+      <rioxxterms:publication_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:publication_date>
+      <rioxxterms:record_public_release_date>{{ article.date_published|date:"Y-m-d" }}</rioxxterms:record_public_release_date>
+      {% endif %}
+      <rioxxterms:type>{{ article.coar_type }}</rioxxterms:type>
+      <rioxxterms:version>{% if file %}{{ file.jav_version }}{% else %}NA{% endif %}</rioxxterms:version>
+    {% endwith %}
+  </rioxx>
+    </metadata>
+</record>

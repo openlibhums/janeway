@@ -1300,6 +1300,52 @@ class Preprint(models.Model):
             defaults={"order": self.next_supp_file_order()},
         )
 
+    # COAR resource types for RIOXX, matched on words in the submission
+    # type's name, most specific first.
+    COAR_TYPES = (
+        (("book section", "chapter"), "http://purl.org/coar/resource_type/c_3248"),
+        (("book review",), "http://purl.org/coar/resource_type/c_ba08"),
+        (("conference",), "http://purl.org/coar/resource_type/c_5794"),
+        (("thesis", "dissertation"), "http://purl.org/coar/resource_type/c_46ec"),
+        (("editorial",), "http://purl.org/coar/resource_type/c_b239"),
+        (("letter",), "http://purl.org/coar/resource_type/c_0857"),
+        (("article",), "http://purl.org/coar/resource_type/c_6501"),
+        (("book",), "http://purl.org/coar/resource_type/c_2f33"),
+        (
+            ("monograph", "report", "working paper"),
+            "http://purl.org/coar/resource_type/c_93fc",
+        ),
+        (("preprint",), "http://purl.org/coar/resource_type/c_816b"),
+        (("patent",), "http://purl.org/coar/resource_type/c_15cd"),
+        (("image",), "http://purl.org/coar/resource_type/c_c513"),
+        (("video",), "http://purl.org/coar/resource_type/c_12ce"),
+        (("audio", "sound"), "http://purl.org/coar/resource_type/c_18cc"),
+        (("dataset", "data"), "http://purl.org/coar/resource_type/c_ddb1"),
+    )
+    COAR_OTHER = "http://purl.org/coar/resource_type/c_1843"
+
+    @property
+    def coar_type(self):
+        name = (self.submission_type.name if self.submission_type else "").lower()
+        for words, uri in self.COAR_TYPES:
+            if any(word in name for word in words):
+                return uri
+        return self.COAR_OTHER
+
+    @property
+    def rioxx_language(self):
+        """The Language field's answer (the OAI importer fills it), or en."""
+        return self.field_answer("Language") or "en"
+
+    @property
+    def rioxx_publisher(self):
+        return self.field_answer("Publisher")
+
+    def field_answer(self, name):
+        """The answer to the repository field called ``name``, or ""."""
+        answer = self.repositoryfieldanswer_set.filter(field__name__iexact=name).first()
+        return answer.answer if answer else ""
+
     def copy_request_recipient(self):
         """(name, email) of the person asked for copies: the chosen author if
         they're still on the author list and have an email, else the owner."""
@@ -1679,6 +1725,18 @@ class PreprintFile(models.Model):
                 prefix + "embargo_until__lte": timezone.localdate(),
             }
         )
+
+    # NISO Journal Article Versions, as RIOXX gives them.
+    JAV_VERSIONS = {
+        "submitted": "SMUR",
+        "accepted": "AM",
+        "published": "VoR",
+        "other": "NA",
+    }
+
+    @property
+    def jav_version(self):
+        return self.JAV_VERSIONS.get(self.document_version, "NA")
 
     def copy_can_be_requested(self):
         """Whether readers can ask for a copy: a locked author's accepted

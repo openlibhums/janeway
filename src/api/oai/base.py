@@ -28,6 +28,13 @@ metadata_formats = [
     },
 ]
 
+# Institutional repositories also offer RIOXX, the UK repositories profile.
+rioxx_format = {
+    "prefix": "rioxx",
+    "schema": "https://www.rioxx.net/schema/v3.0/rioxx/rioxx.xsd",
+    "metadataNamespace": "http://www.rioxx.net/schema/v3.0/rioxx/",
+}
+
 
 class OAIModelView(BaseListView, TemplateResponseMixin):
     """Base class for OAI views generated from model Querysets"""
