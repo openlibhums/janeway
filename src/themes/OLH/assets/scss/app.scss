@@ -2126,38 +2126,79 @@ section.invisible-landmark{
 }
 
 // carousel style overrides
-// Bullets are a fixed 24px (WCAG 2.5.8) so they don't grow with the text
-// size and wrap onto a second row. Padding rather than margin keeps the
-// space inside the carousel background.
-.orbit-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin: 0;
-  padding: 12px 0;
+.orbit {
+  position: relative;
+  --carousel-image-middle: 100px;
 
-  button {
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    margin: 0;
-    // Every bullet is a solid disc with a border of the same colour. The
-    // current one is a ring (transparent centre), so it is distinguishable
-    // without relying on colour contrast, and the size doesn't change.
-    box-sizing: border-box;
-    border: 7px solid $dark-gray;
-    background-color: $dark-gray;
-
-    &:hover {
-      background-color: $dark-gray;
-    }
-
-    &.is-active,
-    &.is-active:hover {
-      background-color: transparent;
-    }
+  @media (min-width: 640px) {
+    --carousel-image-middle: 216px;
   }
+
+  @media (min-width: 1024px) {
+    --carousel-image-middle: 270px;
+  }
+}
+
+.carousel-button,
+.carousel-counter {
+  position: absolute;
+  // Above the slide's full-bleed .box-link (z-index 11).
+  z-index: 12;
+  border: 2px solid #fefefe;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fefefe;
+}
+
+.carousel-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-radius: $global-radius;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #000;
+  }
+
+  &:focus-visible {
+    background-color: #fefefe;
+    color: #000;
+  }
+}
+
+.carousel-prev,
+.carousel-next {
+  top: var(--carousel-image-middle);
+  transform: translateY(-50%);
+}
+
+.carousel-prev {
+  left: 1rem;
+}
+
+.carousel-next {
+  right: 1rem;
+}
+
+.carousel-toggle {
+  top: 1rem;
+  right: 1rem;
+}
+
+.carousel-counter {
+  top: 1rem;
+  left: 1rem;
+  margin: 0;
+  padding: 0.2rem 0.75rem;
+  border-radius: $global-radius;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 // Let the carousel grow to fit its caption (WCAG 1.4.4, 1.4.10). Orbit sets
@@ -2188,14 +2229,21 @@ section.invisible-landmark{
     }
   }
 
+  // Matches the full-width article hero (.large-12 .olh-banner).
   .olh-banner-image {
     align-self: stretch;
     width: 100%;
-    height: auto;
-    min-height: 100%;
-    max-height: 360px;
+    height: 360px;
     object-fit: cover;
     object-position: top;
+
+    @media (min-width: 640px) {
+      height: 432px;
+    }
+
+    @media (min-width: 1024px) {
+      height: 540px;
+    }
   }
 
   .olh-banner-heading {
@@ -2207,7 +2255,7 @@ section.invisible-landmark{
   // On small screens the caption sits below the image.
   @include breakpoint(small only) {
     .olh-banner-image {
-      max-height: 200px;
+      height: 200px;
     }
 
     .olh-banner .olh-banner-heading {

@@ -3,16 +3,38 @@
 {% load settings %}
 
 {% if carousel.enabled %}
-        <section aria-labelledby="carousel-title" class="no-padding" id="orbitsection">
+        <section aria-labelledby="carousel-title" aria-roledescription="{% trans 'carousel' %}" class="no-padding" id="orbitsection">
             <h2 id="carousel-title" class="sr-only">{% trans 'Carousel' %}</h2>
-            <div class="row column" id="orbiter">
-                <div class="orbit" data-orbit data-auto-play="false">
-                    <ul class="orbit-container orbit-carousel">
+            <div class="row column" id="orbiter" data-carousel data-carousel-delay="7000">
+                {# Orbit's keyboard mode adds an unnamed tab stop, so it's off; the buttons replace it. #}
+                <div class="orbit" data-orbit data-auto-play="false" data-nav-buttons="false" data-bullets="false" data-accessible="false" data-swipe="false">
+                    {% if carousel_items|length > 1 %}
+                        <button type="button" class="carousel-button carousel-toggle" data-carousel-toggle
+                                aria-label="{% trans 'Pause carousel' %}"
+                                data-label-pause="{% trans 'Pause carousel' %}"
+                                data-label-play="{% trans 'Play carousel' %}">
+                            <i class="fa fa-pause" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="carousel-button carousel-prev" data-carousel-prev
+                                aria-label="{% trans 'Previous slide' %}">
+                            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="carousel-button carousel-next" data-carousel-next
+                                aria-label="{% trans 'Next slide' %}">
+                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                        <p class="carousel-counter" aria-hidden="true">
+                            <span data-carousel-current>1</span> / {{ carousel_items|length }}
+                        </p>
+                    {% endif %}
+                    {# Not ul/li: role="group" isn't allowed on li. #}
+                    <div class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
-                          <li class="orbit-slide ">
+                          <div class="orbit-slide" role="group" aria-roledescription="{% trans 'slide' %}"
+                              aria-label="{% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}{{ slide_number }} of {{ total_slides }}{% endblocktrans %}">
                             <a href="{{ carousel_item.url }}" class="box-link"
-                                aria-labelledby="{{ carousel_item.id }}-title"
-                                aria-describedby="{{ carousel_item.id }}-subtitle {{ carousel_item.id }}-details carousel-title">
+                                aria-labelledby="carousel-{{ forloop.counter }}-title"
+                                aria-describedby="carousel-{{ forloop.counter }}-subtitle{% if request.site_type.code == 'press' and carousel_item.stage %} carousel-{{ forloop.counter }}-details{% endif %}">
                             </a>
                               <div class="olh-banner">
                                 <img class="olh-banner-image"
@@ -21,31 +43,16 @@
                                   aria-hidden="true">
                                 <div class="overlay"></div>
                                 <figcaption class="olh-banner-heading" aria-hidden="true">
-                                    <p id="{{ carousel_item.id }}-subtitle">{{ carousel_item.carousel_subtitle|safe }}</p>
-                                    <h3 id="{{ carousel_item.id }}-title">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
+                                    <p id="carousel-{{ forloop.counter }}-subtitle">{{ carousel_item.carousel_subtitle|safe }}</p>
+                                    <h3 id="carousel-{{ forloop.counter }}-title">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
                                     {% if request.site_type.code == 'press' and carousel_item.stage %}
-                                        <p id="{{ carousel_item.id }}-details" >{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
+                                        <p id="carousel-{{ forloop.counter }}-details">{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
                                     {% endif %}
                                 </figcaption>
                               </div>
-                            </li>
+                            </div>
                         {% endfor %}
-                    </ul>
-                    <nav class="orbit-bullets" aria-label="{% trans 'Carousel slides' %}">
-                        {% for carousel_item in carousel_items %}
-                            <button data-slide="{{ forloop.counter0 }}"{% if forloop.first %} class="is-active"{% endif %}>
-                                <span class="sr-only">
-                                    {% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}
-                                        Slide {{ slide_number }} of {{ total_slides }}
-                                    {% endblocktrans %}
-                                </span>
-                                {% if forloop.first %}
-                                    {# Orbit moves the last span of the active bullet to the newly active one, so this must stay last. #}
-                                    <span class="sr-only" data-slide-active-label>{% trans 'Current slide' %}</span>
-                                {% endif %}
-                            </button>
-                        {% endfor %}
-                    </nav>
+                    </div>
                 </div>
             </div>
         </section>
