@@ -1602,6 +1602,30 @@ p + .btn-background {
 }
 /* End banner image styles */
 
+/* Article funding (common/elements/funder_info_for_readers.html) */
+#article .callout dl {
+  margin: 0;
+}
+#article .callout dl + dl {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+#article .callout .key-value-pair {
+  margin-bottom: 0.75rem;
+}
+#article .callout .key-value-pair .key {
+  font-weight: 700;
+}
+#article .callout .key-value-pair .value {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+#article .callout .key-value-pair:first-child .value {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
 /* Homepage carousel. Heights match the article hero, except phones keep
    400px so the top caption still fits. */
 .carousel-wrapper {
