@@ -12,9 +12,5 @@
 {% endblock body %}
 
 {% block js %}
-    <script>
-        $(document).ready(function () {
-            $('.carousel.carousel-slider').carousel({fullWidth: true});
-        })
-    </script>
+    <script src="{% static 'material/carousel.js' %}"></script>
 {% endblock %}
