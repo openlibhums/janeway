@@ -13,7 +13,8 @@ from django.utils import timezone
 
 from core import models as core_models
 from core import views as core_views
-from utils import orcid
+from utils import orcid, setting_handler
+from utils.shared import clear_cache
 from utils.testing import helpers
 
 
@@ -1061,3 +1062,90 @@ class ControlledAffiliationDisplayTests(CoreViewTestsWithData):
           <li>&ndash;Oct 2016</li>
         """
         self.assertHTMLEqual(expected, template.render(context))
+
+
+class PrivacyLinkTextTests(CoreViewTestsWithData):
+    def setUp(self):
+        # Journal settings are cached for rendering, so clear values
+        # cached by other tests
+        clear_cache()
+
+    def assertLinkText(self, response, text):
+        self.assertRegex(response.content.decode(), rf">\s*{text}\s*</a>")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_footer_privacy_link_text_default(self):
+        for theme in self.themes:
+            response = self.client.get(
+                "/",
+                data={"theme": theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
+            self.assertLinkText(response, "Privacy")
+            self.assertNotContains(response, "Privacy Policy")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_footer_privacy_link_text_setting(self):
+        setting_handler.save_setting(
+            "general",
+            "privacy_link_text",
+            journal=self.journal_one,
+            value="Privacy Notice",
+        )
+        for theme in self.themes:
+            response = self.client.get(
+                "/",
+                data={"theme": theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
+            self.assertLinkText(response, "Privacy Notice")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_press_footer_privacy_link_text_default(self):
+        for theme in ["clean", "OLH"]:
+            response = self.client.get(
+                "/",
+                data={"theme": theme},
+                SERVER_NAME=self.press.domain,
+            )
+            self.assertLinkText(response, "Privacy")
+            self.assertNotContains(response, "Privacy Policy")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_press_footer_privacy_link_text_setting(self):
+        self.press.privacy_link_text = "Privacy Statement"
+        self.press.save()
+        for theme in ["clean", "OLH"]:
+            response = self.client.get(
+                "/",
+                data={"theme": theme},
+                SERVER_NAME=self.press.domain,
+            )
+            self.assertLinkText(response, "Privacy Statement")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_register_privacy_link_text_default(self):
+        for theme in self.themes:
+            response = self.client.get(
+                "/register/step/1/",
+                data={"theme": theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
+            self.assertContains(response, "By registering an account you agree to our")
+            self.assertLinkText(response, "Privacy Policy")
+
+    @override_settings(URL_CONFIG="domain")
+    def test_register_privacy_link_text_setting(self):
+        setting_handler.save_setting(
+            "general",
+            "privacy_link_text",
+            journal=self.journal_one,
+            value="Privacy Notice",
+        )
+        for theme in self.themes:
+            response = self.client.get(
+                "/register/step/1/",
+                data={"theme": theme},
+                SERVER_NAME=self.journal_one.domain,
+            )
+            self.assertLinkText(response, "Privacy Notice")

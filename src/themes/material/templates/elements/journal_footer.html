@@ -36,7 +36,7 @@
                 {% else %}
                     href="{% url 'cms_page' "privacy" %}"
                 {% endif %}>
-                {% trans "Privacy Policy" %}
+                {{ journal_settings.general.privacy_link_text|default:_("Privacy") }}
             </a> </li>
             <li><a href="{% url 'accessibility' %}">{% trans "Accessibility" %}</a></li>
         </ul>
