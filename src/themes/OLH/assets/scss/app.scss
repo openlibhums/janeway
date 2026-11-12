@@ -1987,8 +1987,14 @@ button.list-group-item-danger.active:focus {
   padding-left: 0;
   margin: 0;
   white-space: normal;
+  margin-bottom: 1rem;
 }
 .keywords-list li{
+  display: inline-block;
+}
+/* Firefox sizes the li without the link's focus-ring padding, which made
+   keywords wrap mid-word. */
+.keywords-list li a {
   display: inline-block;
 }
 
