@@ -118,8 +118,8 @@
                                 {% endif %}
                             {% endif %}
                             {% if article.rights %}
-                            <p><strong>{% trans "Rights" %}:</strong>
-                            {{ article.rights | safe }} </p>
+                            <h2>{% trans "Rights" %}:</h2>
+                            <div>{{ article.rights | safe }}</div>
                             {% endif %}
                             {% if article.publisher_notes.all %}
                                 <div class="callout primary">
