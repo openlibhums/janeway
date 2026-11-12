@@ -1174,17 +1174,18 @@ div.caption span.label {
         position: relative;
         margin-bottom: 10px;
         line-height: 1.3em;
-
-        &:before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: -56px;
-          width: 30px;
-          height: 2px;
-          background: $light-gray;
-        }
       }
+    }
+    // Only inside .section: the tick sits in its 40px padding and would
+    // otherwise cover the content column (e.g. the issue archive).
+    .section ul li:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -56px;
+      width: 30px;
+      height: 2px;
+      background: $light-gray;
     }
   }
 }
