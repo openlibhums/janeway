@@ -49,11 +49,6 @@ urlpatterns = [
         name="review_move_to_review",
     ),
     re_path(
-        r"^article/(?P<article_id>\d+)/crosscheck/$",
-        views.view_ithenticate_report,
-        name="review_crosscheck",
-    ),
-    re_path(
         r"^article/(?P<article_id>\d+)/move/(?P<decision>accept|decline|undecline)/$",
         views.review_decision,
         name="review_decision",
