@@ -297,14 +297,20 @@
                             <td>{{ version.version }}</td>
                             <td>{{ version.get_update_type_display }}</td>
                             <td>{{ version.date_time }}</td>
+                            {% if version.file %}
                             <td>{{ version.file.original_filename|truncatechars:40 }}</td>
                             <td>{{ version.file.uploaded|date:"Y-m-d G:i" }}</td>
                             <td><a href="{% url 'repository_download_file' preprint.pk version.file.pk %}">
                                     {% trans "Download" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
                                     {% include "elements/icons/link_download.html" %}
                                 </a></td>
+                            {% else %}
+                            <td><em>{% trans "No file" %}</em></td>
+                            <td></td>
+                            <td></td>
+                            {% endif %}
                             <td>
-                                {% if version.file.is_pdf %}
+                                {% if version.file and version.file.is_pdf %}
                                 <a target="_blank" href="{% url 'repository_pdf' preprint.pk %}?file={% url 'repository_download_file' preprint.pk version.file.pk %}">
                                     {% trans "Preview" %}<span class="sr-only"> {{ version.file.original_filename }}</span>
                                     {% include "elements/icons/link_preview.html" %}

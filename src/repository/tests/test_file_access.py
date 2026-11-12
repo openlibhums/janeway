@@ -438,3 +438,32 @@ class ReviewFixTests(FileAccessTestBase):
             self.get("/api/published_preprints/", user=self.manager),
             "ada@author.example",
         )
+
+
+class FilelessVersionTests(FileAccessTestBase):
+    """Records imported without their full text have a version with no file."""
+
+    def setUp(self):
+        super().setUp()
+        self.preprint = rm.Preprint.objects.create(
+            repository=self.repository,
+            owner=self.owner,
+            title="Imported without its file",
+            stage=rm.STAGE_PREPRINT_PUBLISHED,
+            date_submitted=timezone.now(),
+            date_published=timezone.now(),
+        )
+        rm.PreprintVersion.objects.create(preprint=self.preprint, version=1)
+
+    def test_the_manager_page_shows_it(self):
+        response = self.get(
+            reverse(
+                "repository_manager_article", kwargs={"preprint_id": self.preprint.pk}
+            ),
+            user=self.manager,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No file")
+
+    def test_the_record_page_shows_it(self):
+        self.assertEqual(self.get(self.preprint.local_url).status_code, 200)
