@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import time
 import itertools
 import warnings
+from lxml import etree
 
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -291,7 +292,7 @@ def create_crossref_preprint_doi_batch_context(repository, identifiers):
     }
 
 
-def create_crossref_doi_batch_context(journal, identifiers):
+def create_crossref_doi_batch_context(journal, identifiers, clean_abstracts=None):
     timestamp_suffix = journal.get_setting(
         "crossref",
         "crossref_date_suffix",
@@ -320,13 +321,28 @@ def create_crossref_doi_batch_context(journal, identifiers):
         "is_conference": journal.is_conference or False,
     }
 
+    # Pre-compute clean abstracts for all scheduled articles with abstracts
+    if clean_abstracts is None:
+        clean_abstracts = {}
+        for identifier in identifiers:
+            article = identifier.article
+            if article is None:
+                continue
+            if article.abstract and article.scheduled_for_publication:
+                try:
+                    clean_abstract = article.get_clean_abstract()
+                    clean_abstracts[identifier.pk] = clean_abstract
+                except Exception:
+                    # Error will be caught during deposit validation
+                    pass
+
     template_context["crossref_issues"] = create_crossref_issues_context(
-        journal, identifiers
+        journal, identifiers, clean_abstracts
     )
     return template_context
 
 
-def create_crossref_issues_context(journal, identifiers):
+def create_crossref_issues_context(journal, identifiers, clean_abstracts=None):
     crossref_issues = []
 
     # First pull out and handle individually any articles with
@@ -344,6 +360,7 @@ def create_crossref_issues_context(journal, identifiers):
                 issue,
                 ISSN_override=article.ISSN_override,
                 publication_title=article.publication_title,
+                clean_abstracts=clean_abstracts,
             )
             crossref_issues.append(crossref_issue)
     remaining_identifiers = identifiers - identifiers_covered
@@ -356,6 +373,7 @@ def create_crossref_issues_context(journal, identifiers):
             journal,
             remaining_identifiers,
             issue,
+            clean_abstracts=clean_abstracts,
         )
         crossref_issues.append(crossref_issue)
 
@@ -368,6 +386,7 @@ def create_crossref_issue_context(
     issue,
     ISSN_override=None,
     publication_title=None,
+    clean_abstracts=None,
 ):
     crossref_issue = {}
     crossref_issue["journal"] = create_crossref_journal_context(
@@ -381,7 +400,10 @@ def create_crossref_issue_context(
     for identifier in identifiers:
         article = identifier.article
         if article.issue == issue:
-            article_context = create_crossref_article_context(article, identifier)
+            clean_abstract = None
+            if clean_abstracts is not None:
+                clean_abstract = clean_abstracts.get(identifier.pk)
+            article_context = create_crossref_article_context(article, identifier, clean_abstract)
             crossref_issue["articles"].append(article_context)
 
     return crossref_issue
@@ -405,7 +427,10 @@ def create_crossref_journal_context(
     return journal_data
 
 
-def create_crossref_article_context(article, identifier=None):
+def create_crossref_article_context(article, identifier=None, clean_abstract=None):
+    if clean_abstract is None:
+        clean_abstract = article.get_clean_abstract()
+
     template_context = {
         "id": article.pk,
         "title": "{0}{1}{2}".format(
@@ -427,6 +452,7 @@ def create_crossref_article_context(article, identifier=None):
         "other_pages": article.page_numbers,
         "scheduled": article.scheduled_for_publication,
         "object": article,
+        "clean_abstract": clean_abstract,
     }
 
     # append citations for i4oc compatibility
@@ -500,10 +526,45 @@ def send_crossref_deposit(test_mode, identifiers, journal=None):
 
     error = False
 
+    # Pre-compute clean abstracts for validation
+    clean_abstracts = {}
+    for identifier in identifiers:
+        article = identifier.article
+        if article is None:
+            continue
+        if article.abstract and article.scheduled_for_publication:
+            try:
+                clean_abstract = article.get_clean_abstract()
+                clean_abstracts[identifier.pk] = clean_abstract
+            except Exception:
+                # Error will be caught during validation loop
+                pass
+
+    # Validate abstract conversion for all scheduled articles with abstracts
+    for identifier in identifiers:
+        article = identifier.article
+        if article is None:
+            return f"Identifier {identifier.pk} has no associated article", True
+        if article.abstract and article.scheduled_for_publication:
+            clean_abstract = clean_abstracts.get(identifier.pk)
+            if clean_abstract is None:
+                return (
+                    f"Abstract conversion failed for article {article.pk} "
+                    f"(original abstract length: {len(article.abstract)})",
+                    True,
+                )
+            if not clean_abstract:
+                return (
+                    f"Abstract conversion produced empty output for article {article.pk} "
+                    f"(original abstract length: {len(article.abstract)})",
+                    True,
+                )
+
     template = "common/identifiers/crossref_doi_batch.xml"
     template_context = create_crossref_doi_batch_context(
         journal,
         identifiers,
+        clean_abstracts,
     )
     document = render_to_string(template, template_context)
 

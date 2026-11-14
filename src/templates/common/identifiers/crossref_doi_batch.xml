@@ -2,7 +2,7 @@
 <doi_batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.crossref.org/schema/5.4.0 https://www.crossref.org/schemas/crossref5.4.0.xsd"
  xmlns="http://www.crossref.org/schema/5.4.0" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
- xmlns:fr="http://www.crossref.org/fundref.xsd" version="5.4.0">
+ xmlns:fr="http://www.crossref.org/fundref.xsd" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.4.0">
 
     <head>
         <doi_batch_id>{{ batch_id }}</doi_batch_id>

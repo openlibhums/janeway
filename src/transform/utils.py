@@ -1,10 +1,7 @@
 import os
-
 from lxml import etree, html as lxml_html
-
 from django.conf import settings
 from django.utils.safestring import mark_safe
-
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -41,6 +38,12 @@ def convert_html_abstract_to_jats(abstract_string):
 
         return mark_safe(xml_str)
 
-    except Exception as e:
-        logger.error(e)
-        return ""
+    except FileNotFoundError:
+        logger.exception("XSL stylesheet not found at %s", xslt_path)
+        raise
+    except etree.XSLTError:
+        logger.exception("XSLT transformation failed for abstract")
+        raise
+    except Exception:
+        logger.exception("Unexpected error during abstract conversion")
+        raise
