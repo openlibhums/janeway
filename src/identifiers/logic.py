@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 import time
 import itertools
 import warnings
-from lxml import etree
 
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
