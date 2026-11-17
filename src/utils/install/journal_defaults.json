@@ -2016,10 +2016,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Deprecated: the core iThenticate integration has been removed. Use the Turnitin Core API plugin instead. Used to submit files for review",
             "is_translatable": false,
             "name": "username",
-            "pretty_name": "Username for crosscheck/ithenticate",
+            "pretty_name": "Username for crosscheck/ithenticate (deprecated)",
             "type": "char"
         },
         "value": {
@@ -2035,10 +2035,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "If enabled, links to crosscheck reports will be displayed",
+            "description": "Deprecated: the core iThenticate integration has been removed. Use the Turnitin Core API plugin instead. If enabled, links to crosscheck reports will be displayed",
             "is_translatable": false,
             "name": "enable",
-            "pretty_name": "Enable Crosscheck",
+            "pretty_name": "Enable Crosscheck (deprecated)",
             "type": "boolean"
         },
         "value": {
@@ -2054,10 +2054,10 @@
             "name": "crosscheck"
         },
         "setting": {
-            "description": "Used to submit files for review",
+            "description": "Deprecated: the core iThenticate integration has been removed. Use the Turnitin Core API plugin instead. Used to submit files for review",
             "is_translatable": false,
             "name": "password",
-            "pretty_name": "Password for crosscheck/ithenticate",
+            "pretty_name": "Password for crosscheck/ithenticate (deprecated)",
             "type": "char"
         },
         "value": {

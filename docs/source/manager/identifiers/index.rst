@@ -122,19 +122,8 @@ Auto-register issue-level DOIs
     When enabled, issues will have a DOI assigned and registered as soon as the first article in the issue is scheduled for publication. If an issue DOI has not been entered manually, Janeway will use the pattern defined in the setting above to generate one automatically.
 
 
-Crosscheck Settings
--------------------
-Janeway also has support for Crosscheck (also called Similarity Check), which is provided by iThenticate. You can sign up for an account via Crossref and this will allow you to send submitted manuscripts for originality checking.
+Similarity Check
+----------------
+Similarity checking (Crossref Similarity Check, provided by Turnitin's iThenticate) is available through the Turnitin Core API plugin rather than Janeway itself. Install the plugin and configure it from the journal's plugin settings to send submitted manuscripts for originality checking.
 
-The settings are:
-
-Enable
-    Enables display for Crosscheck buttons
-
-Username
-    Your iThenticate service username
-
-Password
-    Your iThenticate service password
-
-More info on Crosscheck/Similarity Check: https://www.crossref.org/services/similarity-check/
+More info on Similarity Check: https://www.crossref.org/services/similarity-check/

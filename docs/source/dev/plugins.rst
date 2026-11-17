@@ -179,8 +179,22 @@ You can find hooks in the source by searching for  ``{% hook``. Here is a non-ex
 	- press_admin_nav_block
 
 
+- templates/admin/elements/summary_modal.html
+	- summary_modal_editor
+
 - templates/admin/production/assigned_article.html
 	- conversion_buttons
+
+- templates/admin/review/in_review.html
+	- in_review_notice
+	- review_actions
+
+- templates/admin/review/unassigned_article.html
+	- unassigned_files_intro
+	- unassigned_file_table_header
+	- unassigned_file_table_row
+	- unassigned_actions_notice
+	- unassigned_additional_actions
 
 - templates/admin/submission/start.html
 	- publication_fees
