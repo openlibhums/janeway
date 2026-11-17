@@ -31,6 +31,9 @@ exclude = [
     "src/foundationform",
     "src/transform/cassius",
 ]
+[tool.setuptools.package-data]
+"transform" = ["xsl/*.xsl"]
+
 [tool.tox]
 env_list = ["py39", "py310", "py311", "py312"]
 [tool.tox.testenv]
