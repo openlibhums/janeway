@@ -1,13 +1,5 @@
 {% if request.journal and journal_settings.general.privacy_policy_url %}
-    <a href="{{ journal_settings.general.privacy_policy_url }}">
-        {% trans "Privacy Policy" %}
-    </a>
-{% elif not request.journal and request.press.privacy_policy_url %}
-    <a href="{{ request.press.privacy_policy_url }}">
-        {% trans "Privacy Policy" %}
-    </a>
-{% else %}
-    <a href="{% url 'cms_page' "privacy" %}">
-        {% trans "Privacy Policy" %}
-    </a>
-{% endif %}
+    <a href="{{ journal_settings.general.privacy_policy_url }}">{{ journal_settings.general.privacy_link_text|default:_("Privacy Policy") }}</a>{% elif not request.journal and request.press.privacy_policy_url %}
+    <a href="{{ request.press.privacy_policy_url }}">{{ request.press.privacy_link_text|default:_("Privacy Policy") }}</a>{% elif request.journal %}
+    <a href="{% url 'cms_page' "privacy" %}">{{ journal_settings.general.privacy_link_text|default:_("Privacy Policy") }}</a>{% else %}
+    <a href="{% url 'cms_page' "privacy" %}">{{ request.press.privacy_link_text|default:_("Privacy Policy") }}</a>{% endif %}

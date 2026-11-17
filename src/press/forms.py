@@ -41,6 +41,7 @@ class PressForm(forms.ModelForm):
             "tracking_code",
             "disable_journals",
             "privacy_policy_url",
+            "privacy_link_text",
             "a11y_info",
             "allow_journal_a11y_info",
         )
