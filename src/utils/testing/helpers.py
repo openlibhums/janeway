@@ -598,7 +598,7 @@ def create_reminder(journal=None, reminder_type=None):
         reminder_type = "review"
     reminder = Reminder.objects.create(
         journal=journal,
-        type="review",
+        type=reminder_type,
         run_type="before",
         days=3,
         template_name="test_reminder_" + reminder_type,
