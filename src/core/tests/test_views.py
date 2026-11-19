@@ -91,12 +91,6 @@ class CoreViewTestsWithData(TestCase):
         # The unicode string url-encoded with safe='/' two times
         cls.next_url_doubly_encoded = "/target/page/%253Fa%253Db%2526x%253Dy"
 
-        # The state parameter with action=login
-        cls.state_login = orcid.encode_state(cls.next_url_raw, "login")
-
-        # The state parameter including login and the next URL
-        cls.state_register = orcid.encode_state(cls.next_url_raw, "register")
-
         # next_url_encoded with its 'next' key
         cls.next_url_query_string = "next=/target/page/%3Fa%3Db%26x%3Dy"
 
@@ -106,6 +100,18 @@ class CoreViewTestsWithData(TestCase):
     def setUp(self):
         clear_script_prefix()
         self.client = Client()
+
+    def orcid_state(self, action="login", next_url=None, flow_secret="test-secret"):
+        """
+        Store a flow secret in the test client's session, as user_login_orcid does
+        before redirecting to orcid.org, and return the matching state.
+        """
+        session = self.client.session
+        session[core_views.ORCID_FLOW_SECRET_SESSION_KEY] = flow_secret
+        session.save()
+        if next_url is None:
+            next_url = self.next_url_raw
+        return orcid.encode_state(next_url, action, flow_secret=flow_secret)
 
 
 class AccountManagementTemplateTests(CoreViewTestsWithData):
@@ -386,7 +392,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         retrieve_tokens.return_value = "", "", None
         get_data = {
             "code": "12345",
-            "next": self.next_url_raw,
+            "state": self.orcid_state(),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -406,7 +412,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         retrieve_tokens.return_value = "", "", self.user_orcid_uri
         get_data = {
             "code": "12345",
-            "next": self.next_url_raw,
+            "state": self.orcid_state(),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -437,7 +443,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
 
         get_data = {
             "code": "12345",
-            "state": self.state_login,
+            "state": self.orcid_state(),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -466,7 +472,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details.return_value = {"emails": []}
         get_data = {
             "code": "12345",
-            "state": self.state_login,
+            "state": self.orcid_state(),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -491,8 +497,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         }
         get_data = {
             "code": "12345",
-            "next": self.next_url_raw,
-            "action": "register",
+            "state": self.orcid_state(action="register"),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -524,7 +529,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         orcid_details.return_value = {"emails": [inactive_email]}
         get_data = {
             "code": "12345",
-            "state": self.state_login,
+            "state": self.orcid_state(),
         }
         response = self.client.get(
             "/login/orcid/",
@@ -536,6 +541,77 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             f"/register/step/orcid/",
             response.redirect_chain[0][0],
         )
+
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_no_orcid_code_stores_flow_secret_in_session_and_state(self):
+        response = self.client.get(
+            "/login/orcid/",
+            {"next": self.next_url_raw},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        flow_secret = self.client.session[core_views.ORCID_FLOW_SECRET_SESSION_KEY]
+        self.assertTrue(flow_secret)
+        self.assertIn(flow_secret, response.url)
+
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_callback_without_session_flow_secret_is_rejected(self, retrieve_tokens):
+        retrieve_tokens.return_value = "token", None, self.user_orcid_uri
+        get_data = {
+            "code": "12345",
+            "state": orcid.encode_state(
+                self.next_url_raw, "add_profile_orcid", flow_secret="attacker"
+            ),
+        }
+        self.client.force_login(self.user)
+        response = self.client.get(
+            "/login/orcid/",
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.url, self.core_login_with_next)
+        retrieve_tokens.assert_not_called()
+
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_callback_with_mismatched_flow_secret_is_rejected(self, retrieve_tokens):
+        retrieve_tokens.return_value = "token", None, self.user_orcid_uri
+        self.orcid_state(flow_secret="victim-secret")
+        get_data = {
+            "code": "12345",
+            "state": orcid.encode_state(
+                self.next_url_raw, "add_profile_orcid", flow_secret="attacker"
+            ),
+        }
+        response = self.client.get(
+            "/login/orcid/",
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.url, self.core_login_with_next)
+        retrieve_tokens.assert_not_called()
+        # The flow secret is single use
+        self.assertNotIn(
+            core_views.ORCID_FLOW_SECRET_SESSION_KEY,
+            self.client.session,
+        )
+
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_callback_without_state_is_rejected(self, retrieve_tokens):
+        retrieve_tokens.return_value = "token", None, self.user_orcid_uri
+        self.orcid_state()
+        response = self.client.get(
+            "/login/orcid/",
+            {"code": "12345", "next": self.next_url_raw},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.url, self.core_login_with_next)
+        retrieve_tokens.assert_not_called()
 
 
 class GetResetTokenTests(CoreViewTestsWithData):

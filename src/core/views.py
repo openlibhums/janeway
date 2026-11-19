@@ -8,6 +8,7 @@ from importlib import import_module
 import json
 from urllib.parse import unquote, urlencode
 import pytz
+import secrets
 import time
 import warnings
 from datetime import timedelta
@@ -163,6 +164,9 @@ def user_login(request):
     return render(request, template, context)
 
 
+ORCID_FLOW_SECRET_SESSION_KEY = "orcid_flow_secret"
+
+
 def user_login_orcid(request):
     """
     Allow a user to log in with their ORCID account
@@ -201,18 +205,38 @@ def user_login_orcid(request):
     # Send them to orcid.org to authenticate first.
     # Encode the next URL and the action via 'state',
     # which the ORCID auth system will pass back.
+    # A random flow secret is stored in the session and sent in 'state' so that
+    # the callback can be tied to the session that started the flow.
     orcid_code = request.GET.get("code", "")
     if not orcid_code:
+        flow_secret = secrets.token_urlsafe(32)
+        request.session[ORCID_FLOW_SECRET_SESSION_KEY] = flow_secret
         base = django_settings.ORCID_URL
         query_dict = {
             "client_id": django_settings.ORCID_CLIENT_ID,
             "response_type": "code",
             "scope": "/authenticate",
             "redirect_uri": orcid.build_redirect_uri(request.site_type),
-            "state": orcid.encode_state(next_url, action),
+            "state": orcid.encode_state(next_url, action, flow_secret=flow_secret),
         }
         orcid_login_url = f"{base}?{urlencode(query_dict, safe='/')}"
         return redirect(orcid_login_url)
+
+    expected_flow_secret = request.session.pop(ORCID_FLOW_SECRET_SESSION_KEY, "")
+    if not expected_flow_secret or not secrets.compare_digest(
+        expected_flow_secret,
+        state.get("flow_secret", ""),
+    ):
+        logger.warning("ORCID callback rejected: flow secret did not match session.")
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _(
+                "Your ORCID sign-in could not be verified this time. "
+                "Please try again, or log in with your username and password."
+            ),
+        )
+        return redirect(logic.reverse_with_next("core_login", next_url))
 
     # There is an orcid code, meaning the user has authenticated on orcid.org.
     # Make another request to orcid.org to verify it.

@@ -170,7 +170,7 @@ def get_orcid_record_details(orcid):
     return details
 
 
-def encode_state(next_url, orcid_action):
+def encode_state(next_url, orcid_action, flow_secret=None):
     """
     Encode information related to Janeway application state in a form that can
     be sent and received back from ORCiD authentication, independently
@@ -179,6 +179,8 @@ def encode_state(next_url, orcid_action):
 
     :param next_url: a raw URL (can include its own query parameters)
     :param orcid_action: 'login' or 'register'
+    :param flow_secret: a random value also stored in the user's session, used to
+        tie the ORCID callback to the session that started the flow
     :return: a query string with percent-encoded paramater values
         that can be passed to ORCiD in a URL as a callback
     """
@@ -187,6 +189,8 @@ def encode_state(next_url, orcid_action):
         querydict["next"] = next_url
     if orcid_action:
         querydict["action"] = orcid_action
+    if flow_secret:
+        querydict["flow_secret"] = flow_secret
     encoded_state = querydict.urlencode(safe="/")
     return encoded_state
 
@@ -194,9 +198,9 @@ def encode_state(next_url, orcid_action):
 def decode_state(encoded_state):
     """
     :param encoded_state: a percent-encoded query string value
-        like next=a&action=b
-    :return: a QueryDict with entries for next_url and action
-        like {'next':'a','action':'b'}
+        like next=a&action=b&flow_secret=c
+    :return: a QueryDict with entries for next_url, action and flow_secret
+        like {'next':'a','action':'b','flow_secret':'c'}
     """
     return QueryDict(encoded_state)
 
