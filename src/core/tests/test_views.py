@@ -389,7 +389,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_no_orcid_id_redirects_with_next(self, retrieve_tokens):
-        retrieve_tokens.return_value = "", "", None
+        retrieve_tokens.return_value = "", None, None
         get_data = {
             "code": "12345",
             "state": self.orcid_state(),
@@ -409,7 +409,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
         self,
         retrieve_tokens,
     ):
-        retrieve_tokens.return_value = "", "", self.user_orcid_uri
+        retrieve_tokens.return_value = "", None, self.user_orcid_uri
         get_data = {
             "code": "12345",
             "state": self.orcid_state(),
@@ -490,7 +490,7 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)
     def test_action_register_redirects_with_next(self, retrieve_tokens, orcid_record):
-        retrieve_tokens.return_value = "", "", self.user_orcid_uri
+        retrieve_tokens.return_value = "", None, self.user_orcid_uri
         orcid_record.return_value = {
             "uri": self.user_orcid_uri,
             "orcid": self.user_orcid,
@@ -509,6 +509,37 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             self.next_url_query_string,
             response.redirect_chain[0][0],
         )
+
+    @patch("core.views.orcid.get_orcid_record_details")
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_action_register_stores_access_token(self, retrieve_tokens, orcid_record):
+        new_orcid = "0000-0001-2312-3123"
+        expiration = datetime(
+            2050, 5, 17, 10, 30, 0, tzinfo=timezone.get_current_timezone()
+        )
+        retrieve_tokens.return_value = (
+            str(self.orcid_access_token_uuid),
+            expiration,
+            new_orcid,
+        )
+        orcid_record.return_value = {
+            "uri": f"https://orcid.org/{new_orcid}",
+            "orcid": new_orcid,
+        }
+        get_data = {
+            "code": "12345",
+            "state": self.orcid_state(action="register"),
+        }
+        self.client.get(
+            "/login/orcid/",
+            get_data,
+            SERVER_NAME=self.journal_one.domain,
+        )
+        token = core_models.OrcidToken.objects.get(orcid=new_orcid)
+        self.assertEqual(token.access_token, str(self.orcid_access_token_uuid))
+        self.assertEqual(token.access_token_expiration, expiration)
 
     @patch("core.views.orcid.get_orcid_record_details")
     @patch("core.views.orcid.retrieve_tokens")

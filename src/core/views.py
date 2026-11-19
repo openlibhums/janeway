@@ -260,7 +260,9 @@ def user_login_orcid(request):
     # If the user wanted to register, send them to the registration page
     # and pass along their orcid token so information can be pre-filled.
     elif action == "register":
-        return orcid_register_action(request, orcid_id, next_url)
+        return orcid_register_action(
+            request, orcid_id, next_url, access_token, expiration
+        )
     # user is adding orcid through their profile
     elif action == "add_profile_orcid":
         return orcid_add_action(request, orcid_id, next_url, access_token, expiration)
@@ -331,7 +333,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
     )
 
 
-def orcid_register_action(request, orcid_id, next_url):
+def orcid_register_action(request, orcid_id, next_url, access_token, expiration):
     models.OrcidToken.objects.filter(orcid=orcid_id).delete()
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
     validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid]
@@ -348,7 +350,11 @@ def orcid_register_action(request, orcid_id, next_url):
             )
         )
     else:
-        new_token = models.OrcidToken.objects.create(orcid=orcid_id)
+        new_token = models.OrcidToken.objects.create(
+            orcid=orcid_id,
+            access_token=access_token,
+            access_token_expiration=expiration,
+        )
         return redirect(
             logic.reverse_with_next(
                 "core_register_with_orcid_token",
