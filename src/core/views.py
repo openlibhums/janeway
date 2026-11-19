@@ -541,7 +541,11 @@ def register(request, orcid_token=None):
     next_url = request.GET.get("next", "")
 
     if orcid_token:
-        token_obj = get_object_or_404(models.OrcidToken, token=orcid_token)
+        token_obj = get_object_or_404(
+            models.OrcidToken,
+            token=orcid_token,
+            expiry__gt=timezone.now(),
+        )
         orcid_details = orcid.get_orcid_record_details(token_obj.orcid)
         # we use the full orcid uri for display
         context["orcid"] = orcid_details["uri"]
@@ -572,6 +576,8 @@ def register(request, orcid_token=None):
         if form.is_valid():
             if token_obj:
                 new_user = form.save()
+                # Avoid user editing hidden form feild to takeover orcid ID
+                new_user.orcid = token_obj.orcid
                 new_user.orcid_token = token_obj.access_token
                 new_user.orcid_token_expiration = token_obj.access_token_expiration
                 new_user.save()

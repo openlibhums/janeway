@@ -25,6 +25,7 @@ from core.logic import reverse_with_next
 from review import models as review_models
 from submission import models as submission_models
 import mock
+from datetime import timedelta
 
 
 class CoreTests(TestCase):
@@ -250,6 +251,35 @@ class CoreTests(TestCase):
         self.assertEqual(a.institution, "Elk Valley University")
         self.assertEqual(a.email, "campbell@evu.edu")
         self.assertEqual(a.orcid, orcid_id)
+
+    @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
+    @mock.patch("utils.orcid.get_orcid_record_details", return_value=orcid_record)
+    def test_register_with_orcid_token_ignores_posted_orcid(self, record_mock):
+        orcid_id = "0000-0000-0000-0000"
+        token = models.OrcidToken.objects.create(
+            orcid=orcid_id,
+            access_token="0a0aaaaa-0aa0-0000-aa00-a00aa0a00000",
+            access_token_expiration=timezone.now() + timedelta(days=1),
+        )
+        register_url = f"/register/step/1/{token.token}/"
+
+        self.client.post(
+            register_url,
+            {
+                "first_name": "Campbell",
+                "last_name": "Kasey",
+                "email": "campbell@evu.edu",
+                "institution": "Elk Valley University",
+                "password_1": "test_password",
+                "password_2": "test_password",
+                # Tampered hidden field
+                "orcid": "0000-0002-9999-9999",
+            },
+        )
+
+        a = models.Account.objects.get(email="campbell@evu.edu")
+        self.assertEqual(a.orcid, orcid_id)
+        self.assertEqual(a.orcid_token, token.access_token)
 
     def test_registration(self):
         response = self.client.get(reverse("core_register"))
