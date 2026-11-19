@@ -12,6 +12,7 @@ from datetime import timedelta
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 import pytz
+from requests.exceptions import RequestException
 from hijack.signals import hijack_started, hijack_ended
 import warnings
 import zipfile
@@ -967,7 +968,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def get_orcid_url(self):
         return normalized_orcid(self.orcid)
 
-    @cached_property
+    @property
     def has_orcid_token(self):
         if not self.orcid_token or not self.orcid_token_expiration:
             return False
@@ -992,6 +993,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
                 self.save()
                 logger.info(f"Removed token from {self}: {self.orcid}")
                 return False
+            except RequestException as e:
+                # If ORCID can't be reached, we fallback to the stored token
+                logger.warning(f"Could not check ORCID token for {self}: {e}")
+                return True
         return False
 
 

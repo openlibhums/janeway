@@ -5,7 +5,8 @@ __maintainer__ = "Open Library of Humanities"
 
 from mock import patch
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
+from requests.exceptions import ConnectionError
 from django.urls.base import clear_script_prefix
 from django.shortcuts import reverse
 from django.test import Client, TestCase, override_settings
@@ -572,6 +573,67 @@ class UserLoginOrcidTests(CoreViewTestsWithData):
             f"/register/step/orcid/",
             response.redirect_chain[0][0],
         )
+
+    def create_duplicate_orcid_accounts(self, orcid_id):
+        # Accounts are ordered by username, so the validated account is
+        # considered first and must not be replaced by the unvalidated one.
+        validated = core_models.Account.objects.create_user(
+            "a-validated-dup@example.org",
+            password="RFBsviApaN6jfAdHyHXY",
+        )
+        validated.orcid = orcid_id
+        validated.orcid_token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        validated.orcid_token_expiration = timezone.now() + timedelta(days=1)
+        validated.is_active = True
+        validated.save()
+        unvalidated = core_models.Account.objects.create_user(
+            "b-unvalidated-dup@example.org",
+            password="RFBsviApaN6jfAdHyHXY",
+        )
+        unvalidated.orcid = orcid_id
+        unvalidated.is_active = True
+        unvalidated.save()
+        return validated, unvalidated
+
+    @patch("core.models.is_token_valid", return_value=True)
+    @patch("core.views.orcid.get_orcid_record_details")
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_duplicate_orcid_prefers_validated_account(
+        self, retrieve_tokens, orcid_details, _token_valid
+    ):
+        orcid_id = "0000-0001-5555-5555"
+        validated, unvalidated = self.create_duplicate_orcid_accounts(orcid_id)
+        retrieve_tokens.return_value = "token", None, orcid_id
+        # The unvalidated account's email is listed by ORCID
+        orcid_details.return_value = {"emails": [unvalidated.email]}
+        self.client.get(
+            "/login/orcid/",
+            {"code": "12345", "state": self.orcid_state()},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(int(self.client.session["_auth_user_id"]), validated.pk)
+
+    @patch("core.models.is_token_valid", side_effect=ConnectionError("down"))
+    @patch("core.views.orcid.get_orcid_record_details")
+    @patch("core.views.orcid.retrieve_tokens")
+    @override_settings(URL_CONFIG="domain")
+    @override_settings(ENABLE_ORCID=True)
+    def test_duplicate_orcid_orcid_unreachable(
+        self, retrieve_tokens, orcid_details, _token_valid
+    ):
+        orcid_id = "0000-0001-5555-5555"
+        validated, unvalidated = self.create_duplicate_orcid_accounts(orcid_id)
+        retrieve_tokens.return_value = "token", None, orcid_id
+        orcid_details.return_value = {"emails": [unvalidated.email]}
+        response = self.client.get(
+            "/login/orcid/",
+            {"code": "12345", "state": self.orcid_state()},
+            SERVER_NAME=self.journal_one.domain,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(int(self.client.session["_auth_user_id"]), validated.pk)
 
     @override_settings(URL_CONFIG="domain")
     @override_settings(ENABLE_ORCID=True)

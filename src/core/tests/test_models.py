@@ -336,9 +336,18 @@ class TestAccount(TestCase):
         mock_method.return_value.status_code = 401
         mock_method.return_value.reason = "Unauthorized"
 
-        self.assertFalse(account.is_orcid_token_valid)
+        self.assertFalse(account.check_orcid_token())
         self.assertEqual(account.orcid_token, "")
         self.assertIsNone(account.orcid_token_expiration)
+
+    def test_has_orcid_token_without_expiration(self):
+        account = helpers.create_author(self.journal_one)
+        account.orcid = "0000-0000-0000-0000"
+        account.orcid_token = "token"
+        account.orcid_token_expiration = None
+        account.save()
+
+        self.assertFalse(account.has_orcid_token)
 
     @patch.object(PublicAPI, "_get_public_info")
     def test_orcid_valid(self, mock_method):
@@ -354,7 +363,7 @@ class TestAccount(TestCase):
         mock_method.return_value.status_code = 200
         mock_method.return_value.reason = "OK"
 
-        self.assertTrue(account.is_orcid_token_valid)
+        self.assertTrue(account.check_orcid_token())
         self.assertIsNotNone(account.orcid_token)
         self.assertIsNotNone(account.orcid_token_expiration)
 

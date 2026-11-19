@@ -281,22 +281,16 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
         # find the best match (first, if orcid is validated
         # second if email is listed in data from orcid)
         if orcid_accounts.count() > 1:
-            user_token_valid = False
-            user_email_index = len(emails) + 2
 
-            for a in orcid_accounts:
-                a_token_valid = a.is_orcid_token_valid
-                a_email_index = (
-                    emails.index(a.email) if a.email in emails else len(emails) + 1
+            def match_rank(account):
+                email_index = (
+                    emails.index(account.email)
+                    if account.email in emails
+                    else len(emails)
                 )
-                if not user_token_valid and a_token_valid:
-                    user = a
-                    user_token_valid = a_token_valid
-                    user_email_index = a_email_index
-                elif a_email_index < user_email_index:
-                    user = a
-                    user_token_valid = a_token_valid
-                    user_email_index = a_email_index
+                return (not account.check_orcid_token(), email_index)
+
+            user = min(orcid_accounts, key=match_rank)
         else:
             # if there are no accounts with this orcid
             # look for an account with emails reported by orcid
@@ -336,7 +330,7 @@ def orcid_login_action(request, orcid_id, next_url, access_token, expiration):
 def orcid_register_action(request, orcid_id, next_url, access_token, expiration):
     models.OrcidToken.objects.filter(orcid=orcid_id).delete()
     orcid_accounts = models.Account.objects.filter(orcid=orcid_id, is_active=True)
-    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid]
+    validated_accounts = [a for a in orcid_accounts if a.check_orcid_token()]
     if len(validated_accounts) > 0:
         messages.add_message(
             request,
@@ -381,7 +375,7 @@ def orcid_add_action(request, orcid_id, next_url, access_token, expiration):
     orcid_accounts = models.Account.objects.filter(
         orcid=orcid_id, is_active=True
     ).exclude(pk=request.user.pk)
-    validated_accounts = [a for a in orcid_accounts if a.is_orcid_token_valid]
+    validated_accounts = [a for a in orcid_accounts if a.check_orcid_token()]
     if len(validated_accounts) > 0:
         messages.add_message(
             request,
