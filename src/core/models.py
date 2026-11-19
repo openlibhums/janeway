@@ -8,7 +8,7 @@ import re
 import uuid
 import statistics
 import json
-from datetime import timedelta, datetime
+from datetime import timedelta
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 import pytz
@@ -969,16 +969,20 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def has_orcid_token(self):
-        if not self.orcid_token or timezone.now() > self.orcid_token_expiration:
+        if not self.orcid_token or not self.orcid_token_expiration:
             return False
-        return True
+        return timezone.now() < self.orcid_token_expiration
 
-    @cached_property
-    def is_orcid_token_valid(self):
+    def check_orcid_token(self):
+        """
+        Checks the stored ORCID token against the ORCID API.
+        If ORCID reports the token is invalid it is removed from the account.
+        Only call this when explicitly validating, i.e. on
+        login, register or when adding a validated ORCID iD.
+        :return: bool
+        """
         # orcid api will return true for empty string
         # also, no need to call api if expiration has passed
-        # we only validate against the API when explicitly told to:
-        # login, register or add validated orcid token
         if self.has_orcid_token:
             try:
                 return is_token_valid(self.orcid, self.orcid_token)

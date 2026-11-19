@@ -13,10 +13,10 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.http import QueryDict
+from django.utils import timezone
 import requests
 from requests.exceptions import HTTPError
 import datetime
-from urllib.parse import urlparse
 
 from utils import logic
 from utils.logger import get_logger
@@ -63,7 +63,7 @@ def retrieve_tokens(authorization_code, site):
 
     if "expires_in" in orcid_response:
         expires = int(orcid_response.get("expires_in"))
-        expiration_date = datetime.datetime.now() + datetime.timedelta(seconds=expires)
+        expiration_date = timezone.now() + datetime.timedelta(seconds=expires)
     else:
         expiration_date = None
 
