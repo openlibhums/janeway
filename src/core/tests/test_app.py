@@ -582,3 +582,26 @@ class CoreTests(TestCase):
         )
 
         clear_script_prefix()
+
+
+class FileInputStyleTests(TestCase):
+    """
+    Regression test for #4950: file inputs must not stretch to full width,
+    otherwise the clickable area of "Choose file" is far larger than the button.
+    """
+
+    def test_admin_file_input_not_full_width(self):
+        import os
+        import re
+
+        import core
+
+        css_path = os.path.join(
+            os.path.dirname(core.__file__), "..", "static", "admin", "css", "app.css"
+        )
+        with open(css_path, encoding="utf-8") as css_file:
+            css = css_file.read()
+
+        match = re.search(r"\[type='file'\]\s*\{([^}]*)\}", css)
+        self.assertIsNotNone(match, "Expected a base [type='file'] rule in admin CSS")
+        self.assertNotRegex(match.group(1), r"width\s*:\s*100%")
