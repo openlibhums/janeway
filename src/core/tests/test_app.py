@@ -15,11 +15,13 @@ from django.urls import reverse
 from django.urls.base import clear_script_prefix
 from django.utils import timezone
 from django.core import mail
+from journal.tests.utils import make_test_journal
 
 from utils.testing import helpers
 from utils import setting_handler, install
 from utils.shared import clear_cache
 from core import models
+from core.logic import reverse_with_next
 from review import models as review_models
 from submission import models as submission_models
 import mock
@@ -219,7 +221,7 @@ class CoreTests(TestCase):
         self.assertContains(response, "Campbell")
         self.assertContains(response, "Kasey")
         self.assertContains(response, "campbell@evu.edu")
-        self.assertNotContains(response, "Register with ORCiD")
+        self.assertNotContains(response, "Register with ORCID")
         self.assertContains(response, "http://sandbox.orcid.org/0000-0000-0000-0000")
         self.assertContains(
             response,
@@ -252,13 +254,13 @@ class CoreTests(TestCase):
     def test_registration(self):
         response = self.client.get(reverse("core_register"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Register with ORCiD")
+        self.assertContains(response, "Register with ORCID")
 
     @override_settings(ENABLE_ORCID=False)
     def test_registration(self):
         response = self.client.get(reverse("core_register"))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Register with ORCiD")
+        self.assertNotContains(response, "Register with ORCID")
 
     @override_settings(URL_CONFIG="domain", CAPTCHA_TYPE=None)
     def test_mixed_case_login_different_case(self):
@@ -582,3 +584,156 @@ class CoreTests(TestCase):
         )
 
         clear_script_prefix()
+
+    @override_settings(ENABLE_ORCID=False)
+    def test_profile_orcid_disabled(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse("core_edit_profile"))
+        self.assertContains(
+            response, '<input type="text" name="orcid" maxlength="40" id="id_orcid">'
+        )
+
+    @override_settings(ENABLE_ORCID=True)
+    def test_profile_orcid_enabled_no_orcid(self):
+        # Profile should offer to connect orcid
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse("core_edit_profile"))
+        self.assertNotContains(response, "ORCID could not be validated.")
+        self.assertContains(response, "Connect your ORCID")
+
+    @patch("core.views.orcid.is_token_valid", return_value=False)
+    @override_settings(
+        ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize"
+    )
+    def test_profile_orcid_unverified(self, mock_method):
+        self.admin_user.orcid = "0000-0000-0000-0000"
+        self.admin_user.save()
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse("core_edit_profile"))
+        self.assertContains(response, "ORCID iD could not be validated.")
+        self.assertContains(response, "Connect your ORCID")
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+
+    @patch.object(models.Account, "has_orcid_token")
+    @override_settings(
+        ENABLE_ORCID=True, ORCID_URL="https://sandbox.orcid.org/oauth/authorize"
+    )
+    def test_profile_orcid(self, mock_method):
+        # override is_orcid_token valid make if valid
+        mock_method.return_value = True
+        self.admin_user.orcid = "0000-0000-0000-0000"
+        self.admin_user.orcid_token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        self.admin_user.save()
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse("core_edit_profile"))
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertContains(response, "remove_orcid")
+        self.assertNotContains(response, "ORCID iD could not be validated.")
+
+    @patch.object(models.Account, "has_orcid_token")
+    @override_settings(
+        ENABLE_ORCID=True,
+        URL_CONFIG="domain",
+        ORCID_URL="https://sandbox.orcid.org/oauth/authorize",
+    )
+    def test_profile_orcid_not_admin(self, mock_method):
+        mock_method.return_value = True
+
+        journal_kwargs = {
+            "code": "fetests",
+            "domain": "fetests.janeway.systems",
+        }
+        journal = make_test_journal(**journal_kwargs)
+
+        journal_manager = helpers.create_user(
+            "jmanager@mailinator.com", ["journal-manager"], journal=journal
+        )
+        journal_manager.is_active = True
+        journal_manager.save()
+
+        self.regular_user.orcid = "0000-0000-0000-0000"
+        self.regular_user.orcid_token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        self.regular_user.save()
+
+        self.client.force_login(journal_manager)
+
+        url = reverse("core_user_edit", kwargs={"user_id": self.regular_user.pk})
+        response = self.client.get(url, SERVER_NAME=journal.domain)
+        self.assertContains(response, "https://sandbox.orcid.org/0000-0000-0000-0000")
+        self.assertNotContains(response, "ORCID iD could not be validated.")
+        self.assertNotContains(response, "remove_orcid")
+
+    @patch.object(models.Account, "has_orcid_token")
+    @override_settings(
+        ENABLE_ORCID=True,
+        URL_CONFIG="domain",
+        ORCID_URL="https://sandbox.orcid.org/oauth/authorize",
+    )
+    def test_edit_profile_with_orcid(self, mock_method):
+        mock_method.return_value = True
+
+        orcid = "0000-0000-0000-0000"
+        token = "0a0aaaaa-0aa0-0000-aa00-a00aa0a00000"
+        token_expiration = timezone.now()
+        biography = "<p>this is my biography</p>"
+
+        self.regular_user.first_name = "Regular"
+        self.regular_user.last_name = "User"
+        self.regular_user.orcid = orcid
+        self.regular_user.orcid_token = token
+        self.regular_user.orcid_token_expiration = token_expiration
+        self.regular_user.save()
+
+        self.client.force_login(self.regular_user)
+
+        data = {
+            "first_name": self.regular_user.first_name,
+            "last_name": self.regular_user.last_name,
+            "biography": biography,
+            "edit_profile": "",
+        }
+
+        url = reverse("core_edit_profile")
+        _r = self.client.post(url, data)
+
+        user = models.Account.objects.get(pk=self.regular_user.pk)
+
+        self.assertEqual(user.orcid, orcid)
+        self.assertEqual(user.orcid_token, token)
+        self.assertEqual(user.orcid_token_expiration, token_expiration)
+        self.assertEqual(user.biography, biography)
+
+    @patch("core.logic.send_orcid_request")
+    @override_settings(
+        ENABLE_ORCID=True,
+        URL_CONFIG="domain",
+        ORCID_URL="https://sandbox.orcid.org/oauth/authorize",
+    )
+    def test_orcid_request(self, mock_method):
+        self.client.force_login(self.admin_user)
+        url = reverse_with_next(
+            "request_orcid",
+            reverse("core_edit_profile"),
+            kwargs={"account_id": self.regular_user.pk},
+        )
+        _r = self.client.post(url, {})
+
+        mock_method.assert_called()
+
+    @patch("core.logic.send_orcid_request")
+    @override_settings(
+        ENABLE_ORCID=True,
+        URL_CONFIG="domain",
+        ORCID_URL="https://sandbox.orcid.org/oauth/authorize",
+    )
+    def test_orcid_requests_already_requested(self, mock_method):
+        self.regular_user.date_orcid_requested = timezone.now()
+        self.regular_user.save()
+
+        url = reverse_with_next(
+            "request_orcid",
+            reverse("core_edit_profile"),
+            kwargs={"account_id": self.regular_user.pk},
+        )
+        _r = self.client.post(url, {})
+        mock_method.assert_not_called()

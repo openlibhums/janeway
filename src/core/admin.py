@@ -8,6 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
+from django.conf import settings
 
 from utils import admin_utils
 from core import models, forms
@@ -91,6 +92,9 @@ class AccountAdmin(UserAdmin):
                     "name_prefix",
                     "middle_name",
                     "orcid",
+                    "orcid_token",
+                    "orcid_token_expiration",
+                    "date_orcid_requested",
                     "twitter",
                     "linkedin",
                     "facebook",
@@ -134,6 +138,12 @@ class AccountAdmin(UserAdmin):
         admin_utils.StaffGroupMemberInline,
         admin_utils.PasswordResetInline,
     ]
+
+    def get_readonly_fields(self, request, obj=None):
+        ro_fields = ["orcid_token", "orcid_token_expiration", "date_orcid_requested"]
+        if settings.ENABLE_ORCID:
+            ro_fields.append("orcid")
+        return ro_fields
 
     def _roles_in(self, obj):
         if obj:
