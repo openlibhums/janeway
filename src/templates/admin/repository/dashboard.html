@@ -2,102 +2,52 @@
 
 {% block title %}{{ request.repository.object_name_plural }} Dashboard{% endblock %}
 {% block title-section %}{{ request.repository.object_name_plural }} Dashboard{% endblock %}
-{% block title-sub %}Listed below are the {{ request.repository.object_name_plural|lower }} for which you are registered as the submitting author.{% endblock %}
-{% load files %}
+{% block title-sub %}The {{ request.repository.object_name_plural|lower }} you have submitted or started.{% endblock %}
 
 {% block breadcrumbs %}
     <li><a href="{% url 'repository_dashboard' %}">Repository Dashboard</a></li>
 {% endblock %}
 
 {% block body %}
-    <div class="box">
-        <div class="content">
-            <form method="GET" class="input-group" role="search" aria-label="Find your {{ request.repository.object_name_plural|lower }}">
-                <label for="dashboard-search" class="input-group-label">Find by title, author or ID</label>
-                <input class="input-group-field" type="search" id="dashboard-search" name="search" value="{{ search }}" autocomplete="off">
-                <div class="input-group-button">
-                    <button type="submit" class="button">Search</button>
+    <div class="rummage-portal">
+        <div>
+            <div class="box">
+                <a class="expanded button" href="{% url 'repository_submit' %}"><span class="fa fa-plus" aria-hidden="true"></span> Start a new submission</a>
+                <form method="GET" role="search" aria-label="Find your {{ request.repository.object_name_plural|lower }}">
+                    <label for="dashboard-search">Find by title, author or ID</label>
+                    <input type="search" id="dashboard-search" name="search" value="{{ search }}" autocomplete="off">
+                    <div class="flex gap-0-5 items-center">
+                        <button type="submit" class="small button">Search</button>
+                        {% if search %}<a href="{% url 'repository_dashboard' %}">Clear the search</a>{% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            {% if incomplete_preprints.paginator.count %}
+                <div class="box">
+                    <div class="title-area">
+                        <h2>Not yet submitted ({{ incomplete_preprints.paginator.count }})</h2>
+                    </div>
+                    {% for preprint in incomplete_preprints %}
+                        {% url 'repository_submit_with_id' preprint.pk as url %}
+                        {% include "admin/repository/elements/preprint_card.html" with action="Continue" can_delete=True %}
+                    {% endfor %}
+                    {% include "admin/repository/elements/pagination_links.html" with page_obj=incomplete_preprints param="incomplete_page" label="Not yet submitted pages" %}
                 </div>
-            </form>
-            {% if search %}<a href="{% url 'repository_dashboard' %}">Clear the search</a>{% endif %}
-        </div>
-    </div>
-    <div class="box">
-        <div class="title-area">
-            <h2>Submitted Preprints</h2>
-        </div>
-        <div class="content">
-            <table class="scroll">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Type</th>
-                        <th>Date Submitted</th>
-                        <th>Decision</th>
-                        <th>Date Published</th>
-                        <th>Views</th>
-                        <th>Downloads</th>
-                        <th>Comments</th>
-                    </tr>
-                </thead>
-                <tbody>
+            {% endif %}
+            <div class="box">
+                <div class="title-area">
+                    <h2>Submitted ({{ preprints.paginator.count }})</h2>
+                </div>
                 {% for preprint in preprints %}
-                    <tr>
-                        <td>{{ preprint.pk }}</td>
-                        <td><a href="{% url 'repository_author_article' preprint.pk %}">{{ preprint.title|safe }}</a></td>
-                        <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
-                        <td>{% if preprint.date_submitted %}{{ preprint.date_submitted }}{% else %}N/a{% endif %}</td>
-                        <td>{% if preprint.date_accepted %}Accepted{% elif preprint.date_declined %}Rejected{% else %}Under Consideration{% endif %}</td>
-                        <td>{% if preprint.date_published %}{{ preprint.date_published }}{% else %}N/a{% endif %}</td>
-                        <td>{{ preprint.view_count }}</td>
-                        <td>{{ preprint.download_count }}</td>
-                        <td>{{ preprint.comment_count }}</td>
-                    </tr>
+                    {% url 'repository_author_article' preprint.pk as url %}
+                    {% include "admin/repository/elements/preprint_card.html" with action="Manage" show_stats=True %}
                 {% empty %}
-                    <tr><td colspan="9">{% if search %}None match “{{ search }}”.{% else %}None yet.{% endif %}</td></tr>
+                    <p>{% if search %}None match “{{ search }}”.{% else %}None yet.{% endif %}</p>
                 {% endfor %}
-                </tbody>
-            </table>
-            {% include "admin/repository/elements/pagination_links.html" with page_obj=preprints param="page" label="Submitted pagination" %}
-        </div>
-    </div>
-
-    <div class="box">
-        <div class="title-area">
-            <h2>Incomplete Submissions</h2>
-            <a class="button" href="{% url 'repository_submit' %}">Start New Submission</a>
-        </div>
-        <div class="content">
-            <p>Listed below are {{ request.repository.object_name_plural }} that have not yet been submitted.</p>
-            <table class="scroll">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Complete</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for preprint in incomplete_preprints %}
-                    <tr>
-                        <td>{{ preprint.pk }}</td>
-                        <td>{{ preprint.title|safe }}</td>
-                        <td><a class="small button" href="{% url 'repository_submit_with_id' preprint.pk %}">Complete this Submission</a></td>
-                        <td>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <button class="small alert button delete" name="delete" value="{{ preprint.pk }}">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="4">{% if search %}None match “{{ search }}”.{% else %}None.{% endif %}</td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% include "admin/repository/elements/pagination_links.html" with page_obj=incomplete_preprints param="incomplete_page" label="Incomplete pagination" %}
+                {% include "admin/repository/elements/pagination_links.html" with page_obj=preprints param="page" label="Submitted pages" %}
+            </div>
         </div>
     </div>
 {% endblock %}

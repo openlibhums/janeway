@@ -8,176 +8,106 @@
     <li>{{ request.repository.object_name|capfirst }} Manager</li>
 {% endblock %}
 
-{% load cache %}
 {% load securitytags %}
 
 {% block body %}
-    <div class="row expanded">
-        <div class="large-12 columns">
+    <div class="rummage-portal">
+        <div>
             <div class="box">
-                <div class="content">
-                    <form method="GET" class="input-group" role="search" aria-label="Find {{ request.repository.object_name_plural|default:'preprints' }}">
-                        <label for="manager-search" class="input-group-label">Find by title, author or ID</label>
-                        <input class="input-group-field" type="search" id="manager-search" name="search" value="{{ search }}" autocomplete="off">
-                        <div class="input-group-button">
-                            <button type="submit" class="button">Search</button>
-                        </div>
-                    </form>
-                    {% if search %}<a href="{% url 'preprints_manager' %}">Clear the search</a>{% endif %}
+                <form method="GET" role="search" aria-label="Find {{ request.repository.object_name_plural|default:'preprints' }}">
+                    <label for="manager-search">Find by title, author or ID</label>
+                    <input type="search" id="manager-search" name="search" value="{{ search }}" autocomplete="off">
+                    <div class="flex gap-0-5 items-center">
+                        <button type="submit" class="small button">Search</button>
+                        {% if search %}<a href="{% url 'preprints_manager' %}">Clear the search</a>{% endif %}
+                    </div>
+                </form>
+            </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Manage</h2>
                 </div>
+                <div class="summary">
+                    <span class="title">{{ subjects|length }} Subject Areas</span>
+                    <a href="{% url 'repository_subjects' %}" class="box-link"></a>
+                </div>
+                <div class="summary">
+                    <span class="title">{{ organisation_unit_count }} {{ request.repository.rou_default_name }}</span>
+                    <a href="{% url 'repository_organisation_units' %}" class="box-link"></a>
+                </div>
+                <div class="summary">
+                    <span class="title">{{ rejected_preprints.count }} Rejected Submissions</span>
+                    <a href="{% url 'repository_rejected_submissions' %}" class="box-link"></a>
+                </div>
+                <div class="summary">
+                    <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
+                    <a href="{% url 'version_queue' %}" class="box-link"></a>
+                </div>
+                {% if request.repository.is_institutional and request.repository.request_copy %}
+                <div class="summary">
+                    <span class="title">Requests for a Copy</span>
+                    <a href="{% url 'repository_copy_requests' %}" class="box-link"></a>
+                </div>
+                {% endif %}
+                {% if request.repository.enable_comments %}
+                <div class="summary">
+                    <span class="title">{{ comments_awaiting_moderation.count }} Comments Awaiting Moderation</span>
+                    <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
+                </div>
+                {% endif %}
+                {% is_repository_manager as repository_manager %}
+                {% if request.user.is_staff or repository_manager %}
+                {% url 'report_preprints_metrics' as reporting_url %}
+                {% if reporting_url %}
+                <div class="summary">
+                    <span class="title">Reports</span>
+                    <a href="{{ reporting_url }}" class="box-link"></a>
+                </div>
+                {% endif %}
+                <div class="summary">
+                    <span class="title">{{ request.repository.moderators.count }} Moderators, {{ request.repository.managers.count }} Managers</span>
+                    <a href="{% url 'repository_moderators' %}" class="box-link"></a>
+                </div>
+                {% endif %}
+                <div class="summary">
+                    <span class="title">View Orphaned Preprints</span>
+                    <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
+                </div>
+                {% if request.repository.enable_invited_comments %}
+                <div class="summary">
+                    <span class="title">Manage Reviewers</span>
+                    <a href="{% url 'repository_manage_reviewers' %}" class="box-link"></a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Awaiting a decision or publication</h2>
+                </div>
+                <p>{{ unpublished_count }} in all{% if search %}; {{ unpublished_page.paginator.count }} match{{ unpublished_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
+                {% for preprint in unpublished_page %}
+                    {% url 'repository_manager_article' preprint.pk as url %}
+                    {% include "admin/repository/elements/preprint_card.html" with action="Moderate" show_author=True %}
+                {% empty %}
+                    <p>None{% if search %} match “{{ search }}”{% endif %}.</p>
+                {% endfor %}
+                {% include "admin/repository/elements/pagination_links.html" with page_obj=unpublished_page param="unpublished_page" label="Unpublished preprints pages" %}
+            </div>
+            <div class="box">
+                <div class="title-area">
+                    <h2>Published</h2>
+                </div>
+                <p>{{ published_count }} in all{% if search %}; {{ published_page.paginator.count }} match{{ published_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
+                {% for preprint in published_page %}
+                    {% url 'repository_manager_article' preprint.pk as url %}
+                    {% include "admin/repository/elements/preprint_card.html" with action="Manage" show_author=True %}
+                {% empty %}
+                    <p>None{% if search %} match “{{ search }}”{% endif %}.</p>
+                {% endfor %}
+                {% include "admin/repository/elements/pagination_links.html" with page_obj=published_page param="published_page" label="Published preprints pages" %}
             </div>
         </div>
     </div>
-    <div class="row expanded" data-equalizer data-equalize-on="medium">
-        <div class="large-7 columns">
-            <div class="box" data-equalizer-watch>
-                <div class="title-area">
-                    <h2>Unpublished Preprints</h2>
-                </div>
-                <div class="content">
-                    <p>{{ unpublished_count }} in all{% if search %}; {{ unpublished_page.paginator.count }} match{{ unpublished_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
-                    <table class="small scroll">
-                        <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">First Author</th>
-                            <th scope="col">Date Submitted</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for preprint in unpublished_page %}
-                            <tr>
-                                <td>{{ preprint.pk }}</td>
-                                <td>
-                                    <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
-                                </td>
-                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
-                                <td>{{ preprint.author_full_name }}</td>
-                                <td>{{ preprint.date_submitted }}</td>
-                            </tr>
-                        {% empty %}
-                            <tr><td colspan="5">None{% if search %} match “{{ search }}”{% endif %}.</td></tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% include "admin/repository/elements/pagination_links.html" with page_obj=unpublished_page param="unpublished_page" label="Unpublished preprints pages" %}
-                </div>
-            </div>
-        </div>
-
-        <div class="large-5 columns end">
-            <div class="box" data-equalizer-watch>
-                <div class="title-area">
-                    <h2>Preprint Stats</h2>
-                </div>
-                <div class="content">
-                    <div class="summary">
-                        <span class="title">{{ subjects|length }} Subject Areas</span>
-                        <a href="{% url 'repository_subjects' %}" class="box-link"></a>
-                    </div>
-                    <div class="summary">
-                        <span class="title">{{ organisation_unit_count }} {{ request.repository.rou_default_name }}</span>
-                        <a href="{% url 'repository_organisation_units' %}" class="box-link"></a>
-                    </div>
-                    <div class="summary">
-                        <span class="title">{{ published_count }} Published Submissions</span>
-                        <a href="" class="box-link"></a>
-                    </div>
-                    <div class="summary">
-                        <span class="title">{{ unpublished_count }} New Submissions</span>
-                        <a href="" class="box-link"></a>
-                    </div>
-                    <div class="summary">
-                        <span class="title">{{ rejected_preprints.count }} Rejected Submissions</span>
-                        <a href="{% url 'repository_rejected_submissions' %}" class="box-link"></a>
-                    </div>
-                    <div class="summary">
-                        <span class="title">{{ version_queue|length }} Versions Awaiting Moderation</span>
-                        <a href="{% url 'version_queue' %}" class="box-link"></a>
-                    </div>
-                    {% if request.repository.is_institutional and request.repository.request_copy %}
-                    <div class="summary">
-                        <span class="title">Requests for a Copy</span>
-                        <a href="{% url 'repository_copy_requests' %}" class="box-link"></a>
-                    </div>
-                    {% endif %}
-                    {% if request.repository.enable_comments %}
-                    <div class="summary">
-                        <span class="title">{{ comments_awaiting_moderation.count }} Comments Awaiting Moderation</span>
-                        <a href="{% url 'repository_manager_comment_list' %}" class="box-link"></a>
-                    </div>
-                    {% endif %}
-                    {% is_repository_manager as repository_manager %}
-                    {% if request.user.is_staff or repository_manager %}
-                    {% url 'report_preprints_metrics' as reporting_url %}
-                    {% if reporting_url %}
-                    <div class="summary">
-                        <span class="title">Reports</span>
-                        <a href="{{ reporting_url }}" class="box-link"></a>
-                    </div>
-                    {% endif %}
-                    <div class="summary">
-                        <span class="title">{{ request.repository.moderators.count }} Moderators, {{ request.repository.managers.count }} Managers</span>
-                        <a href="{% url 'repository_moderators' %}" class="box-link"></a>
-                    </div>
-                    {% endif %}
-                    <div class="summary">
-                        <span class="title">View Orphaned Preprints</span>
-                        <a href="{% url 'preprints_orphaned_preprints' %}" class="box-link"></a>
-                    </div>
-                    {% if request.repository.enable_invited_comments %}
-                    <div class="summary">
-                        <span class="title">Manage Reviewers</span>
-                        <a href="{% url 'repository_manage_reviewers' %}" class="box-link"></a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row expanded" data-equalizer data-equalize-on="medium">
-
-        <div class="large-12 columns">
-            <div class="box" data-equalizer-watch>
-                <div class="title-area">
-                    <h2>Published Preprints</h2>
-                </div>
-                <div class="content">
-                    <p>{{ published_count }} in all{% if search %}; {{ published_page.paginator.count }} match{{ published_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
-                    <table class="small scroll">
-                        <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">First Author</th>
-                            <th scope="col">Date Published</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for preprint in published_page %}
-                            <tr>
-                                <td>{{ preprint.pk }}</td>
-                                <td>
-                                    <a href="{% url 'repository_manager_article' preprint.pk %}">{{ preprint.title|safe }}</a>
-                                </td>
-                                <td>{{ preprint.submission_type.name|default:"No submission type" }}</td>
-                                <td>{{ preprint.author_full_name }}</td>
-                                <td>{{ preprint.date_published }}</td>
-                            </tr>
-                        {% empty %}
-                            <tr><td colspan="5">None{% if search %} match “{{ search }}”{% endif %}.</td></tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% include "admin/repository/elements/pagination_links.html" with page_obj=published_page param="published_page" label="Published preprints pages" %}
-                </div>
-            </div>
-        </div>
-    </div>
-
 {% endblock %}
-
