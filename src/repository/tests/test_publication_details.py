@@ -141,7 +141,9 @@ class PublicationDetailsTests(FileAccessTestBase):
                 self.repository.theme = theme
                 self.repository.save()
                 response = self.get(self.preprint.local_url)
-                self.assertContains(response, 'class="no-bullet publication-details"')
+                self.assertContains(
+                    response, 'class="no-bullet list-no-bullet publication-details"'
+                )
                 self.assertContains(
                     response, "Proceedings of the Royal Society B, 291(2014), 1-12"
                 )
@@ -175,7 +177,8 @@ class PublicationDetailsTests(FileAccessTestBase):
         # The record page's own markup; the debug toolbar in test settings
         # can add other text to the page.
         self.assertNotContains(
-            self.get(self.preprint.local_url), 'class="no-bullet publication-details"'
+            self.get(self.preprint.local_url),
+            'class="no-bullet list-no-bullet publication-details"',
         )
 
 
