@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
@@ -11,7 +12,7 @@ from repository import models
 from repository.logic import set_update_field_answers
 from press import models as press_models
 from review.logic import render_choices
-from core import workflow
+from core import models as core_models, workflow
 from utils import forms as utils_forms
 from identifiers.models import URL_DOI_RE
 from core.widgets import TableMultiSelectUser
@@ -808,6 +809,7 @@ class RepositorySubmission(RepositoryBase):
             "file_upload_help",
             "submission_agreement",
             "submission_file_required",
+            "host_ror_id",
             "request_copy",
             "limit_upload_to_pdf",
             "require_pdf_help",
@@ -832,6 +834,37 @@ class RepositorySubmission(RepositoryBase):
                 attrs={"rows": "2"},
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow a pasted https://ror.org/ link; clean_host_ror_id trims it.
+        field = self.fields["host_ror_id"]
+        field.max_length = None
+        field.validators = [
+            validator
+            for validator in field.validators
+            if not isinstance(validator, MaxLengthValidator)
+        ]
+        field.widget.attrs.pop("maxlength", None)
+
+    def clean_host_ror_id(self):
+        """Takes a bare ROR ID or its https://ror.org/ link."""
+        ror_id = self.cleaned_data.get("host_ror_id", "").strip().rstrip("/")
+        for prefix in ("https://ror.org/", "http://ror.org/", "ror.org/"):
+            if ror_id.lower().startswith(prefix):
+                ror_id = ror_id[len(prefix) :]
+        if (
+            ror_id
+            and not core_models.Organization.objects.filter(ror_id=ror_id).exists()
+        ):
+            raise forms.ValidationError(
+                _(
+                    "No organisation with the ROR ID %(ror_id)s has been "
+                    "imported into Janeway yet."
+                ),
+                params={"ror_id": ror_id},
+            )
+        return ror_id
 
 
 class RepositoryEmails(RepositoryBase):

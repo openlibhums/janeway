@@ -539,12 +539,19 @@ class RepositoryOrganizationListView(GenericFacetedListView):
         )
         context["preprint"] = preprint
         context["author"] = author
+        page = context.get("page_obj")
+        if not page or page.number == 1:
+            context["host_organization"] = self.request.repository.host_organization
         return context
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         # Exclude user-created organizations from search results
-        return queryset.exclude(custom_label__isnull=False)
+        queryset = queryset.exclude(custom_label__isnull=False)
+        if self.request.repository.host_ror_id:
+            # The host institution is pinned above the results instead.
+            queryset = queryset.exclude(ror_id=self.request.repository.host_ror_id)
+        return queryset
 
     def get_facets(self):
         return {"q": {"type": "search", "field_label": "Search"}}

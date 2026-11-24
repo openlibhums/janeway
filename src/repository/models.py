@@ -116,6 +116,11 @@ def repo_media_upload(instance, filename):
     return os.path.join(path, filename)
 
 
+def validate_host_ror_id(ror_id):
+    # core.models is still loading when this module is imported.
+    core_models.validate_ror_id(ror_id)
+
+
 class Repository(model_utils.AbstractSiteModel):
     AUTH_SUCCESS_URL = "repository_dashboard"
 
@@ -389,6 +394,15 @@ class Repository(model_utils.AbstractSiteModel):
     display_public_metrics = models.BooleanField(
         default=False, help_text="Enable this setting to display metrics publicly."
     )
+    host_ror_id = models.CharField(
+        max_length=9,
+        blank=True,
+        validators=[validate_host_ror_id],
+        verbose_name="Host institution ROR ID",
+        help_text="The ROR ID of the institution most authors come from, such "
+        "as 02mb95055. It's listed first when authors search for an "
+        "affiliation.",
+    )
     enable_organisation_units = models.BooleanField(
         default=True,
         help_text="Show organisational units on the public site and in the "
@@ -566,6 +580,15 @@ class Repository(model_utils.AbstractSiteModel):
             self.enable_organisation_units
             and self.repositoryorganisationunit_set.exists()
         )
+
+    @property
+    def host_organization(self):
+        """The organisation that matches host_ror_id, if it's been imported."""
+        if not self.host_ror_id:
+            return None
+        return core_models.Organization.objects.filter(
+            ror_id=self.host_ror_id,
+        ).first()
 
     def render_setting(self, setting_text):
         """
