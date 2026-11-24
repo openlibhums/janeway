@@ -18,7 +18,7 @@
                 <div class="content">
                     <form method="GET" class="input-group" role="search" aria-label="Find {{ request.repository.object_name_plural|default:'preprints' }}">
                         <label for="manager-search" class="input-group-label">Find by title or ID</label>
-                        <input class="input-group-field" type="search" id="manager-search" name="q" value="{{ search }}">
+                        <input class="input-group-field" type="search" id="manager-search" name="q" value="{{ search }}" autocomplete="off">
                         <div class="input-group-button">
                             <button type="submit" class="button">Search</button>
                         </div>
