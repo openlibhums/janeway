@@ -52,15 +52,7 @@
         <div class="large-8 columns">
             <h2>{% trans "Authors" %}</h2>
             <div class="truncatejs">
-                <p class="authors">
-                    {% for author in version.authors %}
-                        {{ author.full_name }}{% if author.orcid %}&nbsp;
-                            <a href="https://orcid.org/{{ author.orcid }}"
-                               target="_blank"><img
-                                    src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID logo"></a>
-                        {% endif %}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </p>
+                {% include "common/repository/preprint_authors.html" with authors=version.authors %}
             </div>
             <div class="text-format-region">
                 <h2>{% trans "Abstract" %}</h2>

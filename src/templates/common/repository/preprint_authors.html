@@ -1,0 +1,28 @@
+{% load i18n %}
+<ul class="list-no-bullet preprint-authors">
+  {% for author in authors %}
+    <li>
+      <ul
+        class="list-no-bullet"
+        itemscope
+        itemtype="http://schema.org/Person"
+        itemprop="author">
+        <li>
+          <span itemprop="name"><strong>{{ author.full_name }}</strong></span>
+          {% if author.orcid_uri %}
+            <a href="{{ author.orcid_uri }}" target="_blank">
+              {% include "common/svg/orcid-mono.svg" %}
+              <span class="sr-only show-for-sr">{{ author.full_name }} {% trans "ORCID profile." %}</span>
+              <span class="sr-only show-for-sr">{% trans "(opens in new tab)" %}</span>
+            </a>
+          {% endif %}
+        </li>
+        {% with affiliation=author.primary_affiliation %}
+          {% if affiliation %}
+            {% include "common/elements/affiliation_inner_li_details.html" with affiliation=affiliation %}
+          {% endif %}
+        {% endwith %}
+      </ul>
+    </li>
+  {% endfor %}
+</ul>

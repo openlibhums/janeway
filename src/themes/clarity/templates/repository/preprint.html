@@ -182,17 +182,7 @@
             {% endwith %}
 
             <h2>{% trans 'Authors' %}</h2>
-            <p>
-              {% for author in version.authors %}
-                {{ author.full_name }}
-                {% if author.orcid %}
-                  &nbsp;<a href="https://orcid.org/{{ author.orcid }}" target="_blank">
-                    <img src="{% static 'common/img/icons/orcid.png' %}" alt="ORCID" class="orcid-img">
-                  </a>
-                {% endif %}
-                {% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            </p>
+            {% include "common/repository/preprint_authors.html" with authors=version.authors %}
 
             {% if version.display_abstract %}
               <h2>{% trans 'Abstract' %}</h2>
