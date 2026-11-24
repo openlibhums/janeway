@@ -44,25 +44,45 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
         )
 
     def test_published_preprints_are_paged(self):
-        response = self.get()
+        response = self.get(tab="published")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["published_count"], 30)
-        self.assertEqual(len(response.context["published_page"].object_list), 25)
-        self.assertContains(response, "published_page=2")
+        self.assertEqual(response.context["page"].paginator.count, 30)
+        self.assertEqual(len(response.context["page"].object_list), 25)
+        self.assertContains(response, "page=2")
 
-    def test_page_links_keep_the_other_list_and_search(self):
-        response = self.get(search="Published", unpublished_page="1")
-        self.assertContains(response, "published_page=2")
-        self.assertContains(response, "search=Published")
-        self.assertContains(response, "unpublished_page=1")
+    def test_page_links_keep_the_tab_and_search(self):
+        response = self.get(search="Published", tab="published")
+        self.assertContains(response, "search=Published&amp;tab=published&amp;page=2")
+
+    def test_opens_on_the_first_tab_with_records(self):
+        response = self.get(search="Published")
+        self.assertEqual(response.context["active_tab"]["key"], "published")
+        counts = {tab["key"]: tab["count"] for tab in response.context["tabs"]}
+        self.assertEqual(
+            counts, {"new": 0, "accepted": 0, "published": 30, "rejected": 0}
+        )
+
+    def test_accepted_and_rejected_have_tabs(self):
+        accepted, rejected = rm.Preprint.objects.filter(
+            title__startswith="Published"
+        ).order_by("pk")[:2]
+        rm.Preprint.objects.filter(pk=accepted.pk).update(date_published=None)
+        rm.Preprint.objects.filter(pk=rejected.pk).update(
+            date_published=None, date_declined=timezone.now()
+        )
+        counts = {tab["key"]: tab["count"] for tab in self.get().context["tabs"]}
+        self.assertEqual(counts["accepted"], 1)
+        self.assertEqual(counts["rejected"], 1)
+        page = self.get(tab="accepted").context["page"]
+        self.assertEqual(list(page.object_list), [accepted])
 
     def test_search_by_title_or_id(self):
         target = rm.Preprint.objects.get(title="Published number 7")
         for search in ("number 7", str(target.pk)):
             with self.subTest(search):
-                page = self.get(search=search).context["published_page"]
+                page = self.get(search=search).context["page"]
                 self.assertIn(target, page.object_list)
-        page = self.get(search="no such title").context["published_page"]
+        page = self.get(search="no such title").context["page"]
         self.assertEqual(len(page.object_list), 0)
 
     def page_queries(self):
@@ -91,9 +111,9 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
     def test_search_by_author(self):
         for search in ("Olive Owner", "owner", "frozen_owner@janeway.systems"):
             with self.subTest(search):
-                page = self.get(search=search).context["published_page"]
+                page = self.get(search=search, tab="published").context["page"]
                 self.assertEqual(page.paginator.count, 30)
-        page = self.get(search="Olive Nobody").context["published_page"]
+        page = self.get(search="Olive Nobody").context["page"]
         self.assertEqual(page.paginator.count, 0)
 
 
@@ -119,7 +139,7 @@ class TestDashboardSearch(PreprintFrozenAuthorTestBase):
         target = rm.Preprint.objects.get(title="Sea levels")
         for search in ("sea", str(target.pk)):
             with self.subTest(search):
-                preprints = list(self.get(search=search).context["preprints"])
+                preprints = list(self.get(search=search).context["page"])
                 self.assertIn(target, preprints)
                 self.assertNotIn(
                     rm.Preprint.objects.get(title="Mountain soils"), preprints
@@ -127,5 +147,17 @@ class TestDashboardSearch(PreprintFrozenAuthorTestBase):
 
     def test_no_match(self):
         response = self.get(search="volcanoes")
-        self.assertEqual(len(response.context["preprints"].object_list), 0)
-        self.assertContains(response, "None match")
+        self.assertEqual(len(response.context["page"].object_list), 0)
+        self.assertContains(response, "Nothing here matches")
+
+    def test_drafts_tab(self):
+        draft = helpers.create_preprint(
+            self.repository, self.owner, self.subject, title="Half written"
+        )
+        rm.Preprint.objects.filter(pk=draft.pk).update(
+            date_submitted=None, stage=rm.STAGE_PREPRINT_UNSUBMITTED
+        )
+        response = self.get()
+        self.assertEqual(response.context["active_tab"]["key"], "drafts")
+        self.assertEqual(list(response.context["page"]), [draft])
+        self.assertContains(response, "Continue")

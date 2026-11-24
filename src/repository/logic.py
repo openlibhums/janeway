@@ -5,6 +5,8 @@ from user_agents import parse as parse_ua_string
 from datetime import datetime, timedelta
 from collections import Counter
 
+from urllib.parse import urlencode
+
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.http import Http404
@@ -19,6 +21,7 @@ from django.db.models import (
     Subquery,
     Value,
     Count,
+    F,
 )
 from django.db.models.functions import Concat
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -340,7 +343,7 @@ def subject_article_pks(user):
     return prepint_pks
 
 
-def get_unpublished_preprints(request, user_subject_pks):
+def get_manager_preprints(request, user_subject_pks):
     author_name_subq = (
         submission_models.FrozenAuthor.objects.filter(
             preprint=OuterRef("pk"),
@@ -355,39 +358,7 @@ def get_unpublished_preprints(request, user_subject_pks):
         )
         .values("full_name")
     )
-    unpublished_preprints = models.Preprint.objects.filter(
-        date_published__isnull=True,
-        date_submitted__isnull=False,
-        date_declined__isnull=True,
-        date_accepted__isnull=True,
-        repository=request.repository,
-    ).annotate(author_full_name=Subquery(author_name_subq[:1]))
-
-    if request.user.is_staff or request.user.is_repository_moderator(
-        request.repository
-    ):
-        return unpublished_preprints
-    else:
-        return unpublished_preprints.filter(pk__in=user_subject_pks)
-
-
-def get_published_preprints(request, user_subject_pks):
-    author_name_subq = (
-        submission_models.FrozenAuthor.objects.filter(
-            preprint=OuterRef("pk"),
-        )
-        .annotate(
-            full_name=Concat(
-                "first_name",
-                Value(" "),
-                "last_name",
-                output_field=CharField(),
-            )
-        )
-        .values("full_name")
-    )
-    published_preprints = models.Preprint.objects.filter(
-        date_published__isnull=False,
+    preprints = models.Preprint.objects.filter(
         date_submitted__isnull=False,
         repository=request.repository,
     ).annotate(author_full_name=Subquery(author_name_subq[:1]))
@@ -395,9 +366,91 @@ def get_published_preprints(request, user_subject_pks):
     if request.user.is_staff or request.user.is_repository_moderator(
         request.repository
     ):
-        return published_preprints
-    else:
-        return published_preprints.filter(pk__in=user_subject_pks)
+        return preprints
+    return preprints.filter(pk__in=user_subject_pks)
+
+
+TAB_DATE_LABELS = {
+    "date_started": _("Started"),
+    "date_submitted": _("Submitted"),
+    "date_accepted": _("Accepted"),
+    "date_published": _("Published"),
+    "date_declined": _("Declined"),
+}
+
+UNPUBLISHED = Q(date_published__isnull=True, date_declined__isnull=True)
+
+MANAGER_TABS = [
+    ("new", _("New"), UNPUBLISHED & Q(date_accepted__isnull=True), "date_submitted"),
+    (
+        "accepted",
+        _("Accepted"),
+        UNPUBLISHED & Q(date_accepted__isnull=False),
+        "date_accepted",
+    ),
+    ("published", _("Published"), Q(date_published__isnull=False), "date_published"),
+    (
+        "rejected",
+        _("Rejected"),
+        Q(date_published__isnull=True, date_declined__isnull=False),
+        "date_declined",
+    ),
+]
+
+AUTHOR_TABS = [
+    ("drafts", _("Drafts"), Q(date_submitted__isnull=True), "date_started"),
+    (
+        "review",
+        _("Under consideration"),
+        Q(date_submitted__isnull=False) & UNPUBLISHED,
+        "date_submitted",
+    ),
+    ("published", _("Published"), Q(date_published__isnull=False), "date_published"),
+    (
+        "rejected",
+        _("Rejected"),
+        Q(date_published__isnull=True, date_declined__isnull=False),
+        "date_declined",
+    ),
+]
+
+
+def status_tabs(request, preprints, tabs, search):
+    """Splits preprints into tabs and pages the chosen one.
+
+    Without a valid ?tab= the first tab with anything in it opens, so a search
+    lands where it matched.
+    """
+    preprints = search_preprints(preprints, search)
+    built = []
+    for key, label, condition, date_field in tabs:
+        queryset = (
+            preprints.filter(condition)
+            .annotate(tab_date=F(date_field))
+            .select_related("submission_type")
+            .order_by(F(date_field).desc(nulls_last=True), "-pk")
+        )
+        query = {"tab": key}
+        if search:
+            query["search"] = search
+        built.append(
+            {
+                "key": key,
+                "label": label,
+                "date_label": TAB_DATE_LABELS[date_field],
+                "queryset": queryset,
+                "count": queryset.count(),
+                "query": urlencode(query),
+            }
+        )
+    keys = [tab["key"] for tab in built]
+    chosen = request.GET.get("tab")
+    if chosen not in keys:
+        chosen = next((tab["key"] for tab in built if tab["count"]), keys[0])
+    active = built[keys.index(chosen)]
+    active["active"] = True
+    page = paginate(active["queryset"], request.GET.get("page"), per_page=25)
+    return built, active, page
 
 
 @cache(300)

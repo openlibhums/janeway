@@ -183,33 +183,22 @@ def repository_dashboard(request):
     :param request: HttpRequest object
     :return: HttpResponse
     """
-    preprints = (
-        models.Preprint.objects.filter(
-            owner=request.user,
-            date_submitted__isnull=False,
-            repository=request.repository,
-        )
-        .select_related("submission_type")
-        .annotate(
-            view_count=Count(
-                "preprintaccess",
-                filter=Q(preprintaccess__file__isnull=True),
-                distinct=True,
-            ),
-            download_count=Count(
-                "preprintaccess",
-                filter=Q(preprintaccess__file__isnull=False),
-                distinct=True,
-            ),
-            comment_count=Count("comment", distinct=True),
-        )
-        .order_by("-date_submitted")
-    )
-    incomplete_preprints = models.Preprint.objects.filter(
+    preprints = models.Preprint.objects.filter(
         owner=request.user,
-        date_submitted__isnull=True,
         repository=request.repository,
-    ).order_by("-date_started")
+    ).annotate(
+        view_count=Count(
+            "preprintaccess",
+            filter=Q(preprintaccess__file__isnull=True),
+            distinct=True,
+        ),
+        download_count=Count(
+            "preprintaccess",
+            filter=Q(preprintaccess__file__isnull=False),
+            distinct=True,
+        ),
+        comment_count=Count("comment", distinct=True),
+    )
 
     if request.POST and "delete" in request.POST:
         preprint_id = request.POST.get("delete")
@@ -235,23 +224,17 @@ def repository_dashboard(request):
                         request.repository.object_name,
                     ),
                 )
-        return redirect(
-            reverse(
-                "repository_dashboard",
-            )
-        )
+        return redirect(reverse("repository_dashboard") + "?tab=drafts")
 
     search = request.GET.get("search", "").strip()
+    tabs, active_tab, page = repository_logic.status_tabs(
+        request, preprints, repository_logic.AUTHOR_TABS, search
+    )
     template = "admin/repository/dashboard.html"
     context = {
-        "preprints": repository_logic.paginate(
-            repository_logic.search_preprints(preprints, search),
-            request.GET.get("page", 1),
-        ),
-        "incomplete_preprints": repository_logic.paginate(
-            repository_logic.search_preprints(incomplete_preprints, search),
-            request.GET.get("incomplete_page", 1),
-        ),
+        "tabs": tabs,
+        "active_tab": active_tab,
+        "page": page,
         "search": search,
     }
 
@@ -896,35 +879,12 @@ def preprints_manager(request):
     :return: HttpResponse or HttpRedirect
     """
     user_subject_pks = repository_logic.subject_article_pks(request.user)
-    unpublished_preprints = repository_logic.get_unpublished_preprints(
-        request,
-        user_subject_pks,
-    )
-    published_preprints = repository_logic.get_published_preprints(
-        request,
-        user_subject_pks,
-    )
-    unpublished_count = unpublished_preprints.count()
-    published_count = published_preprints.count()
-
     search = request.GET.get("search", "").strip()
-    unpublished_preprints = repository_logic.search_preprints(
-        unpublished_preprints, search
-    )
-    published_preprints = repository_logic.search_preprints(published_preprints, search)
-    unpublished_page = repository_logic.paginate(
-        unpublished_preprints.select_related("submission_type").order_by(
-            "-date_submitted", "-pk"
-        ),
-        request.GET.get("unpublished_page"),
-        per_page=25,
-    )
-    published_page = repository_logic.paginate(
-        published_preprints.select_related("submission_type").order_by(
-            "-date_published", "-pk"
-        ),
-        request.GET.get("published_page"),
-        per_page=25,
+    tabs, active_tab, page = repository_logic.status_tabs(
+        request,
+        repository_logic.get_manager_preprints(request, user_subject_pks),
+        repository_logic.MANAGER_TABS,
+        search,
     )
     incomplete_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
@@ -953,10 +913,9 @@ def preprints_manager(request):
 
     template = "admin/repository/manager.html"
     context = {
-        "unpublished_page": unpublished_page,
-        "published_page": published_page,
-        "unpublished_count": unpublished_count,
-        "published_count": published_count,
+        "tabs": tabs,
+        "active_tab": active_tab,
+        "page": page,
         "search": search,
         "incomplete_preprints": incomplete_preprints,
         "rejected_preprints": rejected_preprints,

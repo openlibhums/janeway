@@ -11,43 +11,48 @@
 {% block body %}
     <div class="rummage-portal">
         <div>
+            <a class="expanded button" href="{% url 'repository_submit' %}"><span class="fa fa-plus" aria-hidden="true"></span> Start a new submission</a>
             <div class="box">
-                <a class="expanded button" href="{% url 'repository_submit' %}"><span class="fa fa-plus" aria-hidden="true"></span> Start a new submission</a>
-                <form method="GET" role="search" aria-label="Find your {{ request.repository.object_name_plural|lower }}">
-                    <label for="dashboard-search">Find by title, author or ID</label>
-                    <input type="search" id="dashboard-search" name="search" value="{{ search }}" autocomplete="off">
-                    <div class="flex gap-0-5 items-center">
-                        <button type="submit" class="small button">Search</button>
-                        {% if search %}<a href="{% url 'repository_dashboard' %}">Clear the search</a>{% endif %}
-                    </div>
-                </form>
+                {% include "admin/repository/elements/status_folders.html" with label=request.repository.object_name_plural %}
             </div>
         </div>
-        <div>
-            {% if incomplete_preprints.paginator.count %}
-                <div class="box">
-                    <div class="title-area">
-                        <h2>Not yet submitted ({{ incomplete_preprints.paginator.count }})</h2>
-                    </div>
-                    {% for preprint in incomplete_preprints %}
-                        {% url 'repository_submit_with_id' preprint.pk as url %}
-                        {% include "admin/repository/elements/preprint_card.html" with action="Continue" can_delete=True %}
-                    {% endfor %}
-                    {% include "admin/repository/elements/pagination_links.html" with page_obj=incomplete_preprints param="incomplete_page" label="Not yet submitted pages" %}
-                </div>
-            {% endif %}
-            <div class="box">
-                <div class="title-area">
-                    <h2>Submitted ({{ preprints.paginator.count }})</h2>
-                </div>
-                {% for preprint in preprints %}
-                    {% url 'repository_author_article' preprint.pk as url %}
-                    {% include "admin/repository/elements/preprint_card.html" with action="Manage" show_stats=True %}
-                {% empty %}
-                    <p>{% if search %}None match “{{ search }}”.{% else %}None yet.{% endif %}</p>
-                {% endfor %}
-                {% include "admin/repository/elements/pagination_links.html" with page_obj=preprints param="page" label="Submitted pages" %}
+        <div class="box">
+            {% include "admin/repository/elements/status_search.html" with label="Search" %}
+            <div class="title-area">
+                <h2>{{ active_tab.label }}</h2>
             </div>
+            {% for preprint in page %}
+                <div class="line-item">
+                    <div class="flex space-between gap-1">
+                        <strong>{{ preprint.title|striptags|default:"[No title]" }}</strong>
+                        <small title="{{ active_tab.date_label }}">{{ active_tab.date_label }} {{ preprint.tab_date|date:"j M Y" }}</small>
+                    </div>
+                    <div class="flex space-between gap-1 items-center">
+                        <small>
+                            {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}
+                            {% if active_tab.key == "review" %} · {% if preprint.date_accepted %}Accepted{% else %}Under consideration{% endif %}{% endif %}
+                            {% if active_tab.key == "published" %}
+                                · <span class="fa fa-eye" aria-hidden="true"></span> {{ preprint.view_count }} view{{ preprint.view_count|pluralize }}
+                                · <span class="fa fa-download" aria-hidden="true"></span> {{ preprint.download_count }} download{{ preprint.download_count|pluralize }}
+                                · <span class="fa fa-comment" aria-hidden="true"></span> {{ preprint.comment_count }} comment{{ preprint.comment_count|pluralize }}
+                            {% endif %}
+                        </small>
+                        {% if active_tab.key == "drafts" %}
+                            <form method="POST" class="flex gap-0-5">
+                                {% csrf_token %}
+                                <a class="tiny button" href="{% url 'repository_submit_with_id' preprint.pk %}">Continue<span class="show-for-sr"> {{ preprint.title|striptags }}</span></a>
+                                <button class="tiny alert button delete" name="delete" value="{{ preprint.pk }}">Delete<span class="show-for-sr"> {{ preprint.title|striptags }}</span></button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    {% if active_tab.key != "drafts" %}
+                        <a class="box-link" href="{% url 'repository_author_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
+            {% endfor %}
+            {% include "admin/repository/elements/pagination_links.html" with page_obj=page param="page" label="Pages" %}
         </div>
     </div>
 {% endblock %}

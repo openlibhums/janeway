@@ -1,0 +1,9 @@
+<form method="GET" role="search" aria-label="{{ label }}" class="input-group">
+    <input type="hidden" name="tab" value="{{ active_tab.key }}">
+    <label for="status-search" class="show-for-sr">Find by title, author or ID</label>
+    <input class="input-group-field" type="search" id="status-search" name="search" value="{{ search }}" placeholder="Find by title, author or ID" autocomplete="off">
+    <div class="input-group-button">
+        <button type="submit" class="button">Search</button>
+    </div>
+</form>
+{% if search %}<p>Showing matches for “{{ search }}”. <a href="?tab={{ active_tab.key }}">Clear the search</a></p>{% endif %}
