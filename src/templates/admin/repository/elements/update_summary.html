@@ -4,7 +4,9 @@
      hx-trigger="htmx:afterRequest[detail.successful && !detail.elt.closest('#update-summary')] from:body"
      hx-swap="outerHTML">
   <nav aria-labelledby="update-sections-heading">
-    <h2 id="update-sections-heading" class="h5">{% trans "Sections" %}</h2>
+    <div class="title-area">
+      <h2 id="update-sections-heading">{% trans "Sections" %}</h2>
+    </div>
     <ul class="list-no-bullet update-sections">
       {% for section in update_sections %}
         <li>
@@ -16,7 +18,9 @@
       {% endfor %}
     </ul>
   </nav>
-  <h2 class="h5">{% trans "Review and submit" %}</h2>
+  <div class="title-area">
+    <h2>{% trans "Review and submit" %}</h2>
+  </div>
   {% if changes %}
     <p>{% trans "This update changes:" %}</p>
     <ul>
