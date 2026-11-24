@@ -51,18 +51,18 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
         self.assertContains(response, "published_page=2")
 
     def test_page_links_keep_the_other_list_and_search(self):
-        response = self.get(q="Published", unpublished_page="1")
+        response = self.get(search="Published", unpublished_page="1")
         self.assertContains(response, "published_page=2")
-        self.assertContains(response, "q=Published")
+        self.assertContains(response, "search=Published")
         self.assertContains(response, "unpublished_page=1")
 
     def test_search_by_title_or_id(self):
         target = rm.Preprint.objects.get(title="Published number 7")
         for search in ("number 7", str(target.pk)):
             with self.subTest(search):
-                page = self.get(q=search).context["published_page"]
+                page = self.get(search=search).context["published_page"]
                 self.assertIn(target, page.object_list)
-        page = self.get(q="no such title").context["published_page"]
+        page = self.get(search="no such title").context["published_page"]
         self.assertEqual(len(page.object_list), 0)
 
     def page_queries(self):

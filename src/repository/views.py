@@ -905,7 +905,7 @@ def preprints_manager(request):
     unpublished_count = unpublished_preprints.count()
     published_count = published_preprints.count()
 
-    search = request.GET.get("q", "").strip()
+    search = request.GET.get("search", "").strip()
     if search:
         search_query = Q(title__icontains=search)
         if search.isdigit():
@@ -2740,7 +2740,7 @@ class RepositoryModerators(core_views.GenericFacetedListView):
     def get_facets(self):
         repository = self.request.repository
         return {
-            "q": {
+            "search": {
                 "type": "search",
                 "field_label": _("Search"),
             },

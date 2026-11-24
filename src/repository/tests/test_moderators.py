@@ -105,7 +105,7 @@ class TestModeratorsPage(PreprintFrozenAuthorTestBase):
         self.assertNotIn(self.candidate, accounts)
 
     def test_search_finds_any_account(self):
-        response = self.get(q="candidate@janeway.systems")
+        response = self.get(search="candidate@janeway.systems")
         self.assertIn(self.candidate, response.context["account_list"])
         self.assertContains(response, "Make moderator")
 
@@ -116,11 +116,11 @@ class TestModeratorsPage(PreprintFrozenAuthorTestBase):
     def test_add_and_remove_a_moderator(self):
         response = self.post(
             add_moderator=self.candidate.pk,
-            params_string="q=candidate",
+            params_string="search=candidate",
         )
         self.assertRedirects(
             response,
-            reverse("repository_moderators") + "?q=candidate",
+            reverse("repository_moderators") + "?search=candidate",
             fetch_redirect_response=False,
         )
         self.assertIn(self.candidate, self.repository.moderators.all())
