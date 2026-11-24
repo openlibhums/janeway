@@ -241,16 +241,18 @@ def repository_dashboard(request):
             )
         )
 
+    search = request.GET.get("search", "").strip()
     template = "admin/repository/dashboard.html"
     context = {
         "preprints": repository_logic.paginate(
-            preprints,
+            repository_logic.search_preprints(preprints, search),
             request.GET.get("page", 1),
         ),
         "incomplete_preprints": repository_logic.paginate(
-            incomplete_preprints,
+            repository_logic.search_preprints(incomplete_preprints, search),
             request.GET.get("incomplete_page", 1),
         ),
+        "search": search,
     }
 
     return render(request, template, context)
@@ -906,14 +908,10 @@ def preprints_manager(request):
     published_count = published_preprints.count()
 
     search = request.GET.get("search", "").strip()
-    if search:
-        search_query = Q(title__icontains=search) | Q(
-            pk__in=repository_logic.preprints_by_author(search)
-        )
-        if search.isdigit():
-            search_query |= Q(pk=search)
-        unpublished_preprints = unpublished_preprints.filter(search_query)
-        published_preprints = published_preprints.filter(search_query)
+    unpublished_preprints = repository_logic.search_preprints(
+        unpublished_preprints, search
+    )
+    published_preprints = repository_logic.search_preprints(published_preprints, search)
     unpublished_page = repository_logic.paginate(
         unpublished_preprints.select_related("submission_type").order_by(
             "-date_submitted", "-pk"

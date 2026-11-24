@@ -1624,6 +1624,16 @@ def is_pdf_upload(request):
     )
 
 
+def search_preprints(preprints, search):
+    """Filters preprints to those whose title, author or ID matches."""
+    if not search:
+        return preprints
+    query = Q(title__icontains=search) | Q(pk__in=preprints_by_author(search))
+    if search.isdigit():
+        query |= Q(pk=search)
+    return preprints.filter(query)
+
+
 def preprints_by_author(search):
     """
     The pks of preprints with an author whose names contain every word of

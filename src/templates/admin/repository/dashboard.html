@@ -11,6 +11,18 @@
 
 {% block body %}
     <div class="box">
+        <div class="content">
+            <form method="GET" class="input-group" role="search" aria-label="Find your {{ request.repository.object_name_plural|lower }}">
+                <label for="dashboard-search" class="input-group-label">Find by title, author or ID</label>
+                <input class="input-group-field" type="search" id="dashboard-search" name="search" value="{{ search }}" autocomplete="off">
+                <div class="input-group-button">
+                    <button type="submit" class="button">Search</button>
+                </div>
+            </form>
+            {% if search %}<a href="{% url 'repository_dashboard' %}">Clear the search</a>{% endif %}
+        </div>
+    </div>
+    <div class="box">
         <div class="title-area">
             <h2>Submitted Preprints</h2>
         </div>
@@ -43,6 +55,7 @@
                         <td>{{ preprint.comment_count }}</td>
                     </tr>
                 {% empty %}
+                    <tr><td colspan="9">{% if search %}None match “{{ search }}”.{% else %}None yet.{% endif %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
@@ -80,6 +93,7 @@
                         </td>
                     </tr>
                 {% empty %}
+                    <tr><td colspan="4">{% if search %}None match “{{ search }}”.{% else %}None.{% endif %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>

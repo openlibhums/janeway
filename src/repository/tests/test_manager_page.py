@@ -95,3 +95,37 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
                 self.assertEqual(page.paginator.count, 30)
         page = self.get(search="Olive Nobody").context["published_page"]
         self.assertEqual(page.paginator.count, 0)
+
+
+@override_settings(URL_CONFIG="domain")
+class TestDashboardSearch(PreprintFrozenAuthorTestBase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.press.enable_preprints = True
+        cls.press.save()
+        for title in ("Sea levels", "Mountain soils"):
+            helpers.create_preprint(cls.repository, cls.owner, cls.subject, title=title)
+
+    def get(self, **params):
+        self.client.force_login(self.owner)
+        return self.client.get(
+            reverse("repository_dashboard"),
+            params,
+            SERVER_NAME=self.repository.domain,
+        )
+
+    def test_search_by_title_or_id(self):
+        target = rm.Preprint.objects.get(title="Sea levels")
+        for search in ("sea", str(target.pk)):
+            with self.subTest(search):
+                preprints = list(self.get(search=search).context["preprints"])
+                self.assertIn(target, preprints)
+                self.assertNotIn(
+                    rm.Preprint.objects.get(title="Mountain soils"), preprints
+                )
+
+    def test_no_match(self):
+        response = self.get(search="volcanoes")
+        self.assertEqual(len(response.context["preprints"].object_list), 0)
+        self.assertContains(response, "None match")
