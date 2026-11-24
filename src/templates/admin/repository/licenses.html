@@ -54,8 +54,12 @@
                                         {{ item.preprint_count }} {{ request.repository.object_name_plural|default:"preprints"|lower }}{% if item.article_count %}, {{ item.article_count }} article{{ item.article_count|pluralize }}{% endif %}
                                     </td>
                                     <td class="text-right">
+                                        {% if item.journal_id %}
+                                        <span class="label secondary">{% trans "A journal's licence" %}</span>
+                                        {% else %}
                                         <a class="tiny button" href="{% url 'repository_license_edit' item.pk %}"><span class="fa fa-edit" aria-hidden="true"></span> {% trans "Edit" %}<span class="show-for-sr"> {{ item.name }}</span></a>
                                         <a class="tiny alert button" href="{% url 'repository_license_delete' item.pk %}"><span class="fa fa-trash" aria-hidden="true"></span> {% trans "Delete" %}<span class="show-for-sr"> {{ item.name }}</span></a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% empty %}

@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -597,9 +598,12 @@ class ActiveLicenseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ActiveLicenseForm, self).__init__(*args, **kwargs)
+        offered = self.instance.active_licenses.all() if self.instance.pk else []
         self.fields[
             "active_licenses"
-        ].queryset = submission_models.Licence.objects.filter(journal=None)
+        ].queryset = submission_models.Licence.objects.filter(
+            Q(journal=None) | Q(pk__in=offered)
+        ).distinct()
         self.fields["active_licenses"].label_from_instance = self.label_from_instance
 
     @staticmethod
@@ -837,7 +841,6 @@ class RepositorySubmission(RepositoryBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Allow a pasted https://ror.org/ link; clean_host_ror_id trims it.
         field = self.fields["host_ror_id"]
         field.max_length = None
         field.validators = [

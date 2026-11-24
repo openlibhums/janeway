@@ -905,8 +905,6 @@ def preprints_manager(request):
     unpublished_count = unpublished_preprints.count()
     published_count = published_preprints.count()
 
-    # A repository can hold tens of thousands of preprints, so the tables
-    # are searched and paged here rather than rendered whole for datatables.
     search = request.GET.get("q", "").strip()
     if search:
         search_query = Q(title__icontains=search)
@@ -2828,7 +2826,9 @@ class RepositoryModerators(core_views.GenericFacetedListView):
 def press_licences(request):
     """The press-level licences a repository can offer, with use counts."""
     return (
-        submission_models.Licence.objects.filter(journal__isnull=True)
+        submission_models.Licence.objects.filter(
+            Q(journal__isnull=True) | Q(pk__in=request.repository.active_licenses.all())
+        )
         .annotate(
             preprint_count=Count("preprint", distinct=True),
             article_count=Count("article", distinct=True),
@@ -2870,7 +2870,6 @@ def repository_licenses(request, license_pk=None):
                 saved.press = request.press
             saved.save()
             if not licence:
-                # A new licence is one the manager means to offer.
                 request.repository.active_licenses.add(saved)
             messages.add_message(
                 request,
@@ -2898,7 +2897,10 @@ def repository_delete_license(request, license_pk):
     Deletes a press-level licence that nothing uses. One that preprints or
     articles use can only be made inactive, so they keep their licence.
     """
-    licence = get_object_or_404(press_licences(request), pk=license_pk)
+    licence = get_object_or_404(
+        press_licences(request).filter(journal__isnull=True),
+        pk=license_pk,
+    )
     in_use = licence.preprint_count or licence.article_count
     if request.POST and "delete" in request.POST and not in_use:
         name = licence.name
