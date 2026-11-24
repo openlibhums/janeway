@@ -549,7 +549,6 @@ class RepositoryOrganizationListView(GenericFacetedListView):
         # Exclude user-created organizations from search results
         queryset = queryset.exclude(custom_label__isnull=False)
         if self.request.repository.host_ror_id:
-            # The host institution is pinned above the results instead.
             queryset = queryset.exclude(ror_id=self.request.repository.host_ror_id)
         return queryset
 

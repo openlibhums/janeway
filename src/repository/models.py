@@ -117,7 +117,6 @@ def repo_media_upload(instance, filename):
 
 
 def validate_host_ror_id(ror_id):
-    # core.models is still loading when this module is imported.
     core_models.validate_ror_id(ror_id)
 
 
