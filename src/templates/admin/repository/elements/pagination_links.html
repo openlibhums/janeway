@@ -1,24 +1,35 @@
 {% load pages %}
 {% if page_obj.paginator.num_pages > 1 %}
     <nav aria-label="{{ label|default:'Pagination' }}">
-        <ul class="pagination">
+        <ul class="pagination text-center">
             {% if page_obj.has_previous %}
-                <li>
-                    <a href="{% page_param_query param page_obj.previous_page_number %}" rel="prev">
-                        {% include "elements/icons/page_previous.html" %}
-                    </a>
+                <li class="pagination-previous">
+                    <a href="{% page_param_query param page_obj.previous_page_number %}" rel="prev">{% trans "Previous" %}<span class="show-for-sr"> {% trans "page" %}</span></a>
                 </li>
+            {% else %}
+                <li class="pagination-previous disabled">{% trans "Previous" %}<span class="show-for-sr"> {% trans "page" %}</span></li>
             {% endif %}
-            <li class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            </li>
+
+            {% for page in page_obj|slice_pages_with_first_last_ellipsis:2 %}
+                {% if page == "..." %}
+                    <li class="ellipsis" aria-hidden="true"></li>
+                {% elif page.number == page_obj.number %}
+                    <li class="current" aria-current="page"><span class="show-for-sr">{% trans "You're on page" %}</span> {{ page.number }}</li>
+                {% else %}
+                    <li><a href="{% page_param_query param page.number %}" aria-label="{% trans 'Page' %} {{ page.number }}">{{ page.number }}</a></li>
+                {% endif %}
+            {% endfor %}
+
             {% if page_obj.has_next %}
-                <li class="arrow">
-                    <a href="{% page_param_query param page_obj.next_page_number %}" rel="next">
-                        {% include "elements/icons/page_next.html" %}
-                    </a>
+                <li class="pagination-next">
+                    <a href="{% page_param_query param page_obj.next_page_number %}" rel="next">{% trans "Next" %}<span class="show-for-sr"> {% trans "page" %}</span></a>
                 </li>
+            {% else %}
+                <li class="pagination-next disabled">{% trans "Next" %}<span class="show-for-sr"> {% trans "page" %}</span></li>
             {% endif %}
         </ul>
+        <p class="text-center help-text">
+            {% blocktrans with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}Showing {{ start }}–{{ end }} of {{ total }}{% endblocktrans %}
+        </p>
     </nav>
 {% endif %}
