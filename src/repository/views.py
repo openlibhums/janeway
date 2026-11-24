@@ -907,7 +907,9 @@ def preprints_manager(request):
 
     search = request.GET.get("search", "").strip()
     if search:
-        search_query = Q(title__icontains=search)
+        search_query = Q(title__icontains=search) | Q(
+            pk__in=repository_logic.preprints_by_author(search)
+        )
         if search.isdigit():
             search_query |= Q(pk=search)
         unpublished_preprints = unpublished_preprints.filter(search_query)

@@ -1624,6 +1624,24 @@ def is_pdf_upload(request):
     )
 
 
+def preprints_by_author(search):
+    """
+    The pks of preprints with an author whose names contain every word of
+    the search, or whose email is the search.
+    """
+    names = Q()
+    for word in search.split():
+        names &= (
+            Q(first_name__icontains=word)
+            | Q(middle_name__icontains=word)
+            | Q(last_name__icontains=word)
+        )
+    return submission_models.FrozenAuthor.objects.filter(
+        names | Q(frozen_email__iexact=search) | Q(author__email__iexact=search),
+        preprint__isnull=False,
+    ).values("preprint_id")
+
+
 def paginate(queryset, page, per_page=15):
     """Returns a single page of queryset, tolerating a bad page number.
 

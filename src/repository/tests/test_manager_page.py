@@ -87,3 +87,11 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
         before = self.page_queries()
         self.add_unpublished(range(32, 42))
         self.assertEqual(self.page_queries(), before)
+
+    def test_search_by_author(self):
+        for search in ("Olive Owner", "owner", "frozen_owner@janeway.systems"):
+            with self.subTest(search):
+                page = self.get(search=search).context["published_page"]
+                self.assertEqual(page.paginator.count, 30)
+        page = self.get(search="Olive Nobody").context["published_page"]
+        self.assertEqual(page.paginator.count, 0)
