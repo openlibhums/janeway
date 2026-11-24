@@ -1,13 +1,13 @@
 {% extends "admin/core/base.html" %}
 
-{% block title %}{% trans "Moderators" %} | {{ request.repository.name }}{% endblock %}
-{% block title-section %}{{ request.repository.name }} {% trans "Moderators" %}{% endblock %}
+{% block title %}{% trans "Moderators and managers" %} | {{ request.repository.name }}{% endblock %}
+{% block title-section %}{{ request.repository.name }} {% trans "Moderators and managers" %}{% endblock %}
 {% block title-sub %}Moderators handle submissions, updates, comments and reviews. Managers can also configure the repository.{% endblock %}
 
 {% block breadcrumbs %}
   <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
   <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
-  <li>{% trans "Moderators" %}</li>
+  <li>{% trans "Moderators and managers" %}</li>
 {% endblock %}
 
 {% block body %}
@@ -17,12 +17,12 @@
       <aside class="box">
         <p>
           {% if searching %}
-            Showing every account that matches. Choose <strong>Make moderator</strong> to add someone.
+            Showing every account that matches. Choose <strong>Make moderator</strong> or <strong>Make manager</strong> to add someone.
           {% else %}
-            Showing the people who moderate {{ request.repository.name }}. To add someone, search for them by name or email.
+            Showing the moderators and managers of {{ request.repository.name }}. To add someone, search for them by name or email.
           {% endif %}
         </p>
-        <p>Managers can moderate already, so they don't need to be made moderators.</p>
+        <p>Managers can moderate already, so they don't need to be made moderators too.</p>
       </aside>
     </div>
     <div class="box">
@@ -57,18 +57,31 @@
             <div class="flex portrait-column gap-2">
               <div>
                 <h4 class="uppercase">{% trans "Actions" %}</h4>
-                <form method="POST">
+                <form method="POST" class="flex portrait-row landscape-column gap-0-5 items-start">
                   {% csrf_token %}
                   <input type="hidden" name="params_string" value="{{ params_string }}">
                   {% if account.is_moderator %}
                     <button class="small button alert flex gap-0-25" name="remove_moderator" value="{{ account.pk }}" type="submit">
                       <span class="fa fa-user-times" aria-hidden="true"></span>
-                      {% trans "Remove moderator" %}
+                      {% trans "Remove moderator" %}<span class="show-for-sr"> {{ account.full_name }}</span>
                     </button>
                   {% elif not account.is_manager %}
                     <button class="small button flex gap-0-25" name="add_moderator" value="{{ account.pk }}" type="submit">
                       <span class="fa fa-user-plus" aria-hidden="true"></span>
-                      {% trans "Make moderator" %}
+                      {% trans "Make moderator" %}<span class="show-for-sr"> {{ account.full_name }}</span>
+                    </button>
+                  {% endif %}
+                  {% if account.is_manager %}
+                    {% if account != request.user or request.user.is_staff %}
+                      <button class="small button alert flex gap-0-25" name="remove_manager" value="{{ account.pk }}" type="submit">
+                        <span class="fa fa-user-times" aria-hidden="true"></span>
+                        {% trans "Remove manager" %}<span class="show-for-sr"> {{ account.full_name }}</span>
+                      </button>
+                    {% endif %}
+                  {% else %}
+                    <button class="small button secondary flex gap-0-25" name="add_manager" value="{{ account.pk }}" type="submit">
+                      <span class="fa fa-cog" aria-hidden="true"></span>
+                      {% trans "Make manager" %}<span class="show-for-sr"> {{ account.full_name }}</span>
                     </button>
                   {% endif %}
                 </form>

@@ -1,6 +1,5 @@
 {% extends "admin/core/base.html" %}
 {% load foundation %}
-{% load static %}
 
 {% block title %}{% if request.repository %}Edit Repository{% else %}Create New Repository{% endif %}{% endblock %}
 {% block title-section %}Repository Wizard &#x1F9D9; {% endblock %}
@@ -94,16 +93,3 @@
     {% include 'admin/elements/history_modal.html' with obj=repository view_url="admin:repository_repository_history" %}
 {% endblock %}
 
-{% block js %}
-    {% if step == '3' %}
-        <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
-        <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
-        <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
-        <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
-        <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
-        <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
-
-        <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
-        <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
-    {% endif %}
-{% endblock %}

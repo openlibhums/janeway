@@ -2,7 +2,6 @@ from django import forms
 from django.db.models import Q
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext_lazy as _
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.utils.text import slugify
 from django.urls import resolve, Resolver404
 from tinymce.widgets import TinyMCE
@@ -818,8 +817,6 @@ class RepositorySubmission(RepositoryBase):
             "limit_upload_to_pdf",
             "require_pdf_help",
             "additional_version_help",
-            "managers",
-            "moderators",
         )
 
         widgets = {
@@ -827,16 +824,6 @@ class RepositorySubmission(RepositoryBase):
             "submission_agreement": TinyMCE,
             "file_upload_help": TinyMCE,
             "additional_version_help": TinyMCE,
-            "managers": FilteredSelectMultiple(
-                "Accounts",
-                False,
-                attrs={"rows": "2"},
-            ),
-            "moderators": FilteredSelectMultiple(
-                "Accounts",
-                False,
-                attrs={"rows": "2"},
-            ),
         }
 
     def __init__(self, *args, **kwargs):

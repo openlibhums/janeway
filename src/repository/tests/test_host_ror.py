@@ -66,17 +66,7 @@ class TestHostRorId(PreprintFrozenAuthorTestBase):
         data = forms.RepositorySubmission(
             instance=self.repository, press=self.press
         ).initial
-        data = {
-            key: value
-            for key, value in data.items()
-            if key not in ("managers", "moderators")
-        }
-        data.update(
-            {
-                "managers": [self.manager.pk],
-                "host_ror_id": value,
-            }
-        )
+        data["host_ror_id"] = value
         return forms.RepositorySubmission(
             data, instance=self.repository, press=self.press
         )
@@ -91,3 +81,8 @@ class TestHostRorId(PreprintFrozenAuthorTestBase):
     def test_settings_reject_unknown_or_bad_ror_ids(self):
         self.assertIn("host_ror_id", self.form("05xg72x27").errors)
         self.assertIn("host_ror_id", self.form("not-a-ror").errors)
+
+    def test_submission_details_no_longer_edit_people(self):
+        form = forms.RepositorySubmission(instance=self.repository, press=self.press)
+        self.assertNotIn("managers", form.fields)
+        self.assertNotIn("moderators", form.fields)

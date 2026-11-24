@@ -2730,8 +2730,8 @@ def manage_reviewers(request):
 @method_decorator(is_repository_manager, name="dispatch")
 class RepositoryModerators(core_views.GenericFacetedListView):
     """
-    Lets repository managers find accounts and make them moderators.
-    Without a search or filter it lists the people who already moderate.
+    Lets repository managers find accounts and make them moderators or
+    managers. Without a search or filter it lists the current ones.
     """
 
     model = core_models.Account
@@ -2803,23 +2803,44 @@ class RepositoryModerators(core_views.GenericFacetedListView):
         context["searching"] = self.is_searching(self.request.GET)
         return context
 
+    ROLE_ACTIONS = {
+        "add_moderator": ("moderators", True, _("{account} is now a moderator.")),
+        "remove_moderator": (
+            "moderators",
+            False,
+            _("{account} is no longer a moderator."),
+        ),
+        "add_manager": ("managers", True, _("{account} is now a manager.")),
+        "remove_manager": ("managers", False, _("{account} is no longer a manager.")),
+    }
+
     def post(self, request, *args, **kwargs):
-        account_id = request.POST.get("add_moderator") or request.POST.get(
-            "remove_moderator"
-        )
-        if account_id:
-            account = get_object_or_404(core_models.Account, pk=account_id)
-            if "add_moderator" in request.POST:
-                request.repository.moderators.add(account)
-                message = _("{account} is now a moderator.")
+        for action, (role, add, message) in self.ROLE_ACTIONS.items():
+            if action not in request.POST:
+                continue
+            account = get_object_or_404(
+                core_models.Account,
+                pk=request.POST.get(action),
+            )
+            if action == "remove_manager" and account == request.user:
+                if not request.user.is_staff:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        _("You can't remove yourself as a manager."),
+                    )
+                    break
+            members = getattr(request.repository, role)
+            if add:
+                members.add(account)
             else:
-                request.repository.moderators.remove(account)
-                message = _("{account} is no longer a moderator.")
+                members.remove(account)
             messages.add_message(
                 request,
                 messages.SUCCESS,
                 message.format(account=account.full_name() or account.email),
             )
+            break
         return super().post(request, *args, **kwargs)
 
 

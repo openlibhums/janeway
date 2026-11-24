@@ -126,3 +126,16 @@ class TestModeratorsPage(PreprintFrozenAuthorTestBase):
         self.assertIn(self.candidate, self.repository.moderators.all())
         self.post(remove_moderator=self.candidate.pk)
         self.assertNotIn(self.candidate, self.repository.moderators.all())
+
+    def test_add_and_remove_a_manager(self):
+        self.post(add_manager=self.candidate.pk)
+        self.assertIn(self.candidate, self.repository.managers.all())
+        self.post(remove_manager=self.candidate.pk)
+        self.assertNotIn(self.candidate, self.repository.managers.all())
+
+    def test_managers_cannot_remove_themselves(self):
+        response = self.post(remove_manager=self.manager.pk)
+        self.assertIn(self.manager, self.repository.managers.all())
+        self.assertEqual(response.status_code, 302)
+        page = self.get()
+        self.assertNotContains(page, f'name="remove_manager" value="{self.manager.pk}"')

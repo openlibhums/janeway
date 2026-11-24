@@ -119,7 +119,7 @@
                     </div>
                     {% endif %}
                     <div class="summary">
-                        <span class="title">{{ request.repository.moderators.count }} Moderators</span>
+                        <span class="title">{{ request.repository.moderators.count }} Moderators, {{ request.repository.managers.count }} Managers</span>
                         <a href="{% url 'repository_moderators' %}" class="box-link"></a>
                     </div>
                     {% endif %}
