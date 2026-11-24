@@ -997,7 +997,9 @@ class CBVFacetForm(forms.Form):
             elif facet["type"] == "search":
                 self.fields[facet_key] = forms.CharField(
                     required=False,
-                    widget=forms.TextInput(attrs={"type": "search"}),
+                    widget=forms.TextInput(
+                        attrs={"type": "search", "autocomplete": "off"}
+                    ),
                 )
 
             elif facet["type"] == "boolean":
