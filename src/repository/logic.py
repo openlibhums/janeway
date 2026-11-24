@@ -1492,6 +1492,22 @@ def duplicate_accounts(authors):
     return {account for account in accounts if accounts.count(account) > 1}
 
 
+def draft_changed_sections(update):
+    """The sections a draft update changes so far, in UPDATE_SECTIONS order."""
+    checksums = update_checksums(update)
+    return [
+        section
+        for section in models.VersionQueue.UPDATE_SECTIONS
+        if (
+            # A draft started before a section existed doesn't change it.
+            section in update.started_from
+            and checksums.get(section, update.started_from.get(section))
+            != update.started_from.get(section)
+        )
+        or (section == "file" and update.file)
+    ]
+
+
 def submit_update(update):
     """
     Puts a draft update in the moderation queue, recording the sections the
@@ -1514,18 +1530,7 @@ def submit_update(update):
         if update.update_type != "metadata_correction" and not update.file:
             return _("You must upload a file.")
 
-        checksums = update_checksums(update)
-        update.changed_sections = [
-            section
-            for section in models.VersionQueue.UPDATE_SECTIONS
-            if (
-                # A draft started before a section existed doesn't change it.
-                section in update.started_from
-                and checksums.get(section, update.started_from.get(section))
-                != update.started_from.get(section)
-            )
-            or (section == "file" and update.file)
-        ]
+        update.changed_sections = draft_changed_sections(update)
         update.is_draft = False
         update.date_submitted = timezone.now()
         update.save()

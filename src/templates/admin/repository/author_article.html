@@ -325,17 +325,35 @@
                         <a class="button" href="{% url 'repository_update_draft' preprint.pk draft_update.pk %}">
                             <span class="fa fa-edit"></span> {% trans "Continue draft update" %}
                         </a>
-                        <p>{% trans "Choosing a type below also continues it, as that type. A metadata correction cannot change the file, so choosing one removes any file uploaded to the draft." %}</p>
+                        <p class="help-text">{% trans "Choosing a type below continues it as that type instead. Details only can't change the file, so choosing it removes any file uploaded to the draft." %}</p>
                     </div>
                 {% endif %}
-                <p>{% trans "Choose the type of update:" %}</p>
+                <h3 class="h5">{% if draft_update %}{% trans "Or start it again as" %}{% else %}{% trans "What do you want to update?" %}{% endif %}</h3>
                 <form method="POST">
                     {% csrf_token %}
-                    <ol>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'correction' %}">{% trans "Correction" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}A small update. You can change the file, the details and the {{ files }}.{% endblocktrans %}</li>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'version' %}">{% trans "New Version" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}A large update. You can change the file, the details and the {{ files }}.{% endblocktrans %}</li>
-                        <li><button class="button clear no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">{% trans "Metadata Correction" %}</button> - {% blocktrans with files=request.repository.files_label|lower %}You can change the details and the {{ files }}, but not the file.{% endblocktrans %}</li>
-                    </ol>
+                    <div class="row small-up-1 medium-up-3 update-types" data-equalizer>
+                        <div class="column">
+                            <div class="callout" data-equalizer-watch>
+                                <h4 class="h6"><strong>{% trans "Correction" %}</strong></h4>
+                                <p>{% blocktrans with files=request.repository.files_label|lower %}Fix a small mistake. You can change the file, the details and the {{ files }}.{% endblocktrans %}</p>
+                                <button class="button expanded no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'correction' %}">{% trans "Start a correction" %}</button>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="callout" data-equalizer-watch>
+                                <h4 class="h6"><strong>{% trans "New version" %}</strong></h4>
+                                <p>{% blocktrans with files=request.repository.files_label|lower %}A substantially revised work. You can change the file, the details and the {{ files }}.{% endblocktrans %}</p>
+                                <button class="button expanded no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'version' %}">{% trans "Start a new version" %}</button>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="callout" data-equalizer-watch>
+                                <h4 class="h6"><strong>{% trans "Details only" %}</strong></h4>
+                                <p>{% blocktrans with files=request.repository.files_label|lower %}Change the details and the {{ files }}, but keep the file as it is.{% endblocktrans %}</p>
+                                <button class="button expanded no-bottom-margin" formaction="{% url 'repository_submit_update' preprint.pk 'metadata_correction' %}">{% trans "Update the details" %}</button>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             {% endif %}
         </div>

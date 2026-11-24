@@ -1,0 +1,38 @@
+{% load i18n %}
+<div id="update-summary"
+     hx-get="{% url 'repository_update_draft' preprint.pk draft.pk %}?partial=summary"
+     hx-trigger="htmx:afterRequest[detail.successful && !detail.elt.closest('#update-summary')] from:body"
+     hx-swap="outerHTML">
+  <nav aria-labelledby="update-sections-heading">
+    <h2 id="update-sections-heading" class="h5">{% trans "Sections" %}</h2>
+    <ul class="list-no-bullet update-sections">
+      {% for section in update_sections %}
+        <li>
+          <a href="#{{ section.id }}">{{ section.label }}</a>
+          {% if section.changed %}
+            <span class="label success">{% trans "Changed" %}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+  <h2 class="h5">{% trans "Review and submit" %}</h2>
+  {% if changes %}
+    <p>{% trans "This update changes:" %}</p>
+    <ul>
+      {% for change in changes %}<li>{{ change|capfirst }}</li>{% endfor %}
+    </ul>
+  {% else %}
+    <p>{% trans "Nothing has changed yet." %}</p>
+  {% endif %}
+  <div class="flex direction-column gap-0-5">
+    <button name="submit_update" class="success button expanded" form="update-details-form">
+      <span class="fa fa-paper-plane" aria-hidden="true"></span> {% trans "Submit for moderation" %}
+    </button>
+    <button name="discard_draft" class="button alert hollow expanded" form="update-details-form" formnovalidate
+            onclick="return confirm('{% filter escapejs %}{% trans "Discard this draft update?" %}{% endfilter %}');">
+      <span class="fa fa-trash" aria-hidden="true"></span> {% trans "Discard draft" %}
+    </button>
+  </div>
+  <p class="help-text">{% blocktrans with object=request.repository.object_name %}Nothing changes on your {{ object }} until a moderator approves the update.{% endblocktrans %}</p>
+</div>

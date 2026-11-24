@@ -2,6 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from repository import logic as repository_logic, models as rm
 from repository.tests.test_frozen_authors import PreprintFrozenAuthorTestBase
@@ -392,3 +393,46 @@ class TestUpdateViews(VersionUpdateTestBase):
         self.assertEqual(
             self.names(response.context["author_changes"].added), ["Coral B Author"]
         )
+
+
+@override_settings(URL_CONFIG="domain")
+class TestDraftPageLayout(TestUpdateViews):
+    def test_sections_menu_and_nothing_changed_yet(self):
+        update = self.start("metadata_correction")
+        response = self.get(self.draft_url(update))
+        self.assertContains(response, 'href="#update-details"')
+        self.assertContains(response, 'href="#update-authors"')
+        self.assertNotContains(response, 'href="#update-file"')
+        self.assertContains(response, "Nothing has changed yet.")
+        self.assertContains(response, 'form="update-details-form"')
+
+    def test_summary_lists_changes(self):
+        update = self.start("metadata_correction")
+        update.title = "A clearer title"
+        update.save()
+        response = self.get(self.draft_url(update) + "?partial=summary")
+        self.assertTemplateUsed(
+            response, "admin/repository/elements/update_summary.html"
+        )
+        self.assertContains(response, "This update changes:")
+        self.assertContains(response, "Title")
+        self.assertEqual(response.context["changes"], ["title"])
+
+    def test_versions_have_a_file_section(self):
+        update = self.start("version")
+        response = self.get(self.draft_url(update))
+        self.assertContains(response, 'href="#update-file"')
+
+    def test_record_page_offers_three_update_types(self):
+        self.preprint.stage = rm.STAGE_PREPRINT_PUBLISHED
+        self.preprint.date_published = timezone.now()
+        self.preprint.save()
+        response = self.get(
+            reverse("repository_author_article", args=[self.preprint.pk])
+        )
+        for label in (
+            "Start a correction",
+            "Start a new version",
+            "Update the details",
+        ):
+            self.assertContains(response, label)

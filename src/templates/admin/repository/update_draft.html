@@ -12,15 +12,85 @@
     <li>{% trans "Draft update" %}</li>
 {% endblock %}
 
+{% block css %}
+{{ block.super }}
+<style>
+    @media screen and (min-width: 64em) {
+        .update-draft .update-summary-box { position: sticky; top: 1rem; }
+    }
+    .update-draft .update-sections li { margin-bottom: 0.25rem; }
+</style>
+{% endblock css %}
+
 {% block body %}
-<div class="box">
-    <div class="row expanded">
-        <div class="large-6 columns">
-            <div class="padding-block-end-2">
+<div class="row expanded update-draft">
+    <div class="large-3 columns">
+        <div class="box update-summary-box">
+            <div class="content">
+                {% include "admin/repository/elements/update_summary.html" %}
+            </div>
+        </div>
+    </div>
+    <div class="large-9 columns">
+        <div class="callout primary">
+            <p><strong>{{ draft.get_update_type_display }}.</strong>
+            {% blocktrans with object=request.repository.object_name %}Change what you need to, then submit the update for moderation from the panel. Details have a Save button; everything else saves as you change it. Nothing changes on your {{ object }} until a moderator approves the update.{% endblocktrans %}</p>
+            {% if request.repository.limit_upload_to_pdf and action != "metadata_correction" %}
+                <p>{% blocktrans with name=request.repository.name %}{{ name }} limits upload types to PDF.{% endblocktrans %}</p>
+            {% endif %}
+            {% if request.repository.additional_version_help %}
+                {{ request.repository.additional_version_help|safe }}
+            {% endif %}
+        </div>
+
+        {% if file_form %}
+            <section class="box" id="update-file" data-draft-file>
                 <div class="title-area">
-                    <h2>{% trans "Details" %}</h2>
+                    <h2>{% trans "File" %}</h2>
                 </div>
-                <form method="POST" id="update-details" data-unsaved-warning>
+                <div class="content">
+                    {% if draft.file %}
+                        <div class="callout success">
+                            <p class="no-bottom-margin">
+                                <span class="fa fa-file" aria-hidden="true"></span>
+                                {% trans "Uploaded for this update" %}: <strong>{{ draft.file.original_filename }}</strong>
+                            </p>
+                        </div>
+                    {% else %}
+                        <p>{% trans "Upload the file for this update. It's saved with the draft straight away." %}</p>
+                    {% endif %}
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include "admin/elements/forms/errors.html" with form=file_form %}
+                        {{ file_form|foundation }}
+                        <button name="upload_file" class="button">
+                            <span class="fa fa-upload" aria-hidden="true"></span>
+                            {% if draft.file %}{% trans "Replace file" %}{% else %}{% trans "Upload file" %}{% endif %}
+                        </button>
+                    </form>
+                    {% if file_access_form %}
+                        <h3>{% trans "Who can download the new file" %}</h3>
+                        <p class="help-text">{% blocktrans trimmed %}
+                            It starts with the current file's access. If the publisher sets an
+                            embargo, give its end date; the moderator checks this.
+                        {% endblocktrans %}</p>
+                        <form method="POST" data-file-access>
+                            {% csrf_token %}
+                            {% include "admin/elements/forms/errors.html" with form=file_access_form %}
+                            {{ file_access_form|foundation }}
+                            <button name="save_file_access" class="button">{% trans "Save access" %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="box" id="update-details">
+            <div class="title-area">
+                <h2>{% trans "Details" %}</h2>
+            </div>
+            <div class="content">
+                <form method="POST" id="update-details-form" data-unsaved-warning>
                     {% csrf_token %}
                     {% include "admin/elements/forms/errors.html" with form=version_form %}
                     {{ version_form|foundation }}
@@ -29,80 +99,39 @@
                         {% include "admin/elements/forms/errors.html" with form=field_form %}
                         {{ field_form|foundation }}
                     {% endif %}
-                    {# The first button, so pressing Enter in a field saves rather than submits. #}
-                    <button name="save_draft" class="button secondary">
-                        <span class="fa fa-save"></span> {% trans "Save draft" %}
+                    <button name="save_draft" class="button">
+                        <span class="fa fa-save" aria-hidden="true"></span> {% trans "Save details" %}
                     </button>
                 </form>
             </div>
-            {% if file_form %}
-                <div class="padding-block-end-2" data-draft-file>
-                    <div class="title-area">
-                        <h2>{% trans "File" %}</h2>
-                    </div>
-                    {% if draft.file %}
-                        <div class="callout success">
-                            <p class="no-bottom-margin">
-                                <span class="fa fa-file"></span>
-                                {% trans "Uploaded for this update" %}: <strong>{{ draft.file.original_filename }}</strong>
-                            </p>
-                        </div>
-                        {% if file_access_form %}
-                            <h3>{% trans "Who can download the new file" %}</h3>
-                            <p><small>{% blocktrans trimmed %}
-                                It starts with the current file's access. If the publisher sets an
-                                embargo, give its end date; the moderator checks this.
-                            {% endblocktrans %}</small></p>
-                            <form method="POST" data-file-access>
-                                {% csrf_token %}
-                                {% include "admin/elements/forms/errors.html" with form=file_access_form %}
-                                {{ file_access_form|foundation }}
-                                <button name="save_file_access" class="button">{% trans "Save access" %}</button>
-                            </form>
-                        {% endif %}
-                    {% else %}
-                        <p>{% trans "Upload the file for this update. It is saved with the draft straight away." %}</p>
-                    {% endif %}
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {% include "admin/elements/forms/errors.html" with form=file_form %}
-                        {{ file_form|foundation }}
-                        <button name="upload_file" class="button">
-                            <span class="fa fa-upload"></span>
-                            {% if draft.file %}{% trans "Replace file" %}{% else %}{% trans "Upload file" %}{% endif %}
-                        </button>
-                    </form>
-                </div>
-            {% endif %}
-            {% include "admin/repository/elements/update_additional_files.html" %}
-            {% include "admin/repository/elements/funding_editor.html" %}
-            {% if request.repository.is_institutional %}{% include "admin/repository/elements/publication_details_editor.html" %}{% endif %}
-            {% include "admin/repository/elements/author_list_editor.html" %}
-            <div class="button-group padding-block-2">
-                <button name="submit_update" class="success button" form="update-details">
-                    <span class="fa fa-paper-plane"></span> {% trans "Submit update for moderation" %}
-                </button>
-                <button name="discard_draft" class="button alert hollow" form="update-details" formnovalidate
-                        onclick="return confirm('{% filter escapejs %}{% trans "Discard this draft update?" %}{% endfilter %}');">
-                    <span class="fa fa-trash"></span> {% trans "Discard draft" %}
-                </button>
-            </div>
-        </div>
-        <div class="large-6 columns">
-            <div class="title-area">
-                <h2>{% trans "Information" %}</h2>
-            </div>
+        </section>
+
+        <section class="box" id="update-authors">
             <div class="content">
-                <p>{% blocktrans with object=request.repository.object_name %}This is a draft. Change the authors and details, then submit the update for moderation. Nothing changes on your {{ object }} until a moderator approves the update.{% endblocktrans %}</p>
-                {% if request.repository.limit_upload_to_pdf and action != "metadata_correction" %}
-                    <p>{% blocktrans with name=request.repository.name %}{{ name }} limits upload types to PDF.{% endblocktrans %}</p>
-                {% endif %}
-                {% if request.repository.additional_version_help %}
-                    {{ request.repository.additional_version_help|safe }}
-                {% endif %}
+                {% include "admin/repository/elements/author_list_editor.html" %}
+                {% include "admin/repository/elements/author_list_sidebar.html" %}
             </div>
-            {% include "admin/repository/elements/author_list_sidebar.html" %}
-        </div>
+        </section>
+
+        <section class="box">
+            <div class="content">
+                {% include "admin/repository/elements/update_additional_files.html" %}
+            </div>
+        </section>
+
+        <section class="box">
+            <div class="content">
+                {% include "admin/repository/elements/funding_editor.html" %}
+            </div>
+        </section>
+
+        {% if request.repository.is_institutional %}
+            <section class="box">
+                <div class="content">
+                    {% include "admin/repository/elements/publication_details_editor.html" %}
+                </div>
+            </section>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -114,7 +143,7 @@
         // Other actions on this page reload it, so warn before unsaved
         // details are lost.
         (function () {
-            var form = document.getElementById("update-details");
+            var form = document.getElementById("update-details-form");
             // Values shown again after a validation error are not saved yet.
             var changed = {% if version_form.errors or field_form.errors %}true{% else %}false{% endif %};
             var submitting = false;

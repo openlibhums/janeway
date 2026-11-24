@@ -268,6 +268,43 @@ def repository_submit_update(request, preprint_id, action):
     )
 
 
+def update_summary_context(request, preprint, draft):
+    """The draft page's section menu and list of changes so far."""
+    changed = repository_logic.draft_changed_sections(draft)
+    takes_file = draft.update_type != "metadata_correction"
+    details = {"title", "abstract", "published_doi", "field_answers"}
+    sections = []
+    if takes_file:
+        sections.append(("update-file", _("File"), "file" in changed))
+    sections += [
+        ("update-details", _("Details"), bool(details & set(changed))),
+        ("update-authors", _("Authors"), "authors" in changed),
+        (
+            "additional-files",
+            request.repository.files_label,
+            "supplementary_files" in changed,
+        ),
+        ("funding-editor", _("Funding"), "funding" in changed),
+    ]
+    if request.repository.is_institutional:
+        sections.append(
+            (
+                "publication-details",
+                _("Publication details"),
+                "publication_details" in changed,
+            )
+        )
+    return {
+        "preprint": preprint,
+        "draft": draft,
+        "update_sections": [
+            {"id": id_, "label": label, "changed": is_changed}
+            for id_, label, is_changed in sections
+        ],
+        "changes": [models.VersionQueue.SECTION_LABELS[s] for s in changed],
+    }
+
+
 @preprint_editor_or_author_required
 @transaction.atomic
 def repository_update_draft(request, preprint_id, update_id):
@@ -276,6 +313,12 @@ def repository_update_draft(request, preprint_id, update_id):
     field answers and author list, then submits it for moderation.
     """
     preprint, draft = get_draft_update(request, preprint_id, update_id)
+    if request.method == "GET" and request.GET.get("partial") == "summary":
+        return render(
+            request,
+            "admin/repository/elements/update_summary.html",
+            update_summary_context(request, preprint, draft),
+        )
     author_list = repository_logic.PreprintAuthorList(preprint, draft)
     this_url = reverse(
         "repository_update_draft",
@@ -397,6 +440,7 @@ def repository_update_draft(request, preprint_id, update_id):
         }
     )
     context.update(additional_files_context(preprint, draft))
+    context.update(update_summary_context(request, preprint, draft))
     if request.repository.is_institutional:
         context.update(
             publication_details_context(
