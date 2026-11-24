@@ -11,7 +11,7 @@
 {% block body %}
     <div class="rummage-portal">
         <div>
-            <a class="expanded button" href="{% url 'repository_submit' %}"><span class="fa fa-plus" aria-hidden="true"></span> Start a new submission</a>
+            <a class="expanded button inbox-new" href="{% url 'repository_submit' %}"><span class="fa fa-plus" aria-hidden="true"></span> Start a new submission</a>
             <div class="box">
                 {% include "admin/repository/elements/status_folders.html" with label=request.repository.object_name_plural %}
             </div>
@@ -21,14 +21,12 @@
             <div class="title-area">
                 <h2>{{ active_tab.label }}</h2>
             </div>
-            {% for preprint in page %}
-                <div class="line-item">
-                    <div class="flex space-between gap-1">
-                        <strong>{{ preprint.title|striptags|default:"[No title]" }}</strong>
-                        <small title="{{ active_tab.date_label }}">{{ active_tab.date_label }} {{ preprint.tab_date|date:"j M Y" }}</small>
-                    </div>
-                    <div class="flex space-between gap-1 items-center">
-                        <small>
+            <div class="inbox-list">
+                {% for preprint in page %}
+                    <div class="inbox-row">
+                        <span class="inbox-from">{{ preprint.title|striptags|default:"[No title]" }}</span>
+                        <span class="inbox-date">{{ active_tab.date_label }} {{ preprint.tab_date|date:"j M Y" }}</span>
+                        <span class="inbox-subject inbox-meta">
                             {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}
                             {% if active_tab.key == "review" %} · {% if preprint.date_accepted %}Accepted{% else %}Under consideration{% endif %}{% endif %}
                             {% if active_tab.key == "published" %}
@@ -36,22 +34,21 @@
                                 · <span class="fa fa-download" aria-hidden="true"></span> {{ preprint.download_count }} download{{ preprint.download_count|pluralize }}
                                 · <span class="fa fa-comment" aria-hidden="true"></span> {{ preprint.comment_count }} comment{{ preprint.comment_count|pluralize }}
                             {% endif %}
-                        </small>
+                        </span>
                         {% if active_tab.key == "drafts" %}
-                            <form method="POST" class="flex gap-0-5">
+                            <form method="POST" class="inbox-actions flex gap-0-5">
                                 {% csrf_token %}
                                 <a class="tiny button" href="{% url 'repository_submit_with_id' preprint.pk %}">Continue<span class="show-for-sr"> {{ preprint.title|striptags }}</span></a>
                                 <button class="tiny alert button delete" name="delete" value="{{ preprint.pk }}">Delete<span class="show-for-sr"> {{ preprint.title|striptags }}</span></button>
                             </form>
+                        {% else %}
+                            <a class="box-link" href="{% url 'repository_author_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
                         {% endif %}
                     </div>
-                    {% if active_tab.key != "drafts" %}
-                        <a class="box-link" href="{% url 'repository_author_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p>Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
-            {% endfor %}
+                {% empty %}
+                    <p class="inbox-row">Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
+                {% endfor %}
+            </div>
             {% include "admin/repository/elements/pagination_links.html" with page_obj=page param="page" label="Pages" %}
         </div>
     </div>

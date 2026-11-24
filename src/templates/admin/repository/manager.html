@@ -21,11 +21,11 @@
                 <div class="title-area">
                     <h2>Other queues</h2>
                 </div>
-                <nav aria-label="Other queues">
+                <nav class="inbox-folders" aria-label="Other queues">
                     <ul class="menu vertical menu-hover">
-                        <li><a href="{% url 'version_queue' %}"><span class="flex space-between items-center"><span>Versions</span><span class="badge{% if not version_queue %} secondary{% endif %}">{{ version_queue|length }}</span></span></a></li>
+                        <li><a href="{% url 'version_queue' %}"><span class="flex space-between items-center"><span>Versions</span><span class="badge">{{ version_queue|length }}</span></span></a></li>
                         {% if request.repository.enable_comments %}
-                            <li><a href="{% url 'repository_manager_comment_list' %}"><span class="flex space-between items-center"><span>Comments</span><span class="badge{% if not comments_awaiting_moderation %} secondary{% endif %}">{{ comments_awaiting_moderation.count }}</span></span></a></li>
+                            <li><a href="{% url 'repository_manager_comment_list' %}"><span class="flex space-between items-center"><span>Comments</span><span class="badge">{{ comments_awaiting_moderation.count }}</span></span></a></li>
                         {% endif %}
                         {% if request.repository.is_institutional and request.repository.request_copy %}
                             <li><a href="{% url 'repository_copy_requests' %}">Requests for a copy</a></li>
@@ -44,21 +44,18 @@
             <div class="title-area">
                 <h2>{{ active_tab.label }}</h2>
             </div>
-            {% for preprint in page %}
-                <div class="line-item">
-                    <div class="flex space-between gap-1">
-                        <strong>{{ preprint.author_full_name|default:"[No author]" }}</strong>
-                        <small title="{{ active_tab.date_label }}">{{ preprint.tab_date|date:"j M Y" }}</small>
+            <div class="inbox-list">
+                {% for preprint in page %}
+                    <div class="inbox-row">
+                        <span class="inbox-from">{{ preprint.author_full_name|default:"[No author]" }}</span>
+                        <span class="inbox-date" title="{{ active_tab.date_label }}">{{ preprint.tab_date|date:"j M Y" }}</span>
+                        <span class="inbox-subject">{{ preprint.title|striptags }} <span class="inbox-meta">· {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}</span></span>
+                        <a class="box-link" href="{% url 'repository_manager_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
                     </div>
-                    <div>
-                        {{ preprint.title|striptags }}
-                        <small>· {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}</small>
-                    </div>
-                    <a class="box-link" href="{% url 'repository_manager_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
-                </div>
-            {% empty %}
-                <p>Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
-            {% endfor %}
+                {% empty %}
+                    <p class="inbox-row">Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
+                {% endfor %}
+            </div>
             {% include "admin/repository/elements/pagination_links.html" with page_obj=page param="page" label="Pages" %}
         </div>
     </div>
