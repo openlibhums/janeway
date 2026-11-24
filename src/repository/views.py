@@ -31,6 +31,7 @@ from core import (
     views as core_views,
 )
 from journal import models as journal_models
+from submission import forms as submission_forms, models as submission_models
 from repository import (
     copy_requests,
     forms,
@@ -2824,36 +2825,97 @@ class RepositoryModerators(core_views.GenericFacetedListView):
         return super().post(request, *args, **kwargs)
 
 
-@is_repository_manager
-def repository_licenses(request):
-    """
-    Allows a repository manage to select the active licenses from the Press set.
-    """
-    form = forms.ActiveLicenseForm(
-        instance=request.repository,
+def press_licences(request):
+    """The press-level licences a repository can offer, with use counts."""
+    return (
+        submission_models.Licence.objects.filter(journal__isnull=True)
+        .annotate(
+            preprint_count=Count("preprint", distinct=True),
+            article_count=Count("article", distinct=True),
+        )
+        .order_by("order", "name")
     )
-    if request.POST:
-        form = forms.ActiveLicenseForm(
+
+
+@is_repository_manager
+def repository_licenses(request, license_pk=None):
+    """
+    Lets repository managers add and edit licences, and choose which ones
+    authors can pick. Repository licences are press-level licences.
+    """
+    licence = None
+    if license_pk:
+        licence = get_object_or_404(
+            submission_models.Licence,
+            pk=license_pk,
+            journal__isnull=True,
+        )
+    active_form = forms.ActiveLicenseForm(instance=request.repository)
+    licence_form = submission_forms.LicenseForm(instance=licence)
+
+    if request.POST and "save_active" in request.POST:
+        active_form = forms.ActiveLicenseForm(
             request.POST,
             instance=request.repository,
         )
-        if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.SUCCESS, "Active Licenses Saved.")
-            return redirect(
-                reverse(
-                    "repository_licenses",
-                )
+        if active_form.is_valid():
+            active_form.save()
+            messages.add_message(request, messages.SUCCESS, _("Active licences saved."))
+            return redirect(reverse("repository_licenses"))
+    elif request.POST and "save_licence" in request.POST:
+        licence_form = submission_forms.LicenseForm(request.POST, instance=licence)
+        if licence_form.is_valid():
+            saved = licence_form.save(commit=False)
+            if not saved.press:
+                saved.press = request.press
+            saved.save()
+            if not licence:
+                # A new licence is one the manager means to offer.
+                request.repository.active_licenses.add(saved)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Licence {name} saved.").format(name=saved.name),
             )
+            return redirect(reverse("repository_licenses"))
+
     template = "admin/repository/licenses.html"
     context = {
-        "form": form,
+        "active_form": active_form,
+        "licence_form": licence_form,
+        "licence": licence,
+        "licences": press_licences(request),
+        "active_pks": set(
+            request.repository.active_licenses.values_list("pk", flat=True)
+        ),
     }
-    return render(
-        request,
-        template,
-        context,
-    )
+    return render(request, template, context)
+
+
+@is_repository_manager
+def repository_delete_license(request, license_pk):
+    """
+    Deletes a press-level licence that nothing uses. One that preprints or
+    articles use can only be made inactive, so they keep their licence.
+    """
+    licence = get_object_or_404(press_licences(request), pk=license_pk)
+    in_use = licence.preprint_count or licence.article_count
+    if request.POST and "delete" in request.POST and not in_use:
+        name = licence.name
+        licence.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("Licence {name} deleted.").format(name=name),
+        )
+        return redirect(reverse("repository_licenses"))
+
+    template = "admin/repository/delete_license.html"
+    context = {
+        "licence": licence,
+        "in_use": in_use,
+    }
+    return render(request, template, context)
 
 
 @is_repository_moderator

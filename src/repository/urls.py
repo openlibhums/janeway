@@ -317,6 +317,16 @@ urlpatterns = [
         r"^manager/licenses/$", views.repository_licenses, name="repository_licenses"
     ),
     re_path(
+        r"^manager/licenses/(?P<license_pk>\d+)/$",
+        views.repository_licenses,
+        name="repository_license_edit",
+    ),
+    re_path(
+        r"^manager/licenses/(?P<license_pk>\d+)/delete/$",
+        views.repository_delete_license,
+        name="repository_license_delete",
+    ),
+    re_path(
         r"^manager/subjects/$", views.repository_subjects, name="repository_subjects"
     ),
     re_path(

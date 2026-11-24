@@ -1,0 +1,34 @@
+{% extends "admin/core/base.html" %}
+
+{% block title %}{% trans "Delete licence" %} | {{ request.repository.name }}{% endblock %}
+{% block title-section %}{% trans "Delete licence" %}{% endblock %}
+{% block title-sub %}{{ licence.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
+    <li><a href="{% url 'repository_licenses' %}">{% trans "Licences" %}</a></li>
+    <li>{% trans "Delete" %} {{ licence.short_name }}</li>
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <div class="title-area">
+            <h2>{% trans "Delete" %} {{ licence.name }}</h2>
+        </div>
+        <div class="content">
+            {% if in_use %}
+                <p>This licence can't be deleted: {{ licence.preprint_count }} {{ request.repository.object_name_plural|default:"preprints"|lower }}{% if licence.article_count %} and {{ licence.article_count }} article{{ licence.article_count|pluralize }}{% endif %} use it, and would be left with no licence.</p>
+                <p>To stop authors picking it, untick it under <strong>Offered</strong> on the licences page instead.</p>
+                <a class="button" href="{% url 'repository_licenses' %}">{% trans "Back to the licences" %}</a>
+            {% else %}
+                <p>Nothing uses this licence. Deleting it can't be undone.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button name="delete" class="alert button">{% trans "Delete the licence" %}</button>
+                    <a class="button secondary hollow" href="{% url 'repository_licenses' %}">{% trans "Cancel" %}</a>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
