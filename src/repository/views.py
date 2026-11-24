@@ -900,6 +900,32 @@ def preprints_manager(request):
         request,
         user_subject_pks,
     )
+    unpublished_count = unpublished_preprints.count()
+    published_count = published_preprints.count()
+
+    # A repository can hold tens of thousands of preprints, so the tables
+    # are searched and paged here rather than rendered whole for datatables.
+    search = request.GET.get("q", "").strip()
+    if search:
+        search_query = Q(title__icontains=search)
+        if search.isdigit():
+            search_query |= Q(pk=search)
+        unpublished_preprints = unpublished_preprints.filter(search_query)
+        published_preprints = published_preprints.filter(search_query)
+    unpublished_page = repository_logic.paginate(
+        unpublished_preprints.select_related("submission_type").order_by(
+            "-date_submitted", "-pk"
+        ),
+        request.GET.get("unpublished_page"),
+        per_page=25,
+    )
+    published_page = repository_logic.paginate(
+        published_preprints.select_related("submission_type").order_by(
+            "-date_published", "-pk"
+        ),
+        request.GET.get("published_page"),
+        per_page=25,
+    )
     incomplete_preprints = models.Preprint.objects.filter(
         date_published__isnull=True,
         date_submitted__isnull=True,
@@ -927,8 +953,11 @@ def preprints_manager(request):
 
     template = "admin/repository/manager.html"
     context = {
-        "unpublished_preprints": unpublished_preprints,
-        "published_preprints": published_preprints,
+        "unpublished_page": unpublished_page,
+        "published_page": published_page,
+        "unpublished_count": unpublished_count,
+        "published_count": published_count,
+        "search": search,
         "incomplete_preprints": incomplete_preprints,
         "rejected_preprints": rejected_preprints,
         "version_queue": versions,

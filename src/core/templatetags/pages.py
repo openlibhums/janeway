@@ -25,6 +25,13 @@ def page_query(context, **kwargs):
     return "?{}".format(encoded) if encoded else "?"
 
 
+@register.simple_tag(takes_context=True)
+def page_param_query(context, param, value):
+    """page_query for a page parameter named at render time, for pages that
+    page more than one list."""
+    return page_query(context, **{param: value})
+
+
 @register.filter()
 def slice_pages(current_page, slice_size=2):
     """Given a page and a slice size returns a slice of pages

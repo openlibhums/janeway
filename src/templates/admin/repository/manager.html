@@ -12,6 +12,22 @@
 {% load securitytags %}
 
 {% block body %}
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="content">
+                    <form method="GET" class="input-group" role="search" aria-label="Find {{ request.repository.object_name_plural|default:'preprints' }}">
+                        <label for="manager-search" class="input-group-label">Find by title or ID</label>
+                        <input class="input-group-field" type="search" id="manager-search" name="q" value="{{ search }}">
+                        <div class="input-group-button">
+                            <button type="submit" class="button">Search</button>
+                        </div>
+                    </form>
+                    {% if search %}<a href="{% url 'preprints_manager' %}">Clear the search</a>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row expanded" data-equalizer data-equalize-on="medium">
         <div class="large-7 columns">
             <div class="box" data-equalizer-watch>
@@ -19,18 +35,19 @@
                     <h2>Unpublished Preprints</h2>
                 </div>
                 <div class="content">
-                    <table class="small" id="unpub">
+                    <p>{{ unpublished_count }} in all{% if search %}; {{ unpublished_page.paginator.count }} match{{ unpublished_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
+                    <table class="small scroll">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Type</th>
-                            <th>First Author</th>
-                            <th>Date Submitted</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">First Author</th>
+                            <th scope="col">Date Submitted</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for preprint in unpublished_preprints %}
+                        {% for preprint in unpublished_page %}
                             <tr>
                                 <td>{{ preprint.pk }}</td>
                                 <td>
@@ -40,9 +57,12 @@
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_submitted }}</td>
                             </tr>
+                        {% empty %}
+                            <tr><td colspan="5">None{% if search %} match “{{ search }}”{% endif %}.</td></tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% include "admin/repository/elements/pagination_links.html" with page_obj=unpublished_page param="unpublished_page" label="Unpublished preprints pages" %}
                 </div>
             </div>
         </div>
@@ -62,11 +82,11 @@
                         <a href="{% url 'repository_organisation_units' %}" class="box-link"></a>
                     </div>
                     <div class="summary">
-                        <span class="title">{{ published_preprints|length }} Published Submissions</span>
+                        <span class="title">{{ published_count }} Published Submissions</span>
                         <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
-                        <span class="title">{{ unpublished_preprints|length }} New Submissions</span>
+                        <span class="title">{{ unpublished_count }} New Submissions</span>
                         <a href="" class="box-link"></a>
                     </div>
                     <div class="summary">
@@ -126,18 +146,19 @@
                     <h2>Published Preprints</h2>
                 </div>
                 <div class="content">
-                    <table class="small" id="pubd">
+                    <p>{{ published_count }} in all{% if search %}; {{ published_page.paginator.count }} match{{ published_page.paginator.count|pluralize:"es" }} “{{ search }}”{% endif %}. Newest first.</p>
+                    <table class="small scroll">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Type</th>
-                            <th>First Author</th>
-                            <th>Date Published</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">First Author</th>
+                            <th scope="col">Date Published</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for preprint in published_preprints %}
+                        {% for preprint in published_page %}
                             <tr>
                                 <td>{{ preprint.pk }}</td>
                                 <td>
@@ -147,9 +168,12 @@
                                 <td>{{ preprint.author_full_name }}</td>
                                 <td>{{ preprint.date_published }}</td>
                             </tr>
+                        {% empty %}
+                            <tr><td colspan="5">None{% if search %} match “{{ search }}”{% endif %}.</td></tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% include "admin/repository/elements/pagination_links.html" with page_obj=published_page param="published_page" label="Published preprints pages" %}
                 </div>
             </div>
         </div>
@@ -157,7 +181,3 @@
 
 {% endblock %}
 
-{% block js %}
-    {% include "elements/datatables.html" with target="#unpub" page_length=10 sort=1 order='desc' %}
-    {% include "elements/datatables.html" with target="#pubd" page_length=10 sort=2 order='desc' %}
-{% endblock %}

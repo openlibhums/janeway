@@ -1,9 +1,10 @@
+{% load pages %}
 {% if page_obj.paginator.num_pages > 1 %}
     <nav aria-label="{{ label|default:'Pagination' }}">
         <ul class="pagination">
             {% if page_obj.has_previous %}
                 <li>
-                    <a href="?{{ param }}={{ page_obj.previous_page_number }}" rel="prev">
+                    <a href="{% page_param_query param page_obj.previous_page_number %}" rel="prev">
                         {% include "elements/icons/page_previous.html" %}
                     </a>
                 </li>
@@ -13,7 +14,7 @@
             </li>
             {% if page_obj.has_next %}
                 <li class="arrow">
-                    <a href="?{{ param }}={{ page_obj.next_page_number }}" rel="next">
+                    <a href="{% page_param_query param page_obj.next_page_number %}" rel="next">
                         {% include "elements/icons/page_next.html" %}
                     </a>
                 </li>
